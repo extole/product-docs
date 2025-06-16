@@ -24,19 +24,17 @@ Your Extole program should be run from your program domain to ensure any cookie 
 <script type="text/javascript" src="https://refer.brand.com/core.js" async></script>
 ```
 
-
-
 If your core script is loading from "tags.extole.com" or "origin.extole.io" it should be updated to be under your branded domain. This will prevent any cookies generated from the Extole Corporate website to include in your referral program.
 
 ### Consumer Referral Cookies
 
 The following cookies are used by the referral program when a consumer interacts
 
-| Website URL     | Cookie Name           | Cookie Purpose                               | Cookie Duration | Category  |
-| :-------------- | :-------------------- | :------------------------------------------- | :-------------- | :-------- |
-| refer.brand.com | `access_token`        | Remember an Advocate/Friend                  | 1 year          | Essential |
-| www.brand.com   | `extole_access_token` | Remember an Advocate/Friend                  | 1 year          | Essential |
-| refer.brand.com | `xtl_bid`             | Browser Identifier used for Fraud Prevention | 1 year          | Fraud     |
+| Website URL                           | Cookie Name           | Cookie Purpose                               | Cookie Duration | Category  |
+| :------------------------------------ | :-------------------- | :------------------------------------------- | :-------------- | :-------- |
+| refer.brand.com                       | `access_token`        | Remember an Advocate/Friend                  | 1 year          | Essential |
+| [www.brand.com](http://www.brand.com) | `extole_access_token` | Remember an Advocate/Friend                  | 1 year          | Essential |
+| refer.brand.com                       | `xtl_bid`             | Browser Identifier used for Fraud Prevention | 1 year          | Fraud     |
 
 ### My Extole (Admin) Cookies
 
