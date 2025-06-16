@@ -25,34 +25,21 @@ next:
 
 The Extole platform delivers the essential part of successful referral and engagement programs: the ability to quickly and accurately report on it.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/3e444f9-Screen_Shot_2022-11-01_at_9.42.40_AM.png",
-        null,
-        "A list of generated reports within the Extole platform"
-      ],
-      "align": "center",
-      "caption": "Generated reports within the My Extole platform."
-    }
-  ]
-}
-[/block]
-
+<Image alt="A list of generated reports within the Extole platform" align="center" src="https://files.readme.io/3e444f9-Screen_Shot_2022-11-01_at_9.42.40_AM.png">
+  Generated reports within the My Extole platform.
+</Image>
 
 The Reports page of your My Extole account is separated into two categories, Reports and Scheduled Reports, and allows you to conduct the following actions:
 
-- Run a new report with unique dimensions
-- View the first 100 rows of a report prior to downloading
-- Get a visualization of the report (only available on certain reports)
-- Schedule a report
-- Clone and re-run an existing report
-- Get the API call for a report (for integration purposes)
-- Deliver a report via SFTP
-- Share a report
-- View reports your CSM has run on your behalf
+* Run a new report with unique dimensions
+* View the first 100 rows of a report prior to downloading
+* Get a visualization of the report (only available on certain reports)
+* Schedule a report
+* Clone and re-run an existing report
+* Get the API call for a report (for integration purposes)
+* Deliver a report via SFTP
+* Share a report
+* View reports your CSM has run on your behalf
 
 ## Report Categories
 
@@ -82,30 +69,15 @@ Rewards reports tell you what rewards have been issued from your program and pro
 
 When you select the report you would like to run, you can choose to run it once or run it on a recurring schedule. For example, if you want a particular report emailed to you on the first day of every month, you can easily schedule it.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/8dd4062-Screen_Shot_2022-11-01_at_9.43.20_AM.png",
-        null,
-        "The report creation screen within the My Extole platform"
-      ],
-      "align": "center",
-      "sizing": "60% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="60% " src="https://files.readme.io/8dd4062-Screen_Shot_2022-11-01_at_9.43.20_AM.png" />
 
 When configuring the schedule of a report, you can customize the following elements:
 
-- **Delivery Date**: The date we'll attempt to run and deliver this report.
-- **Frequency**: How often the report will automatically generate. Do you want it daily? Weekly? Monthly?
-- **Notify Email**(s): The email address(es) that will receive the scheduled report.
-- **Date Range / Time Range**: This is the range of data that will be in the report. You will likely want to select "Since last run" as this will be incremented data. You can also select All Time or a specific date. Note that these are trailing date and time ranges, so "last week", for example, is the last 7 days.
-- **Deliver via SFTP** (in "Advanced"): Do you have an automated process where you want to pick reports off of a destination consistently to import them into your own systems? Delivering them to the Extole SFTP is the best way to do this.
+* **Delivery Date**: The date we'll attempt to run and deliver this report.
+* **Frequency**: How often the report will automatically generate. Do you want it daily? Weekly? Monthly?
+* **Notify Email**(s): The email address(es) that will receive the scheduled report.
+* **Date Range / Time Range**: This is the range of data that will be in the report. You will likely want to select "Since last run" as this will be incremented data. You can also select All Time or a specific date. Note that these are trailing date and time ranges, so "last week", for example, is the last 7 days.
+* **Deliver via SFTP** (in "Advanced"): Do you have an automated process where you want to pick reports off of a destination consistently to import them into your own systems? Delivering them to the Extole SFTP is the best way to do this.
 
 ## Viewing Reports
 
