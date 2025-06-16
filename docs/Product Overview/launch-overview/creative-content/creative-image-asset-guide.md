@@ -16,21 +16,7 @@ next:
 
 Images bring life to your referral and engagement programs and reinforce your brand to current and prospective customers. Creating an Extole-powered program that matches the look and feel of your site or app is easy. This guide has all the information you need to provide your creative team to generate images for your program.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/c37095ab18ca0810ef0859863e913f9a4ec871a57b3df5eec20f0e75b2a0705b-Screenshot_2025-01-15_at_09.23.19.png",
-        "",
-        ""
-      ],
-      "align": "center"
-    }
-  ]
-}
-[/block]
-
+<Image align="center" src="https://files.readme.io/c37095ab18ca0810ef0859863e913f9a4ec871a57b3df5eec20f0e75b2a0705b-Screenshot_2025-01-15_at_09.23.19.png" />
 
 ## Key Terms
 
