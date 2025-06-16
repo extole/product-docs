@@ -30,14 +30,14 @@ A strong marketing plan is the key to a successful referral program. You need to
 
 [![Grow Your Referral Program](https://img.youtube.com/vi/4iFELBFag2g/0.jpg)](https://www.youtube.com/watch?v=4iFELBFag2g)
 
-All promotions are configured through <<glossary:My Extole>> and can easily be made to match the look and feel of your website and mobile app via javascript tags or <<glossary:Promotion Link>>s.
+All promotions are configured through <Glossary>My Extole</Glossary> and can easily be made to match the look and feel of your website and mobile app via javascript tags or <Glossary>Promotion Link</Glossary>s.
 
 Top Promotional Sources include:
 
-- Post Purchase Overlay
-- Mobile Menu
-- In App / My Account
-- Outbound Email, SMS, and Push 
+* Post Purchase Overlay
+* Mobile Menu
+* In App / My Account
+* Outbound Email, SMS, and Push 
 
 Below are a few examples of common promotion types used by our clients.
 
@@ -47,43 +47,13 @@ Below are a few examples of common promotion types used by our clients.
 
 Take advantage of the moment of delight your customer experiences just after they've made a purchase by marketing the program after checkout. We recommend an auto-pop; however, a static CTA on this page is a great alternative. Some clients choose to do both!
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/7481a80-0a32eac-Screen_Shot_2022-06-09_at_9.49.40_AM.png",
-        "0a32eac-Screen_Shot_2022-06-09_at_9.49.40_AM.png",
-        "An overlay promotion for MANSCAPED's referral program"
-      ],
-      "align": "center",
-      "sizing": "60"
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="60%" src="https://files.readme.io/7481a80-0a32eac-Screen_Shot_2022-06-09_at_9.49.40_AM.png" />
 
 ### Mobile Menu
 
 The menu in your site is a high-visibility placement frequently used to promote Refer A Friend programs. By simply tapping on the "Refer a friend" or "Get $20 off" CTA in your menu, advocates will instantly be taken to the share experience, where they can choose from a variety of native share channels to spread the word to their friends.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/52fb174-unnamed_9.png",
-        "unnamed (9).png",
-        "Two phones displaying in-app mobile menu promotional placements for a referral program"
-      ],
-      "align": "center",
-      "sizing": "44% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="44% " src="https://files.readme.io/52fb174-unnamed_9.png" />
 
 ### Floating Overlay
 
@@ -107,22 +77,7 @@ At the bare minimum, your program should be marketed in the global header and fo
 
 In app customers tend to have higher rates of sharing and engagement overall, so it's important to make sure that the program is visible there. Top performing app placements include the menu, in app banners and interstitials. 
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/516ef1311c6f2b0fc022f99d205362ab8e027a390a2050504cd5bdffee6e4eb0-image.png",
-        null,
-        ""
-      ],
-      "align": "center",
-      "sizing": "400px"
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="400px" src="https://files.readme.io/516ef1311c6f2b0fc022f99d205362ab8e027a390a2050504cd5bdffee6e4eb0-image.png" />
 
 ## Outbound Marketing
 
@@ -130,43 +85,13 @@ In app customers tend to have higher rates of sharing and engagement overall, so
 
 Engage your customer base with dedicated monthly emails promoting the referral program. Dedicated emails generally have the highest share rate of any CTA type. 
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/3803dac69ee1859ab77754476bebd1f2c92b905c259e523d8dda337377510aa8-image.png",
-        null,
-        null
-      ],
-      "align": "center",
-      "sizing": "650px"
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="650px" src="https://files.readme.io/3803dac69ee1859ab77754476bebd1f2c92b905c259e523d8dda337377510aa8-image.png" />
 
 ### SMS & Push Notifications
 
 Get right in front of your customers with SMS and push notification marketing of the campaign. These initiate immediate and easy sharing. Once they get their share link they can easily text, or show their QR code to friends and family. 
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/d86b558df487871d535b34886f85a07ad1f4336eeea7eeb874088a1db0cc6eb1-image.png",
-        null,
-        null
-      ],
-      "align": "center",
-      "sizing": "400px"
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="400px" src="https://files.readme.io/d86b558df487871d535b34886f85a07ad1f4336eeea7eeb874088a1db0cc6eb1-image.png" />
 
 <br />
 
