@@ -36,13 +36,13 @@ Drop a Hint programs let your customers share products they would like to receiv
 
 Drop a Hint programs are successful both on and off season, can give you a pulse on the products your customers are sharing but not necessarily purchasing, and are especially interesting when used for specialty. In addition to supplementing a traditional Refer a Friend program, there are a number of scenarios in which our Drop a Hint program can help clients as a standalone solution:
 
-**New product launches**  
+**New product launches**\
 You have a new product coming out and you want a way for your customers to either share it with their networks to spread the word or share it with friends and family as a gift suggestion once the product launches.
 
-**One-off holiday wishlist or gift registry**  
+**One-off holiday wishlist or gift registry**\
 The holidays are coming up and you want a way for your customers to tell friends and family exactly which product they want (including in which size and color!) without having to go through the hassle of setting up a wishlist or gift registry.
 
-**Big-ticket products**  
+**Big-ticket products**\
 You have an expensive product that people don’t buy on a whim (or maybe don’t even buy for themselves). You want customers to be able to share the product to ask others to buy it for them.
 
 [//]: ___
@@ -54,30 +54,15 @@ You have an expensive product that people don’t buy on a whim (or maybe don’
 Much like Refer A Friend, your Drop a Hint program can be promoted onsite or in-app with CTAs or via promotional emails. Customers who visit your website or app can find CTAs, usually located on product pages, that will pop the share experience if clicked or tapped.
 
 > 👍 Best Practices
-> 
-> - Promote the program across all product pages and via email and social.
-> - For featured products, integrate the Drop a Hint experience in emails to encourage customers to share their wish list—particularly over the holidays.
-> - Since there is no incentive, make sure the share email and your on-site CTAs are clear and to the point.
-> - Utilize gifting pages on site if applicable.
-> 
+>
+> * Promote the program across all product pages and via email and social.
+> * For featured products, integrate the Drop a Hint experience in emails to encourage customers to share their wish list—particularly over the holidays.
+> * Since there is no incentive, make sure the share email and your on-site CTAs are clear and to the point.
+> * Utilize gifting pages on site if applicable.
+>
 > [//]: ___
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/7c3984d-Screen_Shot_2022-05-25_at_3.57.59_PM.png",
-        "Screen Shot 2022-05-25 at 3.57.59 PM.png",
-        628
-      ],
-      "align": "center",
-      "sizing": "80"
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="80%" src="https://files.readme.io/7c3984d-Screen_Shot_2022-05-25_at_3.57.59_PM.png" />
 
 [//]: # "What is the typical user flow for a Drop a Hint program?"
 
@@ -109,22 +94,7 @@ Making rewards part of a Drop a Hint program is a customization that can increas
 
 [//]: ___
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/c7f8a1f-Screen_Shot_2022-05-25_at_4.20.13_PM.png",
-        "Screen Shot 2022-05-25 at 4.20.13 PM.png",
-        ""
-      ],
-      "align": "center",
-      "sizing": "60% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="60% " src="https://files.readme.io/c7f8a1f-Screen_Shot_2022-05-25_at_4.20.13_PM.png" />
 
 ## Performance and Data
 
