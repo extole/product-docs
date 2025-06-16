@@ -27,14 +27,14 @@ next:
 When running a referral or engagement program, you can send an unlimited number of events to Extole to trigger emails, rewards, or just track these events in your program dashboard. We support a variety of methods for sending us your events and data to accommodate your existing workflows. Across your Extole programs, you can can mix and match the channels for events depending on your specific business considerations. The data you send to Extole varies based on your company’s needs and requirements, while your integration method determines the frequency and speed of data exchange.
 
 > 📘 Required Events
-> 
+>
 > We **strongly recommend** sending all rewardable events—conversions, account openings, subscriptions, and so on—to Extole. Our objective is to maximize the number of participants in your program and their activity levels. Selectively passing these events to Extole has been demonstrated to lead to significant underrecognition of participation and requires more work on your part to set up.
 
 ## Integration Methods
 
 ### Web
 
-Web integration is our simplest and most common integration. The process involves adding the Extole Core JavaScript (JS) Library in the header of your website. Our lightweight JS tags enable all Extole functionality, such as <<glossary:CTA>> delivery, <<glossary:Share Experience>> display, and event tracking. The JS library is in your program’s branded domain (share.companyname.com) and can be added to your pages with a simple script tag. 
+Web integration is our simplest and most common integration. The process involves adding the Extole Core JavaScript (JS) Library in the header of your website. Our lightweight JS tags enable all Extole functionality, such as <Glossary>CTA</Glossary> delivery, <Glossary>Share Experience</Glossary> display, and event tracking. The JS library is in your program’s branded domain (share.companyname.com) and can be added to your pages with a simple script tag. 
 
 We offer a variety of additional tags that are optional but commonly used. These tags can be implemented to pass a variety of data that can be used by your programs and also support passing verified or signed data in the form of JSON web tokens (JWTs). To learn more about tagging your site, visit our Developer Docs. 
 
@@ -50,13 +50,13 @@ The Extole mobile SDKs for iOS and Android are are a lightweight wrapper for our
 
 ### Files
 
-If your business operates online, as well as over the phone or in person, then it may make sense for you to send event files to Extole. You can send bulk event files manually or automatically by either uploading them directly to <<glossary:My Extole>> or through our Secure File Transfer Protocol (SFTP) server. 
+If your business operates online, as well as over the phone or in person, then it may make sense for you to send event files to Extole. You can send bulk event files manually or automatically by either uploading them directly to <Glossary>My Extole</Glossary> or through our Secure File Transfer Protocol (SFTP) server. 
 
 Common events that are sent to us in bulk files include:
 
-- Qualified account openings
-- Account fundings
-- Quote submissions
-- Order shipments
+* Qualified account openings
+* Account fundings
+* Quote submissions
+* Order shipments
 
 [//]: ___
