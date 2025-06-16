@@ -32,12 +32,12 @@ Programs can also be marketed utilizing personalized QR codes as part of email s
 
 ## Employee Journey
 
-Once your employees receive the Welcome Email, they can open it and click on the <<glossary:CTA>> that directs them to the Share Experience—another piece of your program that you can customize in our Campaign Editor. The Share Experience allows your employees to verify their identity, if required, and receive their personal share link, code, or QR code. 
+Once your employees receive the Welcome Email, they can open it and click on the <Glossary>CTA</Glossary> that directs them to the Share Experience—another piece of your program that you can customize in our Campaign Editor. The Share Experience allows your employees to verify their identity, if required, and receive their personal share link, code, or QR code. 
 
 Your employees can then share their personal link or code with their customers in person or via email, SMS, or any social channel to start referring.
 
 > 👍 Custom Shareables
-> 
+>
 > Whether you want to generate share links, codes, or QR codes for your participating employees, we can customize them to fit your needs.
 
 ## Customer Journey
@@ -76,39 +76,14 @@ These basic performance metrics, as well as impact metrics an quality metrics, a
 
 Lumen, a telecom powerhouse, runs several employee programs that cater to different aspects of their business. The Score! program, for example, enables employees to earn unlimited rewards for successfully referring their home internet installation service. Meanwhile, their Connected Communities program is specifically designed for property managers, movers, tenants and residents working in areas where homes are eligible for Quantum Fiber internet. 
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/44abead-Screenshot_2024-02-27_at_1.17.17_PM.png",
-        "",
-        "Employees working in eligible locations can earn unlimited rewards referring Lumen's Quantum Fiber internet service."
-      ],
-      "align": "center",
-      "caption": "Employees working in eligible locations can earn unlimited rewards referring Lumen's Quantum Fiber internet service."
-    }
-  ]
-}
-[/block]
-
+<Image alt="Employees working in eligible locations can earn unlimited rewards referring Lumen's Quantum Fiber internet service." align="center" src="https://files.readme.io/44abead-Screenshot_2024-02-27_at_1.17.17_PM.png">
+  Employees working in eligible locations can earn unlimited rewards referring Lumen's Quantum Fiber internet service.
+</Image>
 
 ### Paylocity
 
 Paylocity, an HR and payroll software company, use Extole to encourage their sales reps to refer Paylocity to clients. All employees are welcome to participate and receive a personal QR code upon filling out the form in the Share Experience pictured below. Once they successfully refer a client, a lead gets created for that Salesperson within their CRM system and any new customers that sign up result in an employee earning gift card rewards based on the size of the business—the larger the business, the larger the reward.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/e3ade01-Screenshot_2024-02-27_at_12.21.42_PM.png",
-        "",
-        "Paylocity employees simply fill out the form and receive their personal QR code to share with clients."
-      ],
-      "align": "center",
-      "caption": "Paylocity employees simply fill out the form and receive their personal QR code to share with clients."
-    }
-  ]
-}
-[/block]
+<Image alt="Paylocity employees simply fill out the form and receive their personal QR code to share with clients." align="center" src="https://files.readme.io/e3ade01-Screenshot_2024-02-27_at_12.21.42_PM.png">
+  Paylocity employees simply fill out the form and receive their personal QR code to share with clients.
+</Image>
