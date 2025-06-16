@@ -24,26 +24,13 @@ next:
 
 [//]: # "How much creative flexibility does Extole allow?"
 
-Your entire customer experience can be configured in the Extole platform. Through your <<glossary:My Extole>> admin account, you can create beautiful referral and engagement solutions. Designing programs can be done entirely by your marketing and creative teams and does not require technical involvement. We offer fully-customizable templates that each function as a comprehensive guide for your designer or marketer.
+Your entire customer experience can be configured in the Extole platform. Through your <Glossary>My Extole</Glossary> admin account, you can create beautiful referral and engagement solutions. Designing programs can be done entirely by your marketing and creative teams and does not require technical involvement. We offer fully-customizable templates that each function as a comprehensive guide for your designer or marketer.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/a6032f8-Screen_Shot_2022-07-28_at_10.32.12_AM.png",
-        "Screen Shot 2022-07-28 at 10.32.12 AM.png",
-        2646
-      ],
-      "align": "center",
-      "sizing": "80",
-      "caption": "The Campaign Editor section of My Extole."
-    }
-  ]
-}
-[/block]
+<Image title="Screen Shot 2022-07-28 at 10.32.12 AM.png" alt={2646} align="center" width="80%" src="https://files.readme.io/a6032f8-Screen_Shot_2022-07-28_at_10.32.12_AM.png">
+  The Campaign Editor section of My Extole.
+</Image>
 
-All elements of your program, from share experiences to sign-up portals to stats dashboards and reminder emails, are broken down into individual <<glossary:Creatives>> . Through My Extole, the look and feel of your programs is completely up to you. Your team can upload assets, insert copy, adjust typefaces and colors, and so much more to make every aspect of your program fit seamlessly with your brand on web, mobile web, and in your app. 
+All elements of your program, from share experiences to sign-up portals to stats dashboards and reminder emails, are broken down into individual <Glossary>Creatives</Glossary> . Through My Extole, the look and feel of your programs is completely up to you. Your team can upload assets, insert copy, adjust typefaces and colors, and so much more to make every aspect of your program fit seamlessly with your brand on web, mobile web, and in your app. 
 
 [//]: ___
 
@@ -85,35 +72,21 @@ You can easily engage tens of thousands of your customers through your referral 
 
 [See examples of Extole-powered emails in action](doc:emails). 
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/75f0693-unnamed_1.png",
-        "unnamed (1).png",
-        null
-      ],
-      "align": "center",
-      "sizing": "30% "
-    }
-  ]
-}
-[/block]
+<Image align="center" width="30% " src="https://files.readme.io/75f0693-unnamed_1.png" />
 
 ## Promotions
 
-Any way in which you'd like to promote your Extole programs, we've got you covered. In addition to promotional emails, you can create fully branded marketing placements for your website and mobile app. The Extole platform allows you to build dynamic <<glossary:CTA>> s in the form of banners, overlays, and more. 
+Any way in which you'd like to promote your Extole programs, we've got you covered. In addition to promotional emails, you can create fully branded marketing placements for your website and mobile app. The Extole platform allows you to build dynamic <Glossary>CTA</Glossary> s in the form of banners, overlays, and more. 
 
 **Common promotional placements for both web and mobile app include**:
 
-- Menu items
-- Welcome overlays
-- Registration overlays
-- Confirmation overlays
-- Banners
-- Global headers
-- Global footers
+* Menu items
+* Welcome overlays
+* Registration overlays
+* Confirmation overlays
+* Banners
+* Global headers
+* Global footers
 
 Each program type we offer at Extole has its own set of best practices for promotion. To learn more about how to promote specific program types, please visit the individual program pages.
 
@@ -121,20 +94,6 @@ Each program type we offer at Extole has its own set of best practices for promo
 
 [See examples of Extole-powered promotions in action](doc:promotions). 
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/f296901-unnamed_5.png",
-        "unnamed (5).png",
-        null
-      ],
-      "align": "center",
-      "sizing": "30% "
-    }
-  ]
-}
-[/block]
+<Image align="center" width="30% " src="https://files.readme.io/f296901-unnamed_5.png" />
 
 [//]: ___
