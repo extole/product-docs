@@ -30,20 +30,20 @@ Extole’s Nomination program starts with a nomination form that you can customi
 
 Some examples of who to spotlight with your Nomination program include:
 
-- An essential worker
-- Super Mom/Dad
-- Your favorite teacher
-- Hometown hero
-- An employee
-- A customer
+* An essential worker
+* Super Mom/Dad
+* Your favorite teacher
+* Hometown hero
+* An employee
+* A customer
 
 As part of the program, Extole can also deliver a Surprise and Delight email to your nominators, offering them a coupon code to shop. A separate email is sent to the nominee explaining that they were nominated. You can then either randomly select winners, or read through each of the entries to manually choose them.
 
 With this program, you have the flexibility to continue delivering content that can push the following initiatives:
 
-- Customer engagement aligned with your brand message
-- Growing your email list
-- Driving revenue in an authentic way
+* Customer engagement aligned with your brand message
+* Growing your email list
+* Driving revenue in an authentic way
 
 [//]: ___
 
@@ -51,30 +51,15 @@ With this program, you have the flexibility to continue delivering content that 
 
 [//]: # "How do I promote a Nomination program?"
 
-**Email Promotion**  
+**Email Promotion**\
 Let existing customers, or any specified list of customers, know about your Nomination program by sending them an invitation email. In addition to containing a link to participate in the program, this branded email will typically explain the theme and purpose of your program on a high level and include persuasive copy to engage your customers. All copy in the email is customizable and you can set up any number of reminder promotion emails.
 
-**On-site or In-app Promotion**  
+**On-site or In-app Promotion**\
 You can also use Extole to generate links you can place on your website or in your mobile app to promote the program. These links will take your customers directly to the nomination page, where they can begin filling out the form.
 
 [//]: ___
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/ec49297-Screen_Shot_2022-05-31_at_9.35.07_AM.png",
-        "Screen Shot 2022-05-31 at 9.35.07 AM.png",
-        "Mobile view of Teacher's Nomination program"
-      ],
-      "align": "center",
-      "sizing": "30% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="30% " src="https://files.readme.io/ec49297-Screen_Shot_2022-05-31_at_9.35.07_AM.png" />
 
 [//]: # "What is a typical user flow for a Nomination program?"
 
@@ -85,11 +70,11 @@ Your nominators either received your invitation email and clicked on the link to
 Once nominators fill out the form and submit it, you may decide to Surprise and Delight them for their participation with a coupon code or other reward type. This reward could be displayed in the confirmation overlay or email that confirms the nominator's form was successfully submitted.
 
 > 👍 Best Practices
-> 
-> - Promotion is the key to running successful Nomination programs. 
-> - Make sure you have multiple emails, social posts, and onsite banners to get as much visibility as possible. 
-> - Be careful of adding too many submission fields. You want to make sure it doesn’t adversely affect performance.
-> - Set up reporting to pull opted in participants and send them directly to your CRM or ESP.
+>
+> * Promotion is the key to running successful Nomination programs. 
+> * Make sure you have multiple emails, social posts, and onsite banners to get as much visibility as possible. 
+> * Be careful of adding too many submission fields. You want to make sure it doesn’t adversely affect performance.
+> * Set up reporting to pull opted in participants and send them directly to your CRM or ESP.
 
 ## Nominee Journey
 
@@ -107,22 +92,7 @@ Typically, if you choose to include a moment of Surprise and Delight in your pro
 
 [//]: ___
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/cd867e3-Screen_Shot_2022-05-31_at_9.37.21_AM.png",
-        "Screen Shot 2022-05-31 at 9.37.21 AM.png",
-        "Mobile and web screens of Reebok's Nomination program"
-      ],
-      "align": "center",
-      "sizing": "60% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="60% " src="https://files.readme.io/cd867e3-Screen_Shot_2022-05-31_at_9.37.21_AM.png" />
 
 ## Performance and Data
 
@@ -136,41 +106,12 @@ Customers are also more likely to opt in to receiving additional marketing email
 
 ## Examples
 
-**Reebok Love Program**  
+**Reebok Love Program**\
 Reebok’s nomination program, which ran for three weeks, executed on the initiative to give back to their community by asking customers to nominate an essential worker they know to receive a free pair of Reebok shoes. The program also continued to drive revenue for the brand by offering a Surprise and Delight reward for nomination submission. The program grew their marketing list, drove revenue, and produced a higher advocacy rate compared to their standard RAF program.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/6fd8c2b-Screen_Shot_2022-05-31_at_9.42.27_AM.png",
-        "Screen Shot 2022-05-31 at 9.42.27 AM.png",
-        "The signup experience for Reebok's Nomination program"
-      ],
-      "align": "center",
-      "sizing": "60% "
-    }
-  ]
-}
-[/block]
+<Image align="center" width="60% " src="https://files.readme.io/6fd8c2b-Screen_Shot_2022-05-31_at_9.42.27_AM.png" />
 
-
-**Athleta**  
+**Athleta**\
 Athleta launched two nomination programs. The first targeted people who had attended their virtual event, Empower(hour), where attendees could nominate women who inspired them. Those women who were nominated could "redeem" their nomination to receive a free shirt (while supplies lasted). The second program targeted New York and California-based Brand Ambassadors, who were encouraged to nominate a woman who inspires them. The winners received free tickets to a big event that summer.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/ef017d8-Screen_Shot_2022-05-31_at_9.47.21_AM.png",
-        "Screen Shot 2022-05-31 at 9.47.21 AM.png",
-        "The signup experience for Athleta's Nomination program"
-      ],
-      "align": "center",
-      "sizing": "60% "
-    }
-  ]
-}
-[/block]
+<Image align="center" width="60% " src="https://files.readme.io/ef017d8-Screen_Shot_2022-05-31_at_9.47.21_AM.png" />
