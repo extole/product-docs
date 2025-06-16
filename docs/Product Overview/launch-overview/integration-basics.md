@@ -29,36 +29,23 @@ We offer quick and easy options that require minimal tech resources to set up as
 
 ### Highlights
 
-**Safe and Secure**  
+**Safe and Secure**\
 All of our integration methods have been designed with professional encryption and access control, and our endpoints are built to deal with anomalies like queueing issues or service interruptions gracefully.
 
-**We Adapt to You**  
+**We Adapt to You**\
 Our profile and journey stitching technologies mean that you send us what you have, and we connect the journeys and create a great experience. Whether you have a real-time, event-based architecture or weekly batch reports, we can adapt. No more having to do custom development to support poorly-designed Saas services
 
-**Fast First**  
+**Fast First**\
 Because we serve content as your customer is engaging, we have to be incredibly fast, and our 50ms profile means that we won’t be in the way of a great experience
 
-**Watchful Eyes**  
+**Watchful Eyes**\
 Our monitoring systems constantly search for anomalies that may be caused by interruptions or changes that can effect program performance, and automatically notify us and you.
 
 [//]: ___
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/06eeb17-Screen_Shot_2022-06-28_at_10.20.30_AM.png",
-        "Screen Shot 2022-06-28 at 10.20.30 AM.png",
-        "An Extole program flow broken down into business events represented by icons"
-      ],
-      "align": "center",
-      "caption": "An out-of-the-box Refer A Friend program flow diagram."
-    }
-  ]
-}
-[/block]
-
+<Image title="Screen Shot 2022-06-28 at 10.20.30 AM.png" alt="An Extole program flow broken down into business events represented by icons" align="center" src="https://files.readme.io/06eeb17-Screen_Shot_2022-06-28_at_10.20.30_AM.png">
+  An out-of-the-box Refer A Friend program flow diagram.
+</Image>
 
 ## Quick Integration
 
@@ -68,12 +55,12 @@ It is common for our clients to launch using a “low-lift” version of their p
 
 Quick integrations typically include the following:
 
-- Lightweight Javascript web tags and embedded links added to your site
-- Extole-hosted experiences configured in <<glossary:My Extole>>
-- Web-view mobile integration
-- Minimum required events tracked (e.g., registration, qualification, conversion)
-- Out-of-the-box quality rules
-- Coupon or gift card rewarding
+* Lightweight Javascript web tags and embedded links added to your site
+* Extole-hosted experiences configured in <Glossary>My Extole</Glossary>
+* Web-view mobile integration
+* Minimum required events tracked (e.g., registration, qualification, conversion)
+* Out-of-the-box quality rules
+* Coupon or gift card rewarding
 
 [//]: ___
 
@@ -85,13 +72,13 @@ A fully integrated Extole experience can provide a seamless customer flow with p
 
 Full integrations typically include the following:
 
-- SDK or API mobile integration for native in-app experiences
-- Multi-construct program testing
-- Support for additional event tracking to enhance analytics and improve methods for optimization
-- Support for complex business rules and customer acquisition flow
-- Custom rewarding integrations
-- Other custom third-party integrations
-- Available QR codes for program promotion or to invite friends
+* SDK or API mobile integration for native in-app experiences
+* Multi-construct program testing
+* Support for additional event tracking to enhance analytics and improve methods for optimization
+* Support for complex business rules and customer acquisition flow
+* Custom rewarding integrations
+* Other custom third-party integrations
+* Available QR codes for program promotion or to invite friends
 
 [//]: ___
 
@@ -103,10 +90,10 @@ We highly encourage you to integrate Extole with your mobile app to leverage the
 
 We offer the four options for mobile integration: 
 
-- Promotion links
-- Web view
-- Custom API
-- Android & iOS SDKs
+* Promotion links
+* Web view
+* Custom API
+* Android & iOS SDKs
 
 ### Promotion Links
 
@@ -114,8 +101,8 @@ A promotion link is a simple link embedded in your app. Requiring virtually no d
 
 **Key features**:
 
-- Requires no dev work
-- Drives app downloads or other actions (e.g., referrals)
+* Requires no dev work
+* Drives app downloads or other actions (e.g., referrals)
 
 ### Web View
 
@@ -123,9 +110,9 @@ A web view is a way of showing an HTML page in your mobile app. This in-app and 
 
 **Key features**:
 
-- Provides static CTAs in app
-- Allows promotion links with identified access tokens (optional) to pull up pre-filled share experiences in app
-- Requires additional code to use native sharing (Android, specifically)
+* Provides static CTAs in app
+* Allows promotion links with identified access tokens (optional) to pull up pre-filled share experiences in app
+* Requires additional code to use native sharing (Android, specifically)
 
 ### Custom API
 
@@ -133,9 +120,9 @@ Extole’s public REST APIs can be used to power a custom in-app experience and 
 
 **Key features:**
 
-- Pulls program content from Extole
-- Dynamically shows CTAs that launch a web view of the microsite
-- Allows for a fully native implementation if desired
+* Pulls program content from Extole
+* Dynamically shows CTAs that launch a web view of the microsite
+* Allows for a fully native implementation if desired
 
 ### iOS & Android SDKs
 
@@ -143,11 +130,11 @@ Extole’s lightweight Software Development Kits (SDKs) give you the convenience
 
 **Key features**:
 
-- Pulls all program content from Extole
-- Leverages automated processes, such as user authentication and impression tracking
-- Can launch new programs without any code changes
-- Always uses the most up-to-date API endpoints due to versioning
-- Supports deeplink integrations
-- Can do everything the other mobile integrations can do
+* Pulls all program content from Extole
+* Leverages automated processes, such as user authentication and impression tracking
+* Can launch new programs without any code changes
+* Always uses the most up-to-date API endpoints due to versioning
+* Supports deeplink integrations
+* Can do everything the other mobile integrations can do
 
 [//]: ___
