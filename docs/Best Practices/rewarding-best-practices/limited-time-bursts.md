@@ -14,7 +14,7 @@ next:
 ---
 ## Overview
 
-One of the most effective ways to drive growth in an evergreen referral program is by launching a **burst campaign**. A burst is a **strategic, limited-time enhancement **of your existing program, typically featuring a more compelling or seasonal reward to drive urgency and maximize engagement.
+One of the most effective ways to drive growth in an evergreen referral program is by launching a **burst campaign**. A burst is a **strategic, limited-time enhancement** of your existing program, typically featuring a more compelling or seasonal reward to drive urgency and maximize engagement.
 
 For example, you might **double your typical reward** (e.g., from $50 to $100) or increase a discount (e.g., from 20% off to 40% off) to align with a holiday or promotional event. With the right incentive and a well-planned marketing push, many brands see **their referral performance double** during burst periods.
 
@@ -43,9 +43,9 @@ Bursts can be open to everyone or tailored for specific groups—such as VIP cus
 Setting up Limited Time Bursts are easy within your Extole programs. We offer detailed guides for how to update the copy, creative and offer to align with the new campaign.
 
 > 📘 Bursting Guides
-> 
+>
 > [How to Run a Burst](https://success.extole.com/hc/en-us/articles/13867521750035-How-to-Run-A-Burst)
-> 
+>
 > [A/B Testing Your Offer](https://dev.extole.com/docs/ab-test-your-offer)
-> 
+>
 > [Using Extole's Campaign Editor](https://success.extole.com/hc/en-us/articles/10475000245267-Using-Extole-s-Campaign-Editor)
