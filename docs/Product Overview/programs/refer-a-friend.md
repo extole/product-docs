@@ -38,12 +38,12 @@ Refer a Friend programs not only drive new customer acquisition and significant 
 
 Marketing determines what percentage of your engaged audience will become advocates. Extole provides a variety of CTAs to promote your Refer a Friend program directly on your website or app. We also provide fully customizable email templates designed for promotional purposes that you can send directly to your customer base. 
 
-**On-site or In-app Promotion**  
+**On-site or In-app Promotion**\
 Promotions on your website or in your mobile app typically take the form of CTAs. This may be a banner at the top of your screen, an overlay that pops up after a certain period of time or when an order is confirmed, or a prominently placed menu item app-users can tap on. Each of these fully branded CTAs will take your users to the share experience. 
 
 ![](https://files.readme.io/28bdaec-Screen_Shot_2022-06-01_at_3.38.07_PM.png "Screen Shot 2022-06-01 at 3.38.07 PM.png")
 
-**Email Promotion**  
+**Email Promotion**\
 Another method is sending your existing customers a promotional email encouraging them to participate in your program and earn a reward. This email could be sent to your entire customer base, or a specific segment identified by Extole's Audiences. For example, you could use the promotional email to nudge existing participants in the program to share with their friends again and earn an additional reward.
 
 [//]: ___
@@ -86,10 +86,10 @@ Rewards can also be tiered. Different products can result in different rewards, 
 
 The data at the heart of your referral program can create new or improve existing marketing initiatives for your company. Two key metrics that indicate the health of your funnel and success of your referral program are acquisition rate and participation rate.
 
-** Acquisition Rate**  
+**Acquisition Rate**\
 The acquisition rate measures the effectiveness of a program; in other words, what is the likelihood that one advocate will lead to a friend converting? This rate is calculated by dividing the number of conversions by the number of advocates.
 
-**Participation Rate**  
+**Participation Rate**\
 The participation rate measures approximately the percentage of your customers participating in your program. A strong participation rate indicates the effectiveness of a program to engage advocates. Your participation rate is most often a result of your promotional strategy.
 
 These basic performance metrics, as well as impact metrics and customer quality metrics, can be pulled from your program using Extole's reporting capabilities.
