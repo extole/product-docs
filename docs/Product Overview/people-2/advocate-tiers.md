@@ -28,21 +28,21 @@ Our comprehensive reporting system can help you clearly define each of your advo
 
 Our default segments are defined as follows:
 
-- **Successful Advocates**: People who have shared and driven one high-quality outcome
-- **Revenue Drivers**: People who have shared and driven two high-quality outcomes
-- **Super Advocates**: People who have shared and driven three or more high-quality outcomes
-- **Affiliates**: People who have shared and driven more than ten high-quality outcomes
+* **Successful Advocates**: People who have shared and driven one high-quality outcome
+* **Revenue Drivers**: People who have shared and driven two high-quality outcomes
+* **Super Advocates**: People who have shared and driven three or more high-quality outcomes
+* **Affiliates**: People who have shared and driven more than ten high-quality outcomes
 
 ![Extole bar graph depicting various customer segments and revenue driven by each segment](https://files.readme.io/23027a7-Screen_Shot_2022-07-11_at_10.11.23_AM.png "Screen Shot 2022-07-11 at 10.11.23 AM.png")
 
 ## Audience Reports
 
-Our audience reports, accessible within <<glossary:My Extole>>, can give you a list of each customer segment within a given program. Each audience report includes the following information:
+Our audience reports, accessible within <Glossary>My Extole</Glossary>, can give you a list of each customer segment within a given program. Each audience report includes the following information:
 
-- How many advocates are in the segment
-- The number of people the segment has influenced
-- The number of actions the segment has influenced, typically outcomes (e.g., registrations, conversions, account openings, etc.)
-- How much revenue the segment has influenced
+* How many advocates are in the segment
+* The number of people the segment has influenced
+* The number of actions the segment has influenced, typically outcomes (e.g., registrations, conversions, account openings, etc.)
+* How much revenue the segment has influenced
 
 To learn more about segment types and the data associated with them, please read our article on [Audience Discovery](doc:audience-discovery).
 
