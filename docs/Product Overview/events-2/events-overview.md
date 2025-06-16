@@ -35,13 +35,13 @@ Determining your broader objectives is key to creating a program that can succes
 
 Some common KPIs we work with clients to measure and improve upon include:
 
-- New Customers (Friends)
-- Revenue 
-- ROI
-- LTV / AOV
-- CPA  
-- Conversion Rate
-- Purchase Frequency
+* New Customers (Friends)
+* Revenue 
+* ROI
+* LTV / AOV
+* CPA  
+* Conversion Rate
+* Purchase Frequency
 
 ## Mapping Your Customer Journey
 
@@ -49,27 +49,15 @@ Based on your goals and KPIs, your Extole team will help you identify and config
 
 Key events to identify include: 
 
-- Rewardable events
-- Notable offline events
-- Points of friction
-- High-success events 
-- Moments of delight  
+* Rewardable events
+* Notable offline events
+* Points of friction
+* High-success events 
+* Moments of delight  
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/2383206-Screen_Shot_2022-06-14_at_10.41.48_AM.png",
-        "Screen Shot 2022-06-14 at 10.41.48 AM.png",
-        "An example program flow broken down into business events represented by by icons"
-      ],
-      "align": "center",
-      "caption": "Events associated with the Advocate are in blue, while Friend events are in black."
-    }
-  ]
-}
-[/block]
+<Image title="Screen Shot 2022-06-14 at 10.41.48 AM.png" alt="An example program flow broken down into business events represented by by icons" align="center" src="https://files.readme.io/2383206-Screen_Shot_2022-06-14_at_10.41.48_AM.png">
+  Events associated with the Advocate are in blue, while Friend events are in black.
+</Image>
 
 Your business events are ordered intuitively to match the way customers naturally interact with your program. Actions in the Extole platform—such as sending an email or delivering a reward—are then set up to correspond with your events.
 
