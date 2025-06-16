@@ -63,26 +63,12 @@ After launch, Extole will provide a dedicated Customer Success Manager to help g
 
 On average, it takes 4 weeks, give or take 2 weeks, but we can move as fast as your team can. Some common factors and that can influence your time to launch include:
 
-- Program flow complexity
-- Access to resources (creative assets, IT, etc.)
-- Number and complexity of integrations to other systems
-- Integration method
-- Mobile integration 
+* Program flow complexity
+* Access to resources (creative assets, IT, etc.)
+* Number and complexity of integrations to other systems
+* Integration method
+* Mobile integration 
 
 [//]: ___
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/352a1f7-13bf428-Screen_Shot_2022-06-14_at_1.59.30_PM.png",
-        "13bf428-Screen_Shot_2022-06-14_at_1.59.30_PM.png",
-        2222
-      ],
-      "align": "center",
-      "sizing": "80"
-    }
-  ]
-}
-[/block]
+<Image align="center" width="80%" src="https://files.readme.io/352a1f7-13bf428-Screen_Shot_2022-06-14_at_1.59.30_PM.png" />
