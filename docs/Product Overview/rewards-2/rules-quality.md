@@ -23,7 +23,7 @@ next:
 
 [//]: # "How do I make sure the right people are getting rewarded?"
 
-Rewards are most impactful when they are consistently applied to the right customers at the right time and in the right situations. Extole's rewarding system provides you with the ability to configure all of the quality and reward rules that apply to your program(s) and events directly in your <<glossary:My Extole>> account.
+Rewards are most impactful when they are consistently applied to the right customers at the right time and in the right situations. Extole's rewarding system provides you with the ability to configure all of the quality and reward rules that apply to your program(s) and events directly in your <Glossary>My Extole</Glossary> account.
 
 ## Reward System
 
@@ -90,37 +90,107 @@ To configure a reward, you must specify who gets the reward (e.g., the advocate 
 
 **In a standard Refer a Friend program, Extole gives you complete control over the following reward rules**:
 
-[block:parameters]
-{
-  "data": {
-    "h-0": "Reward Rule",
-    "h-1": "Description",
-    "0-0": "Cart value is at least $(X).",
-    "0-1": "Set the minimum cart value required in order to issue a reward.",
-    "1-0": "The customer should be rewarded every (N)th qualifying transaction.",
-    "1-1": "With this rule, you can create a second bonus reward on every nth transaction. For example, you could give an advocate a bonus reward for every 5 unique friends they drive to purchase.",
-    "2-0": "The person has earned less than (X) rewards:  \n  _ Since the last month of (X) (1–12 map to Jan–Dec)  \n  _ And in the past (X) day(s).",
-    "2-1": "Use this rule to restrict the number of rewards an advocate or friend may earn and to restrict the time period under which the rule applies. Both of these date filters will run and people will only be rewarded when both filters pass. Most commonly this can be used to limit the number of rewards earned in a month or year.",
-    "3-0": "The person has received less than $(X):  \n  _ Since the last month of (X) (1–12 map to Jan–Dec)  \n  _ And in the past (X) day(s).",
-    "3-1": "This rule allows you to restrict the amount an advocate or friend may earn and to restrict the time period under which the rule applies. Both of these date filters will run, and people will only be rewarded when both filters pass. This rule is usually enabled for cash rewards to keep earned rewards under the tax-reporting amount.",
-    "4-0": "The person has an email address.",
-    "4-1": "This rule ensures that rewards are only to people with email addresses. This rule is enabled by default because, in most cases, email is how we deliver a reward.",
-    "5-0": "If the parameter named (X) has the value (Y).",
-    "5-1": "This rule allows you to reward based on attributes that are passed to Extole on the event.",
-    "6-0": "The rewardee must not have been rewarded for the same friend before.",
-    "6-1": "This rule prevents rewards from being sent to the same combination of advocates and friends. An advocate can only refer a friend once. Additionally, that friend cannot refer the advocate that referred them.",
-    "7-0": "Reward based on profile attributes.",
-    "7-1": "Extole creates profiles for each person that interacts with your program(s). Extole stores attributes about a person and updates their profile as we learn more about them. There is an open-ended rule that looks at specific profile information and allows you to run a reward rule based on those attributes. For example, if you want to give someone from CA a different reward than someone from NY, or if you want to give someone in loyalty tier 1 a different reward than loyalty tier 3."
-  },
-  "cols": 2,
-  "rows": 8,
-  "align": [
-    "left",
-    "left"
-  ]
-}
-[/block]
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Reward Rule
+      </th>
 
+      <th>
+        Description
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        Cart value is at least $(X).
+      </td>
+
+      <td>
+        Set the minimum cart value required in order to issue a reward.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        The customer should be rewarded every (N)th qualifying transaction.
+      </td>
+
+      <td>
+        With this rule, you can create a second bonus reward on every nth transaction. For example, you could give an advocate a bonus reward for every 5 unique friends they drive to purchase.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        The person has earned less than (X) rewards:  
+
+        * Since the last month of (X) (1–12 map to Jan–Dec)  
+        * And in the past (X) day(s).
+      </td>
+
+      <td>
+        Use this rule to restrict the number of rewards an advocate or friend may earn and to restrict the time period under which the rule applies. Both of these date filters will run and people will only be rewarded when both filters pass. Most commonly this can be used to limit the number of rewards earned in a month or year.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        The person has received less than $(X):  
+
+        * Since the last month of (X) (1–12 map to Jan–Dec)  
+        * And in the past (X) day(s).
+      </td>
+
+      <td>
+        This rule allows you to restrict the amount an advocate or friend may earn and to restrict the time period under which the rule applies. Both of these date filters will run, and people will only be rewarded when both filters pass. This rule is usually enabled for cash rewards to keep earned rewards under the tax-reporting amount.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        The person has an email address.
+      </td>
+
+      <td>
+        This rule ensures that rewards are only to people with email addresses. This rule is enabled by default because, in most cases, email is how we deliver a reward.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        If the parameter named (X) has the value (Y).
+      </td>
+
+      <td>
+        This rule allows you to reward based on attributes that are passed to Extole on the event.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        The rewardee must not have been rewarded for the same friend before.
+      </td>
+
+      <td>
+        This rule prevents rewards from being sent to the same combination of advocates and friends. An advocate can only refer a friend once. Additionally, that friend cannot refer the advocate that referred them.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Reward based on profile attributes.
+      </td>
+
+      <td>
+        Extole creates profiles for each person that interacts with your program(s). Extole stores attributes about a person and updates their profile as we learn more about them. There is an open-ended rule that looks at specific profile information and allows you to run a reward rule based on those attributes. For example, if you want to give someone from CA a different reward than someone from NY, or if you want to give someone in loyalty tier 1 a different reward than loyalty tier 3.
+      </td>
+    </tr>
+  </tbody>
+</Table>
 
 ### Advanced Reward Rule Configurations
 
@@ -134,12 +204,12 @@ Extole programs support reward tiers for cases where you would like to reward sp
 
 Common use cases for tiered rewards include: 
 
-- Offering different rewards based on cart value or product type, number of deposits, etc.
-- Rewards based on the number of referred friends.
-- Rewards based on other specific profile attributes.
+* Offering different rewards based on cart value or product type, number of deposits, etc.
+* Rewards based on the number of referred friends.
+* Rewards based on other specific profile attributes.
 
 As the value or number increases, so would the reward. Tiered rewards help to further incentivize your program participants, while more generously rewarding those who have brought the most value to your business.
 
 > 📘 Extole Audiences
-> 
+>
 > You can also use Extole's audience features to target distinct groups of participants and tailor your rewards. Using program reward rules, you could set up several programs that each target a different audience and reward members of each audience differently for their actions. [Learn more about Advocate Tiers](https://docs.extole.com/docs/advocate-tiers).
