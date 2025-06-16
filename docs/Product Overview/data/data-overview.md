@@ -34,12 +34,12 @@ Every person is assigned a profile as soon as they are encountered, whether thro
 
 In a person's profile, we can do the following:
 
-- Store reward information
-- Retain and model relationships among participants
-- Manage access control
-- Enable targeting of content and programs
-- Store relevant audience information, such as "Ambassador" or "employee"
-- Support the promotion of programs
+* Store reward information
+* Retain and model relationships among participants
+* Manage access control
+* Enable targeting of content and programs
+* Store relevant audience information, such as "Ambassador" or "employee"
+* Support the promotion of programs
 
 ## Event Data
 
