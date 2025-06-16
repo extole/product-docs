@@ -23,15 +23,15 @@ We know that your customers' experience with your business is your priority, and
 What you need are solutions for targeting your various types of customers in ways that match and encourage their behavior. The Extole platform has an entire section dedicated to your people: Audiences.  
 
 > 👍 Key Features of Extole's Audiences
-> 
+>
 > Using Extole's Audiences, you will have the ability to do the following:
-> 
-> - Manage customer engagement and relationships
-> - Serve dynamic content served based on in-depth audience profiles
-> - Generate new segments through Extole
-> - Target audiences to maximize performance through unlimited concurrent campaigns
-> - Improve CDP & CRM data with Extole profile information through bi-directional sharing
-> - Access unique customer relationship graphs to determine your best advocates
+>
+> * Manage customer engagement and relationships
+> * Serve dynamic content served based on in-depth audience profiles
+> * Generate new segments through Extole
+> * Target audiences to maximize performance through unlimited concurrent campaigns
+> * Improve CDP & CRM data with Extole profile information through bi-directional sharing
+> * Access unique customer relationship graphs to determine your best advocates
 
 [//]: ___
 
@@ -59,12 +59,12 @@ Each participant's profile in Extole gives us the ability to assess the quality 
 
 **As part of a participant's profile, we can do the following**:
 
-- Store reward information
-- Retain and model relationships among participants
-- Manage access control
-- Enable targeting of content and programs
-- Store relevant audience information, such as "Ambassador" or "employee"
-- Support the promotion of programs
+* Store reward information
+* Retain and model relationships among participants
+* Manage access control
+* Enable targeting of content and programs
+* Store relevant audience information, such as "Ambassador" or "employee"
+* Support the promotion of programs
 
 ## Promotions
 
