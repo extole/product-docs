@@ -28,22 +28,7 @@ next:
 
 Friends and Family programs are exclusive offer sharing programs that allow VIP audiences to share exclusive discounts with a limited number of friends. Key features of this program type include targeting your top customers with an exclusive offer,  allowing offer sharing to promote advocacy, and  limiting the number of shares to prevent brand dilution.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/37d3d32-Screen_Shot_2022-06-01_at_11.23.43_AM.png",
-        "Screen Shot 2022-06-01 at 11.23.43 AM.png",
-        "A 20% off Friends and Family program offer graphic from the brand Tatcha"
-      ],
-      "align": "center",
-      "sizing": "50% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="50% " src="https://files.readme.io/37d3d32-Screen_Shot_2022-06-01_at_11.23.43_AM.png" />
 
 There are two general types of Friends and Family programs:
 
@@ -57,35 +42,20 @@ There are two general types of Friends and Family programs:
 
 [//]: # "How do I promote a Friends and Family program?"
 
-**Email Promotion**  
+**Email Promotion**\
 Promotion for your Friends and Family program is most commonly achieved via email. Extole can send an invitation or promotional email to a specific audience of your customers (usually your most loyal subset) letting them know about the Friends and Family program and encouraging them to participate. 
 
-**On-site or In-app Promotion**  
+**On-site or In-app Promotion**\
 Extole can also generate links that you can place in CTAs on your site or in your mobile app to promote the program. These calls to action are typically placed behind a login or signup page so that the offer stays exclusive to customers who have previously engaged with your brand.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/ce50ae0-Screen_Shot_2022-06-01_at_11.25.05_AM.png",
-        "Screen Shot 2022-06-01 at 11.25.05 AM.png",
-        "A mobile and desktop view of a Friends and Family program signup page from the brand Rockport"
-      ],
-      "align": "center",
-      "sizing": "60% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="60% " src="https://files.readme.io/ce50ae0-Screen_Shot_2022-06-01_at_11.25.05_AM.png" />
 
 > 👍 Best Practices
-> 
-> - Identify your targeted segment prior to launch.
-> - Enable an email series that includes an announcement email, reminder email , and last chance email.
-> - Make sure to incentivize this exclusive group with a higher offer than your standard Refer A Friend program.
-> - Utilize surprise and delight offerings for an enhanced experience.
+>
+> * Identify your targeted segment prior to launch.
+> * Enable an email series that includes an announcement email, reminder email , and last chance email.
+> * Make sure to incentivize this exclusive group with a higher offer than your standard Refer A Friend program.
+> * Utilize surprise and delight offerings for an enhanced experience.
 
 [//]: ___
 
@@ -129,35 +99,20 @@ Owing to the higher offers provided, Friends & Family programs will often delive
 
 Your Friends & Family program can do more than just offer a heightened discount to your advocates' inner circles. Launching a Friends & Family program is also applicable in the following use cases:
 
-- Early access to an event  
-- Exclusive discount  
-- Limited time offer  
-- Network marketing
-- Capitalize on highs and lows of seasonality
-- Employee program
-- Surprise and delight
+* Early access to an event  
+* Exclusive discount  
+* Limited time offer  
+* Network marketing
+* Capitalize on highs and lows of seasonality
+* Employee program
+* Surprise and delight
 
-**Reebok White Glove**  
+**Reebok White Glove**\
 Reebok launched a Friends & Family program to provide an exclusive offer for “white-glove” (VIP) members and their friends. Through the Extole platform, Reebok can track and reward their network as well as provide a high incentive for each share. This is an always-on program that allows Reebok to introduce new members as they join this segment.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/f646c24-Screen_Shot_2022-06-01_at_11.38.34_AM.png",
-        "Screen Shot 2022-06-01 at 11.38.34 AM.png",
-        "Three panels displaying web and email experiences for Reebok's Friends and Family program"
-      ],
-      "align": "center",
-      "sizing": "80"
-    }
-  ]
-}
-[/block]
+<Image align="center" width="80%" src="https://files.readme.io/f646c24-Screen_Shot_2022-06-01_at_11.38.34_AM.png" />
 
-
-**Sonos**  
+**Sonos**\
 Sonos promoted their Friends & Family program to partners and employees all over the world. Language and rewards were localized by country. The program included a   50% employee discount that was shareable with up to 8 friends. Additionally, the program offered an unlimited 20% discount for friends and partners  . Leveraging Extole’s reporting, Sonos was able to to track department and employee performance.
 
 [//]: ___
