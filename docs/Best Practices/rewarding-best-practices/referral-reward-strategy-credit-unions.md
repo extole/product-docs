@@ -37,8 +37,8 @@ For credit unions looking to promote **multiple financial products**, a tiered r
 
 For example:
 
-- Mortgage Referral: Give $250, Get $250 when a referred member has their loan funded
-- Credit Card Referral: Give $50, Get $50 when a referred member gets approved and makes their first purchase
+* Mortgage Referral: Give $250, Get $250 when a referred member has their loan funded
+* Credit Card Referral: Give $50, Get $50 when a referred member gets approved and makes their first purchase
 
 Extole supports customized reward structures by product type, ensuring your referral program remains flexible and aligned with your business goals.
 
@@ -48,8 +48,8 @@ To maximize engagement, your referral program should remain dynamic and adaptabl
 
 ### Strategies to Keep Your Program Fresh:
 
-- Run Limited-Time Offers: During key promotional periods (e.g., back-to-school, tax season, holidays), increase referral rewards or launch double rewards campaigns to create urgency and excitement.
-- Diversify Reward Types: Experiment with non-monetary incentives like branded swag, exclusive events, or giveaway entries to keep the program engaging for different member segments.
+* Run Limited-Time Offers: During key promotional periods (e.g., back-to-school, tax season, holidays), increase referral rewards or launch double rewards campaigns to create urgency and excitement.
+* Diversify Reward Types: Experiment with non-monetary incentives like branded swag, exclusive events, or giveaway entries to keep the program engaging for different member segments.
 
 ## Don't Forget A/B Testing
 
