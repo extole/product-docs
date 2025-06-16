@@ -26,22 +26,7 @@ The following sections go over the minimum requirements for setting up a basic i
 
 Your microsite is the heart of your program, offering both form and function. It is a dedicated landing page hosted by Extole that provides information about your program and encourages customers to participate. The microsite template is accessible within your My Extole account and it doesn’t require any technical know-how to set up. All you need are images and copy to create a seamlessly branded experience.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/ea49453-Group_1355.png",
-        null,
-        "iPhone screen displaying an Extole-hosted microsite share experience"
-      ],
-      "align": "center",
-      "sizing": "30% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="30% " src="https://files.readme.io/ea49453-Group_1355.png" />
 
 The microsite acts as standalone promotion and hub for referral activity. It details how to participate in the program and get rewarded while providing an embedded share experience where customers can quickly start referring their friends.
 
@@ -51,29 +36,66 @@ Driving traffic to your microsite is as easy as adding trackable on-site links. 
 
 Bringing your program to life means you'll need a few creative assets. These include brand-specific entities such as your logo, colors, and favicon, as well as an email image and any additional images to ensure the look and feel of your microsite matches that of your website.
 
-[block:parameters]
-{
-  "data": {
-    "h-0": "Required image assets",
-    "h-1": "Recommended Image Specs  \n(width x height)",
-    "0-0": "Microsite Banner Image for Desktop",
-    "0-1": "2800 x 800 px",
-    "1-0": "Microsite Banner Image for Mobile",
-    "1-1": "1080 x 900 px",
-    "2-0": "Social Share Image",
-    "2-1": "1200 x 630 px",
-    "3-0": "Email Banner Image",
-    "3-1": "1200 x 700 px"
-  },
-  "cols": 2,
-  "rows": 4,
-  "align": [
-    "left",
-    "left"
-  ]
-}
-[/block]
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Required image assets
+      </th>
 
+      <th>
+        Recommended Image Specs
+
+
+
+
+        (width x height)
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        Microsite Banner Image for Desktop
+      </td>
+
+      <td>
+        2800 x 800 px
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Microsite Banner Image for Mobile
+      </td>
+
+      <td>
+        1080 x 900 px
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Social Share Image
+      </td>
+
+      <td>
+        1200 x 630 px
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Email Banner Image
+      </td>
+
+      <td>
+        1200 x 700 px
+      </td>
+    </tr>
+  </tbody>
+</Table>
 
 ### CNAME and DNS Setup
 
@@ -84,7 +106,7 @@ The process is simple and can be completed within your My Extole account. All yo
 Once you've set up your CNAME record, you'll need to update your DNS settings to ensure that your Extole program is connected correctly.
 
 > 📘 Related resources
-> 
+>
 > [Extole CNAME and DSN requirements](https://dev.extole.com/docs/extole-dns-requirements)
 
 ### SFTP Server Connection for Event File Transfer
@@ -92,8 +114,8 @@ Once you've set up your CNAME record, you'll need to update your DNS settings to
 To transfer data between Extole and your other systems, you can set up an SFTP (Secure File Transfer Protocol) server within your My Extole account. This connection allows you to transfer large files between your systems and Extole securely.
 
 > 📘 Related resources
-> 
-> [Setting up an SFTP server at Extole](https://dev.extole.com/docs/extoles-sftp-server)  
+>
+> [Setting up an SFTP server at Extole](https://dev.extole.com/docs/extoles-sftp-server)\
 > [Extole file formatting requirements](https://dev.extole.com/docs/extoles-sftp-server#file-conventions)
 
 ### Required Events
