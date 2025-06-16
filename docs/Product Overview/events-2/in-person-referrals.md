@@ -12,7 +12,7 @@ metadata:
 next:
   description: ''
 ---
-## Overview 
+## Overview
 
 If your business includes face-to-face interactions, we have several recommended methods for tracking referrals based on your use case.  
 
@@ -38,20 +38,20 @@ If you’re a retailer with brick-and-mortar locations where you’d like to rew
 
 ### Single-Use Codes + Email Address or Coupon Code Tracking
 
-- Ideal for single-use in-store coupon codes (can differ from online codes).
-- Tracks in-store purchases using email addresses or coupon codes.
-- Advocates refer friends online, who receive a coupon via email for online or in-store use.
-- In-store purchases trigger referral tracking via API or file upload, using the friend’s email or unique coupon code, rewarding the advocate accordingly.
+* Ideal for single-use in-store coupon codes (can differ from online codes).
+* Tracks in-store purchases using email addresses or coupon codes.
+* Advocates refer friends online, who receive a coupon via email for online or in-store use.
+* In-store purchases trigger referral tracking via API or file upload, using the friend’s email or unique coupon code, rewarding the advocate accordingly.
 
 ### Single or Multi-Use Codes + No Unique Tracking
 
-- Suitable for both single or multi-use in-store coupon codes.
-- Works for untracked in-store purchases; no customer identification required.
-- Advocates share your brand with friends online, who receive a coupon code for online purchases.
-- Online purchases are sent to Extole via standard JavaScript tags, rewarding advocates via email with a coupon code usable online or in-store.
+* Suitable for both single or multi-use in-store coupon codes.
+* Works for untracked in-store purchases; no customer identification required.
+* Advocates share your brand with friends online, who receive a coupon code for online purchases.
+* Online purchases are sent to Extole via standard JavaScript tags, rewarding advocates via email with a coupon code usable online or in-store.
 
 > 🚧 Important Note
-> 
+>
 > The second solution requires the friend to purchase online, but advocates retain the option to buy in-store.
 
 ## Membership and Loyalty
@@ -60,22 +60,22 @@ The primary goal of this solution is to drive membership in your loyalty program
 
 ### Single-Use Codes + Email Address, Coupon Code, or Member ID Tracking
 
-- Ideal for single-use in-store coupon codes (can differ from online codes).
-- Tracks in-store purchases using member IDs, email addresses, or coupon codes.
-- Advocates encourage friends to join the loyalty program online.
-- Upon signup, friends receive a coupon via email for use online or in-store.
-- In-store purchases trigger referral tracking via API or file upload, using member IDs, email addresses, or unique coupon codes, rewarding the advocate accordingly.
+* Ideal for single-use in-store coupon codes (can differ from online codes).
+* Tracks in-store purchases using member IDs, email addresses, or coupon codes.
+* Advocates encourage friends to join the loyalty program online.
+* Upon signup, friends receive a coupon via email for use online or in-store.
+* In-store purchases trigger referral tracking via API or file upload, using member IDs, email addresses, or unique coupon codes, rewarding the advocate accordingly.
 
 ### Single or Multi-Use Codes + No Unique Tracking
 
-- Suitable for single or multi-use in-store coupon codes.
-- Works for untracked in-store purchases; no customer identification required.
-- Advocates invite friends to join the loyalty program online.
-- Upon signup, friends receive a coupon via email for use online or in-store.
-- Online purchases are sent to Extole via standard JavaScript tags, rewarding advocates via email with a coupon code usable online or in-store.
+* Suitable for single or multi-use in-store coupon codes.
+* Works for untracked in-store purchases; no customer identification required.
+* Advocates invite friends to join the loyalty program online.
+* Upon signup, friends receive a coupon via email for use online or in-store.
+* Online purchases are sent to Extole via standard JavaScript tags, rewarding advocates via email with a coupon code usable online or in-store.
 
 > 🚧 Important Note
-> 
+>
 > The second solution requires the friend to purchase online, but advocates retain the option to buy in-store.
 
 ## Home Services
