@@ -26,22 +26,7 @@ next:
 
 A Welcome Offer Program is a great way to build a lasting relationship from the very beginning of a customer's experience, ultimately improving customer retention. In a Welcome Offer Program, a new user lands on your site and is immediately prompted with a popup asking for their email address.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/e266083-Screen_Shot_2022-06-01_at_10.59.43_AM.png",
-        "Screen Shot 2022-06-01 at 10.59.43 AM.png",
-        752
-      ],
-      "align": "center",
-      "sizing": "80"
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="80%" src="https://files.readme.io/e266083-Screen_Shot_2022-06-01_at_10.59.43_AM.png" />
 
 Upon email address submission, qualified customers are shown a reward or discount of your choosing. This reward can additionally be emailed to the user, displayed in a floating overlay in the bottom corner of your site, and shown in a banner at the top of your site.
 
@@ -53,18 +38,18 @@ These offers are the start of a new customer experience, drive more revenue for 
 
 A Welcome Offer Program offers a wide array of benefits, including:
 
-- Starting off the relationship with a new customer on the right foot
-- Improving conversion rates by displaying up to four different calls for a new customer to use their reward
-- Creating loyal future customers and retention by engaging with new customers at the point in their journey where they're most likely to purchase
-- Driving more revenue for your brand
+* Starting off the relationship with a new customer on the right foot
+* Improving conversion rates by displaying up to four different calls for a new customer to use their reward
+* Creating loyal future customers and retention by engaging with new customers at the point in their journey where they're most likely to purchase
+* Driving more revenue for your brand
 
 Welcome Offers can be useful for more than just customer acquisition. You may also consider running this program for the following use cases:
 
-- Email capture
-- Banking joining bonus  
-- Newsletter signup  
-- Blog signup
-- Returning customer offer   
+* Email capture
+* Banking joining bonus  
+* Newsletter signup  
+* Blog signup
+* Returning customer offer   
 
 [//]: ___
 
@@ -84,28 +69,13 @@ Additionally, Extole offers best-in-class fraud protection so you can have confi
 
 A new customer visiting your company’s website will immediately see a call to action (CTA), typically in the form of an overlay, popup, or banner, encouraging them to provide their email address for a reward.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/c7da66a-Screen_Shot_2022-05-31_at_5.05.23_PM.png",
-        "Screen Shot 2022-05-31 at 5.05.23 PM.png",
-        938
-      ],
-      "align": "center",
-      "sizing": "80"
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="80%" src="https://files.readme.io/c7da66a-Screen_Shot_2022-05-31_at_5.05.23_PM.png" />
 
 > 👍 Best Practices
-> 
-> - Promote the program in multiple places on your homepage, including an auto-pop.
-> - Keep in mind other offers that might be available on your site when determining your offer.
-> - Promote the offer on social media to increase visibility.
+>
+> * Promote the program in multiple places on your homepage, including an auto-pop.
+> * Keep in mind other offers that might be available on your site when determining your offer.
+> * Promote the offer on social media to increase visibility.
 
 [//]: ___
 
@@ -117,41 +87,26 @@ Once your new customers click on one of your promotions, an email capture experi
 
 [//]: ___
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/c72f0b8-Screen_Shot_2022-05-31_at_5.07.11_PM.png",
-        "Screen Shot 2022-05-31 at 5.07.11 PM.png",
-        914
-      ],
-      "align": "center",
-      "sizing": "80"
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="80%" src="https://files.readme.io/c72f0b8-Screen_Shot_2022-05-31_at_5.07.11_PM.png" />
 
 ## Rules and Rewarding
 
 [//]: # "What rules and rewards are typical of a Welcome Offer program?"
 
-**Cross-Program Experiences**  
+**Cross-Program Experiences**\
 If a new customer is referred by one of your advocates as part of the referral program, do you want them to see the referral friend landing experience or the welcome offer landing experience? With Extole, you can make decisions and control which experiences you want your customers to see and when. 
 
-**Site to Store**  
+**Site to Store**\
 In a typical website-to-store flow, the new customer will be asked to provide their email address. In Extole, this step is known as a signup or registration event, which serves the friend a single-use coupon that can either be redeemed online or taken into the store.
 
-**Fraud Protection**  
+**Fraud Protection**\
 Extole's comprehensive quality and reward rules provide unparalleled fraud protection to ensure that your Welcome Offer program is only available to eligible new and prospective customers.
 
 Scenarios in which a customer will see your Welcome Offer include:
 
-- If a user opens their browser and has not accepted cookies before, Extole will display the Welcome Offer program. 
-- If the user enters their email and it already exists in our system, a message is communicated to the customer and, upon closing the popup, the promotion call to action will disappear.
-- If the user goes incognito, the promotion and popup will display again until they enter their email and we can validate that the email is new. 
+* If a user opens their browser and has not accepted cookies before, Extole will display the Welcome Offer program. 
+* If the user enters their email and it already exists in our system, a message is communicated to the customer and, upon closing the popup, the promotion call to action will disappear.
+* If the user goes incognito, the promotion and popup will display again until they enter their email and we can validate that the email is new. 
 
 [//]: ___
 
@@ -159,17 +114,17 @@ Scenarios in which a customer will see your Welcome Offer include:
 
 [//]: # "How do I measure the performance of a Welcome Offer program?"
 
-One of the standard reports available in your <<glossary:My Extole>> account allows you to get the email addresses of all your opted-in users.
+One of the standard reports available in your <Glossary>My Extole</Glossary> account allows you to get the email addresses of all your opted-in users.
 
 Your program dashboard will display key metrics, such as:
 
-- Promotion Views
-- Promotion Clicks
-- Promotion Click Through Rate
-- Emails Captured
-- Submit Rate
-- Purchases 
-- Conversion Rate
+* Promotion Views
+* Promotion Clicks
+* Promotion Click Through Rate
+* Emails Captured
+* Submit Rate
+* Purchases 
+* Conversion Rate
 
 [//]: ___
 
@@ -177,23 +132,9 @@ Your program dashboard will display key metrics, such as:
 
 [//]: # "What is an example of an Extole Welcome Offer program?"
 
-**Cheaper Than Dirt**  
+**Cheaper Than Dirt**\
 Our Welcome Offer program for Cheaper Than Dirt was designed with the aim to increase their marketing list, with the caveat that they couldn’t offer a reward. The primary CTA was configured to pop up immediately for new customers on the site and solicit their email address. As a result, the program helped them both grow their marketing list and drive conversions.
 
 [//]: ___
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/e1f3a57-Screen_Shot_2022-05-31_at_5.12.19_PM.png",
-        "Screen Shot 2022-05-31 at 5.12.19 PM.png",
-        1416
-      ],
-      "align": "center",
-      "sizing": "80"
-    }
-  ]
-}
-[/block]
+<Image align="center" width="80%" src="https://files.readme.io/e1f3a57-Screen_Shot_2022-05-31_at_5.12.19_PM.png" />
