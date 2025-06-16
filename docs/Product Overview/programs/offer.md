@@ -18,28 +18,13 @@ The Offer program provides a way to boost your connection with existing customer
 
 Outcomes are essential points of the customer journey that indicate that someone is a healthy, engaged customer with the potential for a high CLTV, such as:
 
-- Engagement: Download the app, visit a branch, connect a bank account, upload prescriptions, be on time for a reservation
-- Transaction: Make a trade, subscribe to a service, cross-selling
-- Advocacy: Write a review, rate a product, share a video
+* Engagement: Download the app, visit a branch, connect a bank account, upload prescriptions, be on time for a reservation
+* Transaction: Make a trade, subscribe to a service, cross-selling
+* Advocacy: Write a review, rate a product, share a video
 
 A successful Offer program typically targets a well-defined group of people who are likely to achieve the outcome, provides a meaningful incentive, and operates for a limited time.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/7661108-42764fe-Screen_Shot_2023-09-08_at_8.42.33_AM.png",
-        "",
-        ""
-      ],
-      "align": "center",
-      "sizing": "60% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="60% " src="https://files.readme.io/7661108-42764fe-Screen_Shot_2023-09-08_at_8.42.33_AM.png" />
 
 ## Marketing
 
@@ -63,9 +48,9 @@ Extole can also track rewards earned and provide the information to an external 
 
 Extole performance dashboards provide you with a clear view of how your Offer program and promotional strategy are performing. On the program dashboard, you’ll be able to see:
 
-- Promotion email opened
-- Promotion click-throughs
-- Outcomes
-- Rewards earned
+* Promotion email opened
+* Promotion click-throughs
+* Outcomes
+* Rewards earned
 
 Our Reports also give you full access to your program data and allow you to gain deeper insights into your participants and overall performance. For example, you could run an Email Stats report to assess the performance of your promotional email.
