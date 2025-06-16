@@ -34,4 +34,4 @@ Log in with one email address one time. Users with multi-account access can log 
 
 We currently offer two user roles: Admin and User Support. By default, new Extole users are considered Admins, which means they have full access to features within the platform. The User Support role is a great fit for members of your team that are dedicated to resolving customer inquiries and requests.
 
-Within your <<glossary:My Extole>> account, you can easily invite additional team members from the [Settings page](https://my.extole.com/settings). If you would like to restrict a user's access to only the User Support section of the Extole platform, you can do so by explicitly assigning them to the User Support role during the user creation process.
+Within your <Glossary>My Extole</Glossary> account, you can easily invite additional team members from the [Settings page](https://my.extole.com/settings). If you would like to restrict a user's access to only the User Support section of the Extole platform, you can do so by explicitly assigning them to the User Support role during the user creation process.
