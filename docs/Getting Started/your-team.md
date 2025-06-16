@@ -32,17 +32,17 @@ When you join Extole, we will provide you with a dedicated Customer Success Mana
 
 **Your Extole CSM is responsible for the following**: 
 
-- Answering all questions
-- Managing program design and launch
-- Conducting ongoing program and campaign analyses
-- Implementing A/B testing and analysis
-- Presenting results and providing optimization suggestions
-- Providing tactical advice on expansion of the program to align with your acquisition, loyalty, and retention goals
-- Educating you on referral marketing and the Extole platform as necessary
+* Answering all questions
+* Managing program design and launch
+* Conducting ongoing program and campaign analyses
+* Implementing A/B testing and analysis
+* Presenting results and providing optimization suggestions
+* Providing tactical advice on expansion of the program to align with your acquisition, loyalty, and retention goals
+* Educating you on referral marketing and the Extole platform as necessary
 
 When necessary, your CSM will assign other Extole team members to you, and you will also have unlimited access to [Extole Support Services](https://docs.extole.com/docs/your-team#support-team).
 
-Your Extole CSM will work alongside you to design and grow your referral program using Extole  
+Your Extole CSM will work alongside you to design and grow your referral program using Extole\
 capabilities and best practices. As part of your program design, your Extole CSM will analyze key program metrics for the period immediately after launch and on an on-going basis.
 
 ## Launch Team
