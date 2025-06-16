@@ -24,7 +24,7 @@ Experiences are a cornerstone of Extole programs. Designed to combine streamline
 
 ## Options for Hosting Your Experience
 
-Extole-hosted experiences are fully customizable within <<glossary:My Extole>> and offer unique benefits; however, you are also welcome to embed any experience directly on your site. Let's compare each option:
+Extole-hosted experiences are fully customizable within <Glossary>My Extole</Glossary> and offer unique benefits; however, you are also welcome to embed any experience directly on your site. Let's compare each option:
 
 | Embedded Experience                                                                | Extole Microsite                                                                   | Extole Widget                                                                                               |
 | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
@@ -42,121 +42,38 @@ See real and examples of how our clients have created versatile and seamlessly b
 
 Share Experiences aren't exclusive to Refer A Friend programs and can look completely different depending on your program design. You can choose to display a variety of share channels to choose from, employ native sharing, or simply prompt customers to enter their email address to receive a personalized referral or share link.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/260605f-unnamed_11.png",
-        "unnamed (11).png",
-        "Web and mobile views of Columbia Credit Union's share experience"
-      ],
-      "align": "center",
-      "sizing": "60% ",
-      "caption": "Columbia Credit Union uses the Share Experience of their Refer A Friend program to prompt account holders to enter their email address to receive a referral link."
-    }
-  ]
-}
-[/block]
+<Image title="unnamed (11).png" alt="Web and mobile views of Columbia Credit Union's share experience" align="center" width="60% " src="https://files.readme.io/260605f-unnamed_11.png">
+  Columbia Credit Union uses the Share Experience of their Refer A Friend program to prompt account holders to enter their email address to receive a referral link.
+</Image>
 
-
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/124f689-unnamed_13.png",
-        "unnamed (13).png",
-        "Web and mobile view of Tatcha's Drop a Hint program share experience"
-      ],
-      "align": "center",
-      "sizing": "60% ",
-      "caption": "For their Drop A Hint program, Tatcha uses the Share Experience to provide space for customers to enter contact information about themselves and who they would like to share the hint with as well as an optional, personalized message. The product information is already loaded into the experience and will be included in the email, Messenger, or Whatsapp message along with a direct link for the recipient to use."
-    }
-  ]
-}
-[/block]
-
+<Image title="unnamed (13).png" alt="Web and mobile view of Tatcha's Drop a Hint program share experience" align="center" width="60% " src="https://files.readme.io/124f689-unnamed_13.png">
+  For their Drop A Hint program, Tatcha uses the Share Experience to provide space for customers to enter contact information about themselves and who they would like to share the hint with as well as an optional, personalized message. The product information is already loaded into the experience and will be included in the email, Messenger, or Whatsapp message along with a direct link for the recipient to use.
+</Image>
 
 ### Landing Experiences
 
 Similar to the Share Experience, Landing Experiences aren't only specific to Refer A Friend programs. Landing Experiences exist for Drop A Hint, Influencer, and Friends & Family programs and are the first part of your program a friend, follower, family member, etc. will see beyond an initial share.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/52e1153-unnamed_14.png",
-        "unnamed (14).png",
-        "Web and mobile view of Medely's registration-based landing experience"
-      ],
-      "align": "center",
-      "sizing": "60% ",
-      "caption": "In Medely's Refer A Friend program, the Landing Experience prompts referred friends to register in order to participate in the program and earn their reward."
-    }
-  ]
-}
-[/block]
-
+<Image title="unnamed (14).png" alt="Web and mobile view of Medely's registration-based landing experience" align="center" width="60% " src="https://files.readme.io/52e1153-unnamed_14.png">
+  In Medely's Refer A Friend program, the Landing Experience prompts referred friends to register in order to participate in the program and earn their reward.
+</Image>
 
 ### Microsites
 
 Microsites are comprehensive, multi-purpose experiences hosted either on your website or app or by Extole. A Microsite is extremely versatile and can contain a Share Experience, an application or registration form, account information, stats, and more depending on the design of your program.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/3d58dec-Screen_Shot_2022-07-06_at_11.50.30_AM.png",
-        "Screen Shot 2022-07-06 at 11.50.30 AM.png",
-        "Star Furniture's appointment scheduling microsite for their referral program"
-      ],
-      "align": "center",
-      "sizing": "60% ",
-      "caption": "Star Furniture makes use of Extole's microsite in their interior-designer-focused Refer A Friend program to deliver their Appointment Scheduling experience. This experience allows designers to participate in the program by scheduling time with their clients to tour the Star Furniture showroom."
-    }
-  ]
-}
-[/block]
+<Image title="Screen Shot 2022-07-06 at 11.50.30 AM.png" alt="Star Furniture's appointment scheduling microsite for their referral program" align="center" width="60% " src="https://files.readme.io/3d58dec-Screen_Shot_2022-07-06_at_11.50.30_AM.png">
+  Star Furniture makes use of Extole's microsite in their interior-designer-focused Refer A Friend program to deliver their Appointment Scheduling experience. This experience allows designers to participate in the program by scheduling time with their clients to tour the Star Furniture showroom.
+</Image>
 
-
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/a91fe9d-unnamed_10.png",
-        "unnamed (10).png",
-        512
-      ],
-      "align": "center",
-      "sizing": "60% ",
-      "caption": "For it Cosmetics' Nomination program, they employed an Extole-powered microsite to host their nomination terms and submission form. Once the form is submitted, a confirmation message appears to the user and the nominee is notified."
-    }
-  ]
-}
-[/block]
-
+<Image title="unnamed (10).png" alt={512} align="center" width="60% " src="https://files.readme.io/a91fe9d-unnamed_10.png">
+  For it Cosmetics' Nomination program, they employed an Extole-powered microsite to host their nomination terms and submission form. Once the form is submitted, a confirmation message appears to the user and the nominee is notified.
+</Image>
 
 ### Stats Dashboards
 
 Dashboards provide a homebase for your program participants to share and track their progress. Whether you're running a Refer A Friend of Influencer program, your participating customers can log in to their dashboard to see recent activity and cumulative stats such as total referrals, earned rewards, and so on. 
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/d24eb18-Customer_Activity_Dashboard_-_Madison_Reed_.png",
-        "unnamed (16).png",
-        "Madison Reed's Influencer program profile microsite"
-      ],
-      "align": "center",
-      "sizing": "60% ",
-      "caption": "Madison Reed's Influencer program features a portal for influencers to log into to monitor their stats, see their activity, and share their offer."
-    }
-  ]
-}
-[/block]
+<Image title="unnamed (16).png" alt="Madison Reed's Influencer program profile microsite" align="center" width="60% " src="https://files.readme.io/d24eb18-Customer_Activity_Dashboard_-_Madison_Reed_.png">
+  Madison Reed's Influencer program features a portal for influencers to log into to monitor their stats, see their activity, and share their offer.
+</Image>
