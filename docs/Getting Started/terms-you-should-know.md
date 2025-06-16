@@ -27,7 +27,7 @@ next:
 
 The act of adding new paying customers to your customer list. Customer acquisition is the goal of most referral marketing programs.
 
-_Extole customers tend to acquire between 5 – 15% of their new customers through their programs. Exceptional programs see even higher levels!_
+*Extole customers tend to acquire between 5 – 15% of their new customers through their programs. Exceptional programs see even higher levels!*
 
 [//]: ___
 
@@ -37,7 +37,7 @@ _Extole customers tend to acquire between 5 – 15% of their new customers throu
 
 The act of providing compelling experiences for your customers that deemphasize additional purchases and focus on customer activities that connect them with the brand, your values, your mission.
 
-_Most companies using Extole for refer-a-friend are also using Extole to power customer engagement programs including Friends & Family, Gift Giving, Nomination, and Giveaways._
+*Most companies using Extole for refer-a-friend are also using Extole to power customer engagement programs including Friends & Family, Gift Giving, Nomination, and Giveaways.*
 
 [//]: ___
 
@@ -47,7 +47,7 @@ _Most companies using Extole for refer-a-friend are also using Extole to power c
 
 A referral program is a part of the customer journey designed to acquire new customers through referrals by strategically rewarding the people who interact with your brand. Also known as Refer A Friend, these programs encompass multi-channel campaigns including web, mobile, email, social media, point of sale and more. Beyond the marketing, measurement, and optimization of those campaigns, referral programs also include the delivery and use of associated rewards.
 
-_Referral campaigns are effective ways to acquire customers you can’t reach through other channels like search. To scale a Refer A Friend campaign into a fully functioning referral channel, contact Extole._
+*Referral campaigns are effective ways to acquire customers you can’t reach through other channels like search. To scale a Refer A Friend campaign into a fully functioning referral channel, contact Extole.*
 
 [//]: ___
 
@@ -55,10 +55,10 @@ _Referral campaigns are effective ways to acquire customers you can’t reach th
 
 [//]: # "What is an advocate?"
 
-An advocate is a person who refers your brand, product, or service to a friend. Anyone who interacts with your  
+An advocate is a person who refers your brand, product, or service to a friend. Anyone who interacts with your\
 brand can become an advocate, and one goal of your referral program should be to make referrals a key part of your customers’ brand experience.
 
-_By enabling you to promote your referral program to everyone your brand touches, make sharing easy, and reward participation quickly, Extole helps you create the most “everyday” advocates to generate awareness, fuel participation, and drive acquisition and revenue._
+*By enabling you to promote your referral program to everyone your brand touches, make sharing easy, and reward participation quickly, Extole helps you create the most “everyday” advocates to generate awareness, fuel participation, and drive acquisition and revenue.*
 
 [//]: ___
 
@@ -68,7 +68,7 @@ _By enabling you to promote your referral program to everyone your brand touches
 
 A friend is a person who sees or receives a referral from someone they know. Friends may or may not already be familiar with your brand or products. 
 
-_Making your program as highly visible as possible through Extole’s easy promotion tools lets you reach the most potential advocates and, through them, the most friends._
+*Making your program as highly visible as possible through Extole’s easy promotion tools lets you reach the most potential advocates and, through them, the most friends.*
 
 [//]: ___
 
@@ -80,25 +80,11 @@ _Making your program as highly visible as possible through Extole’s easy promo
 
 The referral funnel, or social funnel, is a model that describes the process of generating referrals and referred customers, from advocate generation through new customer conversion. The referral funnel comprises both the advocate funnel and friend funnel.
 
-_You can see detailed metrics for how each of your campaigns performs at each stage of the referral funnel in your Extole dashboard, then test and iterate so you can optimize effectiveness._
+*You can see detailed metrics for how each of your campaigns performs at each stage of the referral funnel in your Extole dashboard, then test and iterate so you can optimize effectiveness.*
 
 [//]: ___
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/6357b70-Screen_Shot_2022-05-26_at_1.58.29_PM.png",
-        "Screen Shot 2022-05-26 at 1.58.29 PM.png",
-        854
-      ],
-      "align": "center",
-      "sizing": "80"
-    }
-  ]
-}
-[/block]
+<Image align="center" width="80%" src="https://files.readme.io/6357b70-Screen_Shot_2022-05-26_at_1.58.29_PM.png" />
 
 ### Advocate Funnel
 
@@ -122,7 +108,7 @@ A measure of the effectiveness of your referral program marketing plan, particip
 
 A measure of the efficiency of your entire referral funnel that compares the number of acquired customers to the number of advocates. When this rate is at or above benchmark for your referral program, you can focus less on funnel optimization and more on marketing and segmentation.
 
-_The size of your advocate funnel depends on how widely and prominently you market your referral program. Use the Extole dashboard to find out how your campaigns perform at the top of the advocate funnel and each stage below it._
+*The size of your advocate funnel depends on how widely and prominently you market your referral program. Use the Extole dashboard to find out how your campaigns perform at the top of the advocate funnel and each stage below it.*
 
 [//]: ___
 
@@ -132,7 +118,7 @@ _The size of your advocate funnel depends on how widely and prominently you mark
 
 The friend funnel is a set of performance metrics that detail how well your advocates’ referrals are converting friends into new customers. They include reach, friend clicks, conversions, and revenue.
 
-_Performance in the friend funnel depends on a number of factors, but it is often based on the friend reward. Extole allows you to A/B test this reward within the platform._
+*Performance in the friend funnel depends on a number of factors, but it is often based on the friend reward. Extole allows you to A/B test this reward within the platform.*
 
 [//]: ___
 
@@ -142,7 +128,7 @@ _Performance in the friend funnel depends on a number of factors, but it is ofte
 
 A form of the customer journey that requires a prospective customer to pass multiple consideration milestones (or steps) between initial awareness and final conversion. Often found in high-consideration B2C sales cycles, subscription businesses, and B2B (for example, B2B software sales cycles typically see prospective customers progress in status from lead to prospects before becoming customers, with each successive stage indicating increased likelihood of purchase).
 
-_Customer referrals can be powerful tools for helping move prospective buyers through a multi-step conversion because people trust opinions from friends and colleagues. Referral programs can also be effective in improving conversion from trial to paid subscription users._
+*Customer referrals can be powerful tools for helping move prospective buyers through a multi-step conversion because people trust opinions from friends and colleagues. Referral programs can also be effective in improving conversion from trial to paid subscription users.*
 
 [//]: ___
 
@@ -154,7 +140,7 @@ _Customer referrals can be powerful tools for helping move prospective buyers th
 
 A campaign comprises the audience, calls-to-action(s), content, sharing mechanisms, rewards, and reward rules for a given referral marketing flow. A referral marketing program will consist of multiple campaigns. Often brands will employ multiple campaigns to effectively target different audience segments (such as VIPs, super advocates and newly referred customers) simultaneously.
 
-_Extole customers with international footprints create targeted campaigns to their audiences in different countries, with content and rewards appropriate for a particular market’s language, currency, and regulations._
+*Extole customers with international footprints create targeted campaigns to their audiences in different countries, with content and rewards appropriate for a particular market’s language, currency, and regulations.*
 
 [//]: ___
 
@@ -164,7 +150,7 @@ _Extole customers with international footprints create targeted campaigns to the
 
 A call-to-action message on your site, in your email, on your packaging, or in your other media that prompts someone to take action. In referral marketing, CTAs are used to encourage people to share referrals.
 
-_Using Extole’s built-in promotion tools and APIs, you can put a referral CTA anywhere people will see it: on your website, in your mobile app, on printed materials, in email flows, and even on your packaging._
+*Using Extole’s built-in promotion tools and APIs, you can put a referral CTA anywhere people will see it: on your website, in your mobile app, on printed materials, in email flows, and even on your packaging.*
 
 [//]: ___
 
@@ -172,10 +158,10 @@ _Using Extole’s built-in promotion tools and APIs, you can put a referral CTA 
 
 [//]: # "What is a share link?"
 
-The share link is a unique, trackable link that an advocate sends to a friend when sharing a referral. (Also known  
+The share link is a unique, trackable link that an advocate sends to a friend when sharing a referral. (Also known\
 as a referral link.)
 
-_Creating personalized share links makes it simple for your advocates to refer friends wherever they are, using an easy-to-remember link. Try associating these links with your CRM contact records so you can include them in every customer communication._
+*Creating personalized share links makes it simple for your advocates to refer friends wherever they are, using an easy-to-remember link. Try associating these links with your CRM contact records so you can include them in every customer communication.*
 
 [//]: ___
 
@@ -185,7 +171,7 @@ _Creating personalized share links makes it simple for your advocates to refer f
 
 A reward involving a product, service, or value other than that of the issuing brand. For example, a retailer that offers a $25 PayPal credit is offering an external reward. Usually offered as an incentive for advocates, influencers, or participants to drive program outcomes, external rewards can provide continued motivation for your most engaged customers who may have already collected numerous internal rewards.
 
-_Extole’s platform makes it easy to create external rewards for your advocates and their friends. The platform also offers hundreds of gift cards to choose from._
+*Extole’s platform makes it easy to create external rewards for your advocates and their friends. The platform also offers hundreds of gift cards to choose from.*
 
 [//]: ___
 
@@ -195,7 +181,7 @@ _Extole’s platform makes it easy to create external rewards for your advocates
 
 A reward related to the product or service a brand provides. For example, a retailer that offers 10% off their products is offering an internal reward. Usually offered as an incentive for new customers, advocates, influencers, and more, internal rewards drive retention by incentivizing future purchase.
 
-_Perricone MD launched a 4-day "gift with purchase" campaign over Memorial Day Weekend, which resulted in an 8x increase in conversions and an advocacy rate jump from 4.1% to 10.3%._
+*Perricone MD launched a 4-day "gift with purchase" campaign over Memorial Day Weekend, which resulted in an 8x increase in conversions and an advocacy rate jump from 4.1% to 10.3%.*
 
 [//]: ___
 
@@ -207,7 +193,7 @@ _Perricone MD launched a 4-day "gift with purchase" campaign over Memorial Day W
 
 A new metric developed by the inventor of Net Promoter Score, Fred Reichheld, which measures the revenue growth generated by returning customers and their referrals. A related statistic, the earned growth ratio, is the ratio of earned growth to total growth. Earned Growth Rate is a compelling measure of a brand's economic advantage and highlights the impact of growth from loyalty. 
 
-_With Extole-powered referral programs, we can determine your Earned Growth Rate and provide benchmarks._
+*With Extole-powered referral programs, we can determine your Earned Growth Rate and provide benchmarks.*
 
 [//]: ___
 
@@ -219,7 +205,7 @@ Characteristics that are shared by a group of people. People can be part of more
 
 Twilio Segment: A customer data platform (CDP) and Extole partner. Our bi-directional integration with Segment allows business events managed by Segment to power your referral programs for targeting, rewarding, and analysis. Similarly, Extole events sent to Segment allow you to use the power of Extole data throughout your marketing ecosystem.
 
-_The Extole platform shows you the customer segments that matter most to your program’s success. You can export these segments to other marketing platforms you use, target different Extole programs to them, and more._
+*The Extole platform shows you the customer segments that matter most to your program’s success. You can export these segments to other marketing platforms you use, target different Extole programs to them, and more.*
 
 [//]: ___
 
@@ -229,7 +215,7 @@ _The Extole platform shows you the customer segments that matter most to your pr
 
 Super advocates are your top-performing advocates. You can measure super advocates by the number of referral conversions they drive, the amount of revenue they help generate, or how much they share. 
 
-_Alongside acquisition, other referral marketing benefits include additional purchase from existing customers, earned media through referrals shared on social networks, and reactivation of customers who haven’t interacted with your brand for a period of time._
+*Alongside acquisition, other referral marketing benefits include additional purchase from existing customers, earned media through referrals shared on social networks, and reactivation of customers who haven’t interacted with your brand for a period of time.*
 
 [//]: ___
 
@@ -239,7 +225,7 @@ _Alongside acquisition, other referral marketing benefits include additional pur
 
 To surprise and delight your customers is to deliver unexpected and enticing rewards, driving loyalty and engagement among them. It's also a great way to tell customers that a particular behavior is important to you.
 
-_Travelzoo UK built an opt-in sweepstakes experience as a fun way to engage existing customers and appeal to new ones in a non-transactional manner. This garnered them a 25% boost in signups and 10% increase in revenue._
+*Travelzoo UK built an opt-in sweepstakes experience as a fun way to engage existing customers and appeal to new ones in a non-transactional manner. This garnered them a 25% boost in signups and 10% increase in revenue.*
 
 [//]: ___
 
@@ -247,9 +233,9 @@ _Travelzoo UK built an opt-in sweepstakes experience as a fun way to engage exis
 
 [//]: # "What is a net promoter score?"
 
-One measure of a customer’s likelihood to advocate for a given company. Using a 10-point scale and a one-question survey (“How likely is it that you would recommend [your company] to a friend or colleague?”), NPS categorizes customers as Detractors, Passives, or Promoters. Every advocate in a referral program essentially gives a brand an NPS of 10. 
+One measure of a customer’s likelihood to advocate for a given company. Using a 10-point scale and a one-question survey (“How likely is it that you would recommend \[your company] to a friend or colleague?”), NPS categorizes customers as Detractors, Passives, or Promoters. Every advocate in a referral program essentially gives a brand an NPS of 10. 
 
-_Through its referral program, AAA NCNU acquired customers with 15-point higher average NPS scores than customers from other channels._
+*Through its referral program, AAA NCNU acquired customers with 15-point higher average NPS scores than customers from other channels.*
 
 [//]: ___
 
@@ -261,7 +247,7 @@ _Through its referral program, AAA NCNU acquired customers with 15-point higher 
 
 The monetary value of a brand’s average customer’s worth to that brand over the entire timespan of their interaction with it. Customers acquired by referral often have a higher CLTV since they often have higher average order values.
 
-_By creating a referral program that gives existing customers an easy way to help you acquire new customers, marketers can increase the CLTV of their existing customers (because you can attribute some of the new customer’s value to the existing customer responsible for referring them)._
+*By creating a referral program that gives existing customers an easy way to help you acquire new customers, marketers can increase the CLTV of their existing customers (because you can attribute some of the new customer’s value to the existing customer responsible for referring them).*
 
 [//]: ___
 
@@ -271,7 +257,7 @@ _By creating a referral program that gives existing customers an easy way to hel
 
 The monetary value of the average purchase that a brand’s customers make. AOV is an important part of your program since it allows you to compare the referral channel against other channels. 
 
-_Ulta Beauty’s drive to provide a rewarding experience with their loyalty program now generated 50% higher AOVs from their customers referred by loyalty members._
+*Ulta Beauty’s drive to provide a rewarding experience with their loyalty program now generated 50% higher AOVs from their customers referred by loyalty members.*
 
 [//]: ___
 
