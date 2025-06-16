@@ -28,9 +28,9 @@ Sweepstakes provide an incentive for your customers to provide their information
 
 Extole Sweepstakes programs provide you with the ability to:
 
-- Host a custom sweepstakes form to capture customer emails or phone numbers
-- Opt in sweepstakes entries to marketing lists
-- Drive additional engagement from new and existing customers
+* Host a custom sweepstakes form to capture customer emails or phone numbers
+* Opt in sweepstakes entries to marketing lists
+* Drive additional engagement from new and existing customers
 
 [//]: ___
 
@@ -38,10 +38,10 @@ Extole Sweepstakes programs provide you with the ability to:
 
 [//]: # "How do I promote a Sweepstakes program?"
 
-**Email Promotion**  
+**Email Promotion**\
 Let existing customers, or any specified list of customers, know about your Sweepstakes program by sending them an invitation email encouraging them to participate. All copy in the email is customizable and you can set up any number of reminder promotion emails.
 
-**On-site or In-app Promotion**  
+**On-site or In-app Promotion**\
 You can also use Extole to generate links you can place on your website or in your mobile app to promote the program. These links will take your customers directly to the nomination page, where they can begin filling out the form.
 
 [//]: ___
@@ -55,7 +55,7 @@ Your participants either received your invitation email and clicked on the link 
 Once participants fill out the form and submit it, an overlay or confirmation email can be configured to encourage your participants to share the program with their friends. You may also decide to Surprise and Delight participants with a coupon code or other reward type. This reward could be displayed in the confirmation overlay or email that confirms their form was successfully submitted.
 
 > 👍 Best Practices
-> 
+>
 > Make sharing the point of entry. This strategy is effective when you are leveraging your advocates to promote an event or non-discountable new product. Just by sharing, participants are entered to win a big prize. Programs like this have a 21% advocacy rate and 52% friend click-through rate.
 
 [//]: ___
@@ -76,52 +76,23 @@ In terms of reward, you are in charge of deciding what the reward is and how man
 
 Typical Sweepstakes programs will see:
 
-- Higher engagement with the brand measured via participation rate
-- Increased entry rate
-- Additional avenue to drive new customers and not just engage your existing database
+* Higher engagement with the brand measured via participation rate
+* Increased entry rate
+* Additional avenue to drive new customers and not just engage your existing database
 
 [//]: ___
 
 ## Examples
 
-**Ashley Furniture and Homestore**  
+**Ashley Furniture and Homestore**\
 Ashley Furniture wanted to find a way to engage their customers and grow their marketing list during the COVID-19 health crisis. This giveaway program allowed them to boost brand awareness while supporting their community. 
 
 They launched their second sweepstakes after seeing so much success with the first one in May. Once someone entered, they were asked to tell their friends to enter too. Hosting the entry form and being able to leverage Extole's sharing capabilities were a huge value-add to Ashley, and they plan on running all upcoming Sweepstakes programs this way.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/a2aa19b-Screen_Shot_2022-05-31_at_10.55.45_AM.png",
-        "Screen Shot 2022-05-31 at 10.55.45 AM.png",
-        "The entry expereince for the Ashley Furniture Sweepstakes program"
-      ],
-      "align": "center",
-      "sizing": "60% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="60% " src="https://files.readme.io/a2aa19b-Screen_Shot_2022-05-31_at_10.55.45_AM.png" />
 
 **Travelzoo**
 
 Travelzoo wanted a creative way to engage existing customers and appeal to new ones in a non-transactional manner. In addition to boosting brand awareness while authentically growing their prospecting list, they wanted to expand their existing refer-a-friend capability to encourage new prospects. In this program, customers could climb the leaderboard by completing certain actions, in this example, referring friends.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/8e7c83a-Screen_Shot_2022-05-31_at_11.47.11_AM.png",
-        "Screen Shot 2022-05-31 at 11.47.11 AM.png",
-        "The leaderboard for Travelzoo's Sweepstakes program"
-      ],
-      "align": "center",
-      "sizing": "60% "
-    }
-  ]
-}
-[/block]
+<Image align="center" width="60% " src="https://files.readme.io/8e7c83a-Screen_Shot_2022-05-31_at_11.47.11_AM.png" />
