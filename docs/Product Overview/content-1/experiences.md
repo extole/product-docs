@@ -1,0 +1,162 @@
+---
+title: Experiences
+excerpt: >-
+  Learn more about the various experiences you can curate for your customers
+  using Extole.
+deprecated: false
+hidden: false
+metadata:
+  title: ''
+  description: ''
+  robots: index
+next:
+  description: ''
+  pages:
+    - type: basic
+      slug: promotions
+      title: Promotions
+---
+## Overview
+
+[//]: # "What kinds of creative content or experiences are included in Extole programs?"
+
+Experiences are a cornerstone of Extole programs. Designed to combine streamlined functionality and brand expression, experiences deliver key points in your customers' journeys. For referral programs, advocates engage with a Share Experience, while friends are directed to a Landing Experience. Other program experiences include Registration and Nomination Forms, Application Portals, or Stats Dashboards. 
+
+## Options for Hosting Your Experience
+
+Extole-hosted experiences are fully customizable within <<glossary:My Extole>> and offer unique benefits; however, you are also welcome to embed any experience directly on your site. Let's compare each option:
+
+| Embedded Experience                                                                | Extole Microsite                                                                   | Extole Widget                                                                                               |
+| :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
+| Hosted by you                                                                      | A branded page hosted by Extole                                                    | A branded overlay hosted by Extole                                                                          |
+| Gives you complete control over the look and feel of the experience                | Offers a spacious, customizable template pre-built according to our best practices | Offers a customizable template pre-built according to our best practices that seamlessly overlays your site |
+| Requires tech resources to embed on your website or in your mobile app             | No tech resources required (best option for a quick launch)                        | Minimal tech investment for tagging purposes                                                                |
+| Requires tagging using our JavaScript SDK to ensure data is being passed to Extole | No tagging required                                                                | Requires tagging using our JavaScript SDK to ensure data is being passed to Extole                          |
+| May not be able to leverage Extole A/B testing                                     | May be able to leverage Extole A/B testing                                         | Can leverage Extole A/B testing                                                                             |
+
+## Examples
+
+See real and examples of how our clients have created versatile and seamlessly branded experiences for their programs. 
+
+### Share Experiences
+
+Share Experiences aren't exclusive to Refer A Friend programs and can look completely different depending on your program design. You can choose to display a variety of share channels to choose from, employ native sharing, or simply prompt customers to enter their email address to receive a personalized referral or share link.
+
+[block:image]
+{
+  "images": [
+    {
+      "image": [
+        "https://files.readme.io/260605f-unnamed_11.png",
+        "unnamed (11).png",
+        "Web and mobile views of Columbia Credit Union's share experience"
+      ],
+      "align": "center",
+      "sizing": "60% ",
+      "caption": "Columbia Credit Union uses the Share Experience of their Refer A Friend program to prompt account holders to enter their email address to receive a referral link."
+    }
+  ]
+}
+[/block]
+
+
+[block:image]
+{
+  "images": [
+    {
+      "image": [
+        "https://files.readme.io/124f689-unnamed_13.png",
+        "unnamed (13).png",
+        "Web and mobile view of Tatcha's Drop a Hint program share experience"
+      ],
+      "align": "center",
+      "sizing": "60% ",
+      "caption": "For their Drop A Hint program, Tatcha uses the Share Experience to provide space for customers to enter contact information about themselves and who they would like to share the hint with as well as an optional, personalized message. The product information is already loaded into the experience and will be included in the email, Messenger, or Whatsapp message along with a direct link for the recipient to use."
+    }
+  ]
+}
+[/block]
+
+
+### Landing Experiences
+
+Similar to the Share Experience, Landing Experiences aren't only specific to Refer A Friend programs. Landing Experiences exist for Drop A Hint, Influencer, and Friends & Family programs and are the first part of your program a friend, follower, family member, etc. will see beyond an initial share.
+
+[block:image]
+{
+  "images": [
+    {
+      "image": [
+        "https://files.readme.io/52e1153-unnamed_14.png",
+        "unnamed (14).png",
+        "Web and mobile view of Medely's registration-based landing experience"
+      ],
+      "align": "center",
+      "sizing": "60% ",
+      "caption": "In Medely's Refer A Friend program, the Landing Experience prompts referred friends to register in order to participate in the program and earn their reward."
+    }
+  ]
+}
+[/block]
+
+
+### Microsites
+
+Microsites are comprehensive, multi-purpose experiences hosted either on your website or app or by Extole. A Microsite is extremely versatile and can contain a Share Experience, an application or registration form, account information, stats, and more depending on the design of your program.
+
+[block:image]
+{
+  "images": [
+    {
+      "image": [
+        "https://files.readme.io/3d58dec-Screen_Shot_2022-07-06_at_11.50.30_AM.png",
+        "Screen Shot 2022-07-06 at 11.50.30 AM.png",
+        "Star Furniture's appointment scheduling microsite for their referral program"
+      ],
+      "align": "center",
+      "sizing": "60% ",
+      "caption": "Star Furniture makes use of Extole's microsite in their interior-designer-focused Refer A Friend program to deliver their Appointment Scheduling experience. This experience allows designers to participate in the program by scheduling time with their clients to tour the Star Furniture showroom."
+    }
+  ]
+}
+[/block]
+
+
+[block:image]
+{
+  "images": [
+    {
+      "image": [
+        "https://files.readme.io/a91fe9d-unnamed_10.png",
+        "unnamed (10).png",
+        512
+      ],
+      "align": "center",
+      "sizing": "60% ",
+      "caption": "For it Cosmetics' Nomination program, they employed an Extole-powered microsite to host their nomination terms and submission form. Once the form is submitted, a confirmation message appears to the user and the nominee is notified."
+    }
+  ]
+}
+[/block]
+
+
+### Stats Dashboards
+
+Dashboards provide a homebase for your program participants to share and track their progress. Whether you're running a Refer A Friend of Influencer program, your participating customers can log in to their dashboard to see recent activity and cumulative stats such as total referrals, earned rewards, and so on. 
+
+[block:image]
+{
+  "images": [
+    {
+      "image": [
+        "https://files.readme.io/d24eb18-Customer_Activity_Dashboard_-_Madison_Reed_.png",
+        "unnamed (16).png",
+        "Madison Reed's Influencer program profile microsite"
+      ],
+      "align": "center",
+      "sizing": "60% ",
+      "caption": "Madison Reed's Influencer program features a portal for influencers to log into to monitor their stats, see their activity, and share their offer."
+    }
+  ]
+}
+[/block]
