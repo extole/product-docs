@@ -49,22 +49,7 @@ Let's say that you and your Extole team have set up your core Refer a Friend pro
 
 For example, you may want to know if changing the subject line of your Share Email can positively impact your open rate. In this case, you could set up an A/B test with two versions of your Share Email that have slightly different subject line copy. The test will allow you to determine which copy helped drive a higher open rate among your included customers.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/577d131328688f9eb89fb747617c6ab830a3ce679e6f8256c14df274a434a3f3-Screen_Shot_2023-01-13_at_2.04.51_PM.png",
-        "",
-        ""
-      ],
-      "align": "center",
-      "sizing": "60% "
-    }
-  ]
-}
-[/block]
-
+<Image align="center" width="60% " src="https://files.readme.io/577d131328688f9eb89fb747617c6ab830a3ce679e6f8256c14df274a434a3f3-Screen_Shot_2023-01-13_at_2.04.51_PM.png" />
 
 ## Test Setup
 
