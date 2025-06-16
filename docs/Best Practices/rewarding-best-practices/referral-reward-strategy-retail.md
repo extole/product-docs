@@ -27,9 +27,9 @@ Extole recommends offering a reward equivalent to **20% off**, either as a perce
 
 If this offer does not align with your other promotions, consider a reward structure that meets the following criteria:
 
-- Balanced and equal rewards for both the advocate and the friend (e.g., Give 20%, Get 20%) to create a strong incentive for sharing.
-- Comparable or greater value than your standard SMS/Email welcome offer, ensuring referral rewards feel special and valuable.
-- Usable on all (or most) products to prevent friction at checkout and encourage broader adoption.
+* Balanced and equal rewards for both the advocate and the friend (e.g., Give 20%, Get 20%) to create a strong incentive for sharing.
+* Comparable or greater value than your standard SMS/Email welcome offer, ensuring referral rewards feel special and valuable.
+* Usable on all (or most) products to prevent friction at checkout and encourage broader adoption.
 
 ## Adapting Your Referral Program Throughout the Year
 
@@ -37,9 +37,9 @@ To maximize engagement, referral programs should evolve in alignment with your b
 
 Consider the following strategies:
 
-- **Increase engagement with limited-time offers** – During key promotional windows (e.g., holiday sales, back-to-school, or post-holiday lulls), run higher-value referral rewards or **double rewards campaigns** to create urgency and encourage participation.
-- **Offer a small, stackable discount (e.g., 5-10%)** – Enhance your other onsite deals, to boost conversions while maintaining flexibility.
-- Diversify reward types – Experiment with non-monetary incentives like **free gifts, exclusive access, or giveaway entries** to keep the referral program fresh and engaging.
+* **Increase engagement with limited-time offers** – During key promotional windows (e.g., holiday sales, back-to-school, or post-holiday lulls), run higher-value referral rewards or **double rewards campaigns** to create urgency and encourage participation.
+* **Offer a small, stackable discount (e.g., 5-10%)** – Enhance your other onsite deals, to boost conversions while maintaining flexibility.
+* Diversify reward types – Experiment with non-monetary incentives like **free gifts, exclusive access, or giveaway entries** to keep the referral program fresh and engaging.
 
 ## Don't Forget A/B Testing
 
