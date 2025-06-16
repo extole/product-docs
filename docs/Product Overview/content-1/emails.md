@@ -26,83 +26,37 @@ The following emails are just a few examples of communications from real Extole-
 
 ### Share Email
 
-**From**: Your advocate  
-**To**: Her friends  
-**When**: At key moments of delight during the customer journey  
-**Purpose**: To share an authentic, personal recommendation that results in high-converting  
+**From**: Your advocate\
+**To**: Her friends\
+**When**: At key moments of delight during the customer journey\
+**Purpose**: To share an authentic, personal recommendation that results in high-converting\
 traffic to your site
 
 When you let your existing customers give personal recommendations about your brand or product, they will send compelling and powerful emails. Email is the highest converting referral channel—more effective than sharing on Facebook, Twitter, or Instagram. It’s also easier than a share link for referred friends to find later.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/091b606-9d5807d-unnamed.png",
-        "9d5807d-unnamed.png",
-        "A mobile view of a share email from Everlywell's referral program"
-      ],
-      "align": "center",
-      "sizing": "30% "
-    }
-  ]
-}
-[/block]
-
-
+<Image align="center" width="30% " src="https://files.readme.io/091b606-9d5807d-unnamed.png" />
 
 ### Mail After Purchase Email
 
-**From**: Your brand  
-**To**: Every recent purchaser  
-**When**: Triggered by and scheduled after conversion  
+**From**: Your brand\
+**To**: Every recent purchaser\
+**When**: Triggered by and scheduled after conversion\
 **Purpose**: To build on the excitement and experience every customer has after a purchase
 
-In <<glossary:My Extole>>, you can schedule this email to go out immediately or after a specified number of days following the purchase. But don’t wait too long to inform your recent customers of their ability to refer—it's a high-performing and valuable moment of delight when they are more likely to refer.
+In <Glossary>My Extole</Glossary>, you can schedule this email to go out immediately or after a specified number of days following the purchase. But don’t wait too long to inform your recent customers of their ability to refer—it's a high-performing and valuable moment of delight when they are more likely to refer.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/f9aa03f-75f0693-unnamed_1.png",
-        "75f0693-unnamed_1.png",
-        253
-      ],
-      "align": "center",
-      "sizing": "40"
-    }
-  ]
-}
-[/block]
-
-
+<Image align="center" width="40%" src="https://files.readme.io/f9aa03f-75f0693-unnamed_1.png" />
 
 ### Earned Reward Email
 
-**From**: Your Brand  
-**To**: Your Advocate  
-**When**: After one of her referred friends makes a qualifying purchase  
-**Purpose**: Deliver an earned reward, encourage another purchase from your advocate,  
+**From**: Your Brand\
+**To**: Your Advocate\
+**When**: After one of her referred friends makes a qualifying purchase\
+**Purpose**: Deliver an earned reward, encourage another purchase from your advocate,\
 spark more sharing
 
 This email is one you want to have your advocate open without fail. The use of this reward represents an additional purchase opportunity, which adds value to your business and your advocate. Giving your advocates a great reward experience means they’re going to be more inclined to share again.
 
 [//]: ___
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/c9acd05-f0f3d27-unnamed_3.png",
-        "f0f3d27-unnamed_3.png",
-        253
-      ],
-      "align": "center",
-      "sizing": "40"
-    }
-  ]
-}
-[/block]
+<Image align="center" width="40%" src="https://files.readme.io/c9acd05-f0f3d27-unnamed_3.png" />
