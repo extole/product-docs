@@ -88,7 +88,7 @@ Once a request is made, Extole will irreversibly psuedoanonymize the profile of 
 
 ### Data Processing Agreement
 
-Extole is a certified under the EU-U.S. Data Privacy Framework Principles. [See the Extole Privacy Shield certification at Extole, Inc. Privacy Shield (Active)](https://www.privacyshield.gov/participant?id=a2zt0000000TOFPAA4&status=Active).
+Extole is a certified under the EU-U.S. Data Privacy Framework Principles. [See the Extole Privacy Shield certification at Extole, Inc. Privacy Shield (Active)](https://www.privacyshield.gov/participant?id=a2zt0000000TOFPAA4\&status=Active).
 
 As part of Extole's GDPR readiness, Extole customers will have a choice to enter into our standard Data Processing Agreement (DPA) that includes the European Commission-approved Standard Contractual Clauses (Model Clauses). If you are an Extole customer and wish to enter into our DPA, please reach out to your Extole Customer Success Manager. 
 
@@ -112,52 +112,175 @@ Extole owns or controls access to the infrastructure that Extole uses to host Se
 
 Extole works with certain third parties to provide specific functionality within the Services. These providers are the sub-processors set forth below. In order to provide the relevant functionality these sub-processors access Service Data. Their use is limited to the indicated Services.
 
-[block:parameters]
-{
-  "data": {
-    "h-0": "Entity Name",
-    "h-1": "Purpose",
-    "h-2": "Data Shared",
-    "0-0": "Twilio",
-    "0-1": "Extole uses Twilio (SendGrid) to send program emails to participants.",
-    "0-2": "Email",
-    "1-0": "Auth0",
-    "1-1": "Extole may use Auth0 to allow for SSO (single sign-on) authentication of users.",
-    "1-2": "Email  \nAdditional identifiers optionally passed by the client's IdP ",
-    "2-0": "Tango Card",
-    "2-1": "Extole may use Tango Card when delivering electronic gift card rewards through email to program participants.",
-    "2-2": "Client Identifier  \nRecipient Email - person earning gift card  \nGift Card SKU  \nGift Card Value ",
-    "3-0": "Tremendous",
-    "3-1": "Extole may use Tremendous when delivering electronic gift card rewards through email to program participants.",
-    "3-2": "Client Identifier  \nRecipient Email - person earning gift card  \nGift Card SKU  \nGift Card Value",
-    "4-0": "Blackhawk Network",
-    "4-1": "Extole may use Blackhawk Network when delivering electronic gift card rewards or USPS gift card rewards to program participants.",
-    "4-2": "Client Identifier  \nRecipient Email - person earning gift card  \nRecipient Mailing Address  \nGift Card SKU  \nGift Card Value ",
-    "5-0": "MaxMind",
-    "5-1": "Extole may use MaxMind for the GeoIP database and minFraud services to augment Quality Rule decisions.",
-    "5-2": "IP Address",
-    "6-0": "Intercom",
-    "6-1": "Extole uses Intercom to manage Tier 1 client requests from client organizations to Extole.",
-    "6-2": "As part of Extole support servicing these requests, limited PII for a program may be shared through these tools.",
-    "7-0": "Atlassian",
-    "7-1": "Extole uses Atlassian JIRA to manage Tier 2 client requests from client organizations to Extole.",
-    "7-2": "As part of Extole support servicing these requests, limited PII for a program may be shared through these tools.",
-    "8-0": "Slack Technologies",
-    "8-1": "Extole uses Slack to securely communicate internally or externally to a Client organization.",
-    "8-2": "As part of Extole support servicing client requests, limited PII for a program may be shared through these tools.",
-    "9-0": "Google",
-    "9-1": "Extole uses Google Workspace for corporate intranet.",
-    "9-2": "Extole intranet resources may contain client contact information."
-  },
-  "cols": 3,
-  "rows": 10,
-  "align": [
-    "left",
-    "left",
-    "left"
-  ]
-}
-[/block]
+<Table align={["left","left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Entity Name
+      </th>
 
+      <th>
+        Purpose
+      </th>
+
+      <th>
+        Data Shared
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        Twilio
+      </td>
+
+      <td>
+        Extole uses Twilio (SendGrid) to send program emails to participants.
+      </td>
+
+      <td>
+        Email
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Auth0
+      </td>
+
+      <td>
+        Extole may use Auth0 to allow for SSO (single sign-on) authentication of users.
+      </td>
+
+      <td>
+        Email\
+        Additional identifiers optionally passed by the client's IdP 
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Tango Card
+      </td>
+
+      <td>
+        Extole may use Tango Card when delivering electronic gift card rewards through email to program participants.
+      </td>
+
+      <td>
+        Client Identifier\
+        Recipient Email - person earning gift card\
+        Gift Card SKU\
+        Gift Card Value 
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Tremendous
+      </td>
+
+      <td>
+        Extole may use Tremendous when delivering electronic gift card rewards through email to program participants.
+      </td>
+
+      <td>
+        Client Identifier\
+        Recipient Email - person earning gift card\
+        Gift Card SKU\
+        Gift Card Value
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Blackhawk Network
+      </td>
+
+      <td>
+        Extole may use Blackhawk Network when delivering electronic gift card rewards or USPS gift card rewards to program participants.
+      </td>
+
+      <td>
+        Client Identifier\
+        Recipient Email - person earning gift card\
+        Recipient Mailing Address\
+        Gift Card SKU\
+        Gift Card Value 
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        MaxMind
+      </td>
+
+      <td>
+        Extole may use MaxMind for the GeoIP database and minFraud services to augment Quality Rule decisions.
+      </td>
+
+      <td>
+        IP Address
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Intercom
+      </td>
+
+      <td>
+        Extole uses Intercom to manage Tier 1 client requests from client organizations to Extole.
+      </td>
+
+      <td>
+        As part of Extole support servicing these requests, limited PII for a program may be shared through these tools.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Atlassian
+      </td>
+
+      <td>
+        Extole uses Atlassian JIRA to manage Tier 2 client requests from client organizations to Extole.
+      </td>
+
+      <td>
+        As part of Extole support servicing these requests, limited PII for a program may be shared through these tools.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Slack Technologies
+      </td>
+
+      <td>
+        Extole uses Slack to securely communicate internally or externally to a Client organization.
+      </td>
+
+      <td>
+        As part of Extole support servicing client requests, limited PII for a program may be shared through these tools.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Google
+      </td>
+
+      <td>
+        Extole uses Google Workspace for corporate intranet.
+      </td>
+
+      <td>
+        Extole intranet resources may contain client contact information.
+      </td>
+    </tr>
+  </tbody>
+</Table>
 
 [//]: ___
