@@ -24,23 +24,7 @@ The Extole platform includes a feature called My Audiences, which is your homeba
 
 The audience creation process is simple—all you need to do is upload a file of email addresses or create an audience from a completed audience report. You can always add or delete audience members either individually or in bulk to ensure you're reaching the right group of people.
 
-[block:image]
-{
-  "images": [
-    {
-      "image": [
-        "https://files.readme.io/46cee41-Screenshot_2024-03-06_at_4.00.19_PM.png",
-        "",
-        ""
-      ],
-      "align": "center"
-    }
-  ]
-}
-[/block]
-
-
-
+<Image align="center" src="https://files.readme.io/46cee41-Screenshot_2024-03-06_at_4.00.19_PM.png" />
 
 [//]: ___
 
@@ -52,37 +36,37 @@ Your My Audiences page also includes a collection of Extole-generated segments o
 
 ### Successful Advocates
 
-**Who are my advocates who have shared and driven one high-quality outcome?**  
+**Who are my advocates who have shared and driven one high-quality outcome?**\
 You can target your Successful Advocates with more marketing placements (onsite CTAs, promotional emails) to keep them sharing and driving more high-quality outcomes. Let's move them into the Revenue Drivers segment!
 
 ### Revenue Drivers
 
-**Who are my advocates who have shared and driven two high-quality outcomes?**  
+**Who are my advocates who have shared and driven two high-quality outcomes?**\
 Similarly, target your Revenue Drivers with increased marketing placements (onsite CTAs, promotional emails) so that they stay active and engaged. The more prominent your program is and the easier it is to access the share experience, the more likely it is that these folks will move into your Super Advocates tier.
 
 ### Super Advocates
 
-**Who are my advocates who have shared and driven three or more high-quality outcomes?**  
+**Who are my advocates who have shared and driven three or more high-quality outcomes?**\
 Your Super Advocates are special. You should treat them differently and perhaps target them with a unique program. This segment is a great candidate for an Influencer program.
 
 ### Affiliates
 
-**Who are my advocates who have shared and driven more than ten high-quality outcomes?**  
+**Who are my advocates who have shared and driven more than ten high-quality outcomes?**\
 Like your Super Advocates, your Affiliates would be a perfect audience for an Influencer program. The goal is to make it as easy as possible for them to share (i.e. deliver their share code in a personalized email, not an onsite share experience) and give them a heightened reward for doing so.
 
 ### Biggest Network
 
-**Who has the deepest relationships?**  
+**Who has the deepest relationships?**\
 Entice those in the Biggest Network segment to engage more by offering unique programs, like Nominate a Friend or Sweepstakes.
 
 ### Most Engaged People
 
-**Who has the highest number of events?**  
+**Who has the highest number of events?**\
 Keep your Most Engaged People segment engaged and thank them for their activity with a Surprise and Delight program.
 
 ### Referred Friends
 
-**Who has been shared with and what steps have they taken?**  
+**Who has been shared with and what steps have they taken?**\
 Re-market to these folks to get them to become advocates themselves!
 
 [//]: ___
@@ -95,11 +79,11 @@ Re-market to these folks to get them to become advocates themselves!
 
 The Successful Advocates, Revenue Drivers, Super Advocates, and Affiliates segments give you a list of advocates in each segment with the following information:
 
-- The date of their most recent activity, including advocations (e.g., shared, dropped a hint, left a rating, left a review, etc.) and outcomes (e.g. registered, converted, opened an account, etc.)
-- How many activities they've performed
-- How many people they've influenced
-- How many actions they've influenced, typically outcomes (e.g., registrations, conversions, account openings, etc.)
-- How much revenue they've influenced
+* The date of their most recent activity, including advocations (e.g., shared, dropped a hint, left a rating, left a review, etc.) and outcomes (e.g. registered, converted, opened an account, etc.)
+* How many activities they've performed
+* How many people they've influenced
+* How many actions they've influenced, typically outcomes (e.g., registrations, conversions, account openings, etc.)
+* How much revenue they've influenced
 
 For more on these segments, please read about our Advocate Tiers.
 
@@ -107,22 +91,22 @@ For more on these segments, please read about our Advocate Tiers.
 
 The Biggest Network segment gives you a list of people who have a network size greater than three. Data on this segment will provide you with the following information:
 
-- A person's network size: The total count of all their "child" relationships, which is determined based on all the data we have about the person. A person's network size never shrinks.
-- Network Activity: A count of the number of people that were active in the network during the specified time period. Being "active" means a person performed an advocation (e.g., shared, dropped a hint, left a rating, left a review, etc.) or an outcome (e.g., registered, converted, opened an account, etc.).
-- Value of Network Activity: The total value of outcome events (e.g., registrations, conversions, account openings, etc.) during the specified time period.
-- Network Size Growth: The number of new relationships in the network for the specified time period. If an advocate refers a person who already has a network, then this growth number includes the friend's entire network.
+* A person's network size: The total count of all their "child" relationships, which is determined based on all the data we have about the person. A person's network size never shrinks.
+* Network Activity: A count of the number of people that were active in the network during the specified time period. Being "active" means a person performed an advocation (e.g., shared, dropped a hint, left a rating, left a review, etc.) or an outcome (e.g., registered, converted, opened an account, etc.).
+* Value of Network Activity: The total value of outcome events (e.g., registrations, conversions, account openings, etc.) during the specified time period.
+* Network Size Growth: The number of new relationships in the network for the specified time period. If an advocate refers a person who already has a network, then this growth number includes the friend's entire network.
 
 ### Most Engaged People
 
 The Most Engaged People segment gives you the ability to see which customers are interacting with your brand, regardless of whether they are an advocate, a friend, or both. Activities include advocations (e.g. shares, hints dropped, ratings, reviews) as well as outcomes (e.g. registrations, conversions, account openings, etc.). Data on this segment provides you with the following information:
 
-- The date of the person's most recent activity
-- The date of the person's first activity
-- The date of the person's last activity
-- How many activities they've performed (i.e., the sum of advocations and outcomes)
-- How many advocations they've performed (i.e., the sum of shares, hints dropped, ratings, reviews)
-- How many outcomes they've performed (i.e., the sum of registrations, conversions, account openings, etc.)
-- The value of the outcomes they've performed
+* The date of the person's most recent activity
+* The date of the person's first activity
+* The date of the person's last activity
+* How many activities they've performed (i.e., the sum of advocations and outcomes)
+* How many advocations they've performed (i.e., the sum of shares, hints dropped, ratings, reviews)
+* How many outcomes they've performed (i.e., the sum of registrations, conversions, account openings, etc.)
+* The value of the outcomes they've performed
 
 ### Referred Friends
 
