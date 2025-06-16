@@ -54,7 +54,7 @@ In cases where you may want to get creative with your rewards, we can work with 
 
 ## Reward Fulfillment Tracking
 
-You can easily track the fulfillment of your program rewards in <<glossary:My Extole>>. Our platform provides a powerful way for you to know exactly how many rewards are going out each week and how many of your customers are redeeming them. Any of the reward types described above can be tracked, not just coupons. 
+You can easily track the fulfillment of your program rewards in <Glossary>My Extole</Glossary>. Our platform provides a powerful way for you to know exactly how many rewards are going out each week and how many of your customers are redeeming them. Any of the reward types described above can be tracked, not just coupons. 
 
 [//]: ___
 
