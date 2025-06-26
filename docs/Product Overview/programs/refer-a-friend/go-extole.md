@@ -1,5 +1,8 @@
 ---
 title: Go Extole
+excerpt: >-
+  Turn real-world customer interactions into growth opportunities with the Go
+  Extole app.
 deprecated: false
 hidden: true
 metadata:
@@ -7,7 +10,7 @@ metadata:
 ---
 ## Overview
 
-Turn real-world customer interactions into growth opportunities with the Go Extole app. This mobile application enables field team members, store associates, sales representatives, and other employees to leverage in-person customer moments for referral marketing and customer acquisition. Whether sharing a QR code during a service call, or promoting your customer referral program at events, Go Extole makes it simple to capture referral opportunities anywhere.
+Go Extole enables field team members, store associates, sales representatives, and other employees to leverage in-person customer moments for referral marketing and customer acquisition. Whether sharing a QR code during a service call, or promoting your customer referral program at events, Go Extole makes it simple to capture referral opportunities anywhere.
 
 <Image align="center" width="250px" src="https://files.readme.io/3a528bd1e342885ca0de3f0bc35ccd2a2e13b8126ece9d791f410c2400f8ad22-image.png" />
 
