@@ -20,7 +20,7 @@ Go Extole enables field team members, store associates, sales representatives, a
 
 It is completely up to you and your team to determine which employees are eligible to participate in the program. Using Extole Audiences, you can easily set up your program so that it is only accessible to a specific group.
 
-Extole Audiences allow you to add and remove members both individually and in bulk. If you would like to update your audience at a regular cadence, we can also set up an automated SFTP workflow to update your audience on your desired schedule.
+Extole Audiences allow you to add and remove members individually, in bulk or based on rules. If you would like to update your audience at a regular cadence, we can also set up an automated SFTP workflow to update your audience on your desired schedule.
 
 ## Why Use Go Extole?
 
