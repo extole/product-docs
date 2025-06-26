@@ -29,6 +29,10 @@ The Go Extole app provides an easy and delightful way to refer customers in pers
 
 You can customize the landing page experience for customers who interact with your employees' referral codes. Control what they see, the messaging they receive, and the actions they should take, all configured on the Extole platform.
 
+<Image align="center" width="250px" src="https://files.readme.io/70072b9ecfae215d15d2f19377ad69eae0953a34b3d3090ae80a0e4d6bac1925-image.png" />
+
+<br />
+
 ## Employee Journey
 
 The employee experience with Go Extole follows a simple, intuitive flow. Once eligible employees are ready to use Go Extole, they:
