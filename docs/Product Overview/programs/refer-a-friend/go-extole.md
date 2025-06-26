@@ -42,44 +42,54 @@ The employee experience with Go Extole follows a simple, intuitive flow. Once el
 
 ## Customer Journey
 
-Customers referred by an employee can use the employee's share link or code to go on to purchase the product, upgrade their subscription, or sign up for an additional service. The use for the link or code will tie the outcome back to the employee who referred them.
+When customers interact with an employee's referral, they experience a seamless journey:
+
+1. **Scan the QR code** or click the referral link
+2. **Land on your customized landing page** with targeted messaging
+3. **Take the desired action** (e.g. sign up, enter email, schedule appointment)
+4. **Complete the rewardable event** (e.g. purchase, subscription, account opening)
+5. **Receive their reward** automatically through Extole
+
+The experience is branded to your company and optimized for mobile devices.
+
+## Customer-to-Advocate Journey
+
+In addition to referring customers directly, employees can use Go Extole to promote a customer-facing referral program. This dual functionality turns existing customers into advocates who can refer their friends and family.\
+When promoting the customer-facing program:
+
+* Employees share a QR code or link to the customer-facing referral program
+* Customers scan the QR code or click the link, and join as advocates
+* Customers earn rewards for successful referrals to friends and family
+
+##
 
 ## Rules and Rewarding
 
-Once the referred customer completes the desired outcome of your program, your employee will be rewarded. Your company can provide Extole with coupons, configure gift cards with one of our partner providers, set up direct deposits or even callback to your existing employee reward system via API, file or Webhooks. with point values. Extole will track your employees' referrals or sales, and can administer the rewards once earned.
+When referred by the employee, once the customer completes the desired actions in your program, your employee will be rewarded. Your company can provide Extole with coupons, configure gift cards with one of our partner providers, set up direct deposits, or even callback to your existing employee reward system via API, file, or Webhooks. Extole will track your employees' referrals, and can administer the rewards once earned.
 
 ### Tiered Rewards
 
-Rewards for your employees can also be tiered to drive further engagement or a series of actions. The successful sale of specific products or subscriptions can result in different rewards, or the number of referrals can result in different rewards.
-
-For example, if you're running a referral program for your sales reps, you could set up reward tiers that correspond to the size or impact of their deals.
+Rewards for your employees can also be tiered to drive further engagement or a series of actions. The successful referral of specific products or subscriptions can result in different rewards, or the number of referrals can result in different rewards.
 
 ## Performance and Data
 
-Data is the heart of your referral program. It can give you insight into your top performing employees and your overall customer base. Extole program dashboards and reporting can help you make data-driven decisions to create new or improve existing marketing initiatives for your company.
+Data is the heart of your referral program. It can give you insight into your top-performing employees and your overall customer base. Extole program dashboards and reporting can help you make data-driven decisions to create new or improve existing marketing initiatives for your company.
 
 Two key metrics that indicate the health of your funnel and success of your referral program are acquisition rate and participation rate.
 
 #### Acquisition Rate
 
-The acquisition rate measures the effectiveness of a program; in other words, what is the likelihood that and individual will lead to a new customer conversion? This rate is calculated by dividing the number of conversions by the number of advocates.
+The acquisition rate measures the effectiveness of a program; in other words, what is the likelihood that an individual will lead to a new customer conversion? This rate is calculated by dividing the number of conversions by the number of advocates.
 
 #### Participation Rate
 
-The participation rate measures approximately the percentage of your employees (or additional audience) participating in your program. A strong participation rate indicates the effectiveness of a program to engage advocates. Your participation rate is most often a result of your promotional strategy.
+The participation rate measures approximately the percentage of your employees (or additional audience) participating in your program. A strong participation rate indicates the effectiveness of a program to engage advocates. Your participation rate is most often a result of your promotional strategy internally within your company.
 
-These basic performance metrics, as well as impact metrics an quality metrics, are reflected in your dashboards and can be pulled from your program using Extole's reporting capabilities.
+These and other metrics are reflected in your Extole dashboards and can be pulled from your program using Extole's reporting capabilities.
 
-## Examples
+## Availability
 
-### Lumen
+Go Extole is available on both iOS and Android platforms:
 
-Lumen, a telecom powerhouse, runs several employee programs that cater to different aspects of their business. The Score! program, for example, enables employees to earn unlimited rewards for successfully referring their home internet installation service. Meanwhile, their Connected Communities program is specifically designed for property managers, movers, tenants and residents working in areas where homes are eligible for Quantum Fiber internet.
-
-<Image align="center" alt="Employees working in eligible locations can earn unlimited rewards referring Lumen's Quantum Fiber internet service." border={false} caption="Employees working in eligible locations can earn unlimited rewards referring Lumen's Quantum Fiber internet service." src="https://files.readme.io/44abead-Screenshot_2024-02-27_at_1.17.17_PM.png" />
-
-### Paylocity
-
-Paylocity, an HR and payroll software company, use Extole to encourage their sales reps to refer Paylocity to clients. All employees are welcome to participate and receive a personal QR code upon filling out the form in the Share Experience pictured below. Once they successfully refer a client, a lead gets created for that Salesperson within their CRM system and any new customers that sign up result in an employee earning gift card rewards based on the size of the business—the larger the business, the larger the reward.
-
-<Image align="center" alt="Paylocity employees simply fill out the form and receive their personal QR code to share with clients." border={false} caption="Paylocity employees simply fill out the form and receive their personal QR code to share with clients." src="https://files.readme.io/e3ade01-Screenshot_2024-02-27_at_12.21.42_PM.png" />
+* iOS: Available on the [App Store](https://apps.apple.com/us/app/go-extole/id6744177625?platform=iphone) for iPhone and iPad
+* Android: Available on [Google Play](https://play.google.com/store/apps/details?id=com.extole.go\&hl=en_US) for Android devices
