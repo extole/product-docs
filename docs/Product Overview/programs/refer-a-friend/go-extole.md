@@ -19,7 +19,8 @@ Extole Audiences allow you to add and remove members both individually and in bu
 
 The Go Extole app provides an easy and delightful way to refer customers in person. Key benefits include:
 
-* **Instant access to referral tools** during customer interactions
+**Instant access to referral tools** during customer interactions
+
 * **Personalized QR codes and share links** for each employee
 * **Real-time tracking** of referrals and rewards
 * **Flexible sharing options** via SMS, social media, or other apps
@@ -33,22 +34,24 @@ You can customize the landing page experience for customers who interact with yo
 
 The employee experience with Go Extole follows a simple, intuitive flow. Once eligible employees are ready to use Go Extole, they:
 
-1. **Download the Go Extole app** from the App Store or Google Play
-2. **Enter their company name and email address**; they will receive an email verification link
-3. **Click the link** in the Go Extole verification email to log in
-4. **Access their personal QR code** or shareable link
-5. **Share with customers** during in-person interactions or digitally
-6. **Track referrals** and see rewards earned in real-time
+**Download the Go Extole app** from the App Store or Google Play
+
+1. **Enter their company name and email address**; they will receive an email verification link
+2. **Click the link** in the Go Extole verification email to log in
+3. **Access their personal QR code** or shareable link
+4. **Share with customers** during in-person interactions or digitally
+5. **Track referrals** and see rewards earned in real-time
 
 ## Customer Journey
 
 When customers interact with an employee's referral, they experience a seamless journey:
 
-1. **Scan the QR code** or click the referral link
-2. **Land on your customized landing page** with targeted messaging
-3. **Take the desired action** (e.g. sign up, enter email, schedule appointment)
-4. **Complete the rewardable event** (e.g. purchase, subscription, account opening)
-5. **Receive their reward** automatically through Extole
+**Scan the QR code** or click the referral link
+
+1. **Land on your customized landing page** with targeted messaging
+2. **Take the desired action** (e.g. sign up, enter email, schedule appointment)
+3. **Complete the rewardable event** (e.g. purchase, subscription, account opening)
+4. **Receive their reward** automatically through Extole
 
 The experience is branded to your company and optimized for mobile devices.
 
