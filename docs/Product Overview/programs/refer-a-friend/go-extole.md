@@ -54,7 +54,8 @@ The experience is branded to your company and optimized for mobile devices.
 
 ## Customer-to-Advocate Journey
 
-In addition to referring customers directly, employees can use Go Extole to promote a customer-facing referral program. This dual functionality turns existing customers into advocates who can refer their friends and family.\
+In addition to referring customers directly, employees can use Go Extole to promote a customer-facing referral program. This dual functionality turns existing customers into advocates who can refer their friends and family.
+
 When promoting the customer-facing program:
 
 * Employees share a QR code or link to the customer-facing referral program
