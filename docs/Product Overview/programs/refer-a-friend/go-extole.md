@@ -10,6 +10,14 @@ metadata:
 ---
 ## Overview
 
+#### Availability
+
+Go Extole is available on both iOS and Android platforms
+
+[![Go Extole App Store Link](https://files.readme.io/e0676359c321b61c5047104ee47d3252f0e91bac2b37af55a8d40002e845c7a8-Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg)](https://apps.apple.com/us/app/go-extole/id6744177625?platform=iphone)
+
+Android: Available on [Google Play](https://play.google.com/store/apps/details?id=com.extole.go\&hl=en_US) for Android devices
+
 Go Extole enables field team members, store associates, sales representatives, and other employees to leverage in-person customer moments for referral marketing and customer acquisition. Whether sharing a QR code during a service call, or promoting your customer referral program at events, Go Extole makes it simple to capture referral opportunities anywhere.
 
 <Image align="center" width="250px" src="https://files.readme.io/c58b22f1a132b22c942b167181835b24737e149b8bec5f7358b262722e491ac7-image.png" />
@@ -100,10 +108,3 @@ The acquisition rate measures the effectiveness of a program; in other words, wh
 The participation rate measures approximately the percentage of your employees (or additional audience) participating in your program. A strong participation rate indicates the effectiveness of a program to engage advocates. Your participation rate is most often a result of your promotional strategy internally within your company.
 
 These and other metrics are reflected in your Extole dashboards and can be pulled from your program using Extole's reporting capabilities.
-
-## Availability
-
-Go Extole is available on both iOS and Android platforms:
-
-* iOS: Available on the [App Store](https://apps.apple.com/us/app/go-extole/id6744177625?platform=iphone) for iPhone and iPad
-* Android: Available on [Google Play](https://play.google.com/store/apps/details?id=com.extole.go\&hl=en_US) for Android devices
