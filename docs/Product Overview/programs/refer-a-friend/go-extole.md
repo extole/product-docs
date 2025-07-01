@@ -42,10 +42,6 @@ The Go Extole app provides an easy and delightful way to refer customers in pers
 * **Flexible sharing options** via SMS, social media, or other apps
 * **Dual-purpose functionality** for direct referrals or promoting customer referral programs
 
-<Image align="center" width="250px" src="https://files.readme.io/70072b9ecfae215d15d2f19377ad69eae0953a34b3d3090ae80a0e4d6bac1925-image.png" />
-
-<br />
-
 ## How Employees use Go Extole
 
 Once eligible employees are ready to use the app, they:
@@ -56,8 +52,6 @@ Once eligible employees are ready to use the app, they:
 4. **Access their personal QR code** or shareable link
 5. **Share with customers** during in-person interactions or digitally
 6. **Track referrals** and see rewards earned in real-time
-
-<Image align="center" width="250px" src="https://files.readme.io/d73f5cbb3bafde36507bb2f3acd8767a6c7d30bff800aeba0f157b3984617792-image.png" />
 
 ## Customer Journey
 
