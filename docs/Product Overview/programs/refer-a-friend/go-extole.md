@@ -16,7 +16,7 @@ Go Extole's purpose is to deliver an Extole program to your employees' mobile de
 
 #### Availability
 
-Go Extole is available on both iOS and Android platforms
+Go Extole is available for both iOS and Android devices
 
 <HTMLBlock>{`
 <center>
