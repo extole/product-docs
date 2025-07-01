@@ -75,7 +75,7 @@ The experience is branded to your company and optimized for mobile devices.
 
 When referred by the employee, once the customer completes the desired actions in your program, your employee will be rewarded. Your company can provide Extole with coupons, configure gift cards with one of our partner providers, set up direct deposits, or even callback to your existing employee reward system via API, file, or Webhooks. Extole will track your employees' referrals, and can administer the rewards once earned, or your employees can redeem their rewards in-app using [Reward Bank](https://dev.extole.com/docs/reward-bank).
 
-<Image align="center" border={false} caption="Stats dashboard" src="https://files.readme.io/6de6b67a814c8ec53ce4961ac5ee0edb53f5ff3f3363e888905a5151380422d8-history2.png" />
+<Image align="center" border={false} caption="Referral stats" src="https://files.readme.io/6de6b67a814c8ec53ce4961ac5ee0edb53f5ff3f3363e888905a5151380422d8-history2.png" />
 
 ### Tiered Rewards
 
