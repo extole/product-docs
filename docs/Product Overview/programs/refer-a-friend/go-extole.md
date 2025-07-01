@@ -45,7 +45,7 @@ You have control over who can participate in the program and access the Go Extol
 
 Once eligible employees are ready to use the app, they:
 
-1. **Download the Go Extole app** from the App Store or Google Play
+1. **Download the Go Extole app** from the [App Store](https://apps.apple.com/us/app/go-extole/id6744177625?platform=iphone) or [Google Play](https://play.google.com/store/apps/details?id=com.extole.go\&hl=en_US)
 2. **Enter their company name and email address**; they will receive an email verification link
 3. **Click the link** in the Go Extole verification email to log in
 4. **Access their personal QR code** or shareable link
