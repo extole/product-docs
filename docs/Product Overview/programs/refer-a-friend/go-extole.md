@@ -4,7 +4,7 @@ excerpt: >-
   Turn real-world customer interactions into growth opportunities with the Go
   Extole mobile app.
 deprecated: false
-hidden: true
+hidden: false
 metadata:
   robots: index
 ---
