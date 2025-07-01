@@ -17,11 +17,11 @@ Go Extole is available on both iOS and Android platforms
 <HTMLBlock>{`
 <center>
 <a href="https://apps.apple.com/us/app/go-extole/id6744177625?itscg=30200&itsct=apps_box_badge&mttnsubad=6744177625" style="display: inline-block;">
-<img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1748908800" alt="Download on the App Store" style="width: 200px; height: 70px; vertical-align: middle; object-fit: contain; padding: 16px;" />
+<img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1748908800" alt="Download on the App Store" style="width: 200px; height: 70px; vertical-align: middle; object-fit: contain; padding: 14px;" />
 </a>
 &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="https://play.google.com/store/apps/details?id=com.extole.go&hl=en_US" style="display: inline-block;">
-<img src="https://files.readme.io/04b1ca049ee3fdf9893c9d46ad6e9ea51f88e4d7069215cc1665014174576230-GetItOnGooglePlay_Badge_Web_color_English.png" alt="Get it on Google Play" style="width: 200px; height: 70px; vertical-align: middle; object-fit: contain; padding: 16px;" />
+<img src="https://files.readme.io/04b1ca049ee3fdf9893c9d46ad6e9ea51f88e4d7069215cc1665014174576230-GetItOnGooglePlay_Badge_Web_color_English.png" alt="Get it on Google Play" style="width: 200px; height: 70px; vertical-align: middle; object-fit: contain; padding: 14px;" />
 </a>
 </center>
 `}</HTMLBlock>
