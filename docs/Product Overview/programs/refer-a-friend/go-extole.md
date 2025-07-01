@@ -35,7 +35,7 @@ The Go Extole app provides an easy and delightful way to refer customers in pers
 * **Personalized QR codes and share links** for each employee
 * **Stats dashboard** of who was referred, which rewardable steps were taken, and the reward status
 * **Reward redemptions in-app** via [Reward Bank](https://dev.extole.com/docs/reward-bank)
-* **Support for multiple Extole programs**
+* **Support for multiple Extole programs** simultaneously
 
 ## Target Your Employees
 
