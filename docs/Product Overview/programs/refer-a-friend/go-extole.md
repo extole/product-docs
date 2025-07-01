@@ -22,7 +22,7 @@ Go Extole is available on both iOS and Android platforms
 	<img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&amp;releaseDate=1276560000&h=7e7b68fad19738b5649a1bfb78ff46e9" alt="Download on the App Store" height="40"></a>
 &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="https://play.google.com/store/apps/details?id=com.extole.go&hl=en_US">
-	<img src="https://files.readme.io/04b1ca049ee3fdf9893c9d46ad6e9ea51f88e4d7069215cc1665014174576230-GetItOnGooglePlay_Badge_Web_color_English.png" alt="Get it on Google Play" height="40">
+	<img src="https://files.readme.io/04b1ca049ee3fdf9893c9d46ad6e9ea51f88e4d7069215cc1665014174576230-GetItOnGooglePlay_Badge_Web_color_English.png" alt="Get it on Google Play" height="30">
 </a>
 </center>
 `}</HTMLBlock>
