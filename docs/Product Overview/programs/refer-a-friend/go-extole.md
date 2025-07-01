@@ -39,6 +39,8 @@ The Go Extole app provides an easy and delightful way to refer customers in pers
 * **Reward redemptions in-app** via [Reward Bank](https://dev.extole.com/docs/reward-bank)
 * **Support for multiple Extole programs** simultaneously
 
+<Image align="center" src="https://files.readme.io/663c39854fe7281b04d868518d3fb33d2b426e277f5929033e60de11768fb483-sharing.png" />
+
 ## Target Your Employees
 
 You have control over who can participate in the program and access the Go Extole app using Extole Audiences. You can add or remove members individually, in bulk, or based on rules through the Extole UI, Extole's [People API](https://dev.extole.com/reference/people-endpoints), [file uploads](https://dev.extole.com/docs/general-file-uploads), or [automated SFTP workflows](https://dev.extole.com/docs/files).
