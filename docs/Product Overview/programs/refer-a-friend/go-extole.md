@@ -28,10 +28,6 @@ Go Extole is available on both iOS and Android platforms
 </center>
 `}</HTMLBlock>
 
-## Target Your Employees
-
-You have control over who can participate in the program and access the Go Extole app using Extole Audiences. You can add or remove members individually, in bulk, or based on rules through the Extole UI, Extole's [People API](https://dev.extole.com/reference/people-endpoints), [file uploads](https://dev.extole.com/docs/general-file-uploads), or [automated SFTP workflows](https://dev.extole.com/docs/files).
-
 ## App Features
 
 The Go Extole app provides an easy and delightful way to refer customers in person. Key features include:
@@ -40,6 +36,10 @@ The Go Extole app provides an easy and delightful way to refer customers in pers
 * **Stats dashboard** of who was referred, which rewardable steps were taken, and the reward status
 * **Reward redemptions in-app** via [Reward Bank](https://dev.extole.com/docs/reward-bank)
 * **Support for multiple Extole programs**
+
+## Target Your Employees
+
+You have control over who can participate in the program and access the Go Extole app using Extole Audiences. You can add or remove members individually, in bulk, or based on rules through the Extole UI, Extole's [People API](https://dev.extole.com/reference/people-endpoints), [file uploads](https://dev.extole.com/docs/general-file-uploads), or [automated SFTP workflows](https://dev.extole.com/docs/files).
 
 ## How Employees use Go Extole
 
