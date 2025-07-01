@@ -18,7 +18,7 @@ Go Extole is available on both iOS and Android platforms
 
 Android: Available on [Google Play](https://play.google.com/store/apps/details?id=com.extole.go\&hl=en_US) for Android devices
 
-Go Extole enables field team members, store associates, sales representatives, and other employees to leverage in-person customer moments for referral marketing and customer acquisition. Whether sharing a QR code during a service call, or promoting your customer referral program at events, Go Extole makes it simple to capture referral opportunities anywhere.
+Go Extole's purpose is to deliver an Extole program to your employee's mobile devices. It enables field team members, store associates, sales representatives, and other employees to leverage in-person customer moments for referral marketing and customer acquisition. Whether sharing a QR code during a service call, or promoting your customer referral program at events, Go Extole makes it simple to capture referral opportunities anywhere.
 
 <Image align="center" width="250px" src="https://files.readme.io/c58b22f1a132b22c942b167181835b24737e149b8bec5f7358b262722e491ac7-image.png" />
 
@@ -26,9 +26,7 @@ Go Extole enables field team members, store associates, sales representatives, a
 
 ## Target Your Employees
 
-It is completely up to you and your team to determine which employees are eligible to participate in the program. Using Extole Audiences, you can easily set up your program so that it is only accessible to a specific group.
-
-Extole Audiences allow you to add and remove members individually, in bulk or based on rules. If you would like to update your audience at a regular cadence, we can also set up an automated SFTP workflow to update your audience on your desired schedule.
+You have control over who can participate in the program and access the Go Extole app using Extole Audiences. You can add or remove members individually, in bulk, or based on rules through the Extole UI, Extole's [People API](https://dev.extole.com/reference/people-endpoints), [file uploads](https://dev.extole.com/docs/general-file-uploads), or [automated SFTP workflows](https://dev.extole.com/docs/files).
 
 ## Why Use Go Extole?
 
