@@ -14,8 +14,6 @@ metadata:
 
 Go Extole is available on both iOS and Android platforms
 
-<br />
-
 <HTMLBlock>{`
 <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
   <a href="https://apps.apple.com/us/app/go-extole/id6744177625?platform=iphone">
@@ -26,8 +24,6 @@ Go Extole is available on both iOS and Android platforms
   </a>
 </div>
 `}</HTMLBlock>
-
-<br />
 
 Go Extole's purpose is to deliver an Extole program to your employee's mobile devices. It enables field team members, store associates, sales representatives, and other employees to leverage in-person customer moments for referral marketing and customer acquisition. Whether sharing a QR code during a service call, or promoting your customer referral program at events, Go Extole makes it simple to capture referral opportunities anywhere.
 
