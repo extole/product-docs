@@ -36,7 +36,7 @@ The Go Extole app provides an easy and delightful way to refer customers in pers
 
 * **Personalized QR codes and share links** for each employee
 * **Stats dashboard** of who was referred, which rewardable steps were taken, and the reward status
-* **Reward redemptions in-app** via [Reward Bank](https://dev.extole.com/docs/reward-bank) (coming soon)
+* **Reward redemptions in-app** via [Reward Bank](https://dev.extole.com/docs/reward-bank)
 * **Support for multiple Extole programs** simultaneously
 
 <Image align="center" width="600px" src="https://files.readme.io/663c39854fe7281b04d868518d3fb33d2b426e277f5929033e60de11768fb483-sharing.png" />
@@ -55,7 +55,7 @@ Once eligible employees are ready to use the app, they:
 4. **Access their personal QR code** or shareable link
 5. **Share with customers** during in-person interactions or digitally
 6. **Track referrals** and see rewards earned in real-time
-7. **Receive rewards** automatically through the Extole platform, or redeem in-app via [Reward Bank](https://dev.extole.com/docs/reward-bank) (coming soon)
+7. **Receive rewards** automatically through the Extole platform, or redeem in-app via [Reward Bank](https://dev.extole.com/docs/reward-bank)
 
 Go Extole supports multiple program types to meet your business needs. Through employee referral programs, your employees can earn rewards by directly referring new customers. Employees can also recruit existing customers as advocates, encouraging those customers to refer their own friends and family. Additionally, on-the-go influencers can use their influencer program via the app to encourage their audience to sign up for a service.
 
@@ -75,7 +75,7 @@ The experience is branded to your company and optimized for mobile devices.
 
 ## Rules and Rewarding
 
-When referred by the employee, once the customer completes the desired actions in your program, your employee will be rewarded. Your company can provide Extole with coupons, configure gift cards with one of our partner providers, set up direct deposits, or even callback to your existing employee reward system via API, file, or Webhooks. Extole will track your employees' referrals, and can administer the rewards once earned, or your employees can redeem their rewards in-app using [Reward Bank](https://dev.extole.com/docs/reward-bank) (coming soon).
+When referred by the employee, once the customer completes the desired actions in your program, your employee will be rewarded. Your company can provide Extole with coupons, configure gift cards with one of our partner providers, set up direct deposits, or even callback to your existing employee reward system via API, file, or Webhooks. Extole will track your employees' referrals, and can administer the rewards once earned, or your employees can redeem their rewards in-app using [Reward Bank](https://dev.extole.com/docs/reward-bank).
 
 <Image align="center" width="300px" src="https://files.readme.io/6de6b67a814c8ec53ce4961ac5ee0edb53f5ff3f3363e888905a5151380422d8-history2.png" />
 
