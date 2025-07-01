@@ -38,10 +38,6 @@ The Go Extole app provides an easy and delightful way to refer customers in pers
 * **Flexible sharing options** via SMS, social media, or other apps
 * **Dual-purpose functionality** for direct referrals or promoting customer referral programs
 
-## Marketing
-
-You can customize the landing page experience for customers who interact with your employees' referral codes. Control what they see, the messaging they receive, and the actions they should take, all configured on the Extole platform.
-
 <Image align="center" width="250px" src="https://files.readme.io/70072b9ecfae215d15d2f19377ad69eae0953a34b3d3090ae80a0e4d6bac1925-image.png" />
 
 <br />
