@@ -28,6 +28,8 @@ Go Extole is available on both iOS and Android platforms
 </center>
 `}</HTMLBlock>
 
+<Image align="center" src="https://files.readme.io/c446f9376f0fd4410cd21f51c8f56ebefef24b4e7805e6207ebd26472f25ce7b-home.png" />
+
 ## App Features
 
 The Go Extole app provides an easy and delightful way to refer customers in person. Key features include:
