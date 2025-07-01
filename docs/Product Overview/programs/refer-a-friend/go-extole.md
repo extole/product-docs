@@ -28,8 +28,6 @@ Go Extole is available on both iOS and Android platforms
 </center>
 `}</HTMLBlock>
 
-<Image align="center" width="250px" src="https://files.readme.io/c58b22f1a132b22c942b167181835b24737e149b8bec5f7358b262722e491ac7-image.png" />
-
 ## Target Your Employees
 
 You have control over who can participate in the program and access the Go Extole app using Extole Audiences. You can add or remove members individually, in bulk, or based on rules through the Extole UI, Extole's [People API](https://dev.extole.com/reference/people-endpoints), [file uploads](https://dev.extole.com/docs/general-file-uploads), or [automated SFTP workflows](https://dev.extole.com/docs/files).
@@ -48,9 +46,9 @@ The Go Extole app provides an easy and delightful way to refer customers in pers
 
 <br />
 
-## Employee Journey
+## How Employees use Go Extole
 
-The employee experience with Go Extole follows a simple, intuitive flow. Once eligible employees are ready to use Go Extole, they:
+Once eligible employees are ready to use the app, they:
 
 1. **Download the Go Extole app** from the App Store or Google Play
 2. **Enter their company name and email address**; they will receive an email verification link
@@ -72,18 +70,6 @@ When customers interact with an employee's referral, they experience a seamless 
 5. **Receive their reward** automatically through Extole
 
 The experience is branded to your company and optimized for mobile devices.
-
-## Customer-to-Advocate Journey
-
-In addition to referring customers directly, employees can use Go Extole to promote a customer-facing referral program. This dual functionality turns existing customers into advocates who can refer their friends and family.
-
-When promoting the customer-facing program:
-
-* Employees share a QR code or link to the customer-facing referral program
-* Customers scan the QR code or click the link, and join as advocates
-* Customers earn rewards for successful referrals to friends and family
-
-<Image align="center" width="250px" src="https://files.readme.io/6937b740ce70d57aa173f07062217b28adeb714a9859aa334624cdcead97ccf7-image.png" />
 
 ## Rules and Rewarding
 
