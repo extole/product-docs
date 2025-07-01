@@ -28,7 +28,7 @@ Go Extole is available on both iOS and Android platforms
 </center>
 `}</HTMLBlock>
 
-<Image align="center" src="https://files.readme.io/c446f9376f0fd4410cd21f51c8f56ebefef24b4e7805e6207ebd26472f25ce7b-home.png" />
+<Image align="center" src="https://files.readme.io/16ddb3e6c4328df2d59c8610c2b227e8f5e7225c5279f7fc50ac8d53dc7e5693-home2.png" />
 
 ## App Features
 
