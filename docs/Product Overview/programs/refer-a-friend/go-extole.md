@@ -36,7 +36,7 @@ You have control over who can participate in the program and access the Go Extol
 
 The Go Extole app provides an easy and delightful way to refer customers in person. Key features include:
 
-* **Personalized QR codes and share links** for each employee
+* **Personalized QR codes and share links** for each employee. They can show the QR code in-
 * **Stats dashboard** of referrals and reward status
 * **Reward redemptions in-app** via [Reward Bank](https://dev.extole.com/docs/reward-bank)
 * **Support for multiple Extole programs**
