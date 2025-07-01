@@ -14,8 +14,6 @@ metadata:
 
 Go Extole is available on both iOS and Android platforms
 
-<Image align="center" src="https://files.readme.io/04b1ca049ee3fdf9893c9d46ad6e9ea51f88e4d7069215cc1665014174576230-GetItOnGooglePlay_Badge_Web_color_English.png" />
-
 <HTMLBlock>{`
 <center>
 <a href="https://apps.apple.com/us/app/go-extole/id6744177625?platform=iphone">
