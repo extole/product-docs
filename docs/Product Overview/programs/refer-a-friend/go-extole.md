@@ -28,11 +28,7 @@ Go Extole is available on both iOS and Android platforms
 </center>
 `}</HTMLBlock>
 
-<Image align="center" src="https://files.readme.io/16ddb3e6c4328df2d59c8610c2b227e8f5e7225c5279f7fc50ac8d53dc7e5693-home2.png" />
-
-<HTMLBlock>{`
-<center style="font-style: italic;">Go Extole home screen</center>
-`}</HTMLBlock>
+<Image align="center" border={false} caption="Go Extole home screen" src="https://files.readme.io/16ddb3e6c4328df2d59c8610c2b227e8f5e7225c5279f7fc50ac8d53dc7e5693-home2.png" />
 
 ## App Features
 
@@ -43,7 +39,7 @@ The Go Extole app provides an easy and delightful way to refer customers in pers
 * **Reward redemptions in-app** via [Reward Bank](https://dev.extole.com/docs/reward-bank)
 * **Support for multiple Extole programs** simultaneously
 
-<Image align="center" src="https://files.readme.io/663c39854fe7281b04d868518d3fb33d2b426e277f5929033e60de11768fb483-sharing.png" />
+<Image align="center" border={false} caption="QR code and link sharing" src="https://files.readme.io/663c39854fe7281b04d868518d3fb33d2b426e277f5929033e60de11768fb483-sharing.png" width="600px" />
 
 ## Target Your Employees
 
@@ -79,7 +75,7 @@ The experience is branded to your company and optimized for mobile devices.
 
 When referred by the employee, once the customer completes the desired actions in your program, your employee will be rewarded. Your company can provide Extole with coupons, configure gift cards with one of our partner providers, set up direct deposits, or even callback to your existing employee reward system via API, file, or Webhooks. Extole will track your employees' referrals, and can administer the rewards once earned, or your employees can redeem their rewards in-app using [Reward Bank](https://dev.extole.com/docs/reward-bank).
 
-<Image align="center" src="https://files.readme.io/6de6b67a814c8ec53ce4961ac5ee0edb53f5ff3f3363e888905a5151380422d8-history2.png" />
+<Image align="center" border={false} caption="Stats dashboard" src="https://files.readme.io/6de6b67a814c8ec53ce4961ac5ee0edb53f5ff3f3363e888905a5151380422d8-history2.png" />
 
 ### Tiered Rewards
 
