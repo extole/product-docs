@@ -32,15 +32,14 @@ Go Extole is available on both iOS and Android platforms
 
 You have control over who can participate in the program and access the Go Extole app using Extole Audiences. You can add or remove members individually, in bulk, or based on rules through the Extole UI, Extole's [People API](https://dev.extole.com/reference/people-endpoints), [file uploads](https://dev.extole.com/docs/general-file-uploads), or [automated SFTP workflows](https://dev.extole.com/docs/files).
 
-## Why Use Go Extole?
+## App Features
 
-The Go Extole app provides an easy and delightful way to refer customers in person. Key benefits include:
+The Go Extole app provides an easy and delightful way to refer customers in person. Key features include:
 
-* **Instant access to referral tools** during customer interactions
 * **Personalized QR codes and share links** for each employee
-* **Real-time tracking** of referrals and rewards
-* **Flexible sharing options** via SMS, social media, or other apps
-* **Dual-purpose functionality** for direct referrals or promoting customer referral programs
+* **Stats dashboard** of referrals and reward status
+* **Reward redemptions in-app** via [Reward Bank](https://dev.extole.com/docs/reward-bank)
+* **Support for multiple Extole programs**
 
 ## How Employees use Go Extole
 
@@ -52,6 +51,9 @@ Once eligible employees are ready to use the app, they:
 4. **Access their personal QR code** or shareable link
 5. **Share with customers** during in-person interactions or digitally
 6. **Track referrals** and see rewards earned in real-time
+7. **Redeem rewards** via [Reward Bank](https://dev.extole.com/docs/reward-bank)
+
+Go Extole supports multiple program types to meet your business needs. Through employee referral programs, your employees can earn rewards by directly referring new customers. Employees can also recruit existing customers as advocates, encouraging those customers to refer their own friends and family. Additionally, on-the-go influencers can use their influencer program via the app to encourage their audience to sign up for a service.
 
 ## Customer Journey
 
