@@ -59,6 +59,8 @@ Once eligible employees are ready to use the app, they:
 
 Go Extole supports multiple program types to meet your business needs. Through employee referral programs, your employees can earn rewards by directly referring new customers. Employees can also recruit existing customers as advocates, encouraging those customers to refer their own friends and family. Additionally, on-the-go influencers can use their influencer program via the app to encourage their audience to sign up for a service.
 
+For your employees, the Go Extole experience can be configured to match your brand's experience after sign in. If you'd like a fully-branded version of Go Extole, please [contact our sales team](https://www.extole.com/demo/).
+
 ## Customer Journey
 
 When customers interact with an employee's referral, they experience a seamless journey:
