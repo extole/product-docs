@@ -1,5 +1,5 @@
 ---
-title: Go Extole
+title: Go Extole Field Team App
 excerpt: >-
   Turn real-world customer interactions into growth opportunities with the Go
   Extole mobile app.
