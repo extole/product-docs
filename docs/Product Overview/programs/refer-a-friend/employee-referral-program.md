@@ -20,19 +20,27 @@ Encourage employees, agents, property managers, salespeople and other defined au
 
 It is completely up to you and your team to determine who is eligible to participate in the program. Using Extole Audiences, you can easily set up your program so that it is only accessible to a specific group.
 
-Extole Audiences allow you to add and remove members both individually and in bulk. If you want to update your audience at a regular cadence, we can also set up an automated SFTP workflow for replacing your audience daily, weekly, monthly, and so on. 
+Extole Audiences allow you to add and remove members both individually and in bulk. If you want to update your audience at a regular cadence, we can also set up an automated SFTP workflow for replacing your audience daily, weekly, monthly, and so on.
 
 ## Marketing
 
-When your program is designed for a specific audience, we recommend directly promoting the program using Extole's Email Audience feature. 
+When your program is designed for a specific audience, we recommend directly promoting the program using Extole's Email Audience feature.
 
 Extole programs have highly customizable email templates that allow you to create a branded Welcome Email. This email will invite your employees/audience to the program and include all of the information they need to participate. You can design the email within the Campaign Editor of our platform and then send it out to your eligible employees via your My Audiences page. Emails can also be customized to fit your existing branding or style guide.
 
 Programs can also be marketed utilizing personalized QR codes as part of email signatures, internal employee dashboards, direct mailers or flyers. Each QR code will attribute new customer acquisition back to the individual who promoted the product or service.
 
+## Go Extole Field Team App
+
+If your employee program benefits from in-person referrals, we recommend using our [Go Extole Field Team App](https://docs.extole.com/update/docs/go-extole/). Go Extole's purpose is to deliver an Extole program to your employees' mobile devices. It enables field team members, store associates, sales representatives, and other employees to leverage in-person customer moments for referral marketing and customer acquisition.
+
+Whether sharing a QR code during a service call, or promoting your customer referral program at events, Go Extole makes it simple to capture referral opportunities anywhere. Please reach out to your CSM to start using Go Extole for your employee program.
+
+<Image align="center" width="750px" src="https://files.readme.io/ff0f669d699bd7847e9cff6ac69eecf377a44a86397710fefc745980603abbeb-Screenshot_2025-08-04_at_5.18.59_PM.png" />
+
 ## Employee Journey
 
-Once your employees receive the Welcome Email, they can open it and click on the <Glossary>CTA</Glossary> that directs them to the Share Experience—another piece of your program that you can customize in our Campaign Editor. The Share Experience allows your employees to verify their identity, if required, and receive their personal share link, code, or QR code. 
+Once your employees receive the Welcome Email, they can open it and click on the <Glossary>CTA</Glossary> that directs them to the Share Experience—another piece of your program that you can customize in our Campaign Editor. The Share Experience allows your employees to verify their identity, if required, and receive their personal share link, code, or QR code.
 
 Your employees can then share their personal link or code with their customers in person or via email, SMS, or any social channel to start referring.
 
@@ -52,11 +60,11 @@ Once the referred customer completes the desired outcome of your program, your e
 
 Rewards for your employees can also be tiered to drive further engagement or a series of actions. The successful sale of specific products or subscriptions can result in different rewards, or the number of referrals can result in different rewards.
 
-For example, if you're running a referral program for your sales reps, you could set up reward tiers that correspond to the size or impact of their deals. 
+For example, if you're running a referral program for your sales reps, you could set up reward tiers that correspond to the size or impact of their deals.
 
 ## Performance and Data
 
-Data is the heart of your referral program. It can give you insight into your top performing employees and your overall customer base. Extole program dashboards and reporting can help you make data-driven decisions to create new or improve existing marketing initiatives for your company. 
+Data is the heart of your referral program. It can give you insight into your top performing employees and your overall customer base. Extole program dashboards and reporting can help you make data-driven decisions to create new or improve existing marketing initiatives for your company.
 
 Two key metrics that indicate the health of your funnel and success of your referral program are acquisition rate and participation rate.
 
@@ -74,16 +82,12 @@ These basic performance metrics, as well as impact metrics an quality metrics, a
 
 ### Lumen
 
-Lumen, a telecom powerhouse, runs several employee programs that cater to different aspects of their business. The Score! program, for example, enables employees to earn unlimited rewards for successfully referring their home internet installation service. Meanwhile, their Connected Communities program is specifically designed for property managers, movers, tenants and residents working in areas where homes are eligible for Quantum Fiber internet. 
+Lumen, a telecom powerhouse, runs several employee programs that cater to different aspects of their business. The Score! program, for example, enables employees to earn unlimited rewards for successfully referring their home internet installation service. Meanwhile, their Connected Communities program is specifically designed for property managers, movers, tenants and residents working in areas where homes are eligible for Quantum Fiber internet.
 
-<Image alt="Employees working in eligible locations can earn unlimited rewards referring Lumen's Quantum Fiber internet service." align="center" src="https://files.readme.io/44abead-Screenshot_2024-02-27_at_1.17.17_PM.png">
-  Employees working in eligible locations can earn unlimited rewards referring Lumen's Quantum Fiber internet service.
-</Image>
+<Image align="center" alt="Employees working in eligible locations can earn unlimited rewards referring Lumen's Quantum Fiber internet service." border={false} caption="Employees working in eligible locations can earn unlimited rewards referring Lumen's Quantum Fiber internet service." src="https://files.readme.io/44abead-Screenshot_2024-02-27_at_1.17.17_PM.png" />
 
 ### Paylocity
 
 Paylocity, an HR and payroll software company, use Extole to encourage their sales reps to refer Paylocity to clients. All employees are welcome to participate and receive a personal QR code upon filling out the form in the Share Experience pictured below. Once they successfully refer a client, a lead gets created for that Salesperson within their CRM system and any new customers that sign up result in an employee earning gift card rewards based on the size of the business—the larger the business, the larger the reward.
 
-<Image alt="Paylocity employees simply fill out the form and receive their personal QR code to share with clients." align="center" src="https://files.readme.io/e3ade01-Screenshot_2024-02-27_at_12.21.42_PM.png">
-  Paylocity employees simply fill out the form and receive their personal QR code to share with clients.
-</Image>
+<Image align="center" alt="Paylocity employees simply fill out the form and receive their personal QR code to share with clients." border={false} caption="Paylocity employees simply fill out the form and receive their personal QR code to share with clients." src="https://files.readme.io/e3ade01-Screenshot_2024-02-27_at_12.21.42_PM.png" />
