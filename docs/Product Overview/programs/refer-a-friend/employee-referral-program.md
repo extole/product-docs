@@ -32,9 +32,9 @@ Programs can also be marketed utilizing personalized QR codes as part of email s
 
 ## Go Extole Field Team App
 
-If your employee program benefits from in-person referrals, we recommend using our [Go Extole Field Team App](https://docs.extole.com/docs/go-extole#/). Go Extole's purpose is to deliver an Extole program to your employees' mobile devices. It enables field team members, store associates, sales representatives, and other employees to leverage in-person customer moments for referral marketing and customer acquisition.
+If your employee program can benefit from in-person referrals, we recommend using our [Go Extole Field Team App](https://docs.extole.com/docs/go-extole#/). Go Extole's purpose is to deliver an Extole program to your employees' mobile devices. It enables field team members, store associates, sales representatives, and other employees to leverage in-person customer moments for referral marketing and customer acquisition.
 
-Whether sharing a QR code during a service call, or promoting your customer referral program at events, Go Extole makes it simple to capture referral opportunities anywhere. Please reach out to your CSM to start using Go Extole for your employee program.
+Whether sharing a QR code during a service call, or promoting your customer referral program at events, Go Extole makes it simple to capture referral opportunities anywhere. Please reach out to your CSM to start using Go Extole in your employee program.
 
 <Image align="center" width="750px" src="https://files.readme.io/ff0f669d699bd7847e9cff6ac69eecf377a44a86397710fefc745980603abbeb-Screenshot_2025-08-04_at_5.18.59_PM.png" />
 
