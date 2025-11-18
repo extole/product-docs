@@ -36,13 +36,13 @@ Drop a Hint programs let your customers share products they would like to receiv
 
 Drop a Hint programs are successful both on and off season, can give you a pulse on the products your customers are sharing but not necessarily purchasing, and are especially interesting when used for specialty. In addition to supplementing a traditional Refer a Friend program, there are a number of scenarios in which our Drop a Hint program can help clients as a standalone solution:
 
-**New product launches**\
+**New product launches**  
 You have a new product coming out and you want a way for your customers to either share it with their networks to spread the word or share it with friends and family as a gift suggestion once the product launches.
 
-**One-off holiday wishlist or gift registry**\
+**One-off holiday wishlist or gift registry**  
 The holidays are coming up and you want a way for your customers to tell friends and family exactly which product they want (including in which size and color!) without having to go through the hassle of setting up a wishlist or gift registry.
 
-**Big-ticket products**\
+**Big-ticket products**  
 You have an expensive product that people don’t buy on a whim (or maybe don’t even buy for themselves). You want customers to be able to share the product to ask others to buy it for them.
 
 [//]: ___
@@ -62,44 +62,44 @@ Much like Refer A Friend, your Drop a Hint program can be promoted onsite or in-
 >
 > [//]: ___
 
-<Image align="center" width="80%" src="https://files.readme.io/7c3984d-Screen_Shot_2022-05-25_at_3.57.59_PM.png" />
+<Image align="center" border={false} width="80%" src="https://files.readme.io/7c3984d-Screen_Shot_2022-05-25_at_3.57.59_PM.png" />
 
 [//]: # "What is the typical user flow for a Drop a Hint program?"
 
 ## Hint Dropper Journey
 
-Advocates, in the context of Drop a Hint, are likely customers who have already shopped with your company and know what they want. Maybe it's their birthday or the holidays are approaching—maybe they just received a promotional email from you about an upcoming product drop—regardless, they navigate to their desired item and click on the drop-a-hint option. 
+Advocates, in the context of Drop a Hint, are likely customers who have already shopped with your company and know what they want. Maybe it's their birthday or the holidays are approaching—maybe they just received a promotional email from you about an upcoming product drop—regardless, they navigate to their desired item and click on the drop-a-hint option.
 
 The share experience will pop once an advocate clicks on a CTA, where Extole pulls in product info and image and displays a form for the advocate to fill out.
 
 After filling out the email address of the person they want to share with, they can select their preferred size and color and add a personal message. The hint can be sent via one-to-one sharing methods, such as email, SMS, Whatsapp, and so on.
 
-![](https://files.readme.io/98e03c5-Screen_Shot_2021-09-08_at_11.38.50_AM.png "Screen Shot 2021-09-08 at 11.38.50 AM.png")
+<Image border={false} src="https://files.readme.io/98e03c5-Screen_Shot_2021-09-08_at_11.38.50_AM.png" title="Screen Shot 2021-09-08 at 11.38.50 AM.png" />
 
 ## Hint Receiver Journey
 
-The friend, significant other, or family member who receives the hint will get all of the necessary details—including a direct link to the product—to complete the purchase on the advocate's behalf. 
+The friend, significant other, or family member who receives the hint will get all of the necessary details—including a direct link to the product—to complete the purchase on the advocate's behalf.
 
 [//]: ___
 
-![](https://files.readme.io/2146f91-Screen_Shot_2022-05-25_at_3.58.50_PM.png "Screen Shot 2022-05-25 at 3.58.50 PM.png")
+<Image border={false} src="https://files.readme.io/2146f91-Screen_Shot_2022-05-25_at_3.58.50_PM.png" title="Screen Shot 2022-05-25 at 3.58.50 PM.png" />
 
 ## Rules and Rewarding
 
 [//]: # "What rules and rewards are typical for a Drop a Hint program?"
 
-Typically, you'll only need to configure your quality rules since Drop a Hint programs don’t usually have any rewards associated with them. 
+Typically, you'll only need to configure your quality rules since Drop a Hint programs don’t usually have any rewards associated with them.
 
 Making rewards part of a Drop a Hint program is a customization that can increase incentives for your participants. This could come in the form of a surprise and delight email to the person who dropped the hint, or a discount to nudge the potential gift buyer.
 
 [//]: ___
 
-<Image align="center" width="60% " src="https://files.readme.io/c7f8a1f-Screen_Shot_2022-05-25_at_4.20.13_PM.png" />
+<Image align="center" border={false} width="60% " src="https://files.readme.io/c7f8a1f-Screen_Shot_2022-05-25_at_4.20.13_PM.png" />
 
 ## Performance and Data
 
 [//]: # "How do I measure the performance of a Drop a Hint program?"
 
-You can expect that the conversion rate for Drop a Hint programs will be higher than the conversion rate for “normal” site traffic. In the Extole Admin Tool, you can run a Product Shares report to get access to every share event and the specific product that was referenced. Doing so will give you an idea of which products are your most popular when it comes to gifting. With this information, you can create promotions that drive people to these product pages to increase sharing activity.
+You can expect that the conversion rate for Drop a Hint programs will be higher than the conversion rate for “normal” site traffic. In the Extole Admin Tool, you can run a Shared Products report to get access to every share event and the specific product that was referenced. Doing so will give you an idea of which products are your most popular when it comes to gifting. With this information, you can create promotions that drive people to these product pages to increase sharing activity.
 
 [//]: ___
