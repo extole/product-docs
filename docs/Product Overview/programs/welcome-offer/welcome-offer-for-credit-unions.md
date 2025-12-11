@@ -34,6 +34,8 @@ Once these actions are recorded and eligibility and safety checks pass, the memb
 
 Extole’s Welcome Offer for Credit Unions program type comes with this flow pre-configured, making it quick and easy to get started.
 
+<Image align="center" border={false} src="https://files.readme.io/c546fbe98a6b8f2c89a594f27b9fa8894b51426097fdd46ea4d02e2634b7b4dc-Screenshot_2025-12-11_at_1.33.24_AM.png" />
+
 ***
 
 ## Partner Integrations
