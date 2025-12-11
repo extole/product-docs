@@ -24,7 +24,7 @@ The **Welcome Offer for Credit Unions** program builds on Extole’s standard We
 
 ## Participant Journey
 
-When a new member arrives at your website, they’ll see a promotion inviting them to participate in the welcome offer. After clicking the promotion, they’ll open a simple signup flow that gives them all the details they need. Typically, a new member must complete qualifying activities within a set timeframe (e.g., 90 days) in order to earn the welcome reward. These qualifying activities include:
+When a new member arrives at your website, they’ll see a promotion inviting them to participate in the welcome offer. After clicking the promotion, they’ll open a simple signup flow that gives them all the details they need. Typically, a new member must complete qualifying activities within a set timeframe (e.g. 90 days) in order to earn the welcome reward. These qualifying activities include:
 
 * Account Opening
 * Direct Deposit
