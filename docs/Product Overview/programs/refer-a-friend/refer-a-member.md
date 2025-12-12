@@ -43,24 +43,4 @@ You can use our partner integrations with [Q2](https://partners.extole.com/q2), 
 
 <Image align="center" border={false} width="700px" src="https://files.readme.io/7a6fc318f5213c799078451a2108c56706e415b3ab6383091d174d7ae2d53de1-Screenshot_2025-12-11_at_1.29.14_AM.png" />
 
-## Referral Journey
-
-Share — Advocates share using the embedded/microsite/overlay experiences, Printable Form, or In-Branch Portal.
-
-Capture — Extole captures account_opened and account_qualified either via real-time tags/APIs or via file/SFTP prehandlers that map bank feeds into events.
-
-Attribute & qualify — Lookback windows, audiences and quality rules attribute the correct advocate and validate qualification.
-
-Issue reward — When qualification is met the reward is issued; account credit flows typically use an outbound webhook so the CU fulfills the reward and notifies Extole of completion.
-
-Implementation notes & best practices
-
-Start with the Refer a Member theme in the Program Picker — it contains defaults tuned for CUs (account open → fund → pending → qualified).
-
-Make in-branch flows simple — ~50% of CU accounts open in branch; include the In-Branch Portal or Printable Form and keep forms minimal to reduce errors.
-
-Use prehandlers for file feeds — when banks provide batched files, we recommend prehandlers to extract and emit account_opened and account_qualified events.
-
-Configure lookback & anti-fraud rules early — default rules help prevent self-referrals; add security checks (e.g., MaxMind) as needed.
-
-Plan reward fulfillment — prefer account credit for operational efficiency; coordinate the reward issuer/integration during discovery.
+<br />
