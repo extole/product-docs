@@ -22,7 +22,7 @@ Preconfigured steps for account open → account qualification, sensible pending
 **In-Branch Referral Portal**
 A simple portal employees use to record in-person referrals. Branch staff enter existing member (advocate) info, and new member info, which creates the referral relationship and ensures correct attribution and rewarding.
 
-<Image align="center" border={false} src="https://files.readme.io/e864894c3dfa6a8f883257dcf53a9669a8c236f43c5909036b8682d4af1334f8-Screenshot_2025-12-12_at_2.35.41_AM.png" />
+<Image align="center" border={false} width="500px" src="https://files.readme.io/e864894c3dfa6a8f883257dcf53a9669a8c236f43c5909036b8682d4af1334f8-Screenshot_2025-12-12_at_2.35.41_AM.png" />
 
 **Printable Form**
 A first-class share channel for members who prefer offline sharing: advocates can download a prefilled printable referral form to give to friends and family. Also, a new member who prefers to open an account in-person can bring the printed form to the branch; the form can optionally be pre-populated with the advocate's and friend's information to help with referral tracking.
