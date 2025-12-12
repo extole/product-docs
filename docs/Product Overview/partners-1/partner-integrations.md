@@ -10,11 +10,10 @@ metadata:
   description: ''
   robots: index
 next:
-  description: ''
   pages:
-    - type: basic
-      slug: attentive
-      title: Attentive
+    - title: Security & Compliance
+      type: link
+      url: ''
 ---
 ## Overview
 
