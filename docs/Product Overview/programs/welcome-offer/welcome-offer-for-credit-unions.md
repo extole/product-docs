@@ -40,6 +40,6 @@ Extole’s Welcome Offer for Credit Unions program type comes with this flow pre
 
 ## Partner Integrations
 
-You can use our partner integrations with [Q2](https://partners.extole.com/q2), [Banno](https://partners.extole.com/banno-digital-banking), and [Candescent](https://partners.extole.com/candescent) to easily connect Extole to your existing digital banking systems. Extole also supports a wide range of additional integration methods—including API-based, file-based, and client-side options—so you can launch a welcome offer using whichever approach best fits your environment.
+You can use our partner integrations with [Q2](https://partners.extole.com/q2), [Banno](https://partners.extole.com/banno-digital-banking), and [Candescent](https://partners.extole.com/candescent) to easily connect Extole to your existing digital banking systems. Extole also supports a wide range of additional integration methods—including API-based, file-based, and client-side options, so you can launch a welcome offer using whichever approach best fits your environment.
 
 <Image align="center" border={false} src="https://files.readme.io/f1e601e13269d18d879f8ea77ab057043c3895093cf2443f426b937b64d15de9-Screenshot_2025-12-11_at_1.29.14_AM.png" />
