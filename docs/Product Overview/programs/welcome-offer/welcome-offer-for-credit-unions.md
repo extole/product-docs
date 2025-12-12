@@ -4,7 +4,7 @@ excerpt: >-
   A credit-union-specific Welcome Offer program type with focused business
   events, defaults, and creative elements.
 deprecated: false
-hidden: true
+hidden: false
 metadata:
   robots: index
 ---
