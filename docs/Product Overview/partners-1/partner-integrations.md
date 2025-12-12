@@ -119,7 +119,7 @@ SheerID is the leader in the Identity Marketing space, helping brands create VIP
 
 Shopify is one of the leading eCommerce platforms used by brands of all sizes. Extole’s Shopify integration makes it easy to launch referral programs directly within your storefront. Our highly configurable Shopify Checkout Extension encourages customers to share with friends at the moment they’re most engaged. Whether you need a simple referral flow that auto-applies a friend’s discount code or a more advanced setup managing multiple Shopify stores across regions with localized rewards and targeting, Extole’s Shopify integration makes it seamless.
 
-[Learn more about Extole + Shopify](https://partners.extole.com/shopify)
+[Learn more about Extole + Shopify](https://partners.extole.com/shopify)  
 [Visit Shopify’s website](https://www.shopify.com/)
 
 ## Tealium
