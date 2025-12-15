@@ -10,7 +10,7 @@ metadata:
 ---
 ## Overview
 
-Refer a Member is Extole’s pre-configured referral program for credit unions and banks. The program type is built for the CU customer lifecycle (for example Account Opened, Direct Deposit, Debit Card Usage, Account Qualified) and ships with credit-union-specific steps, intelligent defaults, all within Flow Builder so you can make adjustments and launch quickly.
+Refer a Member is a pre-configured flow designed specifically for credit unions and banks. It’s built around the credit-union member lifecycle (Account Opened, Direct Deposit, Debit Card Usage, Account Qualified) and comes with intelligent defaults and CU-specific steps right inside Flow Builder. It ships ready to go so you can launch quickly, and you still have the flexibility to customize the flow to your program’s needs.
 
 <Image align="center" border={false} width="500px" src="https://files.readme.io/7368c4b24ce1e22c3580c202a6bf8296d2bd8b6015a9557ebbbeaa171dd768af-Screenshot_2025-12-12_at_2.34.02_AM.png" />
 
