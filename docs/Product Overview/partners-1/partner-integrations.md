@@ -33,9 +33,7 @@ Extole strategically partners with companies that you know and love so that you 
 * Marketing Automation
 
 <Callout icon="👍" theme="okay">
-
-
-  ### More on Integrations
+  **More on Integrations**
 
   Visit our [Integrations Directory](https://partners.extole.com/).
 
