@@ -32,11 +32,15 @@ Extole strategically partners with companies that you know and love so that you 
 * Identity Marketing
 * Marketing Automation
 
-> 👍 More on Integrations
->
-> Visit our [Integrations Directory](https://partners.extole.com/).
->
-> View our [Technical Integration Guides](https://dev.extole.com/docs/).
+<Callout icon="👍" theme="okay">
+
+
+  ### More on Integrations
+
+  Visit our [Integrations Directory](https://partners.extole.com/).
+
+  View our [Technical Integration Guides](https://dev.extole.com/docs/).
+</Callout>
 
 ## Attentive
 
