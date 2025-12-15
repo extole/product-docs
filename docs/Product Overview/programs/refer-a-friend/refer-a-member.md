@@ -17,7 +17,7 @@ Refer a Member is a pre-configured flow designed specifically for credit unions 
 ## Key features
 
 **CU-specific flow & intelligent defaults**
-Preconfigured steps for account open → account qualification, sensible pending/qualification defaults, and built-in logic to handle CU member events so launches are faster and more predictable.
+Pre-configured steps for account open → account qualification, sensible pending/qualification defaults, and built-in logic to handle CU member events so launches are faster and more predictable.
 
 **In-Branch Referral Portal**
 A simple portal employees use to record in-person referrals. Branch staff enter existing member (advocate) info, and new member info, which creates the referral relationship and ensures correct attribution and rewarding.
