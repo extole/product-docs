@@ -1,5 +1,5 @@
 ---
-title: 'Referral Reward Strategy: Credit Unions'
+title: 'Referral Reward Strategy: Financial Services'
 excerpt: >-
   Choosing the right referral reward is essential to maximizing engagement and
   driving new member acquisition. The reward should be compelling enough to
