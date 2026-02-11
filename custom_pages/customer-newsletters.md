@@ -1,5 +1,5 @@
 ---
-title: Customer Newsletters
+title: '#Customer Newsletters'
 fullscreen: false
 hidden: false
 ---
