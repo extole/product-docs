@@ -5,15 +5,11 @@ hidden: false
 ---
 ## 2026
 
-<br />
-
 <Anchor label="January 2026" target="_blank" href="https://createsend.com/t/d-60C05E0AC7A5F1002540EF23F30FEDED">January 2026</Anchor>
 
 <br />
 
 ## 2025
-
-<br />
 
 <Anchor label="December 2025" target="_blank" href="https://createsend.com/t/d-8F32CF9010FB93662540EF23F30FEDED">December 2025</Anchor>
 
@@ -56,8 +52,6 @@ hidden: false
 <br />
 
 ## Partner Newsletter
-
-<br />
 
 <Anchor label="December 2025" target="_blank" href="https://createsend.com/t/d-BD2CE7F1F2D5E38F2540EF23F30FEDED">December 2025</Anchor>
 
