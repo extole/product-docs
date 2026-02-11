@@ -1,8 +1,10 @@
 ---
-title: '#Customer Newsletters'
+title: Customer Newsletters
 fullscreen: false
 hidden: false
 ---
+<br />
+
 ## 2026
 
 <Anchor label="January 2026" target="_blank" href="https://createsend.com/t/d-60C05E0AC7A5F1002540EF23F30FEDED">January 2026</Anchor>
