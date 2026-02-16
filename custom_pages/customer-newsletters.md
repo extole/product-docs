@@ -15,7 +15,15 @@ hidden: false
 
 <Anchor label="December 2025" target="_blank" href="https://createsend.com/t/d-8F32CF9010FB93662540EF23F30FEDED">December 2025</Anchor>
 
-<br />
+Industry-specific referral flows and Shopify enhancements for credit unions and retailers
+
+**Tags:** Industry Solutions, Flow Builder, Templates, Shopify Updates
+
+* Credit union welcome & refer-a-member flows
+* In-branch and printable referral experiences
+* Retail ambassador program templates
+* Multi-store Shopify support
+* Auto-apply discount enhancements
 
 <Anchor label="November 2025" target="_blank" href="https://createsend.com/t/d-6065111B497DC5442540EF23F30FEDED">November 2025</Anchor>
 
