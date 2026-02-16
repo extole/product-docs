@@ -1,5 +1,5 @@
 ---
-title: Customer Newsletters
+title: Newsletters
 fullscreen: false
 hidden: false
 ---
