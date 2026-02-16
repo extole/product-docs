@@ -13,7 +13,7 @@ hidden: false
 
 ## 2025
 
-**<Anchor label="December 2025" target="_blank" href="https://createsend.com/t/d-8F32CF9010FB93662540EF23F30FEDED">December 2025</Anchor>**
+### <Anchor label="December 2025" target="_blank" href="https://createsend.com/t/d-8F32CF9010FB93662540EF23F30FEDED">December 2025</Anchor>
 
 Industry-specific referral flows and Shopify enhancements for credit unions and retailers
 
