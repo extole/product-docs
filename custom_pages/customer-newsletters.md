@@ -7,9 +7,15 @@ hidden: false
 
 ## 2026
 
-<Anchor label="January 2026" target="_blank" href="https://createsend.com/t/d-60C05E0AC7A5F1002540EF23F30FEDED">January 2026</Anchor>
+### <Anchor label="January 2026" target="_blank" href="https://createsend.com/t/d-60C05E0AC7A5F1002540EF23F30FEDED">January 2026</Anchor>
 
-<br />
+Refresh evergreen referral performance with targeted segments, bursts, in-app placements, and 2025 product highlights
+
+* Retarget holiday shoppers with audience segments
+* Run limited-time reward bursts
+* Add post-purchase pop-ups for referral momentum
+* Enable Reward Bank & mobile SDK experiences
+* New Flow Builder, Shopify, and Q2 dashboard updates
 
 ## 2025
 
