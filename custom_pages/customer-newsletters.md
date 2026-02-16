@@ -23,9 +23,15 @@ Industry-specific referral flows and Shopify enhancements for credit unions and 
 * Multi-store Shopify support
 * Auto-apply discount enhancements
 
-<Anchor label="November 2025" target="_blank" href="https://createsend.com/t/d-6065111B497DC5442540EF23F30FEDED">November 2025</Anchor>
+### <Anchor label="November 2025" target="_blank" href="https://createsend.com/t/d-6065111B497DC5442540EF23F30FEDED">November 2025</Anchor>
 
-<br />
+Make your app work harder in 2026 with in-app referral integrations
+
+* Increase referral visibility with always-on CTAs
+* Use push and login pop-ups to drive engagement
+* Choose mobile integration types (links, web views, API, SDK)
+* Q2 composable dashboard now includes referrals
+* Charitable rewards and industry insights
 
 <Anchor label="September 2025" target="_blank" href="https://createsend.com/t/d-DDEC3B24CB29B87A2540EF23F30FEDED">September 2025</Anchor>
 
