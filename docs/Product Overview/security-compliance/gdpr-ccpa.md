@@ -76,7 +76,7 @@ Correction requests for historical event information, which is not editable thro
 
 ### Right to Erasure
 
-You can make erasure requests to Extole either via email to the Support team or via API. 
+You can make erasure requests to Extole either via email to the Support team or via API.
 
 Once a request is made, Extole will irreversibly psuedoanonymize the profile of the individual so that the profile is no longer connected to the individual through the program. If the individual re-engages with the referral program, a new profile is created, unrelated to the previous profile. Making another erasure request will successfully delete this new profile.
 
@@ -88,9 +88,9 @@ Once a request is made, Extole will irreversibly psuedoanonymize the profile of 
 
 ### Data Processing Agreement
 
-Extole is a certified under the EU-U.S. Data Privacy Framework Principles. [See the Extole Privacy Shield certification at Extole, Inc. Privacy Shield (Active)](https://www.privacyshield.gov/participant?id=a2zt0000000TOFPAA4\&status=Active).
+Extole is a certified under the EU-U.S. Data Privacy Framework Principles. [See the Data Privacy Framework List](https://www.dataprivacyframework.gov/list).
 
-As part of Extole's GDPR readiness, Extole customers will have a choice to enter into our standard Data Processing Agreement (DPA) that includes the European Commission-approved Standard Contractual Clauses (Model Clauses). If you are an Extole customer and wish to enter into our DPA, please reach out to your Extole Customer Success Manager. 
+As part of Extole's GDPR readiness, Extole customers will have a choice to enter into our standard Data Processing Agreement (DPA) that includes the European Commission-approved Standard Contractual Clauses (Model Clauses). If you are an Extole customer and wish to enter into our DPA, please reach out to your Extole Customer Success Manager.
 
 [//]: ___
 
@@ -154,8 +154,8 @@ Extole works with certain third parties to provide specific functionality within
       </td>
 
       <td>
-        Email\
-        Additional identifiers optionally passed by the client's IdP 
+        Email  
+        Additional identifiers optionally passed by the client's IdP
       </td>
     </tr>
 
@@ -169,10 +169,10 @@ Extole works with certain third parties to provide specific functionality within
       </td>
 
       <td>
-        Client Identifier\
-        Recipient Email - person earning gift card\
-        Gift Card SKU\
-        Gift Card Value 
+        Client Identifier  
+        Recipient Email - person earning gift card  
+        Gift Card SKU  
+        Gift Card Value
       </td>
     </tr>
 
@@ -186,9 +186,9 @@ Extole works with certain third parties to provide specific functionality within
       </td>
 
       <td>
-        Client Identifier\
-        Recipient Email - person earning gift card\
-        Gift Card SKU\
+        Client Identifier  
+        Recipient Email - person earning gift card  
+        Gift Card SKU  
         Gift Card Value
       </td>
     </tr>
@@ -203,11 +203,11 @@ Extole works with certain third parties to provide specific functionality within
       </td>
 
       <td>
-        Client Identifier\
-        Recipient Email - person earning gift card\
-        Recipient Mailing Address\
-        Gift Card SKU\
-        Gift Card Value 
+        Client Identifier  
+        Recipient Email - person earning gift card  
+        Recipient Mailing Address  
+        Gift Card SKU  
+        Gift Card Value
       </td>
     </tr>
 
