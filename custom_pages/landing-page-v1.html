@@ -46,9 +46,13 @@ hidden: true
           <div class="extole-code-title">integration examples</div>
           <input class="extole-tab-radio" type="radio" name="extole-code-tabs" id="extole-code-tab-js" checked />
           <input class="extole-tab-radio" type="radio" name="extole-code-tabs" id="extole-code-tab-react-native" />
+          <input class="extole-tab-radio" type="radio" name="extole-code-tabs" id="extole-code-tab-ios" />
+          <input class="extole-tab-radio" type="radio" name="extole-code-tabs" id="extole-code-tab-android" />
           <div class="extole-code-tabs extole-css-tabs" aria-label="Code sample options">
             <label class="extole-code-tab" for="extole-code-tab-js">JavaScript SDK</label>
             <label class="extole-code-tab" for="extole-code-tab-react-native">React Native</label>
+            <label class="extole-code-tab" for="extole-code-tab-ios">iOS</label>
+            <label class="extole-code-tab" for="extole-code-tab-android">Android</label>
           </div>
 
           <pre class="extole-code-block extole-code-block-js"><code><span class="tok-comment">// From Extole JavaScript SDK docs: core + global header zone</span>
@@ -66,21 +70,59 @@ hidden: true
   });
 <span class="tok-tag">&lt;/script&gt;</span></code></pre>
 
-          <pre class="extole-code-block extole-code-block-react-native"><code><span class="tok-comment">// From Extole React Native SDK docs</span>
-<span class="tok-keyword">import</span> { <span class="tok-variable">Extole</span> } <span class="tok-keyword">from</span> <span class="tok-string">"@extole/react-native-sdk"</span>;
+          <pre class="extole-code-block extole-code-block-react-native"><code><span class="tok-keyword">import</span> { <span class="tok-variable">Extole</span> } <span class="tok-keyword">from</span> <span class="tok-string">"@extole/react-native-sdk"</span>;
 
-<span class="tok-keyword">const</span> <span class="tok-variable">extole</span> = <span class="tok-keyword">new</span> <span class="tok-function">Extole</span>(<span class="tok-string">"share.client.com"</span>, <span class="tok-string">"your-app-name"</span>);
-<span class="tok-keyword">const</span> [<span class="tok-variable">extoleView</span>, <span class="tok-variable">setExtoleView</span>] = <span class="tok-variable">React</span>.<span class="tok-function">useState</span>&lt;<span class="tok-type">Element</span>&gt;(&lt;<span class="tok-type">View</span> /&gt;);
+<span class="tok-keyword">const</span> <span class="tok-variable">extole</span> = <span class="tok-keyword">new</span> <span class="tok-function">Extole</span>(<span class="tok-string">"share.brand.com"</span>, <span class="tok-string">"your-app-name"</span>);
 
-<span class="tok-variable">extole</span>.<span class="tok-function">configure</span>(<span class="tok-variable">extoleView</span>, <span class="tok-variable">setExtoleView</span>, () =&gt; {
-  <span class="tok-variable">navigation</span>.<span class="tok-function">navigate</span>(<span class="tok-string">"Promo"</span>);
-});
+<span class="tok-keyword">function</span> <span class="tok-function">ExtoleScreen</span>({ <span class="tok-variable">navigation</span> }) {
+  <span class="tok-keyword">const</span> [<span class="tok-variable">extoleView</span>, <span class="tok-variable">setExtoleView</span>] =
+    <span class="tok-function">useState</span>&lt;<span class="tok-type">JSX.Element</span> | <span class="tok-keyword">null</span>&gt;(<span class="tok-keyword">null</span>);
 
-<span class="tok-keyword">function</span> <span class="tok-function">ExtoleScreen</span>() {
-  <span class="tok-keyword">return</span> &lt;<span class="tok-type">View</span>&gt;<span class="tok-variable">extole</span>.<span class="tok-property">view</span>&lt;/<span class="tok-type">View</span>&gt;;
+<span class="tok-function">useEffect</span>(() =&gt; {
+  <span class="tok-variable">extole</span>.<span class="tok-function">configure</span>(<span class="tok-variable">extoleView</span>, <span class="tok-variable">setExtoleView</span>, () =&gt; {
+    <span class="tok-variable">navigation</span>.<span class="tok-function">navigate</span>(<span class="tok-string">"Promo"</span>);
+  });
+  }, []);
+
+  <span class="tok-keyword">return</span> &lt;<span class="tok-type">View</span> <span class="tok-attr">style</span>={{ <span class="tok-property">flex</span>: <span class="tok-number">1</span> }}&gt;{<span class="tok-variable">extoleView</span>}&lt;/<span class="tok-type">View</span>&gt;;
 }
 
 &lt;<span class="tok-type">Stack</span>.<span class="tok-type">Screen</span> <span class="tok-attr">name</span>=<span class="tok-string">"Promo"</span> <span class="tok-attr">component</span>={<span class="tok-variable">ExtoleScreen</span>} /&gt;</code></pre>
+
+          <pre class="extole-code-block extole-code-block-ios"><code><span class="tok-comment">// From Extole iOS SDK docs (condensed)</span>
+<span class="tok-keyword">import</span> <span class="tok-type">ExtoleMobileSDK</span>
+
+<span class="tok-attr">@main</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">ExtoleApp</span>: <span class="tok-type">App</span> {
+  <span class="tok-attr">@StateObject</span> <span class="tok-keyword">var</span> <span class="tok-variable">extole</span> =
+    <span class="tok-function">ExtoleImpl</span>(<span class="tok-property">programDomain</span>: <span class="tok-string">"share.brand.com"</span>)
+
+  <span class="tok-keyword">var</span> <span class="tok-variable">body</span>: <span class="tok-keyword">some</span> <span class="tok-type">Scene</span> {
+    <span class="tok-type">WindowGroup</span> { <span class="tok-type">NavigationView</span> { <span class="tok-variable">extole</span>.<span class="tok-function">getView</span>() } }
+  }
+}
+
+<span class="tok-comment">// Identify + send events</span>
+<span class="tok-variable">extole</span>.<span class="tok-function">identify</span>(<span class="tok-string">"email"</span>, [<span class="tok-string">"partner_user_id"</span>: <span class="tok-string">"123"</span>], { _, _ <span class="tok-keyword">in</span> })
+<span class="tok-variable">extole</span>.<span class="tok-function">sendEvent</span>(<span class="tok-string">"purchase"</span>, [<span class="tok-string">"order_id"</span>: <span class="tok-string">"A1001"</span>])</code></pre>
+
+          <pre class="extole-code-block extole-code-block-android"><code><span class="tok-comment">// From Extole Android SDK docs</span>
+<span class="tok-keyword">implementation</span> <span class="tok-string">'com.extole.mobile:android-sdk:1.0.+'</span>
+
+<span class="tok-comment">// Initialize once at app startup</span>
+<span class="tok-type">Extole</span>.<span class="tok-function">init</span>(
+  <span class="tok-property">context</span> = <span class="tok-variable">context</span>,
+  <span class="tok-property">appName</span> = <span class="tok-string">"your-app-name"</span>
+)
+
+<span class="tok-comment">// AndroidManifest.xml</span>
+<span class="tok-tag">&lt;meta-data</span>
+  <span class="tok-attr">android:name</span>=<span class="tok-string">"com.extole.PROGRAM_DOMAIN"</span>
+  <span class="tok-attr">android:value</span>=<span class="tok-string">"https://share.brand.com/"</span> <span class="tok-tag">/&gt;</span>
+
+<span class="tok-comment">// Exchange identity + event data</span>
+<span class="tok-variable">extole</span>.<span class="tok-function">identify</span>(<span class="tok-variable">email</span>, mapOf(<span class="tok-string">"member_id"</span> <span class="tok-keyword">to</span> <span class="tok-string">"123"</span>))
+<span class="tok-variable">extole</span>.<span class="tok-function">sendEvent</span>(<span class="tok-string">"purchase"</span>, mapOf(<span class="tok-string">"order_id"</span> <span class="tok-keyword">to</span> <span class="tok-string">"A1001"</span>))</code></pre>
         </aside>
       </div>
     </section>
@@ -173,156 +215,256 @@ hidden: true
       <div class="extole-shell">
         <div class="extole-section-head">
           <p class="extole-kicker">Getting Started</p>
-          <h2>Start with launch planning, then choose a dev path</h2>
-          <p class="extole-section-copy">Use this high-level flow first, then follow the implementation track that matches your stack.</p>
+          <h2>Choose your implementation track</h2>
+          <p class="extole-section-copy">Extole supports multiple developer paths. Choose Extole App + JavaScript, REST API, or Mobile App based on your architecture and team ownership.</p>
         </div>
 
         <div class="extole-integration-suite">
-          <div class="extole-integration-grid">
-            <div class="extole-workflow-pane">
-              <p class="extole-integration-subhead">Launch Planning</p>
-              <ol class="extole-launch-flow" aria-label="Launch flow">
+          <div class="extole-track-grid">
+            <article class="extole-dev-paths extole-dev-pane">
+              <div class="extole-dev-paths-head">
+                <p class="extole-integration-subhead">Extole App + JavaScript</p>
+                <p class="extole-path-panel-copy">Best for teams launching quickly with Extole-managed experiences.</p>
+              </div>
+              <ol class="extole-track-steps">
                 <li>
-                  <div>
-                    <h3>Step 1: Define program logic</h3>
-                    <p>Set audience, qualifying events, and reward strategy.</p>
-                  </div>
+                  <h4>Install the JavaScript SDK</h4>
+                  <p>Add Extole core tags and key zones where users interact with your program.</p>
+                  <a
+                    href="https://dev.extole.com/docs/javascript-sdk"
+                    data-track="quickstart-app-step-2"
+                     target="_blank" rel="noopener noreferrer">Set up JavaScript SDK</a
+                  >
                 </li>
                 <li>
-                  <div>
-                    <h3>Step 2: Configure in my.extole.com</h3>
-                    <p>Build your program structure, experience, and campaign rules.</p>
-                  </div>
+                  <h4>Set rewards and eligibility rules</h4>
+                  <p>Define reward types, limits, and participant qualification conditions.</p>
+                  <a
+                    href="https://docs.extole.com/docs/rewards-overview"
+                    data-track="quickstart-app-step-4"
+                     target="_blank" rel="noopener noreferrer">Configure rewards</a
+                  >
                 </li>
                 <li>
-                  <div>
-                    <h3>Step 3: Implement your integration path</h3>
-                    <p>Choose App + JavaScript or API-driven event delivery.</p>
-                  </div>
+                  <h4>Configure your program</h4>
+                  <p>Set program placements, campaign logic, and creative behavior.</p>
+                  <a
+                    href="https://docs.extole.com/docs/promotions"
+                    data-track="quickstart-app-step-3"
+                     target="_blank" rel="noopener noreferrer">Open program configuration guide</a
+                  >
                 </li>
                 <li>
-                  <div>
-                    <h3>Step 4: Validate QA workflows</h3>
-                    <p>Confirm reward fulfillment, webhook delivery, and reporting signals.</p>
-                  </div>
+                  <h4>Validate fulfillment and webhook QA</h4>
+                  <p>Send rewardable events and verify fulfillment automation in end-to-end tests.</p>
+                  <a
+                    href="https://docs.extole.com/docs/sending-data-to-extole"
+                    data-track="quickstart-app-step-5"
+                     target="_blank" rel="noopener noreferrer">Review event delivery options</a
+                  >
                 </li>
               </ol>
-            </div>
+            </article>
 
-            <div class="extole-dev-paths extole-dev-pane">
-              <input class="extole-tab-radio" type="radio" name="extole-path-tabs" id="extole-path-tab-app" checked />
-              <input class="extole-tab-radio" type="radio" name="extole-path-tabs" id="extole-path-tab-api" />
+            <article class="extole-dev-paths extole-dev-pane">
               <div class="extole-dev-paths-head">
-                <p class="extole-integration-subhead">Implementation/Developer Tracks</p>
-                <div class="extole-path-tablist extole-css-tabs" aria-label="Developer integration paths">
-                  <label class="extole-path-tab" for="extole-path-tab-app">Extole App + JavaScript</label>
-                  <label class="extole-path-tab" for="extole-path-tab-api">API-driven</label>
-                </div>
-              </div>
-
-              <section class="extole-path-panel extole-path-panel-app">
-                <p class="extole-path-panel-copy">Best for teams launching quickly with my.extole.com-managed experiences.</p>
-                <ol class="extole-track-steps">
-                  <li>
-                    <h4>Review integration options</h4>
-                    <p>Understand where JavaScript tags, APIs, and files fit your architecture.</p>
-                    <a
-                      href="https://dev.extole.com/docs/integrating-with-extole"
-                      data-track="quickstart-app-step-1"
-                       target="_blank" rel="noopener noreferrer">Read integration overview</a
-                    >
-                  </li>
-                  <li>
-                    <h4>Install the JavaScript SDK</h4>
-                    <p>Add Extole core tags and key zones where users interact with your program.</p>
-                    <a
-                      href="https://dev.extole.com/docs/javascript-sdk"
-                      data-track="quickstart-app-step-2"
-                       target="_blank" rel="noopener noreferrer">Set up JavaScript SDK</a
-                    >
-                  </li>
-                  <li>
-                    <h4>Configure your program in my.extole.com</h4>
-                    <p>Set program placements, campaign logic, and creative behavior.</p>
-                    <a
-                      href="https://docs.extole.com/docs/promotions"
-                      data-track="quickstart-app-step-3"
-                       target="_blank" rel="noopener noreferrer">Open program configuration guide</a
-                    >
-                  </li>
-                  <li>
-                    <h4>Set rewards and eligibility rules</h4>
-                    <p>Define reward types, limits, and participant qualification conditions.</p>
-                    <a
-                      href="https://docs.extole.com/docs/rewards-overview"
-                      data-track="quickstart-app-step-4"
-                       target="_blank" rel="noopener noreferrer">Configure rewards</a
-                    >
-                  </li>
-                  <li>
-                    <h4>Validate fulfillment and webhook QA</h4>
-                    <p>Send rewardable events and verify fulfillment automation in end-to-end tests.</p>
-                    <a
-                      href="https://docs.extole.com/docs/sending-data-to-extole"
-                      data-track="quickstart-app-step-5"
-                       target="_blank" rel="noopener noreferrer">Review event delivery options</a
-                    >
-                  </li>
-                </ol>
-              </section>
-
-              <section class="extole-path-panel extole-path-panel-api">
+                <p class="extole-integration-subhead">REST API</p>
                 <p class="extole-path-panel-copy">Best for teams running secure server-to-server integrations and custom experiences.</p>
-                <ol class="extole-track-steps">
-                  <li>
-                    <h4>Review REST API architecture</h4>
-                    <p>Map responsibilities between Admin API and Customer API surfaces.</p>
-                    <a
-                      href="https://dev.extole.com/docs/rest-apis"
-                      data-track="quickstart-api-step-1"
-                       target="_blank" rel="noopener noreferrer">Read REST API guide</a
-                    >
-                  </li>
-                  <li>
-                    <h4>Set up authentication</h4>
-                    <p>Configure secure credentials and bearer token access for service calls.</p>
-                    <a
-                      href="https://dev.extole.com/reference/authentication"
-                      data-track="quickstart-api-step-2"
-                       target="_blank" rel="noopener noreferrer">Configure authentication</a
-                    >
-                  </li>
-                  <li>
-                    <h4>Configure program and rewards</h4>
-                    <p>Define reward models and campaign logic that API events will activate.</p>
-                    <a
-                      href="https://docs.extole.com/docs/rewards-overview"
-                      data-track="quickstart-api-step-3"
-                       target="_blank" rel="noopener noreferrer">Review rewards configuration</a
-                    >
-                  </li>
-                  <li>
-                    <h4>Send rewardable events</h4>
-                    <p>Post qualifying events and confirm participant journey updates.</p>
-                    <a
-                      href="https://dev.extole.com/reference/create-event"
-                      data-track="quickstart-api-step-4"
-                       target="_blank" rel="noopener noreferrer">Send first event</a
-                    >
-                  </li>
-                  <li>
-                    <h4>Validate fulfillment automation in QA</h4>
-                    <p>Verify reward state updates and webhook callbacks in downstream systems.</p>
-                    <a
-                      href="https://dev.extole.com/docs/reward-webhooks"
-                      data-track="quickstart-api-step-5"
-                       target="_blank" rel="noopener noreferrer">Set up reward webhooks</a
-                    >
-                  </li>
-                </ol>
-              </section>
-            </div>
+              </div>
+              <ol class="extole-track-steps">
+                <li>
+                  <h4>Set up authentication</h4>
+                  <p>Configure secure credentials and bearer token access for service calls.</p>
+                  <a
+                    href="https://dev.extole.com/reference/authentication"
+                    data-track="quickstart-api-step-2"
+                     target="_blank" rel="noopener noreferrer">Configure authentication</a
+                  >
+                </li>
+                <li>
+                  <h4>Send rewardable events</h4>
+                  <p>Post qualifying events and confirm participant journey updates.</p>
+                  <a
+                    href="https://dev.extole.com/reference/create-event"
+                    data-track="quickstart-api-step-4"
+                     target="_blank" rel="noopener noreferrer">Send first event</a
+                  >
+                </li>
+                <li>
+                  <h4>Configure program and rewards</h4>
+                  <p>Define reward models and campaign logic that API events will activate.</p>
+                  <a
+                    href="https://docs.extole.com/docs/rewards-overview"
+                    data-track="quickstart-api-step-3"
+                     target="_blank" rel="noopener noreferrer">Review rewards configuration</a
+                  >
+                </li>
+                <li>
+                  <h4>Validate fulfillment automation in QA</h4>
+                  <p>Verify reward state updates and webhook callbacks in downstream systems.</p>
+                  <a
+                    href="https://dev.extole.com/docs/reward-webhooks"
+                    data-track="quickstart-api-step-5"
+                     target="_blank" rel="noopener noreferrer">Set up reward webhooks</a
+                  >
+                </li>
+              </ol>
+            </article>
+
+            <article class="extole-dev-paths extole-dev-pane">
+              <div class="extole-dev-paths-head">
+                <p class="extole-integration-subhead">Mobile App (iOS + Android)</p>
+                <p class="extole-path-panel-copy">Best for native mobile teams embedding Extole experiences directly in iOS and Android apps.</p>
+              </div>
+              <ol class="extole-track-steps">
+                <li>
+                  <h4>Choose your SDK</h4>
+                  <p>Select your platform-specific SDK documentation.</p>
+                  <a
+                    href="https://github.com/extole/ios-sdk"
+                    data-track="quickstart-mobile-step-1-ios"
+                     target="_blank" rel="noopener noreferrer">Open iOS SDK repository</a
+                  >
+                  <a
+                    href="https://github.com/extole/android-sdk"
+                    data-track="quickstart-mobile-step-1-android"
+                     target="_blank" rel="noopener noreferrer">Open Android SDK repository</a
+                  >
+                </li>
+                <li>
+                  <h4>Initialize SDK and program domain</h4>
+                  <p>Configure your app startup, app name, and Extole program domain.</p>
+                  <a
+                    href="https://github.com/extole/android-sdk#initialize-extole"
+                    data-track="quickstart-mobile-step-2"
+                     target="_blank" rel="noopener noreferrer">Review initialization requirements</a
+                  >
+                </li>
+                <li>
+                  <h4>Identify users and send events</h4>
+                  <p>Pass user identity attributes and event data from mobile app flows.</p>
+                  <a
+                    href="https://github.com/extole/android-sdk#exchange-data-with-extole"
+                    data-track="quickstart-mobile-step-3"
+                     target="_blank" rel="noopener noreferrer">Review mobile event and identity patterns</a
+                  >
+                </li>
+                <li>
+                  <h4>Validate referral and rewards in QA</h4>
+                  <p>Confirm in-app experiences, reward state changes, and webhook outcomes.</p>
+                  <a
+                    href="https://dev.extole.com/docs/reward-webhooks"
+                    data-track="quickstart-mobile-step-4"
+                     target="_blank" rel="noopener noreferrer">Validate reward lifecycle behavior</a
+                  >
+                </li>
+              </ol>
+            </article>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="stack" class="extole-section" aria-label="Add Extole to your stack">
+      <div class="extole-shell">
+        <div class="extole-section-head">
+          <p class="extole-kicker">Build Patterns</p>
+          <h2>Add Extole to your stack</h2>
+          <p class="extole-section-copy">Core implementation patterns for event delivery, orchestration, identity, and internal tooling.</p>
+        </div>
+
+        <div class="extole-card-grid extole-card-grid-4 extole-stack-grid">
+          <article class="extole-card extole-stack-card">
+            <h3>Stream events in and out</h3>
+            <p class="extole-stack-intro">Connect runtime and file-based event ingestion into Extole systems.</p>
+            <ul class="extole-stack-links">
+              <li class="extole-stack-primary">
+                <a href="https://dev.extole.com/reference/create-event" data-track="stack-events-primary"
+                   target="_blank" rel="noopener noreferrer">Events API (runtime ingest)</a>
+              </li>
+              <li class="extole-stack-subhead">Supporting resources</li>
+              <li>
+                <a href="https://dev.extole.com/docs/javascript-sdk#core-tag" data-track="stack-events-core-tag"
+                   target="_blank" rel="noopener noreferrer">JavaScript SDK core tag</a>
+              </li>
+              <li>
+                <a href="https://dev.extole.com/docs/javascript-sdk#add-event-tags" data-track="stack-events-event-tags"
+                   target="_blank" rel="noopener noreferrer">JavaScript SDK event tags</a>
+              </li>
+              <li>
+                <a href="https://dev.extole.com/docs/file-based-events#file-naming-conventions" data-track="stack-events-file-based"
+                   target="_blank" rel="noopener noreferrer">File-based events and naming</a>
+              </li>
+            </ul>
+          </article>
+
+          <article class="extole-card extole-stack-card">
+            <h3>Orchestrate journeys</h3>
+            <p class="extole-stack-intro">Trigger downstream systems and manage reward fulfillment workflows.</p>
+            <ul class="extole-stack-links">
+              <li class="extole-stack-primary">
+                <a href="https://my.extole.com/tech-center/outbound-webhooks" data-track="stack-journeys-primary"
+                   target="_blank" rel="noopener noreferrer">Outbound Webhooks</a>
+              </li>
+              <li class="extole-stack-subhead">Supporting resources</li>
+              <li>
+                <a href="https://dev.extole.com/docs/reward-webhooks#marking-a-reward-as-fulfilled" data-track="stack-journeys-reward-webhooks"
+                   target="_blank" rel="noopener noreferrer">Reward webhooks</a>
+              </li>
+              <li>
+                <a href="https://dev.extole.com/docs/external-sftp-servers" data-track="stack-journeys-outbound-sftp"
+                   target="_blank" rel="noopener noreferrer">Outbound SFTP servers</a>
+              </li>
+              <li>
+                <a href="https://dev.extole.com/docs/braze" data-track="stack-journeys-braze"
+                   target="_blank" rel="noopener noreferrer">Braze integration example</a>
+              </li>
+            </ul>
+          </article>
+
+          <article class="extole-card extole-stack-card">
+            <h3>Indentity and Consent</h3>
+            <p class="extole-stack-intro">Use privacy and consent endpoints to keep identity-safe data practices aligned.</p>
+            <ul class="extole-stack-links">
+              <li class="extole-stack-primary">
+                <a href="https://dev.extole.com/reference/request-data-erasure" data-track="stack-identity-primary"
+                   target="_blank" rel="noopener noreferrer">Request data erasure (API)</a>
+              </li>
+              <li class="extole-stack-subhead">Supporting resources</li>
+              <li>
+                <a href="https://dev.extole.com/docs/data-erasure-requests" data-track="stack-identity-erasure-guide"
+                   target="_blank" rel="noopener noreferrer">Data erasure requests guide</a>
+              </li>
+              <li>
+                <a href="https://dev.extole.com/docs/opt-out-list-management" data-track="stack-identity-opt-out-guide"
+                   target="_blank" rel="noopener noreferrer">Opt-out list management</a>
+              </li>
+              <li>
+                <a href="https://dev.extole.com/reference/check-opt-out-status" data-track="stack-identity-opt-out-api"
+                   target="_blank" rel="noopener noreferrer">Check opt-out status (API)</a>
+              </li>
+            </ul>
+          </article>
+
+          <article class="extole-card extole-stack-card">
+            <h3>Internal Tooling</h3>
+            <p class="extole-stack-intro">Support customer-facing operations and internal reporting with Extole APIs.</p>
+            <ul class="extole-stack-links">
+              <li class="extole-stack-primary">
+                <a href="https://dev.extole.com/reference/create-person-shareables" data-track="stack-tooling-primary"
+                   target="_blank" rel="noopener noreferrer">Create person shareables</a>
+              </li>
+              <li class="extole-stack-subhead">Supporting resources</li>
+              <li>
+                <a href="https://dev.extole.com/reference/get-person-rewards" data-track="stack-tooling-person-rewards"
+                   target="_blank" rel="noopener noreferrer">Get person rewards</a>
+              </li>
+              <li>
+                <a href="https://docs.extole.com/docs/receiving-data-from-extole" data-track="stack-tooling-warehouse"
+                   target="_blank" rel="noopener noreferrer">Receiving data from Extole</a>
+              </li>
+            </ul>
+          </article>
         </div>
       </div>
     </section>
@@ -331,11 +473,31 @@ hidden: true
       <div class="extole-shell">
         <div class="extole-section-head">
           <p class="extole-kicker">Partner Integrations</p>
-          <h2>Integrate Extole with your existing marketing stack</h2>
+          <h2>Integrate Extole with leading technology partners</h2>
           <p class="extole-section-copy">Quickly scan popular partner options by use case.</p>
         </div>
 
         <div class="extole-card-grid extole-card-carousel">
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/alkami.png" alt="Alkami logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=alkami.com&sz=128';" />
+            </div>
+            <h3>Alkami</h3>
+            <p>Connect referral and advocacy programs into digital banking experiences.</p>
+            <a href="https://dev.extole.com/docs/alkami" data-track="partner-alkami"
+               target="_blank" rel="noopener noreferrer">View Alkami integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/amplitude.png" alt="Amplitude logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=amplitude.com&sz=128';" />
+            </div>
+            <h3>Amplitude</h3>
+            <p>Route referral conversion and cohort data into product analytics dashboards.</p>
+            <a href="https://dev.extole.com/docs/amplitude" data-track="partner-amplitude"
+               target="_blank" rel="noopener noreferrer">View Amplitude integration</a
+            >
+          </article>
           <article class="extole-card extole-partner-item">
             <div class="extole-partner-logo" aria-hidden="true">
               <img src="./assets/partners/attentive.png" alt="Attentive logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=attentivemobile.com&sz=128';" />
@@ -344,6 +506,46 @@ hidden: true
             <p>Coordinate SMS subscription and reward events for lifecycle messaging.</p>
             <a href="https://dev.extole.com/docs/attentive" data-track="partner-attentive"
                target="_blank" rel="noopener noreferrer">View Attentive integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/banno-jack-henry.png" alt="Banno Jack Henry logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=jackhenry.com&sz=128';" />
+            </div>
+            <h3>Banno (Jack Henry)</h3>
+            <p>Embed Extole referral journeys into online and mobile banking touchpoints.</p>
+            <a href="https://dev.extole.com/docs/banno-jack-henry" data-track="partner-banno-jack-henry"
+               target="_blank" rel="noopener noreferrer">View Banno integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/bhn.png" alt="BHN logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=bhn.com&sz=128';" />
+            </div>
+            <h3>BHN</h3>
+            <p>Connect reward issuance and gift card fulfillment through BHN rails.</p>
+            <a href="https://dev.extole.com/docs/bhn" data-track="partner-bhn"
+               target="_blank" rel="noopener noreferrer">View BHN integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/bigcommerce.png" alt="BigCommerce logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=bigcommerce.com&sz=128';" />
+            </div>
+            <h3>BigCommerce</h3>
+            <p>Launch referral experiences across BigCommerce storefront and checkout.</p>
+            <a href="https://dev.extole.com/docs/bigcommerce" data-track="partner-bigcommerce"
+               target="_blank" rel="noopener noreferrer">View BigCommerce integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/boulevard-blvd.png" alt="Boulevard BLVD logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=joinblvd.com&sz=128';" />
+            </div>
+            <h3>Boulevard (BLVD)</h3>
+            <p>Support salon and spa referral journeys in Boulevard booking flows.</p>
+            <a href="https://dev.extole.com/docs/boulevard-blvd" data-track="partner-boulevard-blvd"
+               target="_blank" rel="noopener noreferrer">View Boulevard integration</a
             >
           </article>
           <article class="extole-card extole-partner-item">
@@ -358,6 +560,46 @@ hidden: true
           </article>
           <article class="extole-card extole-partner-item">
             <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/candescent.png" alt="Candescent logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=candescent.com&sz=128';" />
+            </div>
+            <h3>Candescent</h3>
+            <p>Run referral programs within modern digital banking account experiences.</p>
+            <a href="https://dev.extole.com/docs/ncr" data-track="partner-candescent"
+               target="_blank" rel="noopener noreferrer">View Candescent integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/cordial.png" alt="Cordial logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=cordial.com&sz=128';" />
+            </div>
+            <h3>Cordial</h3>
+            <p>Trigger personalized lifecycle messaging with Extole referral events.</p>
+            <a href="https://dev.extole.com/docs/cordial" data-track="partner-cordial"
+               target="_blank" rel="noopener noreferrer">View Cordial integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/ensighten.png" alt="Ensighten logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=ensighten.com&sz=128';" />
+            </div>
+            <h3>Ensighten</h3>
+            <p>Manage Extole tags and event capture through Ensighten deployments.</p>
+            <a href="https://dev.extole.com/docs/ensighten" data-track="partner-ensighten"
+               target="_blank" rel="noopener noreferrer">View Ensighten integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/hubspot.png" alt="HubSpot logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=hubspot.com&sz=128';" />
+            </div>
+            <h3>HubSpot</h3>
+            <p>Sync leads and referral outcomes into HubSpot CRM and automation.</p>
+            <a href="https://dev.extole.com/docs/hubspot" data-track="partner-hubspot"
+               target="_blank" rel="noopener noreferrer">View HubSpot integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
               <img src="./assets/partners/iterable.png" alt="Iterable logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=iterable.com&sz=128';" />
             </div>
             <h3>Iterable</h3>
@@ -368,12 +610,32 @@ hidden: true
           </article>
           <article class="extole-card extole-partner-item">
             <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/klaviyo.png" alt="Klaviyo logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=klaviyo.com&sz=128';" />
+            </div>
+            <h3>Klaviyo</h3>
+            <p>Use referral and reward signals in Klaviyo email and SMS campaigns.</p>
+            <a href="https://dev.extole.com/docs/klaviyo" data-track="partner-klaviyo"
+               target="_blank" rel="noopener noreferrer">View Klaviyo integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
               <img src="./assets/partners/listrak.png" alt="Listrak logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=listrak.com&sz=128';" />
             </div>
             <h3>Listrak</h3>
             <p>Grow lists and trigger personalized email and SMS journeys.</p>
             <a href="https://dev.extole.com/docs/listrak" data-track="partner-listrak"
                target="_blank" rel="noopener noreferrer">View Listrak integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/optimizely.png" alt="Optimizely logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=optimizely.com&sz=128';" />
+            </div>
+            <h3>Optimizely</h3>
+            <p>Experiment on referral placements and optimize conversion performance.</p>
+            <a href="https://dev.extole.com/docs/optimizely" data-track="partner-optimizely"
+               target="_blank" rel="noopener noreferrer">View Optimizely integration</a
             >
           </article>
           <article class="extole-card extole-partner-item">
@@ -391,7 +653,7 @@ hidden: true
               <img src="./assets/partners/pixlee-turnto.png" alt="Pixlee Turnto logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=pixlee.com&sz=128';" />
             </div>
             <h3>Pixlee Turnto</h3>
-            <p>Bring UGC, ratings, and Q&A content into Extole experiences.</p>
+            <p>Bring UGC, ratings, and Q&amp;A content into Extole experiences.</p>
             <a href="https://docs.extole.com/docs/partner-integrations#pixlee-turnto" data-track="partner-pixlee-turnto"
                target="_blank" rel="noopener noreferrer">View Pixlee Turnto integration</a
             >
@@ -408,12 +670,32 @@ hidden: true
           </article>
           <article class="extole-card extole-partner-item">
             <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/q2.png" alt="Q2 logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=q2.com&sz=128';" />
+            </div>
+            <h3>Q2</h3>
+            <p>Launch referral and rewards journeys inside Q2 digital banking flows.</p>
+            <a href="https://dev.extole.com/docs/q2" data-track="partner-q2"
+               target="_blank" rel="noopener noreferrer">View Q2 integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
               <img src="./assets/partners/salesforce-commerce-cloud.png" alt="Salesforce Commerce Cloud logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=salesforce.com&sz=128';" />
             </div>
             <h3>Salesforce Commerce Cloud</h3>
             <p>Deploy the Extole cartridge for B2C and B2B commerce storefronts.</p>
             <a href="https://docs.extole.com/docs/partner-integrations#salesforce-commerce-cloud" data-track="partner-salesforce-commerce-cloud"
                target="_blank" rel="noopener noreferrer">View Salesforce Commerce Cloud integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/salesforce-crm.png" alt="Salesforce CRM logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=salesforce.com&sz=128';" />
+            </div>
+            <h3>Salesforce CRM</h3>
+            <p>Push advocate and referral data into Salesforce CRM records and workflows.</p>
+            <a href="https://dev.extole.com/docs/extole-to-salesforce-crm" data-track="partner-salesforce-crm"
+               target="_blank" rel="noopener noreferrer">View Salesforce CRM integration</a
             >
           </article>
           <article class="extole-card extole-partner-item">
@@ -450,10 +732,10 @@ hidden: true
             <div class="extole-partner-logo" aria-hidden="true">
               <img src="./assets/partners/shopify.png" alt="Shopify logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=shopify.com&sz=128';" />
             </div>
-            <h3>Shopify</h3>
+            <h3>Shopify plus</h3>
             <p>Launch referral experiences in storefront and checkout journeys.</p>
             <a href="https://dev.extole.com/docs/shopify" data-track="partner-shopify"
-               target="_blank" rel="noopener noreferrer">View Shopify integration</a
+               target="_blank" rel="noopener noreferrer">View Shopify plus integration</a
             >
           </article>
           <article class="extole-card extole-partner-item">
@@ -466,18 +748,42 @@ hidden: true
                target="_blank" rel="noopener noreferrer">View Tealium integration</a
             >
           </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/tremendous.png" alt="Tremendous logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=tremendous.com&sz=128';" />
+            </div>
+            <h3>Tremendous</h3>
+            <p>Automate reward fulfillment with the Tremendous payout platform.</p>
+            <a href="https://dev.extole.com/docs/tremendous" data-track="partner-tremendous"
+               target="_blank" rel="noopener noreferrer">View Tremendous integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/vimeo-ott-zapier.png" alt="Vimeo OTT Zapier logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=vimeo.com&sz=128';" />
+            </div>
+            <h3>Vimeo OTT + Zapier</h3>
+            <p>Trigger referral workflows for Vimeo OTT events via Zapier automation.</p>
+            <a href="https://dev.extole.com/docs/vimeo-ott-zapier" data-track="partner-vimeo-ott-zapier"
+               target="_blank" rel="noopener noreferrer">View Vimeo OTT + Zapier integration</a
+            >
+          </article>
+          <article class="extole-card extole-partner-item">
+            <div class="extole-partner-logo" aria-hidden="true">
+              <img src="./assets/partners/zapier.png" alt="Zapier logo" loading="lazy" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=zapier.com&sz=128';" />
+            </div>
+            <h3>Zapier</h3>
+            <p>Connect Extole events to thousands of apps with no-code automation.</p>
+            <a href="https://dev.extole.com/docs/zapier" data-track="partner-zapier"
+               target="_blank" rel="noopener noreferrer">View Zapier integration</a
+            >
+          </article>
         </div>
 
-        <p class="extole-partner-more">
-          More integration details:
-          <a href="https://partners.extole.com/" data-track="partner-integrations-directory"
-             target="_blank" rel="noopener noreferrer">partners.extole.com</a
-          >
-        </p>
       </div>
     </section>
 
-    <section id="capabilities" class="extole-section" aria-label="Platform capabilities">
+    <section id="capabilities" class="extole-section" aria-label="Platform capabilities" hidden>
       <div class="extole-shell">
         <div class="extole-section-head">
           <p class="extole-kicker">Platform Capabilities</p>
@@ -610,7 +916,7 @@ hidden: true
       </div>
     </section>
 
-    <section class="extole-section" aria-label="Popular links">
+    <section class="extole-section" aria-label="Popular links" hidden>
       <div class="extole-shell">
         <div class="extole-split-grid">
           <article class="extole-list-card">
