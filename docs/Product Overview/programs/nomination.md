@@ -1,0 +1,117 @@
+---
+title: Nomination
+excerpt: >-
+  Connect more meaningfully with your community by rewarding and recognizing
+  important people nominated by your customers.
+deprecated: false
+hidden: false
+metadata:
+  title: ''
+  description: ''
+  robots: index
+next:
+  description: ''
+  pages:
+    - type: basic
+      slug: refer-a-friend
+      title: Refer A Friend
+    - type: basic
+      slug: drop-a-hint
+      title: Drop A Hint
+    - type: basic
+      slug: sweepstakes
+      title: Sweepstakes
+---
+## Overview
+
+[//]: # "What is a Nomination program?"
+
+Extole’s Nomination program starts with a nomination form that you can customize to fit the theme of your program. The theme of your program may be tied to a specific cause or purpose (e.g, nominate an essential worker in your community to receive a free pair of shoes). A purpose-driven program gives you and your customers a reason to engage and fill out the form to capture information about the nominator and the nominee. 
+
+Some examples of who to spotlight with your Nomination program include:
+
+* An essential worker
+* Super Mom/Dad
+* Your favorite teacher
+* Hometown hero
+* An employee
+* A customer
+
+As part of the program, Extole can also deliver a Surprise and Delight email to your nominators, offering them a coupon code to shop. A separate email is sent to the nominee explaining that they were nominated. You can then either randomly select winners, or read through each of the entries to manually choose them.
+
+With this program, you have the flexibility to continue delivering content that can push the following initiatives:
+
+* Customer engagement aligned with your brand message
+* Growing your email list
+* Driving revenue in an authentic way
+
+[//]: ___
+
+## Marketing
+
+[//]: # "How do I promote a Nomination program?"
+
+**Email Promotion**\
+Let existing customers, or any specified list of customers, know about your Nomination program by sending them an invitation email. In addition to containing a link to participate in the program, this branded email will typically explain the theme and purpose of your program on a high level and include persuasive copy to engage your customers. All copy in the email is customizable and you can set up any number of reminder promotion emails.
+
+**On-site or In-app Promotion**\
+You can also use Extole to generate links you can place on your website or in your mobile app to promote the program. These links will take your customers directly to the nomination page, where they can begin filling out the form.
+
+[//]: ___
+
+<Image align="center" width="30% " src="https://files.readme.io/ec49297-Screen_Shot_2022-05-31_at_9.35.07_AM.png" />
+
+[//]: # "What is a typical user flow for a Nomination program?"
+
+## Nominator Journey
+
+Your nominators either received your invitation email and clicked on the link to participate or found out about your program through the promotions on your website. Regardless of which link they tapped, they will be taken to your nomination page. This page is customized to fit your brand and will host the form customers can fill out. The option to add an opt-in checkbox to add emails to your marketing lists is available and encouraged.
+
+Once nominators fill out the form and submit it, you may decide to Surprise and Delight them for their participation with a coupon code or other reward type. This reward could be displayed in the confirmation overlay or email that confirms the nominator's form was successfully submitted.
+
+> 👍 Best Practices
+>
+> * Promotion is the key to running successful Nomination programs. 
+> * Make sure you have multiple emails, social posts, and onsite banners to get as much visibility as possible. 
+> * Be careful of adding too many submission fields. You want to make sure it doesn’t adversely affect performance.
+> * Set up reporting to pull opted in participants and send them directly to your CRM or ESP.
+
+## Nominee Journey
+
+The nominee's journey begins when they receive the email letting them know they’ve been nominated. After your nomination period closes, both the nominator and the nominee will receive an email containing the winners and thanking everyone for participating. 
+
+[//]: ___
+
+## Rules and Rewarding
+
+[//]: # "What rules and rewards are typical for a Nomination program?"
+
+Depending on the theme and purpose of your program, rules can be configured to appropriately handle multiple nominations from one nominator or multiple nominations for one nominee. For example, you may enforce a limit of one nomination per person. 
+
+Typically, if you choose to include a moment of Surprise and Delight in your program, the reward is sent to everyone who submitted a nomination form. This reward is most commonly a coupon code, but could also be a free gift, points, or whatever reward type makes sense for your company and program theme.
+
+[//]: ___
+
+<Image align="center" width="60% " src="https://files.readme.io/cd867e3-Screen_Shot_2022-05-31_at_9.37.21_AM.png" />
+
+## Performance and Data
+
+[//]: # "How do I measure the performance of a Nomination program?"
+
+Nomination programs can drive significant engagement with your brand. Customers are more likely to nominate, meaning the nomination rate (20% on average) is higher than the advocacy rate of your standard Refer A Friend program.
+
+Customers are also more likely to opt in to receiving additional marketing emails from your brand (23.7% average opt-in rate) as well as open the Surprise and Delight emails. There is a higher email open rate on Nomination programs (78% on average) compared to standard Refer A Friend programs.
+
+[//]: ___
+
+## Examples
+
+**Reebok Love Program**\
+Reebok’s nomination program, which ran for three weeks, executed on the initiative to give back to their community by asking customers to nominate an essential worker they know to receive a free pair of Reebok shoes. The program also continued to drive revenue for the brand by offering a Surprise and Delight reward for nomination submission. The program grew their marketing list, drove revenue, and produced a higher advocacy rate compared to their standard RAF program.
+
+<Image align="center" width="60% " src="https://files.readme.io/6fd8c2b-Screen_Shot_2022-05-31_at_9.42.27_AM.png" />
+
+**Athleta**\
+Athleta launched two nomination programs. The first targeted people who had attended their virtual event, Empower(hour), where attendees could nominate women who inspired them. Those women who were nominated could "redeem" their nomination to receive a free shirt (while supplies lasted). The second program targeted New York and California-based Brand Ambassadors, who were encouraged to nominate a woman who inspires them. The winners received free tickets to a big event that summer.
+
+<Image align="center" width="60% " src="https://files.readme.io/ef017d8-Screen_Shot_2022-05-31_at_9.47.21_AM.png" />
