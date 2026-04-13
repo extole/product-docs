@@ -6,8 +6,8 @@ excerpt: >-
 deprecated: false
 hidden: false
 link:
-  new_tab: false
-  url: https://docs.extole.com/docs/partner-integrations
+  new_tab: true
+  url: https://partners.extole.com/
 metadata:
   title: ''
   description: ''
