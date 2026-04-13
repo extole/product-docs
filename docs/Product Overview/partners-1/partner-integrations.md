@@ -32,13 +32,11 @@ Extole strategically partners with companies that you know and love so that you 
 * Identity Marketing
 * Marketing Automation
 
-<Callout icon="👍" theme="okay">
-         ### More on Integrations
-
-  Visit our [Integrations Directory](https://partners.extole.com/).
-
-  View our [Technical Integration Guides](https://dev.extole.com/docs/).
-</Callout>
+> 👍 More on Integrations
+>
+> Visit our [Integrations Directory](https://partners.extole.com/).
+>
+> View our [Technical Integration Guides](https://dev.extole.com/docs/).
 
 ## Attentive
 
@@ -73,20 +71,6 @@ Optimove combines the science of data and the art of marketing to help marketers
 
 [Learn more about Extole + Optimove](https://partners.extole.com/optimove)  
 [Visit Optimove's website](https://www.optimove.com/)
-
-## Pixlee Turnto
-
-Pixlee TurnTo allows marketers and ecommerce executives to integrate user-generated content (UGC) and Influencer Marketing with text-based customer content like Ratings & Reviews, Checkout Comments, and Community Q&A. Leveraging the Extole integration with Pixlee Turnto allows you to include the impactful content created by your customers in your Extole-powered programs.
-
-[Learn more about Extole + Pixlee Turnto](https://partners.extole.com/pixlee-turnto)  
-[Visit Pixlee Turnto's website](https://www.pixlee.com/)
-
-## PowerReviews
-
-PowerReviews is a leading provider of ratings, reviews, questions and answers technology. Through the PowerReviews & Extole integration, you are able to incorporate your user-generated content (UGC), collected through PowerReviews, directly into Extole's Loyalty and Referral programs.
-
-[Learn more about Extole + PowerReviews](https://partners.extole.com/powerreviews)  
-[Visit PowerReviews' website](https://www.powerreviews.com/)
 
 ## Salesforce Commerce Cloud
 
