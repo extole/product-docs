@@ -1,5 +1,6 @@
 ---
 title: "Q2"
+slug: q2
 excerpt: "Q2 offers digital banking solutions to grow with your business, your account holders, and the communities you serve.\n"
 ---
 
