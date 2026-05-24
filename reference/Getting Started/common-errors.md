@@ -1,0 +1,288 @@
+---
+title: Errors
+excerpt: Understand common errors returned by Extole's APIs.
+hidden: false
+---
+Every error returned by an Extole API follows a consistent JSON structure with a stable `code` field for programmatic handling. This page documents the error shape, the HTTP status codes Extole returns, the most common error codes by category, and guidance for retries, async events, and support escalation.
+
+## Quickstart
+
+```json
+{
+  "unique_id": "6941049359794271324",
+  "http_status_code": 403,
+  "code": "missing_access_token",
+  "message": "No access_token was provided with this request.",
+  "parameters": {}
+}
+```
+
+When handling errors:
+
+- Branch on `code`. It is a stable string enum suitable for `switch` or pattern-match logic.
+- Display `message` to humans where appropriate.
+- Log `unique_id` and include it in any support ticket.
+- Inspect `parameters` for sub-error details when present.
+
+## Error Response Structure
+
+| Field                    | Description                                                                             |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| `unique_id`              | A unique identifier Extole logs against this error. Include it when contacting support. |
+| `http_status_code`       | The HTTP status code returned. Mirrors the response status.                             |
+| `code`                   | A stable string enum identifying the error class. Use this for programmatic handling.   |
+| `message`                | A human-readable description of the error. Intended for display or logs.                |
+| `parameters`             | Object containing sub-error detail. Keys vary by error class.                           |
+| `parameters.reason`      | When present, a string enum naming a more specific sub-error.                           |
+| `parameters.description` | When present, a human-readable description of the sub-error.                            |
+
+For example, a validation error often carries `parameters.description` with the specific field and condition that failed:
+
+```json
+{
+  "unique_id": "6941047907334948670",
+  "http_status_code": 400,
+  "code": "validation_error",
+  "message": "Validation failed",
+  "parameters": {
+    "description": "must not be null"
+  }
+}
+```
+
+## Asynchronous Error Handling
+
+Consumer event endpoints (`POST /events`, `GET /events/{event_name}`) always return HTTP 200 to avoid blocking the participant's session, regardless of whether the event was processed successfully.
+
+To detect processing errors on these endpoints, inspect the response headers:
+
+| Header                    | Meaning                                                                  |
+| ------------------------- | ------------------------------------------------------------------------ |
+| `X-Extole-Error-Message`  | Human-readable error message, set when processing failed.                |
+| `X-Extole-Token`          | The current access token value (which may have rotated during the call). |
+| `X-Extole-Cookie-Consent` | Cookie consent status.                                                   |
+
+```bash
+curl -i https://acme.extole.io/events \
+  -H "Content-Type: application/json" \
+  -d '{"event_name":"purchase","data":{"email":"customer@example.com"}}'
+
+HTTP/1.1 200 OK
+X-Extole-Token: DI3ZCZ97V3V1F9SUA9T
+X-Extole-Error-Message: invalid_email
+```
+
+For all other endpoints, errors return non-200 status codes with the standard error body.
+
+## Rate Limiting
+
+A `429` response with code `too_many_requests` indicates that the caller has sent too many requests in a window. Extole applies two limits:
+
+- 100 requests per minute per IP address or token.
+- 10 requests per second per identified person.
+
+The `/v6/async-events` endpoint is not rate-limited and is the recommended path for high-volume event ingestion.
+
+Typical causes of rate limiting:
+
+- A misconfigured tag or integration sending duplicate or dummy events.
+- A customer data platform (CDP) misconfigured to forward more data than expected.
+- Load testing or security scans (expected and unavoidable in those scenarios).
+
+When implementing retry logic:
+
+- Use **exponential backoff** with jitter. A reasonable starting pattern: 1s, 2s, 4s, 8s, capped at 30s.
+- Avoid retrying immediately. Even a 100 ms retry can keep the limit tripped.
+- Distinguish retryable from non-retryable errors. `429` and `500` are retryable; `400`, `401`, `403`, `415` are not (the request is the problem, not the platform).
+
+If your integration encounters rate limiting that does not match these patterns, contact [support@extole.com](mailto:support@extole.com).
+
+## Retry Guidance
+
+| Status | Retryable     | Notes                                                                      |
+| ------ | ------------- | -------------------------------------------------------------------------- |
+| 400    | No            | The request itself is invalid. Fix and resubmit.                           |
+| 401    | After refresh | Acquire or refresh a token, then retry.                                    |
+| 402    | No            | Feature is not enabled. Contact your Extole guide.                         |
+| 403    | No            | Token lacks scope or resource is forbidden. Retrying will not help.        |
+| 415    | No            | Set `Content-Type: application/json` and retry once.                       |
+| 429    | Yes           | Exponential backoff. Prefer `/v6/async-events` for high-volume event flow. |
+| 500    | Yes           | Transient. Exponential backoff. Escalate if persistent.                    |
+
+For state-changing operations (`POST`, `PATCH`, `PUT`, `DELETE`), be cautious about retrying after a `5xx`. The operation may have succeeded server-side even if the response did not return. Where the API supports idempotency, use it.
+
+## Debugging
+
+Set the `X-Extole-Debug` header to a value between `1` and `3` on any request to receive expanded diagnostic information in the response. Higher levels return more detail.
+
+```bash
+curl https://api.extole.io/v6/async-events \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "X-Extole-Debug: 2" \
+  -d '{...}'
+```
+
+Debug responses can be verbose; use level `1` in routine logging and reserve `2` or `3` for active troubleshooting.
+
+## Support and Escalation
+
+When contacting [support@extole.com](mailto:support@extole.com) about an error:
+
+- Include the `unique_id` from the error response. Extole correlates this with internal logs.
+- Include the HTTP method, full request path, and a UTC timestamp.
+- Include the response body verbatim.
+- **Do not** include the access token in unredacted form.
+
+For endpoint-specific behavior or errors not documented here, consult the API reference for the endpoint in question. Each endpoint enumerates the errors it can return.
+
+## HTTP Status Codes
+
+| Status | Meaning                                                                                                 | Typical action                                                          |
+| ------ | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 200    | Success. For consumer event endpoints, see [Asynchronous error handling](#asynchronous-error-handling). | Continue.                                                               |
+| 400    | Bad Request. The request body, parameters, or headers are invalid.                                      | Fix the request and retry.                                              |
+| 401    | Unauthorized. Missing or invalid access token.                                                          | Acquire or refresh a token.                                             |
+| 402    | Payment Required. The feature is not enabled for this client.                                           | Check provisioning with your Extole guide.                              |
+| 403    | Forbidden. The token does not carry the required scope, or the resource is not accessible.              | Use a token with the correct scope.                                     |
+| 415    | Unsupported Media Type. The `Content-Type` header is missing or wrong.                                  | Set `Content-Type: application/json`.                                   |
+| 429    | Too Many Requests. Rate limit exceeded.                                                                 | Back off exponentially and retry.                                       |
+| 500    | Server Error. Extole encountered an unexpected condition.                                               | Retry with backoff. If persistent, log `unique_id` and contact support. |
+
+## Common Errors by Category
+
+Each endpoint's API reference lists the full set of errors that endpoint can return. The codes below are the most common ones an integrator will encounter, grouped by area.
+
+### Authentication and authorization
+
+| Code                            | Status | Cause                                                 |
+| ------------------------------- | ------ | ----------------------------------------------------- |
+| `missing_access_token`          | 403    | No access token in the request.                       |
+| `invalid_access_token`          | 401    | Token does not match a known credential.              |
+| `expired_access_token`          | 401    | Token is past its expiration.                         |
+| `method_unauthorized`           | 401    | Caller is not authorized to use this method.          |
+| `access_denied`                 | 403    | Caller is not authorized for this resource.           |
+| `scopes_denied`                 | 403    | Token does not carry the required scope.              |
+| `invalid_credentials`           | 401    | Wrong email or password during token creation.        |
+| `missing_credentials`           | 403    | Token creation called without sufficient credentials. |
+| `jwt_authentication_error`      | 401    | JWT signature did not verify.                         |
+| `jwt_error`                     | 400    | JWT is malformed or has invalid claims.               |
+| `invalid_client_id`             | 400    | The `client_id` is not a known client.                |
+| `invalid_access_token_duration` | 400    | Token duration outside the allowed range.             |
+| `payment_required`              | 402    | Feature not enabled for this client.                  |
+| `sandbox_not_found`             | 400    | The referenced sandbox does not exist.                |
+
+### Validation
+
+| Code                     | Status | Cause                                                                         |
+| ------------------------ | ------ | ----------------------------------------------------------------------------- |
+| `validation_error`       | 400    | Generic validation failure. Inspect `parameters` for the field and condition. |
+| `invalid_parameter`      | 400    | A request parameter has an invalid value.                                     |
+| `invalid_json`           | 400    | The request body is not valid JSON.                                           |
+| `missing_request_body`   | 400    | A required request body is missing.                                           |
+| `binding_error`          | 400    | Request parameters could not be bound to the expected schema.                 |
+| `invalid_null`           | 400    | A non-nullable field is null.                                                 |
+| `unsupported_media_type` | 415    | `Content-Type` is missing or unsupported.                                     |
+| `invalid_limit`          | 400    | The `limit` parameter is invalid.                                             |
+| `invalid_offset`         | 400    | The `offset` parameter is invalid.                                            |
+| `max_fetch_size_1000`    | 400    | The requested page size exceeds the maximum of 1000.                          |
+
+### Persons
+
+| Code                               | Status | Cause                                                                        |
+| ---------------------------------- | ------ | ---------------------------------------------------------------------------- |
+| `person_not_found`                 | 404    | The specified person does not exist.                                         |
+| `invalid_person_id`                | 400    | The person ID is malformed.                                                  |
+| `invalid_key_value`                | 400    | A person identity key has an invalid value.                                  |
+| `identity_key_value_already_taken` | 400    | An identity key value is already assigned to another person.                 |
+| `forwarding_profile_is_device`     | 400    | Cannot forward from a device-only profile.                                   |
+| `forward_to_profile_is_device`     | 400    | Cannot forward to a device-only profile.                                     |
+| `invalid_block_reason`             | 400    | The block reason is not recognized.                                          |
+| `data_not_found`                   | 404    | The specified person data parameter does not exist.                          |
+| `data_already_exists`              | 400    | A person data parameter with this name already exists.                       |
+| `read_only_name`                   | 400    | The data parameter name is read-only.                                        |
+| `value_does_not_follow_pattern`    | 400    | Value does not match the expected pattern.                                   |
+| `data_values_invalid`              | 400    | One or more data values are invalid.                                         |
+| `partner_ids_invalid`              | 400    | One or more partner IDs are invalid.                                         |
+| `person_not_identified`            | 400    | The person is not identified; an operation requiring identity was attempted. |
+| `person_not_rewardable`            | 400    | The person is not eligible to receive a reward.                              |
+
+### Events
+
+| Code                        | Status | Cause                                                   |
+| --------------------------- | ------ | ------------------------------------------------------- |
+| `missing_event_name`        | 400    | The event name is missing.                              |
+| `event_blocked`             | 400    | The event was blocked by quality, fraud, or time rules. |
+| `invalid_event_time_format` | 400    | The event time format is invalid.                       |
+| `invalid_time_format`       | 400    | A time field is in an invalid format.                   |
+
+### Zones
+
+| Code                      | Status | Cause                                  |
+| ------------------------- | ------ | -------------------------------------- |
+| `missing_zone_name`       | 400    | The zone name is missing.              |
+| `invalid_zone_name`       | 400    | The zone name is invalid.              |
+| `no_creative`             | 400    | No creative was returned for the zone. |
+| `invalid_creative_result` | 400    | The creative result is invalid.        |
+| `invalid_redirect`        | 400    | The redirect URL is invalid.           |
+
+### Rewards
+
+| Code                               | Status | Cause                                                 |
+| ---------------------------------- | ------ | ----------------------------------------------------- |
+| `reward_not_found`                 | 404    | The specified reward does not exist.                  |
+| `reward_state_invalid`             | 400    | The reward is in an invalid state for this operation. |
+| `reward_type_not_supported`        | 400    | The reward type is not supported here.                |
+| `reward_supplier_not_found`        | 404    | The specified reward supplier does not exist.         |
+| `reward_in_not_retryable_state`    | 400    | The reward cannot be retried in its current state.    |
+| `reward_retry_not_supported`       | 400    | This reward does not support retry.                   |
+| `retry_claimed_reward_not_allowed` | 400    | A claimed reward cannot be retried.                   |
+| `reward_illegal_state_transition`  | 400    | The requested state transition is not allowed.        |
+| `period_not_supported`             | 400    | The requested time period is not supported.           |
+| `period_count_invalid`             | 400    | The period count is invalid.                          |
+| `time_interval_invalid`            | 400    | The time interval is invalid.                         |
+
+### Audiences and memberships
+
+| Code                   | Status | Cause                                   |
+| ---------------------- | ------ | --------------------------------------- |
+| `audience_not_found`   | 404    | The specified audience does not exist.  |
+| `missing_audience_id`  | 400    | Required audience ID is missing.        |
+| `membership_not_found` | 404    | The audience membership does not exist. |
+
+### Shareables and shares
+
+| Code                          | Status | Cause                                   |
+| ----------------------------- | ------ | --------------------------------------- |
+| `share_not_found`             | 404    | The share does not exist.               |
+| `shareable_not_found`         | 404    | The shareable does not exist.           |
+| `code_taken`                  | 400    | The shareable code is already in use.   |
+| `code_taken_by_promotion`     | 400    | The code is reserved by a promotion.    |
+| `code_out_of_range`           | 400    | The code is outside the valid range.    |
+| `code_illegal_character`      | 400    | The code contains an illegal character. |
+| `code_contains_reserved_word` | 400    | The code contains a reserved word.      |
+| `shareable_key_taken`         | 400    | The shareable key is already in use.    |
+
+### Batch jobs and files
+
+| Code                                 | Status | Cause                                              |
+| ------------------------------------ | ------ | -------------------------------------------------- |
+| `batch_job_invalid_state_transition` | 400    | Batch state transition not allowed.                |
+| `batch_job_delete_not_allowed`       | 400    | Batch cannot be deleted in its current state.      |
+| `batch_job_locked`                   | 400    | Batch is locked.                                   |
+| `batch_job_event_name_invalid`       | 400    | The event name for the batch is invalid.           |
+| `batch_job_name_invalid`             | 400    | The batch name is invalid.                         |
+| `batch_job_tag_invalid`              | 400    | A batch tag is invalid.                            |
+| `batch_job_data_source_empty`        | 400    | The batch data source is empty.                    |
+| `batch_job_unauthorized_scopes`      | 403    | The batch job lacks required scopes.               |
+| `file_asset_file_processing_error`   | 400    | An error occurred while processing the file asset. |
+| `file_asset_input_file_missing`      | 400    | The file asset's input file is missing.            |
+| `file_asset_invalid_name`            | 400    | The file asset name is invalid.                    |
+| `file_asset_duplicated_name`         | 400    | A file asset with this name already exists.        |
+| `file_asset_invalid_tags`            | 400    | The file asset tags are invalid.                   |
+| `file_asset_download_error`          | 400    | An error occurred downloading the file asset.      |
+| `file_asset_not_found`               | 404    | The file asset does not exist.                     |
+| `file_asset_expired`                 | 400    | The file asset has expired.                        |
+| `missing_extole_public_key`          | 400    | The Extole public key for encryption is missing.   |
+| `decryption_error`                   | 400    | The file asset could not be decrypted.             |
+
+<br />
