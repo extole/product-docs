@@ -1,7 +1,9 @@
 ---
-title: "Partners"
+title: PartnersTEMP
+excerpt: >
+  Pre-built integrations with ecommerce, marketing automation, CRM, banking, and
+  other technology partners.
 slug: partners
-excerpt: "Pre-built integrations with ecommerce, marketing automation, CRM, banking, and other technology partners.\n"
 ---
 
 
