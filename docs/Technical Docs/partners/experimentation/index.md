@@ -1,5 +1,6 @@
 ---
 title: "Experimentation"
+slug: experimentation
 ---
 
 

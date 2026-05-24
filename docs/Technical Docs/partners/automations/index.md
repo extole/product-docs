@@ -1,5 +1,6 @@
 ---
 title: "Automations"
+slug: automations
 ---
 
 

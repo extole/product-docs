@@ -1,5 +1,6 @@
 ---
 title: "Partners"
+slug: partners
 excerpt: "Pre-built integrations with ecommerce, marketing automation, CRM, banking, and other technology partners.\n"
 ---
 

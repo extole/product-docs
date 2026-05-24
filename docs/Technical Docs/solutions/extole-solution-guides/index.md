@@ -1,5 +1,6 @@
 ---
 title: "Extole Solution Guides"
+slug: extole-solution-guides
 ---
 
 ## Example Solutions by Vertical

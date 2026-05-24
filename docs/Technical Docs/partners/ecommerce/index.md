@@ -1,5 +1,6 @@
 ---
 title: "eCommerce"
+slug: ecommerce
 ---
 
 
