@@ -1,0 +1,924 @@
+---
+title: "Lead Generation"
+excerpt: "Quickly build an effective lead generation referral program to turn customers into advocates who become the source for your best leads.\n"
+---
+
+## Overview
+
+This guide outlines the necessary steps for you to go live with Extole:
+
+1. Brand your Domain and Links
+2. Tag your Website
+3. Connect your CRM
+4. Design your Experience
+5. Reward your Customers
+
+## Brand your Domain and Links
+
+### Create a CNAME for your Domain
+
+> 📘 Task Duration
+>
+> This task will typically take an IT/Ops engineering team 10–15 minutes to complete.
+
+You'll want to create a CNAME for your domain so that you can create branded <Glossary>Promotion Link</Glossary>s and <Glossary>Share Link</Glossary>s.
+
+To set up your CNAME, please complete the steps outlined in [Extole DNS Requirements](doc:extole-dns-requirements).
+
+### Send from Your Branded Email
+
+<ImproveOpenRatesCallout />
+
+The referral program will send program emails from you to your customers:
+
+* Welcome Email
+* Advocate Stats Email
+* Earned Reward Email
+
+The from address for this will typically be something similar to `do-not-reply@mycompany.com`. Once this email has been identified, Extole can check if it is configured to allow Extole to send emails from this address.
+
+For details on how to update your SPF DNS records and install Extole DKIM keys, please reference [Extole DNS Requirements](doc:extole-dns-requirements).
+
+> 📘 Related Content
+>
+> * [Find your domain in the settings page of My Extole](https://my.extole.com/settings)
+> * [How to set up your program domain](https://success.extole.com/hc/en-us/articles/115012548127-Program-Domain-Set-Up)
+
+## Tag your Website
+
+Extole works with your site using lightweight JavaScript tags. The core tag must be included on every page of your site and contains Extole's JavaScript Library.
+
+Extole tags can go anywhere in the HTML of the page and do not need to be loaded in any specific order. They are asynchronous to ensure fast page loading.
+
+Marketing tags display <Glossary>CTA</Glossary> s inline on your page. These tags will reference a specific `span` tag by `id` and should be placed into the HTML inline where they will be displayed.
+
+### Add the Core Tag (Extole's JavaScript Library)
+
+Extole's JavaScript library must be placed on all of your pages using the core tag. This tag is used to activate the Extole system and ensures that any other Extole tags on your page work properly.
+
+The core tag can be found under your program’s branded domain (refer.brand.com). If you haven't set up your branded domain yet, you can load the tag from the Extole unbranded domain.
+
+Find your active referral domain and use that for your core tag. It will look like `brand.extole.io` (unbranded) or `refer.brand.com` (branded).
+
+```javascript Branded Domain
+<!-- BRANDED -->
+<script type="text/javascript" src="https://refer.brand.com/core.js" fetchpriority="high" async></script>
+
+<!-- UNBRANDED -->
+<script type="text/javascript" src="https://brand.extole.io/core.js" fetchpriority="high" async></script>
+```
+```javascript Injection
+var extoleScript = document.createElement('script');
+extoleScript.setAttribute('type', 'text/javascript');
+extoleScript.setAttribute('async', 'async');
+extoleScript.setAttribute('src', 'https://origin.extole.io/brand/core.js');
+document.getElementsByTagName('body')[0].appendChild(extoleScript);
+```
+
+### Add Marketing Tags
+
+In order to drive participation, Extole displays <Glossary>CTA</Glossary>s that promote the program. For example, a `global_header` CTA will add a banner element to the top of the screen that will say something like “Refer a friend.” When clicked or tapped, the banner will take the user to the <Glossary>Share Experience</Glossary>.
+
+Marketing tags tell Extole where to serve CTAs onto your website. These CTAs are clickable entities that advertise your program to your customers and visitors. These marketing tags also enable tracking, so that you can know which marketing placements are driving participation in the program.
+
+Extole campaigns come with the following standard marketing tags:
+
+* `global_header`
+* `global_footer`
+* `product`
+* `confirmation`
+* `overlay`
+
+It's easy to create additional marketing tags if you want to add <Glossary>CTA</Glossary>s to additional pages like your blog, help pages, and so on. As you're getting started, contact your Customer Success Manager to help learn how to create these additional tags.
+
+#### Marketing Tag Placement
+
+There is a `span` section that goes into your web page where the content will appear.  This is typically done through your CMS or on site. It is required for all tags that put content inline (but not required for `overlay` and `confirmation` tags).
+
+```javascript Span ID
+<span id="extole_zone_global_header"></span>
+```
+
+> 🚧 Pass in Customer Information
+>
+> When you have information about a customer, if they are logged-in for example, you should pass that into the tag to make sharing easier.
+
+Additionally, there is the `script` tag that loads the targeted content from the program and inserts it onto the page in the `span` tag.
+
+**Below is an example of a`global_header` tag**:
+
+```javascript Marketing Tag: Global Header CTA
+<span id="extole_zone_global_header"></span>
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'global_header',
+     element_id: 'extole_zone_global_header',
+     data: {
+       "partner_user_id":"00O40000004SA1AA", // RECOMMENDED IF AVAILABLE
+       "email": "april@advocate.com",  // RECOMMENDED IF AVAILABLE
+       "first_name": "April",  // RECOMMENDED IF AVAILABLE
+       "last_name": "Advocate"  // RECOMMENDED IF AVAILABLE
+     }     
+  });
+</script>
+```
+
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Marketing Tag Field
+      </th>
+
+      <th>
+        Description
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `first_name`
+        *recommended*
+      </td>
+
+      <td>
+        This should be passed to a marketing tag if the advocate is logged in and their first name is known.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `last_name`\
+        *recommended*
+      </td>
+
+      <td>
+        This should be passed to a marketing tag if the advocate is logged in and their last name is known.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `email`\
+        *recommended*
+      </td>
+
+      <td>
+        This should be passed to a marketing tag if the advocate is logged in and their email is known.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `partner_user_id`\
+        *recommended*
+      </td>
+
+      <td>
+        This should be passed to a marketing tag if the advocate is logged in. This is your unique identifier for this person such as an account ID or member ID.
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+### Track Online Leads
+
+In order to reward advocates when a friend makes a purchase, you need to communicate to Extole when leads are created and purchases are made. Online leads are tracked by adding the **registration tag** after successful lead form completion?
+
+The registration tag passes information about the lead to allow Extole to connect referred leads to advocates, run quality rules, and run reward rules.
+
+> 🚧 Important Note
+>
+> Make certain that you fire the Extole tag for **all registrations** so Extole will correctly attribute referrals and manage the fraud and business rules. Extole ignores leads that are not connected to an advocate when reward and quality rules run.
+
+```javascript Registration Tag
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'registration',
+     data: {
+       "first_name":"Julio", // RECOMMENDED DYNAMIC VALUE
+       "last_name":"Friend", // RECOMMENDED DYNAMIC VALUE
+       "email":"julio@friend.com", // REQUIRED DYNAMIC VALUE
+       "partner_user_id":"00O40000004SQbO", // REQUIRED DYNAMIC VALUE
+       "advocate_code":"QA754AZ" // RECOMMENDED IF AVAILABLE
+     }
+  });
+</script>
+```
+
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Registration Tag Field
+      </th>
+
+      <th>
+        Description
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `first_name`
+        *recommended*
+      </td>
+
+      <td>
+        The first name of the person submitting the lead.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `last_name`\
+        *recommended*
+      </td>
+
+      <td>
+        The last name of the person submitting the lead.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `email`\
+        **required**
+      </td>
+
+      <td>
+        The email address of the person submitting the lead
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `partner_user_id`\
+        *recommended*
+      </td>
+
+      <td>
+        This is your unique identifier for this person submitting the lead such as an opportunity ID or a lead ID.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `advocate_code`\
+        *recommended*
+      </td>
+
+      <td>
+        We **strongly recommend** that your lead form includes the option for a person to enter a referral code so that we can properly identify and attribute referrals.
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+## Connect your CRM
+
+A lead generation referral program supports leads being created from phone calls and in person. Because leads are turned into sales by your sales consultants and sales agents, the conversions are tracked through your CRM and sent to Extole.
+
+To create referred leads from phone calls and in-person conversations as well as track conversion requests from your CRM to Extole, you will need to generate API keys with Extole and make a REST API call to track the following events:
+
+* Lead Created in CRM
+* Lead Converted in CRM
+
+### Create Extole API Keys
+
+Extole requires API calls from the account systems to authenticate with an API identifier provided in the header (OAuth key).
+
+Your keys are managed through the My Extole in the [Security Center](https://my.extole.com/security-center).
+
+Create your first key via the "Create New Access Token" button. Extole temporarily displays the newly created and random key for you.
+
+![](https://files.readme.io/35338a3e700aef7e1d5938b3dde90b0ddc51bed028bb5fa7dc584fe917d2c5b1-cb7aec1-New-Access-Token.png "New-Access-Token.png")
+
+Once your API key is created, you can test successful authentication using the Client API method:
+
+```curl
+curl --user 1-2:0000 https://api.extole.io/v2/me/clients
+
+[
+  {
+    "client_id": "1",
+    "name": "Demo"
+  }
+]
+```
+
+### Implement Salesforce Sales Cloud Triggers
+
+Extole does not provide an AppExchange app or plugin for Salesforce, but Salesforce triggers are simple to write by a Salesforce developer who can make sure the important Salesforce events are passed to Extole.
+
+Here is an example trigger to fire an Opportunity Closed/Won event to Extole:
+
+```text
+trigger ConversionCreatorOnOpportunityClose on Opportunity (after update) {
+  if (trigger.new.size() == 1) {
+    List<Opportunity> oldOpportunities = Trigger.old;
+    List<Opportunity> newOpportunities = Trigger.new;
+
+    if (oldOpportunities.size() == 1 && newOpportunities.size() == 1) {
+      Opportunity oldOpportunity = oldOpportunities[0];
+      Opportunity newOpportunity = newOpportunities[0];
+
+      if (newOpportunity.StageName == 'Closed Won' && newOpportunity.StageName != oldOpportunity.StageName) {
+        Contact[] contactsForOpportunity = [
+           SELECT Id, FirstName, LastName, Email, Extole_Advocate_Code__c
+             FROM Contact
+            WHERE AccountId = :newOpportunity.AccountId
+        ];
+
+        if (contactsForOpportunity.size() == 1) {
+          Contact contactForOpportunity = contactsForOpportunity[0];
+          ConversionCreator.createConversion(contactForOpportunity.Id,
+            contactForOpportunity.Email,
+            contactForOpportunity.FirstName,
+            contactForOpportunity.LastName,
+            contactForOpportunity.Extole_Advocate_Code__c);
+          }
+        }
+      }
+    }    
+}
+```
+
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Trigger Field
+      </th>
+
+      <th>
+        Description
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `first_name`
+        *recommended*
+      </td>
+
+      <td>
+        The first name of the person who made the conversion
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `last_name`\
+        *recommended*
+      </td>
+
+      <td>
+        The last name of the person who made the conversion.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `email`\
+        **required**
+      </td>
+
+      <td>
+        The email address of the person who made the conversion.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `coupon_code`\
+        **required if available**
+      </td>
+
+      <td>
+        The coupon code that may have been used to make the purchase.
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+| Result Field | Description                                                   |
+| :----------- | :------------------------------------------------------------ |
+| `id`         | The API input event at Extole that can be used for debugging. |
+
+### Track Phone and Offline Leads
+
+Share messages sent through email and social will prominently display an Advocate Code (referral code) that can be used to help capture a referred lead. Your internal tools used by a phone agent or sales agent to capture a new lead should also ask for and allow your sales team to enter advocate codes with the records.
+
+#### Track Lead Creation with Registration API Calls
+
+When leads are created in your CRM, you should call the Extole Registration API. This should happen for all leads, even if you don't have an advocate code, Extole handles attributing referrals, removing duplicates, and discarding data that doesn't apply.
+
+> 🚧 Important Note
+>
+> Make certain that you fire the Extole tag for **all leads** so Extole will correctly detect referrals and manage the fraud and business rules. Extole ignores the signups that are not attributed to a referral after processing rules.
+
+```json Registration API Call
+POST https://api.extole.io/v5/events
+{
+  "event_name": "lead_created",
+  "data": {
+    "first_name": REPLACE,
+    "last_name": REPLACE,
+    "email": REPLACE,
+    "lead_id": REPLACE,
+    "advocate_code": REPLACE
+  }
+}
+```
+```json Response
+{"input_event_id":"6324678551458903928"}
+```
+
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Input Field
+      </th>
+
+      <th>
+        Description
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `first_name`
+        *recommended*
+      </td>
+
+      <td>
+        The first name of the person applying for an account.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `last_name`\
+        *recommended*
+      </td>
+
+      <td>
+        The last name of the person applying for an account.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `email`\
+        **required**
+      </td>
+
+      <td>
+        On the lead created api, it indicates the email address of the person applying for an account.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `lead_id`\
+        *recommended*
+      </td>
+
+      <td>
+        This is your unique identifier for this lead applying for the account. This same value should be passed later when the friend opportunity is won  
+
+        If you do not have a member ID at this time, this is not required.  
+
+        E.g. 00O4000099PDZ1AA
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `advocate_code`\
+        *recommended*
+      </td>
+
+      <td>
+        Extole will pass this into the friend landing experience as `extole_advocate_code` and apply it as part of the online lead creation process. If a sales agent is creating the lead, they should ask and enter this field directly.  
+
+        This is the advocate code that may have been shared to the friend.  
+
+        E.g. april1
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+### Track Conversions with Conversion API Calls
+
+All leads that turn into sales inside of your CRM should call the Extole Conversion API.  This should happen for all leads, even if you don't have an advocate code, Extole handles attributing referrals, removing duplicates, and discarding data that doesn't apply.
+
+```json Conversion API Call
+POST https://api.extole.io/v5/events
+{
+  "event_name": "conversion",
+  "data": {
+    "first_name": REPLACE,
+    "last_name": REPLACE,
+    "email": REPLACE,
+    "lead_id": REPLACE,
+    "advocate_code": REPLACE,
+    "conversion_id": REPLACE,
+    "cart_value": REPLACE
+  }
+}
+```
+```json Response
+{"event_id":"6324678551458903931"}
+```
+
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Input Field
+      </th>
+
+      <th>
+        Description
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `first_name`
+        *recommended*
+      </td>
+
+      <td>
+        The first name of the person who made the purchase.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `last_name`\
+        *recommended*
+      </td>
+
+      <td>
+        The last name of the person who made the purchase.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `email`\
+        **required**
+      </td>
+
+      <td>
+        The email address of the person who made the purchase.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `lead_id`\
+        *recommended*
+      </td>
+
+      <td>
+        This is your unique identifier for this lead who made the purchase that was passed in the lead created API call.  
+
+        E.g. 00O4000099PDZ1AA
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `advocate_code`\
+        *recommended*
+      </td>
+
+      <td>
+        This is the advocate code that may have been shared to the friend.  
+
+        E.g. april1
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `conversion_id`\
+        **required**
+      </td>
+
+      <td>
+        This is your order number that uniquely identifies the purchase.  
+
+        E.g. 122948302lala
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `cart_value`\
+        *recommended*
+      </td>
+
+      <td>
+        The value that will be shown in the Extole dashboard.  This is typically either the initial transfer amount or LTV.  
+
+        E.g 10000.00
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+## Design your Experience
+
+Your entire referral consumer experience can be configured in the My.Extole Admin tool. This part of setting up the solution can be done entirely by your marketing and creative team and doesn't require technical involvement.  Each template is a comprehensive guide for your designer or marketer to customize.
+
+![](https://files.readme.io/4192d09f2faa98d0521b12a22485281da7587df7c26455359802bfe5acf6a257-2951129-Screen_Shot_2022-07-28_at_10.32.12_AM.png "Screen Shot 2022-07-28 at 10.32.12 AM.png")
+
+## Reward your Customers
+
+After the conversion if complete, Extole will reward the advocate and friend by emailing them a digital gift card.
+
+Your business team manage setting up the gift cards in Extole and providing funding to Extole for the cost of the gift cards.
+
+## Recommended Additional Steps
+
+### Add Web Analytics Tracking Parameters
+
+[//]: # "How do I add web analytics tracking parameters to my retail referral program with Extole?"
+
+You can set up Extole to send web tracking information to various web and email analytics tools through the use of URL parameters, such as UTMs. 
+
+URL parameters for Google Analytics, Adobe Analytics, etc. can typically be added directly by your marketing or IT team within Extole's Campaign Editor. 
+
+Within Campaign Edit, there are two configurable URLs—one for the Advocate and one for the Friend—that can be used:
+
+#### Promote Destination
+
+You can find this under the Advocate tab in Campaign Edit. This controls the behavior of your <Glossary>Promotion Link</Glossary>s. 
+
+When advocates click a promotion link, you can choose to send them to:
+
+* An Extole-hosted zone (such as the advocate Microsite)
+* An external URL that you host
+
+In the Advanced settings, you can edit the UTM parameters that are automatically included in the URL.
+
+<Table align={["left","left","left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Parameter
+      </th>
+
+      <th>
+        Type
+      </th>
+
+      <th>
+        Description
+      </th>
+
+      <th>
+        Default Value
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `utm_campaign`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        The specific marketing campaign
+      </td>
+
+      <td>
+        The label of your Extole program  
+
+        Example: `refer-a-friend`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_medium`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        Type of traffic
+      </td>
+
+      <td>
+        The channel where the promotion was clicked  
+
+        Examples: `EMAIL`, `WEB`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_source`
+      </td>
+
+      <td>
+        static
+      </td>
+
+      <td>
+        Where the traffic is coming from
+      </td>
+
+      <td>
+        `extole_advocate`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_content`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        The specific promotion
+      </td>
+
+      <td>
+        The name of the on-site or email promotion that sourced the click
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+#### Share Destination
+
+You can find this under the Friend tab in Campaign Edit. This controls the behavior of your <Glossary>Share Link</Glossary>s. 
+
+When friends click a share link, you can choose to send them to:
+
+* An Extole-hosted zone (such as the Friend Landing Experience Microsite)
+* An external URL that you host.
+
+In the Advanced settings, you can edit the UTM parameters that are automatically included in the URL.
+
+<Table align={["left","left","left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Parameter
+      </th>
+
+      <th>
+        Type
+      </th>
+
+      <th>
+        Description
+      </th>
+
+      <th>
+        Default Value
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `utm_campaign`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        The specific marketing campaign
+      </td>
+
+      <td>
+        The label of your Extole program  
+
+        Example: `refer-a-friend`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_medium`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        Type of traffic
+      </td>
+
+      <td>
+        The share channel used  
+
+        Examples: `EMAIL`, `SHARE_LINK`, `FACEBOOK`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_source`
+      </td>
+
+      <td>
+        static
+      </td>
+
+      <td>
+        Where the traffic is coming from
+      </td>
+
+      <td>
+        `extole_friend`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_content`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        Type of product
+      </td>
+
+      <td>
+        The product ID
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+### Embedding a Share Experience DIrectly onto a Page
+
+If you want to embed a sharing experience on a dedicated referral page or account page, the tag looks exactly same,  you would just call the zone `referral_page` or `account_page`.
+
+### My Extole Single-Sign On (SSO)
+
+The My Extole admin platform supports single sign-on from a variety of Identity Providers and should be able to enable you to login to My Extole using your corporate email address without needing a separate password for My Extole. Simply let your Launch Manager or Solutions Engineer know to enable:
+
+* Okta through OpenIDConnect (OIDC) 
+* SAML Single-Sign
+* Google Workspace
+* Microsoft Teams 
+
+Learn more about [My Extole Single Sign On](https://docs.extole.com/docs/my-extole-single-sign-on).
+
+## Uncommon Additional Steps
+
+### Use Your Opt-out List
+
+All mails sent by Extole are CAN-SPAM compliant and honor the customer preferences. Referral programs are typically treated as their own segment of emails unique from the normal marketing opt-out list, making this step optional. Each email sent to an advocate or friend will include an unsubscribe link, managed by Extole, that will opt the customer out of the referral program.
+
+If you need to do a more complex opt-out synchronization, Extole can check your opt-out list with a webhook API or you can upload a list of opt-outs to Extole's SFTP server.
+
+Learn more about [Opt Out List Management](https://docs.extole.com/docs/opt-out-list-management).

@@ -1,0 +1,852 @@
+---
+title: "Retail"
+excerpt: "Quickly build an effective referral program to turn customers into advocates and to turn the passion they have for you into new customers.\n"
+---
+
+## Overview
+
+This guide covers the necessary steps for setting up a successful referral program with Extole.
+
+[//]: # "What steps are required for setting up a retail referral program with Extole?"
+
+1. Brand Your Program
+2. Tag Your Site
+3. Enable Site-to-Store
+4. Reward Your Customer
+5. Retrieve Your Opt-Ins
+6. Design Your Experience
+
+[//]: ___
+
+![](https://files.readme.io/4d531cddde40124dd0632285412cd4548753994fda4384528c4e8dac43b3f0b1-89bd0f8-Retail_detailed.png)
+
+## Brand your Program
+
+[//]: # "How do I brand my retail referral program with Extole?"
+
+### Create a CNAME for your Domain
+
+> 📘 Task Duration
+>
+> This task will typically take an IT/Ops engineering team 10–15 minutes to complete.
+
+You'll want to create a CNAME for your domain so that you can create branded <Glossary>Promotion Link</Glossary>s and <Glossary>Share Link</Glossary>s.
+
+To set up your CNAME, please complete the steps outlined in [Extole DNS Requirements](doc:extole-dns-requirements).
+
+### Send from Your Branded Email
+
+<ImproveOpenRatesCallout />
+
+The referral program will send program emails from you to your customers:
+
+* Welcome Email
+* Advocate Stats Email
+* Earned Reward Email
+
+The from address for this will typically be something similar to `do-not-reply@mycompany.com`. Once this email has been identified, Extole can check if it is configured to allow Extole to send emails from this address.
+
+For details on how to update your SPF DNS records and install Extole DKIM keys, please reference [Extole DNS Requirements](doc:extole-dns-requirements).
+
+[//]: ___
+
+## Tag your Site
+
+[//]: # "How do I tag my site for a retail referral program with Extole?"
+
+> 📘 Task Duration
+>
+> This task typically takes a web developer 1–2 days to complete.
+
+Extole works with your site using lightweight JavaScript tags. They can go anywhere in the HTML of the page and do not need to be loaded in any specific order. They are asynchronous to ensure fast page loading.
+
+### Add the Core Tag (Extole's JavaScript Library)
+
+Extole's JavaScript (JS) library goes on all of your pages. It enables all Extole functionality: call-to-action delivery, sharing experience display, and event tracking. 
+
+**Add Extole's JS Library as follows**: 
+
+```javascript
+<!-- BRANDED -->
+<script type="text/javascript" src="https://share.companyname.com/core.js" fetchpriority="high" async></script>
+
+<!-- UNBRANDED until CNAME is complete -->
+<script type="text/javascript" src="https://companyname.extole.io/core.js" fetchpriority="high" async></script>
+```
+
+### Add Marketing Tags
+
+Extole displays <Glossary>CTA</Glossary>s that promote the program directly. Marketing tags tell Extole where to serve CTAs on your website. They also enable tracking, so that you can monitor which marketing placements are driving participation in the program.
+
+Your Extole referral campaign comes with standard marketing tags, which you can enable or disable in the Campaign Editor of your <Glossary>My Extole</Glossary> account:
+
+* `global_header`
+* `global_footer`
+* `product`
+* `confirmation`
+* `overlay`
+
+To create other marketing tags, please contact [support@extole.com](mailto:support@extole.com).
+
+For inline call-to-action, there is an HTML snippet to locate it on the page:
+
+```html
+<span id="extole_zone_global_header"></span>
+```
+
+**An example marketing tag looks like the following**:
+
+```html
+<script type="text/javascript">
+(function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+
+   extole.createZone({
+     name: 'global_header',
+     element_id: 'extole_zone_global_header',
+     data: {
+       "partner_user_id": REPLACE, // RECOMMENDED IF AVAILABLE
+       "email": REPLACE,  // RECOMMENDED IF AVAILABLE
+       "first_name": REPLACE,  // RECOMMENDED IF AVAILABLE
+       "last_name": REPLACE  // RECOMMENDED IF AVAILABLE
+     }    
+ });
+</script>
+```
+
+> 🚧 Important Note
+>
+> The values listed above as REPLACE should be replaced with actual values surrounded by quotes. For example: `"email": "april@advocate.com"`.
+
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Field
+      </th>
+
+      <th>
+        Value
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `first_name`
+        *recommended* 
+      </td>
+
+      <td>
+        This should be passed to a marketing tag if the advocate is logged in and their first name is known.  
+
+        E.g., April
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `last_name`\
+        *recommended* 
+      </td>
+
+      <td>
+        This should be passed to a marketing tag if the advocate is logged in and their last name is known.  
+
+        E.g., Advocate
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `email`\
+        *recommended* 
+      </td>
+
+      <td>
+        This should be passed to a marketing tag if the advocate is logged in and their email is known.  
+
+        E.g., [april@advocate.com](mailto:april@advocate.com)
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `partner_user_id`\
+        *recommended* 
+      </td>
+
+      <td>
+        This should be passed to a marketing tag if the advocate is logged in. This is YOUR unique identifier for this person such as an account ID or member ID.  
+
+        E.g., 00O40000004SA1AA
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+### Track Conversions
+
+In order to reward your customers for completing a desired action, such as a conversion, you need to communicate to Extole that the event has happened by adding the conversion tag—typically to your order confirmation page. This passes information about the conversion to allow Extole to attribute the purchase to a referral when possible, run quality rules, and run reward rules.
+
+> 🚧 Important Note
+>
+> Make certain that you fire the Extole tag for **all purchases** so Extole will correctly detect referrals and manage the fraud and business rules. Extole ignores the purchases that are not attributed to a referral after processing rules.
+
+**An example conversion tag looks like the following**:
+
+```html
+<script type="text/javascript">
+(function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+
+   extole.createZone({
+     name: 'conversion',
+     data: {
+       "first_name": REPLACE, // RECOMMENDED DYNAMIC VALUE
+       "last_name": REPLACE, // RECOMMENDED DYNAMIC VALUE
+       "email": REPLACE, // REQUIRED DYNAMIC VALUE
+       "partner_user_id": REPLACE, // REQUIRED DYNAMIC VALUE
+       "order_id": REPLACE, // REQUIRED DYNAMIC VALUE
+       "cart_value": REPLACE, // REQUIRED IF AVAILABLE
+       "products": REPLACE, // RECOMMENDED IF AVAILABLE
+       "coupon_code": REPLACE // REQUIRED IF AVAILABLE
+     }
+  });
+</script>
+```
+
+> 🚧 Important Note
+>
+> If you have a guest checkout flow, ensure the data is being passed properly. The logic used to pass the email address on the converted tag needs to accommodate both a logged in account as well as a guest checkout.
+
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Field
+      </th>
+
+      <th>
+        Value
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `email`
+        **required**
+      </td>
+
+      <td>
+        On the conversion tag, it indicates the email address of the person making the purchase. This is used to help understand advocate recognition, referral quality, and allow promotion and customer support.  
+
+        E.g., [julio@friend.com](mailto:julio@friend.com)
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `partner_user_id`\
+        **required** 
+      </td>
+
+      <td>
+        On the conversion tag, this is YOUR unique identifier for this person making the purchase such as an account id or member id.  
+
+        E.g., 12304qne46
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `order_id`\
+        **required** 
+      </td>
+
+      <td>
+        On the conversion tag, this is YOUR order number that uniquely identifies this transaction.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `cart_value`\
+        **required** 
+      </td>
+
+      <td>
+        On the conversion tag, this is the value of the purchase. Ideally, this is the gross cart value before coupons have been applied.  
+
+        E.g., 847.99
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `coupon_code`\
+        **required if available** 
+      </td>
+
+      <td>
+        On the conversion tag, this is the coupon code that may have been used to make the purchase.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `product`\
+        *recommended* 
+      </td>
+
+      <td>
+        On the conversion tag, this is the list of products included in the purchase. This is used for reporting and product specific programs.  
+
+        E.g., “sku03,sku02”
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+[//]: ___
+
+## Manage Site to Store
+
+[//]: # "How do I manage in-store or site-to-store purchases for my retail referral program with Extole?"
+
+> 📘 Task Duration
+>
+> This task typically takes a web developer 1 week to design, build, and integration test with Extole.
+
+In a typical web-to-store flow for a Refer A Friend program, the advocate shares to the friend online, the friend is redirected to your site and, on the friend landing experience, the friend will be asked to provide their email address. In Extole, this step is known as a signup or registration event, which serves the friend a single-use coupon that can either be redeemed online or taken into the store.
+
+In order for Extole to properly reward advocates for the offline referral purchases, you will need to communicate when such purchases occur. 
+
+There are two options for sending offline purchase events to your referral program at Extole:
+
+* API
+* File upload
+
+### Track Offline Purchases - API
+
+Extole requires API calls from the account systems to authenticate with an API identifier provided in the header (OAuth key). Your keys are managed through the [Security Center](https://my.extole.com/security-center) of <Glossary>My Extole</Glossary>.
+
+Create your first key via the "Create New Access Token" button. Our system will temporarily display the newly created random key for you.
+
+<Image title="unnamed (34).png" alt={512} align="center" width="80%" src="https://files.readme.io/312d35e3d084955411972efddf803585e8c3969b1ef376a9f40f13048d4e8c4f-2018200-unnamed_34.png" />
+
+Once your API key is created, you can test successful authentication using the Admin API method:
+
+```curl
+curl -H "Authorization: Bearer XXXX" https://api.extole.io/v2/me/clients
+
+[
+  {
+    "client_id": "1",
+    "name": "<CLIENT_NAME>"
+  }
+]
+```
+
+#### Event API Call
+
+For each purchase that occurs in store, an API request is sent to Extole.  It is fine for the same order to be sent by the tag as well as by the API as Extole will automatically deduplicate based on the order ID.
+
+**An example API call looks like the following**:
+
+```json
+{
+  "event_name": "purchased",
+  "data": {
+    "first_name": REPLACE, // RECOMMENDED DYNAMIC VALUE
+    "last_name": REPLACE, // RECOMMENDED DYNAMIC VALUE
+    "email": REPLACE, // REQUIRED DYNAMIC VALUE
+    "partner_user_id": REPLACE, // REQUIRED DYNAMIC VALUE
+    "order_id": REPLACE, // REQUIRED DYNAMIC VALUE
+    "cart_value": REPLACE, // REQUIRED IF AVAILABLE
+    "products": REPLACE, // RECOMMENDED IF AVAILABLE
+    "coupon_code": REPLACE // REQUIRED IF AVAILABLE
+  }
+}
+```
+
+**The response will be an ID like the following**:
+
+```json
+{
+  "id":"6747711822563808783"
+}
+```
+
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Input Field
+      </th>
+
+      <th>
+        Value
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `email`
+        **required**
+      </td>
+
+      <td>
+        Idicates the email address of the person making the purchase. This is used to help understand advocate recognition, referral quality, and allow promotion and customer support.  
+
+        E.g., [julio@friend.com](mailto:julio@friend.com)
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `partner_user_id`\
+        **required** 
+      </td>
+
+      <td>
+        This is YOUR unique identifier for this person making the purchase such as an account id or member id.  
+
+        E.g., 12304qne46
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `order_id`\
+        **required**
+      </td>
+
+      <td>
+        This is YOUR order number that uniquely identifies this transaction.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `cart_value`\
+        **required**
+      </td>
+
+      <td>
+        This is the value of the purchase. Ideally, this is the gross cart value before coupons have been applied.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `coupon_code`\
+        **required if available**
+      </td>
+
+      <td>
+        This is the coupon code that may have been used to make the purchase.
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+| Output Field | Value                                                                   |
+| :----------- | :---------------------------------------------------------------------- |
+| \* `id`      | Indicates the API input event at Extole that can be used for debugging. |
+
+### Track Offline Purchases - File Upload
+
+If you are looking for a low-technical-lift alternative to API calls, then you can leverage Extole’s batch processing functionality. You can compile all your purchases onto a CSV file and upload the file for processing directly from your <Glossary>My Extole</Glossary> account. 
+
+To upload a file, complete the following steps: 
+
+* Go to Tech Center > Batch Jobs
+* Click + New Batch Job
+* Descriptively name your file
+* Drag and drop or browse for your file (your file must have an extension of CSV, PSV, or JSON)
+* Save the job (it may take some time for your file to process)
+
+**An example file looks like the following**:
+
+```text
+Event_name,first_name,last_name,email,order_id,partner_user_id,cart_value,coupon_code,product 
+purchased,Julio,Jones,julioj@friend.com,302002754,200728,654.35,RAF507509,“sku01,sku02”
+purchased,Caitlyn,Wong,cwong@friend.com,304002876,201354,498.35,RAF507588,“sku03,sku02”
+purchased,Debbie,Allman,allmandeb@friend.com,302001984,288753,1123.35,RAF988765,“sku03,sku02”
+```
+
+If you would like to upload your file programmatically, you can set up SFTP access. Navigate to the Tech Center main hub and click the + New Server button. You can follow the step-by-step instructions found in the [Extole's SFTP Server](doc:extoles-sftp-server) guide.
+
+[//]: ___
+
+## Reward your Customers
+
+[//]: # "How do I set up rewards for my retail referral program with Extole?"
+
+Your Refer A Friend programs can be configured to reward your advocates and friends with any combination of reward types. These could be either coupons, account credits, gift cards, etc.  
+
+> 📘 Reward Types
+>
+> Read about Extole reward types in our Product Docs [Rewards Overview](https://docs.extole.com/docs/rewards-overview).
+
+To reward the friends with coupons, the coupon reward supplier will be created from the Rewards page in My Extole. Once the coupon reward supplier is created, coupons can be uploaded via a headless, single-column CSV. You have the ability to subscribe to reward alerts, which will notify you when the rewards fall below your threshold.
+
+[//]: ___
+
+## Retrieve your Marketing Opt-ins
+
+[//]: # "How do I retrieve marketing opt-ins for my retail referral program with Extole?"
+
+Your referral program will typically have a checkbox on the advocate share experience and the friend email landing experience allowing the friend to opt in to marketing messages by accepting. After optin, you’ll be able to send additional marketing to these customers beyond the referral program.
+
+Extole is able to push these new opt-ins to your email marketing platform by pushing a file via SFTP server or by calling out to your API at Braze, Klaviyo, etc.
+
+[//]: ___
+
+## Design your Experience
+
+[//]: # "How do I customize my retail referral program with Extole?"
+
+Your entire referral consumer experience can be configured in the My Extole Campaign Editor. This part of setting up the solution can be done entirely by your marketing and creative team and doesn't require technical involvement. Each template is a comprehensive guide for your designer or marketer to customize.
+
+Creatives are organized in a manner that is easy to understand. For Refer A Friend programs, all creatives that are part of the advocate experience can be found under the advocate tab of your campaign. Similarly, those creatives the friends interact with can be found under the friend tab of your campaign.
+
+[//]: ___
+
+## Recommended Additional Steps
+
+[//]: # "How do I add product and category sharing to my retail referral program with Extole?"
+
+### Product and Category Sharing
+
+If you want to enable advocates to share specific products, then the `product_page` marketing tag may be placed on your category and product pages to allow advocates to share specific categories or products. Extole will read the Facebook OpenGraph meta tags off of the page and incorporate the product name, description, and image into the share message.
+
+[//]: ___
+
+### Add Web Analytics Tracking Parameters
+
+[//]: # "How do I add web analytics tracking parameters to my retail referral program with Extole?"
+
+You can set up Extole to send web tracking information to various web and email analytics tools through the use of URL parameters, such as UTMs. 
+
+URL parameters for Google Analytics, Adobe Analytics, etc. can typically be added directly by your marketing or IT team within Extole's Campaign Editor. 
+
+Within Campaign Edit, there are two configurable URLs—one for the Advocate and one for the Friend—that can be used:
+
+#### Promote Destination
+
+You can find this under the Advocate tab in Campaign Edit. This controls the behavior of your <Glossary>Promotion Link</Glossary>s. 
+
+When advocates click a promotion link, you can choose to send them to:
+
+* An Extole-hosted zone (such as the advocate Microsite)
+* An external URL that you host
+
+In the Advanced settings, you can edit the UTM parameters that are automatically included in the URL.
+
+<Table align={["left","left","left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Parameter
+      </th>
+
+      <th>
+        Type
+      </th>
+
+      <th>
+        Description
+      </th>
+
+      <th>
+        Default Value
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `utm_campaign`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        The specific marketing campaign
+      </td>
+
+      <td>
+        The label of your Extole program  
+
+        Example: `refer-a-friend`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_medium`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        Type of traffic
+      </td>
+
+      <td>
+        The channel where the promotion was clicked  
+
+        Examples: `EMAIL`, `WEB`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_source`
+      </td>
+
+      <td>
+        static
+      </td>
+
+      <td>
+        Where the traffic is coming from
+      </td>
+
+      <td>
+        `extole_advocate`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_content`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        The specific promotion
+      </td>
+
+      <td>
+        The name of the on-site or email promotion that sourced the click
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+#### Share Destination
+
+You can find this under the Friend tab in Campaign Edit. This controls the behavior of your <Glossary>Share Link</Glossary>s. 
+
+When friends click a share link, you can choose to send them to:
+
+* An Extole-hosted zone (such as the Friend Landing Experience Microsite)
+* An external URL that you host.
+
+In the Advanced settings, you can edit the UTM parameters that are automatically included in the URL.
+
+<Table align={["left","left","left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Parameter
+      </th>
+
+      <th>
+        Type
+      </th>
+
+      <th>
+        Description
+      </th>
+
+      <th>
+        Default Value
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `utm_campaign`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        The specific marketing campaign
+      </td>
+
+      <td>
+        The label of your Extole program  
+
+        Example: `refer-a-friend`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_medium`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        Type of traffic
+      </td>
+
+      <td>
+        The share channel used  
+
+        Examples: `EMAIL`, `SHARE_LINK`, `FACEBOOK`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_source`
+      </td>
+
+      <td>
+        static
+      </td>
+
+      <td>
+        Where the traffic is coming from
+      </td>
+
+      <td>
+        `extole_friend`
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `utm_content`
+      </td>
+
+      <td>
+        dynamic
+      </td>
+
+      <td>
+        Type of product
+      </td>
+
+      <td>
+        The product ID
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+[//]: ___
+
+## Uncommon Additional Steps
+
+Below are some of the topics regarding parts of the process that aren't requirements for most retail experiences, but might be for yours.
+
+[//]: # "How does my retail referral program with Extole handle cancellations and returns?"
+
+### Cancellations and Returns
+
+After a referred friend makes a qualifying purchase, Extole will automatically email the advocate a reward after a period of time (typically 3 days). If you have a high return rate for your business, you can send Extole the list of canceled transactions and those orders will not be rewarded. An alternative option would be to reward on shipped events.
+
+To cancel a reward, provide Extole the order numbers that have been canceled before the pending window is over through our API. You can send Extole all cancellations and Extole will discard any that don't match a referral.
+
+**An example for sending a canceled event to Extole is as follows**:
+
+```json
+POST https://api.extole.io/v5/events
+
+{
+  "event_name": "canceled",
+  "data": {
+    "order_id": REPLACE, // REQUIRED DYNAMIC VALUE
+    "partner_canceled_id": REPLACE // RECOMMENDED DYNAMIC VALUE
+  }
+}
+```
+
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+
+      </th>
+
+      <th>
+
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        `event_name`
+      </td>
+
+      <td>
+        “Canceled” indicates this event cancels an order from being rewarded. If there is no matching referred purchase for the `order_id` the event is ignored.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `order_id`\
+        **required**
+      </td>
+
+      <td>
+        In the event call, this is YOUR order number that uniquely identifies the purchase. This maps the canceled event to the purchase event.  
+
+        E.g., 122948302lala
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `partner_canceled_id`\
+        *recommended*
+      </td>
+
+      <td>
+        In the event call, this indicates the unique identifier of the returned or canceled event (depending on whether you are firing a returned or canceled event).  
+
+        E.g., 10000
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+[//]: ___
+
+### Use Your Opt-out List
+
+[//]: # "How do I access the opt-out list associated with my retail referral program with Extole?"
+
+All emails sent by Extole are CAN-SPAM compliant and honor customer preferences. Referral programs are typically treated as their own segment of emails unique from the normal marketing opt-out list, making this step optional. Each email sent to an advocate or friend will include an unsubscribe link, managed by Extole, that will opt the customer out of the referral program.
+
+If you need to do a more complex opt-out synchronization, Extole can check your opt-out list with a webhook API, or you can upload a list of opt-outs to Extole's SFTP server.
+
+[//]: ___

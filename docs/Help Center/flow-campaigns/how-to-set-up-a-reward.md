@@ -1,0 +1,79 @@
+---
+title: "How to Set Up a Reward"
+excerpt: "Set up and change rewards using Extole’s upgraded Flow Builder.\n"
+---
+
+
+>
+
+> 💡 **Important Note:** This guide only applies to flow campaigns that use Extole's upgraded Flow Builder. Check for the flow icon next to your campaign name.
+
+>
+
+ ![](https://downloads.intercomcdn.com/i/o/syy27wia/1672188849/7a88b85b6ea138efdd09eb8eec64/Screenshot+2025-08-15+at+08_43_12.png?expires=1778306400&signature=9af864122d5366777003bb96b5fb81da2855e0ac2920d9346e353efbf40ee6f7&req=dSYgFMh2lYlbUPMW3nq%2BgY%2BXbUHXydVeJLc9LVWfkrwfxpaYE7JVbbtS1j1E%0A5uzksR%2FqQj5QbtfVnf%2BHW4lFnnQ%3D%0A)
+
+>
+
+# Overview
+
+> Choosing the right reward is key to driving engagement. To keep your program fresh and relevant, we recommend updating rewards regularly. This article covers how to set up or replace an existing reward in your flow campaign.
+
+## Default Rewards
+
+> All flow campaigns come with default rewards available in the Flow Builder that you can finish setting up.
+
+>
+
+> For example, a standard referral campaign comes with the following rewards:
+
+1. **Friend Reward on Share Clicked** (disabled by default): This is an optional reward that is automatically dispensed to the friend when they use an advocate’s share link and arrive on the Landing Experience (no email capture required). 
+2. **Friend Reward on Signed Up** (disabled by default): This is an optional reward that is automatically dispensed to the friend when they use an advocate’s share link and successfully sign up on the Landing Experience (email capture required).
+3. **Friend Reward on Converted** (enabled by default): This is our best-practice reward for driving friends to convert and become customers. When a friend makes a qualified purchase, they will be rewarded.
+4. **Advocate Reward on Friend Converted** (enabled by default): This is our best-practice reward for driving advocates to share your brand with friends. When a friend makes a qualified purchase, the advocate who referred them will be rewarded.
+
+## How to Update Rewards
+
+> ⚠️ If you are using **Tango Gift Card rewards**, please refer to [our Tango guide](doc:how-to-set-up-a-tango-gift-card-reward).
+
+>
+
+### Step 1: Navigate to the Reward
+
+1. Go to the **[Programs Page](https://my.extole.com/programs)** and click the **Manage Flow** icon for your desired campaign, or from the **Campaign Editor,** select the **Flow** tab.
+2. Locate the reward you would like to update. It may be attached to a business event or have it's own separate box.
+
+### Step 2: Update the Reward
+
+1. Click the existing reward to open its settings.
+2. In the **Reward** section, select your desired reward from the available options.
+3. **If the reward now has a different value, rename** the reward to reflect the new value.
+4. Click **Apply** to save your changes.
+
+> **Don’t see the reward you need?** You’ll need to create it first. Refer to:
+
+- **[Gift Card Rewards](doc:how-to-reward-with-tango-gift-cards)**
+- **[Coupon Rewards](doc:how-to-reward-with-coupons)**
+- **[Account Credit Rewards](doc:how-to-reward-with-account-credits)**
+
+> **Looking for help updating or adding reward rules?** Check out our [reward rule guide](doc:how-to-set-up-reward-rules).
+
+>
+
+### Step 3: Update Campaign Copy (if applicable)
+
+> If you are updating a reward on an existing campaign, you may also need to update the messaging in your campaign to ensure it reflects the new reward value.
+
+>
+
+### Step 4: Publish Your Changes
+
+> Once you're done editing your campaign, **be sure to Publish your changes.**
+
+## **​** Related Content
+
+> Once your reward is updated, make sure your campaign is fully configured. Helpful resources:
+
+- [How to Run a Burst](doc:how-to-run-a-burst)
+- [A/B Testing your Offer](doc:a-b-testing-your-offer)
+- [Making Updates to your Campaign](doc:making-updates-to-your-campaigns)
+- [Pausing and Ending Campaigns](doc:pausing-ending-and-scheduling-campaigns)

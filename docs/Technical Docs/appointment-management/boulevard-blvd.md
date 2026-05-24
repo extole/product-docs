@@ -1,0 +1,248 @@
+---
+title: "Boulevard (BLVD)"
+excerpt: "Boulevard is the first and only client experience platform for appointment-based, self-care businesses.\n"
+---
+
+## Overview
+
+Acquire and retain loyal clients with the Extole and Boulevard integration. This integration connects Boulevard's appointment management platform with Extole’s customer engagement and referral marketing platform. Automatically track when referred friends create, confirm, create, or cancel their appointments, and reward them and your advocates with one-time use discount codes (via Boulevard gift cards) that they can use towards their service. Plus, segment your referred clients in Boulevard for future marketing and promotions.
+
+[Learn more about Boulevard](https://www.joinblvd.com/).
+
+## Prerequisites
+
+| Requirement                    | Description                                                                                 |
+| :----------------------------- | :------------------------------------------------------------------------------------------ |
+| An Extole Account              | An Extole account is required for this integration.                                         |
+| A Boulevard Enterprise Account | A Boulevard Enterprise account with Admin API permissions is required for this integration. |
+
+## Use Cases
+
+1. Create audiences and trigger actions (emails, rewards) in the Extole platform using BLVD events.
+2. Automatically create and issue discount codes (gift cards) to participants who earn rewards in your Extole-powered programs.
+3. Segment your referred customers in Boulevard. Extole will automatically add a “referral” attribute to a client's Boulevard profile when they complete their appointment.
+
+## Integration
+
+### Use Case #1: Create audiences & trigger actions using BLVD client events
+
+Use Boulevard webhooks to notify Extole as clients perform certain actions using the BLVD platform. See commonly used events in the table below, or [refer to BLVD's documentation for a list of available events](https://developers.joinblvd.com/graphql-admin-api/api-reference/types/EventType).
+
+| Event name                     | Description                                                        |
+| :----------------------------- | :----------------------------------------------------------------- |
+| `CLIENT_CREATED`               | Triggered when a client is created.                                |
+| `APPOINTMENT_CREATED`          | Triggered when an appointment is created.                          |
+| `APPOINTMENT_CONFIRMED`        | Triggered when a client has confirmed their appointment.           |
+| `APPOINTMENT_COMPLETED`        | Triggered when an appointment is completed.                        |
+| `MEMBERSHIP_CREATED`           | Triggered when a membership is first created, normally via a sale. |
+| `MEMBERSHIP_CANCELLED`         | Triggered when an active or paused membership is cancelled.        |
+| `MEMBERSHIP_RENEWAL_SUCCEEDED` | Triggered when a membership renewal succeeds.                      |
+
+First, obtain your Extole Access Token and Events API URL to begin configuring webhooks in Boulevard's platform.
+
+<Table align={["left","left"]}>
+  <thead>
+    <tr>
+      <th>
+        Requirement
+      </th>
+
+      <th>
+        Description
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        Extole Access Token
+      </td>
+
+      <td>
+        A secure access token to authenticate and integrate with Extole’s Events API. Generate your token within the Security Center of your Extole account and save it in a safe place as you won’t be able to access it beyond this point.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        Extole Events API URL
+      </td>
+
+      <td>
+        The endpoint Boulevard will use to send client events to Extole.\
+        [https://api.extole.io/v5/events](https://api.extole.io/v5/events)
+      </td>
+    </tr>
+  </tbody>
+</Table>
+
+Then, use the Boulevard platform to create webhooks for eacb of the events events. You can keep the default data properties as is. Extole will map Boulevard’s default properties to Extole’s defaults in the Extole platform.
+
+Example payload:
+
+```json
+POST https://api.extole.io/v5/events/boulevard?access_token={$extole_token}
+
+{
+  "apiApplicationId": "urn:blvd:ApiApplication:239a28183-ccc1a-501a-b88-348707",
+  "businessId": "urn:blvd:Business:304fhc82-65d1-4638-9cbf-6334ob514425",
+  "data": {
+    "node": {
+      "__typename": "Client",
+      "active": true,
+      "appointmentCount": 1,
+      "createdAt": "2024-02-06T12:42:55.577980Z",
+      "dob": null,
+      "email": "me--test@blvd.co",
+      "externalId": 1234,
+      "firstName": "John",
+      "id": "urn:blvd:Client:4e934730-tdcb-4b4e-8641978f1f3971324f9",
+      "lastName": "Doe",
+      "mergedIntoClientId": null,
+      "mobilePhone": "+18888888889",
+      "name": "John Doe",
+      "tags": [],
+      "updatedAt": "2024-02-06T12:42:55.577980Z"
+    }
+  },
+  "event": "client.created",
+  "eventType": "CLIENT_CREATED",
+  "idempotencyKey": "8372487-47asd7a-fdff-83329-505515e5347ffc",
+  "resource": "Client",
+  "timestamp": "2024-02-06T12:42:56.634078Z",
+  "webhookId": "urn:blvd:Webhook:45fd98-2391-41ba-9776-67b5594b15674ae"
+}
+```
+
+Once you’ve configured your webhooks in Boulevard, your Extole implementation team will configure your Refer A Friend campaign to handle the events.
+
+### Use Case #2: Create and issue Boulevard gift card codes, vouchers, and account credits.
+
+When a participant earns a reward in your Extole-powered programs, Extole will fire a [real-time mutation](https://developers.joinblvd.com/graphql-admin-api/api-reference/mutations/createGiftCard) to Boulevards graphQL Admin API using outbound webhooks to trigger fulfillment. Once the code has been created, Extole will automatically distribute the gift card code to the participant via email.
+
+First, to connect to Boulevard APIs, make sure to provide the following values to your Extole team.
+
+| Field        | Definition                                        |
+| :----------- | :------------------------------------------------ |
+| `businessId` | Your business ID.                                 |
+| `api_secret` | Your Admin API application's secret key.          |
+| `api_key`    | Your application key for the Boulevard Admin API. |
+
+#### Trigger a gift card code
+
+To send out a gift card code (discount), your Extole team will create a webhook with the following properties. This will automatically create a gift-card code in Boulevard. Once the code has been created, Extole will automatically distribute the gift card code to the participant via email.
+
+| Webhook Event Property | Definition                                                                     |
+| :--------------------- | :----------------------------------------------------------------------------- |
+| `clientId`             | The ID of the client with which to associate the gift card.                    |
+| `code`                 | A randomly generated code for the gift card.                                   |
+| `locationId`           | The originating location for the gift card.                                    |
+| `note`                 | Optional note to associate with the gift card order in the Boulevard platform. |
+| `amount`               | The initial load value (in cents) for the gift card.                           |
+
+Example payload:
+
+```json
+mutation {
+  CreateGiftCard(
+    input: {
+      clientId: "urn:blvd:Client:015658d44a31-d641-43897-b7364-9873472ee43"
+      code: "bf67905b4e1b435daf39c3433f0"
+      locationId: "urn:blvd:Location:cb3339953458978-2bd3cf-4599-9778-216ca32478ee1"
+      note: "issued 25 USD reward"
+      amount: "2500"
+    }
+  ) {
+    giftCard {
+      id
+      client
+      code
+      currentBalance
+    }
+  }
+}
+```
+
+#### Trigger an account credit
+
+| Webhook Event Property | Definition                                                                                         |
+| :--------------------- | :------------------------------------------------------------------------------------------------- |
+| `adjustmentReason`     | The reason for the account credit. Default reasons include `Loyalty Reward` and `Referral Reward`. |
+| `balanceDelta`         | The value of the account credit, in pennies (e.g `1000` for $10).                                  |
+| `clientId`             | The ID of the client with which to associate the credit.                                           |
+| `locationId`           | The originating location of the credit.                                                            |
+| `staffId`              | The ID associated with the staff member.                                                           |
+
+```Text JSON
+mutation CreateAccountCreditAdjustment {
+  createAccountCreditAdjustment(
+    input: {
+      adjustmentReason: "Loyalty Reward"
+      balanceDelta: 1000
+      clientId: "urn:blvd:Client:015658d44a31-d641-43897-b7364-9873472ee43"
+      locationId: "urn:blvd:Location:8fb555e3-33f0-66c3-9edc-93311788651f"
+      staffId: "urn:blvd:Staff:88035cfd-033b-4e53-adb6-7ddd87f21cb65"
+    }
+  ) {
+    client {
+      active
+      appointmentCount
+      createdAt
+      currentAccountBalance
+      currentAccountUpdatedAt
+      email
+      firstName
+      id
+      lastName
+      mobilePhone
+      name
+      pronoun
+      updatedAt
+    }
+  }
+}
+```
+
+#### Trigger a voucher
+
+| Webhook Event Property | Value                                                     |
+| :--------------------- | :-------------------------------------------------------- |
+| `clientId`             | The ID of the client with which to associate the voucher. |
+| `quantity`             | The number of vouchers created.                           |
+| `serviceIds`           | The array of services the voucher applies to.             |
+| `locationId`           | The originating location of the voucher.                  |
+
+```Text JSON
+mutation VouchersCreate {
+  vouchersCreate(
+    input: {
+      clientId: "urn:blvd:Client:123a4567-8910-1112-bb3a-255ffe7e881e0"
+      quantity: 1
+      serviceIds: ["urn:blvd:Service:88035cfd-033b-4e53-adb6-7ddd87f21cb65"]
+      locationId: "urn:blvd:Location:8fb555e3-33f0-66c3-9edc-93311788651f"
+    }
+  ) {
+    vouchers {
+      expiresOn
+      id
+      redeemedAt
+    }
+  }
+}
+```
+
+### Use Case #3: Segment referred customers in Boulevard
+
+You can also create lists of referred clients in Boulevard using the Extole integration. Provide the following values to your Extole team, who will then create a webhook that fires a mutation into Boulevard's graphQL Admin API when a referred client completes their appointment. The webhook will contain the following properties.
+
+| Webhook Event Property | Value                                                                                                               |
+| :--------------------- | :------------------------------------------------------------------------------------------------------------------ |
+| `name`                 | A name to represent the segment of clients. By default, Extole will use “Referrals” however this can be customized. |
+| `symbol`               | An emoji used to represent the Client Segment. By default, Extole will use “👯‍♀️” however this can be customized.  |
+
+<Image align="center" src="https://files.readme.io/7139fcd7660e73bd4a7981d75ae235c190ad01f66cced29329a6485029af5509-0ef6be7-Screenshot_2024-05-13_at_2.31.40_PM.png" />
+
+## Customizations
+
+To test gift card codes in your staging environment, work with your Extole and Boulevard teams to set up a separate staging API integration in the Extole platform.

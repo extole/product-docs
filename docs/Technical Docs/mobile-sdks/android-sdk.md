@@ -1,0 +1,245 @@
+---
+title: "Android SDK"
+excerpt: "This integration guide shows you how to set up and launch an Extole program as quickly as possible with our Android SDK.\n"
+---
+
+## Requirements
+
+[//]: # "What are the minimum requirements for the Android SDK?"
+
+The Extole Android SDK supports `minSdkVersion 21` or later.
+
+[//]: ___
+
+## Integration
+
+[//]: # "How do I set up the Android SDK integration?"
+
+### Add Extole’s SDK library
+
+In the `build.gradle` for your project add Extole’s SDK library.
+
+```kotlin
+implementation 'com.extole.mobile:android-sdk:1.0.+'
+```
+
+### Initialize Extole
+
+Initialize Extole. We recommend that you have a single instance of the Extole class.
+
+```kotlin
+Extole.init(context = context, appName = "your-app-name")
+```
+
+In the example above, be sure to replace `appName = "your-app-name"` with a descriptive name for your application. You can also specify the type of sandbox you’d like to use, like `sandbox = “production-test”`, and pass a version, such as `data = {"version" to "1.0"}`.
+
+### Initialize Global Components
+
+Initialize global components. The following example uses the dependency injection framework [Dagger](https://dagger.dev/dev-guide/android.html).
+
+```kotlin
+@Module
+@InstallIn(SingletonComponent::class)
+class Configuration {
+    val threadPool = Executors.newFixedThreadPool(1);
+
+    @Singleton
+    @Provides
+    fun extole(@ApplicationContext context: Context): FutureTask<Extole> {
+        val extoleFuture = FutureTask<Extole> {
+            Extole.init(
+                context = context, appName = "your-app-name")
+        }
+        threadPool.submit(extoleFuture)
+        return extoleFuture
+    }
+
+}
+```
+
+Dagger usage example:
+
+```kotlin
+val extole = withContext(Dispatchers.IO) {
+     extoleFuture.get()
+}
+```
+
+### Connect to your Extole Account
+
+In the `AndroidManifest.xml` file, under the tag `<application></application>` add the following code.
+
+```kotlin
+<meta-data
+  android:name="com.extole.PROGRAM_DOMAIN"
+  android:value="https://share.client.com/" />
+```
+
+You must use your program domain in order for the application to communicate with Extole. If you have not yet completed the CNAMEing process for your program, the unbranded domain can also be used.
+
+[//]: ___
+
+## Exchange Data with Extole
+
+[//]: # "How do I send customer information using the Android SDK integration?"
+
+### Send Customer Information
+
+Send Extole information about the customer. 
+
+```kotlin
+extole.identify("example@test.com", mapOf("member_id" to "123"))
+```
+
+You can choose to pass any type of data to describe the customer. Richer data about your customers gives your marketing team the information they need to better segment your program participants and target them with appropriate campaigns.
+
+#### JWT Identification
+
+If you would like to verify the identity of your customers with JWT instead of their email address, use the following method:
+
+```kotlin
+extole.identifyJwt(jwt: String, data: Map<String, String> = mapOf()): Id<Event>
+```
+
+For more information on generating JWTs, please reference our article on [Verifying Consumers](https://docs.extole.com/docs/verifying-consumers#using-json-web-tokens-jwts).
+
+[//]: ___
+
+### Send Events
+
+[//]: # "How do I send events using the Android SDK integration?"
+
+Send Extole events, such as registers, signups, conversions, account openings, and so on.
+
+```kotlin
+extole.sendEvent("my_event", mapOf("key" to "values"))
+```
+
+For each event type, you can send additional data. For example, on a conversion event you may want to pass in order ID or order value and so on.
+
+[//]: ___
+
+### Send Call to Action Content
+
+[//]: # "How do I send call-to-action (CTA) content using the Android SDK integration?"
+
+Populate a <Glossary>CTA</Glossary> with content from Extole.
+
+CTAs such as mobile menu items can be fully customized in the My Extole Campaign Editor. Each CTA has a designated zone. The following code is an example of how to retrieve a CTA by fetching zone content.
+
+```kotlin
+// Usage example:
+val (zone, campaign) = extole.fetchZone("mobile_cta")
+runOnUiThread {
+   findViewById<EditText>(R.id.cta_title)
+       .setText(zone?.get("text").toString(),TextView.BufferType.NORMAL)
+    findViewById<EditText>(R.id.cta_image)
+       .setText(zone?.get("image").toString(),TextView.BufferType.NORMAL)
+
+   // On CTA tap send the event to Extole
+   zone.tap()
+}
+```
+
+In order to be able to fetch the `mobile_cta` zone, the zone should be configured in My Extole and should return JSON content containing the `image` and `title`.
+
+> 📘 Important Note
+>
+> We encourage you to pull CTA content from My Extole because doing so ensures that your menu item or overlay message will reflect the copy and offer you’ve configured for your campaign.
+
+[//]: ___
+
+## Advanced Usage
+
+The following topics cover advanced use cases for the Extole Android SDK. If you would like to explore any of these options, please reach out to our Support Team at [support@extole.com](mailto:support@extole.com).
+
+[//]: # "How do I deep link using the Android SDK integration?"
+
+### Integrate with a Deep Link Provider
+
+Completing a deep link integration is simple once you have integrated with a deep link provider, such as Branch. Send a mobile event to Extole, and based on the configuration of your mobile operations, our framework will execute the corresponding action.
+
+```kotlin
+DeepLinkListener { linkProperties, error ->
+  GlobalScope.launch {
+        ServiceLocator.getExtole(this@DeeplinkActivity)
+                extole.sendEvent("deeplink", linkProperties)
+  }
+}
+```
+
+[//]: ___
+
+### Configure Actions from Events
+
+[//]: # "How do I set up actions to fire when events occur using the Android SDK integration?"
+
+You can set up a specific action to occur when an event is fired. For example, when a customer taps on your menu item CTA, you may want the event to trigger an action that loads your microsite and shows the share experience. 
+
+To set up this type of configuration, you will need to work with Extole Support to set up a zone in My Extole that returns JSON configurations with conditions and actions. The SDK executes actions for conditions that are passing for a specific event.
+
+```json json
+{
+  "operations": [
+    {
+      "conditions": [
+        {
+          "type": "EVENT",
+          "event_names": [
+            "mobile_cta_tap"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "VIEW_FULLSCREEN",
+          "zone_name": "microsite"
+        }
+      ]
+    }
+  ]
+}
+```
+
+> 📘 Adding additional operations
+>
+> If you would like to add more operations, you will need to update the zone `mobile_bootstrap`. By default, this zone is not available to be updated. You must have already added the mobile SDK support component. Please reach out to our Support Team at [support@extole.com](mailto:support@extole.com) for help adding this component to your campaign.
+
+#### Supported Actions
+
+The following types of actions are supported by default in our SDK.
+
+| Action Name       | Description                                                                                                                                  |
+| :---------------- | :------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PROMPT`          | Display a native pop-up notification. For example, this could appear when a discount or coupon code has been successfully applied.           |
+| `NATIVE_SHARING`  | Open the native share sheet with a predefined message and link that customers can send via SMS or any enabled social apps.                   |
+| `VIEW_FULLSCREEN` | Trigger a full screen mobile web view. For example, this could be your microsite as configured in My Extole to display the share experience. |
+
+#### Custom Actions
+
+If you would like to create custom actions beyond our defaults, use the format exhibited in the example below. Please reach out to our Support Team at [support@extole.com](mailto:support@extole.com) if you have any questions.
+
+```kotlin
+class CustomAction(@SerializedName("custom_action_value") val customParameter: String) : Action {
+
+    companion object {
+        val ACTION_TITLE = "CUSTOM_ACTION"
+    }
+
+    override suspend fun execute(event: AppEvent, extole: ExtoleInternal) {
+        extole.getData()["custom_action_key"] = "custom_action_value"
+    }
+
+    override fun getType(): Action.ActionType = Action.ActionType.CUSTOM
+
+    override fun getTitle(): String = ACTION_TITLE
+}
+```
+
+#### Register Custom Actions
+
+```kotlin
+Extole.registerAction(“CUSTOM_ACTION”, CustomAction::class.java)
+```
+
+[//]: ___

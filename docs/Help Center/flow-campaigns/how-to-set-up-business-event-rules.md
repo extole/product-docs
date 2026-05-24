@@ -1,0 +1,150 @@
+---
+title: "How to Set Up Business Event Rules"
+excerpt: "Customize the existing business rules of your flow campaign or add new rules to business events via Extole's Flow Builder.\n"
+---
+
+
+>
+
+> 💡 **Important Note:** This guide only applies to flow campaigns that use Extole's upgraded Flow Builder. Check for the flow icon next to your campaign name.
+
+>
+
+ ![](https://downloads.intercomcdn.com/i/o/syy27wia/1672304321/925c13c89e7d220a9daa5543034e/Screenshot%2B2025-08-15%2Bat%2B08_43_12.png?expires=1778306400&signature=6b49e38fffd22147ddff1fd450c6b7cfe70a8e1b372a2756f4a5e6353fafb672&req=dSYgFMp%2BmYJdWPMW3nq%2BgcQUso3p53d7e2vDhkx6uEui3S68WuQRAoAy2Hek%0AM%2FMpcIy14ijb33Lkx11AFJnMRe8%3D%0A)
+
+# Overview
+
+> Business Event rules define the conditions under which a business event qualifies, triggers, or is considered high quality. These rules help ensure that only the right events—those that meet your campaign criteria—are used to issue rewards, send emails, or otherwise advance a participant’s journey.
+
+>
+
+> These rules are separate from Targeting Rules and Reward Rules. Learn more about **[setting Reward Rules](doc:how-to-set-up-reward-rules)** and **[targeting a program](doc:how-to-target-a-program).**
+
+>
+
+> In this guide, you'll learn how to configure existing business event rules and add new rules to business events in your campaigns using the Flow Builder.
+
+>
+
+# Why Add Business Event Rules?
+
+> Rules allow you to control how events are handled in a campaign. Specifically, they help you:
+
+- **Filter out unqualified events** that should not participate in your program
+- **Determine whether an event qualifies** for a specific program
+- **Evaluate the quality** of events to prevent fraud or low-value conversions
+
+> Each rule checks incoming **event data**, **person profile attributes**, or **user journey behavior** to make a decision.
+
+# Business Event Rule Types
+
+> Each rule you add must be assigned to one of the following categories, depending on what you want the rule to accomplish:
+
+>
+
+## Quality Rules
+
+> These evaluate whether an event is high or low quality.
+
+- **High-quality events** trigger the business event and may lead to rewards or emails.
+- **Low-quality events** do not trigger the business event.
+
+> Common use cases:
+
+- Ensuring valid email addresses
+- Checking for suspicious IP addresses
+- Preventing self-referrals
+
+> Learn about our **[default Quality Rules here](doc:default-business-event-quality-rules)**.
+
+>
+
+## Trigger Rules (advanced)
+
+> These determine whether the input event from your system should fire the business event within Extole.
+
+- If the input event passes these rules, the business event will be triggered.
+- If not, the business event will be skipped for this event.
+
+> Common use cases:
+
+- Order value above a specific threshold
+- Specific SKUs in a purchase
+- A particular event parameter is present
+
+> Trigger rules are essential to the set up of your program. Check out the rules are available to enable here.
+
+>
+
+## Qualification Rules (advanced)
+
+> These determine whether the event qualifies for your program at all.
+
+- Qualified events may continue through the flow.
+- Unqualified events may still participate in other programs.
+
+> Common use cases:
+
+- Country restrictions
+- Referred friends qualify for a program based on their advocate journey
+
+> These are not very commonly added. Learn more here.
+
+>
+
+# How to Add Rules in Flow Builder
+
+### **Step 1: Navigate to the Reward in Flow Builder**
+
+1. Go to the **Programs** page.
+2. Locate the campaign you want to edit.
+3. Click the **Manage Flow** icon for that campaign.
+
+### Step 2: Select the Business Event
+
+1. In the Flow Builder, click into the **Business Event** you'd like to update
+2. Scroll to the **Rules** section you'd like to configure.
+
+### Step 3: Choose Your Rule Type
+
+1. Scroll to the section for the type of rule you want to apply:
+
+  1. **Quality Rules**
+  2. **Trigger Rules (only visible if you turn on the advanced filter)**
+  3. **Qualification Rules (only visible if you turn on the advanced filter)**
+
+2. Click **+ New Rule** under the desired section.
+
+### Step 4: Add and Configure the Rule
+
+1. Find a rule that fits your use case.
+2. Select the rule, then click **Add**.
+3. Give the rule a clear, descriptive name based on how it works.
+4. Adjust the parameters as needed to fit your criteria.
+5. Click **Apply** to save your rule.
+
+> ⚠️ **Important:** Rules do not take effect until you **publish** your campaign.
+
+>
+
+### Step 5: Publish Your Campaign
+
+> Once you've finished adding and editing your rules, click **Publish** in the Flow Builder to apply your changes.
+
+## Example Use Case
+
+> Let’s say you only want to trigger a business event when a purchase or conversion is a subscription.  
+You would:
+
+- Add a **Trigger Rule** to your Converted business event
+- Choose **Event Data Comparison**
+- Set the event data parameter of "product_type" and the value of "subscription"
+- Apply and publish the campaign
+
+> Now, only purchases where the "product_type" is sent as "subscription" will be counted as a conversion on your dashboard and be eligible for reward.
+
+## Can't Find the Rule You Need?
+
+> If you're unable to find a rule that matches your business requirements, reach out to your **Implementation Team** or **Customer Success Manager**. Custom rules can be created or added to your account as needed.
+
+##

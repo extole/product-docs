@@ -1,0 +1,338 @@
+---
+title: "ServiceTitan"
+excerpt: "Integrate Extole with ServiceTitan to automatically reward prospects and customers for referrals and other key actions.\n"
+---
+
+## Prerequisites
+
+| Requirement                          |                                                                                                                                                                                                                                 |
+| :----------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ServiceTitan Integration Environment | You must be able to view and configure APIs and apps in [https://integration.servicetitan.com/](https://integration.servicetitan.com/)                                                                                          |
+| Zapier or ServiceTitan V2 Webhooks   | You must have the <Anchor label="Zapier x ServiceTitan integration" target="_blank" href="https://help.servicetitan.com/how-to/zapier">Zapier x ServiceTitan integration</Anchor> or access to ServiceTitan's V2 Webhooks/API . |
+
+## Integration
+
+1. [Set-up your Extole campaign](https://docs.extole.com/docs/service-titan#step-1-set-up-your-extole-campaign)
+2. [Add referral tracking to your online and phone lead capture flows](https://docs.extole.com/docs/service-titan#step-2-add-referral-tracking-to-your-online-and-phone-lead-capture-flows)
+3. [Use the Extole app to connect to ServiceTitan API's](https://docs.extole.com/docs/service-titan#step-3-use-the-extole-app-to-connect-to-servicetitan-apis)
+4. [Set-up webhooks to notify Extole of new jobs](https://docs.extole.com/docs/service-titan#step-4-set-up-webhooks-to-notify-extole-of-new-jobs)
+5. [How Extole uses ServiceTitan API's to verify customer and job status](https://docs.extole.com/docs/service-titan#how-extole-uses-servicetitan-apis-to-verify-customer-and-job-status)
+
+## Step 1: Set-up your Extole campaign
+
+### Check your default share messages
+
+On the **Overview** tab in your Extole campaign, make sure your default share email message and social share description encourages referred prospects to use their referral link or code when scheduling an estimate.
+
+```Text Sample copy
+Get {{friendReward}} off your first project with {{companyName}} . Make sure to use my referral link or code {{advocateCode}} when scheduling your free estimate so that we can both get rewarded! 
+```
+
+### Update your friend landing experience
+
+Submit a request to your Extole team to present a copy-able advocate code to referred prospects on your friend landing experience. When a referred prospect clicks on a referral link, Extole will redirect them to your website and serve a pop-up or banner with the advocate's referral code so that they can copy-paste it into your lead form.
+
+If you are able to pre-fill fields onto your lead forms using URL parameters, you can go to the **Share Link Behavior** step in your Extole campaign, and update the `UTM_content` variable with the following value:
+
+```Text UTM_content
+{{advocateCode}}
+```
+
+![](https://files.readme.io/1821b7953c5e73a4f1f07dfdfdbfa9a3030e0734c6d92aec9988101824ad4898-d49077cbeff480762b9c3934ff238b1128ebc01caf7665d9ecc01337da55649c-image.png)
+
+## Step 2: Add referral tracking to your online and phone lead capture flows
+
+### Add a referral code field to your online lead form
+
+On your standard lead form, add an optional field called "referral code" where prospects can enter their advocate's code.
+
+### Create a custom field on the Service Titan Lead Object
+
+Add a custom field called `advocate_code` to the lead object in ServiceTitan. This field should populate when a prospect provides a referral code (e.g `jsmith123`) over the phone or adds it to your online lead form. Make sure the advocate_code persist to the jobs object.
+
+### Add Extole's Javascript SDK to your online lead form
+
+<Callout icon="📘" theme="info">
+  Learn more about <Anchor label="Extole's Javascript SDK" target="_blank" href="https://docs.extole.com/docs/javascript-sdk">Extole's Javascript SDK</Anchor>
+</Callout>
+
+If a prospect forgets to add the referral code to the lead form, or enters in an incorrect code, you can still automatically track referred leads using Extole's Javascript SDK.
+
+First, add Extole's core tag to all of your pages. You can find your core tag in the <Anchor label="Extole platform" target="_blank" href="https://my.extole.com/tech-center/tag-generator">Extole platform</Anchor> (Tech Center > Tag Generator.) It will look something like this:
+
+```javascript
+<script type="text/javascript" src="https://share.{{your_company}}.com/core.js" async />
+```
+
+Then, fire Extole's `online_lead_captured` tag when a user submits a lead form. If the `advocate_code` parameter is null, Extole will match the referral using the`email` that comes in any downstream job events.
+
+```javascript
+<script type="text/javascript">
+    (function(c,b,f,k,a){c[b]=c[b]||{};for(c[b].q=c[b].q||[];a<k.length;)f(k[a++],c[b])})(window,"extole",function (c,b){b[c]=b[c]||function (){b.q.push([c,arguments])}},["createZone"],0);
+    extole.createZone({
+        name: "online_lead_captured",
+        data: {
+            "email": test123@example.com,
+            "advocate_code": test123
+        }
+    });
+</script>
+```
+
+<br />
+
+## Step 3: Use the Extole app to connect to ServiceTitan API's
+
+<Callout icon="🚧" theme="warn">
+  You must have admin access to your ServiceTitan Integration Environment (<Anchor label="https://integration.servicetitan.com/" target="_blank" href="https://integration.servicetitan.com/">https://integration.servicetitan.com/</Anchor>) to complete this step.
+</Callout>
+
+### Locate your ServiceTitan Tenant ID
+
+Find your Tenant ID in your <Anchor label="ServiceTitan Integration Environment" target="_blank" href="https://integration.servicetitan.com/">ServiceTitan Integration Environment</Anchor> under **Settings** > **Integrations** > **API Application Access**.
+
+Provide your Tenant ID(s) to your Extole team so that they can enable Extole's app in your integration environment.
+
+### Configure your Key(s)
+
+In Service Titan's Integration Environment
+
+* Go back to **Settings** > **Integrations** > **API Application Access** > **Extole** to locate your `Client ID` and `Client Secret`. Copy these and store them in a safe place.
+
+In <Anchor label="Extole's Security Center" target="_blank" href="https://my.extole.com/security-center">Extole's Security Center</Anchor>
+
+* Select `+ New Key`
+* Select `Webhook` as they key type and `OAUTH` as the algorithm
+* Take your `Client Secret` from ServiceTitan and paste it in the `Key` field
+* Take your `Client ID` from ServiceTitan and paste it in the `OAUTH Client ID` field
+* Set the ServiceTitan token URL as the `Authorization URL`(should look like this [https://auth.servicetitan.io/connect/token](https://auth.servicetitan.io/connect/token) for production)
+* Select `Create Key` to save
+* Repeat this process if you'd like to connect to multiple Service Titan environments (e.g staging and prod)
+
+![](https://files.readme.io/0e6239051be772577e5e05b86d7747f60571e0e75a2738741b7ed478edc9be57-4883e34e05885827999a18c4ac19242332efee1b53f835101ac5c86d1b82157b-Screenshot_2026-04-02_at_1.13.13PM.png)
+
+<br />
+
+## Step 4: Set-up webhooks to notify Extole of new jobs
+
+### Generate an Extole access token to connect to Extole APIs
+
+In <Anchor label="Extole's Security Center" target="_blank" href="https://my.extole.com/security-center">Extole's Security Center</Anchor>
+
+* Select `+New Access Token` and verify your login credentials
+* Name your Access Token "ServiceTitan"
+* Generate your token and copy it in a safe place, as you'll need it in the next step.
+
+### Set up your webhook(s) in Zapier
+
+If you are using <Anchor label="Zapier's Service Titan Integration" target="_blank" href="https://help.servicetitan.com/how-to/zapier">Zapier's Service Titan Integration</Anchor>, create a zap that notify's <Anchor label="Extole's Events API" target="_blank" href="https://docs.extole.com/reference/create-event">Extole's Events API</Anchor> anytime a new `job_scheduled` event occurs.
+
+In your zap:
+
+* Select `POST` as the method
+* Set `https://api.extole.io/v5/events` as the URL
+* Select the option to unflatten the data
+* Select `Authorization` as the header and paste your Extole access token from above as the bearer token.
+
+Sample request body
+
+```json
+{
+  "job": {
+    "id": 123456789,
+    "jobNumber": "J-10234",
+    "status": "Scheduled",
+    "priority": "Normal",
+    "summary": "AC not cooling",
+    "scheduledStart": "2026-04-02T09:00:00Z",
+    "scheduledEnd": "2026-04-02T11:00:00Z",
+    "createdOn": "2026-04-01T15:22:10Z",
+    "lastModified": "2026-04-01T16:10:45Z",
+    "customFields": [
+      {
+        "typeId": 894575111,
+        "name": "Advocate Code",
+        "value": "test123"
+      }
+    ]
+  },
+  "customer": {
+    "id": 987654321,
+    "name": "Jane Doe",
+    "type": "Residential",
+    "phone": "+1-555-123-4567",
+    "email": "test123e@example.com"
+  },
+  "location": {
+    "id": 555666777,
+    "address": {
+      "street": "123 Main St",
+      "city": "Minneapolis",
+      "state": "MN",
+      "zip": "55401",
+      "country": "USA"
+    }
+  },
+  "technician": {
+    "id": 222333444,
+    "name": "John Tech",
+    "email": "john.tech@company.com"
+  },
+  "businessUnit": {
+    "id": 1010,
+    "name": "HVAC"
+  },
+  "campaign": {
+    "id": 2020,
+    "name": "Spring Referrals Promo"
+  },
+  "tags": [
+    "maintenance",
+    "priority-customer"
+  ]
+}
+```
+
+<br />
+
+## How Extole uses ServiceTitan API's to verify customer and job status
+
+### Customer email look up
+
+Extole will poll ServiceTitan's <Anchor label="Customer_GetContact List API" target="_blank" href="https://developer.servicetitan.io/docs/apis/tenant-crm-v2/endpoints/Customers_GetContactList">Customer_GetContact List API</Anchor> to retrieve the customers email address if it was not available in the initial webhook from Zapier.
+
+Sample response body:
+
+```json
+{
+    "page": 1,
+    "pageSize": 50,
+    "hasMore": false,
+    "totalCount": null,
+    "data": [
+        {
+            "modifiedOn": "2025-05-23T18:21:30.1577064Z",
+            "phoneSettings": null,
+            "createdOn": "2025-05-23T18:21:30.1399224Z",
+            "id": 896481512,
+            "type": "Email",
+            "value": "promised-country@60t8pz4q.mailosaur.net",
+            "memo": null
+        }
+    ]
+}
+```
+
+### New vs existing customer look up
+
+Extole will poll ServiceTitan's <Anchor label="Jobs_GetList Endpoint" target="_blank" href="https://developer.servicetitan.io/docs/apis/tenant-jpm-v2/endpoints/Jobs_GetList">Jobs_GetList Endpoint</Anchor> to see the number of completed jobs on the customers profile.
+
+Sample response body:
+
+```json
+{
+  "page": 1,
+  "pageSize": 50,
+  "hasMore": false,
+  "totalCount": 2,
+  "data": [
+    {
+      "summary": "Email: sarah.johnson@example.com\nPhone: 6125550198\nAdvocate Code: sarahj\nMarketing Source Info: extole_advocate WEB refer-a-friend",
+      "customFields": [
+        {
+          "typeId": 894575617,
+          "name": "Advocate Code",
+          "value": "sarahj"
+        }
+      ],
+      "externalData": null,
+      "id": 901234567,
+      "jobNumber": "600123",
+      "projectId": null,
+      "customerId": 901200001,
+      "locationId": 901200010,
+      "jobStatus": "Completed",
+      "completedOn": "2026-03-15T16:20:00Z",
+      "businessUnitId": 132958285,
+      "jobTypeId": 9729,
+      "priority": "High",
+      "campaignId": 23982795,
+      "appointmentCount": 1,
+      "firstAppointmentId": 901234568,
+      "lastAppointmentId": 901234568,
+      "recallForId": null,
+      "warrantyId": null,
+      "jobGeneratedLeadSource": {
+        "jobId": null,
+        "employeeId": null
+      },
+      "noCharge": false,
+      "notificationsEnabled": true,
+      "createdOn": "2026-03-15T16:00:12.123Z",
+      "createdById": 42,
+      "modifiedOn": "2026-03-15T16:25:45.456Z",
+      "tagTypeIds": [894606278],
+      "leadCallId": null,
+      "bookingId": 901230000,
+      "soldById": 77,
+      "customerPo": null,
+      "invoiceId": 901234570,
+      "membershipId": null,
+      "total": 245.50
+    }
+```
+
+### Job status look up
+
+Extole will poll ServiceTitan's <Anchor label="Jobs_Get Endpoint" target="_blank" href="https://developer.servicetitan.io/docs/apis/tenant-jpm-v2/endpoints/Jobs_Get">Jobs_Get Endpoint</Anchor> to see the status of the job. Extole will record  `job_completed` and` job_canceled` events on the Extole profile as the job status changes.
+
+Sample response body:
+
+```json
+{
+  "summary": "Email: daniel.roberts@example.com\nPhone: 9525557788\nAdvocate Code: danrob22\nMarketing Source Info: extole_advocate WEB refer-a-friend",
+  "customFields": [
+    {
+      "typeId": 894575617,
+      "name": "Advocate Code",
+      "value": "danrob22"
+    }
+  ],
+  "externalData": null,
+  "id": 902345678,
+  "jobNumber": "600245",
+  "projectId": null,
+  "customerId": 902300111,
+  "locationId": 902300222,
+  "jobStatus": "Completed",
+  "completedOn": "2026-03-28T18:45:00Z",
+  "businessUnitId": 132958285,
+  "jobTypeId": 9731,
+  "priority": "Low",
+  "campaignId": 23982795,
+  "appointmentCount": 1,
+  "firstAppointmentId": 902345679,
+  "lastAppointmentId": 902345679,
+  "recallForId": null,
+  "warrantyId": null,
+  "jobGeneratedLeadSource": {
+    "jobId": null,
+    "employeeId": null
+  },
+  "noCharge": false,
+  "notificationsEnabled": true,
+  "createdOn": "2026-03-28T18:20:14.567Z",
+  "createdById": 31,
+  "modifiedOn": "2026-03-28T18:50:02.891Z",
+  "tagTypeIds": [
+    894606278
+  ],
+  "leadCallId": null,
+  "bookingId": 902340000,
+  "soldById": 58,
+  "customerPo": "PO-99231",
+  "invoiceId": 902345680,
+  "membershipId": null,
+  "total": 189.99
+}
+```
