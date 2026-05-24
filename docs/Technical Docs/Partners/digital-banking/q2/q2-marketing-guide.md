@@ -1,0 +1,114 @@
+---
+title: 'Extole + Q2: Refer a Friend Marketing Kit'
+excerpt: >-
+  Launch your referral program with a bang with this step-by-step marketing
+  guide.
+deprecated: false
+hidden: false
+metadata:
+  title: ''
+  description: ''
+  robots: index
+next:
+  description: ''
+---
+**Looking for our Q2 Integration Set-Up Guide? <Anchor label="Click here." target="_blank" href="https://dev.extole.com/docs/q2">Click here.</Anchor>**
+
+## You've set-up your referral program, now what?
+
+Once you've pushed your referral program live, it’s time to spread the word. In this playbook you’ll find practical strategies to drive awareness of your referral program using digital engagement tools from the Extole and Q2 ecosystem.
+
+## Step 1: Announce your referral program to members
+
+Go big with your referral program launch to drive program awareness and get members excited.
+
+<Callout icon="🎨" theme="default">
+  ##### Check out Extole's creative template kit for announcing your referral program
+
+  Get a head start with Extole's Figma creative templates for push, email, Q2 Discover, and Q2 SMART. [Click here to request access.](https://www.figma.com/design/JJqfhCQ1M8GtGGiqS3SwGC/Promo?node-id=1804-945\&t=15YybpVMKkpW63s9-1)
+</Callout>
+
+### Q2 SMART: Place additional banners throughout digital banking
+
+<Image align="center" border={false} caption="Q2 SMART Promo Banner" src="https://files.readme.io/279bd5739e46f4869cd18fa9ac7dc9818c2538a7451ad154e7cd2c28fb07b19f-Q2_Smart.png" width="400px" />
+
+In addition to your widget or content block, use Q2 SMART to place Refer a Friend banners in the following highly-visible, contextual places throughout the digital banking experience.
+
+* Home
+* Money Movement/Transfers
+* Accounts
+* Benefits & Rewards (if applicable)
+
+<Image align="center" border={false} caption="Q2 SMART Banner Ad" src="https://files.readme.io/13599f76fed26346ad8fc352d7e2bba23921e75b144c312ac0a43a90e41b5ac2-Q2_Smart.png" />
+
+### In-App Messaging (Q2 Discover): Ask for a referral the next time members log in
+
+Use Q2 Discover to promote your referral program with contextual in-app messaging:
+
+* **Trigger event:** For your launch, trigger the Q2 Discover Ad on app login.
+* **Audience strategy**: Start broad with all active digital users who have logged in within the past 6 months. Exclude inactive or low-quality users – for example, those with closed accounts or delinquent loans.
+* **CTA Deep Link:** Drive directly to your Extole referral SSO page from the Q2 Discover Ad.
+
+<Image align="center" border={false} caption="Example Q2 Discover Message" src="https://files.readme.io/df2b374bd8b30cf3dc960f1f1f1a028556d2ffb6a3d354099e20444806637862-q2_discover.png" width="450px" />
+
+### Push Notifications: Announce your referral program to your mobile audience
+
+<Image align="center" border={false} caption="Example Push Notification" src="https://files.readme.io/704f7bf85da903abecd0ef121088c82432875c807b07a38c1b762b59e5d8dc23-Group_17.png" width="300px" />
+
+Use push notifications from Q2 or Q2 Partners like <Anchor label="Larky" target="_blank" href="https://nudge.larky.com">Larky</Anchor> or <Anchor label="Pulsate" target="_blank" href="https://www.pulsatehq.com">Pulsate</Anchor> to promote your referral program with timely messages.
+
+* **Audience strategy:** Start broad with all active mobile users who have logged in within the past 6 months. Exclude inactive or low-quality users – for example, those with delinquent or closed accounts.
+* **CTA Deep Link:** Drive directly to your Extole referral SSO page from the Q2 Discover Ad.
+
+### Email: Announce your program to your email list
+
+You can use Extole's <Anchor label="email to audience" target="_blank" href="https://success.extole.com/en/articles/10772158-how-to-send-a-promotional-email-to-an-audience">email to audience</Anchor> feature to send an announcement email, or send through your own email marketing platform.
+
+* **Audience strategy** - Start broad by sending email announcements to your member email list - excluding those who have delinquent loans or aren't in good standing with your institution
+* **CTA Link** - Drive directly to your referral SSO page from your email. If sending from your own email marketing platform, generate a <Anchor label="promo link" target="_blank" href="https://success.extole.com/en/articles/10772151-how-to-create-a-promo-link">promo link</Anchor> in the Extole platform to include in the email.
+
+<Image align="center" border={false} caption="Example Email from the Extole platform" src="https://files.readme.io/e0764e438b66e0c69cb91e43201bacf262af4f88e8a12934210796987952e128-email.png" width="300px" />
+
+## Step 2: Analyze program results, then iterate
+
+### Using the Extole Dashboard to Understand Campaign Success
+
+Use Extole's dashboards and reports to understand and diagnose referral program performance. For a fuller picture, pull Extole's campaign and user data into your data warehouse or BI tool using <Anchor label="Extole's Reporting API " target="_blank" href="https://dev.extole.com/docs/data-analysis-visualization">Extole's Reporting API </Anchor>.
+
+<Image border={false} src="https://files.readme.io/214e32ecae2d64cf60a1a57f600856fa6ad63ed34edd4015473de94ddd8f7ff6-image.png" />
+
+<Image border={false} src="https://files.readme.io/e4793540a14e8b63746d0286663d3b0f255a6cb42b16ff403a4cabed84883ee3-image.png" />
+
+### Use AB testing to experiment with your offer, messaging, and creative
+
+<Anchor label="Learn how to set up an AB test in the Extole platform" target="_blank" href="https://success.extole.com/en/articles/10772145-a-b-testing-your-offer">Learn how to set up an AB test in the Extole platform</Anchor>.
+
+## Step 3: Automate your promotions and let the flywheel take effect
+
+If you haven't already, you'll want to make sure you have several always on-automated placements to keep driving traffic to your program.
+
+* **Auto-triggered push**
+  * Add a push for your refer a friend program to automatically trigger at the end your onboarding series. Deeplink to your referral SSO page in Q2.
+* **Auto-triggered email**
+  * Include an always on banner in all of your emails that links to your referral webpage
+  * Set-up a triggered email from the Extole platform to automatically send to all new users who have completed onboarding.
+* **Auto-triggered Q2 Discover in-app message**
+  * Set-up to automatically trigger during high-impact moments, such as when a member:
+    * Completes a mobile deposit
+    * Completes a transfer
+
+## Step 4: Run 2-3 seasonal campaigns a year to keep things fresh
+
+Keep your program top of mind for your members by running limited-time referral offers or "burst" campaigns. Top performing campaigns include:
+
+* **Back to School:** Target parents to refer other families to open a youth, teen or student checking account.
+* **Interest Rate Drop:** Target members with a mortgage referral offer.
+* **Start the New Year Strong:** Members can help friends and family start the new year strong with a referral to your CU.
+* **Thanksgiving & Giving Back:** Give back with a charitable donation as a referral reward.
+* **Celebrate your Institution's Anniversary**:  Give an extra $25 to celebrate your 25th year serving members.
+
+<br />
+
+<Image align="center" border={false} caption="Member appreciation month bonus reward" src="https://files.readme.io/4beaf6313658e3f056bdd7a41d04f0e4251a61fdecbd8f21eb7583f43de9d452-lighthouse_member_appreciation.png" />
+
+<br />
