@@ -30,7 +30,7 @@ Go big with your referral program launch to drive program awareness and get memb
 
 ### Q2 SMART: Place additional banners throughout digital banking
 
-<Image align="center" border={false} caption="Q2 SMART Promo Banner" src="https://files.readme.io/279bd5739e46f4869cd18fa9ac7dc9818c2538a7451ad154e7cd2c28fb07b19f-Q2_Smart.png" width="400px" />
+<Image align="center" border={false} caption="Q2 SMART Promo Banner" src="https://files.readme.io/2ab599fe7e61f4859d709e4d57a426a6b055b5a67a080646ef25bb2cf0489f71-279bd5739e46f4869cd18fa9ac7dc9818c2538a7451ad154e7cd2c28fb07b19f-Q2_Smart.png" width="400px" />
 
 In addition to your widget or content block, use Q2 SMART to place Refer a Friend banners in the following highly-visible, contextual places throughout the digital banking experience.
 
@@ -39,7 +39,7 @@ In addition to your widget or content block, use Q2 SMART to place Refer a Frien
 * Accounts
 * Benefits & Rewards (if applicable)
 
-<Image align="center" border={false} caption="Q2 SMART Banner Ad" src="https://files.readme.io/13599f76fed26346ad8fc352d7e2bba23921e75b144c312ac0a43a90e41b5ac2-Q2_Smart.png" />
+<Image align="center" border={false} caption="Q2 SMART Banner Ad" src="https://files.readme.io/c5d2335539f23ad6d2a16a8bfa38abfa0901401d2baca7064f06b6216f544abc-13599f76fed26346ad8fc352d7e2bba23921e75b144c312ac0a43a90e41b5ac2-Q2_Smart.png" />
 
 ### In-App Messaging (Q2 Discover): Ask for a referral the next time members log in
 
@@ -49,11 +49,11 @@ Use Q2 Discover to promote your referral program with contextual in-app messagin
 * **Audience strategy**: Start broad with all active digital users who have logged in within the past 6 months. Exclude inactive or low-quality users – for example, those with closed accounts or delinquent loans.
 * **CTA Deep Link:** Drive directly to your Extole referral SSO page from the Q2 Discover Ad.
 
-<Image align="center" border={false} caption="Example Q2 Discover Message" src="https://files.readme.io/df2b374bd8b30cf3dc960f1f1f1a028556d2ffb6a3d354099e20444806637862-q2_discover.png" width="450px" />
+<Image align="center" border={false} caption="Example Q2 Discover Message" src="https://files.readme.io/bac1455609ec2a2e96eb2f0955fbf8714edd438ce4f894bc0d657674d69f175d-df2b374bd8b30cf3dc960f1f1f1a028556d2ffb6a3d354099e20444806637862-q2_discover.png" width="450px" />
 
 ### Push Notifications: Announce your referral program to your mobile audience
 
-<Image align="center" border={false} caption="Example Push Notification" src="https://files.readme.io/704f7bf85da903abecd0ef121088c82432875c807b07a38c1b762b59e5d8dc23-Group_17.png" width="300px" />
+<Image align="center" border={false} caption="Example Push Notification" src="https://files.readme.io/3defbd2d3756b4cdf4bf06712693f34a74bf520f624b2cfd160f8b66166d6b58-704f7bf85da903abecd0ef121088c82432875c807b07a38c1b762b59e5d8dc23-Group_17.png" width="300px" />
 
 Use push notifications from Q2 or Q2 Partners like <Anchor label="Larky" target="_blank" href="https://nudge.larky.com">Larky</Anchor> or <Anchor label="Pulsate" target="_blank" href="https://www.pulsatehq.com">Pulsate</Anchor> to promote your referral program with timely messages.
 
@@ -67,7 +67,7 @@ You can use Extole's <Anchor label="email to audience" target="_blank" href="htt
 * **Audience strategy** - Start broad by sending email announcements to your member email list - excluding those who have delinquent loans or aren't in good standing with your institution
 * **CTA Link** - Drive directly to your referral SSO page from your email. If sending from your own email marketing platform, generate a <Anchor label="promo link" target="_blank" href="https://success.extole.com/en/articles/10772151-how-to-create-a-promo-link">promo link</Anchor> in the Extole platform to include in the email.
 
-<Image align="center" border={false} caption="Example Email from the Extole platform" src="https://files.readme.io/e0764e438b66e0c69cb91e43201bacf262af4f88e8a12934210796987952e128-email.png" width="300px" />
+<Image align="center" border={false} caption="Example Email from the Extole platform" src="https://files.readme.io/52de72cd0bfdffc20e268df45e5e85bb52badf75324ea64345c84d815724b6f5-e0764e438b66e0c69cb91e43201bacf262af4f88e8a12934210796987952e128-email.png" width="300px" />
 
 ## Step 2: Analyze program results, then iterate
 
@@ -109,6 +109,6 @@ Keep your program top of mind for your members by running limited-time referral 
 
 <br />
 
-<Image align="center" border={false} caption="Member appreciation month bonus reward" src="https://files.readme.io/4beaf6313658e3f056bdd7a41d04f0e4251a61fdecbd8f21eb7583f43de9d452-lighthouse_member_appreciation.png" />
+<Image align="center" border={false} caption="Member appreciation month bonus reward" src="https://files.readme.io/0fbbce3ea480cc8bb7297739ac98ccb295f357a91e4415598bd3a1c1684b76c9-4beaf6313658e3f056bdd7a41d04f0e4251a61fdecbd8f21eb7583f43de9d452-lighthouse_member_appreciation.png" />
 
 <br />
