@@ -58,7 +58,7 @@ Here's how:
 2. Scroll down to the Promotions dashboard and click the "Promote" button
 3. [Create a unique promo link](doc:how-to-create-a-promo-link) for each new promotion you plan to run. Having a unique promo link per promotion ensures you can measure the performance of each promotion individually. You’ll then be able to access the promotional data as a unique line in your program data export.
 4. Place the unique promo link in your outbound promotion. For example, place a unique link in your marketing email or Facebook retargeting ad.
-5. Come back and [monitor promotion performance](https://success.extole.com/hc/en-us/articles/202388108-Analyze-Campaign-and-Promotion-Performance  <!-- TODO: legacy Zendesk URL — verify target slug -->) in the Extole dashboard.
+5. Come back and [monitor promotion performance](https://docs.extole.com/docs/program-and-campaign-dashboards  <!-- TODO: legacy Zendesk URL — verify target slug -->) in the Extole dashboard.
 
 # Select a Cadence
 

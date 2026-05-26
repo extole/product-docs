@@ -13,7 +13,7 @@ Launch dynamic programs like Refer A Friend and Drop a Hint with the Extole and 
 | :------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shopify App                | Install Extole's Shopify app on https://apps.shopify.com/extole.                                                                                                                                                                        |
 | Extole Access Token        | You'll need to generate a long-lived access token in order for Shopify to use Extole's authenticated RESTful APIs. Generate your token within the [Security Center](https://my.extole.com/security-center) of your Extole account.      |
-| Branded Program Domain     | You must create a branded Program Domain in your Extole account. More information about [Program Domains](https://success.extole.com/hc/en-us/articles/115012548127-Program-Domain-Setup#automatically2).                               |
+| Branded Program Domain     | You must create a branded Program Domain in your Extole account. More information about [Program Domains](https://docs.extole.com/docs/program-domain-setup#automatically2).                               |
 | Whitelisted Shopify Domain | Make sure you have `extensions.shopifycdn.com` as an allowed site under the `Production Sites Extole Should Support Requests From`in your Branded Program Domain [https://my.extole.com/tech-center](https://my.extole.com/tech-center) |
 
 ## Integration

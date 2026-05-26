@@ -57,7 +57,7 @@ The Extole and Candscent integration is handled entirely by your Extole and Cand
 
 If you haven’t already, you will want to add CTA’s for your referral program in the places where your members are the most engaged, such as in the Settings Menu, the Accounts Dashboard, and the Primary Dashboard in both your online and mobile banking applications. To ensure that members are taken to your share experience when they tap on a referral program CTA, you will need to include an Extole promotion link for each CTA placement. 
 
-To create a promotion link, follow Extole’s [Help Center documentation](https://success.extole.com/hc/en-us/articles/202388128-How-do-I-Create-a-Promote-Link-) or submit a request to your Extole implementation or client success manager.
+To create a promotion link, follow Extole’s [Help Center documentation](https://docs.extole.com/docs/how-to-create-a-promo-link) or submit a request to your Extole implementation or client success manager.
 
 ### Candescent Digital Banking sets up the SAML Connection
 

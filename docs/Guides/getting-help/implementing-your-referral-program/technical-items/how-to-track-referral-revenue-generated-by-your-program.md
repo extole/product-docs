@@ -59,5 +59,5 @@ Create a CSV file that contains two values per conversion: **partner conversion 
 
 - [Tour the Dashboard: Access Referral Program and Campaign Data](https://success.extole.com/hc/en-us/articles/202013873  <!-- TODO: legacy Zendesk URL — verify target slug -->)
 - [Understand Program Performance and Share the Results](https://success.extole.com/hc/en-us/articles/202365747  <!-- TODO: legacy Zendesk URL — verify target slug -->)
-- [Analyze Campaign and Promotion Performance](https://success.extole.com/hc/en-us/articles/202388108-Analyze-Campaign-and-Promotion-Performance  <!-- TODO: legacy Zendesk URL — verify target slug -->)
+- [Analyze Campaign and Promotion Performance](https://docs.extole.com/docs/program-and-campaign-dashboards  <!-- TODO: legacy Zendesk URL — verify target slug -->)
 - [Promote Your Campaigns: Increase Shares and Conversions](doc:how-to-create-a-promo-link)

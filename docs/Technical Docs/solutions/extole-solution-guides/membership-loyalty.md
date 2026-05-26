@@ -55,7 +55,7 @@ For details on how to update your SPF (Sender Policy Framework) DNS records and 
 > 📘 Related Content
 >
 > * <a href="https://my.extole.com/settings" target="_blank">Find your domain in the settings page of My Extole</a>
-> * <a href="https://success.extole.com/hc/en-us/articles/115012548127-Program-Domain-Set-Up" target="_blank">How to set up your program domain</a>
+> * <a href="https://docs.extole.com/docs/program-domain-setup" target="_blank">How to set up your program domain</a>
 
 [//]: ___
 

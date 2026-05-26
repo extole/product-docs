@@ -30,7 +30,7 @@ The core tag can be found under your program’s branded domain (`share.brand.co
 > 📘 Related Content
 >
 > * [Find your domain in the settings page of My Extole](https://my.extole.com/settings)
-> * [How to set up your program domain](https://success.extole.com/hc/en-us/articles/115012548127-Program-Domain-Set-Up)
+> * [How to set up your program domain](https://docs.extole.com/docs/program-domain-setup)
 
 Find your active referral domain and use that for your core tag. It will look like `brand.extole.io` (unbranded) or `share.brand.com` (branded).
 

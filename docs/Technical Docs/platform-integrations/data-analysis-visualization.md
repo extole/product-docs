@@ -15,7 +15,7 @@ Integrate data from your Extole programs with your own data visualization tool t
 
 ## Steps to Integrate using Extole’s Reporting API
 
-If you're looking to analyze conversion funnels or understand the type of customers coming from your Extole programs, we recommend that you [create an Events report](https://success.extole.com/hc/en-us/articles/360063531613-Events-and-Person-Reports) and [schedule the report](https://docs.extole.com/docs/scheduled-reports) to run on a regular basis. 
+If you're looking to analyze conversion funnels or understand the type of customers coming from your Extole programs, we recommend that you [create an Events report](https://docs.extole.com/docs/events-report) and [schedule the report](https://docs.extole.com/docs/scheduled-reports) to run on a regular basis. 
 
 ### Configure Events Reports
 
@@ -43,7 +43,7 @@ Next you will want to set the filters:
 >
 > By default there are a variety of fields available in this report, customize the report columns for campaign, program, share channel, promotion source, device, and reward type to align with your needs. These can be adjusted in the Advanced menu of the report configuration screen. 
 >
-> For additional help, read our more detailed documentation on how to [create an Events report](https://success.extole.com/hc/en-us/articles/360063531613-Events-and-Person-Reports).
+> For additional help, read our more detailed documentation on how to [create an Events report](https://docs.extole.com/docs/events-report).
 
 ### Configure a Fulfilled Rewards Report
 

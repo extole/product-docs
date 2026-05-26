@@ -96,4 +96,4 @@ For deeper strategies, check out our [Referral Program Optimization Guide](https
 
   * Track trends over time, not just point-in-time values.
 
-  * Use [A/B testing](https://success.extole.com/en/articles/10772146-a-b-testing-and-targeting-overview) to see which performs better
+  * Use [A/B testing](https://docs.extole.com/docs/a-b-testing-your-campaign) to see which performs better

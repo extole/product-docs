@@ -45,7 +45,7 @@ For details on how to update your SPF DNS records and install Extole DKIM keys, 
 > 📘 Related Content
 >
 > * [Find your domain in the settings page of My Extole](https://my.extole.com/settings)
-> * [How to set up your program domain](https://success.extole.com/hc/en-us/articles/115012548127-Program-Domain-Set-Up)
+> * [How to set up your program domain](https://docs.extole.com/docs/program-domain-setup)
 
 [//]: ___
 
