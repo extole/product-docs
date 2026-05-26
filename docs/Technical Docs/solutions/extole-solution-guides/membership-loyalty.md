@@ -54,8 +54,8 @@ For details on how to update your SPF (Sender Policy Framework) DNS records and 
 
 > 📘 Related Content
 >
-> * [Find your domain in the settings page of My Extole](https://my.extole.com/settings)
-> * [How to set up your program domain](https://success.extole.com/hc/en-us/articles/115012548127-Program-Domain-Set-Up)
+> * <a href="https://my.extole.com/settings" target="_blank">Find your domain in the settings page of My Extole</a>
+> * <a href="https://success.extole.com/hc/en-us/articles/115012548127-Program-Domain-Set-Up" target="_blank">How to set up your program domain</a>
 
 [//]: ___
 
@@ -427,7 +427,7 @@ After registration, your new customer's first purchase might be made in store or
 
 Extole requires API calls from account systems to authenticate with an API identifier in the request header (OAuth key).
 
-Your keys are managed through the [My Extole Security Center](https://my.extole.com/security-center).
+Your keys are managed through the <a href="https://my.extole.com/security-center" target="_blank">My Extole Security Center</a>.
 
 Create your first key via the "Create New Access Token" button. My Extole will temporarily display the newly created random key for you.
 
@@ -1545,7 +1545,7 @@ To show an advocate stats dashboard on a page after the user is logged in, such 
 Complete these two steps:
 
 1. Add an **advocate\_stats\_embedded** tag, which looks exactly like a marketing tag, to the page where you want to serve the creative.
-2. Verify consumers so that their data displays: [Verifying Consumers](http://dev.extole.com/docs/verifying-consumers)
+2. Verify consumers so that their data displays: <a href="http://dev.extole.com/docs/verifying-consumers" target="_blank">Verifying Consumers</a>
 
 [//]: ___
 
@@ -1561,7 +1561,7 @@ To embed a sharing experience on a dedicated referral page or account page, use 
 
 [//]: # "How do I enable product sharing for my membership and loyalty referral program with Extole?"
 
-If you want to enable your advocates to share specific products, then the product marketing tag may be placed on your category and product pages to allow advocates to share specific categories or products. Extole will read the [Facebook OpenGraph](https://developers.facebook.com/docs/sharing/webmasters#markup) meta tags off of the page and incorporate the product name, description, and image into the share message.
+If you want to enable your advocates to share specific products, then the product marketing tag may be placed on your category and product pages to allow advocates to share specific categories or products. Extole will read the <a href="https://developers.facebook.com/docs/sharing/webmasters#markup" target="_blank">Facebook OpenGraph</a> meta tags off of the page and incorporate the product name, description, and image into the share message.
 
 [//]: ___
 
@@ -1591,7 +1591,7 @@ All emails sent by Extole are CAN-SPAM compliant and honor customer preferences.
 If you need to do a more complex opt-out synchronization, Extole can check your opt-out list with a webhook API or you can upload a list of opt-outs to Extole's SFTP server.
 
 1. Extole Opt-out Check: [Opt Out API](https://docs.extole.com/reference/check-opt-out-status) 
-2. File-based Opt-Out List Management: [Opt Out Files](http://dev.extole.com/docs/opt-out-list-management)
+2. File-based Opt-Out List Management: <a href="http://dev.extole.com/docs/opt-out-list-management" target="_blank">Opt Out Files</a>
 
 [//]: ___
 
