@@ -12,7 +12,6 @@ The platform ingests behavioral events from web, mobile, servers, batch systems,
 - [Integration: Server to Extole](#integration-server-to-extole). Backend services submit events, manage persons, drive the reward lifecycle, render zones server-side, and run bulk data operations.
 - [Integration: Consumer to Extole](#integration-consumer-to-extole). Browser and native-app surface; backs the Extole JavaScript and mobile SDKs.
 - [Management API](#management-api). Configures campaigns, audiences, reward suppliers, and reports. Most operations available in the My Extole UI are reachable here as well.
-- [Management Expert API](#management-expert-api). Reaches inside campaigns and components to configure platform internals. For advanced use.
 
 ## Architecture
 
@@ -80,11 +79,3 @@ See the [Integration: Consumer to Extole reference](https://docs.extole.com/refe
 A REST API for configuring the platform. Most operations available in the My Extole UI are reachable here as well.
 
 See the [Management API reference](https://docs.extole.com/reference/listaudiences).
-
-### Management Expert API
-
-A REST API exposing platform internals not surfaced through the Management API. Used to configure controllers and triggers inside a campaign, component-level facets and grants, prehandlers, reporting dimensions, and OAuth flows.
-
-> **Note.** This API is designed for advanced developers and should be used with care. These endpoints expose configuration that the standard Management API does not surface.
-
-See the [Management Expert API reference](https://docs.extole.com/reference/upgradeconsumerauthorization).
