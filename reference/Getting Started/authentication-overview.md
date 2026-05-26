@@ -9,7 +9,7 @@ hidden: false
 
 For a server-side call:
 
-1. In My Extole, open the **Security Center** at `https://my.extole.com/security-center` and click **+ New Access Token** in the Access Token section. Copy the value.
+1. In My Extole, open the <a href="https://my.extole.com/security-center" target="_blank">Security Center</a> and click **+ New Access Token** in the Access Token section. Copy the value.
 2. Send the token as a bearer credential in the `Authorization` header on every request:
 
 ```bash
@@ -40,7 +40,7 @@ Used for server-side calls from a brand's backend.
 
 The fastest path to a working credential is to create a long-lived access token in My Extole.
 
-1. Log in to My Extole and open the **Security Center** at `https://my.extole.com/security-center`.
+1. Log in to My Extole and open the <a href="https://my.extole.com/security-center" target="_blank">Security Center</a>.
 2. Scroll to the **Access Token** section and click **+ New Access Token**.
 3. Verify your identity.
 4. Enter a name for the token and click **Create**.
@@ -52,7 +52,7 @@ Tokens created in the Security Center are client-scoped and long-lived, suitable
 
 Send the token as a bearer credential in the `Authorization` header. This is the recommended pattern.
 
-```
+```text
 Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
@@ -93,7 +93,7 @@ Consumer API calls go to the **brand's program domain**, not the shared `api.ext
 
 Find the active program domain in My Extole **Tech Center**.
 
-```
+```text
 # Extole-hosted Web Friendly endpoints subdomain
 https://acme.extole.io/events
 https://acme.extole.io/zones
@@ -111,13 +111,13 @@ https://share.acme.com/v4/me
 
 ### Cookie lifecycle
 
-When using the Javascript SDK, you don't typically have to worry about cookies. They are all managed by the core.js library while making zone requests. Other direct calls event and consumer apis will just leverage those browser stored access tokens. When the platform binds an identity, Extole rotates the cookie and returns a new token. The cookie is suppressed when cookie consent is not enabled for the program.
+When using the JavaScript SDK, you don't typically have to worry about cookies. They are all managed by the core.js library while making zone requests. Other direct event and consumer API calls use those browser-stored access tokens. When the platform binds an identity, Extole rotates the cookie and returns a new token. The cookie is suppressed when cookie consent is not enabled for the program.
 
 ### Web Friendly vs API endpoints
 
-The Web Friendly Endpoints are designed for browser-based rendering flows. They support automatically allocate an access token when needed, manage cookies, and typically return 200.
+The Web Friendly Endpoints are designed for browser-based rendering flows. They can automatically allocate an access token when needed, manage cookies, and typically return 200.
 
-The API Zone Endpoints are intended for direct API integrations. They appear are typically meant for POST requests only and expect clients to explicitly manage authentication and handle errors.
+The API Zone Endpoints are intended for direct API integrations. They are typically meant for POST requests only and expect clients to explicitly manage authentication and handle errors.
 
 ### Security levels
 
@@ -153,7 +153,7 @@ curl https://acme.extole.io/v6/zones/refer_a_friend \
   -H "X-Extole-Jwt: eyJhbGciOiJIUzI1NiIsImtpZCI6ImJyYW5kLWtleS0yMDI2In0..."
 ```
 
-**The&#x20;**`kid`**&#x20;header.** Every JWT must include a `kid` (key ID) header that matches the Partner Key ID set on the corresponding key in My Extole. Extole uses `kid` to identify which key to use for verification or decryption.
+**The `kid` header.** Every JWT must include a `kid` (key ID) header that matches the Partner Key ID set on the corresponding key in My Extole. Extole uses `kid` to identify which key to use for verification or decryption.
 
 **Signing keys.** Two key types are supported:
 
@@ -162,7 +162,7 @@ curl https://acme.extole.io/v6/zones/refer_a_friend \
 
 **JWE (encrypted JWT).** When the JWT content itself must be encrypted, Extole accepts JWE tokens in the same header. The same key-management flow in My Extole applies.
 
-See the [Verifying Consumers reference](https://dev.extole.com/docs/verifying-consumers) for required claim names, including the `scope: VERIFIED_CONSUMER` claim that completes the upgrade.
+See the <a href="https://docs.extole.com/docs/verifying-consumers" target="_blank">Verifying Consumers reference</a> for required claim names, including the `scope: VERIFIED_CONSUMER` claim that completes the upgrade.
 
 Verification failures return `401` with one of `jwt_error`, `jwt_authentication_error`, or `invalid_access_token`.
 
@@ -205,7 +205,7 @@ Sandbox tenants use the same token endpoints and the same OAuth substrate as pro
 ## Related
 
 - [Getting Started](./getting-started.md)
-- [Generate Long-lived Access Tokens (dev.extole.com)](https://dev.extole.com/docs/generate-long-lived-access-tokens)
-- [Verifying Consumers (dev.extole.com)](https://dev.extole.com/docs/verifying-consumers)
+- <a href="https://docs.extole.com/docs/generate-long-lived-access-tokens" target="_blank">Generate Long-lived Access Tokens</a>
+- <a href="https://docs.extole.com/docs/verifying-consumers" target="_blank">Verifying Consumers</a>
 
 <br />
