@@ -68,7 +68,7 @@ curl -i https://acme.extole.io/events \
   -d '{"event_name":"purchase","data":{"email":"customer@example.com"}}'
 
 HTTP/1.1 200 OK
-X-Extole-Token: DI3ZCZ97V3V1F9SUA9T
+X-Extole-Token: EXAMPLE_ACCESS_TOKEN
 X-Extole-Error-Message: invalid_email
 ```
 
