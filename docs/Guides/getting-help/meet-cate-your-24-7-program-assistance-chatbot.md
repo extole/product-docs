@@ -1,5 +1,5 @@
 ---
-title: "meet-cate-your-24-7-program-assistance-chatbot"
+title: "Meet Cate: Your 24/7 Program Assistance Chatbot"
 ---
 
 

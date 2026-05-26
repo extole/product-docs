@@ -1,5 +1,5 @@
 ---
-title: "wismr-101-understanding-customer-reward-inquiries"
+title: "WISMR 101: Understanding Customer Reward Inquiries"
 ---
 
 
