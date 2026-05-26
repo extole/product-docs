@@ -1,6 +1,6 @@
 ---
-title: "Getting Started"
-excerpt: "Get a platform overview and understand key concepts about Extole and referral.\n"
+title: "Extole Overview"
+excerpt: "Understand key concepts about Extole and referral.\n"
 ---
 
 

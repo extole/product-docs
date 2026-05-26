@@ -1,8 +1,8 @@
 ---
-title: About Extole
+title: Platform Overview
 excerpt: Get a platform overview and understand key concepts about Extole and referral.
 hidden: false
-slug: getting-started
+slug: platform-overview
 ---
 # About Extole
 
