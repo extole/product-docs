@@ -67,19 +67,19 @@ Extole's unified participant identity across channels (web, app, email, brand sy
 
 A REST API called from a brand's backend services. Covers event submission, person and reward management, server-side zone rendering, and bulk data operations through batches, files, and SFTP.
 
-See the [Integration: Server to Extole reference](./integration-server-to-extole.md).
+See the [Integration: Server to Extole reference](https://docs.extole.com/reference/getcurrentclientaccesstoken).
 
 ### Integration: Consumer to Extole
 
 A REST API called from a brand's website and native apps; backs the Extole JavaScript and mobile SDKs. Covers event submission, consumer profile and reward access, and zone rendering on the participant's device. Uses consumer access tokens managed automatically by cookie or by the SDKs, distinct from the bearer access tokens used by the server-side APIs.
 
-See the [Integration: Consumer to Extole reference](./integration-consumer-to-extole.md).
+See the [Integration: Consumer to Extole reference](https://docs.extole.com/reference/getconsumertoken).
 
 ### Management API
 
 A REST API for configuring the platform. Most operations available in the My Extole UI are reachable here as well.
 
-See the [Management API reference](./management.md).
+See the [Management API reference](https://docs.extole.com/reference/listaudiences).
 
 ### Management Expert API
 
@@ -87,4 +87,4 @@ A REST API exposing platform internals not surfaced through the Management API. 
 
 > **Note.** This API is designed for advanced developers and should be used with care. These endpoints expose configuration that the standard Management API does not surface.
 
-See the [Management Expert API reference](./management-expert.md).
+See the [Management Expert API reference](https://docs.extole.com/reference/upgradeconsumerauthorization).
