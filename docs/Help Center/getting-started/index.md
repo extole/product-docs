@@ -4,7 +4,6 @@ excerpt: Get a platform overview and understand key concepts about Extole and re
 hidden: false
 slug: getting-started
 ---
-
-# Getting Started
+# About Extole
 
 Get a platform overview and understand key concepts about Extole and referral.
