@@ -47,7 +47,7 @@ The following conventions are used by almost all files at Extole to ensure file 
   - A comma can be included by quoting the values: First Name, "Last Name, Jr.", Gift Message
   - A quote can be included by escaping the quote: First Name, Last Name, "Thanks for the \"help\"
 
-- For conventions related to CSV files that Extole generates, see: [https://success.extole.com/hc/en-us/articles/360023053054-CSV-Encoding](doc:csv-encoding)
+- For conventions related to CSV files that Extole generates, see: [https://docs.extole.com/docs/csv-encoding](doc:csv-encoding)
 
 # Validation and Balancing
 

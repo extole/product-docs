@@ -62,10 +62,10 @@ Use push notifications from Q2 or Q2 Partners like <Anchor label="Larky" target=
 
 ### Email: Announce your program to your email list
 
-You can use Extole's <Anchor label="email to audience" target="_blank" href="https://success.extole.com/en/articles/10772158-how-to-send-a-promotional-email-to-an-audience">email to audience</Anchor> feature to send an announcement email, or send through your own email marketing platform.
+You can use Extole's <Anchor label="email to audience" target="_blank" href="https://docs.extole.com/docs/how-to-send-a-promotional-email-to-an-audience">email to audience</Anchor> feature to send an announcement email, or send through your own email marketing platform.
 
 * **Audience strategy** - Start broad by sending email announcements to your member email list - excluding those who have delinquent loans or aren't in good standing with your institution
-* **CTA Link** - Drive directly to your referral SSO page from your email. If sending from your own email marketing platform, generate a <Anchor label="promo link" target="_blank" href="https://success.extole.com/en/articles/10772151-how-to-create-a-promo-link">promo link</Anchor> in the Extole platform to include in the email.
+* **CTA Link** - Drive directly to your referral SSO page from your email. If sending from your own email marketing platform, generate a <Anchor label="promo link" target="_blank" href="https://docs.extole.com/docs/how-to-create-a-promo-link">promo link</Anchor> in the Extole platform to include in the email.
 
 <Image align="center" border={false} caption="Example Email from the Extole platform" src="https://files.readme.io/52de72cd0bfdffc20e268df45e5e85bb52badf75324ea64345c84d815724b6f5-e0764e438b66e0c69cb91e43201bacf262af4f88e8a12934210796987952e128-email.png" width="300px" />
 
@@ -81,7 +81,7 @@ Use Extole's dashboards and reports to understand and diagnose referral program 
 
 ### Use AB testing to experiment with your offer, messaging, and creative
 
-<Anchor label="Learn how to set up an AB test in the Extole platform" target="_blank" href="https://success.extole.com/en/articles/10772145-a-b-testing-your-offer">Learn how to set up an AB test in the Extole platform</Anchor>.
+<Anchor label="Learn how to set up an AB test in the Extole platform" target="_blank" href="https://docs.extole.com/docs/a-b-testing-your-offer">Learn how to set up an AB test in the Extole platform</Anchor>.
 
 ## Step 3: Automate your promotions and let the flywheel take effect
 

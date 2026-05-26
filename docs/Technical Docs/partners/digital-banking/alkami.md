@@ -53,7 +53,7 @@ In the Alkami admin, create new menu item and name it Refer a Friend. In additio
 
 **In the Extole platform:**
 
-1. Go to your Program dashboard and create [a promo link](https://success.extole.com/en/articles/10772151-how-to-create-a-promo-link). Make sure to name your promo link appropriately (e.g `Alkami Embedded`) so that you can track downstream analytics in your Extole dashboard.
+1. Go to your Program dashboard and create [a promo link](https://docs.extole.com/docs/how-to-create-a-promo-link). Make sure to name your promo link appropriately (e.g `Alkami Embedded`) so that you can track downstream analytics in your Extole dashboard.
 2. Then, navigate to `Security` > `Create Access Token`. Create and copy your access token and store it in a safe place, as you will not be able to access it beyond this point.
 3. Lastly, navigate to `Partners` > `Alkami` and install the Alkami integration. Update the promotion URL with the promo link you created above and click`Apply Changes`.
 

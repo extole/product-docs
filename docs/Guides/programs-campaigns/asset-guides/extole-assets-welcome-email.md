@@ -65,4 +65,4 @@ In Extole, you can edit:
 
 
 
-Ongoing testing helps uncover what resonates with your audience and enables you to continually optimize for both the volume and quality of referral traffic. Check out more ideas for **[optimizing your program here](https://success.extole.com/en/articles/10772142-optimizing-your-referral-program)**.
+Ongoing testing helps uncover what resonates with your audience and enables you to continually optimize for both the volume and quality of referral traffic. Check out more ideas for **[optimizing your program here](https://docs.extole.com/docs/optimizing-your-referral-program)**.

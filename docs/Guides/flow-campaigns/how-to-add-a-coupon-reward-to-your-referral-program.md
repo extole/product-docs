@@ -70,7 +70,7 @@ Review and update reward eligibility rules. Rewards will only be dispensed if th
 
 
 
-Learn more about other reward rules **[here](https://success.extole.com/en/articles/12010895-how-to-set-up-reward-rules#h_c4a7ccbfc2)**.
+Learn more about other reward rules **[here](https://docs.extole.com/docs/how-to-set-up-reward-rules#h_c4a7ccbfc2)**.
 
 # **Step 4: Update the Reward Email and Reminder**
 

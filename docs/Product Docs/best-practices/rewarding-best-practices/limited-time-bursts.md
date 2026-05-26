@@ -35,8 +35,8 @@ Setting up Limited Time Bursts are easy within your Extole programs. We offer de
 
 > 📘 Bursting Guides
 >
-> [How to Run a Burst](https://success.extole.com/hc/en-us/articles/13867521750035-How-to-Run-A-Burst)
+> [How to Run a Burst](https://docs.extole.com/docs/how-to-run-a-burst)
 >
 > [A/B Testing Your Offer](https://docs.extole.com/docs/ab-test-your-offer)
 >
-> [Using Extole's Campaign Editor](https://success.extole.com/hc/en-us/articles/10475000245267-Using-Extole-s-Campaign-Editor)
+> [Using Extole's Campaign Editor](https://docs.extole.com/docs/using-extole-s-campaign-editor)

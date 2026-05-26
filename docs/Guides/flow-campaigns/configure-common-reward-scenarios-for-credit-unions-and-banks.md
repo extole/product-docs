@@ -31,11 +31,11 @@ This is the most common implementation.
 
 ## **Flow Builder Configuration**
 
-  1. **[Add a reward](https://success.extole.com/en/articles/13370471-how-to-add-a-new-reward)** on the **"Account Qualified"** event.
+  1. **[Add a reward](https://docs.extole.com/docs/how-to-add-a-new-reward)** on the **"Account Qualified"** event.
 
      1. Advocate and friend rewards are enabled by default in Extole’s Refer a Member template with this configuration
 
-  2. Adjust any other **[reward rules](https://success.extole.com/en/articles/12010895-how-to-set-up-reward-rules)** (Annual Reward Value Limit, etc)
+  2. Adjust any other **[reward rules](https://docs.extole.com/docs/how-to-set-up-reward-rules)** (Annual Reward Value Limit, etc)
 
 
 
@@ -61,7 +61,7 @@ The bank or CU sends an **"Account Opened"** event, but does not send a qualific
 
 ## **Flow Builder Configuration**
 
-  1. **[Add a reward](https://success.extole.com/en/articles/13370471-how-to-add-a-new-reward)** on the **"Account Opened"** event.
+  1. **[Add a reward](https://docs.extole.com/docs/how-to-add-a-new-reward)** on the **"Account Opened"** event.
 
   2. Click into the Reward and + New Reward Rule
 
@@ -73,7 +73,7 @@ The bank or CU sends an **"Account Opened"** event, but does not send a qualific
 
      2. Update the name and description of this rule to call out the time period (ex. “90 Day Pending Period)
 
-  5. Adjust any other **[reward rules](https://success.extole.com/en/articles/12010895-how-to-set-up-reward-rules)** (Annual Reward Value Limit, etc)
+  5. Adjust any other **[reward rules](https://docs.extole.com/docs/how-to-set-up-reward-rules)** (Annual Reward Value Limit, etc)
 
 
 
@@ -97,7 +97,7 @@ Use **Has Not Taken Action** to ensure that if the negative event occurs within 
 
 ## **Flow Builder Configuration**
 
-  1. **[Add a new business event](https://success.extole.com/en/articles/12021699-how-to-add-a-new-business-event)** and rename it to match the input event (example “account_closed”
+  1. **[Add a new business event](https://docs.extole.com/docs/how-to-add-a-new-business-event)** and rename it to match the input event (example “account_closed”
 
   2. Add the reward and pending period as indicated above
 
@@ -111,7 +111,7 @@ Use **Has Not Taken Action** to ensure that if the negative event occurs within 
 
   5. Choose the Business Event that disqualifies them for reward (ex. Account Closed) and the Recent Activity Window (matches pending period)
 
-  6. Adjust any other **[reward rules](https://success.extole.com/en/articles/12010895-how-to-set-up-reward-rules)** (Annual Reward Value Limit, etc)
+  6. Adjust any other **[reward rules](https://docs.extole.com/docs/how-to-set-up-reward-rules)** (Annual Reward Value Limit, etc)
 
 
 
@@ -141,7 +141,7 @@ Once the qualification event is received and validated within the time window, t
 
 ## **Flow Builder Configuration**
 
-  1. **[Add a reward](https://success.extole.com/en/articles/13370471-how-to-add-a-new-reward)** on the **"Account Qualified"** event.
+  1. **[Add a reward](https://docs.extole.com/docs/how-to-add-a-new-reward)** on the **"Account Qualified"** event.
 
      1. Advocate and friend rewards are enabled by default on Account Qualified in Extole’s Refer a Member template
 
@@ -153,7 +153,7 @@ Once the qualification event is received and validated within the time window, t
 
      2. Choose the Business Event that qualifies them for reward (ex. **Account Opened**) and the Recent Activity Window (period of time since the account was opened)
 
-  4. Adjust any other **[reward rules](https://success.extole.com/en/articles/12010895-how-to-set-up-reward-rules)** (Annual Reward Value Limit, etc)
+  4. Adjust any other **[reward rules](https://docs.extole.com/docs/how-to-set-up-reward-rules)** (Annual Reward Value Limit, etc)
 
 
 
@@ -179,7 +179,7 @@ The three primary configurations needed are creating events for each product typ
 
 ## **Flow Builder Configuration**
 
-  1. **[Add a new business event](https://success.extole.com/en/articles/12021699-how-to-add-a-new-business-event)** and rename it to match the event that is happening
+  1. **[Add a new business event](https://docs.extole.com/docs/how-to-add-a-new-business-event)** and rename it to match the event that is happening
 
      1. "Mortgage Account Opened"
 
@@ -207,7 +207,7 @@ The three primary configurations needed are creating events for each product typ
 
      2. **Event Parameter** is the name of that column in the file we are looking for (ex. product_type) and the **value** is the exact match it will look for (ex. Mortgage)
 
-  5. **[Add any associated rewards](https://success.extole.com/en/articles/13370471-how-to-add-a-new-reward)** or other qualifying events that should be triggered
+  5. **[Add any associated rewards](https://docs.extole.com/docs/how-to-add-a-new-reward)** or other qualifying events that should be triggered
 
   6. Follow these steps for as many different products as you’d like. 
 

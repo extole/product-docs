@@ -5,7 +5,7 @@ excerpt: "For years, we have helped our clients operate referral and other acqui
 category: programs-campaigns
 hidden: false
 intercom_source_id: 10772118
-intercom_source_url: https://success.extole.com/en/articles/10772118-international-programs
+intercom_source_url: https://docs.extole.com/docs/international-programs
 parentDoc: programs-campaigns
 intercom_collection: Programs & Campaigns
 intercom_sub_collection: International Programs

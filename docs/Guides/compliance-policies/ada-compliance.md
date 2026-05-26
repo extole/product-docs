@@ -5,7 +5,7 @@ excerpt: "For our customers' marketing programs, Extole provides baseline templa
 category: compliance-policies
 hidden: false
 intercom_source_id: 10772212
-intercom_source_url: https://success.extole.com/en/articles/10772212-ada-compliance
+intercom_source_url: https://docs.extole.com/docs/ada-compliance
 parentDoc: compliance-policies
 intercom_collection: Compliance & Policies
 intercom_sub_collection: ADA Compliance

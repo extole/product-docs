@@ -14,7 +14,7 @@ All Extole share emails come from the sharing advocate's email address or via re
 
 # Managing Your Opt-Out List
 
-Messages sent from your referral program include an opt-out link so that they are compliant with CAN-SPAM. You must sync your program's opt-out list with Extole on a regular basis. For more information, check out our article on [Opt-Out List Management](https://success.extole.com/hc/en-us/articles/201898346-Opt-Out-List-Management  <!-- TODO: legacy Zendesk URL — verify target slug -->).
+Messages sent from your referral program include an opt-out link so that they are compliant with CAN-SPAM. You must sync your program's opt-out list with Extole on a regular basis. For more information, check out our article on [Opt-Out List Management](https://docs.extole.com/docs/opt-out-list-management  <!-- TODO: legacy Zendesk URL — verify target slug -->).
 
 # Sender Policy Framework (SPF)
 

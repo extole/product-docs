@@ -130,7 +130,7 @@ To enable the use of Tango Rewards for redemptions, please follow these steps:
 
 10. #### Add Collectible Rewards to the Campaign:
 
-Link the Collectible Rewards to the 'Rules' section of your campaign. For more details on how to add or update the rewards, refer to [Configuring the Rules of Your Program](https://success.extole.com/hc/en-us/articles/115004912647-Configuring-the-Rules-of-Your-Program)
+Link the Collectible Rewards to the 'Rules' section of your campaign. For more details on how to add or update the rewards, refer to [Configuring the Rules of Your Program](https://docs.extole.com/docs/configuring-the-rules-of-your-program)
 
 11. #### Update Earned Reward Emails (Optional):
 

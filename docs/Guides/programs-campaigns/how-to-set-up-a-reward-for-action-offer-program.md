@@ -92,11 +92,11 @@ Example:
 
   3. Update the reward to either a test reward, or your PROD reward. Rewards can be created by following these steps: 
 
-     1. **[Gift Card Rewards](https://success.extole.com/en/articles/10772167-how-to-reward-with-tango-gift-cards)**
+     1. **[Gift Card Rewards](https://docs.extole.com/docs/how-to-reward-with-tango-gift-cards)**
 
-     2. **[Coupon Rewards](https://success.extole.com/en/articles/10772170-how-to-reward-with-coupons)**
+     2. **[Coupon Rewards](https://docs.extole.com/docs/how-to-reward-with-coupons)**
 
-     3. **[Account Credit Rewards](https://success.extole.com/en/articles/10772169-how-to-reward-with-account-credits)**
+     3. **[Account Credit Rewards](https://docs.extole.com/docs/how-to-reward-with-account-credits)**
 
 
 
@@ -130,7 +130,7 @@ Example:
 
 ## Step 4: Configure the Reward Email
 
-  1. Follow these instructions to configure the **[Tango Reward Email](https://success.extole.com/en/articles/12020551-how-to-set-up-a-tango-gift-card-reward)**
+  1. Follow these instructions to configure the **[Tango Reward Email](https://docs.extole.com/docs/how-to-set-up-a-tango-gift-card-reward)**
 
   2. Follow these instructions to configure a **Tremendous Reward Email (coming soon).**
 

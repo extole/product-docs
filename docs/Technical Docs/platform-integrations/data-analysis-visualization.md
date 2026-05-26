@@ -15,7 +15,7 @@ Integrate data from your Extole programs with your own data visualization tool t
 
 ## Steps to Integrate using Extole’s Reporting API
 
-If you're looking to analyze conversion funnels or understand the type of customers coming from your Extole programs, we recommend that you [create an Events report](https://success.extole.com/hc/en-us/articles/360063531613-Events-and-Person-Reports) and [schedule the report](https://success.extole.com/hc/en-us/articles/17269957064083-Scheduled-Reports) to run on a regular basis. 
+If you're looking to analyze conversion funnels or understand the type of customers coming from your Extole programs, we recommend that you [create an Events report](https://success.extole.com/hc/en-us/articles/360063531613-Events-and-Person-Reports) and [schedule the report](https://docs.extole.com/docs/scheduled-reports) to run on a regular basis. 
 
 ### Configure Events Reports
 
@@ -47,7 +47,7 @@ Next you will want to set the filters:
 
 ### Configure a Fulfilled Rewards Report
 
-If you're looking to monitor the CAC or reward spend of your programs, we recommend that you [create a Fulfilled Rewards report](https://success.extole.com/hc/en-us/articles/360048087273-Rewards-Reporting) and [schedule the report](https://success.extole.com/hc/en-us/articles/17269957064083-Scheduled-Reports) to run on a regular basis. This report will pull in all the rewards that have been fulfilled and their associated participant.
+If you're looking to monitor the CAC or reward spend of your programs, we recommend that you [create a Fulfilled Rewards report](https://docs.extole.com/docs/rewards-reporting) and [schedule the report](https://docs.extole.com/docs/scheduled-reports) to run on a regular basis. This report will pull in all the rewards that have been fulfilled and their associated participant.
 
 ### Schedule the Report
 
@@ -62,7 +62,7 @@ Finally, you can hit the Schedule button in the top right to kickoff the report.
 
 ### Get the API Call for Your Report
 
-Follow the instructions in our [Reporting API documentation](https://docs.extole.com/docs/asynchronous-reporting-api) to generate an access token and make an API call to execute your scheduled report. Extole also supports sending reports to [SFTPs.](https://success.extole.com/hc/en-us/articles/204229263-Using-Extole-s-SFTP-Server)
+Follow the instructions in our [Reporting API documentation](https://docs.extole.com/docs/asynchronous-reporting-api) to generate an access token and make an API call to execute your scheduled report. Extole also supports sending reports to [SFTPs.](https://docs.extole.com/docs/using-extole-s-sftp-server)
 
 ### Create Your Data Connector
 

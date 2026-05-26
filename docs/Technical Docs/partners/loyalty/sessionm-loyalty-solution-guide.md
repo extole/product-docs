@@ -92,7 +92,7 @@ Offline events, such as in-store purchases, can be sent to Extole from any syste
 
 ### Step 3: Connect Extole and SessionM to Reward Customers
 
-You can choose to reward your program participants with SessionM points or offers. Alternatively, you can reward with [coupon codes](https://success.extole.com/hc/en-us/articles/201898016-How-to-Reward-with-Coupons).
+You can choose to reward your program participants with SessionM points or offers. Alternatively, you can reward with [coupon codes](https://docs.extole.com/docs/how-to-reward-with-coupons).
 
 #### Reward with SessionM Points or Offers
 

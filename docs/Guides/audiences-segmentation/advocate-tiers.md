@@ -5,7 +5,7 @@ excerpt: "You may think of the advocates that participate in your customer engag
 category: audiences-segmentation
 hidden: false
 intercom_source_id: 10772044
-intercom_source_url: https://success.extole.com/en/articles/10772044-advocate-tiers
+intercom_source_url: https://docs.extole.com/docs/advocate-tiers
 parentDoc: audiences-segmentation
 intercom_collection: Audiences & Segmentation
 intercom_sub_collection: My Audiences

@@ -69,7 +69,7 @@ Tip: Benchmarks are medians based on data from each industry. Your program may v
 
 **Share, Signup, and Conversion Rates:** View these directly on your dashboard. Names or calculations may vary based on the events you’re sending; check your event mapping or contact support if unsure.
 
-**Acquisition Rate:** Calculate this using the [Acquisition Rate Report](https://success.extole.com/en/articles/10772112-acquisition-rate-report).
+**Acquisition Rate:** Calculate this using the [Acquisition Rate Report](https://docs.extole.com/docs/acquisition-rate-report).
 
 Need help? If you want more granular metrics or have trouble locating your stats, contact your CSM for personalized recommendations.
 
@@ -88,7 +88,7 @@ Each rate shows a step where participants can drop off. Review your rates and fo
 
 
 
-For deeper strategies, check out our [Referral Program Optimization Guide](https://success.extole.com/en/articles/10772142-optimizing-your-referral-program).
+For deeper strategies, check out our [Referral Program Optimization Guide](https://docs.extole.com/docs/optimizing-your-referral-program).
 
 ## Final Tips
 

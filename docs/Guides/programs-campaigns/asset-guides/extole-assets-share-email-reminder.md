@@ -144,4 +144,4 @@ To optimize Share and Reminder emails, test:
 
 
 
-All A/B testing elements above can be edited directly in the **[Campaign Editor](https://my.extole.com/campaign/edit/?client_id=1063468100#/7582302493940773838/assets/7582302504121932494)**. To learn more, check out our **[A/B Testing Guide](https://success.extole.com/en/articles/10772146-a-b-testing-your-campaign)**.
+All A/B testing elements above can be edited directly in the **[Campaign Editor](https://my.extole.com/campaign/edit/?client_id=1063468100#/7582302493940773838/assets/7582302504121932494)**. To learn more, check out our **[A/B Testing Guide](https://docs.extole.com/docs/a-b-testing-your-campaign)**.

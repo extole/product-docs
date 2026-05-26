@@ -20,4 +20,4 @@ Here are some examples:
 | refer-a-friend | None |
 | "test+1@example.com[](mailto:test+1@example.com)" | Plus in value |
 
-For more information on SFTP and file transfers, see: [https://success.extole.com/hc/en-us/articles/201898316-SFTP-and-Batch-File-Conventions](doc:sftp-and-batch-file-conventions).
+For more information on SFTP and file transfers, see: [https://docs.extole.com/docs/sftp-and-batch-file-conventions](doc:sftp-and-batch-file-conventions).
