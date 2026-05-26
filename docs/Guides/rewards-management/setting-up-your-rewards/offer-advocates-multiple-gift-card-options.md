@@ -16,7 +16,7 @@ Configuring an incentive to have multiple reward options is similar to the norma
 
 To configure an incentive for multiple reward options:
 
-Navigate to **[my.extole.com/account-rewards](https://success.extole.com/hc/en-us/articles/my.extole.com/account-rewards).** Follow these steps to reward your consumers with gift cards:
+Navigate to **[my.extole.com/account-rewards](https://my.extole.com/account-rewards).** Follow these steps to reward your consumers with gift cards:
 
 ## Setting Up the Card
 
