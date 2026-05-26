@@ -3,7 +3,7 @@ title: "Reward Bank Redemption Experience"
 excerpt: "Understand the user experience when implementing Extole's Reward Bank\n"
 ---
 
-This guide walks through what your users will see and do when redeeming rewards inside the Extole Reward Bank. For more information on the [Reward Bank](https://dev.extole.com/docs/reward-bank) or [Reward Bank Configuration](https://dev.extole.com/docs/reward-bank-configuration-guide), check out dev.extole.com. 
+This guide walks through what your users will see and do when redeeming rewards inside the Extole Reward Bank. For more information on the [Reward Bank](https://docs.extole.com/docs/reward-bank) or [Reward Bank Configuration](https://docs.extole.com/docs/reward-bank-configuration-guide), check out docs.extole.com. 
 
 # **Overview**
 
@@ -56,7 +56,7 @@ After redeeming, users will see a success notification and those rewards will ap
 
 ## **6\. User Receives the Reward or Redemption Email**
 
-Based on the type of reward, the user will receive an email with the details on how to access or use their reward. This would be the link to their electronic gift card, a coupon, etc. This email is configured within the [Reward Bank configuration section](https://dev.extole.com/docs/reward-bank-configuration-guide). 
+Based on the type of reward, the user will receive an email with the details on how to access or use their reward. This would be the link to their electronic gift card, a coupon, etc. This email is configured within the [Reward Bank configuration section](https://docs.extole.com/docs/reward-bank-configuration-guide). 
 
 ![](https://files.readme.io/edb71acf843de7ee48a2062588acce9b8fa03469c333d8683e2e34b0bed8b3d8-42b84699_829427e8-31b2-4a95-899a-d8e03a7a0b2e.png)
 

@@ -168,7 +168,7 @@ You can provide users access to the Reward Bank either as a standalone page or e
 
 <Image border={false} src="https://files.readme.io/dcd6243c856849b95c3223b04b6d408d23891b0f67d53e8e1c074547e269d3bf-Screenshot_2025-05-08_at_15.57.33.png" />
 
-The user must access it as a [verified consumer](https://dev.extole.com/docs/verifying-consumers#levels-of-verification).
+The user must access it as a [verified consumer](https://docs.extole.com/docs/verifying-consumers#levels-of-verification).
 
 In case of emails that leads to standalone page, the verification is handled via a JWT token.  
 The JWT can be generated within the email creative and appended to the Reward Bank link to authorize the zone call. Example of the link: `https://<Program_Domain>/zone/redemption_center_microsite?jwt=<JWT_KEY>`
@@ -298,8 +298,8 @@ The Reward Bank does not support makegood events created from the [Create Event]
 
 **Alternative Methods for Issuing Additional Rewards:**
 
-* Use [API](https://dev.extole.com/reference/post-generic-event)  events
-* Use [file-based](https://dev.extole.com/docs/file-based-events)  events
+* Use [API](https://docs.extole.com/reference/post-generic-event)  events
+* Use [file-based](https://docs.extole.com/docs/file-based-events)  events
 
 **Forcing Makegood Events Compatibility:**
 

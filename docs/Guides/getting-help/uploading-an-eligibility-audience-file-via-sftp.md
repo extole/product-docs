@@ -30,7 +30,7 @@ Your actual `{audience_id}` will be provided during implementation.
 ## SFTP Configuration
 
 To configure your Extole SFTP server, follow the documentation here:  
-**<https://dev.extole.com/docs/extoles-sftp-server>**
+**<https://docs.extole.com/docs/extoles-sftp-server>**
 
 When connecting to the SFTP server, use the following credentials:
 

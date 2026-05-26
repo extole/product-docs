@@ -1545,7 +1545,7 @@ To show an advocate stats dashboard on a page after the user is logged in, such 
 Complete these two steps:
 
 1. Add an **advocate\_stats\_embedded** tag, which looks exactly like a marketing tag, to the page where you want to serve the creative.
-2. Verify consumers so that their data displays: <a href="http://dev.extole.com/docs/verifying-consumers" target="_blank">Verifying Consumers</a>
+2. Verify consumers so that their data displays: <a href="https://docs.extole.com/docs/verifying-consumers" target="_blank">Verifying Consumers</a>
 
 [//]: ___
 
@@ -1591,7 +1591,7 @@ All emails sent by Extole are CAN-SPAM compliant and honor customer preferences.
 If you need to do a more complex opt-out synchronization, Extole can check your opt-out list with a webhook API or you can upload a list of opt-outs to Extole's SFTP server.
 
 1. Extole Opt-out Check: [Opt Out API](https://docs.extole.com/reference/check-opt-out-status) 
-2. File-based Opt-Out List Management: <a href="http://dev.extole.com/docs/opt-out-list-management" target="_blank">Opt Out Files</a>
+2. File-based Opt-Out List Management: <a href="https://docs.extole.com/docs/opt-out-list-management" target="_blank">Opt Out Files</a>
 
 [//]: ___
 

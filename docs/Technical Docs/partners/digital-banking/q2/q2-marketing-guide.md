@@ -12,7 +12,7 @@ metadata:
 next:
   description: ''
 ---
-**Looking for our Q2 Integration Set-Up Guide? <Anchor label="Click here." target="_blank" href="https://dev.extole.com/docs/q2">Click here.</Anchor>**
+**Looking for our Q2 Integration Set-Up Guide? <Anchor label="Click here." target="_blank" href="https://docs.extole.com/docs/q2">Click here.</Anchor>**
 
 ## You've set-up your referral program, now what?
 
@@ -73,7 +73,7 @@ You can use Extole's <Anchor label="email to audience" target="_blank" href="htt
 
 ### Using the Extole Dashboard to Understand Campaign Success
 
-Use Extole's dashboards and reports to understand and diagnose referral program performance. For a fuller picture, pull Extole's campaign and user data into your data warehouse or BI tool using <Anchor label="Extole's Reporting API " target="_blank" href="https://dev.extole.com/docs/data-analysis-visualization">Extole's Reporting API </Anchor>.
+Use Extole's dashboards and reports to understand and diagnose referral program performance. For a fuller picture, pull Extole's campaign and user data into your data warehouse or BI tool using <Anchor label="Extole's Reporting API " target="_blank" href="https://docs.extole.com/docs/data-analysis-visualization">Extole's Reporting API </Anchor>.
 
 <Image border={false} src="https://files.readme.io/214e32ecae2d64cf60a1a57f600856fa6ad63ed34edd4015473de94ddd8f7ff6-image.png" />
 
