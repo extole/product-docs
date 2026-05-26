@@ -1,0 +1,69 @@
+---
+title: "Go-Live QA Checklist"
+excerpt: "Follow these steps to successfully QA the advocate and friend funnels before setting a campaign live\n"
+---
+
+
+Use this checklist to validate Advocate and Friend flows before launching a referral program. Complete each section prior to moving your program to production.
+
+# **Advocate Funnel QA**
+
+Confirm the Advocate experience functions as expected from click to share.
+
+## **Share Experience and CTAs**
+
+- Confirm all configured CTAs are loading on the correct pages.
+- Confirm the Share Experience pop-up appears when clicking the CTA.
+
+  - Validate behavior across all CTAs like Global Header, Footer, etc
+
+## **Eligibility (Optional)**
+
+- If your program requires audience eligibility, confirm non-eligible users cannot share
+- Validate any exclusion messaging is clear and accurate.
+
+## **Existing Member Experience**
+
+- Confirm an existing member can log into the Share Experience and generate a personal share link.
+- Confirm the member can share through all enabled channels like email, SMS, messenger, etc
+- Confirm the existing member receives the **[Welcome Email](doc:extole-assets-welcome-email)** after their first share (if enabled).
+
+# **Friend Funnel QA**
+
+Validate the referred Friend journey from referral click through reward fulfillment.
+
+## **Referral Link Behavior**
+
+- Confirm the share link redirects to the correct website destination.
+- Validate referral attribution persists across sessions as expected.
+
+## **Email Capture and Signup**
+
+If email capture is required:
+
+- Confirm Friends can complete email capture through the **[Friend Landing Experience](doc:extole-assets-friend-landing-experience)**. 
+- Confirm email capture fires the appropriate application or signup tag in Extole’s Event Live View.
+
+## **Event Tracking and Data Flow**
+
+- Confirm conversion, account opening or qualifying events are successfully delivered to Extole via SFTP.
+- Validate file format and processing status.
+- Confirm events are successfully created and visible in My.Extole:
+
+  - Raw events visible in Events Stream
+  - Attributed events visible in Events Live View
+
+- Confirm **[Pending Reward Emails](doc:extole-assets-pending-reward-email)** are successfully delivered (if applicable)
+
+## **Reward Qualification and Fulfillment**
+
+- Confirm rewards are issued to both Friend and Advocate upon qualifying events.
+- Validate that high-quality rules are applied correctly, if applicable.
+- Confirm **[Earned Reward Emails](doc:extole-assets-earned-reward-emails)** are successfully delivered.
+- Verify rewards are visible in My.Extole reports.
+- Check dashboard totals and compare against:
+
+  - Events sent to Extole via SFTP
+  - Number of rewards earned
+
+Once you’re campaign has been tested, you can **[schedule your campaign to go live](doc:pausing-ending-and-scheduling-campaigns#h_afd684d4a1)** or set it live manually from the campaign dashboard.
