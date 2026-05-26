@@ -7,7 +7,7 @@ hidden: false
 ---
 Extole is the incentive operating system for enterprises. It is an event-driven platform that orchestrates offers, rewards, and incentive-driven customer journeys across programs, channels, and systems.
 
-The platform ingests behavioral events from web, mobile, servers, batch systems, and integrations; runs them through a configurable rules and journey engine; resolves participant identity; issues rewards across the supported reward types; and reports on the outcome. These capabilities are exposed across four REST APIs:
+The platform ingests behavioral events from web, mobile, servers, batch systems, and integrations; runs them through a configurable rules and journey engine; resolves participant identity; issues rewards across the supported reward types; and reports on the outcome. These capabilities are exposed across three REST APIs:
 
 - [Integration: Server to Extole](#integration-server-to-extole). Backend services submit events, manage persons, drive the reward lifecycle, render zones server-side, and run bulk data operations.
 - [Integration: Consumer to Extole](#integration-consumer-to-extole). Browser and native-app surface; backs the Extole JavaScript and mobile SDKs.
