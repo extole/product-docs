@@ -1,13 +1,16 @@
 ---
-title: "Membership & Loyalty"
-excerpt: "If you are running a membership business, delivering a member-get-member program for your loyalty program, or if you simply require an account to shop and purchase, we recommend this guide. The flow that we support here allows for distinct signup and purchase events, including rewarding on either.\n"
+title: Membership & Loyalty
+excerpt: >-
+  Set up a membership and loyalty referral program with branded links, website
+  tags, signup and purchase tracking, rewards, mobile integration, and optional
+  enhancements.
 ---
 
 ## Overview
 
 [//]: # "What steps are required for setting up a membership and loyalty referral program with Extole?"
 
-This guide will walk you through the five necessary steps for setting up a successful referral program:
+Use this guide to set up a membership and loyalty referral program that tracks signups and purchases, then rewards advocates and friends.
 
 1. Brand your Program
 2. Tag your Website
@@ -31,7 +34,7 @@ This guide will walk you through the five necessary steps for setting up a succe
 >
 > This task will typically take an IT/Ops engineering team 10–15 minutes to complete.
 
-You'll want to create a CNAME for your domain so that you can create branded <Glossary>Promotion Link</Glossary>s and <Glossary>Share Link</Glossary>s.
+Create a CNAME (a DNS record that points one domain to another) for your domain so you can create branded <Glossary>Promotion Link</Glossary>s and <Glossary>Share Link</Glossary>s.
 
 To set up your CNAME, please complete the steps outlined in [Extole DNS Requirements](doc:extole-dns-requirements).
 
@@ -47,7 +50,7 @@ The referral program will send program emails from you to your customers:
 
 The from address for this will typically be something similar to `do-not-reply@mycompany.com`. Once this email has been identified, Extole can check if it is configured to allow Extole to send emails from this address.
 
-For details on how to update your SPF DNS records and install Extole DKIM keys, please reference [Extole DNS Requirements](doc:extole-dns-requirements).
+For details on how to update your SPF (Sender Policy Framework) DNS records and install Extole DKIM (DomainKeys Identified Mail) keys, reference [Extole DNS Requirements](doc:extole-dns-requirements).
 
 > 📘 Related Content
 >
@@ -62,7 +65,7 @@ Extole works with your site using lightweight JavaScript tags. The core tag must
 
 Extole tags can go anywhere in the HTML of the page and do not need to be loaded in any specific order. They are asynchronous to ensure fast page loading.
 
-Marketing tags display <Glossary>CTA</Glossary> s inline on your page. These tags will reference a specific `span` tag by `id` and should be placed into the HTML inline where they will be displayed.
+Marketing tags display <Glossary>CTA</Glossary>s (calls to action) inline on your page. These tags reference a specific `span` tag by `id` and should be placed in the HTML where they will appear.
 
 ### Add the Core Tag (Extole's JavaScript Library)
 
@@ -82,13 +85,13 @@ Find your active referral domain and use that for your core tag. It will look li
 
 ### Add Marketing Tags
 
-In order to drive participation, Extole displays <Glossary>CTA</Glossary>s that promote the program. For example, a `global_header` CTA will add a banner element to the top of the screen that will say something like “Refer a friend.” When clicked or tapped, the banner will take the user to the <Glossary>Share Experience</Glossary>.
+Extole displays <Glossary>CTA</Glossary>s that promote the program. For example, a `global_header` CTA can add a banner at the top of the screen that says “Refer a friend.” When a customer selects the banner, it opens the <Glossary>Share Experience</Glossary>.
 
-Marketing tags tell Extole where to serve CTAs onto your website. These CTAs are clickable entities that advertise your program to your customers and visitors. These marketing tags also enable tracking, so that you can know which marketing placements are driving participation in the program.
+Marketing tags tell Extole where to show CTAs on your website. These tags also enable tracking so you can see which placements drive participation.
 
-Extole recommends rewarding your advocates by having Extole email advocates a promotion code they can use to apply credits to their account. If your membership program will reward the advocate automatically with account credits (and not by emailing a promo code to the advocate), then you will need to restrict all sharing behind login and include advocates' information in the marketing tags.  
+Extole recommends emailing advocates a promotion code they can use to apply credits to their account. If your membership program applies account credits automatically instead, restrict sharing to logged-in advocates and include advocate information in the marketing tags.  
 
-An Extole campaign comes with a standard marketing names:
+An Extole campaign comes with these standard marketing tag names:
 
 * `global_header`
 * `global_footer`
@@ -96,11 +99,11 @@ An Extole campaign comes with a standard marketing names:
 * `confirmation`
 * `overlay`
 
-It's easy to create additional marketing tags if you want to add <Glossary>CTA</Glossary>s to additional pages like your blog, help pages, and so on. As you're getting started, contact your Customer Success Manager to help learn how to create these additional tags.
+You can create additional marketing tags for pages such as your blog or help center. As you get started, contact your Customer Success Manager for help creating these tags.
 
 #### Marketing Tag Placement
 
-There is a `span` section that goes into your web page where the content will appear.  This is typically done through your CMS or on site. It is required for all tags that put content inline (but not required for `overlay` and `confirmation` tags).
+Add a `span` element to the page where the content should appear. You typically add this element through your CMS or site code. Inline tags require this element; `overlay` and `confirmation` tags do not.
 
 ```javascript Span ID
 <span id="extole_zone_global_header"></span>
@@ -108,7 +111,7 @@ There is a `span` section that goes into your web page where the content will ap
 
 Additionally, there is the `script` tag that loads the targeted content from the program and inserts it onto the page in the `span` tag.
 
-**Below is an example of a`global_header` tag**:
+**Below is an example of a `global_header` tag**:
 
 ```javascript Global Header CTA
 <span id="extole_zone_global_header"></span>
@@ -132,7 +135,7 @@ Additionally, there is the `script` tag that loads the targeted content from the
 
 > 🚧 Important Note
 >
-> Extole uses the visitor's name, email, and id to personalize their experience. This practice also aids in matching advocates and friends for rewards, customizing emails and shares, and recognizing when the user at a given browser has changed, which can occur on shared computers.
+> Extole uses the visitor's name, email, and ID to personalize their experience. This data also helps match advocates and friends for rewards, customize emails and shares, and recognize when a different person uses the same browser on a shared device.
 
 <Table align={["left","left"]}>
   <thead>
@@ -198,11 +201,11 @@ Additionally, there is the `script` tag that loads the targeted content from the
 
 #### Track Signups with Registration Tags
 
-Because your business model requires the friend to create an account, you need to track those account creations. In order to capture that the friend signed up and is eligible for their reward, you add a **registration tag** to your post-signup page. 
+Because your business model requires the friend to create an account, track new account creation with a **registration tag** on your post-signup page. This tag captures that the friend signed up and is eligible for their reward. 
 
-The registration tag passes information about the new customer to allow Extole to attribute the account to a referral when possible, run quality rules on the account, and run reward rules on the account. This helps successful tracking when the lead goes on to complete the purchase.
+The registration tag passes information about the new customer so Extole can attribute the account to a referral when possible, run quality rules, and run reward rules. This supports accurate tracking when the lead completes a purchase.
 
-This tag should only fire if the account created is **new**. This will solidify the goal of rewarding for new customer memberships. 
+Fire this tag only when the created account is **new**. This keeps rewards focused on new customer memberships. 
 
 ```javascript Registration Tag
 <script type="text/javascript">
@@ -298,7 +301,7 @@ This tag should only fire if the account created is **new**. This will solidify 
 
 #### Track Purchase Events with Conversion Tags
 
-It is our recommendation that you reward the **advocate** after their friend purchases, not after sign-up. In order to do this, you need to communicate to Extole a purchase has happened by adding the **conversion tag** to your order thank you page.
+Reward the **advocate** after their friend purchases, not after signup. To do this, add the **conversion tag** to your order thank-you page so Extole receives the purchase event.
 
 The conversion tag passes information about the purchase to allow Extole to attribute the conversion to a referral when possible, run quality rules, and run reward rules. Extole will discard the conversions that are not attributed to a referral after processing rules.
 
@@ -422,13 +425,13 @@ After registration, your new customer's first purchase might be made in store or
 
 ##### Create Extole API Keys
 
-Extole requires API calls from account systems to authenticate with an API identifier provided in the header (OAuth key).
+Extole requires API calls from account systems to authenticate with an API identifier in the request header (OAuth key).
 
 Your keys are managed through the [My Extole Security Center](https://my.extole.com/security-center).
 
 Create your first key via the "Create New Access Token" button. My Extole will temporarily display the newly created random key for you.
 
-![](https://files.readme.io/234c9f82ab10c5732e0d7355d542b045aa94a63f946d7afd08c4ef75f3937981-4592d5c-New-Access-Token.png "New-Access-Token.png")
+<Image alt="My Extole Security Center showing the Create New Access Token button" align="center" src="https://files.readme.io/234c9f82ab10c5732e0d7355d542b045aa94a63f946d7afd08c4ef75f3937981-4592d5c-New-Access-Token.png" />
 
 Once your API key is created, you can test successful authentication using the Client API method:
 
@@ -445,7 +448,7 @@ curl -H "Authorization: Bearer XXXX" https://api.extole.io/v2/me/clients
 
 ##### Event API Call
 
-For each purchase that occurs in store, an API request is sent to Extole. It is fine for the same order to be sent by the tag as well as by the API as Extole will automatically deduplicate based on the order ID.
+Send an API request to Extole for each purchase that occurs in store. You can send the same order by tag and API because Extole automatically deduplicates events based on the order ID.
 
 ```json Event API Call
 POST https://api.extole.io/v5/events
@@ -454,12 +457,12 @@ Authorization: Bearer XXX
 {
   "event_name": "purchased",
   "data": {
-    "first_name": REPLACE,
-    "last_name": REPLACE,
-    "email": REPLACE,
-    "partner_user_id": REPLACE,
-    "order_id": REPLACE,
-    "cart_value": REPLACE
+    "first_name": "Julio",
+    "last_name": "Friend",
+    "email": "julio@friend.com",
+    "partner_user_id": "00O40000004SQbO",
+    "order_id": "122948302lala",
+    "cart_value": "10000.00"
   }
 }
 ```
@@ -566,7 +569,7 @@ Authorization: Bearer XXX
 
 > 📘 Additional Fields
 >
-> In addition the above fields, any additional fields can be added onto any event.  
+> In addition to the fields above, you can add fields to any event.  
 >
 > Additional fields added on can be used for:
 >
@@ -584,7 +587,7 @@ Authorization: Bearer XXX
 
 [//]: # "How do set up rewards for my membership and loyalty referral program with Extole?"
 
-The advocate reward should be delivered directly into their account after the friend purchase is approved, and the friend code is delivered via overlay or email after they sign up to become a customer. The friend purchases should be automatically approved or declined after Extole's quality rules run.
+Deliver the advocate reward directly into their account after the friend purchase is approved. Deliver the friend code through an overlay or email after the friend signs up to become a customer. Extole's quality rules automatically approve or decline friend purchases.
 
 ### Reward Friends
 
@@ -598,13 +601,13 @@ You will then go into My Extole > Rewards to create and upload rewards.
 
 #### Issue Account Credits via Webhook
 
-When an approved conversion occurs, Extole will track an issued account credit to the account.  Extole can be configured to make a real-time API to your system to inform it a reward needs to be issued.
+When an approved conversion occurs, Extole tracks an issued account credit to the account. Configure Extole to make a real-time API call to your system when a reward needs to be issued.
 
-In My Extole, you will provide a web service name, URL, and shared secret. After each reward is earned, Extole will make an outbound API call to the service name you provided.
+In My Extole, provide a web service name, URL, and shared secret. After each reward is earned, Extole makes an outbound API call to the service name you provided. Never publish a real shared secret or bearer token in documentation or client-side code.
 
 ```json Account Credits via Webhook
 POST https://YOURWEBHOOK
-Authorization: Bearer 7049bee0bcbb149b597e2c3d0d334e3daea0f97410bd38bd5a9f15f053937b4d
+Authorization: Bearer REPLACE_WITH_SHARED_SECRET
 Content-Type: application/json
 
 {
@@ -648,7 +651,7 @@ Content-Type: application/json
       </td>
 
       <td>
-        This is the type of event triggering the webhook.  When you configure you’re webhook you will select which events to send.  The most common the `reward_earned`.
+        This is the type of event triggering the webhook. When you configure your webhook, select which events to send. The most common event is `reward_earned`.
       </td>
     </tr>
 
@@ -774,8 +777,7 @@ Content-Type: application/json
       </td>
 
       <td>
-        The email address of the reward recipient.\
-        data. This object can contain any other configurable data about the person or event that caused the reward.
+        The email address of the reward recipient. The `data` object can contain other configurable data about the person or event that caused the reward.
       </td>
     </tr>
   </tbody>
@@ -785,7 +787,7 @@ Content-Type: application/json
 
 #### Issue Account Credits via API
 
-Extole can make rewards available via an API. Schedule a process on your side that will call into the Extole Rewards API on a regular basis to pull back the rewards that have been earned by each consumer. You can then apply these rewards to each account.
+Extole can make rewards available through an API. Schedule a process on your side to call the Extole Rewards API regularly, retrieve rewards earned by each consumer, and apply those rewards to each account.
 
 ```json Example: Rewards API Call
 POST https://api.extole.io/v2/rewards?state=earned&reward_supplier_type=custom-reward
@@ -806,7 +808,7 @@ Content-Type: application/json
     "face_value_type": "USD",
     "partner_reward_id": null,
     "created_at": "2018-11-20T15:12:18.461-08:00"
-  },
+  }
 ]
 ```
 ```text Response
@@ -914,7 +916,7 @@ Content-Type: application/json
       </td>
 
       <td>
-        A unique identifier providing the reward to the recipient. It is important that all marketing tags include the partner\_user\_id.
+        A unique identifier that tells you which recipient should receive the reward. Include `partner_user_id` in all marketing tags.
       </td>
     </tr>
 
@@ -1026,7 +1028,7 @@ POST https://api.extole.io/v5/events
       </td>
 
       <td>
-        If you have a unique tracking or fuflillment identifier
+        If you have a unique tracking or fulfillment identifier.
       </td>
     </tr>
 
@@ -1036,7 +1038,7 @@ POST https://api.extole.io/v5/events
       </td>
 
       <td>
-        A message reward fulfillment that shows up in customer support
+        A reward fulfillment message that appears in customer support.
       </td>
     </tr>
   </tbody>
@@ -1183,7 +1185,7 @@ earned-reward-report-YYYY-MM-DDTHHMMSS.csv
       </td>
 
       <td>
-        This indicates the reward passed through this state, but typicaly the report is set to only return `EARNED` rewards.
+        This indicates the reward passed through this state, but typically the report is set to only return `EARNED` rewards.
       </td>
     </tr>
 
@@ -1281,7 +1283,7 @@ After the rewards have been fulfilled, you can upload a response file back to th
 
 Your entire referral consumer experience can be configured in the My Extole Campaign Editor. This part of setting up the solution can be done entirely by your marketing and creative team and doesn't require technical involvement. Each template is a comprehensive guide for your designer or marketer to customize.
 
-<Image title="Screen Shot 2022-07-28 at 10.32.12 AM.png" alt={2646} align="center" src="https://files.readme.io/9a368b70caadecd9a0c101fa6e8beaf512ffd99b631984a7550c2bab8f138235-6724323-Screen_Shot_2022-07-28_at_10.32.12_AM.png">
+<Image title="Screen Shot 2022-07-28 at 10.32.12 AM.png" alt="My Extole Campaign Editor showing marketer-controlled creative editing options" align="center" src="https://files.readme.io/9a368b70caadecd9a0c101fa6e8beaf512ffd99b631984a7550c2bab8f138235-6724323-Screen_Shot_2022-07-28_at_10.32.12_AM.png">
   Marketer Control Editing
 </Image>
 
@@ -1291,26 +1293,26 @@ Your entire referral consumer experience can be configured in the My Extole Camp
 
 [//]: # "How do I integrate my membership and loyalty referral program with my mobile app?"
 
-If you have a mobile app, then it is essential that you connect to Extole's API to make certain:
+If you have a mobile app, connect it to Extole's API so that:
 
-1. That clicks on links shared to friends on mobile devices go to the right landing experience to register a new customer
-2. That Extole knows about the registrations and conversions on mobile (because we need to reward the advocates!)
-3. That we add appropriate promotion (remember Calls to Action?) in menu items and on account screens.
-4. That we enable sharing from the mobile phone, whether in the app or using the native sharing dialogs
+1. Clicks on shared links from mobile devices open the right landing experience for new customer registration.
+2. Extole receives mobile registrations and conversions so advocates can be rewarded.
+3. Mobile menu items and account screens include the right CTAs.
+4. Customers can share from the app or through native mobile sharing dialogs.
 
-Please take a look at our [Mobile App Guide](doc:mobile-app-guide) for more details about how to implement.
+See [Headless and Mobile API](doc:mobile-api) for implementation details.
 
-## Recommended Additional Steps
+## Optional: Recommended Additional Steps
 
 ### Add Web Analytics Tracking Parameters
 
 [//]: # "How do I add web analytics tracking parameters to my retail referral program with Extole?"
 
-You can set up Extole to send web tracking information to various web and email analytics tools through the use of URL parameters, such as UTMs. 
+You can set up Extole to send web tracking information to web and email analytics tools with URL parameters, such as UTMs (tracking parameters used by analytics tools). 
 
 URL parameters for Google Analytics, Adobe Analytics, etc. can typically be added directly by your marketing or IT team within Extole's Campaign Editor. 
 
-Within Campaign Edit, there are two configurable URLs—one for the Advocate and one for the Friend—that can be used:
+Within Campaign Edit, configure two URLs: one for the Advocate and one for the Friend.
 
 #### Promote Destination
 
@@ -1430,7 +1432,7 @@ You can find this under the Friend tab in Campaign Edit. This controls the behav
 When friends click a share link, you can choose to send them to:
 
 * An Extole-hosted zone (such as the Friend Landing Experience Microsite)
-* An external URL that you host.
+* An external URL that you host
 
 In the Advanced settings, you can edit the UTM parameters that are automatically included in the URL.
 
@@ -1538,9 +1540,9 @@ In the Advanced settings, you can edit the UTM parameters that are automatically
 
 [//]: # "How do I embed the advocate stats dashboard directly onto a page for my membership and loyalty referral program with Extole?"
 
-If you want to have an advocate stats dashboard directly onto one of your pages after the user is logged in, for example on the My Account Page, you will want to verify the user and tell Extole who they are. 
+To show an advocate stats dashboard on a page after the user is logged in, such as the My Account page, verify the user and tell Extole who they are. 
 
-You will need to do 2 things:
+Complete these two steps:
 
 1. Add an **advocate\_stats\_embedded** tag, which looks exactly like a marketing tag, to the page where you want to serve the creative.
 2. Verify consumers so that their data displays: [Verifying Consumers](http://dev.extole.com/docs/verifying-consumers)
@@ -1551,7 +1553,7 @@ You will need to do 2 things:
 
 [//]: # "How do I embed share experience directly onto a page for my membership and loyalty referral program with Extole?"
 
-If you want to embed a sharing experience on a dedicated referral page or account page, the tag looks exactly same as marketing tags, you would just call the zone `referral_page` or `account_page`.
+To embed a sharing experience on a dedicated referral page or account page, use the same structure as a marketing tag and set the zone to `referral_page` or `account_page`.
 
 [//]: ___
 
@@ -1563,20 +1565,20 @@ If you want to enable your advocates to share specific products, then the produc
 
 [//]: ___
 
-## Optional Additional Steps
+## Optional: Additional Steps
 
-Below are some of the topics regarding parts of the process that aren't requirements for most retail experiences, but might be for yours.
+These steps are not required for most retail experiences, but they may apply to your program.
 
 ### Creating your own Advocate Code or Link
 
 [//]: # "How do I create advocate codes or links for my membership and loyalty referral program with Extole?"
 
-Extole will automatically create a unique code for every advocate that comes through the program. If you want to create your own codes for your customers you will need to take the following steps: 
+Extole automatically creates a unique code for every advocate who joins the program. If you want to create your own customer codes, take these steps: 
 
-1. Create Token to call the Extole API  [Get Token](doc:token)
-2. Identify the Advocate   [Create or Update User Profile](doc:update-user-profile) 
-3. Get Share Code (if one exists):  [Get My Share Links (Shareables)](doc:get-my-share-links)
-4. Create Share Code: [Create Share Link (Shareable)](doc:create-share-link)  
+1. Create an API access token in My Extole Security Center.
+2. Identify the advocate by creating or updating their person profile with `POST /v5/persons` or `PUT /v5/persons/{person_id}`.
+3. Check whether the advocate already has a share code with `GET /v5/persons/{person_id}/shareables`.
+4. Create a share code with `POST /v5/persons/{person_id}/shareables`.  
 
 [//]: ___
 
@@ -1584,7 +1586,7 @@ Extole will automatically create a unique code for every advocate that comes thr
 
 [//]: # "How can I use the opt-out list from my membership and loyalty referral program with Extole?"
 
-All mails sent by Extole are CAN-SPAM compliant and honor the customer preferences. Referral programs are typically treated as their own segment of emails unique from the normal marketing opt-out list, making this step optional. Each email sent to an advocate or friend will include an unsubscribe link, managed by Extole, that will opt the customer out of the referral program.
+All emails sent by Extole are CAN-SPAM compliant and honor customer preferences. Referral programs are typically treated as their own email segment, separate from the normal marketing opt-out list, making this step optional. Each email sent to an advocate or friend includes an unsubscribe link, managed by Extole, that opts the customer out of the referral program.
 
 If you need to do a more complex opt-out synchronization, Extole can check your opt-out list with a webhook API or you can upload a list of opt-outs to Extole's SFTP server.
 
@@ -1597,7 +1599,7 @@ If you need to do a more complex opt-out synchronization, Extole can check your 
 
 [//]: # "How do I upload an SSL certificate for my membership and loyalty referral program branded domain?"
 
-When you created your branded domain at Extole and notify your CSM, Extole will automatically procure a certificate from LetsEncrypt for your domain.
+When you create your branded domain at Extole and notify your CSM, Extole automatically procures a certificate from Let's Encrypt for your domain.
 
 [//]: ___
 
@@ -1605,18 +1607,18 @@ When you created your branded domain at Extole and notify your CSM, Extole will 
 
 [//]: # "How do I verify advocate codes for my membership and loyalty referral program with Extole?"
 
-When a potential customer is going become a member of your business, there is a good likelihood that they will not click on a referral link but will rather go to your site directly and enter an advocate code they received from their friend. 
+When a potential customer becomes a member of your business, they may go directly to your site and enter an advocate code they received from a friend instead of clicking a referral link. 
 
-That advocate code, provided it is valid, will tell Extole to capture the sign up in our system and then run quality rules to reward to the friend. 
+A valid advocate code tells Extole to capture the signup and run quality rules for the friend reward. 
 
-If you want your implementation to return feedback to the customer right when they attempt to apply the code, you can find those integration details here. That means that in the code capture field you will need to call Extole to ask if the code is a valid referral code. 
+If you want your implementation to give customers immediate feedback when they apply a code, call Extole from the code capture field to check whether the code is a valid referral code. 
 
-<Image title="Screen Shot 2016-09-18 at 10.45.11 AM.png" align="center" width="60% " src="https://files.readme.io/2a70d57cbb1958889db695c4151d19fbc90134bfc6d67ce7763cdd802fecaa63-f09dda3-Screen_Shot_2016-09-18_at_10.45.11_AM.png" />
+<Image title="Screen Shot 2016-09-18 at 10.45.11 AM.png" alt="Referral code entry form with a field for entering an advocate code" align="center" width="60% " src="https://files.readme.io/2a70d57cbb1958889db695c4151d19fbc90134bfc6d67ce7763cdd802fecaa63-f09dda3-Screen_Shot_2016-09-18_at_10.45.11_AM.png" />
 
-You only need to implement the code below if you want to tell the user before she signs up that it was a valid code or not (similar to an apple coupon code button on a cart page). 
+Implement the code below only if you want to tell the user whether the code is valid before they sign up, similar to a coupon code button on a cart page. 
 
 ```javascript Advocate Code Capture Tag
-// SCENARIO: Person on has submitted an advocate code, verify it is real, apply a coupon:
+// SCENARIO: A person submitted an advocate code. Verify it is valid, then apply a coupon.
 
 function promptForAdvocateCode() {
     // TODO - implemented by client
