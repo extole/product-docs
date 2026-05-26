@@ -34,7 +34,7 @@ Include key terms and constraints:
 
 
 
-Need help adding coupons? Follow the guide **[How to Reward with Coupons](https://docs.extole.com/docs/how-to-reward-with-coupons)**.
+Need help adding coupons? Follow the guide **[How to Reward with Coupons](<https://success.extole.com/en/articles/10772170-how-to-reward-with-coupons>)**.
 
 ## **Tremendous Rewards: Gift Cards or Cash Equivalents**
 
@@ -55,7 +55,7 @@ Keep the message concise and action-oriented:
 
 
 
-Need help adding Tremendous? Check out **[How to Send Rewards with Tremendous](https://docs.extole.com/docs/sending-rewards-with-tremendous)**. If you are sending rewards via Tango Card, **[learn more here](https://docs.extole.com/docs/tango-reward-email)**. 
+Need help adding Tremendous? Check out **[How to Send Rewards with Tremendous](<https://success.extole.com/en/articles/12772263-sending-rewards-with-tremendous>)**. If you are sending rewards via Tango Card, **[learn more here](<https://success.extole.com/en/articles/13225098-tango-reward-email>)**. 
 
 ## **Reward Reporting Tools**
 

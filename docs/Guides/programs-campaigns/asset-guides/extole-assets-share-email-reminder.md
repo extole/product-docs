@@ -1,12 +1,12 @@
 ---
-title: "Share Email Reminder"
+title: "Share Email & Reminder"
 ---
 
 # **Overview**
 
 The Share Email & Reminder let advocates share your brand with friends via email, with an added option to send follow-up reminders. This two-step engagement helps maintain visibility and encourages friends to take action on their referral, especially if they missed the initial email.
 
-![](https://files.readme.io/326117bfd2ed126c5986c9d974611f015dbd98280426eb8670db00277a7e3b06-d717fbcf_4308a0e7-fd39-46e4-8d6f-70695640eb06.png)
+![](https://files.readme.io/2749635417541badc9a89951cad682acc295cc33d026a7d0225254ac017e9140-d717fbcf_4308a0e7-fd39-46e4-8d6f-70695640eb06.png)
 
 # **Key Metrics**
 
@@ -18,7 +18,7 @@ The Share Email & Reminder let advocates share your brand with friends via email
 
   * **Unsubscribe / Opt-out Rate** : Percentage of recipients who opt out. High rates can indicate fatigue or poor targeting.
 
-  * **Time to Convert** : Average time from the initial Share Email to Friend conversion. Helps determine optimal reminder timing. Check out the[ **Time from Share to Event report**](https://my.extole.com/reports?client_id=1063468100&category=performance%20%26%20metrics&report_type=rcsj191hf57dupjihv45#/) to get this data.
+  * **Time to Convert** : Average time from the initial Share Email to Friend conversion. Helps determine optimal reminder timing. Check out the[ **Time from Share to Event report**](<https://my.extole.com/reports?client_id=1063468100&category=performance%20%26%20metrics&report_type=rcsj191hf57dupjihv45#/>) to get this data.
 
 
 
@@ -144,4 +144,4 @@ To optimize Share and Reminder emails, test:
 
 
 
-All A/B testing elements above can be edited directly in the **[Campaign Editor](https://my.extole.com/campaign/edit/?client_id=1063468100#/7582302493940773838/assets/7582302504121932494)**. To learn more, check out our **[A/B Testing Guide](https://docs.extole.com/docs/a-b-testing-your-campaign)**.
+All A/B testing elements above can be edited directly in the **[Campaign Editor](<https://my.extole.com/campaign/edit/?client_id=1063468100#/7582302493940773838/assets/7582302504121932494>)**. To learn more, check out our **[A/B Testing Guide](<https://success.extole.com/en/articles/10772146-a-b-testing-your-campaign>)**.

@@ -2,51 +2,74 @@
 title: "Advocate Invite Email"
 ---
 
-
 ## **Overview**
 
 The Advocate Invite Email is a promotional message used to invite people to join your referral program. It's designed to introduce the value of participating and encourage recipients to start sharing.
 
- ![](https://downloads.intercomcdn.com/i/o/syy27wia/1800920247/026277f3296d041422f8225da0a4/image.png?expires=1778306400&signature=157a042bfebd712edf952c336f09f11abe1e562d75497d04dfaabd76d0aace93&req=dSgnFsB8nYNbXvMW3nq%2BgWke5AjhNSDmTksUCTsIEFxWjUSp%2FolreerKGz9W%0ApaOo%2BDGBjdlmRtBkXGNapRRfECQ%3D%0A)
+![](https://files.readme.io/371402d953778575d4ee966a82abec9bfee9c6dbe6812883db9a36f50630ae99-e3e99d51_image.png)
 
 ## **When to Send an Advocate Invite Email**
 
-**The best practice is to trigger this email when you launch your referral program**, inviting your existing customers to become advocates and start referring right away. This helps jump-start participation, build early momentum, and ensure the program's high visibility from day one.
+**The best practice is to trigger this email when you launch your referral program** , inviting your existing customers to become advocates and start referring right away. This helps jump-start participation, build early momentum, and ensure the program's high visibility from day one.
 
 You can also send this email periodically to drive ongoing awareness, re-engage potential advocates, and grow referral participation over time.
 
-**Ready to get started?** Learn here how to **[Add an Promotional Email](doc:add-a-promotion-onsite-call-to-action-or-marketing-email)** and then **[Upload and Email an Audience](doc:upload-and-email-an-audience)**.
+**Ready to get started?** Learn here how to **[Add an Promotional Email](<https://success.extole.com/en/articles/11932190-add-a-promotion-onsite-call-to-action-or-marketing-email?q=add+a+cta>)** and then **[Upload and Email an Audience](<https://success.extole.com/en/articles/10772043-upload-and-email-an-audience>)**. 
 
 ## **Key Metrics**
 
 The Invite Email is tracked in the **Email Stats Report** and also appears as a **Promotional Source** in your dashboard, allowing you to see how many shares it generates.
 
-- **Open Rate**: First impression emails often perform well with clear value props and brand recognition
-- **Share rate**: Measures how many recipients become active Advocates after receiving the invite
+  * **Open Rate** : First impression emails often perform well with clear value props and brand recognition
+
+  * **Share rate** : Measures how many recipients become active Advocates after receiving the invite
+
+
+
 
 ## **Best Practices**
 
-- Lead with a **strong value** proposition: highlight what’s in it for the advocate
-- Be **clear** and concise: explain what the program is and how to get started
-- Include a **clear CTA**: link to a landing page or sharing experience
-- **Match tone** to your brand: keep messaging aligned with other campaign communications
+  * Lead with a **strong value** proposition: highlight what’s in it for the advocate
+
+  * Be **clear** and concise: explain what the program is and how to get started
+
+  * Include a**clear CTA** : link to a landing page or sharing experience
+
+  * **Match tone** to your brand: keep messaging aligned with other campaign communications
+
+
+
 
 ## **Editable Elements in Extole**
 
 In Extole, you can edit:
 
-- **Subject line and headline**: Tailor to reflect urgency, exclusivity, or benefits
-- **Body copy**: Customize the invitation message and referral program overview
-- **CTAs**: Link directly to the Advocate experience or sign-up flow
-- **Visuals**: Add logos, banners, or program-related imagery
-- **Reward name**: Clearly communicate what advocates can earn for participating
+  * **Subject line and headline** : Tailor to reflect urgency, exclusivity, or benefits
+
+  * **Body copy** : Customize the invitation message and referral program overview
+
+  * **CTAs** : Link directly to the Advocate experience or sign-up flow
+
+  * **Visuals** : Add logos, banners, or program-related imagery
+
+  * **Reward name** : Clearly communicate what advocates can earn for participating
+
+
+
 
 ## **Testing and Optimization**
 
-- **Subject line**: Test urgency, personalization, or value-first approaches
-- **Headline**: “Join and earn” vs. “Start referring” style messages
-- **Body copy**: Short vs. detailed introductions
-- **CTA**: Placement, button label, and destination
-- **Visuals**: Branded banners or benefit-focused imagery
+  * **Subject line** : Test urgency, personalization, or value-first approaches
 
-By testing regularly, you’ll discover what clicks with your audience and keep improving your program to drive more—and better—referral traffic. **[See more tips for optimization here](doc:optimizing-your-referral-program)** [.](doc:optimizing-your-referral-program)
+  * **Headline** : “Join and earn” vs. “Start referring” style messages
+
+  * **Body copy** : Short vs. detailed introductions
+
+  * **CTA** : Placement, button label, and destination
+
+  * **Visuals** : Branded banners or benefit-focused imagery
+
+
+
+
+By testing regularly, you’ll discover what clicks with your audience and keep improving your program to drive more—and better—referral traffic. **[See more tips for optimization here](<https://success.extole.com/en/articles/10772142-optimizing-your-referral-program>)**[.](<https://success.extole.com/en/articles/10772142-optimizing-your-referral-program>)

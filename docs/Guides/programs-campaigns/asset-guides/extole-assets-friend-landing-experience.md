@@ -18,7 +18,7 @@ A branded overlay that appears directly on your website.
 
 **Best for:** Simple flows with a clear reward and single CTA.
 
-![](https://files.readme.io/e0fed79b014ba8f9ef01e89cd2d06d251c0ea4b360d47fc810d5207698333704-94411d0d_a170020c-b09b-4072-995d-19a10ba667fc.png)
+![](https://files.readme.io/dc72345c32d50a2993b8a8ff44cc78178c62686f021f24650d049f6630e9ea6f-94411d0d_a170020c-b09b-4072-995d-19a10ba667fc.png)
 
 ## **Friend Landing Microsite**
 
@@ -37,7 +37,7 @@ A full, standalone page hosted by Extole.
 
 
 
-![](https://files.readme.io/b4451148768daf94a520a2aaa87b154a1c67ef47a7d7e0a7ad4bd036e916c7f3-4e268657_02044ab6-2d8d-45b6-a5dd-8d4c62b8e8ea.png)
+![](https://files.readme.io/b4a9474bdb8dd2757ce567136b24f082bb0a1493c24ec0ca50732e0dc31bbc23-4e268657_02044ab6-2d8d-45b6-a5dd-8d4c62b8e8ea.png)
 
 ## **Embedded Experience**
 
@@ -45,7 +45,7 @@ A fully on-site experience where you manage branding directly while Extole captu
 
 **Best for:** Brands that want the most integrated, on-brand experience.
 
-![](https://files.readme.io/92f56504fd302fba0a58ea91de8daa780dfb55251a29510f377bba7d034305ad-6ff3b1eb_574e447c-5914-496c-8706-a122abca58b6.png)
+![](https://files.readme.io/c5d9fdb6d5454da82e9650069c399dfc5b16732866b8d180632c6cbcb3824312-6ff3b1eb_574e447c-5914-496c-8706-a122abca58b6.png)
 
 # **Coupon Code Display Options**
 

@@ -6,7 +6,7 @@ title: "Welcome Email"
 
 The **Welcome Email** is the first automated email an advocate receives after their **first share** through your referral program. It welcomes them to the program, reinforces the value of participating, and provides the key information they need to keep sharing.
 
-![](https://files.readme.io/d340d84a0dd03223912dd9b7f6928cdf7077fd77d3e44ab4ced7b5cedddd0eef-7eefb506_e9091ff2-dc2d-4f10-b9c9-88c626614c7e.png)
+![](https://files.readme.io/06ac01fce41a13358b2528b14dff1caa1320318f4e2c078cf269a0415e89e719-7eefb506_e9091ff2-dc2d-4f10-b9c9-88c626614c7e.png)
 
 # Key Metrics
 
@@ -65,4 +65,4 @@ In Extole, you can edit:
 
 
 
-Ongoing testing helps uncover what resonates with your audience and enables you to continually optimize for both the volume and quality of referral traffic. Check out more ideas for **[optimizing your program here](https://docs.extole.com/docs/optimizing-your-referral-program)**.
+Ongoing testing helps uncover what resonates with your audience and enables you to continually optimize for both the volume and quality of referral traffic. Check out more ideas for **[optimizing your program here](<https://success.extole.com/en/articles/10772142-optimizing-your-referral-program>)**.
