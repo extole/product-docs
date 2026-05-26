@@ -35,7 +35,7 @@ Confirm the Advocate experience functions as expected from click to share.
 
   * Confirm the member can share through all enabled channels like email, SMS, messenger, etc
 
-  * Confirm the existing member receives the **[Welcome Email](https://docs.extole.com/docs/extole-assets-welcome-email)** after their first share (if enabled).
+  * Confirm the existing member receives the **[Welcome Email](https://docs.extole.com/docs/welcome-email-asset-guide)** after their first share (if enabled).
 
 
 
@@ -59,7 +59,7 @@ Validate the referred Friend journey from referral click through reward fulfillm
 
 If email capture is required:
 
-  * Confirm Friends can complete email capture through the **[Friend Landing Experience](https://docs.extole.com/docs/extole-assets-friend-landing-experience)**. 
+  * Confirm Friends can complete email capture through the **[Friend Landing Experience](https://docs.extole.com/docs/friend-landing-experience-asset-guide)**. 
 
   * Confirm email capture fires the appropriate application or signup tag in Extole’s Event Live View.
 
@@ -78,7 +78,7 @@ If email capture is required:
 
     * Attributed events visible in Events Live View
 
-  * Confirm **[Pending Reward Emails](https://docs.extole.com/docs/extole-assets-pending-reward-email)** are successfully delivered (if applicable)
+  * Confirm **[Pending Reward Emails](https://docs.extole.com/docs/pending-reward-email-asset-guide)** are successfully delivered (if applicable)
 
 
 
@@ -89,7 +89,7 @@ If email capture is required:
 
   * Validate that high-quality rules are applied correctly, if applicable.
 
-  * Confirm **[Earned Reward Emails](https://docs.extole.com/docs/extole-assets-earned-reward-emails)** are successfully delivered.
+  * Confirm **[Earned Reward Emails](https://docs.extole.com/docs/earned-reward-emails-asset-guide)** are successfully delivered.
 
   * Verify rewards are visible in My.Extole reports.
 
