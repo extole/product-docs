@@ -123,11 +123,11 @@ The API Zone Endpoints are intended for direct API integrations. They are typica
 
 A consumer access token has one of three identity levels. Each level is a function of what Extole knows about the participant.
 
-| Level          | What it can do                                                                                                                                                                                                                         |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Anonymous**  | Device-only token. Records journey activity without an identity profile.                                                                                                                                                               |
-| **Identified** | The token is associated with an email address or `partner_user_id`. Can add journey information to the identity profile; cannot modify profile properties or read private profile data (name, friend information, reward information). |
-| **Verified**   | Carries the `VERIFIED_CONSUMER` scope. Identity has been confirmed. Full access to the profile, including the ability to update profile properties.                                                                                    |
+| Level          | What it can do                                                                                                                                                                                                                                                                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Anonymous**  | Device-only token. Records journey activity without an identity profile.                                                                                                                                                                                                                                                                    |
+| **Identified** | The token is associated with an email address or `partner_user_id`. Can add journey information to the identity profile; cannot modify profile properties or read private profile data (last name, friend information, reward information). _Note: first name is considered public information and can be read from an identified profile._ |
+| **Verified**   | Carries the `VERIFIED_CONSUMER` scope. Identity has been confirmed. Full access to the profile, including the ability to update profile properties.                                                                                                                                                                                         |
 
 A token is upgraded through the lifecycle as identity is established. The most common upgrade path: anonymous to identified (event carries `email`) to verified (one of the verification methods below).
 
@@ -153,7 +153,7 @@ curl https://acme.extole.io/v6/zones/refer_a_friend \
   -H "X-Extole-Jwt: eyJhbGciOiJIUzI1NiIsImtpZCI6ImJyYW5kLWtleS0yMDI2In0..."
 ```
 
-**The `kid` header.** Every JWT must include a `kid` (key ID) header that matches the Partner Key ID set on the corresponding key in My Extole. Extole uses `kid` to identify which key to use for verification or decryption.
+**The&#x20;**`kid`**&#x20;header.** Every JWT must include a `kid` (key ID) header that matches the Partner Key ID set on the corresponding key in My Extole. Extole uses `kid` to identify which key to use for verification or decryption.
 
 **Signing keys.** Two key types are supported:
 
