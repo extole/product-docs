@@ -1,5 +1,5 @@
 ---
-title: "extole-assets-earned-reward-emails"
+title: "Earned Reward Emails"
 ---
 
 # Overview

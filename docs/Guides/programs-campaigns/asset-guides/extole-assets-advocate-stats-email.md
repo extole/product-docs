@@ -1,5 +1,5 @@
 ---
-title: "extole-assets-advocate-stats-email"
+title: "Advocate Stats Email"
 ---
 
 

@@ -1,5 +1,5 @@
 ---
-title: "extole-assets-advocate-invite-email"
+title: "Advocate Invite Email"
 ---
 
 

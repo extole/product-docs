@@ -1,5 +1,5 @@
 ---
-title: "extole-assets-pending-reward-email"
+title: "Pending Reward Email"
 ---
 
 

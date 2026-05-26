@@ -1,5 +1,5 @@
 ---
-title: "extole-assets-friend-landing-experience"
+title: "Friend Landing Experience"
 ---
 
 # Overview: 

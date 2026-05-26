@@ -1,5 +1,5 @@
 ---
-title: "extole-assets-welcome-email"
+title: "Welcome Email"
 ---
 
 # Overview

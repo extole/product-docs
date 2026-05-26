@@ -1,5 +1,5 @@
 ---
-title: "extole-assets-share-email-reminder"
+title: "Share Email Reminder"
 ---
 
 # **Overview**
