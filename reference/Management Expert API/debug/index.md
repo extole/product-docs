@@ -1,4 +1,0 @@
----
-title: Debug
-hidden: false
----
