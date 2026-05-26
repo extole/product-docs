@@ -1,21 +1,14 @@
 ---
-title: Webhooks
-slug: webhooks
+title: "Webhooks"
 excerpt: "Webhooks can be seen as the key building blocks of applications, allowing systems to exchange data in real-time in response to events. They act as the modern, web-oriented way for servers to receive notifications from other servers. Now, wh…"
-category: getting-started
-hidden: false
-intercom_source_id: 10772073
-intercom_source_url: https://success.extole.com/en/articles/10772073-webhooks
-parentDoc: getting-started
-intercom_collection: Getting Started
-intercom_sub_collection: Technical Items
+slug: webhooks
 ---
 
 # Overview
 
 Webhooks can be seen as the key building blocks of applications, allowing systems to exchange data in real-time in response to events. They act as the modern, web-oriented way for servers to receive notifications from other servers. Now, when an event happens on an Extole server, your own application, server, or platform that you integrate with can receive that event via a web request.
 
-Our new webhooks functionality allows Extole to send People and Event data directly to the **platform or system of your choice**, where you’ll be able to record and manage that information and perform actions upon the event's occurrence.
+Our new webhooks functionality allows Extole to send People and Event data directly to the **platform or system of your choice** , where you’ll be able to record and manage that information and perform actions upon the event's occurrence.
 
 [Read about integrating with Segment here](https://developer.extole.com/docs/segment-source-and-destination).
 
@@ -25,13 +18,20 @@ To enable this functionality, please reach out to your CSM, Implementation Manag
 
 Connect Extole with your favorite tools in just a few clicks, and supercharge the value and power of your data. Example use cases and types of Extole webhooks include:
 
-- **Shares**: Extole will notify your system when a successful advocate share is detected
-- **Registrations**: Extole will notify your system upon a successful registration
-- **Email Captures**: Extole will notify your system when an email capture is detected from a referred friend
-- **Conversions**: Extole will notify your system when a referral conversion event occurs
-- **Rewards**: Extole will notify your system when a reward has been earned
+  * **Shares** : Extole will notify your system when a successful advocate share is detected
 
-![Webhooks.jpeg](https://extole-5ef307a0e5b1.intercom-attachments-1.com/i/o/syy27wia/1421733801/a95f60183953d8defc8a78a82ddd/Webhooks.jpeg?expires=1778306400&signature=1fd616a568e0fe8cf30f1af2ae555125af890409de99126b7391ace3704763d8&req=dSQlF859nolfWPMW3nq%2BgUotL%2FTZIdNsuYWD7E8Ikr%2FTJhcLZhJhRP6f3uTR%0A4n15m5utQrcuQfFiYkdCuJVwYuE%3D%0A)
+  * **Registrations** : Extole will notify your system upon a successful registration
+
+  * **Email Captures** : Extole will notify your system when an email capture is detected from a referred friend
+
+  * **Conversions** : Extole will notify your system when a referral conversion event occurs
+
+  * **Rewards** : Extole will notify your system when a reward has been earned
+
+
+
+
+![Webhooks.jpeg](https://extole-5ef307a0e5b1.intercom-attachments-1.com/i/o/syy27wia/1421733801/a95f60183953d8defc8a78a82ddd/Webhooks.jpeg?expires=1779926400&signature=a7f6131a4bf95a898c90589618fe7c0d9a3c235f59e643a9b77bccb563a70237&req=dSQlF859nolfWPMW3nq%2BgUotL%2FTZINluuYWD7E8Ikr%2FVMhEb%2FeU3l3xZr3XT%0Af6lUYXUB579HI7Vyy2P%2FSfA6fhs%3D%0A)
 
 # Minimal setup
 
@@ -39,38 +39,38 @@ Webhooks require configuration within the Extole platform. You may configure you
 
 You need to provide the information required for the webhook to know where and how to send your data. At the most basic level, you can configure your webhooks by including:
 
-- The **webhook's name** - how we will refer to the webhook in My.Extole.
-- The **client key** - the secret (token for security) for the event you want to trigger the webhook for. Client Keys can be created by navigating to the [Security Center,](https://my.extole.com/security-center?) clicking [+ New Key,](https://my.extole.com/security-center?#add-new-security-key#security-keys) and selecting the Webhook option.
+  * The **webhook's name** \- how we will refer to the webhook in My.Extole.
 
-  - Supported secret types:
+  * The **client key** \- the secret (token for security) for the event you want to trigger the webhook for. Client Keys can be created by navigating to the [Security Center,](https://my.extole.com/security-center?) clicking [\+ New Key,](https://my.extole.com/security-center?#add-new-security-key#security-keys) and selecting the Webhook option.
 
-    - Password
+    * Supported secret types:
 
-```
-Authorization:Bearer <key>
-```
+      * Password
+            
+            Authorization:Bearer <key>
 
-    - HTTP_Basic
+      * HTTP_Basic
+            
+            Authorization:Basic <base64EncodedKey>
 
-```
-Authorization:Basic <base64EncodedKey>
-```
+      * HS256
+            
+            X-Extole-Signature:<hs_256_encoded_body_using_the_provided_key>
 
-    - HS256
+  * The **payload URL** \- the destination URL the webhook will POST to.
 
-```
-X-Extole-Signature:<hs_256_encoded_body_using_the_provided_key>
-```
+  * An optional **description** for your webhook.
 
-- The **payload URL** - the destination URL the webhook will POST to.
-- An optional **description** for your webhook.
-- Advanced Configuration is also optionally available to allow you more control over the structure and format of the data you’d like to receive in the **request**. If left undefined, the entire object will be POSTed as is.
+  * Advanced Configuration is also optionally available to allow you more control over the structure and format of the data you’d like to receive in the **request**. If left undefined, the entire object will be POSTed as is.
 
-  - If you need changes to the payload or to the events, please talk to your Solutions Architect. You can also let your Solutions Architect know what data you'd like to receive in the request and they can set this up for you.
+    * If you need changes to the payload or to the events, please talk to your Solutions Architect. You can also let your Solutions Architect know what data you'd like to receive in the request and they can set this up for you.
 
-![Screen_Shot_2021-03-19_at_1.52.57_PM.png](https://extole-5ef307a0e5b1.intercom-attachments-1.com/i/o/syy27wia/1421733805/6f71c92649d22bd523b0339c02c9/Screen_Shot_2021-03-19_at_1_52_57_PM.png?expires=1778306400&signature=2082c4e3180fb8e780aac22b9fd3a82b92c80f7918b165bb4263a16a31214175&req=dSQlF859nolfXPMW3nq%2BgT1Pnj%2FozEk%2F0AIwX4Oz07UozndafFfxHnAnlCE7%0A5eXV%2FCQOKoOcZ%2Fph8b5wswTDy1M%3D%0A)
 
-Once you toggle on **Enabled** and hit **Save**, your webhook is activated and you may start receiving your data in whatever endpoints you set up upon the event's occurrence.
+
+
+![Screen_Shot_2021-03-19_at_1.52.57_PM.png](https://extole-5ef307a0e5b1.intercom-attachments-1.com/i/o/syy27wia/1421733805/6f71c92649d22bd523b0339c02c9/Screen_Shot_2021-03-19_at_1_52_57_PM.png?expires=1779926400&signature=609e375ffec2c25581d57fb5b89634eae85d325b8e1fc911155e41bc72ee9110&req=dSQlF859nolfXPMW3nq%2BgT1Pnj%2FozUM90AIwX4Oz07UckBJ7psWKxehfxp0g%0AOy%2FRqBqI2YJQivc8ZsuGUamflZs%3D%0A)
+
+Once you toggle on**Enabled** and hit **Save** , your webhook is activated and you may start receiving your data in whatever endpoints you set up upon the event's occurrence.
 
 ## Retries
 
@@ -84,7 +84,7 @@ For each webhook, you can decide exactly what data should be leaving the platfor
 
 Once you’ve decided what data can be sent, you can then drill down into exactly what fields will be used. By mapping the data fields, you can have complete control over what data the external systems will get, and can see the exact JSON that will be sent by Extole.
 
-# Full Visibility
+# Full Visibility 
 
 You have complete control over what data is sent and where, and you can also see exactly what has been sent and when. The Webhook Live Event view in [Tech Center](https://my.extole.com/tech-center) > [Outbound Webhooks](https://my.extole.com/tech-center/outbound-webhooks) lets you track all webhook attempts and their status (including response code and message), making it easier to monitor and debug.
 
