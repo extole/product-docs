@@ -1199,8 +1199,8 @@
               "type": "string",
               "enum": [
                 "DAY",
-                "WEEK",
-                "MONTH"
+                "MONTH",
+                "WEEK"
               ]
             }
           },
@@ -5715,9 +5715,9 @@
               "items": {
                 "type": "string",
                 "enum": [
-                  "PUBLIC",
+                  "CLIENT",
                   "PRIVATE",
-                  "CLIENT"
+                  "PUBLIC"
                 ]
               }
             }
@@ -8012,8 +8012,8 @@
               "items": {
                 "type": "string",
                 "enum": [
-                  "FRIEND",
-                  "ADVOCATE"
+                  "ADVOCATE",
+                  "FRIEND"
                 ]
               }
             }
@@ -8329,11 +8329,11 @@
               "items": {
                 "type": "string",
                 "enum": [
-                  "MANUAL_COUPON",
-                  "SALESFORCE_COUPON",
-                  "TANGO_V2",
                   "CUSTOM_REWARD",
-                  "PAYPAL_PAYOUTS"
+                  "MANUAL_COUPON",
+                  "PAYPAL_PAYOUTS",
+                  "SALESFORCE_COUPON",
+                  "TANGO_V2"
                 ]
               }
             }
@@ -8346,13 +8346,13 @@
               "items": {
                 "type": "string",
                 "enum": [
-                  "EARNED",
-                  "FULFILLED",
-                  "SENT",
-                  "REDEEMED",
-                  "FAILED",
                   "CANCELED",
-                  "REVOKED"
+                  "EARNED",
+                  "FAILED",
+                  "FULFILLED",
+                  "REDEEMED",
+                  "REVOKED",
+                  "SENT"
                 ]
               }
             }
@@ -11124,14 +11124,14 @@
               "items": {
                 "type": "string",
                 "enum": [
-                  "PENDING",
-                  "QUEUED",
-                  "IN_PROGRESS",
+                  "CANCELED",
                   "DISPATCHING",
                   "DONE",
+                  "EXPIRED",
                   "FAILED",
-                  "CANCELED",
-                  "EXPIRED"
+                  "IN_PROGRESS",
+                  "PENDING",
+                  "QUEUED"
                 ]
               }
             }
@@ -15023,9 +15023,9 @@
             "type": "string",
             "description": "Authentication shape backing the token. `USER` represents a human dashboard user, `MANAGED` an OAuth-style managed identity, and `RESOURCE` a scoped per-resource token.",
             "enum": [
-              "USER",
               "MANAGED",
-              "RESOURCE"
+              "RESOURCE",
+              "USER"
             ]
           },
           "access_token": {
@@ -15053,15 +15053,15 @@
               "type": "string",
               "description": "Authorization scopes granted to this token. Determines which API operations the token may invoke.",
               "enum": [
-                "CLIENT_SUPERUSER",
+                "BACKEND",
                 "CLIENT_ADMIN",
-                "USER_SUPPORT",
-                "VERIFIED_CONSUMER",
-                "UPDATE_PROFILE",
+                "CLIENT_REPORT_DOWNLOAD",
+                "CLIENT_SUPERUSER",
                 "ONE_TIME",
                 "PASSWORD_RESET",
-                "BACKEND",
-                "CLIENT_REPORT_DOWNLOAD"
+                "UPDATE_PROFILE",
+                "USER_SUPPORT",
+                "VERIFIED_CONSUMER"
               ]
             }
           },
@@ -15074,6 +15074,13 @@
         "description": "Access-token metadata returned by `POST /v4/tokens`, `POST /v4/tokens/openid-connect/authorization-code-flow`, `GET /v4/tokens`, `GET /v4/tokens/{token}`, and `PUT /v4/tokens/exchange/{token}`. Pass `access_token` in the `Authorization` header (`Bearer ...`) on subsequent requests."
       },
       "AccessTokenCreationRequest": {
+        "required": [
+          "client_id",
+          "duration_seconds",
+          "email",
+          "password",
+          "scopes"
+        ],
         "type": "object",
         "properties": {
           "client_id": {
@@ -15096,15 +15103,15 @@
               "type": "string",
               "description": "Subset of the calling identity's scopes to grant on the new token. Must be a strict subset; requesting a privilege the caller does not hold returns `403 scopes_denied` with the offending scopes in `denied_scopes`. Omit to mirror the caller's scopes.",
               "enum": [
-                "CLIENT_SUPERUSER",
+                "BACKEND",
                 "CLIENT_ADMIN",
-                "USER_SUPPORT",
-                "VERIFIED_CONSUMER",
-                "UPDATE_PROFILE",
+                "CLIENT_REPORT_DOWNLOAD",
+                "CLIENT_SUPERUSER",
                 "ONE_TIME",
                 "PASSWORD_RESET",
-                "BACKEND",
-                "CLIENT_REPORT_DOWNLOAD"
+                "UPDATE_PROFILE",
+                "USER_SUPPORT",
+                "VERIFIED_CONSUMER"
               ]
             }
           },
@@ -15117,14 +15124,19 @@
         "description": "Optional body for `POST /v4/tokens`. Omit the body entirely to mirror the calling identity's scopes; supply a body to bind the new token to a specific `client_id`, narrow its `scopes`, override the default lifetime via `duration_seconds`, or authenticate with email/password credentials in lieu of a calling token."
       },
       "PersonBlockResponse": {
+        "required": [
+          "reason",
+          "type",
+          "updated_date"
+        ],
         "type": "object",
         "properties": {
           "type": {
             "type": "string",
             "description": "Current block scope. `EVENTS` means event participation is blocked, `REWARDS` means reward fulfilment is blocked, `NONE` means unblocked.",
             "enum": [
-              "NONE",
               "EVENTS",
+              "NONE",
               "REWARDS"
             ]
           },
@@ -15140,14 +15152,18 @@
         }
       },
       "PersonBlockRequest": {
+        "required": [
+          "reason",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "type": {
             "type": "string",
             "description": "Block scope. `EVENTS` blocks event participation, `REWARDS` blocks reward fulfilment, `NONE` removes any existing block.",
             "enum": [
-              "NONE",
               "EVENTS",
+              "NONE",
               "REWARDS"
             ]
           },
@@ -15158,11 +15174,20 @@
         }
       },
       "PersonDataResponse": {
+        "required": [
+          "created_date",
+          "id",
+          "name",
+          "scope",
+          "updated_date",
+          "value"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Extole-assigned unique identifier for this data parameter entry."
+            "description": "Extole-assigned unique identifier for this data parameter entry.",
+            "readOnly": true
           },
           "name": {
             "type": "string",
@@ -15172,9 +15197,9 @@
             "type": "string",
             "description": "Visibility scope of the data parameter.",
             "enum": [
-              "PUBLIC",
+              "CLIENT",
               "PRIVATE",
-              "CLIENT"
+              "PUBLIC"
             ]
           },
           "value": {
@@ -15194,6 +15219,10 @@
         }
       },
       "PersonDataCreateRequest": {
+        "required": [
+          "name",
+          "value"
+        ],
         "type": "object",
         "properties": {
           "name": {
@@ -15204,16 +15233,17 @@
             "type": "string",
             "description": "Visibility scope of the data parameter. Defaults to PRIVATE when omitted.",
             "enum": [
-              "PUBLIC",
+              "CLIENT",
               "PRIVATE",
-              "CLIENT"
+              "PUBLIC"
             ]
           },
           "value": {
             "type": "object",
             "description": "Value to store for the data parameter."
           }
-        }
+        },
+        "description": "Body of a `POST /v5/persons/{person_id}/data` request."
       },
       "PersonDataUpdateRequest": {
         "type": "object",
@@ -15222,23 +15252,33 @@
             "type": "string",
             "description": "Visibility scope of the data parameter. Omit to leave unchanged.",
             "enum": [
-              "PUBLIC",
+              "CLIENT",
               "PRIVATE",
-              "CLIENT"
+              "PUBLIC"
             ]
           },
           "value": {
             "type": "object",
             "description": "Value stored for the data parameter. Omit to leave unchanged."
           }
-        }
+        },
+        "description": "Body of a `PUT /v5/persons/{person_id}/data/{name}` request."
       },
       "PersonResponse": {
+        "required": [
+          "id",
+          "identity_id",
+          "identity_key",
+          "identity_key_value",
+          "locale",
+          "version"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Extole-assigned unique identifier for this person."
+            "description": "Extole-assigned unique identifier for this person.",
+            "readOnly": true
           },
           "identity_id": {
             "type": "string",
@@ -15272,6 +15312,9 @@
         "description": "Request body for creating or updating a person profile."
       },
       "PersonForwardRequest": {
+        "required": [
+          "forward_to_profile_id"
+        ],
         "type": "object",
         "properties": {
           "forward_to_profile_id": {
@@ -15281,11 +15324,23 @@
         }
       },
       "PersonJourneyResponse": {
+        "required": [
+          "campaign_id",
+          "container",
+          "created_date",
+          "data",
+          "id",
+          "key",
+          "name",
+          "program",
+          "updated_date"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Extole-assigned unique identifier for this journey entry."
+            "description": "Extole-assigned unique identifier for this journey entry.",
+            "readOnly": true
           },
           "name": {
             "type": "string",
@@ -15326,18 +15381,32 @@
         }
       },
       "PersonRelationshipResponse": {
+        "required": [
+          "campaign_id",
+          "cause_event_id",
+          "container",
+          "created_date",
+          "data",
+          "id",
+          "my_role",
+          "other_person_id",
+          "program",
+          "root_event_id",
+          "updated_date"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Extole-assigned unique identifier for this relationship."
+            "description": "Extole-assigned unique identifier for this relationship.",
+            "readOnly": true
           },
           "my_role": {
             "type": "string",
             "description": "This person's role in the relationship (`ADVOCATE` or `FRIEND`).",
             "enum": [
-              "FRIEND",
-              "ADVOCATE"
+              "ADVOCATE",
+              "FRIEND"
             ]
           },
           "other_person_id": {
@@ -15384,39 +15453,35 @@
         }
       },
       "IdentityLogResponse": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "description": "Type of identity event (`IDENTITY_SHIFT` or `SPLIT_LOSER`).",
-            "enum": [
-              "IDENTITY_SHIFT",
-              "SPLIT_LOSER"
-            ]
-          },
-          "old_identity_key_name": {
-            "type": "string",
-            "description": "Name of the identity key before the change. Absent if not applicable."
-          },
-          "old_identity_key_value": {
-            "type": "string",
-            "description": "Value of the identity key before the change. Absent if not applicable."
-          },
-          "log_date": {
-            "type": "string",
-            "description": "Timestamp when this identity event occurred. Absent for older entries.",
-            "format": "date-time"
-          }
-        },
+        "required": [
+          "log_date",
+          "old_identity_key_name",
+          "old_identity_key_value",
+          "type"
+        ],
         "discriminator": {
           "propertyName": "type",
           "mapping": {
             "IDENTITY_SHIFT": "#/components/schemas/PersonIdentityShapeShiftResponse",
             "SPLIT_LOSER": "#/components/schemas/PersonIdentityHistoryResponse"
           }
-        }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PersonIdentityShapeShiftResponse"
+          },
+          {
+            "$ref": "#/components/schemas/PersonIdentityHistoryResponse"
+          }
+        ]
       },
       "PersonMembershipResponse": {
+        "required": [
+          "audience_id",
+          "audience_name",
+          "created_date",
+          "updated_date"
+        ],
         "type": "object",
         "properties": {
           "audience_id": {
@@ -15440,6 +15505,17 @@
         }
       },
       "PersonLocationResponse": {
+        "required": [
+          "accuracy_radius_km",
+          "city",
+          "country",
+          "created_date",
+          "device_id",
+          "ip_address",
+          "location",
+          "state",
+          "zip_code"
+        ],
         "type": "object",
         "properties": {
           "ip_address": {
@@ -15479,11 +15555,36 @@
         }
       },
       "PersonRewardResponse": {
+        "required": [
+          "campaign_id",
+          "container",
+          "created_date",
+          "data",
+          "earned_date",
+          "expiry_date",
+          "face_value",
+          "face_value_type",
+          "id",
+          "journey_key",
+          "journey_name",
+          "name",
+          "partner_reward_id",
+          "partner_reward_supplier_id",
+          "program",
+          "redeemed_date",
+          "reward_supplier_id",
+          "sandbox",
+          "state",
+          "tags",
+          "updated_date",
+          "value_of_rewarded_event"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Extole-assigned unique identifier for this reward."
+            "description": "Extole-assigned unique identifier for this reward.",
+            "readOnly": true
           },
           "program": {
             "type": "string",
@@ -15513,24 +15614,24 @@
             "type": "string",
             "description": "Unit type of the face value (e.g. `CASH`, `POINTS`, `PERCENT`).",
             "enum": [
-              "PERCENT_OFF",
-              "POINTS",
-              "MONTH",
-              "USD",
-              "GBP",
-              "EUR",
-              "JPY",
-              "CNY",
-              "CAD",
               "AUD",
               "BRL",
+              "CAD",
+              "CNY",
+              "EUR",
+              "GBP",
+              "HKD",
               "INR",
-              "NZD",
-              "MXN",
+              "JPY",
               "KRW",
-              "TWD",
+              "MONTH",
+              "MXN",
+              "NZD",
+              "PERCENT_OFF",
+              "POINTS",
               "TRY",
-              "HKD"
+              "TWD",
+              "USD"
             ]
           },
           "partner_reward_id": {
@@ -15553,13 +15654,13 @@
             "type": "string",
             "description": "Current lifecycle state of the reward.",
             "enum": [
-              "EARNED",
-              "FULFILLED",
-              "SENT",
-              "REDEEMED",
-              "FAILED",
               "CANCELED",
-              "REVOKED"
+              "EARNED",
+              "FAILED",
+              "FULFILLED",
+              "REDEEMED",
+              "REVOKED",
+              "SENT"
             ]
           },
           "tags": {
@@ -15612,11 +15713,26 @@
         }
       },
       "PersonShareResponse": {
+        "required": [
+          "campaign_id",
+          "channel",
+          "created_date",
+          "data",
+          "id",
+          "link",
+          "message",
+          "other_person_id",
+          "partner_id",
+          "program",
+          "shareable_code",
+          "subject"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Extole-assigned unique identifier for this share."
+            "description": "Extole-assigned unique identifier for this share.",
+            "readOnly": true
           },
           "program": {
             "type": "string",
@@ -15668,6 +15784,16 @@
         }
       },
       "PersonShareableResponse": {
+        "required": [
+          "code",
+          "content",
+          "created_date",
+          "data",
+          "key",
+          "label",
+          "link",
+          "updated_date"
+        ],
         "type": "object",
         "properties": {
           "code": {
@@ -15709,6 +15835,9 @@
         }
       },
       "PersonShareableCreateRequest": {
+        "required": [
+          "label"
+        ],
         "type": "object",
         "properties": {
           "label": {
@@ -15732,16 +15861,19 @@
           "program_url": {
             "type": "string"
           }
-        }
+        },
+        "description": "Body of a `POST /v5/persons/{person_id}/shareables` request."
       },
       "PersonShareableUpdateRequest": {
         "type": "object",
         "properties": {
           "label": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "key": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "content": {
             "$ref": "#/components/schemas/PersonShareableContentRequest"
@@ -15755,14 +15887,35 @@
           "program_url": {
             "type": "string"
           }
-        }
+        },
+        "description": "Body of a `PUT /v5/persons/{person_id}/shareables/{code : .+}` request."
       },
       "PersonStepResponse": {
+        "required": [
+          "campaign_id",
+          "cause_event_id",
+          "container",
+          "created_date",
+          "data",
+          "event_date",
+          "event_id",
+          "id",
+          "is_primary",
+          "journey_key",
+          "journey_name",
+          "name",
+          "program",
+          "quality",
+          "root_event_id",
+          "scope",
+          "updated_date"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Extole-assigned unique identifier for this step."
+            "description": "Extole-assigned unique identifier for this step.",
+            "readOnly": true
           },
           "name": {
             "type": "string",
@@ -15792,9 +15945,9 @@
             "type": "string",
             "description": "Scope of the step (`GLOBAL` or `JOURNEY`).",
             "enum": [
-              "PUBLIC",
+              "CLIENT",
               "PRIVATE",
-              "CLIENT"
+              "PUBLIC"
             ]
           },
           "event_date": {
@@ -15846,6 +15999,29 @@
         }
       },
       "RewardResponse": {
+        "required": [
+          "action_id",
+          "campaign_id",
+          "cause_event_id",
+          "container",
+          "created_at",
+          "data",
+          "email",
+          "face_value",
+          "face_value_type",
+          "journey_key",
+          "journey_name",
+          "partner_reward_id",
+          "partner_reward_key_type",
+          "partner_reward_supplier_id",
+          "partner_user_id",
+          "person_id",
+          "reward_id",
+          "reward_supplier_id",
+          "root_event_id",
+          "sandbox",
+          "state"
+        ],
         "type": "object",
         "properties": {
           "reward_id": {
@@ -15876,8 +16052,8 @@
             "type": "string",
             "description": "Type of key used to identify the reward at the partner's system.",
             "enum": [
-              "ID",
               "COUPON",
+              "ID",
               "LINK"
             ]
           },
@@ -15901,13 +16077,13 @@
             "type": "string",
             "description": "Current lifecycle state of the reward.",
             "enum": [
-              "EARNED",
-              "FULFILLED",
-              "SENT",
-              "REDEEMED",
-              "FAILED",
               "CANCELED",
-              "REVOKED"
+              "EARNED",
+              "FAILED",
+              "FULFILLED",
+              "REDEEMED",
+              "REVOKED",
+              "SENT"
             ]
           },
           "face_value": {
@@ -15918,24 +16094,24 @@
             "type": "string",
             "description": "Unit type of the face value (e.g. `CASH`, `POINTS`, `PERCENT`).",
             "enum": [
-              "PERCENT_OFF",
-              "POINTS",
-              "MONTH",
-              "USD",
-              "GBP",
-              "EUR",
-              "JPY",
-              "CNY",
-              "CAD",
               "AUD",
               "BRL",
+              "CAD",
+              "CNY",
+              "EUR",
+              "GBP",
+              "HKD",
               "INR",
-              "NZD",
-              "MXN",
+              "JPY",
               "KRW",
-              "TWD",
+              "MONTH",
+              "MXN",
+              "NZD",
+              "PERCENT_OFF",
+              "POINTS",
               "TRY",
-              "HKD"
+              "TWD",
+              "USD"
             ]
           },
           "partner_reward_id": {
@@ -15973,6 +16149,9 @@
         }
       },
       "CancelRewardRequest": {
+        "required": [
+          "message"
+        ],
         "type": "object",
         "properties": {
           "message": {
@@ -15982,6 +16161,12 @@
         }
       },
       "CanceledRewardStateResponse": {
+        "required": [
+          "created_at",
+          "message",
+          "operator_user_id",
+          "reward_id"
+        ],
         "type": "object",
         "properties": {
           "reward_id": {
@@ -16004,6 +16189,12 @@
         }
       },
       "FailedRewardStateResponse": {
+        "required": [
+          "created_at",
+          "message",
+          "operator_user_id",
+          "reward_id"
+        ],
         "type": "object",
         "properties": {
           "reward_id": {
@@ -16026,6 +16217,18 @@
         }
       },
       "FulfilledRewardStateResponse": {
+        "required": [
+          "amount",
+          "cost_code",
+          "created_at",
+          "face_value",
+          "face_value_type",
+          "message",
+          "operator_user_id",
+          "partner_reward_id",
+          "reward_id",
+          "success"
+        ],
         "type": "object",
         "properties": {
           "reward_id": {
@@ -16052,24 +16255,24 @@
             "type": "string",
             "description": "Face value type of the reward at time of fulfillment. Deprecated.",
             "enum": [
-              "PERCENT_OFF",
-              "POINTS",
-              "MONTH",
-              "USD",
-              "GBP",
-              "EUR",
-              "JPY",
-              "CNY",
-              "CAD",
               "AUD",
               "BRL",
+              "CAD",
+              "CNY",
+              "EUR",
+              "GBP",
+              "HKD",
               "INR",
-              "NZD",
-              "MXN",
+              "JPY",
               "KRW",
-              "TWD",
+              "MONTH",
+              "MXN",
+              "NZD",
+              "PERCENT_OFF",
+              "POINTS",
               "TRY",
-              "HKD"
+              "TWD",
+              "USD"
             ]
           },
           "created_at": {
@@ -16092,6 +16295,16 @@
         }
       },
       "RedeemedRewardStateResponse": {
+        "required": [
+          "cause_event_id",
+          "created_at",
+          "event_name",
+          "message",
+          "operator_user_id",
+          "partner_event_id",
+          "partner_reward_redeem_id",
+          "reward_id"
+        ],
         "type": "object",
         "properties": {
           "reward_id": {
@@ -16130,6 +16343,12 @@
         }
       },
       "RevokedRewardStateResponse": {
+        "required": [
+          "created_at",
+          "message",
+          "operator_user_id",
+          "reward_id"
+        ],
         "type": "object",
         "properties": {
           "reward_id": {
@@ -16152,6 +16371,15 @@
         }
       },
       "SentRewardStateResponse": {
+        "required": [
+          "created_at",
+          "email",
+          "message",
+          "operator_user_id",
+          "partner_reward_sent_id",
+          "reward_id",
+          "success"
+        ],
         "type": "object",
         "properties": {
           "reward_id": {
@@ -16186,19 +16414,26 @@
         }
       },
       "RewardStateResponse": {
+        "required": [
+          "created_at",
+          "message",
+          "operator_user_id",
+          "state_type",
+          "success"
+        ],
         "type": "object",
         "properties": {
           "state_type": {
             "type": "string",
             "description": "Lifecycle state type of this reward state transition.",
             "enum": [
-              "EARNED",
-              "FULFILLED",
-              "SENT",
-              "REDEEMED",
-              "FAILED",
               "CANCELED",
-              "REVOKED"
+              "EARNED",
+              "FAILED",
+              "FULFILLED",
+              "REDEEMED",
+              "REVOKED",
+              "SENT"
             ]
           },
           "message": {
@@ -16221,6 +16456,9 @@
         }
       },
       "RevokeRewardRequest": {
+        "required": [
+          "message"
+        ],
         "type": "object",
         "properties": {
           "message": {
@@ -16230,6 +16468,17 @@
         }
       },
       "RewardStateSummaryResponse": {
+        "required": [
+          "canceled",
+          "date_from",
+          "date_to",
+          "earned",
+          "failed",
+          "fulfilled",
+          "redeemed",
+          "revoked",
+          "sent"
+        ],
         "type": "object",
         "properties": {
           "date_from": {
@@ -16286,9 +16535,13 @@
             "type": "string",
             "description": "Sandbox identifier for the reward. Omit to leave the current value unchanged."
           }
-        }
+        },
+        "description": "Body of a `PUT /v2/rewards/{reward_id}` request."
       },
       "FailedRewardRequest": {
+        "required": [
+          "message"
+        ],
         "type": "object",
         "properties": {
           "message": {
@@ -16297,6 +16550,14 @@
         }
       },
       "FulfilledRewardRequest": {
+        "required": [
+          "cost_code",
+          "face_value",
+          "face_value_type",
+          "message",
+          "partner_reward_id",
+          "success"
+        ],
         "type": "object",
         "properties": {
           "partner_reward_id": {
@@ -16311,24 +16572,24 @@
           "face_value_type": {
             "type": "string",
             "enum": [
-              "PERCENT_OFF",
-              "POINTS",
-              "MONTH",
-              "USD",
-              "GBP",
-              "EUR",
-              "JPY",
-              "CNY",
-              "CAD",
               "AUD",
               "BRL",
+              "CAD",
+              "CNY",
+              "EUR",
+              "GBP",
+              "HKD",
               "INR",
-              "NZD",
-              "MXN",
+              "JPY",
               "KRW",
-              "TWD",
+              "MONTH",
+              "MXN",
+              "NZD",
+              "PERCENT_OFF",
+              "POINTS",
               "TRY",
-              "HKD"
+              "TWD",
+              "USD"
             ]
           },
           "success": {
@@ -16340,6 +16601,15 @@
         }
       },
       "FulfilledAndSentRewardRequest": {
+        "required": [
+          "cost_code",
+          "email",
+          "face_value",
+          "face_value_type",
+          "message",
+          "partner_reward_id",
+          "partner_reward_sent_id"
+        ],
         "type": "object",
         "properties": {
           "partner_reward_id": {
@@ -16357,24 +16627,24 @@
           "face_value_type": {
             "type": "string",
             "enum": [
-              "PERCENT_OFF",
-              "POINTS",
-              "MONTH",
-              "USD",
-              "GBP",
-              "EUR",
-              "JPY",
-              "CNY",
-              "CAD",
               "AUD",
               "BRL",
+              "CAD",
+              "CNY",
+              "EUR",
+              "GBP",
+              "HKD",
               "INR",
-              "NZD",
-              "MXN",
+              "JPY",
               "KRW",
-              "TWD",
+              "MONTH",
+              "MXN",
+              "NZD",
+              "PERCENT_OFF",
+              "POINTS",
               "TRY",
-              "HKD"
+              "TWD",
+              "USD"
             ]
           },
           "message": {
@@ -16386,6 +16656,10 @@
         }
       },
       "RedeemedRewardRequest": {
+        "required": [
+          "message",
+          "partner_reward_redeem_id"
+        ],
         "type": "object",
         "properties": {
           "partner_reward_redeem_id": {
@@ -16397,6 +16671,11 @@
         }
       },
       "SentRewardRequest": {
+        "required": [
+          "message",
+          "partner_reward_sent_id",
+          "success"
+        ],
         "type": "object",
         "properties": {
           "partner_reward_sent_id": {
@@ -16411,114 +16690,70 @@
         }
       },
       "SftpDestinationResponse": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "EXTERNAL",
-              "LOCAL"
-            ]
-          },
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "partner_key_id": {
-            "type": "string"
-          },
-          "extole_key_id": {
-            "type": "string"
-          },
-          "dropbox_path": {
-            "type": "string"
-          },
-          "host": {
-            "type": "string"
-          },
-          "port": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "created_date": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_date": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
         "discriminator": {
           "propertyName": "type",
           "mapping": {
             "EXTERNAL": "#/components/schemas/ExternalSftpDestinationResponse",
             "LOCAL": "#/components/schemas/LocalSftpDestinationResponse"
           }
-        }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ExternalSftpDestinationResponse"
+          },
+          {
+            "$ref": "#/components/schemas/LocalSftpDestinationResponse"
+          }
+        ]
       },
       "SftpDestinationCreateRequest": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "EXTERNAL",
-              "LOCAL"
-            ]
-          },
-          "name": {
-            "type": "string"
-          },
-          "partner_key_id": {
-            "type": "string"
-          },
-          "extole_key_id": {
-            "type": "string"
-          }
-        },
+        "required": [
+          "type"
+        ],
+        "description": "Body of a `POST /v6/sftp-destinations` request.",
         "discriminator": {
           "propertyName": "type",
           "mapping": {
             "EXTERNAL": "#/components/schemas/ExternalSftpDestinationCreateRequest",
             "LOCAL": "#/components/schemas/LocalSftpDestinationCreateRequest"
           }
-        }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ExternalSftpDestinationCreateRequest"
+          },
+          {
+            "$ref": "#/components/schemas/LocalSftpDestinationCreateRequest"
+          }
+        ]
       },
       "SftpDestinationUpdateRequest": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "EXTERNAL",
-              "LOCAL"
-            ]
-          },
-          "name": {
-            "type": "string"
-          },
-          "partner_key_id": {
-            "type": "string"
-          },
-          "extole_key_id": {
-            "type": "string"
-          }
-        },
+        "required": [
+          "type"
+        ],
+        "description": "Body of a `PUT /v6/sftp-destinations/{sftpDestinationId}` request.",
         "discriminator": {
           "propertyName": "type",
           "mapping": {
             "EXTERNAL": "#/components/schemas/ExternalSftpDestinationUpdateRequest",
             "LOCAL": "#/components/schemas/LocalSftpDestinationUpdateRequest"
           }
-        }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ExternalSftpDestinationUpdateRequest"
+          },
+          {
+            "$ref": "#/components/schemas/LocalSftpDestinationUpdateRequest"
+          }
+        ]
       },
       "SftpDestinationValidationResponse": {
+        "required": [
+          "reason",
+          "sftp_destination",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "sftp_destination": {
@@ -16527,8 +16762,8 @@
           "status": {
             "type": "string",
             "enum": [
-              "PASS",
-              "FAIL"
+              "FAIL",
+              "PASS"
             ]
           },
           "reason": {
@@ -16537,6 +16772,13 @@
         }
       },
       "RestExceptionResponse": {
+        "required": [
+          "code",
+          "http_status_code",
+          "message",
+          "parameters",
+          "unique_id"
+        ],
         "type": "object",
         "properties": {
           "unique_id": {
@@ -16678,8 +16920,8 @@
               "type": "string",
               "description": "Access-control scopes that restrict which user roles can interact with this job. Accepted values: `CLIENT_SUPERUSER`, `CLIENT_ADMIN`.",
               "enum": [
-                "CLIENT_SUPERUSER",
-                "CLIENT_ADMIN"
+                "CLIENT_ADMIN",
+                "CLIENT_SUPERUSER"
               ]
             }
           },
@@ -16728,8 +16970,8 @@
               "type": "string",
               "description": "Updated access-control scopes. Accepted values: `CLIENT_SUPERUSER`, `CLIENT_ADMIN`. Omit to leave unchanged.",
               "enum": [
-                "CLIENT_SUPERUSER",
-                "CLIENT_ADMIN"
+                "CLIENT_ADMIN",
+                "CLIENT_SUPERUSER"
               ]
             }
           },
@@ -16774,6 +17016,10 @@
         }
       },
       "FileInputStreamRequest": {
+        "required": [
+          "attributes",
+          "inputStream"
+        ],
         "type": "object",
         "properties": {
           "inputStream": {
@@ -16833,9 +17079,9 @@
             "type": "string",
             "description": "Visibility scope of the data parameter.",
             "enum": [
-              "PUBLIC",
+              "CLIENT",
               "PRIVATE",
-              "CLIENT"
+              "PUBLIC"
             ]
           },
           "value": {
@@ -16860,10 +17106,20 @@
         "description": "Named data parameters attached to this relationship."
       },
       "PersonIdentityHistoryResponse": {
+        "required": [
+          "log_date",
+          "losing_identity_key_value",
+          "old_identity_key_name",
+          "old_identity_key_value",
+          "type",
+          "winning_identity_id",
+          "winning_identity_key_name",
+          "winning_identity_key_value"
+        ],
         "type": "object",
         "allOf": [
           {
-            "$ref": "#/components/schemas/IdentityLogResponse"
+            "$ref": "#/components/schemas/IdentityLogResponseBase"
           },
           {
             "type": "object",
@@ -16895,10 +17151,18 @@
         ]
       },
       "PersonIdentityShapeShiftResponse": {
+        "required": [
+          "identity_profile_update_version",
+          "identity_shape_shift_type",
+          "log_date",
+          "old_identity_key_name",
+          "old_identity_key_value",
+          "type"
+        ],
         "type": "object",
         "allOf": [
           {
-            "$ref": "#/components/schemas/IdentityLogResponse"
+            "$ref": "#/components/schemas/IdentityLogResponseBase"
           },
           {
             "type": "object",
@@ -16909,16 +17173,16 @@
                 "enum": [
                   "ANONYMOUS_NO_KEY",
                   "ANONYMOUS_WITH_KEY",
-                  "IDENTITY_WITH_KEY",
-                  "DEVICE_NO_KEY",
-                  "DEVICE_WITH_KEY",
-                  "DEVICE_WITH_DIFFERENT_KEY",
-                  "DEVICE_AND_IDENTITY_WITH_KEY",
-                  "DEVICE_AND_IDENTITY_WITH_DIFFERENT_KEY",
-                  "DEVICE_NO_KEY_IDENTITY_WITH_KEY",
-                  "DEVICE_MERGED",
                   "DEVICE_AND_IDENTITY_MERGED",
-                  "IDENTITY_MERGED"
+                  "DEVICE_AND_IDENTITY_WITH_DIFFERENT_KEY",
+                  "DEVICE_AND_IDENTITY_WITH_KEY",
+                  "DEVICE_MERGED",
+                  "DEVICE_NO_KEY",
+                  "DEVICE_NO_KEY_IDENTITY_WITH_KEY",
+                  "DEVICE_WITH_DIFFERENT_KEY",
+                  "DEVICE_WITH_KEY",
+                  "IDENTITY_MERGED",
+                  "IDENTITY_WITH_KEY"
                 ]
               },
               "identity_profile_update_version": {
@@ -16958,13 +17222,14 @@
       "Location": {
         "type": "object",
         "properties": {
-          "latitude": {
-            "type": "number",
-            "format": "double"
+          "deviceId": {
+            "type": "string"
           },
-          "longitude": {
-            "type": "number",
-            "format": "double"
+          "createdDate": {
+            "type": "string"
+          },
+          "geoIp": {
+            "$ref": "#/components/schemas/GeoIp"
           }
         }
       },
@@ -17064,19 +17329,24 @@
         "type": "object",
         "properties": {
           "partner_content_id": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "title": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "image_url": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "url": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -17091,9 +17361,9 @@
             "type": "string",
             "description": "Visibility scope of the data parameter.",
             "enum": [
-              "PUBLIC",
+              "CLIENT",
               "PRIVATE",
-              "CLIENT"
+              "PUBLIC"
             ]
           },
           "value": {
@@ -17104,15 +17374,33 @@
         "description": "Named data parameters attached to this step."
       },
       "ExternalSftpDestinationResponse": {
+        "required": [
+          "created_date",
+          "dropbox_path",
+          "extole_key_id",
+          "host",
+          "id",
+          "key_id",
+          "name",
+          "partner_key_id",
+          "port",
+          "type",
+          "updated_date",
+          "username"
+        ],
         "type": "object",
         "description": "External sftp destination response.",
         "allOf": [
           {
-            "$ref": "#/components/schemas/SftpDestinationResponse"
+            "$ref": "#/components/schemas/SftpDestinationResponseBase"
           },
           {
             "type": "object",
             "properties": {
+              "id": {
+                "type": "string",
+                "readOnly": true
+              },
               "key_id": {
                 "type": "string"
               },
@@ -17127,15 +17415,34 @@
         ]
       },
       "LocalSftpDestinationResponse": {
+        "required": [
+          "created_date",
+          "dropbox_path",
+          "extole_key_id",
+          "file_processing_enabled",
+          "host",
+          "id",
+          "key_ids",
+          "name",
+          "partner_key_id",
+          "port",
+          "type",
+          "updated_date",
+          "username"
+        ],
         "type": "object",
         "description": "Extole local sftp destination response.",
         "allOf": [
           {
-            "$ref": "#/components/schemas/SftpDestinationResponse"
+            "$ref": "#/components/schemas/SftpDestinationResponseBase"
           },
           {
             "type": "object",
             "properties": {
+              "id": {
+                "type": "string",
+                "readOnly": true
+              },
               "key_ids": {
                 "uniqueItems": true,
                 "type": "array",
@@ -17157,11 +17464,17 @@
         ]
       },
       "ExternalSftpDestinationCreateRequest": {
+        "required": [
+          "host",
+          "key_id",
+          "type",
+          "username"
+        ],
         "type": "object",
         "description": "External sftp destination create request.",
         "allOf": [
           {
-            "$ref": "#/components/schemas/SftpDestinationCreateRequest"
+            "$ref": "#/components/schemas/SftpDestinationCreateRequestBase"
           },
           {
             "type": "object",
@@ -17193,11 +17506,15 @@
         ]
       },
       "LocalSftpDestinationCreateRequest": {
+        "required": [
+          "key_ids",
+          "type"
+        ],
         "type": "object",
         "description": "Extole local sftp destination create request.",
         "allOf": [
           {
-            "$ref": "#/components/schemas/SftpDestinationCreateRequest"
+            "$ref": "#/components/schemas/SftpDestinationCreateRequestBase"
           },
           {
             "type": "object",
@@ -17226,11 +17543,14 @@
         ]
       },
       "ExternalSftpDestinationUpdateRequest": {
+        "required": [
+          "type"
+        ],
         "type": "object",
         "description": "External sftp destination create request.",
         "allOf": [
           {
-            "$ref": "#/components/schemas/SftpDestinationUpdateRequest"
+            "$ref": "#/components/schemas/SftpDestinationUpdateRequestBase"
           },
           {
             "type": "object",
@@ -17262,11 +17582,14 @@
         ]
       },
       "LocalSftpDestinationUpdateRequest": {
+        "required": [
+          "type"
+        ],
         "type": "object",
         "description": "Extole local sftp destination update request.",
         "allOf": [
           {
-            "$ref": "#/components/schemas/SftpDestinationUpdateRequest"
+            "$ref": "#/components/schemas/SftpDestinationUpdateRequestBase"
           },
           {
             "type": "object",
@@ -17324,9 +17647,9 @@
           "type": {
             "type": "string",
             "enum": [
-              "REPORT",
               "AUDIENCE_LIST",
-              "FILE_ASSET"
+              "FILE_ASSET",
+              "REPORT"
             ]
           }
         },
@@ -17366,6 +17689,146 @@
           "size": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "GeoIp": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "state": {
+            "$ref": "#/components/schemas/State"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "ipAddress": {
+            "type": "string"
+          },
+          "city": {
+            "$ref": "#/components/schemas/City"
+          },
+          "zipCode": {
+            "type": "string"
+          },
+          "accuracyRadiusKm": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "IdentityLogResponseBase": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of identity event (`IDENTITY_SHIFT` or `SPLIT_LOSER`).",
+            "enum": [
+              "IDENTITY_SHIFT",
+              "SPLIT_LOSER"
+            ]
+          },
+          "old_identity_key_name": {
+            "type": "string",
+            "description": "Name of the identity key before the change. Absent if not applicable."
+          },
+          "old_identity_key_value": {
+            "type": "string",
+            "description": "Value of the identity key before the change. Absent if not applicable."
+          },
+          "log_date": {
+            "type": "string",
+            "description": "Timestamp when this identity event occurred. Absent for older entries.",
+            "format": "date-time"
+          }
+        }
+      },
+      "SftpDestinationResponseBase": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "EXTERNAL",
+              "LOCAL"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "partner_key_id": {
+            "type": "string"
+          },
+          "extole_key_id": {
+            "type": "string"
+          },
+          "dropbox_path": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          },
+          "port": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SftpDestinationCreateRequestBase": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "EXTERNAL",
+              "LOCAL"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "partner_key_id": {
+            "type": "string"
+          },
+          "extole_key_id": {
+            "type": "string"
+          }
+        }
+      },
+      "SftpDestinationUpdateRequestBase": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "EXTERNAL",
+              "LOCAL"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "partner_key_id": {
+            "type": "string"
+          },
+          "extole_key_id": {
+            "type": "string"
           }
         }
       }
