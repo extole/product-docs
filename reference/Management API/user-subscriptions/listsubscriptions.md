@@ -1,6 +1,6 @@
 ---
 api:
   file: management.json
-  operationId: listBuiltCustomRewardSuppliers
+  operationId: listSubscriptions
 hidden: false
 ---
