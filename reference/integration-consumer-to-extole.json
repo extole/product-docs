@@ -1969,12 +1969,133 @@
       }
     },
     "/zones": {
+      "get": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Allocate a token via an empty zone request",
+        "description": "Returns an empty 200 response with `Extole-Log: target zone=unknown`. Because no zone name can be supplied on this path-less GET form, no zone is rendered — the operation's effect is access-token allocation: if no token is present in the request, one is generated and written back as both an `access_token` cookie and an `Extole-Token` response header. Use this to bootstrap a browser session before issuing a named zone request. To render an actual zone, use `GET /zones/{zone_name}`, `POST /zones`, or `POST /zones/{zone_name}`.",
+        "operationId": "fetchZoneWeb",
+        "responses": {
+          "200": {
+            "description": "Empty body. `Extole-Token` header carries the allocated or existing access token; `Extole-Log` reports `target zone=unknown`.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  },
+                  "jwt_authentication_error": {
+                    "$ref": "#/components/examples/jwt_authentication_error"
+                  },
+                  "invalid_access_token": {
+                    "$ref": "#/components/examples/invalid_access_token"
+                  },
+                  "expired_access_token": {
+                    "$ref": "#/components/examples/expired_access_token"
+                  },
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "unsupported_media_type": {
+                    "$ref": "#/components/examples/unsupported_media_type"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "too_many_requests": {
+                    "$ref": "#/components/examples/too_many_requests"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-extole-bundle": "integration-consumer-to-extole",
+        "x-extole-visibility": "visible"
+      },
       "post": {
         "tags": [
           "Content"
         ],
-        "summary": "Render a zone for web-page embedding",
-        "description": "Renders the default zone for the given access token and returns the zone content. Designed for direct use from a browser page or web SDK embed — accepts form-encoded and multipart bodies in addition to JSON, and handles cookie-based identity automatically. For backend zone rendering use `POST /v6/zones` instead.",
+        "summary": "Render a zone with the name in the body",
+        "description": "Renders the zone identified by `event_name` in the request body, applies any other body fields as targeting data passed to the creative, and returns the rendered creative content (HTML, JavaScript, JSON, or plain text). Designed for direct use from a browser page or web SDK embed — accepts form-encoded, plain-text, and multipart bodies in addition to JSON, and handles cookie-based identity automatically. If `event_name` is omitted, returns an empty 200 with `Extole-Log: target zone=unknown`; the access token is still allocated and written as a cookie. For backend zone rendering use `POST /v6/zones` instead.",
         "operationId": "renderZoneWeb",
         "requestBody": {
           "content": {
@@ -2133,6 +2254,137 @@
       }
     },
     "/zones/{zone_name}": {
+      "get": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Fetch a named zone for web-page embedding",
+        "description": "Fetches the zone identified by `zone_name` and returns its content. Designed for direct browser or web SDK use — automatically allocates a new access token if none is present and writes it back as a cookie so subsequent requests in the same session are correlated. The response body varies by the zone's creative configuration: HTML, JavaScript, JSON, or plain text. Because this is a GET request, no targeting data can be sent in the body — use `POST /zones/{zone_name}` to pass identity or other targeting fields.",
+        "operationId": "fetchZoneByNameWeb",
+        "parameters": [
+          {
+            "name": "zone_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rendered zone content. The response body shape varies by the zone's creative configuration: HTML, JavaScript, JSON, or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  },
+                  "jwt_authentication_error": {
+                    "$ref": "#/components/examples/jwt_authentication_error"
+                  },
+                  "invalid_access_token": {
+                    "$ref": "#/components/examples/invalid_access_token"
+                  },
+                  "expired_access_token": {
+                    "$ref": "#/components/examples/expired_access_token"
+                  },
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "unsupported_media_type": {
+                    "$ref": "#/components/examples/unsupported_media_type"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "too_many_requests": {
+                    "$ref": "#/components/examples/too_many_requests"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-extole-bundle": "integration-consumer-to-extole",
+        "x-extole-visibility": "visible"
+      },
       "post": {
         "tags": [
           "Content"
@@ -2322,6 +2574,9 @@
   "components": {
     "schemas": {
       "SuccessResponse": {
+        "required": [
+          "status"
+        ],
         "type": "object",
         "properties": {
           "status": {
@@ -2330,10 +2585,20 @@
         }
       },
       "PersonAssetResponse": {
+        "required": [
+          "data_type",
+          "filename",
+          "id",
+          "mime_type",
+          "name",
+          "status",
+          "tags"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "readOnly": true
           },
           "name": {
             "type": "string"
@@ -2347,9 +2612,9 @@
           "status": {
             "type": "string",
             "enum": [
-              "PENDING_REVIEW",
               "APPROVED",
-              "DENIED"
+              "DENIED",
+              "PENDING_REVIEW"
             ]
           },
           "tags": {
@@ -2361,13 +2626,20 @@
           "data_type": {
             "type": "string",
             "enum": [
-              "PUBLIC",
-              "PRIVATE"
+              "PRIVATE",
+              "PUBLIC"
             ]
           }
         }
       },
       "RestExceptionResponse": {
+        "required": [
+          "code",
+          "http_status_code",
+          "message",
+          "parameters",
+          "unique_id"
+        ],
         "type": "object",
         "properties": {
           "unique_id": {
@@ -2418,8 +2690,8 @@
               "type": "string",
               "description": "Set of permission scopes granted to this token.",
               "enum": [
-                "VERIFIED_CONSUMER",
-                "UPDATE_PROFILE"
+                "UPDATE_PROFILE",
+                "VERIFIED_CONSUMER"
               ]
             }
           }
@@ -2478,8 +2750,8 @@
             "type": "string",
             "description": "Source that set the current cookie consent value.",
             "enum": [
-              "EXTOLE",
               "CLIENT",
+              "EXTOLE",
               "UNSET"
             ]
           },
@@ -2491,8 +2763,8 @@
             "type": "string",
             "description": "Source that set the current data processing consent value.",
             "enum": [
-              "EXTOLE",
               "CLIENT",
+              "EXTOLE",
               "UNSET"
             ]
           },
@@ -2520,9 +2792,9 @@
             "type": "string",
             "description": "Current processing status of the reward redemption (`PENDING`, `SUCCEEDED`, or `FAILED`).",
             "enum": [
+              "FAILED",
               "PENDING",
-              "SUCCEEDED",
-              "FAILED"
+              "SUCCEEDED"
             ]
           },
           "quality_results": {
@@ -2618,6 +2890,29 @@
         }
       },
       "RewardResponse": {
+        "required": [
+          "action_id",
+          "campaign_id",
+          "cause_event_id",
+          "container",
+          "created_at",
+          "data",
+          "email",
+          "face_value",
+          "face_value_type",
+          "journey_key",
+          "journey_name",
+          "partner_reward_id",
+          "partner_reward_key_type",
+          "partner_reward_supplier_id",
+          "partner_user_id",
+          "person_id",
+          "reward_id",
+          "reward_supplier_id",
+          "root_event_id",
+          "sandbox",
+          "state"
+        ],
         "type": "object",
         "properties": {
           "reward_id": {
@@ -2648,8 +2943,8 @@
             "type": "string",
             "description": "Type of key used to identify the reward at the partner's system.",
             "enum": [
-              "ID",
               "COUPON",
+              "ID",
               "LINK"
             ]
           },
@@ -2673,13 +2968,13 @@
             "type": "string",
             "description": "Current lifecycle state of the reward.",
             "enum": [
-              "EARNED",
-              "FULFILLED",
-              "SENT",
-              "REDEEMED",
-              "FAILED",
               "CANCELED",
-              "REVOKED"
+              "EARNED",
+              "FAILED",
+              "FULFILLED",
+              "REDEEMED",
+              "REVOKED",
+              "SENT"
             ]
           },
           "face_value": {
@@ -2690,24 +2985,24 @@
             "type": "string",
             "description": "Unit type of the face value (e.g. `CASH`, `POINTS`, `PERCENT`).",
             "enum": [
-              "PERCENT_OFF",
-              "POINTS",
-              "MONTH",
-              "USD",
-              "GBP",
-              "EUR",
-              "JPY",
-              "CNY",
-              "CAD",
               "AUD",
               "BRL",
+              "CAD",
+              "CNY",
+              "EUR",
+              "GBP",
+              "HKD",
               "INR",
-              "NZD",
-              "MXN",
+              "JPY",
               "KRW",
-              "TWD",
+              "MONTH",
+              "MXN",
+              "NZD",
+              "PERCENT_OFF",
+              "POINTS",
               "TRY",
-              "HKD"
+              "TWD",
+              "USD"
             ]
           },
           "partner_reward_id": {
@@ -2751,8 +3046,8 @@
             "type": "string",
             "enum": [
               "ERROR",
-              "LOW",
-              "HIGH"
+              "HIGH",
+              "LOW"
             ]
           },
           "quality_rule_results": {
@@ -2784,8 +3079,8 @@
             "type": "string",
             "enum": [
               "ERROR",
-              "LOW",
-              "HIGH"
+              "HIGH",
+              "LOW"
             ]
           }
         }
