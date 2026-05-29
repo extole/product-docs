@@ -14,7 +14,7 @@ The Extole CLI can configure Claude Desktop as an MCP client in one command, wit
 
 ## Setup
 
-**Step 1: Run the setup command**
+**Step 1: Run the setup command in the terminal**
 
 ```bash
 extole serve setup
@@ -30,13 +30,13 @@ Quit and relaunch Claude Desktop.
 
 Open a new chat and ask about your programs:
 
-> *"What programs are active right now?"*
+> _"Which programs are active right now?"_
 
 Claude will invoke the Extole CLI tools and return results directly in the chat.
 
 ## How it works
 
-`extole serve` runs the CLI as an MCP stdio server. Claude Desktop spawns it automatically on launch and can call any CLI command as a tool — no separate Extole account or OAuth flow required beyond your existing CLI token.
+`extole serve` runs the CLI as an MCP `stdio` server. Claude Desktop automatically launches it on startup and can run any CLI command as a tool — no separate Extole account or OAuth flow is required beyond your existing CLI token.
 
 ## Removing the integration
 
