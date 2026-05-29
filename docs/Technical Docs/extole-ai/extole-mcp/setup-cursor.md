@@ -1,5 +1,5 @@
 ---
-title: Using the Extole MCP in Cursor
+title: Cursor
 excerpt: >-
   Connect Cursor to Extole and manage your referral programs alongside your
   code.
