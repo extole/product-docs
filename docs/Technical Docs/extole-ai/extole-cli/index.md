@@ -5,12 +5,12 @@ excerpt: >-
   scripts and AI tools.
 hidden: false
 ---
-The Extole CLI is a command-line tool for developers who want to interact with Extole from the terminal, or integrate Extole operations into scripts and automation pipelines. It also includes a built-in MCP server so Claude Desktop and Claude Code can call any CLI command as a tool.
+The Extole CLI is a command-line tool for developers who want to interact with Extole from the terminal or integrate Extole operations into scripts and automation pipelines. It also includes a built-in MCP server so Claude Desktop and Claude Code can call any CLI command as a tool.
 
 ## Prerequisites
 
 - Node.js 18 or later
-- An Extole Access Token ([contact your CSM](https://www.extole.com/contact))
+- An Extole Access Token ([https://my.extole.com/security-center](https://my.extole.com/security-center "https://my.extole.com/security-center"))
 
 ## Install
 
@@ -84,7 +84,7 @@ extole serve setup   # auto-configure Claude Desktop and Claude Code
 extole serve remove  # remove the registration
 ```
 
-The CLI also exposes an AI assistant with deep knowledge of the Extole API:
+The CLI also exposes the Extole MCP which has deep Extole context and knowledge often useful during development:
 
 ```bash
 extole auth mcp-login  # one-time browser login
