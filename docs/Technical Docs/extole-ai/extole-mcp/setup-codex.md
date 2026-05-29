@@ -1,5 +1,5 @@
 ---
-title: Using the Extole MCP in Codex
+title: Codex
 excerpt: >-
   Connect OpenAI Codex CLI to Extole and invoke Extole tools in automated
   workflows.
