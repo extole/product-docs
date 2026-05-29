@@ -1,5 +1,5 @@
 ---
-title: Using the Extole MCP in Claude Code
+title: Claude Code
 excerpt: >-
   Connect Claude Code to Extole and manage your referral programs from the
   terminal.
