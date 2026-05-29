@@ -1,22 +1,22 @@
 ---
 title: MCP Authentication
-excerpt: Choose between OAuth and API key authentication for Extole MCP clients.
+excerpt: Choose between OAuth and access token authentication for Extole MCP clients.
 hidden: false
 ---
-Choose how to authenticate MCP clients with Extole: OAuth for streamlined setup or API keys for manual control.
+Choose how to authenticate MCP clients with Extole: OAuth for streamlined setup or access tokens for manual control.
 
 The Extole MCP Server supports two authentication methods:
 
-|  | OAuth 2.0 | API key |
-|--|-----------|---------|
-| Best for | Individual users who want quick, secure setup | Admins managing keys centrally, or automated workflows |
+|  | OAuth 2.0 | Access Token |
+|--|-----------|--------------|
+| Best for | Individual users who want quick, secure setup | Admins managing tokens centrally, or automated workflows |
 | Setup complexity | Low — browser-based flow | Medium — manual configuration |
-| Key management | Automatic | Manual |
-| Permissions | Uses your Extole permissions | Uses the key creator's permissions |
+| Token management | Automatic | Manual |
+| Permissions | Uses your Extole permissions | Uses the token creator's permissions |
 
 ## OAuth 2.0 authentication
 
-OAuth lets MCP clients connect to Extole without requiring you to manually create and manage API keys. When you connect, Extole creates an access token on your behalf and links it to your user account.
+OAuth lets MCP clients connect to Extole without requiring you to manually create and manage access tokens. When you connect, Extole creates an access token on your behalf and links it to your user account.
 
 The flow uses OAuth 2.1 with PKCE (Proof Key for Code Exchange) for secure, user-delegated access.
 
@@ -48,24 +48,24 @@ https://mcp.extole.com/toolsets/extole/mcp
 
 ### Revoking access
 
-To revoke access, navigate to **My.Extole > Settings > API Tokens** and delete the token associated with the client.
+To revoke access, navigate to the [My.Extole Security Center](https://my.extole.com/security-center#access-token) and delete the token associated with the client.
 
 ---
 
-## API key authentication
+## Access Token authentication
 
 Use this method when:
 
-- You need to manage keys centrally across your organization
+- You need to manage tokens centrally across your organization
 - You're setting up automated workflows or CI/CD pipelines
 - You want to use a service account rather than individual user credentials
 - Your MCP client doesn't support OAuth
 
 ### How it works
 
-1. Generate an API key in My.Extole under **Settings > API Tokens**.
-2. Configure the key in your MCP client's settings.
-3. The client includes the key as a Bearer token in all requests to Extole.
+1. Generate an [Access Token](https://my.extole.com/security-center#access-token) in the My.Extole Security Center.
+2. Configure the token in your MCP client's settings.
+3. The client includes the token as a Bearer token in all requests to Extole.
 
 ### Configuration
 
@@ -73,7 +73,7 @@ Use this method when:
 https://mcp.extole.com/toolsets/extole/mcp
 ```
 
-Pass the key as an `Authorization: Bearer <YOUR_API_KEY>` header.
+Pass the token as an `Authorization: Bearer <YOUR_ACCESS_TOKEN>` header.
 
 ---
 
@@ -83,4 +83,4 @@ Pass the key as an `Authorization: Bearer <YOUR_API_KEY>` header.
 
 **Queries succeed but return no data** — Confirm your Extole user account has permission to access the programs or reports you're querying.
 
-**API key authentication fails** — Verify the key is active and hasn't been revoked.
+**Access token authentication fails** — Verify the token is active and hasn't been revoked.
