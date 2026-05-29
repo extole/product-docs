@@ -19,7 +19,6 @@ You'll need:
 
 - A ChatGPT plan that supports connectors (Pro, Plus, Team, Business, Enterprise, or Education)
 - An active Extole user account
-- MCP access enabled for your Extole organization (contact your administrator if unsure)
 
 ---
 
