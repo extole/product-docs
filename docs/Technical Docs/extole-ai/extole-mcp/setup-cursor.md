@@ -65,11 +65,11 @@ The Extole MCP server should appear as connected in **Tools & Integrations**.
 
 ---
 
-### Option 2: API Key
+### Option 2: Access Token
 
-**Step 1: Get your API key**
+**Step 1: Get your access token**
 
-Generate one in My.Extole under **Settings > API Tokens**.
+Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
 **Step 2: Open MCP settings**
 
@@ -85,14 +85,14 @@ Paste the following into `mcp.json`:
     "Extole": {
       "url": "https://mcp.extole.com/toolsets/extole/mcp",
       "headers": {
-        "Authorization": "Bearer <YOUR_API_KEY>"
+        "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
       }
     }
   }
 }
 ```
 
-Replace `<YOUR_API_KEY>` with your Extole API key. Save the file.
+Replace `<YOUR_ACCESS_TOKEN>` with your Extole access token. Save the file.
 
 **Step 4: Verify**
 
