@@ -21,7 +21,6 @@ You'll need:
 
 - The latest version of [Claude Desktop](https://claude.ai/download) installed
 - An active Extole user account
-- MCP access enabled for your Extole organization (contact your administrator if unsure)
 
 ---
 
