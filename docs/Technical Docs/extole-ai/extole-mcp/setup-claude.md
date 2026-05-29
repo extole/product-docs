@@ -1,5 +1,5 @@
 ---
-title: Using the Extole MCP in Claude Desktop
+title: Claude Desktop
 excerpt: >-
   Connect Claude Desktop to Extole and manage your referral programs with
   natural language.
