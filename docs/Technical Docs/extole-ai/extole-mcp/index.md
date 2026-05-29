@@ -18,7 +18,7 @@ Once connected, your AI client can:
 
 - **Run reports** — pull performance data, participant history, reward status, and conversion reports
 - **Query program configuration** — inspect program status, component structure, and campaign settings
-- **Manage programs** — modify reward values, update campaign components, and trigger program actions such as issuing a reward
+- **Answer support questions** — investigate issues with rewards not received
 - **Review change history** — retrieve audit logs and see what changed, when, and by whom
 
 All actions execute under your own Extole permissions and are attributed to you in the Extole change log — whether the change was made through the UI, the API, or your AI tool.
