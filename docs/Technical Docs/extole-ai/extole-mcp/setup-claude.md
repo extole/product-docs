@@ -1,0 +1,143 @@
+---
+title: Using the Extole MCP in Claude Desktop
+excerpt: >-
+  Connect Claude Desktop to Extole and manage your referral programs with
+  natural language.
+hidden: false
+---
+Connect your Extole programs to Claude Desktop and manage referrals with natural language.
+
+Claude Desktop is the app version of Anthropic's Claude. Once connected to Extole, you can run reports, check program performance, and make changes to your programs directly in Claude — without opening My.Extole.
+
+> Looking for Claude Code? If you work in the terminal, see the [Claude Code guide](doc:setup-claude-code) instead.
+
+---
+
+## Requirements
+
+Every person who wants to use the Extole MCP must complete setup individually.
+
+You'll need:
+
+- The latest version of [Claude Desktop](https://claude.ai/download) installed
+- An active Extole user account
+- MCP access enabled for your Extole organization (contact your administrator if unsure)
+
+---
+
+## Setup
+
+Choose your authentication method. See the [MCP authentication guide](doc:mcp-authentication) if you're not sure which to use.
+
+---
+
+### Option 1: OAuth (Recommended)
+
+OAuth provides the fastest setup — no manual key management required.
+
+**Step 1: Open Claude Desktop settings**
+
+In Claude Desktop, navigate to **Settings > Connectors**.
+
+**Step 2: Add a custom connector**
+
+Click **Add custom connector**.
+
+**Step 3: Configure the connector**
+
+Fill in the following:
+
+- **Name** — `Extole`
+- **Remote MCP Server URL** — Paste the following:
+
+```
+https://mcp.extole.com/toolsets/extole/mcp
+```
+
+Click **Add**.
+
+**Step 4: Authorize the connection**
+
+Click **Connect** next to the Extole connector. Your browser will open to an Extole authorization page. Review the permissions and click **Authorize**.
+
+**Step 5: Verify the connection**
+
+In a chat, click the **+** icon, then **Connectors**. Your Extole connector should appear as enabled.
+
+---
+
+### Option 2: API Key
+
+**Step 1: Get your API key**
+
+Generate one in My.Extole under **Settings > API Tokens**.
+
+**Step 2: Open Claude Desktop settings**
+
+Navigate to **Settings > Developer**.
+
+**Step 3: Edit the config file**
+
+Click **Edit Config**. This opens `claude_desktop_config.json`. Add the following to the `mcpServers` key:
+
+```json
+{
+  "mcpServers": {
+    "Extole": {
+      "type": "http",
+      "url": "https://mcp.extole.com/toolsets/extole/mcp",
+      "headers": {
+        "Authorization": "Bearer <YOUR_API_KEY>"
+      }
+    }
+  }
+}
+```
+
+**Step 4: Restart Claude Desktop**
+
+Save and restart.
+
+**Step 5: Verify the connection**
+
+Navigate to **Settings > Developer** and click **Extole**. You should see a `running` status badge.
+
+---
+
+### Option 3: Extole CLI (Quickest for developers)
+
+If you have the [Extole CLI](doc:extole-cli) installed, one command configures everything:
+
+```bash
+extole serve setup
+```
+
+Restart Claude Desktop — done. To remove the registration: `extole serve remove`.
+
+---
+
+## Using the MCP
+
+Open a chat and enter a prompt, for example:
+
+> *"Show me the performance report for my refer-a-friend program this month."*
+
+> *"What reward is currently configured for the friend offer in my main campaign?"*
+
+> *"Increase the advocate reward in the summer promotion to $20."*
+
+The first time Claude uses an Extole tool, you'll be prompted to approve it. Click **Allow once** or **Allow always** to proceed.
+
+> **Write operations** — Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log. Review prompts carefully before approving write operations.
+
+---
+
+## Troubleshooting
+
+**"No tools available"** — Restart Claude Desktop after editing the config file. Verify the JSON is valid (no trailing commas).
+
+**"Unauthorized"** — Your token may be incorrect or expired. Regenerate it in My.Extole under **Settings > API Tokens**.
+
+**Config file location (for manual setup):**
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
