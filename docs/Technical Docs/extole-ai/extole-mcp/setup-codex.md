@@ -13,7 +13,6 @@ Connect your Extole programs to OpenAI Codex CLI and invoke Extole tools as part
 
 - [OpenAI Codex CLI](https://github.com/openai/codex) installed
 - An active Extole user account
-- MCP access enabled for your Extole organization (contact your administrator if unsure)
 - An OpenAI API key
 
 ---
