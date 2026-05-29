@@ -50,11 +50,11 @@ The Extole server should show as connected.
 
 ---
 
-### Option 2: API Key
+### Option 2: Access Token
 
-**Step 1: Get your API key**
+**Step 1: Get your access token**
 
-Generate one in My.Extole under **Settings > API Tokens**.
+Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
 **Step 2: Edit your Codex config**
 
@@ -66,7 +66,7 @@ name = "extole"
 url = "https://mcp.extole.com/toolsets/extole/mcp"
 
 [mcp_servers.headers]
-Authorization = "Bearer <YOUR_API_KEY>"
+Authorization = "Bearer <YOUR_ACCESS_TOKEN>"
 ```
 
 Or in JSON format (`~/.codex/config.json`):
@@ -78,14 +78,14 @@ Or in JSON format (`~/.codex/config.json`):
       "name": "extole",
       "url": "https://mcp.extole.com/toolsets/extole/mcp",
       "headers": {
-        "Authorization": "Bearer <YOUR_API_KEY>"
+        "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
       }
     }
   ]
 }
 ```
 
-Replace `<YOUR_API_KEY>` with your Extole API key.
+Replace `<YOUR_ACCESS_TOKEN>` with your Extole access token.
 
 **Step 3: Verify**
 
