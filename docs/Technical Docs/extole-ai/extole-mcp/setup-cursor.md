@@ -19,7 +19,6 @@ You'll need:
 
 - [Cursor](https://cursor.sh/) 0.43 or later
 - An active Extole user account
-- MCP access enabled for your Extole organization (contact your administrator if unsure)
 
 ---
 
