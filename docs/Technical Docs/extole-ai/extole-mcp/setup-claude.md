@@ -33,7 +33,7 @@ Choose your authentication method. See the [MCP authentication guide](doc:mcp-au
 
 ### Option 1: OAuth (Recommended)
 
-OAuth provides the fastest setup — no manual key management required.
+OAuth provides the fastest setup — no manual token management required.
 
 **Step 1: Open Claude Desktop settings**
 
@@ -66,11 +66,11 @@ In a chat, click the **+** icon, then **Connectors**. Your Extole connector shou
 
 ---
 
-### Option 2: API Key
+### Option 2: Access Token
 
-**Step 1: Get your API key**
+**Step 1: Get your access token**
 
-Generate one in My.Extole under **Settings > API Tokens**.
+Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
 **Step 2: Open Claude Desktop settings**
 
@@ -87,7 +87,7 @@ Click **Edit Config**. This opens `claude_desktop_config.json`. Add the followin
       "type": "http",
       "url": "https://mcp.extole.com/toolsets/extole/mcp",
       "headers": {
-        "Authorization": "Bearer <YOUR_API_KEY>"
+        "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
       }
     }
   }
@@ -136,7 +136,7 @@ The first time Claude uses an Extole tool, you'll be prompted to approve it. Cli
 
 **"No tools available"** — Restart Claude Desktop after editing the config file. Verify the JSON is valid (no trailing commas).
 
-**"Unauthorized"** — Your token may be incorrect or expired. Regenerate it in My.Extole under **Settings > API Tokens**.
+**"Unauthorized"** — Your token may be incorrect or expired. Regenerate it at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
 **Config file location (for manual setup):**
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
