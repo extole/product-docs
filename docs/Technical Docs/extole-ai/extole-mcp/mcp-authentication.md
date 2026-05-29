@@ -22,7 +22,6 @@ The flow uses OAuth 2.1 with PKCE (Proof Key for Code Exchange) for secure, user
 
 ### Requirements
 
-- Your Extole organization must have MCP access enabled. Contact your Extole administrator if unsure.
 - You must have an active Extole user account with appropriate permissions.
 
 ### How it works
