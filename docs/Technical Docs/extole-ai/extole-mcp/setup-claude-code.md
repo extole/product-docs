@@ -21,7 +21,6 @@ You'll need:
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
 - An active Extole user account
-- MCP access enabled for your Extole organization (contact your administrator if unsure)
 
 ---
 
