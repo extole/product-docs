@@ -1,5 +1,5 @@
 ---
-title: Using the Extole MCP in ChatGPT
+title: ChatGPT
 excerpt: >-
   Connect ChatGPT to Extole and manage your referral programs with natural
   language.
