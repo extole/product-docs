@@ -71,11 +71,11 @@ The Extole server should show as connected in the `/mcp` list.
 
 ---
 
-### Option 3: API Key
+### Option 3: Access Token
 
-**Step 1: Get your API key**
+**Step 1: Get your access token**
 
-Generate one in My.Extole under **Settings > API Tokens**.
+Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
 **Step 2: Edit your Claude Code MCP config**
 
@@ -88,14 +88,14 @@ Add the following to `.mcp.json` (project-level) or `~/.claude/mcp.json` (global
       "type": "http",
       "url": "https://mcp.extole.com/toolsets/extole/mcp",
       "headers": {
-        "Authorization": "Bearer ${EXTOLE_API_KEY}"
+        "Authorization": "Bearer ${EXTOLE_ACCESS_TOKEN}"
       }
     }
   }
 }
 ```
 
-Set `EXTOLE_API_KEY` in your shell environment to keep credentials out of version control.
+Set `EXTOLE_ACCESS_TOKEN` in your shell environment to keep credentials out of version control.
 
 **Step 3: Start a new Claude Code session**
 
