@@ -1,61 +1,58 @@
 ---
 title: Extole MCP
+excerpt: >-
+  Connect your AI tools to Extole and manage your referral programs using
+  natural language.
 deprecated: false
 hidden: false
 metadata:
   robots: index
 ---
-he Extole MCP server implements the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP), a standard that lets AI clients discover and invoke external tools. By connecting your AI client to Extole MCP, you can monitor and manage your Extole programs through natural language — without logging into My.Extole.
+The Extole MCP (Model Context Protocol) Server lets you use whatever AI tool you already work in — Claude, ChatGPT, Cursor, or any MCP-compatible client — to monitor and manage your Extole programs without logging into My.Extole.
 
 ## What you can do
 
-**Read operations**
+Once connected, your AI client can:
 
-- Run and retrieve performance, participant, reward, and conversion reports
-- Query program status, configuration, and component structure
-- Look up reward status and participant history
-- Retrieve change logs and audit history
+- **Run reports** — pull performance data, participant history, reward status, and conversion reports
+- **Query program configuration** — inspect program status, component structure, and campaign settings
+- **Answer support requests** — Investigate missing rewards
+- **Review change history** — retrieve audit logs and see what changed, when, and by whom
 
-**Write operations**
-
-- Modify reward values and program settings
-- Create or update campaign components
-- Trigger program actions (issue a reward, update a participant)
-
-All write operations are executed under your own user permissions and logged with full attribution in the Extole change log — including the AI tool and user that initiated the action.
-
-## How it works
-
-Extole MCP is a remote MCP server using streamable HTTP transport. Your AI client connects to the server, discovers available tools, and invokes them on your behalf using your access token. No data leaves the secure Extole infrastructure.
-
-**MCP server URL:** `https://mcp.extole.com/toolsets/extole/mcp`
+All actions execute under your own Extole permissions and are attributed to you in the Extole change log — whether the change was made through the UI, the API, or your AI tool.
 
 ## Authentication
 
-Access requires an Extole client access token. Tokens are scoped to one of three permission levels:
+The Extole MCP Server supports two authentication methods:
 
-| Scope      | Description                                               |
-| ---------- | --------------------------------------------------------- |
-| Read-only  | Can query reports, programs, participants, and history    |
-| Read/Write | Can also modify program settings, rewards, and components |
-| Superuser  | Full access, including administrative operations          |
+- **OAuth 2.0** — Recommended. Browser-based flow; no manual key management required. Uses authorization code with PKCE for secure, user-delegated access.
+- **API key** — Manual setup for centralized key management or automated workflows.
 
-Tokens are issued per user. Every action taken through MCP is attributed to the token's owner in the Extole change log.
+See the [MCP authentication guide](mcp-authentication.md) for details on choosing and configuring either method.
 
-To obtain a token, contact your Extole Customer Success Manager or account team.
+## Security and access control
 
-## Supported clients
+- **User-scoped access** — All MCP requests execute as the authenticated user, subject to the same permissions as My.Extole.
+- **Token scopes** — Tokens can be issued with explicit scopes: superuser, read/write, or read-only.
+- **Change attribution** — Every action taken via MCP is recorded in the Extole change log with the originating user, tool, and timestamp.
+- **Token revocation** — Users and admins can revoke MCP access at any time from My.Extole.
 
-- [Claude (Anthropic)](setup-claude.md)
-- [ChatGPT](setup-chatgpt.md)
-- [Cursor](setup-cursor.md)
-- [Codex (OpenAI)](setup-codex.md)
-- Any MCP-compatible client
+## MCP server URL
 
-## Security
+```
+https://mcp.extole.com/toolsets/extole/mcp
+```
 
-- All requests are executed under the authenticated user's permissions — the same access controls as My.Extole
-- Write operations are rate-limited and logged with source attribution (user, tool, timestamp, and originating prompt where available)
-- Tokens can be revoked at any time from My.Extole
+## Get started
+
+Follow the setup guide for your AI client:
+
+| Client                              | Description                                   |
+| ----------------------------------- | --------------------------------------------- |
+| [Claude Desktop](setup-claude.md)   | Desktop app version of Anthropic's Claude     |
+| [Claude Code](setup-claude-code.md) | Command-line Claude for agentic workflows     |
+| [Cursor](setup-cursor.md)           | AI-powered code editor                        |
+| [ChatGPT](setup-chatgpt.md)         | OpenAI's AI assistant                         |
+| [Codex](setup-codex.md)             | OpenAI Codex CLI for automation and scripting |
 
 <br />
