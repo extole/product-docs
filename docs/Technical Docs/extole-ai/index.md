@@ -13,7 +13,7 @@ Extole AI is a suite of tools that lets marketers and developers interact with t
 
 The Extole MCP server exposes Extole's full capability set as a set of tools that any MCP-compatible AI client can discover and invoke. Marketers can monitor programs, pull performance reports, and make configuration changes directly from Claude, ChatGPT, or any other MCP-compatible client — without logging into My.Extole.
 
-[Learn about Extole MCP →](extole-mcp-overview.md)
+[Learn about Extole MCP →](https://docs.extole.com/update/docs/extole-mcp)
 
 **Available in:** Claude · ChatGPT · Cursor · Codex · any MCP-compatible client
 
