@@ -1,0 +1,61 @@
+---
+title: Claude Code
+excerpt: >-
+  Configure Claude Code to use the Extole CLI as an MCP tool source in one
+  command.
+hidden: false
+---
+The Extole CLI can configure Claude Code as an MCP client in one command.
+
+## Prerequisites
+
+- [Extole CLI](doc:extole-cli) installed and authenticated
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
+
+## Setup
+
+**Step 1: Run the setup command**
+
+```bash
+extole serve setup
+```
+
+This writes the Extole MCP server entry to your Claude Code settings (`~/.claude/settings.json`) automatically.
+
+**Step 2: Start a new Claude Code session**
+
+```bash
+claude
+```
+
+The Extole tools will be available immediately.
+
+**Step 3: Verify**
+
+Ask about your programs in the chat:
+
+> *"What programs are active right now?"*
+
+Or run `/mcp` to see the Extole server listed as connected.
+
+## How it works
+
+`extole serve` runs the CLI as an MCP stdio server. Claude Code spawns it per session and can call any CLI command as a tool. By default, Claude Code will prompt you to approve each tool call. To pre-approve all Extole tools:
+
+```bash
+claude --allowed-tools 'mcp__extole__*'
+```
+
+## Removing the integration
+
+```bash
+extole serve remove
+```
+
+Re-run `claude` to pick up the change.
+
+## Troubleshooting
+
+**Extole not listed in `/mcp`** — Run `extole serve setup` again, then start a new session.
+
+**Auth errors** — Run `extole auth status` to confirm your token is valid.
