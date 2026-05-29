@@ -79,8 +79,6 @@ Pass the key as an `Authorization: Bearer <YOUR_API_KEY>` header.
 
 ## Troubleshooting
 
-**403 error on connect** — Check that MCP access is enabled for your organization.
-
 **Authorization flow doesn't start** — Verify your MCP client supports OAuth 2.1 with PKCE and that you're using the correct server URL.
 
 **Queries succeed but return no data** — Confirm your Extole user account has permission to access the programs or reports you're querying.
