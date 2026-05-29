@@ -1,5 +1,5 @@
 ---
-title: Extole AI
+title: Extole AI Tools
 deprecated: false
 hidden: false
 metadata:
