@@ -274,3 +274,21 @@ purchase,dx0129@akerd.com,AAA125,2013-06-19T12:16:12-0700,0064000000QP7SN,99.99
 For additional details on file requirements, see our docs: [File Conventions](https://docs.extole.com/docs/extoles-sftp-server#file-conventions)
 
 [//]: ___
+
+## Credit Union Earned Rewards File Example
+
+Credit unions will receive an earned rewards file from Extole via SFTP to verify members who should earn rewards. Once reviewed, credit unions can then send Extole a fulfilled file via SFTP so that we can transition the members' rewards to fulfilled.
+
+* creditunion@sftp.extole.com:/dropbox
+* rewards-report-YYYY-MM-DDTHHMMSS.csv
+
+A sample file could look like this:
+
+<Image align="center" src="https://files.readme.io/33f6842ece8e36bfac20230ed6e77ee5db0cd1a4847968d7204e63b71c1fc5cd-cu-rewards-screenshot.png" />
+
+```Text Earned Rewards
+Reward ID,Earned Date,Program,Email,First Name,Last Name,Account Number,Face Value,Face Value Type,Reward Name,Reward Supplier Id
+a9d3d69dee0cf8e6117231d3,2024-07-16T13:41:28.823-07:00,refer-a-friend,jjones@mail.com,John,Jones,545413,50,USD,$50 Friend Account Credit Reward,ca48186930a57de0f951a7d6
+```
+
+<br />

@@ -98,7 +98,7 @@ Follow the instructions [here](https://jackhenry.dev/open-api-docs/plugins/archi
 
 #### Configure Second Application for Full-Screen Experience (Optional)
 
-You can configure a second Application for a full screen Experience accessible within the sidebar. It will be the same configuration as above but with a `Link Type` of `Rewards`
+You can configure a second Application for a full screen Experience accessible within the sidebar. You'll repeat the configuration above but set it as `Link Type` of `Rewards`
 
 #### Additional Scopes and Claims to be Added to Token (Optional)
 
