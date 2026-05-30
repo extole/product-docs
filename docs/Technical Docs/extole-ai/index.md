@@ -29,4 +29,4 @@ The Extole CLI is a command-line interface for developers who prefer terminal-ba
 
 ## Get access
 
-Both offerings require an Extole account and a client access token. Contact your Extole account team or Customer Success Manager to get started.
+Both offerings require an Extole account and a client access token.
