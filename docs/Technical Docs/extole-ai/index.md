@@ -19,7 +19,7 @@ The Extole MCP server exposes Extole's full capability set as a set of tools tha
 
 ### Extole CLI
 
-The Extole CLI is a command-line interface for developers who prefer terminal-based workflows or want to integrate Extole operations into scripts and automation pipelines. It wraps the same Extole APIs exposed by the MCP into a scriptable tool installable via npm.
+Extole CLI is a command line tool to allow developers or agents to conveniently work with Extole from the command line or in their AI coding environment.
 
 [Learn about Extole CLI →](extole-cli)
 
