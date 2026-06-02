@@ -50,7 +50,7 @@ Fill in the following:
 - **Remote MCP Server URL** — Paste the following:
 
 ```
-https://mcp.extole.com/toolsets/extole/mcp
+https://mcp.extole.com
 ```
 
 Click **Add**.
@@ -84,7 +84,7 @@ Click **Edit Config**. This opens `claude_desktop_config.json`. Add the followin
   "mcpServers": {
     "Extole": {
       "type": "http",
-      "url": "https://mcp.extole.com/toolsets/extole/mcp",
+      "url": "https://mcp.extole.com",
       "headers": {
         "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
       }
