@@ -46,7 +46,7 @@ Paste the following into `mcp.json`:
 {
   "mcpServers": {
     "Extole": {
-      "url": "https://mcp.extole.com/toolsets/extole/mcp"
+      "url": "https://mcp.extole.com"
     }
   }
 }
@@ -82,7 +82,7 @@ Paste the following into `mcp.json`:
 {
   "mcpServers": {
     "Extole": {
-      "url": "https://mcp.extole.com/toolsets/extole/mcp",
+      "url": "https://mcp.extole.com",
       "headers": {
         "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
       }
