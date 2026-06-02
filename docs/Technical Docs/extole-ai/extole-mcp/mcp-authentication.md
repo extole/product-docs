@@ -7,12 +7,12 @@ Choose how to authenticate MCP clients with Extole: OAuth for streamlined setup 
 
 The Extole MCP Server supports two authentication methods:
 
-|  | OAuth 2.0 | Access Token |
-|--|-----------|--------------|
-| Best for | Individual users who want quick, secure setup | Admins managing tokens centrally, or automated workflows |
-| Setup complexity | Low — browser-based flow | Medium — manual configuration |
-| Token management | Automatic | Manual |
-| Permissions | Uses your Extole permissions | Uses the token creator's permissions |
+|                  | OAuth 2.0                                     | Access Token                                             |
+| ---------------- | --------------------------------------------- | -------------------------------------------------------- |
+| Best for         | Individual users who want quick, secure setup | Admins managing tokens centrally, or automated workflows |
+| Setup complexity | Low — browser-based flow                      | Medium — manual configuration                            |
+| Token management | Automatic                                     | Manual                                                   |
+| Permissions      | Uses your Extole permissions                  | Uses the token creator's permissions                     |
 
 ## OAuth 2.0 authentication
 
@@ -40,17 +40,11 @@ After authorization, all MCP requests use your Extole permissions and access con
 https://mcp.extole.com
 ```
 
-### Token scopes
-
-- **Read-only** — can run reports and query program state; cannot make changes
-- **Read/write** — can read and modify programs, rewards, and campaign components
-- **Superuser** — full access, equivalent to an Extole administrator
-
 ### Revoking access
 
 To revoke access, navigate to the [My.Extole Security Center](https://my.extole.com/security-center#access-token) and delete the token associated with the client.
 
----
+***
 
 ## Access Token authentication
 
@@ -75,7 +69,7 @@ https://mcp.extole.com
 
 Pass the token as an `Authorization: Bearer <YOUR_ACCESS_TOKEN>` header.
 
----
+***
 
 ## Troubleshooting
 
