@@ -42,7 +42,11 @@ Click **Create** next to **Advanced settings**.
 
 - **Connector name** — `Extole`
 - **Description** — `Manage Extole referral programs`
-- **Server URL**: `https://mcp.extole.com/toolsets/extole/mcp`
+- **Server URL**:
+
+```
+https://mcp.extole.com
+```
 
 Click **Add**.
 
@@ -70,7 +74,12 @@ In ChatGPT, navigate to **Settings > Apps & Connectors** and click **Create** ne
 
 - **Connector name** — `Extole`
 - **Description** — `Manage Extole referral programs`
-- **Server URL**: `https://mcp.extole.com/toolsets/extole/mcp`
+- **Server URL**:
+
+```
+https://mcp.extole.com
+```
+
 - **Authentication**: Bearer token — enter your Extole access token
 
 **Step 4: Verify the connection**
