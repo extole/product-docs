@@ -1,5 +1,9 @@
 ---
 title: Targeting
+excerpt: >-
+  This document explains how Extole’s targeting system selects the correct
+  campaign and referral relationship for an event using explicit targeting,
+  required matching rules, ranking logic, and fallback behavior.
 deprecated: false
 hidden: false
 metadata:
