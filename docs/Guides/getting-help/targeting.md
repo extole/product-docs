@@ -9,6 +9,10 @@ hidden: false
 metadata:
   robots: index
 ---
+> 📌 This targeting description applies to upgraded clients
+>
+> Please note that this doc covers our latest targeting technology, which is implemented for new and upgraded clients on Flow Builder. If you have questions about whether or not this doc applies to you and your programs, please reach out to your CSM.
+
 # Extole Targeting System
 
 ## Overview
