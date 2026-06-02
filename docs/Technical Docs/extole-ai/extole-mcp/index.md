@@ -27,8 +27,8 @@ All actions execute under your own Extole permissions and are attributed to you 
 
 The Extole MCP Server supports two authentication methods:
 
-- **OAuth 2.0** — Recommended. Browser-based flow; no manual key management required. Uses authorization code with PKCE for secure, user-delegated access.
-- **Access Token** — Manual setup for centralized key management or automated workflows.
+- **OAuth 2.0** — Recommended. Browser-based flow; no manual token management required. Uses authorization code with PKCE for secure, user-delegated access.
+- **Access Token** — Manual setup for centralized token management or automated workflows.
 
 See the [MCP authentication guide](doc:mcp-authentication) for details on choosing and configuring either method.
 
@@ -42,19 +42,17 @@ See the [MCP authentication guide](doc:mcp-authentication) for details on choosi
 ## MCP server URL
 
 ```
-https://mcp.extole.com/toolsets/extole/mcp
+https://mcp.extole.com
 ```
 
 ## Get started
 
 Follow the setup guide for your AI client:
 
-| Client                               | Description                                   |
-| ------------------------------------ | --------------------------------------------- |
-| [Claude Desktop](doc:setup-claude)   | Desktop app version of Anthropic's Claude     |
-| [Claude Code](doc:setup-claude-code) | Command-line Claude for agentic workflows     |
-| [Cursor](doc:setup-cursor)           | AI-powered code editor                        |
-| [ChatGPT](doc:setup-chatgpt)         | OpenAI's AI assistant                         |
-| [Codex](doc:setup-codex)             | OpenAI Codex CLI for automation and scripting |
-
-<br />
+| Client | Description |
+|--------|-------------|
+| [Claude Desktop](doc:setup-claude) | Desktop app version of Anthropic's Claude |
+| [Claude Code](doc:setup-claude-code) | Command-line Claude for agentic workflows |
+| [Cursor](doc:setup-cursor) | AI-powered code editor |
+| [ChatGPT](doc:setup-chatgpt) | OpenAI's AI assistant |
+| [Codex](doc:setup-codex) | OpenAI Codex CLI for automation and scripting |
