@@ -47,7 +47,7 @@ Start a new Claude Code session and you're ready. To remove the registration: `e
 **Step 1: Add the Extole MCP server**
 
 ```bash
-claude mcp add --transport http extole https://mcp.extole.com/toolsets/extole/mcp
+claude mcp add --transport http extole https://mcp.extole.com
 ```
 
 **Step 2: Start a new Claude Code session**
@@ -85,7 +85,7 @@ Add the following to `.mcp.json` (project-level) or `~/.claude/mcp.json` (global
   "mcpServers": {
     "Extole": {
       "type": "http",
-      "url": "https://mcp.extole.com/toolsets/extole/mcp",
+      "url": "https://mcp.extole.com",
       "headers": {
         "Authorization": "Bearer ${EXTOLE_ACCESS_TOKEN}"
       }
