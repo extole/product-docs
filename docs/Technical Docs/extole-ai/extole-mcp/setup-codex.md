@@ -28,7 +28,7 @@ Choose your authentication method. See the [MCP authentication guide](doc:mcp-au
 **Step 1: Add the Extole MCP server**
 
 ```bash
-codex mcp add extole https://mcp.extole.com/toolsets/extole/mcp
+codex mcp add extole https://mcp.extole.com
 ```
 
 **Step 2: Authenticate**
@@ -62,7 +62,7 @@ Add the following to `~/.codex/config.toml`:
 ```toml
 [[mcp_servers]]
 name = "extole"
-url = "https://mcp.extole.com/toolsets/extole/mcp"
+url = "https://mcp.extole.com"
 
 [mcp_servers.headers]
 Authorization = "Bearer <YOUR_ACCESS_TOKEN>"
@@ -75,7 +75,7 @@ Or in JSON format (`~/.codex/config.json`):
   "mcp_servers": [
     {
       "name": "extole",
-      "url": "https://mcp.extole.com/toolsets/extole/mcp",
+      "url": "https://mcp.extole.com",
       "headers": {
         "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
       }
