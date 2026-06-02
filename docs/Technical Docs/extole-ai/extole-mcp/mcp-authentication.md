@@ -37,7 +37,7 @@ After authorization, all MCP requests use your Extole permissions and access con
 ### MCP server URL
 
 ```
-https://mcp.extole.com/toolsets/extole/mcp
+https://mcp.extole.com
 ```
 
 ### Token scopes
@@ -70,7 +70,7 @@ Use this method when:
 ### Configuration
 
 ```
-https://mcp.extole.com/toolsets/extole/mcp
+https://mcp.extole.com
 ```
 
 Pass the token as an `Authorization: Bearer <YOUR_ACCESS_TOKEN>` header.
