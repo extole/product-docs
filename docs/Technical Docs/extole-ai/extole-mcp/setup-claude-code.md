@@ -64,15 +64,19 @@ claude
 4. Your browser will open to an Extole authorization page.
 5. Review the permissions and click **Authorize**.
 
+Extole will create an access token linked to your user account.
+
 **Step 4: Verify**
 
 The Extole server should show as connected in the `/mcp` list.
 
 ---
 
-### Option 3: Access Token
+### Option 3: API Key
 
-**Step 1: Get your access token**
+Use this method for automated workflows, CI/CD pipelines, or shared environments.
+
+**Step 1: Get your API key**
 
 Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
@@ -87,14 +91,30 @@ Add the following to `.mcp.json` (project-level) or `~/.claude/mcp.json` (global
       "type": "http",
       "url": "https://mcp.extole.com",
       "headers": {
-        "Authorization": "Bearer ${EXTOLE_ACCESS_TOKEN}"
+        "Authorization": "Bearer <YOUR_API_KEY>"
       }
     }
   }
 }
 ```
 
-Set `EXTOLE_ACCESS_TOKEN` in your shell environment to keep credentials out of version control.
+To keep credentials out of version control, use an environment variable:
+
+```json
+{
+  "mcpServers": {
+    "Extole": {
+      "type": "http",
+      "url": "https://mcp.extole.com",
+      "headers": {
+        "Authorization": "Bearer ${EXTOLE_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+Then set `EXTOLE_API_KEY` in your shell environment.
 
 **Step 3: Start a new Claude Code session**
 
@@ -116,10 +136,12 @@ Once connected, interact with your Extole programs in any Claude Code session:
 
 > *"Update the friend coupon value in campaign X to 15% off."*
 
-To pre-approve all Extole tools, start Claude Code with:
+By default, Claude Code will prompt you to approve each MCP tool call. To pre-approve all Extole tools, start Claude Code with:
 
 ```bash
 claude --allowed-tools 'mcp__extole__*'
 ```
 
-> **Write operations** — Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log.
+Or add `mcp__extole__*` to the `allowedTools` list in your Claude Code settings.
+
+> **Write operations** -- Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log. Review tool calls carefully before approving write operations.
