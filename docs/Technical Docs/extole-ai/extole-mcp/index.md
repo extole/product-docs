@@ -43,7 +43,3 @@ https://mcp.extole.com
 ## Authentication
 
 See the [MCP authentication guide](doc:mcp-authentication) for details on choosing and configuring either method.
-
-##
-
-<br />
