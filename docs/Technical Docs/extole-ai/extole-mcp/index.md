@@ -25,19 +25,7 @@ All actions execute under your own Extole permissions and are attributed to you 
 
 ## Authentication
 
-The Extole MCP Server supports two authentication methods:
-
-- **OAuth 2.0** — Recommended. Browser-based flow; no manual token management required. Uses authorization code with PKCE for secure, user-delegated access.
-- **Access Token** — Manual setup for centralized token management or automated workflows.
-
 See the [MCP authentication guide](doc:mcp-authentication) for details on choosing and configuring either method.
-
-## Security and access control
-
-- **User-scoped access** — All MCP requests execute as the authenticated user, subject to the same permissions as My.Extole.
-- **Token scopes** — Tokens can be issued with explicit scopes: superuser, read/write, or read-only.
-- **Change attribution** — Every action taken via MCP is recorded in the Extole change log with the originating user, tool, and timestamp.
-- **Token revocation** — Users and admins can revoke MCP access at any time from My.Extole.
 
 ## MCP server URL
 
@@ -49,10 +37,12 @@ https://mcp.extole.com
 
 Follow the setup guide for your AI client:
 
-| Client | Description |
-|--------|-------------|
-| [Claude Desktop](doc:setup-claude) | Desktop app version of Anthropic's Claude |
-| [Claude Code](doc:setup-claude-code) | Command-line Claude for agentic workflows |
-| [Cursor](doc:setup-cursor) | AI-powered code editor |
-| [ChatGPT](doc:setup-chatgpt) | OpenAI's AI assistant |
-| [Codex](doc:setup-codex) | OpenAI Codex CLI for automation and scripting |
+| Client                               | Description                                   |
+| ------------------------------------ | --------------------------------------------- |
+| [Claude Desktop](doc:setup-claude)   | Desktop app version of Anthropic's Claude     |
+| [Claude Code](doc:setup-claude-code) | Command-line Claude for agentic workflows     |
+| [Cursor](doc:setup-cursor)           | AI-powered code editor                        |
+| [ChatGPT](doc:setup-chatgpt)         | OpenAI's AI assistant                         |
+| [Codex](doc:setup-codex)             | OpenAI Codex CLI for automation and scripting |
+
+<br />
