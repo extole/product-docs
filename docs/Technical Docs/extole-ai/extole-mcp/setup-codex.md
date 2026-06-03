@@ -49,9 +49,9 @@ The Extole server should show as connected.
 
 ---
 
-### Option 2: Access Token
+### Option 2: API Key
 
-**Step 1: Get your access token**
+**Step 1: Get your API key**
 
 Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
@@ -65,7 +65,7 @@ name = "extole"
 url = "https://mcp.extole.com"
 
 [mcp_servers.headers]
-Authorization = "Bearer <YOUR_ACCESS_TOKEN>"
+Authorization = "Bearer <YOUR_API_KEY>"
 ```
 
 Or in JSON format (`~/.codex/config.json`):
@@ -77,14 +77,14 @@ Or in JSON format (`~/.codex/config.json`):
       "name": "extole",
       "url": "https://mcp.extole.com",
       "headers": {
-        "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+        "Authorization": "Bearer <YOUR_API_KEY>"
       }
     }
   ]
 }
 ```
 
-Replace `<YOUR_ACCESS_TOKEN>` with your Extole access token.
+Replace `<YOUR_API_KEY>` with your Extole API key.
 
 **Step 3: Verify**
 
@@ -106,14 +106,14 @@ Once connected, Extole tools are available in any Codex session:
 
 Run `codex --list-tools` to see which Extole tools are available.
 
-> **Write operations** — Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log.
+> **Write operations** -- Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log.
 
 ---
 
 ## Troubleshooting
 
-**"Tool not found"** — Confirm the URL is correct. Run `codex --list-tools` to see what's being discovered.
+**"Tool not found"** -- Confirm the URL is correct. Run `codex --list-tools` to see what's being discovered.
 
-**"Unauthorized"** — Check your token. Verify the `Bearer ` prefix is present.
+**"Unauthorized"** -- Check your token. Verify the `Bearer ` prefix is present.
 
-> **Note:** Codex CLI MCP support is evolving. Refer to the [Codex CLI documentation](https://github.com/openai/codex) for the latest configuration format.
+> **Note:** Codex CLI MCP support is evolving. Refer to the [Codex CLI documentation](https://github.com/openai/codex) for the latest configuration format if these steps differ from your version.
