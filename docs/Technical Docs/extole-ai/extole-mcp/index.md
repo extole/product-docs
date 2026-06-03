@@ -22,17 +22,13 @@ Once connected, your AI client can:
 
 All actions execute under your own Extole permissions and are attributed to you in the Extole change log — whether the change was made through the UI, the API, or your AI tool.
 
-## Authentication
-
-See the [MCP authentication guide](doc:mcp-authentication) for details on choosing and configuring either method.
-
 ## MCP server URL
 
 ```
 https://mcp.extole.com
 ```
 
-## Get started
+## Using Extole MCP via Connector with AI Tools
 
 Follow the setup guide for your AI client:
 
@@ -43,5 +39,11 @@ Follow the setup guide for your AI client:
 | [Cursor](doc:setup-cursor)           | AI-powered code editor                        |
 | [ChatGPT](doc:setup-chatgpt)         | OpenAI's AI assistant                         |
 | [Codex](doc:setup-codex)             | OpenAI Codex CLI for automation and scripting |
+
+## Authentication
+
+See the [MCP authentication guide](doc:mcp-authentication) for details on choosing and configuring either method.
+
+##
 
 <br />
