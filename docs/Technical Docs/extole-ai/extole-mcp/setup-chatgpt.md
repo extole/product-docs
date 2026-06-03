@@ -7,7 +7,7 @@ hidden: false
 ---
 Connect your Extole programs to ChatGPT and manage referrals with natural language.
 
-ChatGPT supports MCP connections, letting you bring Extole directly into your ChatGPT conversations. Once connected, you can run reports, query program configuration, and make changes — without opening My.Extole.
+ChatGPT supports MCP connections, letting you bring Extole directly into your ChatGPT conversations. Once connected, you can run reports, query program configuration, and make changes -- without opening My.Extole.
 
 ---
 
@@ -40,8 +40,10 @@ Click **Create** next to **Advanced settings**.
 
 **Step 3: Configure the connector**
 
-- **Connector name** — `Extole`
-- **Description** — `Manage Extole referral programs`
+Fill in the following fields:
+
+- **Connector name** -- `Extole`
+- **Description** -- `Manage Extole referral programs`
 - **Server URL**:
 
 ```
@@ -54,35 +56,43 @@ Click **Add**.
 
 ChatGPT will redirect you to an Extole authorization page. Review the permissions and click **Authorize**.
 
+Extole will create an access token linked to your user account.
+
 **Step 5: Verify the connection**
 
 In a new chat, click the **+** icon and select the Extole connector to enable it.
 
 ---
 
-### Option 2: Access Token
+### Option 2: API Key
 
-**Step 1: Get your access token**
+**Step 1: Get your API key**
 
 Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
 **Step 2: Open connector settings**
 
-In ChatGPT, navigate to **Settings > Apps & Connectors** and click **Create** next to **Advanced settings**.
+In ChatGPT, navigate to **Settings > Apps & Connectors**.
 
-**Step 3: Configure the connector**
+**Step 3: Create a new connector**
 
-- **Connector name** — `Extole`
-- **Description** — `Manage Extole referral programs`
+Click **Create** next to **Advanced settings**.
+
+**Step 4: Configure the connector**
+
+- **Connector name** -- `Extole`
+- **Description** -- `Manage Extole referral programs`
 - **Server URL**:
 
 ```
 https://mcp.extole.com
 ```
 
-- **Authentication**: Bearer token — enter your Extole access token
+**Step 5: Configure authentication**
 
-**Step 4: Verify the connection**
+Set the authentication method to **Bearer token** and enter your Extole API key.
+
+**Step 6: Verify the connection**
 
 In a new chat, click the **+** icon and select the Extole connector.
 
@@ -90,7 +100,7 @@ In a new chat, click the **+** icon and select the Extole connector.
 
 ## Using the MCP
 
-Once the connector is enabled, interact with your Extole programs directly:
+Once the connector is enabled in a chat, interact with your Extole programs directly:
 
 > *"Show me the performance summary for my refer-a-friend program this quarter."*
 
@@ -98,12 +108,14 @@ Once the connector is enabled, interact with your Extole programs directly:
 
 > *"Increase the friend reward in campaign X to $10."*
 
-> **Write operations** — Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log.
+For write operations, you may be prompted to confirm the action before it proceeds.
+
+> **Write operations** -- Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log. Review prompts carefully before approving write operations.
 
 ---
 
 ## Troubleshooting
 
-**Connector not showing** — Verify you're on a ChatGPT plan that supports connectors.
+**Connector not showing** -- Verify you're on a ChatGPT plan that supports connectors (Pro, Plus, Team, Business, Enterprise, or Education).
 
-**"Unauthorized"** — Check that your access token is entered correctly, or re-authorize via OAuth.
+**"Unauthorized"** -- Check that your API key is entered correctly with no extra spaces, or re-authorize via OAuth.
