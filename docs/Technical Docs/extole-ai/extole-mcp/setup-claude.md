@@ -7,7 +7,7 @@ hidden: false
 ---
 Connect your Extole programs to Claude Desktop and manage referrals with natural language.
 
-Claude Desktop is the app version of Anthropic's Claude. Once connected to Extole, you can run reports, check program performance, and make changes to your programs directly in Claude — without opening My.Extole.
+Claude Desktop is the app version of Anthropic's Claude. Once connected to Extole, you can run reports, check program performance, and make changes to your programs directly in Claude -- without opening My.Extole.
 
 > Looking for Claude Code? If you work in the terminal, see the [Claude Code guide](doc:setup-claude-code) instead.
 
@@ -32,7 +32,7 @@ Choose your authentication method. See the [MCP authentication guide](doc:mcp-au
 
 ### Option 1: OAuth (Recommended)
 
-OAuth provides the fastest setup — no manual token management required.
+OAuth provides the fastest setup -- no manual key management required.
 
 **Step 1: Open Claude Desktop settings**
 
@@ -46,8 +46,8 @@ Click **Add custom connector**.
 
 Fill in the following:
 
-- **Name** — `Extole`
-- **Remote MCP Server URL** — Paste the following:
+- **Name** -- `Extole`
+- **Remote MCP Server URL** -- Paste the following:
 
 ```
 https://mcp.extole.com
@@ -59,15 +59,19 @@ Click **Add**.
 
 Click **Connect** next to the Extole connector. Your browser will open to an Extole authorization page. Review the permissions and click **Authorize**.
 
+Extole will create an access token linked to your user account.
+
 **Step 5: Verify the connection**
 
 In a chat, click the **+** icon, then **Connectors**. Your Extole connector should appear as enabled.
 
 ---
 
-### Option 2: Access Token
+### Option 2: API Key
 
-**Step 1: Get your access token**
+Use this method if you need centralized key management or if your organization doesn't use OAuth.
+
+**Step 1: Get your API key**
 
 Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
@@ -86,16 +90,18 @@ Click **Edit Config**. This opens `claude_desktop_config.json`. Add the followin
       "type": "http",
       "url": "https://mcp.extole.com",
       "headers": {
-        "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+        "Authorization": "Bearer <YOUR_API_KEY>"
       }
     }
   }
 }
 ```
 
+Replace `<YOUR_API_KEY>` with your Extole API key.
+
 **Step 4: Restart Claude Desktop**
 
-Save and restart.
+Save the file and restart Claude Desktop.
 
 **Step 5: Verify the connection**
 
@@ -111,11 +117,13 @@ If you have the [Extole CLI](doc:extole-cli) installed, one command configures e
 extole serve setup
 ```
 
-Restart Claude Desktop — done. To remove the registration: `extole serve remove`.
+Restart Claude Desktop -- done. The CLI auto-detects the config file location and writes the MCP server entry for you. To remove the registration: `extole serve remove`.
 
 ---
 
 ## Using the MCP
+
+Once connected, Claude Desktop uses the Extole MCP automatically when you ask questions about your programs or request changes.
 
 Open a chat and enter a prompt, for example:
 
@@ -127,15 +135,15 @@ Open a chat and enter a prompt, for example:
 
 The first time Claude uses an Extole tool, you'll be prompted to approve it. Click **Allow once** or **Allow always** to proceed.
 
-> **Write operations** — Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log. Review prompts carefully before approving write operations.
+> **Write operations** -- Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log. Review prompts carefully before approving write operations.
 
 ---
 
 ## Troubleshooting
 
-**"No tools available"** — Restart Claude Desktop after editing the config file. Verify the JSON is valid (no trailing commas).
+**"No tools available"** -- Restart Claude Desktop after editing the config file. Verify the JSON is valid (no trailing commas).
 
-**"Unauthorized"** — Your token may be incorrect or expired. Regenerate it at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
+**"Unauthorized"** -- Your token may be incorrect or expired. Regenerate it at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
 **Config file location (for manual setup):**
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
