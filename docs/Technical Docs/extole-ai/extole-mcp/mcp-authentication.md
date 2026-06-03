@@ -3,7 +3,7 @@ title: MCP Authentication
 excerpt: Choose between OAuth and access token authentication for Extole MCP clients.
 hidden: false
 ---
-Choose how to authenticate MCP clients with Extole: OAuth for streamlined setup or access tokens for manual control.
+This should only be used if you are not accessing MCP using one of the popular AI tools.&#x20;
 
 The Extole MCP Server supports two authentication methods:
 
