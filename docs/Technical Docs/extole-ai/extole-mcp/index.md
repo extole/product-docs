@@ -16,39 +16,35 @@ The Extole MCP (Model Context Protocol) Server lets you use whatever AI tool you
 
 **For Marketers**
 
-> *"Show me a diagram of my refer a friend program"*
+Get information about your programs, participants, and performance easily.
 
-> *"How many advocates did we have last week?"*
+> _"Show me a diagram of my refer a friend program"_
 
-> *"How is my welcome offer doing?"*
+> _"How many advocates did we have last week?"_
 
-> *"Show me the rules on the superadvocate program"*
+> _"How is my welcome offer doing?"_
+
+> _"Show me the rules on the superadvocate program"_
 
 **For Developers**
 
-> *"Please provide a description of the integrations with my Extole account"*
+Understand how you are integrated and get help connecting your systems to Extole.
 
-> *"Show me the rules on the superadvocate program"*
+> _"Please provide a description of the integrations with my Extole account"_
 
-> *"How do I create a tag for a referral promotion?"*
+> _"Show me the rules on the superadvocate program"_
 
-> *"How do I integrate with iOS?"*
+> _"How do I create a tag for a referral promotion?"_
+
+> _"How do I integrate with iOS?"_
 
 **For Support**
 
-> *"Why did maryc@domain.com not get a reward?"*
+Investigate reward questions directly through
 
-> *"What is the reward for the refer-a-friend program?"*
+> _"Why did [maryc@domain.com](mailto:maryc@domain.com) not get a reward?"_
 
----
-
-## What you can do
-
-Once connected, your AI client can:
-
-- **Run reports** -- pull performance data, participant history, reward status, and conversion reports
-- **Query program configuration** -- inspect program status, component structure, and campaign settings
-- **Answer support questions** -- investigate issues with rewards not received
+> _"What is the reward for the refer-a-friend program?"_
 
 All actions execute under your own Extole permissions and are attributed to you in the Extole change log -- whether the change was made through the UI, the API, or your AI tool.
 
@@ -56,13 +52,13 @@ All actions execute under your own Extole permissions and are attributed to you 
 
 Follow the setup guide for your AI client:
 
-| Client | Description |
-|--------|-------------|
-| [Claude Desktop](doc:setup-claude) | Desktop app version of Anthropic's Claude |
-| [Claude Code](doc:setup-claude-code) | Command-line Claude for agentic workflows |
-| [Cursor](doc:setup-cursor) | AI-powered code editor |
-| [ChatGPT](doc:setup-chatgpt) | OpenAI's AI assistant |
-| [Codex](doc:setup-codex) | OpenAI Codex CLI for automation and scripting |
+| Client                               | Description                                   |
+| ------------------------------------ | --------------------------------------------- |
+| [Claude Desktop](doc:setup-claude)   | Desktop app version of Anthropic's Claude     |
+| [Claude Code](doc:setup-claude-code) | Command-line Claude for agentic workflows     |
+| [Cursor](doc:setup-cursor)           | AI-powered code editor                        |
+| [ChatGPT](doc:setup-chatgpt)         | OpenAI's AI assistant                         |
+| [Codex](doc:setup-codex)             | OpenAI Codex CLI for automation and scripting |
 
 ## Access the MCP server directly in other tools
 
