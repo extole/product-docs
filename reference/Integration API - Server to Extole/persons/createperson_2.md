@@ -1,6 +1,6 @@
 ---
 api:
   file: integration-server-to-extole.json
-  operationId: createPerson
+  operationId: createPerson_2
 hidden: false
 ---

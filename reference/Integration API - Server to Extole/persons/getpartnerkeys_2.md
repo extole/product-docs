@@ -1,6 +1,6 @@
 ---
 api:
   file: integration-server-to-extole.json
-  operationId: getPerson
+  operationId: getPartnerKeys_2
 hidden: false
 ---
