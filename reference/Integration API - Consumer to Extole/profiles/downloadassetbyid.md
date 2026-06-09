@@ -1,6 +1,6 @@
 ---
 api:
   file: integration-consumer-to-extole.json
-  operationId: fetchZoneWeb
+  operationId: downloadAssetById
 hidden: false
 ---
