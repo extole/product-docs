@@ -1,6 +1,6 @@
 ---
 api:
   file: integration-consumer-to-extole.json
-  operationId: getStatus_2
+  operationId: getPublicShare
 hidden: false
 ---

@@ -1,6 +1,6 @@
 ---
 api:
   file: integration-consumer-to-extole.json
-  operationId: getPublicPersonSteps_2
+  operationId: getPublicPersonV4
 hidden: false
 ---

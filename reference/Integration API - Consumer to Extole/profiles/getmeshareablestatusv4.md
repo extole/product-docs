@@ -1,6 +1,6 @@
 ---
 api:
   file: integration-consumer-to-extole.json
-  operationId: createMeShareable
+  operationId: getMeShareableStatusV4
 hidden: false
 ---

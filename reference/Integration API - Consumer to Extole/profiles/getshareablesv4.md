@@ -1,6 +1,6 @@
 ---
 api:
   file: integration-consumer-to-extole.json
-  operationId: getShareable
+  operationId: getShareablesV4
 hidden: false
 ---

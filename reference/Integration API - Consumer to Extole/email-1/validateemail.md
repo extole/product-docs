@@ -1,6 +1,6 @@
 ---
 api:
   file: integration-consumer-to-extole.json
-  operationId: updateMeShareable
+  operationId: validateEmail
 hidden: false
 ---

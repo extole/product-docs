@@ -1,6 +1,6 @@
 ---
 api:
   file: integration-consumer-to-extole.json
-  operationId: batchEmailShareAdvocateCode
+  operationId: getPublicShares
 hidden: false
 ---
