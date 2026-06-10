@@ -1572,12 +1572,7 @@
       "EventDispatcherRequest": {
         "properties": {
           "data": {
-            "additionalProperties": {
-              "description": "Open map of event data. `email` is the primary identity key and the only field that enables profile merging. `partner_user_id` is a secondary lookup key and is not guaranteed unique.",
-              "type": "object"
-            },
-            "description": "Open map of event data. `email` is the primary identity key and the only field that enables profile merging. `partner_user_id` is a secondary lookup key and is not guaranteed unique.",
-            "type": "object"
+            "$ref": "#/components/schemas/EventSubmissionData"
           },
           "event_name": {
             "description": "Name of the event being submitted (for example, `conversion` or `registration`). Required.",
@@ -1610,6 +1605,42 @@
           "event_id",
           "person_id"
         ],
+        "type": "object"
+      },
+      "EventSubmissionData": {
+        "additionalProperties": true,
+        "description": "Open map of fields submitted with an event. May include keys beyond those listed here. `email` is the primary identity key and the only field that enables profile merging. `partner_user_id` is a secondary lookup key and is not guaranteed unique.",
+        "example": {
+          "email": "user@example.com",
+          "event_time": "2024-01-15T12:00:00Z",
+          "partner_user_id": "usr_8392047156",
+          "person_id": 7465313346145957000
+        },
+        "properties": {
+          "email": {
+            "description": "Primary identity key. The only data-map field that enables profile merging when submitted.",
+            "example": "user@example.com",
+            "format": "email",
+            "type": "string"
+          },
+          "event_time": {
+            "description": "ISO 8601 timestamp of when the event occurred. Optional; defaults to the time the request is received. Use for backdated events. On wrapped request bodies this is an alternative to the top-level `event_time` field.",
+            "example": "2024-01-15T12:00:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "partner_user_id": {
+            "description": "Secondary lookup key for an existing profile. Not guaranteed unique across your program.",
+            "example": "usr_8392047156",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person identifier. Numeric. Submit to target an existing profile instead of resolving by email or partner user id.",
+            "example": 7465313346145957000,
+            "format": "int64",
+            "type": "integer"
+          }
+        },
         "type": "object"
       },
       "ExternalSftpDestinationCreateRequest": {
@@ -15055,10 +15086,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "type": "object"
+                "$ref": "#/components/schemas/EventSubmissionData"
               }
             }
           }
@@ -16650,10 +16678,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "type": "object"
+                "$ref": "#/components/schemas/EventSubmissionData"
               }
             }
           }
