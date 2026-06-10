@@ -15,7 +15,7 @@ The Extole CLI is a command-line tool for developers who want to interact with E
 ## Install
 
 ```bash
-npm install -g github:cduskin-cpu/extole-cli
+npm install -g github:extole/extole-cli
 ```
 
 Verify:
