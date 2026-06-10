@@ -1,6 +1,0 @@
----
-api:
-  file: management.json
-  operationId: listBuiltCustomRewardSuppliers
-hidden: false
----
