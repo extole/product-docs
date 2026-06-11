@@ -201,19 +201,45 @@ mutation VouchersCreate {
 }
 ```
 
-### Use Case #3: Segment referred customers in Boulevard
+### Use Case #3: Segment and view referral and loyalty clients within BLVD
 
-You can also create lists of referred clients in Boulevard using the Extole integration. Provide the following values to your Extole team, who will then create a webhook that fires a mutation into Boulevard's graphQL Admin API when a referred client completes their appointment. The webhook will contain the following properties.
+You can also create lists of referred or loyalty clients in Boulevard using the Extole integration. Provide the following values to your Extole team, who will then create a webhook that fires a mutation into Boulevard's graphQL Admin API when a referred client completes their appointment. The webhook will contain the following properties.
 
-| Webhook Event Property | Value                                                                                                               |
-| :--------------------- | :------------------------------------------------------------------------------------------------------------------ |
-| `name`                 | A name to represent the segment of clients. By default, Extole will use “Referrals” however this can be customized. |
-| `symbol`               | An emoji used to represent the Client Segment. By default, Extole will use “👯‍♀️” however this can be customized.  |
+| Webhook Event Property | Value                                                                                                                                                  |
+| :--------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`                 | A name to represent the segment of clients. By default, Extole will use “Referrals” or "Loyalty" however this can be customized.                       |
+| `symbol`               | An emoji used to represent the Client Segment. By default, Extole will use “👯‍♀️” for referrals or "🏆" for loyalty,  however this can be customized. |
 
 
 <Image src="https://files.readme.io/7139fcd7660e73bd4a7981d75ae235c190ad01f66cced29329a6485029af5509-0ef6be7-Screenshot_2024-05-13_at_2.31.40_PM.png" align="center" />
 
 
-## Customizations
+<br />
 
-To test gift card codes in your staging environment, work with your Extole and Boulevard teams to set up a separate staging API integration in the Extole platform.
+Additionally, Extole can update a loyalty users total points balance in BLVD as they earn and redeem points.
+
+![](https://files.readme.io/4e9101eb442b65f32c743c8800a2d79700529005a2acb254e3462dc677dbcd7d-Screenshot_2026-06-11_at_9.10.22_AM.png)
+
+First, create a custom field in your BLVD dashboard and name it `Loyalty Points Balance`. Extole can then query BLVD's API to locate the key for the custom field.<br /><br />From there, Extole will fire a real-time mutation to update the users points balance using [`https://dashboard.boulevard.io/api/2020-01/admin`](https://dashboard.boulevard.io/api/2020-01/admin)
+
+```json
+mutation {
+  updateClient(
+    input: {
+      id: "urn:blvd:Client:11111111-2222-3333-4444-555555555555"
+      customFields: [
+        {
+          key: "dashboardField-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+          textValue: "12345"
+        }
+      ]
+    }
+  ) {
+    client {
+      id
+    }
+  }
+}
+```
+
+<br />
