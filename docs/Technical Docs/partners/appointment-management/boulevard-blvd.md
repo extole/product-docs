@@ -6,7 +6,7 @@ excerpt: >
 ---
 ## Overview
 
-Acquire and retain loyal clients with the Extole and Boulevard integration. Acquire and retain loyal clients by connecting Boulevard’s appointment management platform with Extole’s loyalty and referral marketing solutions. This integration automatically tracks key client milestones, such as when appointments are created, confirmed, or canceled -- and seamlessly rewards them with points, BLVD vouchers, account credits, or gift card codes. Additionally, you can view and segment your loyalty and referral program clients directly within Boulevard to power targeted future marketing campaigns and promotions.
+Acquire and retain loyal clients by connecting Boulevard’s appointment management platform with Extole’s loyalty and referral marketing programs. This integration automatically tracks key client milestones, such as when appointments are created, confirmed, or canceled -- and seamlessly rewards them with points, BLVD vouchers, account credits, or gift card codes. Additionally, you can view and segment your loyalty and referral program clients directly within Boulevard to power targeted future marketing campaigns and promotions.
 
 [Learn more about Boulevard](https://www.joinblvd.com/).
 
