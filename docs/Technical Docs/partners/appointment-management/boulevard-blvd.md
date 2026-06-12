@@ -25,7 +25,7 @@ Acquire and retain loyal clients by connecting Boulevard’s appointment managem
 
 ## Integration
 
-### Use Case #1: Use BLVD events to trigger actions (rewards, emails) and create audiences in your Extole cmpaigns
+### Use Case #1: Use BLVD events to trigger actions (rewards, emails) and create audiences in your Extole campaigns
 
 Use Boulevard webhooks to notify Extole as clients perform certain actions through the BLVD platform. See commonly used events in the table below, or [refer to BLVD's documentation for a list of available events](https://developers.joinblvd.com/graphql-admin-api/api-reference/types/EventType).
 
