@@ -46,7 +46,7 @@ First, obtain your Extole Access Token and Events API URL to begin configuring w
 | Extole Access Token   | A secure access token to authenticate and integrate with Extole’s Events API. Generate your token within the Security Center of your Extole account and save it in a safe place as you won’t be able to access it beyond this point. |
 | Extole Events API URL | The endpoint Boulevard will use to send client events to Extole.<br />[https://api.extole.io/v5/events](https://api.extole.io/v5/events)                                                                                             |
 
-Then, use the Boulevard platform to create webhooks for each of the events events. You can keep the default data properties as is. Extole will map Boulevard’s default properties to Extole’s defaults in the Extole platform.
+Then, use the Boulevard platform to create webhooks for each of the events.&#x20;
 
 Example payload:
 
