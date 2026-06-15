@@ -24,7 +24,7 @@ Installs to `/usr/local/bin/extole` when that directory is writable. Otherwise (
 
 **Binary -- Windows:**
 
-Download `extole-windows-x64.exe` from the [latest release](https://github.com/extole/extole-cli/releases/latest), rename it to `extole.exe`, and place it somewhere on your `PATH`.
+Download `extole-windows-x64.exe` from the <Anchor target="_blank" href="https://github.com/extole/extole-cli/releases/latest">latest release</Anchor>, rename it to `extole.exe`, and place it somewhere on your `PATH`.
 
 **Homebrew (Mac):**
 
