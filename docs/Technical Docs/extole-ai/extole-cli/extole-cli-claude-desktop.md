@@ -10,7 +10,7 @@ The Extole CLI can configure Claude Desktop as an MCP client in one command, wit
 ## Prerequisites
 
 - [Extole CLI](doc:extole-cli) installed and authenticated
-- [Claude Desktop](https://claude.ai/download) installed
+- <Anchor target="_blank" href="https://claude.ai/download">Claude Desktop</Anchor> installed
 
 ## Setup
 
