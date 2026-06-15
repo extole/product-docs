@@ -5,8 +5,6 @@ excerpt: >-
   scripts and AI tools.
 hidden: false
 ---
-Developer CLI for the Extole API.
-
 ## Requirements
 
 - An Extole account with an API token (see [Getting a Token](#getting-a-token))
