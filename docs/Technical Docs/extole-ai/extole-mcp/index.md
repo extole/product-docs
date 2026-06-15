@@ -1,15 +1,13 @@
 ---
 title: Extole MCP Server
 excerpt: >-
-  Connect your AI tools to Extole and manage your referral programs using
-  natural language.
+  Connect your AI tools to Extole and manage your referral programs with your
+  favorite AI
 deprecated: false
 hidden: false
 metadata:
   robots: index
 ---
-Connect your AI tools to Extole and manage your referral programs using natural language.
-
 The Extole MCP (Model Context Protocol) Server lets you use whatever AI tool you already work in -- Claude, ChatGPT, Cursor, or any MCP-compatible client -- to monitor and manage your Extole programs without logging into My.Extole.
 
 ## What can you ask?
@@ -48,11 +46,11 @@ Investigate reward questions directly through
 
 All actions execute under your own Extole permissions and are attributed to you in the Extole change log -- whether the change was made through the UI, the API, or your AI tool.
 
-#### Giving Feedback
-
-Our MCP is always changing and improving. If you run into an issue, just type this prompt:<br />_Please report an issue to Extole_
-
-It will open an ticket for us and help us improve your experience.
+> 📘 Giving Feedback
+>
+> Our MCP is always changing and improving. If you run into an issue, just type this prompt:
+>
+> ### _"Please report this issue to Extole"_
 
 ## Using Extole MCP via Connector with AI Tools
 
