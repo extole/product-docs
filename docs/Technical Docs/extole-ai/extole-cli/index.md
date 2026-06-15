@@ -7,7 +7,6 @@ hidden: false
 ---
 Developer CLI for the Extole API.
 
-
 ## Requirements
 
 - An Extole account with an API token (see [Getting a Token](#getting-a-token))
@@ -16,6 +15,7 @@ Developer CLI for the Extole API.
 ## Install
 
 **Binary (no Node required) -- Mac and Linux:**
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/extole/extole-cli/master/install.sh | sh
 ```
@@ -27,16 +27,19 @@ Installs to `/usr/local/bin/extole` when that directory is writable. Otherwise (
 Download `extole-windows-x64.exe` from the [latest release](https://github.com/extole/extole-cli/releases/latest), rename it to `extole.exe`, and place it somewhere on your `PATH`.
 
 **Homebrew (Mac):**
+
 ```bash
 brew install extole/tap/extole
 ```
 
 **npm (requires Node 22.12+):**
+
 ```bash
 npm install -g @extole/cli
 ```
 
 **From source (requires Node 22.12+):**
+
 ```bash
 git clone https://github.com/extole/extole-cli.git
 cd extole-cli
@@ -73,7 +76,7 @@ For help on any command: `extole --help`, `extole <command> --help`
 
 ## Getting a Token
 
-Log in to [my.extole.com](https://my.extole.com), navigate to **Settings → API Access**, and create or copy an API token. The token needs `CLIENT_ADMIN` scope for most read operations and `CLIENT_SUPERUSER` for write operations and advanced diagnostics.
+Log in to <Anchor target="_blank" href="https://my.extole.com">my.extole.com</Anchor>, navigate to **Settings → API Access**, and create or copy an API token. The token needs `CLIENT_ADMIN` scope for most read operations and `CLIENT_SUPERUSER` for write operations and advanced diagnostics.
 
 Contact your Extole account team if you do not have access to API settings.
 
@@ -178,6 +181,7 @@ extole rewards find-coupon <code>           # reverse lookup: who got this coupo
 Reward states: `EARNED`, `FULFILLED`, `SENT`, `REDEEMED`, `CANCELED`, `FAILED`, `EXPIRED`
 
 Error messages are unambiguous about whether the person exists:
+
 - `No person found for jane@example.com` -- email not in Extole
 - `No rewards found for jane@example.com (person ID: abc123)` -- person exists, genuinely zero rewards
 
@@ -212,7 +216,7 @@ extole reward-suppliers upload-coupons <supplier-id> --file ./coupons.txt
 extole reward-suppliers upload-coupons <supplier-id> --file ./coupons.txt --dry-run
 ```
 
-The list uses the `/built` endpoint so component-bundle suppliers display their resolved values. `coupons` refuses non-MANUAL_COUPON suppliers -- other types mint codes on demand. `create` supports typed flags for `MANUAL_COUPON` and `CUSTOM_REWARD`; use `--body <json>` for `TANGO_V2`, `PAYPAL_PAYOUTS`, and `SALESFORCE_COUPON`. `upload-coupons` accepts a flat text file (one code per line) or `--codes` for inline lists; use `--dry-run` to preview.
+The list uses the `/built` endpoint so component-bundle suppliers display their resolved values. `coupons` refuses non-MANUAL\_COUPON suppliers -- other types mint codes on demand. `create` supports typed flags for `MANUAL_COUPON` and `CUSTOM_REWARD`; use `--body <json>` for `TANGO_V2`, `PAYPAL_PAYOUTS`, and `SALESFORCE_COUPON`. `upload-coupons` accepts a flat text file (one code per line) or `--codes` for inline lists; use `--dry-run` to preview.
 
 ## Programs
 
@@ -398,7 +402,7 @@ extole zones call <zone_name> --email <email> --param partner_user_id=abc123
 extole zones call <zone_name> --email <email> --json
 ```
 
-`zones call` POSTs to `/v5/zones/<zone_name>` -- useful for testing FRONTEND_CONTROLLER + DISPLAY pipelines without a browser.
+`zones call` POSTs to `/v5/zones/<zone_name>` -- useful for testing FRONTEND\_CONTROLLER + DISPLAY pipelines without a browser.
 
 ## Events
 
@@ -450,6 +454,7 @@ extole events listen --json                               # newline-delimited JS
 Creates an ephemeral `/v6/event-streams` session, polls every 2.5s, and cleans up on Ctrl+C or when `--duration`/`--tail` is reached.
 
 **Recommended starting filters for production clients** (unfiltered streams are very noisy):
+
 ```
 extole events listen --event-type INPUT                      # business events fired by integrations
 extole events listen --event-type INPUT --event-type REWARD  # business events + reward issuance
@@ -458,32 +463,32 @@ extole events listen --app-type my_integration               # only events from 
 
 **Event type reference:**
 
-| Type | What it is |
-|---|---|
-| `INPUT` | Business events fired by integrations (lead_created, opportunity_closedwon, etc.) |
-| `REWARD` | Reward state transitions (issued, fulfilled, redeemed) |
-| `STEP` | Processing steps triggered by input events |
-| `SHARE` | Share link clicks and share actions |
-| `REFERRED` / `REFERRED_BY` | Friend-side referral events |
-| `IDENTIFIED` | Identity resolution events |
-| `REDEEMED` | Redemption events |
-| `MESSAGE` | Email/message delivery events |
-| `SEND_REWARD` | Reward send attempts |
-| `INTERNAL` | Internal system events |
-| `DATA_INTELLIGENCE` | Fraud/quality scoring events |
-| `AUDIENCE_MEMBERSHIP_*` | Audience list membership changes |
-| `ACTION` | Legacy action events |
+| Type                       | What it is                                                                          |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| `INPUT`                    | Business events fired by integrations (lead\_created, opportunity\_closedwon, etc.) |
+| `REWARD`                   | Reward state transitions (issued, fulfilled, redeemed)                              |
+| `STEP`                     | Processing steps triggered by input events                                          |
+| `SHARE`                    | Share link clicks and share actions                                                 |
+| `REFERRED` / `REFERRED_BY` | Friend-side referral events                                                         |
+| `IDENTIFIED`               | Identity resolution events                                                          |
+| `REDEEMED`                 | Redemption events                                                                   |
+| `MESSAGE`                  | Email/message delivery events                                                       |
+| `SEND_REWARD`              | Reward send attempts                                                                |
+| `INTERNAL`                 | Internal system events                                                              |
+| `DATA_INTELLIGENCE`        | Fraud/quality scoring events                                                        |
+| `AUDIENCE_MEMBERSHIP_*`    | Audience list membership changes                                                    |
+| `ACTION`                   | Legacy action events                                                                |
 
 ## Webhooks
 
 Outbound webhooks send Extole events to external systems via HTTP POST. Four types:
 
-| Type | When it fires | Unique field |
-|---|---|---|
-| `GENERIC` | Person/consumer journey events (referral, share, purchase, custom input events) | -- |
-| `CLIENT` | Admin/operational events -- config change, report complete, campaign started, webhook failure, etc. | -- |
-| `REWARD` | Reward state transitions (EARNED, FULFILLED, FAILED, etc.) | `filters` |
-| `PARTNER` | Manual dispatch only -- no automatic trigger | `response_body_handler` (parses HTTP response body) |
+| Type      | When it fires                                                                                       | Unique field                                        |
+| --------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `GENERIC` | Person/consumer journey events (referral, share, purchase, custom input events)                     | --                                                  |
+| `CLIENT`  | Admin/operational events -- config change, report complete, campaign started, webhook failure, etc. | --                                                  |
+| `REWARD`  | Reward state transitions (EARNED, FULFILLED, FAILED, etc.)                                          | `filters`                                           |
+| `PARTNER` | Manual dispatch only -- no automatic trigger                                                        | `response_body_handler` (parses HTTP response body) |
 
 ```
 extole webhooks                                    # list all webhooks with URL
@@ -592,7 +597,7 @@ extole notifications --listen          # tail new ones as they arrive (default 1
 extole notifications --json            # raw response, suitable for scripting
 ```
 
-Each notification shows time, level, name, message, and key data fields (campaign_id, controller_id, person_id, cause_event_id) -- most of which feed into other CLI commands.
+Each notification shows time, level, name, message, and key data fields (campaign\_id, controller\_id, person\_id, cause\_event\_id) -- most of which feed into other CLI commands.
 
 ## Reports
 
@@ -673,6 +678,7 @@ Exit codes: `0` = all checks pass, `1` = one or more failures, `2` = bad input o
 `extole chat` gives access to an Extole AI agent with deep knowledge of the API, component model, event semantics, and reward flows. Use it **before** exploring blindly.
 
 Good uses:
+
 - **API discovery**: "what endpoint do I use to filter steps by a specific event?"
 - **Concept clarification**: "what's the difference between a journey and a step?"
 - **Debugging guidance**: "why would a purchase event not trigger a reward?"
@@ -736,6 +742,7 @@ GET by default. `--method` to override, `--body` for POST/PUT/PATCH, `--auth-bas
 ## Config File
 
 `~/.extole/config`:
+
 ```json
 {
   "_default": "acme",
@@ -746,7 +753,7 @@ GET by default. `--method` to override, `--body` for POST/PUT/PATCH, `--auth-bas
 
 ## Contributing
 
-Bug reports and feature requests are welcome via [GitHub Issues](https://github.com/extole/extole-cli/issues). For bugs, include the CLI version (`extole --version`), the command you ran, and the output.
+Bug reports and feature requests are welcome via <Anchor target="_blank" href="https://github.com/extole/extole-cli/issues">GitHub Issues</Anchor>. For bugs, include the CLI version (`extole --version`), the command you ran, and the output.
 
 ## License
 
