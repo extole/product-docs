@@ -10,7 +10,7 @@ The Extole CLI can configure Claude Code as an MCP client in one command.
 ## Prerequisites
 
 - [Extole CLI](doc:extole-cli) installed and authenticated
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
+- <Anchor target="_blank" href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</Anchor> installed
 
 ## Setup
 
@@ -34,7 +34,7 @@ The Extole tools will be available immediately.
 
 Ask about your programs in the chat:
 
-> *"What programs are active right now?"*
+> _"What programs are active right now?"_
 
 Or run `/mcp` to see the Extole server listed as connected.
 
@@ -56,6 +56,6 @@ Re-run `claude` to pick up the change.
 
 ## Troubleshooting
 
-**Extole not listed in `/mcp`** — Run `extole serve setup` again, then start a new session.
+**Extole not listed in&#x20;**`/mcp` — Run `extole serve setup` again, then start a new session.
 
 **Auth errors** — Run `extole auth status` to confirm your token is valid.
