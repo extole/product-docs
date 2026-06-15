@@ -48,6 +48,12 @@ Investigate reward questions directly through
 
 All actions execute under your own Extole permissions and are attributed to you in the Extole change log -- whether the change was made through the UI, the API, or your AI tool.
 
+#### Giving Feedback
+
+Our MCP is always changing and improving. If you run into an issue, just type this prompt:<br />_Please report an issue to Extole_
+
+It will open an ticket for us and help us improve your experience.
+
 ## Using Extole MCP via Connector with AI Tools
 
 Follow the setup guide for your AI client:
