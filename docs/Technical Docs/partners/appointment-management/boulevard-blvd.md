@@ -1,11 +1,12 @@
 ---
-title: "Boulevard (BLVD)"
-excerpt: "Boulevard is the first and only client experience platform for appointment-based, self-care businesses.\n"
+title: Boulevard (BLVD)
+excerpt: >
+  Boulevard is the first and only client experience platform for
+  appointment-based, self-care businesses.
 ---
-
 ## Overview
 
-Acquire and retain loyal clients with the Extole and Boulevard integration. This integration connects Boulevard's appointment management platform with Extole’s customer engagement and referral marketing platform. Automatically track when referred friends create, confirm, create, or cancel their appointments, and reward them and your advocates with one-time use discount codes (via Boulevard gift cards) that they can use towards their service. Plus, segment your referred clients in Boulevard for future marketing and promotions.
+Acquire and retain loyal clients by connecting Boulevard’s appointment management platform with Extole’s loyalty and referral marketing programs. This integration automatically tracks key client milestones, such as when appointments are created, confirmed, or canceled -- and seamlessly rewards them with points, BLVD vouchers, account credits, or gift card codes. Additionally, you can view and segment your loyalty and referral program clients directly within Boulevard to power targeted future marketing campaigns and promotions.
 
 [Learn more about Boulevard](https://www.joinblvd.com/).
 
@@ -18,15 +19,15 @@ Acquire and retain loyal clients with the Extole and Boulevard integration. This
 
 ## Use Cases
 
-1. Create audiences and trigger actions (emails, rewards) in the Extole platform using BLVD events.
-2. Automatically create and issue discount codes (gift cards) to participants who earn rewards in your Extole-powered programs.
-3. Segment your referred customers in Boulevard. Extole will automatically add a “referral” attribute to a client's Boulevard profile when they complete their appointment.
+1. Use BLVD events in your loyalty and referral programs to trigger actions (rewards, emails) and create audiences.&#x20;
+2. Automatically create and issue vouchers and account credits as users earn and redeem rewards.
+3. Segment and view your referral and loyalty program clients in Boulevard. Extole can automatically tag profiles with "referral" or "loyalty" attributes for segmentation, and also display a clients available points within their BLVD profile.&#x20;
 
 ## Integration
 
-### Use Case #1: Create audiences & trigger actions using BLVD client events
+### Use Case #1: Use BLVD events to trigger actions (rewards, emails) and create audiences in your Extole campaigns
 
-Use Boulevard webhooks to notify Extole as clients perform certain actions using the BLVD platform. See commonly used events in the table below, or [refer to BLVD's documentation for a list of available events](https://developers.joinblvd.com/graphql-admin-api/api-reference/types/EventType).
+Use Boulevard webhooks to notify Extole as clients perform certain actions through the BLVD platform. See commonly used events in the table below, or [refer to BLVD's documentation for a list of available events](https://developers.joinblvd.com/graphql-admin-api/api-reference/types/EventType).
 
 | Event name                     | Description                                                        |
 | :----------------------------- | :----------------------------------------------------------------- |
@@ -40,44 +41,12 @@ Use Boulevard webhooks to notify Extole as clients perform certain actions using
 
 First, obtain your Extole Access Token and Events API URL to begin configuring webhooks in Boulevard's platform.
 
-<Table align={["left","left"]}>
-  <thead>
-    <tr>
-      <th>
-        Requirement
-      </th>
+| Requirement           | Description                                                                                                                                                                                                                          |
+| :-------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Extole Access Token   | A secure access token to authenticate and integrate with Extole’s Events API. Generate your token within the Security Center of your Extole account and save it in a safe place as you won’t be able to access it beyond this point. |
+| Extole Events API URL | The endpoint Boulevard will use to send client events to Extole.<br />[https://api.extole.io/v5/events](https://api.extole.io/v5/events)                                                                                             |
 
-      <th>
-        Description
-      </th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      <td>
-        Extole Access Token
-      </td>
-
-      <td>
-        A secure access token to authenticate and integrate with Extole’s Events API. Generate your token within the Security Center of your Extole account and save it in a safe place as you won’t be able to access it beyond this point.
-      </td>
-    </tr>
-
-    <tr>
-      <td>
-        Extole Events API URL
-      </td>
-
-      <td>
-        The endpoint Boulevard will use to send client events to Extole.\
-        [https://api.extole.io/v5/events](https://api.extole.io/v5/events)
-      </td>
-    </tr>
-  </tbody>
-</Table>
-
-Then, use the Boulevard platform to create webhooks for eacb of the events events. You can keep the default data properties as is. Extole will map Boulevard’s default properties to Extole’s defaults in the Extole platform.
+Then, use the Boulevard platform to create webhooks for each of the events.&#x20;
 
 Example payload:
 
@@ -115,7 +84,7 @@ POST https://api.extole.io/v5/events/boulevard?access_token={$extole_token}
 }
 ```
 
-Once you’ve configured your webhooks in Boulevard, your Extole implementation team will configure your Refer A Friend campaign to handle the events.
+Once you’ve configured your webhooks in Boulevard, your Extole implementation team will configure your Refer A Friend or Loyalty campaign to handle the events.
 
 ### Use Case #2: Create and issue Boulevard gift card codes, vouchers, and account credits.
 
@@ -232,17 +201,45 @@ mutation VouchersCreate {
 }
 ```
 
-### Use Case #3: Segment referred customers in Boulevard
+### Use Case #3: Segment and view referral and loyalty clients within BLVD
 
-You can also create lists of referred clients in Boulevard using the Extole integration. Provide the following values to your Extole team, who will then create a webhook that fires a mutation into Boulevard's graphQL Admin API when a referred client completes their appointment. The webhook will contain the following properties.
+You can also create lists of referred or loyalty clients in Boulevard using the Extole integration. Provide the following values to your Extole team, who will then create a webhook that fires a mutation into Boulevard's graphQL Admin API when a referred client completes their appointment. The webhook will contain the following properties.
 
-| Webhook Event Property | Value                                                                                                               |
-| :--------------------- | :------------------------------------------------------------------------------------------------------------------ |
-| `name`                 | A name to represent the segment of clients. By default, Extole will use “Referrals” however this can be customized. |
-| `symbol`               | An emoji used to represent the Client Segment. By default, Extole will use “👯‍♀️” however this can be customized.  |
+| Webhook Event Property | Value                                                                                                                                                  |
+| :--------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`                 | A name to represent the segment of clients. By default, Extole will use “Referrals” or "Loyalty" however this can be customized.                       |
+| `symbol`               | An emoji used to represent the Client Segment. By default, Extole will use “👯‍♀️” for referrals or "🏆" for loyalty,  however this can be customized. |
 
-<Image align="center" src="https://files.readme.io/7139fcd7660e73bd4a7981d75ae235c190ad01f66cced29329a6485029af5509-0ef6be7-Screenshot_2024-05-13_at_2.31.40_PM.png" />
 
-## Customizations
+<Image src="https://files.readme.io/7139fcd7660e73bd4a7981d75ae235c190ad01f66cced29329a6485029af5509-0ef6be7-Screenshot_2024-05-13_at_2.31.40_PM.png" align="center" />
 
-To test gift card codes in your staging environment, work with your Extole and Boulevard teams to set up a separate staging API integration in the Extole platform.
+
+<br />
+
+Additionally, Extole can update a loyalty users total points balance in BLVD as they earn and redeem points.
+
+![](https://files.readme.io/4e9101eb442b65f32c743c8800a2d79700529005a2acb254e3462dc677dbcd7d-Screenshot_2026-06-11_at_9.10.22_AM.png)
+
+First, create a custom field in your BLVD dashboard and name it `Loyalty Points Balance`. Extole will then query BLVD's API to locate the key for the custom field.<br /><br />From there, Extole will fire a real-time mutation to update the users points balance using [`https://dashboard.boulevard.io/api/2020-01/admin`](https://dashboard.boulevard.io/api/2020-01/admin)
+
+```json
+mutation {
+  updateClient(
+    input: {
+      id: "urn:blvd:Client:11111111-2222-3333-4444-555555555555"
+      customFields: [
+        {
+          key: "dashboardField-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+          textValue: "12345"
+        }
+      ]
+    }
+  ) {
+    client {
+      id
+    }
+  }
+}
+```
+
+<br />
