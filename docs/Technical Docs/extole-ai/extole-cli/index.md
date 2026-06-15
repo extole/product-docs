@@ -10,7 +10,7 @@ The Extole CLI is a command-line tool for developers who want to interact with E
 ## Prerequisites
 
 - Node.js 22.12 or higher
-- An Extole Access Token ([https://my.extole.com/security-center](https://my.extole.com/security-center))
+- An Extole account with an API token ([https://my.extole.com/security-center](https://my.extole.com/security-center))
 
 ## Install
 
@@ -21,6 +21,10 @@ curl -fsSL https://raw.githubusercontent.com/extole/extole-cli/master/install.sh
 ```
 
 Installs to `/usr/local/bin/extole`. Override with `EXTOLE_INSTALL=/your/path`.
+
+**Binary -- Windows:**
+
+Download `extole-windows-x64.exe` from the [latest release](https://github.com/extole/extole-cli/releases), rename it to `extole.exe`, and place it somewhere on your PATH.
 
 **Homebrew (Mac):**
 
@@ -83,7 +87,6 @@ extole auth status       # verify token + connectivity
 | **Rewards** | `extole rewards` | Look up rewards by person, get full details, history, fulfillments, sends, redeems, and cancels |
 | | `extole rewards state-summary` | Account-wide reward counts by state, bucketed over time |
 | | `extole rewards find-coupon` | Reverse-lookup: given a coupon code, find who received it and its current state |
-| | `extole wismr` | Full reward-issuance diagnostic -- walks a person's rewards, shows state history, the rule that fired, the supplier that minted it, and a diagnosis with the most likely next step |
 | **Reward Suppliers** | `extole reward-suppliers` | List configured suppliers (Tango, PayPal, manual coupon batches, etc.) with face values |
 | | `extole reward-suppliers get` | Full supplier detail, including limits, expiry, and tags |
 | | `extole reward-suppliers coupons` | For manual-coupon suppliers: count, inventory preview, and depletion warnings |
@@ -108,6 +111,7 @@ extole auth status       # verify token + connectivity
 | **Zones** | `extole zones` | List embed zone names, get the core.js script tag, and retrieve embed snippets |
 | | `extole zones call` | POST to a zone to test FRONTEND\_CONTROLLER pipelines without a browser |
 | **API** | `extole api <path>` | Authenticated access to any Extole endpoint -- GET by default, supports `--method`, `--body` |
+| | `extole api search <keyword>` | Search published Extole API endpoints by keyword across path, summary, and description |
 | **Feedback** | `extole feedback` | Submit feedback or bug reports directly from the CLI |
 
 Run `extole --help` or `extole <command> --help` for full options on any command.
@@ -137,4 +141,4 @@ extole chat "what endpoint filters person steps by cause event id?"
 
 ## Source
 
-[github.com/cduskin-cpu/extole-cli](https://github.com/cduskin-cpu/extole-cli)
+[github.com/extole/extole-cli](https://github.com/extole/extole-cli)
