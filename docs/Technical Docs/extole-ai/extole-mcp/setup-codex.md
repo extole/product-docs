@@ -1,0 +1,119 @@
+---
+title: Codex
+excerpt: >-
+  Connect OpenAI Codex CLI to Extole and invoke Extole tools in automated
+  workflows.
+hidden: false
+---
+Connect your Extole programs to OpenAI Codex CLI and invoke Extole tools as part of automated coding and scripting workflows.
+
+---
+
+## Requirements
+
+- [OpenAI Codex CLI](https://github.com/openai/codex) installed
+- An active Extole user account
+- An OpenAI API key
+
+---
+
+## Setup
+
+Choose your authentication method. See the [MCP authentication guide](doc:mcp-authentication) if you're not sure which to use.
+
+---
+
+### Option 1: OAuth (Recommended)
+
+**Step 1: Add the Extole MCP server**
+
+```bash
+codex mcp add extole https://mcp.extole.com
+```
+
+**Step 2: Authenticate**
+
+```bash
+codex mcp auth extole
+```
+
+Your browser will open to an Extole authorization page. Review the permissions and click **Authorize**.
+
+**Step 3: Verify**
+
+```bash
+codex mcp list
+```
+
+The Extole server should show as connected.
+
+---
+
+### Option 2: API Key
+
+**Step 1: Get your API key**
+
+Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
+
+**Step 2: Edit your Codex config**
+
+Add the following to `~/.codex/config.toml`:
+
+```toml
+[[mcp_servers]]
+name = "extole"
+url = "https://mcp.extole.com"
+
+[mcp_servers.headers]
+Authorization = "Bearer <YOUR_API_KEY>"
+```
+
+Or in JSON format (`~/.codex/config.json`):
+
+```json
+{
+  "mcp_servers": [
+    {
+      "name": "extole",
+      "url": "https://mcp.extole.com",
+      "headers": {
+        "Authorization": "Bearer <YOUR_API_KEY>"
+      }
+    }
+  ]
+}
+```
+
+Replace `<YOUR_API_KEY>` with your Extole API key.
+
+**Step 3: Verify**
+
+```bash
+codex "List my active Extole programs"
+```
+
+---
+
+## Using the MCP
+
+Once connected, Extole tools are available in any Codex session:
+
+> *"Pull the conversion report for my refer-a-friend program for the past 30 days."*
+
+> *"What reward suppliers are configured on my account?"*
+
+> *"Update the friend reward in campaign X to $15."*
+
+Run `codex --list-tools` to see which Extole tools are available.
+
+> **Write operations** -- Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log.
+
+---
+
+## Troubleshooting
+
+**"Tool not found"** -- Confirm the URL is correct. Run `codex --list-tools` to see what's being discovered.
+
+**"Unauthorized"** -- Check your token. Verify the `Bearer ` prefix is present.
+
+> **Note:** Codex CLI MCP support is evolving. Refer to the [Codex CLI documentation](https://github.com/openai/codex) for the latest configuration format if these steps differ from your version.
