@@ -1,6 +1,6 @@
 ---
 api:
   file: management.json
-  operationId: uploadComponentVariables
+  operationId: archiveClientKey
 hidden: false
 ---

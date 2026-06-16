@@ -1,6 +1,6 @@
 ---
 api:
   file: management.json
-  operationId: listLocalNotificationsByUser
+  operationId: updateClientKey
 hidden: false
 ---

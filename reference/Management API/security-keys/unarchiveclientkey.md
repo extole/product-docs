@@ -1,6 +1,6 @@
 ---
 api:
   file: management.json
-  operationId: updatePromotionLink
+  operationId: unarchiveClientKey
 hidden: false
 ---

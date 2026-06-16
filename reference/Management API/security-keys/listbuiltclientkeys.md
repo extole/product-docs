@@ -1,6 +1,6 @@
 ---
 api:
   file: management.json
-  operationId: getComponentVariables
+  operationId: listBuiltClientKeys
 hidden: false
 ---
