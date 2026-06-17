@@ -46828,6 +46828,59 @@
           }
         ]
       },
+      "ResponseBodyHandlerInWebhookUpdateRequest": {
+        "description": "Choose between static or dynamic response body handler",
+        "oneOf": [
+          {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "description": "Static response body handler",
+            "title": "Static Value",
+            "type": "object"
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BuildtimeHandlebarsExpression"
+              }
+            ],
+            "description": "Dynamic response body handler",
+            "example": "handlebars@buildtime:{{responseBodyHandler}}",
+            "title": "Buildtime - Handlebars"
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BuildtimeJavascriptExpression"
+              }
+            ],
+            "description": "Dynamic response body handler",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('responseBodyHandler');}",
+            "title": "Buildtime - Javascript"
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RuntimeHandlebarsExpression"
+              }
+            ],
+            "description": "Dynamic response body handler",
+            "example": "handlebars@runtime:{{responseBodyHandler}}",
+            "title": "Runtime - Handlebars"
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RuntimeJavascriptExpression"
+              }
+            ],
+            "description": "Dynamic response body handler",
+            "example": "javascript@runtime:function() { return context.get('responseBodyHandler');}",
+            "title": "Runtime - Javascript"
+          }
+        ]
+      },
       "ResponseHandlerInBuiltOAuthGenericClientKeyResponse": {
         "description": "The response handler as configured: a literal value, or an expression (type:string) when defined dynamically.",
         "oneOf": [
@@ -53981,6 +54034,9 @@
           },
           "request": {
             "$ref": "#/components/schemas/RequestInWebhookUpdateRequest"
+          },
+          "response_body_handler": {
+            "$ref": "#/components/schemas/ResponseBodyHandlerInWebhookUpdateRequest"
           },
           "response_handler": {
             "$ref": "#/components/schemas/ResponseHandlerInWebhookUpdateRequest"
