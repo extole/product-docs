@@ -5,15 +5,15 @@ hidden: true
 metadata:
   robots: index
 ---
-Deliver event files from Fiserv to Extole to automatically qualify referral participants and issue customer rewards.
+Deliver event files from Fiserv to Extole to automatically qualify and issue customer rewards.
 
 ## Overview
 
-Fiserv securely transfers daily event files to Extole via SFTP. These files contain records of members who have successfully met the qualification criteria defined for your specific referral program.
+Fiserv will securely transfer daily event files to Extole's SFTP server for automatic reward processing. These files contain records of members who have successfully met the qualification criteria defined for your specific referral program.
 
 ## Connecting to Extole's SFTP Server
 
-Use the following configuration when setting up Extole in Fiserv's SFTP program. More about Extole's SFTP: [https://docs.extole.com/docs/extoles-sftp-server](https://docs.extole.com/docs/extoles-sftp-server "https://docs.extole.com/docs/extoles-sftp-server")&#x20;
+Use the following configuration when connecting to Extole in Fiserv's SFTP program. More about Extole's SFTP: [https://docs.extole.com/docs/extoles-sftp-server](https://docs.extole.com/docs/extoles-sftp-server "https://docs.extole.com/docs/extoles-sftp-server")&#x20;
 
 |                |                                                   |
 | -------------- | ------------------------------------------------- |
@@ -49,9 +49,11 @@ Example:
 
 ### File Format
 
-Qualification events can be sent as separate files. For example, you can deliver files for milestones like `account_opened`, `qualifying_account_balance_reached`, `loan_funded`, or `credit_card_activated`.<br /><br />Files can include additional column headers to run run certain reward rules, such as product type, deposit amounts, etc.&#x20;
+Fiserv can send qualification events to Extole as individual files. Qualification events could be`account_opened`, `qualifying_account_balance_reached`, `loan_funded`, or `credit_card_activated`.
 
-> 📘 Files must be delivered as standard CSVs with UTF-8 encoding. A header row similar to the columns below is required.
+A header row mirroring the columns below is required. Additional column headers, such as product type or deposit amount can be used to trigger reward rules.
+
+> 📘 Files must be delivered as standard CSVs with UTF-8 encoding.
 
 #### Sample Account Opened File
 
