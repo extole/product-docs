@@ -5,7 +5,7 @@ hidden: true
 metadata:
   robots: index
 ---
-Deliver event files from Fiserv to Extole to automatically qualify and issue customer rewards.
+Deliver event files from Fiserv to Extole to automatically qualify referrals and issue customer rewards.
 
 ## Overview
 
