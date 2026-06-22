@@ -9,9 +9,10 @@ Connect Extole to a Copilot Studio agent and manage referral programs through Mi
 Microsoft Copilot Studio lets you build custom agents for your organization. By connecting an agent to the Extole MCP server, you can give that agent the ability to run Extole reports, query program configuration, and manage rewards — surfacing Extole capabilities inside any experience you build in Copilot Studio.
 
 > 📘 Who this is for
+>
 > This guide is for teams building Copilot Studio agents, not for end users. If you're looking to connect a personal AI tool, see the guides for [Claude Desktop](doc:setup-claude), [Cursor](doc:setup-cursor), or [ChatGPT](doc:setup-chatgpt).
 
----
+***
 
 ## Requirements
 
@@ -22,13 +23,13 @@ To follow this guide you'll need:
 - An active Extole user account with appropriate permissions
 - MCP access enabled for your Extole organization (contact your Extole administrator if unsure)
 
----
+***
 
 ## Setup
 
 Copilot Studio supports two setup paths: the MCP onboarding wizard (recommended) and a custom Power Apps connector. The wizard is sufficient for most teams.
 
----
+***
 
 ### Option 1: MCP onboarding wizard (Recommended)
 
@@ -56,7 +57,7 @@ https://mcp.extole.com
 
 Choose your authentication method:
 
----
+***
 
 **OAuth 2.0 (Recommended)**
 
@@ -64,7 +65,7 @@ Select **OAuth 2.0**, then select **Dynamic discovery** as the type. Copilot Stu
 
 A callback URL will appear — copy it. You'll need to register it with Extole's OAuth configuration. Contact your Extole administrator to complete this step.
 
----
+***
 
 **API key**
 
@@ -77,7 +78,7 @@ Click **Create**. When prompted to create a connection, enter your Extole API ke
 
 To generate an API key, navigate to **My.Extole > Settings > API Tokens**.
 
----
+***
 
 **Step 5: Add the server to your agent**
 
@@ -85,7 +86,7 @@ On the **Add tool** dialog, select **Create a new connection** (or pick an exist
 
 Copilot Studio will connect to the Extole MCP server and make all available tools discoverable by your agent.
 
----
+***
 
 ### Option 2: Custom Power Apps connector
 
@@ -128,7 +129,7 @@ paths:
 
 Follow the Power Apps prompts to configure authentication (API key or OAuth 2.0) and finish creating the connector. Then return to Copilot Studio and add it as a tool to your agent.
 
----
+***
 
 ## Using the MCP in your agent
 
@@ -136,17 +137,15 @@ Once connected, the Extole MCP tools are automatically available for your agent 
 
 Example prompts your agent can handle:
 
-> *"Show me the performance summary for our refer-a-friend program."*
+> _"Show me the performance summary for our refer-a-friend program."_
 
-> *"What's the current reward for advocates in the summer campaign?"*
-
-> *"Increase the friend reward in campaign X to $15."*
+> _"What's the current reward for advocates in the summer campaign?"_
 
 Copilot Studio dynamically reflects any changes you make to the Extole MCP server — new tools or resources appear automatically without reconfiguring the agent.
 
 > **Write operations** — Actions that modify programs, rewards, or campaign components execute immediately under the authenticated user's Extole permissions and are recorded in the Extole change log. Ensure your agent's prompt instructions make clear when write operations will occur so users can confirm before proceeding.
 
----
+***
 
 ## Data policies
 
