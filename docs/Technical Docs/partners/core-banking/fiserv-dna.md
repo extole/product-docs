@@ -9,9 +9,11 @@ Deliver event files from Fiserv to Extole to automatically qualify and send cust
 
 ## Overview
 
-Fiserv will provide a daily file containing members who have met the qualification criteria defined for the referral program.
+Fiserv will send daily event files to Extole (via SFTP) which will contain members who have met the qualification criteria defined for the referral program.
 
-## Connecting to Extole's SFTP Server<br />
+## Connecting to Extole's SFTP Server
+
+Here are the inputs needed inorder to connect to Extole's SFTP server via Fiservs SFTP program. More about Extole's SFTP: [https://docs.extole.com/docs/extoles-sftp-server](https://docs.extole.com/docs/extoles-sftp-server "https://docs.extole.com/docs/extoles-sftp-server")&#x20;
 
 |                |                                                   |
 | -------------- | ------------------------------------------------- |
