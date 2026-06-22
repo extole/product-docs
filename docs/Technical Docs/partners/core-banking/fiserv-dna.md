@@ -25,7 +25,9 @@ Use the following configuration when connecting to Extole in Fiserv's SFTP progr
 
 ### SSH Key Setup
 
-&#x20;Fiserv will generate a standard SSH public/private key pair and provide the public key to Extole. Extole will then configure this public key in the Extole platform.
+Extole authenticates with SSH public keys rather than passwords. Keys must start with `ssh-rsa`, end with an email address, and contain no line breaks.
+
+Fiserv will generate a standard SSH public/private key pair and provide the public key to Extole. Extole will then configure this public key in the Extole platform.
 
 ## File Specifications<br />
 
