@@ -25,13 +25,13 @@ Use the following configuration when connecting to Extole in Fiserv's SFTP progr
 
 ### SSH Key Setup
 
-&#x20;Fiserv will generate a standard SSH public/private key pair and provide the public key to Extole. Extole will then add this public key directly into the Extole platform
+&#x20;Fiserv will generate a standard SSH public/private key pair and provide the public key to Extole. Extole will then configure this public key in the Extole platform.
 
 ## File Specifications<br />
 
 ### File Naming
 
-Files can follow the standard Fiserv naming convention:
+Files can follow Fiserv's standard naming convention:
 
 - \[ClientNum].\[MMDD].\[Seq].MEMBREFER\_\[YYYYMMDD]
 
@@ -49,7 +49,7 @@ Example:
 
 ### File Format
 
-Fiserv can send qualification events to Extole as individual files. Qualification events could be`account_opened`, `qualifying_account_balance_reached`, `loan_funded`, or `credit_card_activated`.
+Fiserv can send qualification events to Extole as individual files. Example qualification events include `account_opened`, `qualifying_account_balance_reached`, `loan_funded`, or `credit_card_activated`.
 
 A header row mirroring the columns below is required. Additional column headers, such as product type or deposit amount can be used to trigger reward rules.
 
