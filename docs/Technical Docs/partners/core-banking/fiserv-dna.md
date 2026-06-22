@@ -11,10 +11,6 @@ Deliver event files from Fiserv to Extole to automatically qualify and send cust
 
 Fiserv will provide a daily file containing members who have met the qualification criteria defined for the referral program.
 
-The file should be:
-
-Delivered daily<br />UTF-8 encoded CSV format<br />Include a header row<br />Sent to Extole's SFTP Events Processing directory<br />UTF-8 encoded CSV format<br />Include a header row
-
 ## Connecting to Extole's SFTP Server<br />
 
 |                |                                                   |
@@ -37,7 +33,7 @@ Extole will configure the public key and provide confirmation when the account i
 
 ### File Naming
 
-Fiserv may use the following naming convention:
+Use Fiservs standard naming convention to name your files.
 
 - \[ClientNum].\[MMDD].\[Seq].MEMBREFER\_\[YYYYMMDD]
 
@@ -55,11 +51,11 @@ Example:
 
 ### File Format
 
-Additional qualification events can be sent as seperate files.&#x20;
+Additional qualification events can be sent as separate files.&#x20;
 
 Files can include additional column headers to run referral qualification and reward rules.
 
-> 📘 Files must be delivered as CSV with UTF-8 encoding. A header row is required.
+> 📘 Files must be delivered as CSV's with UTF-8 encoding. A header row is required.
 
 | Column          |   Required? | Description                              | Example              |
 | --------------- | ----------: | ---------------------------------------- | -------------------- |
