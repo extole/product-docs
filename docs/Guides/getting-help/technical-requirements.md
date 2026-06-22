@@ -1,0 +1,29 @@
+---
+title: "Technical Requirements"
+slug: technical-requirements
+excerpt: "# Overview"
+hidden: false
+intercom_source_id: 10772061
+---
+
+# Overview
+
+Launching a referral program with Extole is easy, but it requires proper technical implementation. To get your referral experience up and running smoothly for your customers, you'll need to complete a series of technical tasks.
+
+The primary technical requirements for launch are:
+
+- 
+
+Adding Extole Javascript tags to power the referral experience
+- 
+
+Branding your program to match the look and feel of your business
+- 
+
+Sending events (both online and offline) to track customer activity and issue rewards
+
+Visit our [Extole Solution Guides](https://dev.extole.com/docs/extole-solution-guides) for more information on implementing your referral program.
+
+# Adding Tags
+
+To learn more about adding Extole Javascript tags to your site, visit our [Javascript SDK](https://dev.extole.com/docs/javascript-sdk) guide.
