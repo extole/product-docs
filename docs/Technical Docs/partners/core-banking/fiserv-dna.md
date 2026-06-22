@@ -9,7 +9,7 @@ Deliver event files from Fiserv to Extole to automatically qualify and issue cus
 
 ## Overview
 
-Fiserv will securely transfer daily event files to Extole's SFTP server for automatic reward processing. These files contain records of members who have successfully met the qualification criteria defined for your specific referral program.
+Fiserv will securely transfer daily event files to Extole's SFTP server for automatic reward processing. These files contain records of members who have successfully met the qualification criteria defined in your Extole campaigns.
 
 ## Connecting to Extole's SFTP Server
 
