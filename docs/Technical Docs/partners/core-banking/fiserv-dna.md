@@ -49,11 +49,11 @@ Example:
 
 ### File Format
 
-Qualification events can be sent as separate files. For example, you can deliver  files for milestones like qualifying\_balance\_reached, loan\_funded, credit\_card\_activated, or mortgage\_closed. <br /><br />Files can include additional column headers to run run certain reward rules, such as product types, debosit amounts, etc.&#x20;
+Qualification events can be sent as separate files. For example, you can deliver files for milestones like `account_opened`, `qualifying_account_balance_reached`, `loan_funded`, or `credit_card_activated`.<br /><br />Files can include additional column headers to run run certain reward rules, such as product type, deposit amounts, etc.&#x20;
 
 > 📘 Files must be delivered as standard CSVs with UTF-8 encoding. A header row similar to the columns below is required.
->
->
+
+#### Sample Account Opened File
 
 | Column          |   Required? | Description                              | Example              |
 | --------------- | ----------: | ---------------------------------------- | -------------------- |
