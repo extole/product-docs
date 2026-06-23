@@ -53,7 +53,7 @@ Example:
 
 Fiserv can send qualification events to Extole as individual files. Example qualification events include `account_opened`, `qualifying_account_balance_reached`, `loan_funded`, or `credit_card_activated`.
 
-A header row similar to the columns below is required. Additional column headers, such as product type or deposit amount can be used to trigger different reward rules.
+A header row similar to the columns below is required. Additional column headers, such as product type or deposit amount can also be included to trigger different reward rules in your Extole campaign.
 
 > 📘 Files must be delivered as standard CSVs with UTF-8 encoding.
 
