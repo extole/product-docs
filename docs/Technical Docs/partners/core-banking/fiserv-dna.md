@@ -35,11 +35,11 @@ Fiserv will generate a standard SSH public/private key pair and provide the publ
 
 Files can follow Fiserv's standard naming convention:
 
-- \[ClientNum].\[MMDD].\[Seq].MEMBREFER\_\[YYYYMMDD]
+- \[ClientNum].\[MMDD].\[Seq].\[ExtoleEventName]\_\[YYYYMMDD]
 
 Example:
 
-- 1578.0507.10917.MEMBREFER\_20260507
+- 1578.0507.10917.ACCOUNTOPENED\_20260507
 
 ### File Delivery&#x20;
 
@@ -53,7 +53,7 @@ Example:
 
 Fiserv can send qualification events to Extole as individual files. Example qualification events include `account_opened`, `qualifying_account_balance_reached`, `loan_funded`, or `credit_card_activated`.
 
-A header row mirroring the columns below is required. Additional column headers, such as product type or deposit amount can be used to trigger reward rules.
+A header row similar to the columns below is required. Additional column headers, such as product type or deposit amount can be used to trigger different reward rules.
 
 > 📘 Files must be delivered as standard CSVs with UTF-8 encoding.
 
