@@ -561,12 +561,42 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
+      "invalid_type": {
+        "summary": "invalid_type",
+        "value": {
+          "code": "invalid_type",
+          "http_status_code": 400,
+          "message": "Person key type is invalid",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "invalid_value": {
+        "summary": "invalid_value",
+        "value": {
+          "code": "invalid_value",
+          "http_status_code": 400,
+          "message": "Data value is invalid",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "journey_not_found": {
         "summary": "journey_not_found",
         "value": {
           "code": "journey_not_found",
           "http_status_code": 400,
           "message": "Journey not found",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "key_not_found": {
+        "summary": "key_not_found",
+        "value": {
+          "code": "key_not_found",
+          "http_status_code": 400,
+          "message": "Person key not found",
           "parameters": {},
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
@@ -817,6 +847,16 @@
           "code": "program_domain_not_found",
           "http_status_code": 403,
           "message": "Program domain does not exist",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "read_only_key_type": {
+        "summary": "read_only_key_type",
+        "value": {
+          "code": "read_only_key_type",
+          "http_status_code": 400,
+          "message": "Person key type is read only",
           "parameters": {},
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
@@ -2724,6 +2764,34 @@
           "name",
           "program",
           "updated_date"
+        ],
+        "type": "object"
+      },
+      "PersonKeyResponse": {
+        "description": "Deleted person key lookup.",
+        "properties": {
+          "identity_person_id": {
+            "description": "Identity profile id when the key pointed to an identified profile. Omitted for anonymous device profiles.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Profile id the deleted key pointed to before removal.",
+            "type": "string"
+          },
+          "type": {
+            "description": "Sanitized person key type that was deleted.",
+            "type": "string"
+          },
+          "value": {
+            "description": "Sanitized person key value that was deleted.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "identity_person_id",
+          "person_id",
+          "type",
+          "value"
         ],
         "type": "object"
       },
@@ -19014,6 +19082,178 @@
             "label": "Python (requests)",
             "lang": "python",
             "source": "import requests\n\nresponse = requests.put(\n    \"https://api.extole.io/v4/tokens/exchange/TOKEN_VALUE\",\n    headers={\"Accept\": \"application/json\"},\n)\nresponse.raise_for_status()\nrefreshed = response.json()\nprint(refreshed[\"access_token\"], refreshed[\"expires_in\"])"
+          }
+        ],
+        "x-extole-bundle": "integration-server-to-extole",
+        "x-extole-visibility": "visible"
+      }
+    },
+    "/v5/persons/person-keys/{person_key}": {
+      "delete": {
+        "description": "Deletes the exact person key lookup for the calling client, wherever it currently points. Identify the key as a `<type>:<value>` path segment, the same format used to look up persons via `GET /v5/persons?person_keys=<type>:<value>`. Returns `400 key_not_found` when no lookup exists or the type is not a configured partner-profile key, and `400 read_only_key_type` for the client's identity key.",
+        "operationId": "deletePersonKey",
+        "parameters": [
+          {
+            "description": "The person key to delete using the format <type>:<value>, for example order_id:abc123.",
+            "in": "path",
+            "name": "person_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonKeyResponse"
+                }
+              }
+            },
+            "description": "Deleted person key lookup."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_type": {
+                    "$ref": "#/components/examples/invalid_type"
+                  },
+                  "invalid_value": {
+                    "$ref": "#/components/examples/invalid_value"
+                  },
+                  "key_not_found": {
+                    "$ref": "#/components/examples/key_not_found"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  },
+                  "read_only_key_type": {
+                    "$ref": "#/components/examples/read_only_key_type"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "payment_required": {
+                    "$ref": "#/components/examples/payment_required"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Payment Required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  },
+                  "person_not_found": {
+                    "$ref": "#/components/examples/person_not_found"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unsupported_media_type": {
+                    "$ref": "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Unsupported Media Type"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "too_many_requests": {
+                    "$ref": "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "summary": "Delete a person key lookup",
+        "tags": [
+          "Persons"
+        ],
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "shell",
+            "source": "curl -X DELETE \"https://api.extole.io/v5/persons/person-keys/ORDER_ID:abc-123\" \\\n  -H \"Authorization: Bearer YOUR_ACCESS_TOKEN\" \\\n  -H \"Accept: application/json\""
+          },
+          {
+            "label": "JavaScript (fetch)",
+            "lang": "javascript",
+            "source": "const response = await fetch(\n  \"https://api.extole.io/v5/persons/person-keys/ORDER_ID:abc-123\",\n  { method: \"DELETE\", headers: { \"Authorization\": \"Bearer YOUR_ACCESS_TOKEN\", \"Accept\": \"application/json\" } }\n);\nconsole.log(await response.json());"
+          },
+          {
+            "label": "Python (requests)",
+            "lang": "python",
+            "source": "import requests\nresponse = requests.delete(\n    \"https://api.extole.io/v5/persons/person-keys/ORDER_ID:abc-123\",\n    headers={\"Authorization\": \"Bearer YOUR_ACCESS_TOKEN\", \"Accept\": \"application/json\"},\n)\nresponse.raise_for_status()\nprint(response.json())"
           }
         ],
         "x-extole-bundle": "integration-server-to-extole",
