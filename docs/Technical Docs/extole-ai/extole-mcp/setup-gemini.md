@@ -1,158 +1,126 @@
 ---
 title: Using the Extole MCP in Gemini Enterprise
 excerpt: >-
-  Connect Gemini CLI to Extole and manage your referral programs from the
-  terminal.
+  Connect Gemini Enterprise to Extole and manage your referral programs with
+  natural language.
 ---
-Connect your Extole programs to Google's Gemini CLI and manage referrals from the terminal.
+Connect Extole to Gemini Enterprise so your organization's Gemini assistant can manage referral programs using natural language.
 
-Gemini CLI is Google's open-source AI agent for the terminal. Once connected to the Extole MCP server, you can run performance reports, query program configuration, and make changes directly from any Gemini CLI session.
+Gemini Enterprise supports custom MCP servers as data stores, letting you bring Extole directly into the Gemini assistant experience in the Google Cloud console. Once connected, users can run Extole performance reports, query program configuration, and manage rewards without leaving Gemini.
+
+> Who this is for: This guide is for **Google Cloud administrators** with access to the Gemini Enterprise console. Setup is done once at the organization level and applies to all authorized users. Individual users do not need to configure anything.
 
 ---
 
 ## Requirements
 
-You'll need:
+Before you begin, you'll need:
 
-- [Gemini CLI](https://github.com/google-gemini/gemini-cli) installed
-- An active Extole user account
-- MCP access enabled for your Extole organization (contact your administrator if unsure)
-
----
-
-## Setup
-
-Choose your authentication method. See the [MCP authentication guide](doc:mcp-authentication) if you're not sure which to use.
+- A **Gemini Enterprise** subscription (Standard, Plus, or Frontline edition)
+- Access to the **Google Cloud console** with the **Discovery Engine Editor** role (`roles/discoveryengine.editor`) granted to your account
+- The organization policy constraint for custom MCP data stores overridden
+- **MCP access enabled** for your Extole organization
+- Extole registered as an **OAuth client application** with your identity provider (Okta, Azure AD, Google, or similar)
 
 ---
 
-### Option 1: OAuth (Recommended)
+## Step 1: Register with your identity provider
 
-Gemini CLI supports automatic OAuth discovery — it detects that the server requires authentication and opens your browser to complete the flow.
+Before configuring Gemini Enterprise, register the integration as an OAuth client in your identity provider:
 
-**Using the CLI command:**
-
-```bash
-gemini mcp add --transport http extole https://mcp.extole.com
-```
-
-**Or manually**, add the following to `~/.gemini/settings.json`:
-
-```json
-{
-  "mcpServers": {
-    "Extole": {
-      "httpUrl": "https://mcp.extole.com"
-    }
-  }
-}
-```
-
-**Authorize the connection:**
-
-Start a new Gemini CLI session and run `/mcp auth` to trigger the OAuth flow:
+1. Set the **OAuth redirect URL** to:
 
 ```
-/mcp auth Extole
+https://vertexaisearch.cloud.google.com/oauth-redirect
 ```
 
-Your browser will open to an Extole authorization page. Review the permissions and click **Authorize**. Extole creates an access token linked to your user account, stored at `~/.gemini/mcp-oauth-tokens.json`.
+2. Grant the necessary OAuth scopes. For Extole, use `read` for reports and queries, or `read write` for full access.
 
-**Verify:**
+3. Note the **Client ID** and **Client Secret** for use in the next step.
 
-```
-/mcp
-```
-
-The Extole server should show as `CONNECTED` with its available tools listed.
+Contact your Extole administrator if you need help with OAuth scope configuration.
 
 ---
 
-### Option 2: API Key
+## Step 2: Create the Extole MCP data store
 
-**Using the CLI command:**
+1. In the Google Cloud console, navigate to **Gemini Enterprise**.
 
-```bash
-gemini mcp add --transport http extole https://mcp.extole.com --header "Authorization: Bearer <YOUR_API_KEY>"
+2. In the navigation menu, click **Data stores**, then click **Create data store**.
+
+3. On the **Select a data source** page, search for **Custom MCP Server** and select the **Custom MCP Server (Preview)** card.
+
+4. Click **Add MCP server**.
+
+5. Fill in the **Authentication settings**:
+
+| Field | Value |
+|---|---|
+| **MCP Server URL** | `https://mcp.extole.com` |
+| **Authorization URL** | Contact your Extole administrator |
+| **Token URL** | Contact your Extole administrator |
+| **Client ID** | From your identity provider registration |
+| **Client Secret** | From your identity provider registration |
+| **Scopes** | `read` or `read write` |
+
+6. Click **Login** and complete the sign-in flow.
+
+7. Click **Continue**, then in the **MCP Server Description** field, enter:
+
+```
+Extole referral program data, reports, and management tools. Use these tools to retrieve program performance, query configurations, and manage rewards and campaigns.
 ```
 
-**Or manually**, add the following to `~/.gemini/settings.json`:
+8. Set the **Location** (Multi-region) and enter a **Data connector name** such as `Extole MCP`.
 
-```json
-{
-  "mcpServers": {
-    "Extole": {
-      "httpUrl": "https://mcp.extole.com",
-      "headers": {
-        "Authorization": "Bearer <YOUR_API_KEY>"
-      }
-    }
-  }
-}
-```
-
-Replace `<YOUR_API_KEY>` with your Extole API key. To generate one, navigate to **My.Extole > Settings > API Tokens**.
-
-To keep credentials out of your config file, reference an environment variable:
-
-```json
-{
-  "mcpServers": {
-    "Extole": {
-      "httpUrl": "https://mcp.extole.com",
-      "headers": {
-        "Authorization": "Bearer ${EXTOLE_API_KEY}"
-      }
-    }
-  }
-}
-```
-
-Then set `EXTOLE_API_KEY` in your shell.
+9. Click **Create**. Wait for the state to change to **Active** before proceeding.
 
 ---
 
-## Using the MCP
+## Step 3: Enable Extole tools
 
-Once connected, Gemini CLI will automatically use Extole tools when your prompt requires them.
+By default, all MCP tools are disabled after creation.
 
-Enter a prompt such as:
+1. Open your new Extole MCP data store from the **Data stores** list.
 
-> *"Show me the performance report for my refer-a-friend program for the past 30 days."*
+2. Click **Actions > Reload custom actions**. Gemini Enterprise calls the Extole MCP server and lists available tools.
+
+3. Select the tools you want to enable, then click **Enable actions**.
+
+Enable read-only tools broadly and restrict write tools (such as reward or campaign updates) using role-based access controls.
+
+---
+
+## Step 4: Connect the data store to your app
+
+1. In Gemini Enterprise, open your app (or create one if needed).
+
+2. Navigate to **Data stores** in the app settings and click **Connect**.
+
+3. Select the Extole MCP data store and save.
+
+Once connected, the Gemini Enterprise assistant can use Extole tools in conversations.
+
+---
+
+## Using Extole in Gemini Enterprise
+
+Once configured, users can ask the Gemini assistant questions that draw on Extole data and capabilities:
+
+> *"Show me the performance summary for our refer-a-friend program this month."*
 
 > *"What's the current advocate reward in the holiday campaign?"*
 
-> *"Update the friend coupon value in campaign X to 15% off."*
+> *"Increase the friend reward in campaign X to $20."*
 
-The first time Gemini uses an Extole tool, it will ask for confirmation. You can respond:
+Gemini Enterprise will automatically call the appropriate Extole tool and return results in the conversation.
 
-- **Proceed once** — approve this call only
-- **Always allow this tool** — pre-approve this specific tool going forward
-- **Always allow this server** — pre-approve all Extole tools
-
-To pre-approve all Extole tools without prompts, add `"trust": true` to your config:
-
-```json
-{
-  "mcpServers": {
-    "Extole": {
-      "httpUrl": "https://mcp.extole.com",
-      "trust": true
-    }
-  }
-}
-```
-
-> **Write operations** — Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log. Review tool calls carefully before approving write operations.
+> **Write operations** Actions that modify programs, rewards, or campaign components execute immediately under the authenticated user's Extole permissions and are recorded in the Extole change log. Consider your organization's approval workflows before enabling write tools for broad user access.
 
 ---
 
-## Troubleshooting
+## Data policies
 
-**Server shows as DISCONNECTED** — Run `/mcp` to see the error. Verify your config JSON is valid and that `https://mcp.extole.com` is reachable from your machine.
+Access to Extole MCP tools in Gemini Enterprise is governed by your Google Cloud IAM configuration and tool-level access controls in the Gemini Enterprise console. Admins can restrict which tools are available, limit access to specific user groups, and monitor usage through the Gemini Enterprise analytics dashboard.
 
-**OAuth flow doesn't open a browser** — OAuth requires a local browser and redirect access to `http://localhost:7777/oauth/callback`. It won't work in headless or remote SSH environments without X11 forwarding. Use API key authentication instead.
-
-**Tools not appearing after connecting** — Run `/mcp reload` to force re-discovery of tools from the server.
-
-**Unauthorized errors with API key** — Confirm the `Bearer ` prefix is present before your token value, and that the key is active in My.Extole.
+The Extole MCP server uses the **Streamable HTTP** transport. Gemini Enterprise does not support the legacy Server-Sent Events (SSE) transport, so no additional transport configuration is needed.
