@@ -11,7 +11,7 @@ Claude Desktop is the app version of Anthropic's Claude. Once connected to Extol
 
 > Looking for Claude Code? If you work in the terminal, see the [Claude Code guide](doc:setup-claude-code) instead.
 
----
+***
 
 ## Requirements
 
@@ -22,17 +22,17 @@ You'll need:
 - The latest version of [Claude Desktop](https://claude.ai/download) installed
 - An active Extole user account
 
----
+***
 
 ## Setup
 
 Choose your authentication method. See the [MCP authentication guide](doc:mcp-authentication) if you're not sure which to use.
 
----
+***
 
 ### Option 1: OAuth (Recommended)
 
-OAuth provides the fastest setup -- no manual key management required.
+OAuth provides the fastest setup.
 
 **Step 1: Open Claude Desktop settings**
 
@@ -65,7 +65,7 @@ Extole will create an access token linked to your user account.
 
 In a chat, click the **+** icon, then **Connectors**. Your Extole connector should appear as enabled.
 
----
+***
 
 ### Option 2: API Key
 
@@ -107,7 +107,7 @@ Save the file and restart Claude Desktop.
 
 Navigate to **Settings > Developer** and click **Extole**. You should see a `running` status badge.
 
----
+***
 
 ### Option 3: Extole CLI (Quickest for developers)
 
@@ -119,7 +119,7 @@ extole serve setup
 
 Restart Claude Desktop -- done. The CLI auto-detects the config file location and writes the MCP server entry for you. To remove the registration: `extole serve remove`.
 
----
+***
 
 ## Using the MCP
 
@@ -127,17 +127,17 @@ Once connected, Claude Desktop uses the Extole MCP automatically when you ask qu
 
 Open a chat and enter a prompt, for example:
 
-> *"Show me the performance report for my refer-a-friend program this month."*
+> _"Show me the performance report for my refer-a-friend program this month."_
 
-> *"What reward is currently configured for the friend offer in my main campaign?"*
+> _"What reward is currently configured for the friend offer in my main campaign?"_
 
-> *"Increase the advocate reward in the summer promotion to $20."*
+> _"Increase the advocate reward in the summer promotion to $20."_
 
 The first time Claude uses an Extole tool, you'll be prompted to approve it. Click **Allow once** or **Allow always** to proceed.
 
 > **Write operations** -- Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log. Review prompts carefully before approving write operations.
 
----
+***
 
 ## Troubleshooting
 
@@ -146,5 +146,8 @@ The first time Claude uses an Extole tool, you'll be prompted to approve it. Cli
 **"Unauthorized"** -- Your token may be incorrect or expired. Regenerate it at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
 
 **Config file location (for manual setup):**
+
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+<br />
