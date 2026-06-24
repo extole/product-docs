@@ -99,7 +99,7 @@ Microsoft Copilot Studio lets you build custom agents for your organization. By 
 
 ### Requirements
 
-- Access to [Microsoft Copilot Studio](https://copilotstudio.microsoft.com/)
+- Access to <Anchor target="_blank" href="https://copilotstudio.microsoft.com/">Microsoft Copilot Studio</Anchor>
 - **Generative orchestration** enabled on your agent. In Copilot Studio, open your agent's settings and enable **Generative (preview)** under **Orchestration**.
 - An active Extole user account with appropriate permissions
 - MCP access enabled for your Extole organization (contact your Extole administrator if unsure)
