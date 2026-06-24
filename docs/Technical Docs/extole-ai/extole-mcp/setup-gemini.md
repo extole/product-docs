@@ -1,5 +1,5 @@
 ---
-title: Gemini CLI
+title: Using the Extole MCP in Gemini Enterprise
 excerpt: >-
   Connect Gemini CLI to Extole and manage your referral programs from the
   terminal.
