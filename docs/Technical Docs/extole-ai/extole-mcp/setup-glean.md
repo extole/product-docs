@@ -70,7 +70,7 @@ After you save, Glean will discover the tools the Extole MCP server exposes.
 
 **API Key**
 
-Select **API Key** as the authentication method. Enter your Extole API key available in the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
+Select **API Key** as the authentication method. Enter your Extole API key available in the <Anchor target="_blank" href="https://my.extole.com/security-center#access-token">My.Extole Security Center</Anchor>.
 
 Glean passes the key as a Bearer token in the `Authorization` header.
 
