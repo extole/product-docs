@@ -4,13 +4,15 @@ excerpt: >-
   Connect Gemini Enterprise to Extole and manage your referral programs with
   natural language.
 ---
+The standard Gemini consumer web app or browser access don't support direct MCP server hookups natively yet, you can easily connect MCP servers to me using the Gemini CLI or via Gemini Enterprise (Google Cloud).
+
 Connect Extole to Gemini Enterprise so your organization's Gemini assistant can manage referral programs using natural language.
 
 Gemini Enterprise supports custom MCP servers as data stores, letting you bring Extole directly into the Gemini assistant experience in the Google Cloud console. Once connected, users can run Extole performance reports, query program configuration, and manage rewards without leaving Gemini.
 
 > Who this is for: This guide is for **Google Cloud administrators** with access to the Gemini Enterprise console. Setup is done once at the organization level and applies to all authorized users. Individual users do not need to configure anything.
 
----
+***
 
 ## Requirements
 
@@ -22,7 +24,7 @@ Before you begin, you'll need:
 - **MCP access enabled** for your Extole organization
 - Extole registered as an **OAuth client application** with your identity provider (Okta, Azure AD, Google, or similar)
 
----
+***
 
 ## Step 1: Register with your identity provider
 
@@ -40,7 +42,7 @@ https://vertexaisearch.cloud.google.com/oauth-redirect
 
 Contact your Extole administrator if you need help with OAuth scope configuration.
 
----
+***
 
 ## Step 2: Create the Extole MCP data store
 
@@ -54,14 +56,14 @@ Contact your Extole administrator if you need help with OAuth scope configuratio
 
 5. Fill in the **Authentication settings**:
 
-| Field | Value |
-|---|---|
-| **MCP Server URL** | `https://mcp.extole.com` |
-| **Authorization URL** | Contact your Extole administrator |
-| **Token URL** | Contact your Extole administrator |
-| **Client ID** | From your identity provider registration |
-| **Client Secret** | From your identity provider registration |
-| **Scopes** | `read` or `read write` |
+| Field                 | Value                                    |
+| --------------------- | ---------------------------------------- |
+| **MCP Server URL**    | `https://mcp.extole.com`                 |
+| **Authorization URL** | Contact your Extole administrator        |
+| **Token URL**         | Contact your Extole administrator        |
+| **Client ID**         | From your identity provider registration |
+| **Client Secret**     | From your identity provider registration |
+| **Scopes**            | `read` or `read write`                   |
 
 6. Click **Login** and complete the sign-in flow.
 
@@ -75,7 +77,7 @@ Extole referral program data, reports, and management tools. Use these tools to 
 
 9. Click **Create**. Wait for the state to change to **Active** before proceeding.
 
----
+***
 
 ## Step 3: Enable Extole tools
 
@@ -89,7 +91,7 @@ By default, all MCP tools are disabled after creation.
 
 Enable read-only tools broadly and restrict write tools (such as reward or campaign updates) using role-based access controls.
 
----
+***
 
 ## Step 4: Connect the data store to your app
 
@@ -101,23 +103,21 @@ Enable read-only tools broadly and restrict write tools (such as reward or campa
 
 Once connected, the Gemini Enterprise assistant can use Extole tools in conversations.
 
----
+***
 
 ## Using Extole in Gemini Enterprise
 
 Once configured, users can ask the Gemini assistant questions that draw on Extole data and capabilities:
 
-> *"Show me the performance summary for our refer-a-friend program this month."*
+> _"Show me the performance summary for our refer-a-friend program this month."_
 
-> *"What's the current advocate reward in the holiday campaign?"*
-
-> *"Increase the friend reward in campaign X to $20."*
+> _"What's the current advocate reward in the holiday campaign?"_
 
 Gemini Enterprise will automatically call the appropriate Extole tool and return results in the conversation.
 
 > **Write operations** Actions that modify programs, rewards, or campaign components execute immediately under the authenticated user's Extole permissions and are recorded in the Extole change log. Consider your organization's approval workflows before enabling write tools for broad user access.
 
----
+***
 
 ## Data policies
 
