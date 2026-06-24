@@ -29,7 +29,7 @@ Microsoft 365 Copilot supports **federated connectors** — real-time data conne
 
 Before creating the connector, register Extole's MCP server as an OAuth client in the Teams Developer Portal.
 
-1. Sign in to the [Teams Developer Portal](https://dev.teams.microsoft.com/).
+1. Sign in to the <Anchor target="_blank" href="https://dev.teams.microsoft.com/">Teams Developer Portal</Anchor>.
 2. Select **Tools > OAuth Client Registration**.
 3. Select **+ New OAuth connection**.
 4. Fill in the following fields:
