@@ -73,7 +73,7 @@ Contact your Extole administrator if you need help with OAuth scope configuratio
 Extole referral program data, reports, and management tools. Use these tools to retrieve program performance, query configurations, and manage rewards and campaigns.
 ```
 
-8. Set the **Location** (Multi-region) and enter a **Data connector name** such as `Extole MCP`.
+8. Set the **Location** (Multi-region) and enter a **Data connector name,** such as `Extole MCP`.
 
 9. Click **Create**. Wait for the state to change to **Active** before proceeding.
 
