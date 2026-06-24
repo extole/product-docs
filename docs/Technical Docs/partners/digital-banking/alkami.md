@@ -1,23 +1,24 @@
 ---
-title: "Alkami"
-excerpt: "The Extole and Alkami integration turns your digital banking channel into a valuable source of new members through personalized referral and engagement programs.\n"
+title: Alkami
+excerpt: >
+  The Extole and Alkami integration turns your digital banking channel into a
+  valuable source of new members through personalized referral and engagement
+  programs.
 ---
-
 ## Overview
 
 This integration is easy to install, requires no custom coding, and includes the following features:
 
-* **No code CTAs**: Use the Alkami admin to create in-app CTAs and banners for your referral program.
-* **Fully integrated in-app sharing**: When members tap on a CTA, they can access their pre-generated referral link and refer friends via email, SMS, social, or QR code without ever leaving digital banking.
-* **Secure authentication with SSO**: Securely verify and share member identity with Extole using JWT (JSON Web Tokens.)
+- **Fully integrated in-app sharing**: When members tap on a CTA, they can access their pre-generated referral link and refer friends via email, SMS, social, or QR code without ever leaving digital banking.
+- **Secure authentication with SSO**: Securely verify and share member identity with Extole using JWT (JSON Web Tokens.)
 
 ## Prerequisites
 
-| Requirement                                   | Description                                                                                                                                                                                                                           |    |
-| :-------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :- |
-| Member ID                                     | Your unique identifier for a member. In order to use this integration, this identifier must be available in Alkami. Your member identity value should **NOT** be the members SSN.                                                     |    |
-| An Alkami account with `Standard SSO` enabled | Alkami's Standard SSO feature is in beta. If you do not have access, notify your Extole team who will request beta access through the Alkami team.                                                                                    |    |
-| Branded Program Domain                        | You must create and brand your referral subdomain (share.YourCompany.com). Instructions <Anchor label="here" target="_blank" href="https://docs.extole.com/docs/extole-dns-requirements#create-cnames-for-your-domains">here</Anchor>. |    |
+| Requirement                                   | Description                                                                                                                                                                                                               |    |
+| :-------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :- |
+| Member ID                                     | Your unique identifier for a member. In order to use this integration, this identifier must be available in Alkami. Your member identity value should **NOT** be the members SSN.                                         |    |
+| An Alkami account with `Standard SSO` enabled | Alkami's Standard SSO feature is in beta. If you do not have access, open a “Feature Request” ticket with Alkami to get access to the Standard SSO Admin Widget and provide your Extole team with the ticket number.      |    |
+| Branded Program Domain                        | You must create and brand your referral subdomain (share.YourCompany.com). Instructions <Anchor target="_blank" href="https://docs.extole.com/docs/extole-dns-requirements#create-cnames-for-your-domains">here</Anchor>. |    |
 
 ## Before you Start
 
@@ -35,7 +36,9 @@ Submit a request to [support@extole.com](mailto:support@extole.com) to update th
 
 To configure your referral page, go the Extole campaign editor for your referral campaign, select the `Microsite` creative experience, and edit the copy and creative.
 
-<Image align="center" src="https://files.readme.io/e56324b36901486b594e7ab5058f3866a3fea24035dc43b6fe97ad35e4b25507-5708566680ca1ae7e644ee878cf38e6b6792a58faf134d9fb5cbc5297a5a7f93-Screenshot_2025-12-16_at_1.35.11_PM.png" />
+
+<Image src="https://files.readme.io/e56324b36901486b594e7ab5058f3866a3fea24035dc43b6fe97ad35e4b25507-5708566680ca1ae7e644ee878cf38e6b6792a58faf134d9fb5cbc5297a5a7f93-Screenshot_2025-12-16_at_1.35.11_PM.png" align="center" />
+
 
 When a member taps on a navigation menu item or banner within in Alkami, they'll be taken to an embedded version of the microsite.
 
@@ -43,9 +46,15 @@ When a member taps on a navigation menu item or banner within in Alkami, they'll
 
 In the Alkami admin, create new menu item and name it Refer a Friend. In addition to the menu item, you can also place banner adds on your Alkami Dashboard.
 
-<Image align="center" caption="Example of an Alkami banner ad" src="https://files.readme.io/3a033c8fb97697e102d955cd7609d581d84e7f1127ef00847b9ffde532c4190f-839154214e8dd8fdcadc61073e99de74bfb4d438730d2024079dcfbf09e62a5a-image.png" />
 
-<Image align="center" caption="Example of a navigation menu item" src="https://files.readme.io/89edf1c1e263c50a9e7a390dfcf3e01409760a2f68c5af3bbad2af7cfb51a87b-637d169b459ddca5e48480d25a84b34def8f42029691ea6e334cefa72d6bea9b-image.png" />
+<Image src="https://files.readme.io/3a033c8fb97697e102d955cd7609d581d84e7f1127ef00847b9ffde532c4190f-839154214e8dd8fdcadc61073e99de74bfb4d438730d2024079dcfbf09e62a5a-image.png" align="center" caption="Example of an Alkami banner ad" />
+
+
+<br />
+
+
+<Image src="https://files.readme.io/89edf1c1e263c50a9e7a390dfcf3e01409760a2f68c5af3bbad2af7cfb51a87b-637d169b459ddca5e48480d25a84b34def8f42029691ea6e334cefa72d6bea9b-image.png" align="center" caption="Example of a navigation menu item" />
+
 
 <br />
 
@@ -105,7 +114,9 @@ Yes, in addition to desktop, the Extole and Alkami integration is fully supporte
 
 <br />
 
-<Image align="center" caption="Mobile app experience" src="https://files.readme.io/23ee81a107aae82b42a8e993224150a7d6a42ee04ff9d9cf6875f19742d57abf-f59ae8a63b0e83d3138fc3b44715b1371143b235aa9212afda4dd96d3181cc13-IMG_3390.png" width="300px" />
+
+<Image src="https://files.readme.io/23ee81a107aae82b42a8e993224150a7d6a42ee04ff9d9cf6875f19742d57abf-f59ae8a63b0e83d3138fc3b44715b1371143b235aa9212afda4dd96d3181cc13-IMG_3390.png" align="center" width="300px" caption="Mobile app experience" />
+
 
 ### I'm not able to preview the experience in Alkami, but I don't see any errors.
 

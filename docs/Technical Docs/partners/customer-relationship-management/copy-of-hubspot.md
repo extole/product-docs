@@ -1,5 +1,5 @@
 ---
-title: Hubspot
+title: Hubspot (Private Beta)
 excerpt: >
   HubSpot is an AI-powered customer platform with all the software,
   integrations, and resources you need to connect your marketing, sales, and
@@ -9,6 +9,8 @@ hidden: true
 metadata:
   robots: index
 ---
+> 📘 This Hubspot integration has not been released and is in private beta.
+
 # Extole HubSpot App — Installation Guide
 
 ## Overview
