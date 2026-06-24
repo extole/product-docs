@@ -9,7 +9,7 @@ Connect your Extole programs to Claude Desktop and manage referrals with natural
 
 Claude Desktop is the app version of Anthropic's Claude. Once connected to Extole, you can run reports, check program performance, and make changes to your programs directly in Claude -- without opening My.Extole.
 
-> Looking for Claude Code? If you work in the terminal, see the [Claude Code guide](doc:setup-claude-code) instead.
+> Looking for Claude Code? If you work in the terminal, see the <Anchor target="_blank" href="doc:setup-claude-code">Claude Code guide</Anchor> instead.
 
 ***
 
@@ -19,7 +19,7 @@ Every person who wants to use the Extole MCP must complete setup individually.
 
 You'll need:
 
-- The latest version of [Claude Desktop](https://claude.ai/download) installed
+- The latest version of <Anchor target="_blank" href="https://claude.ai/download">Claude Desktop</Anchor> installed
 - An active Extole user account
 
 ***
@@ -73,7 +73,7 @@ Use this method if you need centralized key management or if your organization d
 
 **Step 1: Get your API key**
 
-Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
+Generate one at the <Anchor target="_blank" href="https://my.extole.com/security-center#access-token">My.Extole Security Center</Anchor>.
 
 **Step 2: Open Claude Desktop settings**
 
@@ -143,7 +143,7 @@ The first time Claude uses an Extole tool, you'll be prompted to approve it. Cli
 
 **"No tools available"** -- Restart Claude Desktop after editing the config file. Verify the JSON is valid (no trailing commas).
 
-**"Unauthorized"** -- Your token may be incorrect or expired. Regenerate it at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
+**"Unauthorized"** -- Your token may be incorrect or expired. Regenerate it at the <Anchor target="_blank" href="https://my.extole.com/security-center#access-token">My.Extole Security Center</Anchor>.
 
 **Config file location (for manual setup):**
 
