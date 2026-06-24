@@ -7,7 +7,7 @@ hidden: false
 ---
 Connect your Extole programs to ChatGPT and manage referrals with natural language.
 
-ChatGPT supports MCP connections, letting you bring Extole directly into your ChatGPT conversations. Once connected, you can run reports, query program configuration, and make changes -- without opening My.Extole.
+ChatGPT supports MCP connections, letting you bring Extole directly into your ChatGPT conversations. Once connected, you can run reports, query program configuration, and make changes — without opening My.Extole.
 
 ---
 
@@ -18,17 +18,13 @@ Every person who wants to use the Extole MCP must complete setup individually.
 You'll need:
 
 - A ChatGPT plan that supports connectors (Pro, Plus, Team, Business, Enterprise, or Education)
+- **Developer mode** enabled in ChatGPT. Toggle it on at **Settings > Apps > Advanced settings**.
 - An active Extole user account
+- MCP access enabled for your Extole organization (contact your administrator if unsure)
 
 ---
 
 ## Setup
-
-Choose your authentication method. See the [MCP authentication guide](doc:mcp-authentication) if you're not sure which to use.
-
----
-
-### Option 1: OAuth (Recommended)
 
 **Step 1: Open connector settings**
 
@@ -42,8 +38,8 @@ Click **Create** next to **Advanced settings**.
 
 Fill in the following fields:
 
-- **Connector name** -- `Extole`
-- **Description** -- `Manage Extole referral programs`
+- **Connector name** — `Extole`
+- **Description** — `Manage Extole referral programs`
 - **Server URL**:
 
 ```
@@ -54,53 +50,24 @@ Click **Add**.
 
 **Step 4: Authorize the connection**
 
-ChatGPT will redirect you to an Extole authorization page. Review the permissions and click **Authorize**.
+1. ChatGPT will redirect you to an Extole authorization page.
+2. Review the permissions and click **Authorize**.
 
 Extole will create an access token linked to your user account.
 
 **Step 5: Verify the connection**
 
-In a new chat, click the **+** icon and select the Extole connector to enable it.
-
----
-
-### Option 2: API Key
-
-**Step 1: Get your API key**
-
-Generate one at the [My.Extole Security Center](https://my.extole.com/security-center#access-token).
-
-**Step 2: Open connector settings**
-
-In ChatGPT, navigate to **Settings > Apps & Connectors**.
-
-**Step 3: Create a new connector**
-
-Click **Create** next to **Advanced settings**.
-
-**Step 4: Configure the connector**
-
-- **Connector name** -- `Extole`
-- **Description** -- `Manage Extole referral programs`
-- **Server URL**:
-
-```
-https://mcp.extole.com
-```
-
-**Step 5: Configure authentication**
-
-Set the authentication method to **Bearer token** and enter your Extole API key.
-
-**Step 6: Verify the connection**
-
-In a new chat, click the **+** icon and select the Extole connector.
+In a new chat, click the **+** (plus) icon and select the Extole connector to enable it.
 
 ---
 
 ## Using the MCP
 
-Once the connector is enabled in a chat, interact with your Extole programs directly:
+Once the connector is enabled in a chat, you can interact with your Extole programs directly.
+
+**Step 1:** Open a new chat. Click the **+** (plus) icon and enable the Extole connector.
+
+**Step 2:** Enter a prompt, such as:
 
 > *"Show me the performance summary for my refer-a-friend program this quarter."*
 
@@ -108,14 +75,7 @@ Once the connector is enabled in a chat, interact with your Extole programs dire
 
 > *"Increase the friend reward in campaign X to $10."*
 
-For write operations, you may be prompted to confirm the action before it proceeds.
+**Step 3:** ChatGPT will call the appropriate Extole tools. For write operations, you may be prompted to confirm the action before it proceeds.
 
-> **Write operations** -- Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log. Review prompts carefully before approving write operations.
-
----
-
-## Troubleshooting
-
-**Connector not showing** -- Verify you're on a ChatGPT plan that supports connectors (Pro, Plus, Team, Business, Enterprise, or Education).
-
-**"Unauthorized"** -- Check that your API key is entered correctly with no extra spaces, or re-authorize via OAuth.
+> 🚧 Write operations
+> Actions that modify programs, rewards, or campaign components execute immediately under your Extole permissions and are recorded in the Extole change log. Review prompts carefully before approving write operations.
