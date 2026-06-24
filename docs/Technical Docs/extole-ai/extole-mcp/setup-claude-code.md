@@ -20,7 +20,7 @@ Every person who wants to use the Extole MCP must complete setup individually.
 
 You'll need:
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
+- <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank">Claude Code</a> installed
 - An active Extole user account
 - MCP access enabled for your Extole organization (contact your administrator if unsure)
 
