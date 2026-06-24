@@ -1,5 +1,5 @@
 ---
-title: Using the Extole MCP in Gemini Enterprise
+title: Gemini Enterprise
 excerpt: >-
   Connect Gemini Enterprise to Extole and manage your referral programs with
   natural language.
