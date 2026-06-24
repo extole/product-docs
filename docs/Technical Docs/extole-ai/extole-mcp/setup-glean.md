@@ -9,10 +9,9 @@ Connect Extole to Glean so your Glean Assistant and Glean Agents can manage refe
 Glean can act as an MCP host, connecting to external MCP servers and surfacing their tools inside Glean Assistant and Glean Agents. Once the Extole MCP server is registered, users can run performance reports, query program configuration, and trigger program actions directly from Glean — without leaving the platform.
 
 > 📘 Who this is for
->
 > This guide is for **Glean administrators**. Setup is done once in the Glean Admin Console and applies to all authorized users in your organization. Individual users do not need to configure anything.
 
-***
+---
 
 ## Requirements
 
@@ -20,9 +19,9 @@ Before you begin, you'll need:
 
 - **Glean admin access** — you must be able to open the Admin Console and access **Platform → Actions**
 - **MCP access enabled** for your Extole organization — contact your Extole administrator if unsure
-- An **Extole API key** (for API key authentication) or OAuth credentials issued by your Extole administrator
+- OAuth credentials issued by your Extole administrator
 
-***
+---
 
 ## Setup
 
@@ -50,12 +49,6 @@ https://mcp.extole.com
 
 ### Step 4: Configure authentication
 
-Choose your authentication method:
-
-***
-
-**OAuth (Recommended)**
-
 Select **OAuth User** as the authentication method. Provide the following:
 
 - **Authorization URL** — contact your Extole administrator
@@ -65,18 +58,6 @@ Select **OAuth User** as the authentication method. Provide the following:
 - **Scopes** — use the minimum scope needed: `read` for report and query access, `write` for program management
 
 After you save, Glean will discover the tools the Extole MCP server exposes.
-
-***
-
-**API Key**
-
-Select **API Key** as the authentication method. Enter your Extole API key available in the <Anchor target="_blank" href="https://my.extole.com/security-center#access-token">My.Extole Security Center</Anchor>.
-
-Glean passes the key as a Bearer token in the `Authorization` header.
-
-To generate an API key, navigate to **My.Extole > Settings > API Tokens**.
-
-***
 
 ### Step 5: Enable tools
 
@@ -94,11 +75,11 @@ Click **Save**.
 
 From **Glean Assistant**, ask a question that should use an Extole tool, such as:
 
-> _"Use the Extole tool to show me the performance report for our refer-a-friend program."_
+> *"Use the Extole tool to show me the performance report for our refer-a-friend program."*
 
 Verify that Glean calls the Extole action and returns expected results. If calls fail, check your Extole MCP server logs or contact your Glean Solutions Engineer.
 
-***
+---
 
 ## Using Extole tools in Glean
 
@@ -106,24 +87,26 @@ Once configured, users can invoke Extole capabilities using natural language in 
 
 **Example prompts for Glean Assistant:**
 
-> _"Show me this month's conversion report for our refer-a-friend program."_
+> *"Show me this month's conversion report for our refer-a-friend program."*
 
-> _"What's the current advocate reward in the holiday campaign?"_
+> *"What's the current advocate reward in the holiday campaign?"*
+
+> *"Increase the friend reward in campaign X to $20."*
 
 **Using Extole in Glean Agents:**
 
 In Agent Builder, add a **Plan + Execute** step and select an Extole tool. You can chain it with other Glean actions — for example, fetch an Extole performance report and then send a summary to Slack.
 
 > 📘 Note
->
 > MCP tools are only available in **Plan and Execute** steps in Glean Agents, not single-step selections.
 
-> **Write operations** — Actions that modify programs, rewards, or campaign components execute immediately under the authenticated user's Extole permissions and are recorded in the Extole change log. Consider enabling human-in-the-loop confirmation steps in your agent workflows before applying write operations.
+> 🚧 Write operations
+> Actions that modify programs, rewards, or campaign components execute immediately under the authenticated user's Extole permissions and are recorded in the Extole change log. Consider enabling human-in-the-loop confirmation steps in your agent workflows before applying write operations.
 
-***
+---
 
 ## Data policies
 
 Access to the Extole MCP server in Glean is governed by your Glean tenant's admin-controlled action settings. Admins can restrict which tools are available, limit access to specific user groups, and audit all tool invocations via **Admin Console → Insights → MCP Insights**.
 
-<br />
+If your Extole MCP server is hosted in a private network or VPC, coordinate with your Glean Solutions Engineer to configure the necessary allowlist or proxy settings.
