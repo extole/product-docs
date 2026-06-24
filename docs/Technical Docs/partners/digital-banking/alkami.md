@@ -17,7 +17,7 @@ This integration is easy to install, requires no custom coding, and includes the
 | Requirement                                   | Description                                                                                                                                                                                                               |    |
 | :-------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :- |
 | Member ID                                     | Your unique identifier for a member. In order to use this integration, this identifier must be available in Alkami. Your member identity value should **NOT** be the members SSN.                                         |    |
-| An Alkami account with `Standard SSO` enabled | Alkami's Standard SSO feature is in beta. If you do not have access, open “Feature Request” ticket with Alkami to get access to the Standard SSO Admin Widget and provide your Extole team with the ticket number.        |    |
+| An Alkami account with `Standard SSO` enabled | Alkami's Standard SSO feature is in beta. If you do not have access, open a “Feature Request” ticket with Alkami to get access to the Standard SSO Admin Widget and provide your Extole team with the ticket number.      |    |
 | Branded Program Domain                        | You must create and brand your referral subdomain (share.YourCompany.com). Instructions <Anchor target="_blank" href="https://docs.extole.com/docs/extole-dns-requirements#create-cnames-for-your-domains">here</Anchor>. |    |
 
 ## Before you Start
@@ -49,6 +49,8 @@ In the Alkami admin, create new menu item and name it Refer a Friend. In additio
 
 <Image src="https://files.readme.io/3a033c8fb97697e102d955cd7609d581d84e7f1127ef00847b9ffde532c4190f-839154214e8dd8fdcadc61073e99de74bfb4d438730d2024079dcfbf09e62a5a-image.png" align="center" caption="Example of an Alkami banner ad" />
 
+
+<br />
 
 
 <Image src="https://files.readme.io/89edf1c1e263c50a9e7a390dfcf3e01409760a2f68c5af3bbad2af7cfb51a87b-637d169b459ddca5e48480d25a84b34def8f42029691ea6e334cefa72d6bea9b-image.png" align="center" caption="Example of a navigation menu item" />
