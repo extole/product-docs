@@ -561,26 +561,6 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
-      "invalid_type": {
-        "summary": "invalid_type",
-        "value": {
-          "code": "invalid_type",
-          "http_status_code": 400,
-          "message": "Person key type is invalid",
-          "parameters": {},
-          "unique_id": "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "invalid_value": {
-        "summary": "invalid_value",
-        "value": {
-          "code": "invalid_value",
-          "http_status_code": 400,
-          "message": "Data value is invalid",
-          "parameters": {},
-          "unique_id": "00000000-0000-0000-0000-000000000000"
-        }
-      },
       "journey_not_found": {
         "summary": "journey_not_found",
         "value": {
@@ -3720,6 +3700,30 @@
           "report_id",
           "type"
         ],
+        "type": "object"
+      },
+      "RestError": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "http_status_code": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "parameters": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "unique_id": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "RestExceptionResponse": {
@@ -19140,15 +19144,16 @@
     },
     "/v5/persons/person-keys/{person_key}": {
       "delete": {
-        "description": "Deletes the exact person key lookup for the calling client, wherever it currently points. Identify the key as a `<type>:<value>` path segment, the same format used to look up persons via `GET /v5/persons?person_keys=<type>:<value>`. Returns `400 key_not_found` when no lookup exists or the type is not a configured partner-profile key, and `400 read_only_key_type` for the client's identity key.",
+        "description": "Deletes the exact person key lookup for the calling client, wherever it currently points. Identify the key as a `<type>:<value>` path segment, the same format used to look up persons via `GET /v5/persons?person_keys=<type>:<value>`. Values may contain forward slashes; include them literally in the path segment, for example `DELETE /v5/persons/person-keys/order_id:customer/vip/42`. Returns `400 key_not_found` when no lookup exists or the type is not a configured partner-profile key, and `400 read_only_key_type` for the client's identity key.",
         "operationId": "deletePersonKey",
         "parameters": [
           {
-            "description": "The person key to delete using the format <type>:<value>, for example order_id:abc123.",
+            "description": "The person key to delete using the format <type>:<value>, for example order_id:abc123 or order_id:customer/vip/42 when the value contains forward slashes.",
             "in": "path",
             "name": "person_key",
             "required": true,
             "schema": {
+              "pattern": ".+",
               "type": "string"
             }
           }
@@ -19168,37 +19173,19 @@
             "content": {
               "application/json": {
                 "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_type": {
-                    "$ref": "#/components/examples/invalid_type"
-                  },
-                  "invalid_value": {
-                    "$ref": "#/components/examples/invalid_value"
-                  },
                   "key_not_found": {
                     "$ref": "#/components/examples/key_not_found"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
                   },
                   "read_only_key_type": {
                     "$ref": "#/components/examples/read_only_key_type"
                   }
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
+                  "$ref": "#/components/schemas/RestError"
                 }
               }
             },
-            "description": "Bad Request"
+            "description": "Person key lookup cannot be deleted. The named examples below cover this operation's specific validation errors. Inspect the response `code` field for details."
           },
           "401": {
             "content": {
