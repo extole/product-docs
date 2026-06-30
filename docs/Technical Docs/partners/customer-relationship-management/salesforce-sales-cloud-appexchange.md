@@ -1,14 +1,14 @@
 ---
 title: Salesforce Sales Cloud (AppExchange)
+excerpt: >-
+  Connect Salesforce to your Extole referral program. Sync program KPIs into
+  Salesforce and sends Salesforce record events to Extole to trigger referral
+  actions.
 deprecated: false
 hidden: true
 metadata:
   robots: index
 ---
-Connect Salesforce to your Extole referral program. Sync program KPIs into Salesforce and sends Salesforce record events to Extole to trigger referral actions.
-
-***
-
 ## Overview
 
 **Analytics** — Pull report data from the Extole API on a configurable schedule (hourly, daily, or weekly) and display it as metric tiles inside Salesforce. Admins choose which Extole reports to surface and how frequently to sync.
