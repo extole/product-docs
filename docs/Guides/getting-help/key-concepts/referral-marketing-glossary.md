@@ -6,7 +6,7 @@ excerpt: >
   released Referral Marketing Encyclopedia! In it you'll find definitions for
   all the key…
 ---
-Before getting started with Extole, it is important that we establish a common vocabulary when talking about referrals. We're excited to share our newly released Referral Marketing Encyclopedia! In it you'll find definitions for all the key referral concepts you need to know, and how they relate to what's on marketers' minds.
+Before getting started with Extole, it is important that we establish a common vocabulary when talking about referrals. We're excited to share our newly released Referral Marketing Encyclopedia! In it you'll find definitions for all the key referral concepts you need to know, and how they relate to what's on marketers' minds
 
 ## Basics
 
