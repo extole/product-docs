@@ -1,7 +1,7 @@
 ---
 title: Salesforce Sales Cloud (AppExchange)
 deprecated: false
-hidden: false
+hidden: true
 metadata:
   robots: index
 ---
