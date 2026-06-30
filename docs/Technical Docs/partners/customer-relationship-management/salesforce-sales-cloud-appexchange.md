@@ -1,7 +1,7 @@
 ---
 title: Salesforce Sales Cloud (Private Beta)
 excerpt: >-
-  Connect Salesforce to your Extole referral program. Sync program KPIs into
+  Connect Salesforce CRM to your Extole programs. Sync program KPIs into
   Salesforce and sends Salesforce record events to Extole to trigger referral
   actions.
 deprecated: false
