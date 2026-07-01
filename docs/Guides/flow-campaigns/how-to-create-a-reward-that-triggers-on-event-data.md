@@ -169,14 +169,4 @@ The **Event Data Parameter** name in the rule must match the parameter name you 
   event creation) when you meant a **Reward Rule** (which only gates payout). Move it accordingly.
 - **List/array field never equals.** Switch **Equals** to **Contains** or **Matches Regex**.
 
-***
-
-## Related Help Center articles
-
-- [How to Set Up Reward Rules](https://success.extole.com/en/articles/12010895-how-to-set-up-reward-rules)
-- [Common Trigger Rules](https://success.extole.com/en/articles/13015994-common-trigger-rules) — full reference for Event Data Comparison and other rule types
-- [How to Set Up Business Event Rules](https://success.extole.com/en/articles/12020840-how-to-set-up-business-event-rules)
-- [Configuring the Rules of Your Program](https://success.extole.com/en/articles/10772175-configuring-the-rules-of-your-program)
-- [How to Set Up a Reward for Action Offer Program](https://success.extole.com/en/articles/13612885-how-to-set-up-a-reward-for-action-offer-program)
-
 <br />
