@@ -125,26 +125,6 @@ The conversion event fires the matching reward based on the product id it carrie
 
 ***
 
-## Common data patterns
-
-| You want to…                                 | Comparison         | Value                     |
-| -------------------------------------------- | ------------------ | ------------------------- |
-| Reward only for one product                  | **Equals**         | `SKU-123`                 |
-| Reward for anything except a product         | **Does not equal** | `SKU-123`                 |
-| Reward only when a product id is present     | **Is not blank**   | _(none)_                  |
-| Reward when a cart/SKU list contains an item | **Contains**       | `SKU-123`                 |
-| Reward for a family of SKUs                  | **Matches Regex**  | `^SHOE-(RUN\|TRAIL)-\d+$` |
-
-> **Multiple items / arrays.** If your event sends a list of products (e.g. a cart of SKUs in one
-> field), use **Contains** or **Matches Regex** rather than **Equals**, since the field holds more
-> than a single value.
-
-> **More than a value check.** For richer logic (combinations of fields, math, nested data), use a
-> **Rule Group** to build OR logic, or a **Custom Expression Rule** for a custom boolean expression.
-> Custom Expression Rules are typically configured with Extole's technical services team.
-
-***
-
 ## Prerequisite: the data must actually be on the event
 
 A data rule can only compare a parameter that is **sent on the event**. Before configuring the
