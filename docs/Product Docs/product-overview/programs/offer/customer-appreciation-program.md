@@ -19,7 +19,7 @@ A Customer Appreciation campaign uses the same **Program** structure as other Ex
 
 ## Launch Steps
 
-1. **Create the program.** From My Extole, select **+ New Program** and choose the **Customer Appreciation** template.
+1. **Create the program.&#x20;**&#x46;rom My Extole, select **+ New Program** and choose the **Customer Appreciation** template.
 
 2. **Create a new reward.** Navigate to the Rewards section and set up the reward you want to send (gift card, coupon, etc).
 
@@ -29,7 +29,7 @@ A Customer Appreciation campaign uses the same **Program** structure as other Ex
    - By default, a Tango gift card is enabled. Work with your CSM to create a new email template and add that template ID to the campaign.
    - If you're using **Tremendous** or **BHN** rewards instead, add the **Reward Emails** component to the **Reward Delivery** section of the flow and customize the emails there.
 
-5. **Set campaign live**
+5. **Set campaign live.**
    - Once your campaign is set up, publish the campaign and set it live.
 
 6. **Send a one-off reward.**
@@ -39,8 +39,13 @@ A Customer Appreciation campaign uses the same **Program** structure as other Ex
    - Enter the recipient's email address and first name (if your template uses it).
 
 7. **Send batch rewards.**
-   - Go to **Batch Jobs** and upload recipients using the Customer Appreciation upload template (`event_name`, `email`, `first_name`).
+   - Go to **Batch Jobs** and upload a CSV of recipients using the Customer Appreciation upload template (`event_name`, `email`, `first_name`).
    - If you rename the event from `customer_appreciation` to something else in the campaign, update the `event_name` value in your upload file to match.
+
+     Example upload format:
+     | event\_name                    | email                                             | first\_name |
+     | ------------------------------ | ------------------------------------------------- | ----------- |
+     | customer\_appreciation\_reward | [example@example.com](mailto:example@example.com) | Cate        |
 
 8. **Confirm rewards were sent.** In **User Support**, look up the participant's profile. The reward should appear on their profile once issued.
 
