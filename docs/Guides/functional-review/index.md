@@ -15,7 +15,8 @@ Use these with the Functional Review MCP skill / agent workflow. They are **hidd
 
 1. [Overview](functional-review-overview)
 2. [Input / Runtime Event Validation](functional-review-input-runtime-event-validation)
-3. [Conversion & Reward Validation](functional-review-conversion-reward-validation)
-4. [Email / Webhook / Side-Effect Validation](functional-review-email-webhook-side-effect-validation)
-5. [Report Execution + Runtime Checks](functional-review-report-execution-runtime-checks)
-6. [Terms, Rewards, and Configuration Alignment](functional-review-terms-rewards-and-configuration-alignment)
+3. [Event Data vs Rule Expectations](functional-review-event-data-rule-alignment)
+4. [Conversion & Reward Validation](functional-review-conversion-reward-validation)
+5. [Email / Webhook / Side-Effect Validation](functional-review-email-webhook-side-effect-validation)
+6. [Report Execution + Runtime Checks](functional-review-report-execution-runtime-checks)
+7. [Terms, Rewards, and Configuration Alignment](functional-review-terms-rewards-and-configuration-alignment)
