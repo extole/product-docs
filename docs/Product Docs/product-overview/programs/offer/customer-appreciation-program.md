@@ -53,6 +53,8 @@ A Customer Appreciation campaign uses the same **Program** structure as other Ex
 
 **Running Multiple Campaigns** If you create additional campaigns from this template (for example, a seasonal or promotional send), give each one a unique event name — e.g., `customer_appreciation_summer_promo` so batch uploads route to the correct campaign.
 
+**Utilize Reward Bank** These types of offers fit very well with Extole's Reward Bank. Prompt customers to redeem their rewards before sending them out in bulk. Learn more here.&#x20;
+
 ## Related Resources
 
 - Work with your CSM for reward template setup and gift card funding
