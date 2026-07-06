@@ -82,9 +82,20 @@ Do not judge reports in isolation.
 
 Use these linked docs for the detailed steps:
 
-- [Functional Review: Report Execution + Runtime Checks P1](https://app.intercom.com/a/apps/syy27wia/knowledge-hub/all-content?activeContentId=18356560&activeContentType=article&editorMode=edit&native_content=false)
+- [Functional Review: Report Execution + Runtime Checks](functional-review-report-execution-runtime-checks)
+- [Functional Review: Input / Runtime Event Validation](functional-review-input-runtime-event-validation)
+- [Functional Review: Event Data Rule Alignment](functional-review-event-data-rule-alignment)
+- [Functional Review: Conversion & Reward Validation](functional-review-conversion-reward-validation)
+- [Functional Review: Email / Webhook / Side-Effect Validation](functional-review-email-webhook-side-effect-validation)
+- [Functional Review: Terms, Rewards, and Configuration Alignment](functional-review-terms-rewards-and-configuration-alignment)
 
-**[- Functional Review: Terms, Rewards, and Configuration Alignment](https://app.intercom.com/a/apps/syy27wia/knowledge-hub/all-content?activeContentId=18356740&activeContentType=article)**
+## Report completion gate
+
+The consolidated review — and any posting of results to a Jira ticket — must wait until every submitted report in the queue has reached a terminal state (completed and downloaded, or failed with a recorded error). A report that is pending, queued, or running is not terminal. Never publish findings, a verdict, or a ticket comment while any queued report is still running; wait for the outstanding reports to complete and incorporate their output first.
+
+## Report reuse window
+
+Reports are expensive and reviews may be re-run while iterating. Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last 2 days, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
 
 ## Example chat prompt
 
@@ -93,13 +104,8 @@ Follow the report execution queue rules before analysis. Include report view lin
 ## Final verdict definitions
 
 | Verdict | Meaning |
-
 |---|---|
-
 | Pass | No material runtime or configuration-alignment flags found |
-
 | Watch | Non-blocking anomaly or low-confidence concern worth monitoring |
-
 | Issue | Evidence of a material problem that may affect users, rewards, tracking, or integrations |
-
 | Needs investigation | Reports are missing, inconclusive, contradictory, or there is not enough traffic to conclude |

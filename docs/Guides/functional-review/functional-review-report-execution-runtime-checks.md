@@ -174,9 +174,9 @@ Do not convert an assistant execution error into a campaign finding.
 
 The assistant’s only stop condition is:
 
-all queued reports/sources have been attempted, all successfully submitted reports have been checked for completion, and all available completed reports have been downloaded and analyzed.
+all queued reports/sources have been attempted, and every successfully submitted report has reached a terminal state — completed, downloaded, and analyzed, or failed with the exact error recorded.
 
-If some reports are still pending or unavailable after status checks, the final output must list them as open gaps with report links/status/errors.
+Pending is not a terminal state. A report that is pending, queued, or running must be waited on — not written off as an evidence gap. If any submitted report is still pending, do not produce the final output; wait for the report completion callback (or re-check status) and resume the review when the report finishes. Only a report that terminally failed, or whose report type is genuinely unavailable, may appear in Evidence Gaps with report links/status/errors.
 
 Flag anything that matches the “Look for” column.
 ## Hard stop: no analysis before queue completion
@@ -212,15 +212,15 @@ until ALL of the following are true:
 Every report and source listed in this article has been attempted.
 - 
 
-Every successfully submitted report has been status checked at least once.
+Every successfully submitted report has reached a terminal state: completed, or failed with the exact error recorded. Pending, queued, or running is not terminal — wait for completion instead of proceeding.
 - 
 
 Every completed report has been downloaded.
 - 
 
-Every downloaded report has passed required field/header validation before analysis..
+Every downloaded report has passed required field/header validation before analysis.
 
-If these conditions are not met, continue executing the queue.
+If these conditions are not met, continue executing the queue, or wait for outstanding reports to complete. Posting results to a Jira ticket counts as analysis and is equally forbidden before these conditions are met.
 
 Parameter discovery, report-type lookup, or a failed report submission does not satisfy the stop condition and must not interrupt submission of later queued reports.
 # Core sanity-check principle
@@ -274,11 +274,13 @@ not active in graph + report activity = possible stale/legacy/misrouted traffic
 report parameters do not match graph-derived events/steps = rerun or mark evidence gap
 
 Only reports explicitly listed in this knowledge document may be run, and each report must be configured before execution to return data only for the campaign under investigation, using the applicable entity, mapping, filter, and aggregation syntax validated against the Extole reporting entity/context documentation and Custom Data Queries documentation.
-​[https://success.extole.com/en/articles/15433113-entities-and-context-available-in-extole-s-configurable-reporting-system](https://success.extole.com/en/articles/15433113-entities-and-context-available-in-extole-s-configurable-reporting-system)
 
-[https://success.extole.com/en/articles/15394374-custom-data-queries-using-extole-reports](https://success.extole.com/en/articles/15394374-custom-data-queries-using-extole-reports)
-# **[Functional Review: Conversion & Reward Validation](https://app.intercom.com/a/apps/syy27wia/knowledge-hub/all-content?activeContentId=18428322&activeContentType=article&editorMode=view&native_content=true)**
+- [Entities and Context Available in Extole's Configurable Reporting System](entities-and-context-available-in-extole-s-configurable-reporting-system)
+- [Custom Data Queries Using Extole Reports](custom-data-queries-using-extole-reports)
 
-# [Functional Review: Input / Runtime Event Validation](https://app.intercom.com/a/apps/syy27wia/knowledge-hub/all-content?activeContentId=18427874&activeContentType=article&editorMode=view&native_content=true)
+## Detailed section runbooks
 
-# [Functional Review Email/Webhook/side-effect evidence](https://app.intercom.com/a/apps/syy27wia/knowledge-hub/all-content?activeContentId=18360922&activeContentType=article&editorMode=view&native_content=true)
+- [Functional Review: Input / Runtime Event Validation](functional-review-input-runtime-event-validation)
+- [Functional Review: Event Data Rule Alignment](functional-review-event-data-rule-alignment)
+- [Functional Review: Conversion & Reward Validation](functional-review-conversion-reward-validation)
+- [Functional Review: Email / Webhook / Side-Effect Validation](functional-review-email-webhook-side-effect-validation)

@@ -194,13 +194,15 @@ Before producing output, verify:
 
 - campaign graph/configuration reviewed for each checklist item
 
-- every submitted report status checked
+- every submitted report reached a terminal state (completed or failed) — no report is still pending, queued, or running
 
 - every completed report downloaded
 
 - every completed report analyzed
 
-If any checkbox cannot be marked complete, the output MUST contain an Evidence Gaps or Execution Errors section listing:
+A pending report never satisfies this gate. If any submitted report is still pending, do not produce the final output or post to the ticket — wait for the report completion callback (or re-check status) and resume when every report is terminal.
+
+If any checkbox cannot be marked complete after all reports are terminal, the output MUST contain an Evidence Gaps or Execution Errors section listing:
 
 - missing item
 
@@ -269,22 +271,9 @@ Use thousands separators on counts.
 Prefer step and program names over internal ids in prose.
 # Review verdict definitions
 
-Verdict
-
-Meaning
-
-**Pass**
-
-No material runtime flags found
-
-**Watch**
-
-Non-blocking anomaly or low-confidence concern worth monitoring
-
-**Issue**
-
-Evidence of a material problem that may affect users, rewards, tracking, emails, or integrations
-
-**Needs investigation**
-
-Reports are missing, inconclusive, contradictory, or there is not enough traffic to conclude
+| Verdict | Meaning |
+|---|---|
+| **Pass** | No material runtime flags found |
+| **Watch** | Non-blocking anomaly or low-confidence concern worth monitoring |
+| **Issue** | Evidence of a material problem that may affect users, rewards, tracking, emails, or integrations |
+| **Needs investigation** | Reports are missing, inconclusive, contradictory, or there is not enough traffic to conclude |

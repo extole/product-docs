@@ -77,6 +77,8 @@ Optional: rendered Terms page, if available.
 
 - Evaluate Terms variables only when the available built `termsCopy` contains unresolved placeholders, is empty, or cannot be retrieved.
 
+- Treat generic template defaults as unresolved placeholders, not as the client's Terms promise. Values such as `Your Company`, `https://www.yourcompany.com`, or a stock default reward amount (for example a `$20`/`$20` advocate/friend pair on a program whose configured rewards differ) that resolve from component variable defaults are template scaffolding. Never report a Terms/reward mismatch `Issue` based on template-default values — if only template defaults are available, record an Evidence Gap and return `Needs investigation`.
+
 - Compare reward language in available built `termsCopy` against the rewards actually issued by the campaign flow.
 
 - Use reward configuration as source of truth for issued rewards, not campaign name.
@@ -683,22 +685,9 @@ If available termsCopy cannot be confidently read or associated with the active 
 Only mark Issue when readable Terms copy materially conflicts with configured rewards, limits, geography, or qualifying conditions.
 ## Result definitions
 
-Result
-
-Meaning
-
-**Pass**
-
-No material configuration-alignment flags found
-
-**Watch**
-
-Non-blocking anomaly or low-confidence concern worth monitoring
-
-**Issue**
-
-Evidence of a material mismatch between user-facing Terms and configured rewards, limits, geography, or qualifying conditions
-
-**Needs investigation**
-
-Available Terms copy, issued reward value, configuration, or trigger/condition evidence is missing, inconclusive, or contradictory
+| Result | Meaning |
+|---|---|
+| **Pass** | No material configuration-alignment flags found |
+| **Watch** | Non-blocking anomaly or low-confidence concern worth monitoring |
+| **Issue** | Evidence of a material mismatch between user-facing Terms and configured rewards, limits, geography, or qualifying conditions |
+| **Needs investigation** | Available Terms copy, issued reward value, configuration, or trigger/condition evidence is missing, inconclusive, or contradictory |
