@@ -43,6 +43,7 @@ A Customer Appreciation campaign uses the same **Program** structure as other Ex
    - If you rename the event from `customer_appreciation` to something else in the campaign, update the `event_name` value in your upload file to match.
 
      Example upload format:
+
      | event\_name                    | email                                             | first\_name |
      | ------------------------------ | ------------------------------------------------- | ----------- |
      | customer\_appreciation\_reward | [example@example.com](mailto:example@example.com) | Cate        |
@@ -53,7 +54,7 @@ A Customer Appreciation campaign uses the same **Program** structure as other Ex
 
 **Running Multiple Campaigns** If you create additional campaigns from this template (for example, a seasonal or promotional send), give each one a unique event name — e.g., `customer_appreciation_summer_promo` so batch uploads route to the correct campaign.
 
-**Utilize Reward Bank** These types of offers fit very well with Extole's Reward Bank. Prompt customers to redeem their rewards before sending them out in bulk. Learn more here.&#x20;
+**Utilize Reward Bank** These types of offers fit very well with Extole's Reward Bank. Prompt customers to redeem their rewards before sending them out in bulk. [Learn more here]().&#x20;
 
 ## Related Resources
 
