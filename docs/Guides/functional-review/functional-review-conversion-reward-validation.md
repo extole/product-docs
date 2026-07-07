@@ -28,7 +28,7 @@ The configured **Conversion Audit** template already contains the required diagn
 
 `step_names` must be a comma-separated string of business-event step names that can result in a reward.
 
-Only include earning/root business-event step names whose configured path can issue or contribute to a reward.
+Include **every** earning/root business-event step whose configured path can issue or contribute to a reward — when a step's reward impact is uncertain, include it rather than omitting it. Sort the names **alphabetically** before joining them with commas. Deterministic derivation matters: the report reuse cache keys on the exact parameter string, so an inconsistent set or ordering forces a full re-run of this multi-hour report on every review.
 
 Do not include:
 ​
@@ -64,7 +64,7 @@ Conversion Audit
 ### Submission guidance
 ​
 1. Inspect the campaign graph.
-2. Derive `step_names` from configured business-event / targetable-step names that can result in a reward.
+2. Derive `step_names` from configured business-event / targetable-step names that can result in a reward: include every reward-capable step (include uncertain ones), then sort alphabetically.
 3. Find the configured report type whose display name is `Conversion Audit`.
 4. Submit that configured report type using the required parameters above.
 5. Do not override `mappings`; rely on the configured report template mappings.
