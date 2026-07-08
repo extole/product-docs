@@ -51,67 +51,14 @@ Fire Extole's `application_submitted` tag when the prospect/member completes the
 
 <br />
 
-## Step 3: Send account openings from Clutch to Extole via SFTP
+## Step 2: Set up a webhook in MANTL to notify Extole of account openings<br />
 
-Forward your daily export file from Clutch to Extole's SFTP server to notify Extole of **account openings**. Extole will extract and process the data for any columns marked in **bold** in the table below.
+Extole should be notified once the account has been opened. The webhook response body should include the person ID and application ID.
 
-<Callout icon="📘" theme="info">
-  ###
+[https://api.mantl.com/rest/docs#/webhooks/postapplication\_booked](https://api.mantl.com/rest/docs#/webhooks/postapplication_booked "https://api.mantl.com/rest/docs#/webhooks/postapplication_booked") <br />[https://dev.extole.com/reference/create-event](https://dev.extole.com/reference/create-event "https://dev.extole.com/reference/create-event")
 
-  Learn how to connect to [Extole's SFTP server](https://docs.extole.com/docs/extoles-sftp-server).
-</Callout>
+## Step 3: Extole connects to MANTL to retrieve customer identifier
 
-<Callout icon="🚧" theme="warn">
-  ###
+Extole will then use the MANTL Accounts API to retrieve the members email address and additional information for reward qualification and fulfillment
 
-  If you are using Clutch's in-branch and online account opening products, you can use the daily extract file to track all account opening events for your Extole campaign. If you are only using Clutch for online account openings, you will need to send in-branch openings as a seperate file.
-</Callout>
-
-| column header                 | sample value                             |
-| :---------------------------- | :--------------------------------------- |
-| **application\_id**           | **0008c146-2d6e-44aa-ae93-e16c1decf095** |
-| **applicant\_name**           | **John Smith**                           |
-| **applicant\_email**          | **[jsmith101@gmail.com]()**              |
-| **member\_nr**                | **55579**                                |
-| **product\_name**             | **Premium Share Account**                |
-| **product\_type**             | **savings**                              |
-| **is\_new\_member**           | **TRUE**                                 |
-| **account\_status**           | **CREATED**                              |
-| **account\_created\_at**      | **2024-11-12T16:11:46.629Z**             |
-| **utm\_content**              | **jsmith101** (`advocate_code`)          |
-| applicant\_id                 | b407904b-1269-43ac-858a-40e4255ad60d     |
-| account\_nr                   | 0000690616 S 1200 Premium Share Account  |
-| applicant\_phone              | +13868063214                             |
-| applicant\_address            | 1405 POINT ST APT 1706                   |
-| applicant\_zipCode            | 21231                                    |
-| applicant\_city               | Baltimore                                |
-| applicant\_state              | MD                                       |
-| applicant\_employer           | Any                                      |
-| applicant\_job\_title         | null                                     |
-| eligibility\_criteria         | null                                     |
-| eligibility\_detail           | null                                     |
-| funding\_type                 | CREDIT\_CARD                             |
-| funding\_amnt                 | 100                                      |
-| application\_origin           | CONSUMER                                 |
-| branch\_name                  | null                                     |
-| branch\_user\_id              | null                                     |
-| employee\_name                | null                                     |
-| application\_status           | ACCEPTED                                 |
-| funding\_status               | COMPLETED                                |
-| application\_created\_at      | 2024-11-12T16:06:59.794Z                 |
-| application\_updated\_at      | 2024-11-12T16:11:46.62Z                  |
-| received\_aan                 | FALSE                                    |
-| aan\_created\_at              | null                                     |
-| aan\_reason                   | null                                     |
-| utm\_source                   | null                                     |
-| utm\_medium                   | null                                     |
-| utm\_campaign                 | null                                     |
-| utm\_term                     | null                                     |
-| funding\_started\_at          | 2024-11-12T16:08:12.395Z                 |
-| funding\_authorized\_at       | 2024-11-12T16:11:15.981Z                 |
-| fraud\_check\_approved\_at    | 2024-11-12T16:11:17.666Z                 |
-| account\_booked\_to\_core\_at | 2024-11-12T16:11:46.845Z                 |
-| user\_id                      | b9e7cee6-b845-4216-886a-9f7f44343c91     |
-| session\_id                   | 1731421638956                            |
-
-<br />
+&#x20;[https://api.mantl.com/rest/docs#/Accounts/getAccount](https://api.mantl.com/rest/docs#/Accounts/getAccount "https://api.mantl.com/rest/docs#/Accounts/getAccount")&#x20;
