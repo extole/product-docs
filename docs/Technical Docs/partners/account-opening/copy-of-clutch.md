@@ -49,8 +49,6 @@ Fire Extole's `application_submitted` tag when the prospect/member completes the
 </script>
 ```
 
-<br />
-
 ## Step 2: Set up a webhook in MANTL to notify Extole of account openings<br />
 
 Extole should be notified once the account has been opened. The webhook response body should include the person ID and application ID.
