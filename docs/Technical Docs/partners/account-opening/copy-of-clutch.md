@@ -1,11 +1,11 @@
 ---
-title: Copy of Clutch
+title: MANTL
 deprecated: false
 hidden: true
 metadata:
   robots: index
 ---
-Follow this three-step process for integrating Clutch with Extole to automatically attribute, verify, and reward prospects and members when they open an account.
+Follow this three-step process for integrating MANTL with Extole to automatically attribute, verify, and reward prospects and members when they open an account.
 
 ## Prerequisites
 
@@ -13,34 +13,15 @@ Follow this three-step process for integrating Clutch with Extole to automatical
 | :----------------------- | :--------------------------------------------------- |
 | Google Tag Manager (GTM) | You must have a GTM account to use this integration. |
 
-## Step 1: Set up URL tracking parameters
-
-To ensure prospects land on the correct page with the necessary tracking data, you'll need to make the following updates:
-
-1. Submit a request to your team at Clutch to push the `utm_content` parameter into your data layer. Map this parameter to`advocate_code` in GTM.
-2. In your Extole Flow Campaign, navigate to `Share Link Behavior`
-3. Set the `Destination for Clicks on Share Links` to your specific online account URL.
-4. Append the advocate's referral code to your tracking parameters by updating the `utm_content` variable with the following value:
-
-```Text value
-{[ advocateCode ]}
-```
-
-
-<Image src="https://files.readme.io/bec5211ad9f0aa8261e6df4eeb5d98e6eb683a13f2b605d7e0494227eaa77dce-9b6bac5d4e54762b7930e5afe9ad7b2436bc33105dbea5a9142ee93599550c61-Screenshot_2026-03-09_at_11.28.52AM.png" align="center" width="300px" />
-
-
-> 📘
->
-> If you are already using the `utm_content` parameter, Extole can pass the `advocate_code` as `utm_term` instead. Request this customization with your Extole team, then map to the `utm_term `parameter in your GTM.
-
-## Step 2: Tag your account opening flow
+## Step 1: Tag your account opening flow
 
 Use Google Tag Manager (GTM) to deploy Extole's core and event tags. Core tags are used for attribution and serving confirmation messages throughout the OAO flow. Event tags are used to enforce quality rules and track key conversion milestones throughout the account opening process.
 
-> 📘
->
-> Learn more about [Extole's Javascript tags](https://docs.extole.com/docs/javascript-sdk)
+<Callout icon="📘" theme="info">
+  ###
+
+  Learn more about [Extole's Javascript tags](https://docs.extole.com/docs/javascript-sdk)
+</Callout>
 
 ### Add the Extole core tag to all of your account opening pages
 
@@ -52,7 +33,7 @@ You can find your core tag in the [Extole platform](https://my.extole.com/tech-c
 
 ### Add tags to fire events
 
-Fire Extole's `application_submitted` tag when the prospect/member completes their application. Use Clutch's custom event trigger `WC - DAO - App Submission`.
+Fire Extole's `application_submitted` tag when the prospect/member completes their application.&#x20;
 
 ```javascript
 <script type="text/javascript">
@@ -60,8 +41,9 @@ Fire Extole's `application_submitted` tag when the prospect/member completes the
     extole.createZone({
         name: "application_submitted",
         data: {
-            "application_id": {{DAO - App ID}},
-            "advocate_code": {{advocate_code}}
+            "person_id": {{person_id}},
+      			"application_id": {{application_id}},
+						"external_core_id": {{external_core_id}}
         }
     });
 </script>
@@ -73,13 +55,17 @@ Fire Extole's `application_submitted` tag when the prospect/member completes the
 
 Forward your daily export file from Clutch to Extole's SFTP server to notify Extole of **account openings**. Extole will extract and process the data for any columns marked in **bold** in the table below.
 
-> 📘
->
-> Learn how to connect to [Extole's SFTP server](https://docs.extole.com/docs/extoles-sftp-server).
+<Callout icon="📘" theme="info">
+  ###
 
-> 🚧
->
-> If you are using Clutch's in-branch and online account opening products, you can use the daily extract file to track all account opening events for your Extole campaign. If you are only using Clutch for online account openings, you will need to send in-branch openings as a seperate file.
+  Learn how to connect to [Extole's SFTP server](https://docs.extole.com/docs/extoles-sftp-server).
+</Callout>
+
+<Callout icon="🚧" theme="warn">
+  ###
+
+  If you are using Clutch's in-branch and online account opening products, you can use the daily extract file to track all account opening events for your Extole campaign. If you are only using Clutch for online account openings, you will need to send in-branch openings as a seperate file.
+</Callout>
 
 | column header                 | sample value                             |
 | :---------------------------- | :--------------------------------------- |
