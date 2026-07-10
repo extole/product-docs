@@ -23,15 +23,37 @@ Choosing the right reward is key to driving engagement. To keep your program fre
 ​![](https://downloads.intercomcdn.com/i/o/syy27wia/1677851211/4d314d0012203ae74db3679d7c3a/image.png?expires=1778306400&signature=fd2251b17bf470d900503a9560888481377bd2777f26bfde03e7db450d98cb5d&req=dSYgEcF7nINeWPMW3nq%2BgZ31NQorLplDfr3o8hdl3Obnlq2GWXZ%2BqFuUciEQ%0AgeSa6aU4%2Fp47dHYaYebR2%2FpFgec%3D%0A)
 3. Click Apply to save your changes.
 
-Don’t see the reward you need? You’ll need to create it first. Refer to:
+Don’t see the reward you need? You’ll need to create it first, then return to this **Reward** section and select it. Refer to:
 
+- **[Add a Coupon Reward](doc:how-to-add-a-coupon-reward-to-your-referral-program)** – create a coupon reward (fixed amount or percentage) and add it to a campaign
 - **[Gift Card Rewards](doc:how-to-reward-with-tango-gift-cards)**
 - **[Coupon Rewards](doc:how-to-reward-with-coupons)**
 - **[Account Credit Rewards](doc:how-to-reward-with-account-credits)**
 
+# Update Reward Amount Variables
+
+Changing the reward does **not** automatically update text that references the old reward amount. Any variables or copy that mention the value (for example "Get $10 off") will keep showing the previous amount until you update them.
+
+1. Go to the **Assets** tab for your campaign.
+2. Locate the **Reward Amount** variable(s) used across your creatives.
+3. Update each variable to reflect the new reward value.
+4. Click through all of the creatives to double-check that there are no remaining references to the old reward value.
+5. Save your changes.
+
+Updating the variable in one place propagates the new value everywhere that variable is referenced, so you don't have to edit each creative individually.
+
+# Check the Reward Emails
+
+Confirm the new value is reflected in the messages participants receive.
+
+1. Open the **Reward Emails** for the campaign (from the Assets section or the Flow page).
+2. Review the subject line, body copy, and reward messaging to make sure they show the new reward amount.
+3. Update any copy that hardcodes the old amount instead of using the reward amount variable.
+4. Use the email preview to confirm the correct value displays before publishing.
+
 # Prepare to Launch
 
-Once your reward is updated, make sure your campaign is fully configured.
+Once your reward is updated, make sure your campaign is fully configured. Reward changes apply to the campaign draft until you publish the campaign live, so you can review the change before it reaches participants.
 
 Helpful resources:
 
