@@ -37,7 +37,8 @@ Changing the reward does **not** automatically update text that references the o
 1. Go to the **Assets** tab for your campaign.
 2. Locate the **Reward Amount** variable(s) used across your creatives.
 3. Update each variable to reflect the new reward value.
-4. Save your changes.
+4. Click through all of the creatives to double-check that there are no remaining references to the old reward value.
+5. Save your changes.
 
 Updating the variable in one place propagates the new value everywhere that variable is referenced, so you don't have to edit each creative individually.
 
