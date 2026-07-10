@@ -30,6 +30,26 @@ Don’t see the reward you need? You’ll need to create it first, then return t
 - **[Coupon Rewards](doc:how-to-reward-with-coupons)**
 - **[Account Credit Rewards](doc:how-to-reward-with-account-credits)**
 
+# Update Reward Amount Variables
+
+Changing the reward does **not** automatically update text that references the old reward amount. Any variables or copy that mention the value (for example "Get $10 off") will keep showing the previous amount until you update them.
+
+1. Go to the **Assets** tab for your campaign.
+2. Locate the reward amount variable(s) — for example a **Reward Amount** or **Reward Value** variable used across your creatives.
+3. Update each variable to reflect the new reward value.
+4. Save your changes.
+
+Updating the variable in one place propagates the new value everywhere that variable is referenced, so you don't have to edit each creative individually.
+
+# Check the Reward Emails
+
+Confirm the new value is reflected in the messages participants receive.
+
+1. Open the **Reward Emails** for the campaign (from the Assets section or the Flow page).
+2. Review the subject line, body copy, and reward messaging to make sure they show the new reward amount.
+3. Update any copy that hardcodes the old amount instead of using the reward amount variable.
+4. Use the email preview to confirm the correct value displays before publishing.
+
 # Prepare to Launch
 
 Once your reward is updated, make sure your campaign is fully configured. Reward changes apply to the campaign draft until you publish the campaign live, so you can review the change before it reaches participants.
