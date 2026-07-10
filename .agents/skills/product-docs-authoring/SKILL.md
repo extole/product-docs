@@ -39,7 +39,7 @@ Companion always-on rule: [`product-docs-style.mdc`](../../rules/product-docs-st
 1. **Ground first.** Read [`glossary.md`](glossary.md) and [`style-guide.md`](style-guide.md). If the topic is unfamiliar, research prior framing and the correct product terms in parallel with reading neighboring pages in the same category (match their structure).
 2. **Structure.** Typical page: `# Overview` (what it is / why it matters — 262/461 pages open with one) → concept sections (`##`) → a how-to or decision section → an optional quick-reference table. Use real `##` headings, not bold-line pseudo-headings, so ReadMe builds the TOC. Title Case headings. Lead with the reader's goal. Internal links use `doc:slug`; images use Markdown `![]()`.
 3. **Write to style automatically.** Apply everything in `product-docs-style.mdc` as you write — terminology, imperative how-to, cut hedging, Title Case, navigation bolding, number rules. Do not leave these for the reviewer.
-4. **Respect literals.** Event names (`promotion clicked`, `signed up`, `converted`), field names, and API identifiers stay verbatim. "Tap not click" is for UI actions only.
+4. **Respect literals.** Event names (`promotion clicked`, `signed up`, `converted`), field names, and API identifiers stay verbatim. Use "click" for UI actions (reserve "tap" for in-app placements and mobile SDK).
 5. **Never fabricate.** Do not invent event names, product behavior, or metrics to make prose flow. Verify against the platform (Extole MCP, existing docs) or mark it as needing confirmation.
 6. **Place in nav.** Add the slug to the category `_order.yaml`.
 7. **Self-review** against the checklist below, then open the PR.

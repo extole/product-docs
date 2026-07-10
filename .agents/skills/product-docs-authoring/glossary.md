@@ -20,7 +20,7 @@ Preferred terms for Extole customer-facing documentation (`extole/product-docs` 
 | **step** *(keep, scoped)* | — using it as a prose synonym for "event" | Keep for the schema field (`step_name`, `stepName`, `person.steps`) and the deliberate journey-structure sense. | Do **not** blanket-replace; that would break valid reporting/API references. |
 | **outcome event** | success step, goal step | The event that defines a successful referral for a program (converted, account opened, loan funded, …). | Newer precise reporting term; 11 occ / 5 files. |
 | **conversion / converted** | — | A friend completing the program's goal action. | conversion 780, converted 102. |
-| **program** | campaign *(when you mean the use case)* | The overall referral use case: audience + outcome (Refer A Friend, Welcome Offer, Influencer…). | Distinct from campaign — see `programs-vs-campaigns.md`. |
+| **program** | campaign *(when you mean the use case)* | The overall referral use case: audience + outcome (Refer A Friend, Welcome Offer, Ambassador…). | Distinct from campaign — see `programs-vs-campaigns.md`. |
 | **campaign** | program *(when you mean an implementation)* | A specific implementation within a program: creative, behavior, and rules. | "Within a program, you will have one or multiple campaigns." |
 | **journey** | funnel *(loosely)* | The end-to-end path a participant takes through a program. | 211 occ / 74 files. |
 | **participant journey** | — | A journey with one person and no referrer/referred relationship (welcome offer, loyalty). | |
@@ -42,11 +42,12 @@ Preferred terms for Extole customer-facing documentation (`extole/product-docs` 
 | **segment** | audience *(when you mean a filtered subset)* | A filtered subset of people defined by behavior or data. | 243 occ. |
 | **attribution** | — | Assigning credit for an event to a source or advocate. | 56 occ. |
 | **super advocate** | power user | A top-performing advocate by conversions, revenue, or shares. | 45 occ. |
+| **Ambassador (program)** | Influencer (program) | The program type for ongoing brand ambassadors. | Official rename — "Influencer" is the old name. |
 | **My Extole** | MyExtole, my.extole *(as the product name)* | The client-facing application. | 328 occ; `my.extole.com` is fine as the URL. |
 
 ## UI actions vs. event names — the important caveat
 
-The Style Guide says use **"tap"** (not "click") for **UI action instructions** in customer-facing docs ("tap **Create**"). This does **not** apply to **event names**: `promotion clicked`, `share clicked`, `signed up`, `converted`, `shared`, `referred` are literal lowercase event values and stay exactly as written. The reviewer's own suggestions used "promotion clicked" and "share clicked" — because they are events, not instructions.
+Use **"click"** for **UI action instructions** in customer-facing docs ("click **Create**") — most readers are on a computer. Reserve **"tap"** for in-app placements and mobile SDK contexts, where tapping is the actual gesture. This is a UI-verb choice only; it does **not** apply to **event names**: `promotion clicked`, `share clicked`, `signed up`, `converted`, `shared`, `referred` are literal lowercase event values and stay exactly as written. The reviewer's own suggestions used "promotion clicked" and "share clicked" — because they are events, not instructions.
 
 ## Open decisions — need a human call before an agent enforces them
 

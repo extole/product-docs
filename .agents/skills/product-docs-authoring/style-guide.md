@@ -30,7 +30,7 @@ Professional and informative, optimistic and encouraging, confident. Client-cent
 
 ## Formatting
 
-- **Navigation paths:** bold each element, separated by `>`: `Navigate to **Reports** > **Metrics**`. Bold UI elements the reader acts on rather than quoting them (`Tap **Logout**`, not `Tap "LOGOUT"`).
+- **Navigation paths:** bold each element, separated by `>`: `Navigate to **Reports** > **Metrics**`. Bold UI elements the reader acts on rather than quoting them (`Click **Logout**`, not `Click "LOGOUT"`).
 - **Lists:** bullets for unordered items; numbered lists only when order matters. For item-plus-description, use a colon: `**Events**: a list of people who did an action.` Avoid nesting past two levels.
 - **Numbers:** spell out ten and under; numerals for 11 and up. Exceptions kept as numerals: ranges, dates, times, measurements, percentages, currencies. Fractions spelled out and hyphenated.
 - **Punctuation:** one space after a period. Em-dashes for sentence breaks; en-dashes for ranges/dichotomies; hyphens for compound modifiers. No trailing period when a sentence ends in a URL.
