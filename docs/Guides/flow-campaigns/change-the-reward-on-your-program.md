@@ -35,7 +35,7 @@ Don’t see the reward you need? You’ll need to create it first, then return t
 Changing the reward does **not** automatically update text that references the old reward amount. Any variables or copy that mention the value (for example "Get $10 off") will keep showing the previous amount until you update them.
 
 1. Go to the **Assets** tab for your campaign.
-2. Locate the reward amount variable(s) — for example a **Reward Amount** or **Reward Value** variable used across your creatives.
+2. Locate the **Reward Amount** variable(s) used across your creatives.
 3. Update each variable to reflect the new reward value.
 4. Save your changes.
 
