@@ -74,10 +74,20 @@ Follow this order:
 
 1. [Report Execution + Runtime Checks](doc:functional-review-report-execution-runtime-checks) — queue, hard stop, expectation manifest, completion gate, output format
 2. [Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation) — Input Events Count, Triggered Steps, Input Records
-3. [Event Data vs Rule Expectations](doc:functional-review-event-data-rule-alignment) — sample `event.data` vs graph rule conditions
+3. [Event Data Rule Alignment](doc:functional-review-event-data-rule-alignment) — sample `event.data` vs graph rule conditions
 4. [Conversion & Reward Validation](doc:functional-review-conversion-reward-validation) — Conversion Audit, Earned Rewards
 5. [Email / Webhook / Side-Effect Validation](doc:functional-review-email-webhook-side-effect-validation) — Promotion sources, Webhooks, Email Deliverability
 6. [Terms, Rewards, and Configuration Alignment](doc:functional-review-terms-rewards-and-configuration-alignment) — Terms copy vs configured rewards (can run while reports generate)
+
+## Report completion gate
+
+> 🚧 **Pending is not terminal.**
+>
+> The consolidated review — and any posting of results to a Jira ticket — must wait until every submitted report in the queue has reached a terminal state (completed and downloaded, or failed with a recorded error). A report that is pending, queued, or running is not terminal. Never publish findings, a verdict, or a ticket comment while any queued report is still running; wait for the outstanding reports to complete and incorporate their output first.
+
+## Report reuse window
+
+Reports are expensive and reviews may be re-run while iterating. Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last **2 days**, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
 
 ## Example chat prompt
 

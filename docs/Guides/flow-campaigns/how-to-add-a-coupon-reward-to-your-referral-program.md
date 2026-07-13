@@ -19,9 +19,9 @@ Before adding a coupon reward to a campaign, you’ll first create a coupon set 
 
   2. Click + New Reward and create a new coupon with the following information:
 
-     1. **Name** – Use a clear, descriptive name for internal reference.
+     1. **Name** – Use a clear, descriptive name for internal reference (for example, "$10 Coupon").
 
-     2. **Value** – Enter the discount amount or percentage.
+     2. **Value** – Enter the reward amount. A coupon value can be a **fixed amount** (for example, $10 off) or a **percentage** (for example, 15% off). For a fixed-value reward like a $10 coupon, enter the amount and currency.
 
      3. **Alert Threshold** – Set a threshold to be notified when coupon inventory runs low.
 
@@ -49,6 +49,8 @@ In the campaign flow, identify the event you’d like to send a reward on and cl
      2. Select Reward and choose a descriptive name
 
      3. Once saved, choose the coupon reward from the dropdown
+
+If the event you want already has a reward configured, don’t add a second one — instead follow [Change the Reward on your Program](doc:change-the-reward-on-your-program) to swap the existing reward for your coupon.
 
 
 

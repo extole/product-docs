@@ -1,8 +1,9 @@
 ---
-title: "Functional Review: Event Data vs Rule Expectations"
+title: "Functional Review: Event Data Rule Alignment"
 slug: functional-review-event-data-rule-alignment
 excerpt: "Compare Input Records event.data samples against trigger and quality rule conditions from the campaign graph."
 hidden: true
+intercom_source_id: 15851028
 ---
 
 Use this guide during **Input / Runtime Event Validation** after Input Records has been run with the correct mapping.

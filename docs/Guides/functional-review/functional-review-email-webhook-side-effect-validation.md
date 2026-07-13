@@ -113,3 +113,5 @@ Distinguish one-off test bounces from program-level deliverability problems.
 ## Output
 
 Use the output format, completion gate, and verdict definitions in [Report Execution + Runtime Checks](doc:functional-review-report-execution-runtime-checks). Do not produce a final Functional Review verdict from this doc alone.
+
+> 🚧 **Pending is not terminal.** Every submitted report must reach a terminal state (completed or failed) before final output or ticket posting. Do not treat pending, queued, or running reports as evidence gaps — wait for completion and resume.

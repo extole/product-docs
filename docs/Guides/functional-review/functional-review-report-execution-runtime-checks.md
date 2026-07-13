@@ -103,9 +103,11 @@ The final verdict must distinguish between:
 
 > ❗️ **Do not convert an assistant execution error into a campaign finding.**
 
-**Only stop condition:** all queued reports/sources have been attempted, all successfully submitted reports have been checked for completion, and all available completed reports have been downloaded and analyzed.
+**Only stop condition:** all queued reports/sources have been attempted, and every successfully submitted report has reached a terminal state — completed, downloaded, and analyzed, or failed with the exact error recorded.
 
-If some reports are still pending or unavailable after status checks, list them as open gaps with report links/status/errors.
+> 🚧 **Pending is not a terminal state.**
+>
+> A report that is pending, queued, or running must be waited on — not written off as an evidence gap. If any submitted report is still pending, do **not** produce the final output; wait for the report completion callback (or re-check status) and resume the review when the report finishes. Only a report that terminally failed, or whose report type is genuinely unavailable, may appear in Evidence Gaps with report links/status/errors.
 
 Flag anything that matches each check doc’s **Look for** / **Flag if** guidance.
 
@@ -116,11 +118,11 @@ Flag anything that matches each check doc’s **Look for** / **Flag if** guidanc
 > The assistant MUST NOT analyze results, summarize findings, give preliminary observations, provide a verdict, provide a progress report, ask whether it should continue, or stop after a subset of reports — until **all** of the following are true:
 
 - Every report and source listed for the review has been attempted
-- Every successfully submitted report has been status-checked at least once
+- Every successfully submitted report has reached a terminal state: completed, or failed with the exact error recorded. Pending, queued, or running is not terminal — wait for completion instead of proceeding
 - Every completed report has been downloaded
 - Every downloaded report has passed required field/header validation before analysis
 
-If these conditions are not met, continue executing the queue.
+If these conditions are not met, continue executing the queue, or wait for outstanding reports to complete. Posting results to a Jira ticket counts as analysis and is equally forbidden before these conditions are met.
 
 Parameter discovery, report-type lookup, or a failed report submission does **not** satisfy the stop condition and must not interrupt submission of later queued reports.
 
@@ -167,8 +169,12 @@ Empty reports, unexpected volume, or missing outcomes must be interpreted agains
 
 Only reports explicitly listed in these Functional Review docs may be run. Each report must be scoped to the campaign under investigation using the applicable entity, mapping, filter, and aggregation syntax. See:
 
-- [Entities and context in Extole configurable reporting](https://success.extole.com/en/articles/15433113-entities-and-context-available-in-extole-s-configurable-reporting-system)
-- [Custom data queries using Extole reports](https://success.extole.com/en/articles/15394374-custom-data-queries-using-extole-reports)
+- [Entities and Context Available in Extole's Configurable Reporting System](doc:entities-and-context-available-in-extole-s-configurable-reporting-system)
+- [Custom Data Queries Using Extole Reports](doc:custom-data-queries-using-extole-reports)
+
+## Report reuse window
+
+Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last **2 days**, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
 
 ## Final-output gate / Completion gate
 
@@ -201,7 +207,7 @@ Before producing output, verify:
 - INPUT_EVENTS_COUNT attempted
 - INPUT_EVENTS_WITH_TRIGGERED_STEPS attempted
 - CONFIGURABLE_INPUT_RECORDS attempted
-- Event Data vs Rule Expectations attempted (after Input Records)
+- Event Data Rule Alignment attempted (after Input Records)
 - Conversion Audit attempted
 - CONFIGURABLE_REWARDS attempted
 - TOP_PROMOTION_SOURCES_V2 attempted
@@ -210,11 +216,13 @@ Before producing output, verify:
 - EMAIL_DELIVERABILITY attempted
 - campaign graph/configuration reviewed for each checklist item
 - Terms alignment attempted (or listed as deferred with reason)
-- every submitted report status checked
+- every submitted report reached a terminal state (completed or failed) — no report is still pending, queued, or running
 - every completed report downloaded
 - every completed report analyzed
 
-If any checkbox cannot be marked complete, the output MUST contain an Evidence Gaps or Execution Errors section listing:
+A pending report never satisfies this gate. If any submitted report is still pending, do not produce the final output or post to the ticket — wait for the report completion callback (or re-check status) and resume when every report is terminal.
+
+If any checkbox cannot be marked complete after all reports are terminal, the output MUST contain an Evidence Gaps or Execution Errors section listing:
 
 - missing item
 - report id, if any
@@ -255,7 +263,7 @@ Use thousands separators on counts. Prefer step and program names over internal 
 ## Check docs
 
 - [Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation)
-- [Event Data vs Rule Expectations](doc:functional-review-event-data-rule-alignment)
+- [Event Data Rule Alignment](doc:functional-review-event-data-rule-alignment)
 - [Conversion & Reward Validation](doc:functional-review-conversion-reward-validation)
 - [Email / Webhook / Side-Effect Validation](doc:functional-review-email-webhook-side-effect-validation)
 - [Terms, Rewards, and Configuration Alignment](doc:functional-review-terms-rewards-and-configuration-alignment)

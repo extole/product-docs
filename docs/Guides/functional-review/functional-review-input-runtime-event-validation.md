@@ -11,7 +11,7 @@ Validate raw inbound events and payloads for one live V10 program.
 >
 > After submitting each report below, proceed with the next queued report without asking or stopping, even if this report fails or remains pending.
 
-After Input Records completes, continue with [Event Data vs Rule Expectations](doc:functional-review-event-data-rule-alignment).
+After Input Records completes, continue with [Event Data Rule Alignment](doc:functional-review-event-data-rule-alignment).
 
 ---
 
@@ -234,4 +234,4 @@ For each sampled event type, report:
 
 ### Next step
 
-After Input Records is downloaded, run [Event Data vs Rule Expectations](doc:functional-review-event-data-rule-alignment) to compare sampled `event.data` against trigger/quality/reward rule conditions.
+After Input Records is downloaded, run [Event Data Rule Alignment](doc:functional-review-event-data-rule-alignment) to compare sampled `event.data` against trigger/quality/reward rule conditions.

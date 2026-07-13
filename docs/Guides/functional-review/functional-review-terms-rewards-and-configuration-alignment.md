@@ -43,6 +43,8 @@ This part can run while reports are generating — it does not rely on report ou
 - Always record the Terms source path used in Evidence.
 - Do not require a separately rendered Terms page unless it is already available.
 - Do not evaluate each Terms variable separately when a usable built `termsCopy` value is available. Evaluate Terms variables only when `termsCopy` contains unresolved placeholders, is empty, or cannot be retrieved.
+- Treat generic template defaults as unresolved placeholders, not as the client's Terms promise. Values such as `Your Company`, `https://www.yourcompany.com`, or a stock default reward amount (for example a `$20`/`$20` advocate/friend pair on a program whose configured rewards differ) that resolve from component variable defaults are template scaffolding. Never report a Terms/reward mismatch **Issue** based on template-default values — if only template defaults are available, record an Evidence Gap and return **Needs investigation**.
+- Compare reward language in available built `termsCopy` against the rewards actually issued by the campaign flow.
 - Use reward configuration as source of truth for issued rewards, not campaign name.
 - Follow active reward components, issuers, suppliers, reward-bank settings, and fulfillment configuration as needed.
 - Ignore disabled reward flows unless their Terms impact is explicit.
@@ -142,6 +144,7 @@ Prefer the `termsCopy` associated with the active Terms creative/component for t
 - Terms describe a qualifying action that differs from the configured trigger or condition
 - Terms promise both advocate and friend rewards, but only one side appears configured (or the reverse)
 - Available `termsCopy` contains unresolved placeholders, cannot be retrieved, or cannot be confidently associated with the active Terms creative/component
+- Available `termsCopy` is only generic template defaults (for example `Your Company`, stock `$20`/`$20`) rather than client-specific Terms
 
 ### Severity
 
