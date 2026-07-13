@@ -7,6 +7,8 @@ hidden: true
 
 Use this guide during **Input / Runtime Event Validation** after Input Records has been run with the correct mapping.
 
+> 🚧 **Execution rules apply.** Follow the queue, hard stop, expectation manifest, and completion gate in [Report Execution + Runtime Checks](doc:functional-review-report-execution-runtime-checks) before recording any finding.
+
 This section closes the gap between:
 
 1. **What the client sends** — raw `event.data` from Input Records
@@ -24,7 +26,7 @@ Before running this check:
    `Id=event.id;Client Id=event.clientId;Event Time=event.eventTime;Person Id=person(event.personId).id;Container=event.container;Name=event.name;Api Type=event.apiType;data=event.data;`
 
 3. Input Records used graph-derived `event_names` from `triggerEventNames` / `eventNames` — not business-event component names.
-4. A graph-derived expectation manifest exists (see [Input / Runtime Event Validation](functional-review-input-runtime-event-validation)).
+4. A graph-derived expectation manifest exists (see [Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation)).
 
 ## Core principle
 
@@ -198,7 +200,7 @@ Record an evidence gap when:
 
 ## Relationship to other runbooks
 
-- Run **after** Input Records is downloaded; **before** Conversion & Reward Validation conclusions.
+- Run **after** Input Records is downloaded ([Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation)); **before** [Conversion & Reward Validation](doc:functional-review-conversion-reward-validation) conclusions.
 - Findings here inform Conversion Audit interpretation (missing outcomes may be caused by trigger-rule data mismatch, not missing integrations).
 - Do not replace Terms alignment or email/webhook checks.
 

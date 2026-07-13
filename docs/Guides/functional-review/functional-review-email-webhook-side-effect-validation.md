@@ -1,290 +1,115 @@
 ---
 title: "Functional Review: Email / Webhook / Side-Effect Validation"
 slug: functional-review-email-webhook-side-effect-validation
-excerpt: "# 5. Promotion sources"
+excerpt: "Validate promotion sources, webhook dispatch, and email deliverability for one live V10 program."
 hidden: true
-intercom_source_id: 15436200
 ---
 
-# 5. Promotion sources
+Validate promotion attribution and outbound side effects for one live V10 program.
 
-## Reports
+> 🚧 **Execution rules apply.** Follow the queue, hard stop, expectation manifest, completion gate, and output format in [Report Execution + Runtime Checks](doc:functional-review-report-execution-runtime-checks) before recording any finding.
+>
+> After submitting each report below, proceed with the next queued report without asking or stopping, even if this report fails or remains pending.
 
-- 
+---
 
-TOP_PROMOTION_SOURCES_V2
+## 6. Promotion Sources
 
-## Required parameters
+**Answers**
 
-- 
+- Is Direct share unusually high when referral-driven traffic is expected?
+- For click-sensitive programs, is traffic mostly view-only when click signal is required?
 
+### Report
+
+| Field | Value |
+|---|---|
+| Report type | `TOP_PROMOTION_SOURCES_V2` |
+
+### Required parameters
+
+```text
 campaign_id=<campaign>
-- 
-
 time_range=LAST_MONTH
-- 
-
 container=all
+```
 
-## Look for
+### Flag if
 
-- 
+- Unusually high Direct share when referral-driven traffic is expected:
+  - rough guide: Direct above ~70% of attributed promotion events with referral steps configured
+- Financial- or loan-style programs where attribution likely needs **click** signal (`promotion_clicked`, share click):
+  - Flag when traffic is mostly **view** only
 
-Unusually high Direct share when referral-driven traffic is expected:
+---
 
-  - 
+## 7. Webhook and Outbound Events
 
-rough guide: Direct above ~70% of attributed promotion events with referral steps configured
+**Answers**
 
-- 
+- Are configured webhooks dispatching?
+- Are failure rates material?
 
-Financial- or loan-style programs where attribution likely needs **click** signal:
+> 📘 Webhook reports are only applicable when the client has configured webhooks.
+>
+> Always check webhook configuration before selecting Webhook Events, Webhook Event Metrics, Webhook Dispatch Results, or Webhook Dispatch Result Metrics.
 
-  - 
+### Reports
 
-promotion_clicked
-  - 
+| Report type | When |
+|---|---|
+| `WEBHOOK_EVENTS` | Webhooks configured |
+| `WEBHOOK_DISPATCH_RESULT_EVENTS` | Webhooks configured |
 
-share click
+### Required parameters
 
-Flag when traffic is mostly **view** only.
-# 6. Webhook and outbound events
-
-Webhook reports are only applicable when the client has configured webhooks.
-
-Always check webhook configuration before selecting Webhook Events, Webhook Event Metrics, Webhook Dispatch Results, or Webhook Dispatch Result Metrics.
-​
-## Reports
-
-- 
-
-WEBHOOK_EVENTS
-- 
-
-WEBHOOK_DISPATCH_RESULT_EVENTS
-
-## Required parameters
-
-- 
-
+```text
 time_range=LAST_MONTH
+```
 
-## Look for
+### Flag if
 
-- 
+- Webhook firing but failing:
+  - failure rate above ~5% over more than ~50 attempts → **Issue**
+- Webhook configured on the program but zero dispatches in the window → **Watch**
+- Failures dominated by 4xx or 5xx → **Issue**
 
-Webhook firing but failing:
+---
 
-  - 
+## 8. Email Deliverability
 
-failure rate above ~5% over more than ~50 attempts → **Issue**
+**Answers**
 
-- 
+- Are expected program emails sending when related steps fire?
+- Are bounce/failure/suppression rates program-level problems?
 
-Webhook configured on the program but zero dispatches in the window → **Watch**
-- 
+### Report
 
-Failures dominated by 4xx or 5xx → **Issue**
+| Field | Value |
+|---|---|
+| Report type | `EMAIL_DELIVERABILITY` |
 
-# 7. Email Deliverability
+### Required parameters
 
-## Reports
-
-- 
-
-EMAIL_DELIVERABILITY
-
-## Optional cross-check
-
-- 
-
-EMAIL_DELIVERABILITY
-
-## Required parameters
-
-- 
-
+```text
 campaign_id=<campaign>
-- 
-
 time_range=LAST_MONTH
-- 
-
 container=all
+```
 
-## Look for
+### Flag if
 
-- 
-
-Expected program emails not sending while related steps fired → **Issue**
-- 
-
-Bounce or failure rate materially above baseline:
-
-  - 
-
-rough guide: above ~5% → **Watch**
-  - 
-
-above ~10% → **Issue** when volume is non-trivial
-
-- 
-
-High suppressions explained by list hygiene → note only
-- 
-
-Suppressions plus send failures elsewhere → **Watch**
+- Expected program emails not sending while related steps fired → **Issue**
+- Bounce or failure rate materially above baseline:
+  - above ~5% → **Watch**
+  - above ~10% → **Issue** when volume is non-trivial
+- High suppressions explained by list hygiene → note only
+- Suppressions plus send failures elsewhere → **Watch**
 
 Distinguish one-off test bounces from program-level deliverability problems.
-# Output format
 
-## Final-output gate / Completion gate
+---
 
-Before writing findings, evidence gaps, execution errors, or a verdict, verify every required report/source section individually.
+## Output
 
-For each required report/source, answer:
-
-- Was the documented report/source attempted?
-
-- Were the documented parameters used exactly as specified?
-
-- Were required mappings/filters used exactly as documented?
-
-- Were graph-derived parameters required by this section resolved and supplied?
-
-- If the first attempt failed, was the failure due to campaign/data behavior or assistant execution?
-
-- If assistant execution was wrong, was a corrected rerun attempted?
-
-- If a corrected rerun was not attempted, why not?
-
-- Was the report status checked?
-
-- If complete, was it downloaded?
-
-- If downloaded, did it contain the required fields?
-
-- Was the result compared to graph/config expectations?
-
-If any required condition is unmet, the item is not reviewed and must appear under Evidence Gaps or Execution Errors.
-
-Do not convert an assistant execution error into a campaign finding.
-
-Do not treat a failed, invalid, pending, empty, or needs-discovery item as reviewed.
-
-Before producing output, verify:
-
-- INPUT_EVENTS_COUNT attempted
-
-- INPUT_EVENTS_WITH_TRIGGERED_STEPS attempted
-
-- CONFIGURABLE_INPUT_RECORDS attempted
-
-- Conversion Audit attempted
-
-- CONFIGURABLE_REWARDS attempted
-
-- TOP_PROMOTION_SOURCES_V2 attempted
-
-- WEBHOOK_EVENTS attempted
-
-- WEBHOOK_DISPATCH_RESULT_EVENTS attempted
-
-- EMAIL_DELIVERABILITY attempted
-
-- campaign graph/configuration reviewed for each checklist item
-
-- every submitted report status checked
-
-- every completed report downloaded
-
-- every completed report analyzed
-
-If any checkbox cannot be marked complete, the output MUST contain an Evidence Gaps or Execution Errors section listing:
-
-- missing item
-
-- report id, if any
-
-- current status
-
-- error
-
-- classification: Evidence Gap or Execution Error
-
-- whether a corrected rerun was attempted
-
-## Deliver a short report with
-
-- 
-
-**Header** — client, program, review window, start and end dates, campaign id, V10 confirmed
-- 
-
-**Summary** — review verdict and one paragraph
-- 
-
-**Findings by section** — observation, report links, flags, recommended next step
-- 
-
-**Evidence gaps** — anything not checked, failed, pending, or not available from reports
-- 
-
-Execution errors — assistant/tool execution mistakes, invalid parameters, missing required mappings, omitted graph-derived parameters, or incorrect rerun handling
-
-When event/runtime behavior is reviewed, the final report must also separate:
-
-1. Expected raw trigger events
-
-- source: campaign graph triggerEventNames / eventNames
-
-2. Actual raw inbound events
-
-- source: Input Events Count / Input Records
-
-3. Processed campaign events / outcomes
-
-- source: Conversion Audit, Rewards, Email, Webhook reports
-
-4. Event mapping gaps
-
-- expected trigger events with no inbound evidence
-
-- inbound events with no configured step mapping
-
-- processed outcomes with unclear raw-event evidence
-
-5. Data validation gaps
-
-- expected fields
-
-- missing fields
-
-- malformed fields
-
-- sample count checked
-
-Use thousands separators on counts.
-
-Prefer step and program names over internal ids in prose.
-# Review verdict definitions
-
-Verdict
-
-Meaning
-
-**Pass**
-
-No material runtime flags found
-
-**Watch**
-
-Non-blocking anomaly or low-confidence concern worth monitoring
-
-**Issue**
-
-Evidence of a material problem that may affect users, rewards, tracking, emails, or integrations
-
-**Needs investigation**
-
-Reports are missing, inconclusive, contradictory, or there is not enough traffic to conclude
+Use the output format, completion gate, and verdict definitions in [Report Execution + Runtime Checks](doc:functional-review-report-execution-runtime-checks). Do not produce a final Functional Review verdict from this doc alone.

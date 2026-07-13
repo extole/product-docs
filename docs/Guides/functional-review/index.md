@@ -7,16 +7,18 @@ slug: functional-review
 
 # Functional Review
 
-Internal runbooks migrated from Intercom. Each guide defines the reports to run, success criteria, and flags for one slice of a Functional Review pass.
+Internal runbooks for Functional Review. Each guide defines the reports to run, success criteria, and flags for one slice of a Functional Review pass.
 
-Use these with the Functional Review MCP skill / agent workflow. They are **hidden** on the public docs site (`hidden: true`) until explicitly published.
+Use these with the Functional Review MCP skill / agent workflow. They remain **hidden** on the public docs site (`hidden: true`) until explicitly published.
+
+> 📘 These docs are dual-purpose: readable for humans on ReadMe, and explicit enough for an AI agent to execute FR correctly. Keep report IDs, parameters, mappings, and severity thresholds exact.
 
 ## Runbooks
 
-1. [Overview](functional-review-overview)
-2. [Input / Runtime Event Validation](functional-review-input-runtime-event-validation)
-3. [Event Data vs Rule Expectations](functional-review-event-data-rule-alignment)
-4. [Conversion & Reward Validation](functional-review-conversion-reward-validation)
-5. [Email / Webhook / Side-Effect Validation](functional-review-email-webhook-side-effect-validation)
-6. [Report Execution + Runtime Checks](functional-review-report-execution-runtime-checks)
-7. [Terms, Rewards, and Configuration Alignment](functional-review-terms-rewards-and-configuration-alignment)
+1. [Overview](doc:functional-review-overview)
+2. [Report Execution + Runtime Checks](doc:functional-review-report-execution-runtime-checks)
+3. [Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation)
+4. [Event Data vs Rule Expectations](doc:functional-review-event-data-rule-alignment)
+5. [Conversion & Reward Validation](doc:functional-review-conversion-reward-validation)
+6. [Email / Webhook / Side-Effect Validation](doc:functional-review-email-webhook-side-effect-validation)
+7. [Terms, Rewards, and Configuration Alignment](doc:functional-review-terms-rewards-and-configuration-alignment)

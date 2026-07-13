@@ -1,284 +1,261 @@
 ---
 title: "Functional Review: Report Execution + Runtime Checks"
 slug: functional-review-report-execution-runtime-checks
-excerpt: "Use this guide to run the report-execution and runtime-check portion of a **FUNCTIONAL REVIEW** on **one live V10 referral or rewards program**."
+excerpt: "Canonical execution rules for a Functional Review — queue, hard stop, expectation manifest, completion gate, and output format."
 hidden: true
-intercom_source_id: 15433330
 ---
 
-Use this guide to run the report-execution and runtime-check portion of a **FUNCTIONAL REVIEW** on **one live V10 referral or rewards program**.
+Use this guide for the **report-execution and runtime-check** portion of a Functional Review on **one live V10 referral or rewards program**.
 
-This doc covers the report queue, required runtime reports, report parameters, report completion rules, evidence gaps, findings, and verdict format.
+This is the canonical execution-law doc. Check docs inherit these rules; do not skip them when loading only a single check page.
 
-Use this doc after the high-level functional-review  overview has identified:
+Use this after [Overview](doc:functional-review-overview) has identified:
 
-- 
-
-client
-- 
-
-program label or LIVE campaign id
-- 
-
-review window
-- 
-
-containers to review
-- 
-
-whether V10 flow-builder is confirmed
+- client
+- program label or LIVE campaign id
+- review window
+- containers to review
+- whether V10 flow-builder is confirmed
 
 ## Review window
 
-Use the same review window for every report in the review.
+Use the same review window for every report.
 
-Default:
+| Default | Value |
+|---|---|
+| `time_range` | `LAST_MONTH` |
+| Meaning | Rolling 30-day window ending on the day the review starts (not a calendar month) |
+| `event_names` | `all` (unless a check doc requires graph-derived names) |
 
-- 
+Record start and end dates in the review header.
 
-time_range=LAST_MONTH
-- 
-
-LAST_MONTH means a rolling 30-day window ending on the day the functional review starts, not a calendar month.
-- 
-
-event_names = all
-
-Record the start and end dates in the review header.
 ## Container handling
 
 Run checklist reports across **all containers**:
 
-- 
-
-production
-- 
-
-sandbox/test
+- production
+- sandbox/test
 
 Primary evidence for launch sign-off still comes from **production** traffic and outcomes.
 
-Flag when production-like users or real customer activity appear in sandbox or test containers, for example:
+Flag production-like activity in sandbox/test, for example:
 
-- 
+- live partner ids
+- non-test emails
+- material step/reward volume outside production
 
-live partner ids
-- 
+Say which container each finding came from when counts differ.
 
-non-test emails
-- 
+## Execution queue rule
 
-material step/reward volume outside production
+Before running any report, build a single execution queue containing every report and source required by the review.
 
-Say which container each finding came from when counts differ across containers.
-# Execution queue rule
+### Required queue manifest
 
-Before running any report, build a single execution queue containing every report and source listed in this article.
-
-## Required queue manifest
-
-Before submitting the first report, the assistant must create an internal queue manifest containing:
-
-- 
-
-report/source name
-- 
-
-required parameters
-- 
-
-submission status
-- 
-
-report id
-- 
-
-report URL
-- 
-
-final state
-
-Submission of the first report is not allowed until every item in the article has been added to the manifest.
-
-The assistant must process the queue in one continuous run:
-
-A failed report/source, missing parameter, invalid parameter, unavailable report type, or discovery requirement must never block submission of later queued items.
-
-Continuing the queue does not satisfy the failed section. Failed, invalid, pending, empty, or needs-discovery items must be revisited during the Final-output gate in P2 and classified as Failed attempt, Needs discovery, Invalid execution, Pending, or Empty/Inconclusive.
-
-However, “continue the queue” does not mean “skip the checklist section.”
-
-For each report/source section, the assistant must still complete the section decision path:
-
-1. Attempt the required report/source with the documented parameters.
-
-2. If the attempt fails, record:
+Before submitting the first report, create an internal queue manifest with:
 
 - report/source name
+- required parameters
+- submission status
+- report id
+- report URL
+- final state
 
-- attempted parameters
+Submission of the first report is **not allowed** until every required item is in the manifest.
 
-- exact error
+Process the queue in one continuous run:
 
-- whether the failure was caused by invalid parameters, missing discovery, unavailable report type, pending status, or empty/inconclusive output
+- A failed report/source, missing parameter, invalid parameter, unavailable report type, or discovery requirement must **never** block submission of later queued items.
+- Continuing the queue does **not** satisfy the failed section. Failed, invalid, pending, empty, or needs-discovery items must be revisited at the Final-output gate and classified as: Failed attempt, Needs discovery, Invalid execution, Pending, or Empty/Inconclusive.
 
-3. Re-read the specific report section and verify whether all section-level conditions were met:
+> 🚧 **"Continue the queue" does not mean "skip the checklist section."**
 
-- required parameters used exactly as documented
+For each report/source section, complete this decision path:
 
-- required mappings/filters used exactly as documented
-
-- required graph-derived values supplied, such as step_names, triggerEventNames, eventNames, campaign id, program label, or container
-
-- required status check completed
-
-- completed report downloaded
-
-- required headers/fields present
-
-- report output analyzed against the graph/config expectation
-
-4. If any section-level condition was not met, classify the item as one of:
-
-- Failed attempt — tool/report failed despite documented parameters
-
-- Needs discovery — required graph/config/report parameter value was not yet resolved
-
-- Invalid execution — assistant used incorrect or incomplete parameters
-
-- Pending — report submitted but not complete
-
-- Empty/Inconclusive — report completed but output does not answer the section question
-
-5. Continue submitting later queue items, but do not treat the failed/incomplete section as reviewed.
-
-6. Before final output, revisit every failed, invalid, pending, empty, or needs-discovery item and verify whether a safe immediate correction is available.
-
-7. If a correction is obvious from the report section or already-known campaign graph values, rerun the item before final analysis.
-
+1. Attempt the required report/source with the documented parameters.
+2. If the attempt fails, record: report/source name, attempted parameters, exact error, and failure cause (invalid parameters, missing discovery, unavailable report type, pending status, or empty/inconclusive output).
+3. Re-read the specific report section and verify section-level conditions:
+   - required parameters used exactly as documented
+   - required mappings/filters used exactly as documented
+   - required graph-derived values supplied (`step_names`, `triggerEventNames`, `eventNames`, campaign id, program label, container)
+   - status check completed
+   - completed report downloaded
+   - required headers/fields present
+   - report output analyzed against graph/config expectation
+4. If any section-level condition was not met, classify as one of:
+   - **Failed attempt** — tool/report failed despite documented parameters
+   - **Needs discovery** — required graph/config/report parameter value was not yet resolved
+   - **Invalid execution** — assistant used incorrect or incomplete parameters
+   - **Pending** — report submitted but not complete
+   - **Empty/Inconclusive** — report completed but output does not answer the section question
+5. Continue submitting later queue items, but do **not** treat the failed/incomplete section as reviewed.
+6. Before final output, revisit every failed, invalid, pending, empty, or needs-discovery item and check whether a safe immediate correction is available.
+7. If a correction is obvious from the report section or already-known campaign graph values, rerun before final analysis.
 8. If correction is not possible in the current run, list the item in Evidence Gaps with the exact unmet section condition.
 
 The final verdict must distinguish between:
 
 - campaign/runtime issues
-
 - true evidence gaps
-
 - assistant execution errors
-
 - pending reports
-
 - inconclusive report output
 
-Do not convert an assistant execution error into a campaign finding.
+> ❗️ **Do not convert an assistant execution error into a campaign finding.**
 
-The assistant’s only stop condition is:
+**Only stop condition:** all queued reports/sources have been attempted, all successfully submitted reports have been checked for completion, and all available completed reports have been downloaded and analyzed.
 
-all queued reports/sources have been attempted, all successfully submitted reports have been checked for completion, and all available completed reports have been downloaded and analyzed.
+If some reports are still pending or unavailable after status checks, list them as open gaps with report links/status/errors.
 
-If some reports are still pending or unavailable after status checks, the final output must list them as open gaps with report links/status/errors.
+Flag anything that matches each check doc’s **Look for** / **Flag if** guidance.
 
-Flag anything that matches the “Look for” column.
 ## Hard stop: no analysis before queue completion
 
-The assistant MUST NOT:
+> 🚧 **Hard stop**
+>
+> The assistant MUST NOT analyze results, summarize findings, give preliminary observations, provide a verdict, provide a progress report, ask whether it should continue, or stop after a subset of reports — until **all** of the following are true:
 
-- 
-
-analyze any report results
-- 
-
-summarize findings
-- 
-
-provide preliminary observations
-- 
-
-provide a verdict
-- 
-
-provide a progress report
-- 
-
-ask whether it should continue
-- 
-
-stop after a subset of reports have been submitted
-
-until ALL of the following are true:
-
-- 
-
-Every report and source listed in this article has been attempted.
-- 
-
-Every successfully submitted report has been status checked at least once.
-- 
-
-Every completed report has been downloaded.
-- 
-
-Every downloaded report has passed required field/header validation before analysis..
+- Every report and source listed for the review has been attempted
+- Every successfully submitted report has been status-checked at least once
+- Every completed report has been downloaded
+- Every downloaded report has passed required field/header validation before analysis
 
 If these conditions are not met, continue executing the queue.
 
-Parameter discovery, report-type lookup, or a failed report submission does not satisfy the stop condition and must not interrupt submission of later queued reports.
-# Core sanity-check principle
+Parameter discovery, report-type lookup, or a failed report submission does **not** satisfy the stop condition and must not interrupt submission of later queued reports.
+
+## Core sanity-check principle
 
 Reports are only half of the review. The campaign graph/configuration is the other half.
 
 For every checklist item, first inspect the graph to determine what the program is configured to do, then compare the report output to that expectation.
 
-Do not judge reports in isolation.
+> ❗️ **Do not judge reports in isolation.**
+>
+> Do not assume event names, reward triggers, limits, emails, webhooks, or eligibility rules from campaign names or generic program patterns. Use the graph to define expected behavior and reports to confirm observed behavior.
 
-Do not assume event names, reward triggers, limits, emails, webhooks, or eligibility rules from campaign names or generic program patterns. Use the graph to define expected behavior and reports to confirm observed behavior.
+### Graph-derived expectation manifest
 
 Before analyzing report output, build a graph-derived expectation manifest for the program under review.
 
-Do not use business-event / targetable-step component names as expected raw input event names unless the trigger rule explicitly uses the same name.
+Do **not** use business-event / targetable-step component names as expected raw input event names unless the trigger rule explicitly uses the same name.
 
 For each business-event / targetable-step component, record:
 
 - business-event / targetable-step component name
-
 - display name
-
-- configured triggerEventNames / eventNames from the Input Event trigger rule
-
+- configured `triggerEventNames` / `eventNames` from the Input Event trigger rule
 - required or configured data fields under the component
-
 - rules that depend on event data values
-
 - reward/action side effects
 
 Keep these categories separate during analysis:
 
-1. Expected raw trigger events — from triggerEventNames / eventNames in the campaign graph trigger rules.
-
-2. Actual raw inbound events — from Input Events Count and Input Records.
-
-3. Processed campaign events or outcomes — from Conversion Audit, Rewards, Email, Webhook, or other downstream reports.
+1. **Expected raw trigger events** — from `triggerEventNames` / `eventNames` in campaign graph trigger rules
+2. **Actual raw inbound events** — from Input Events Count and Input Records
+3. **Processed campaign events or outcomes** — from Conversion Audit, Rewards, Email, Webhook, or other downstream reports
 
 Do not describe Conversion Audit Event Name values as client-sent raw event names unless the same names are independently present in Input Events Count or Input Records.
 
 Empty reports, unexpected volume, or missing outcomes must be interpreted against the graph:
 
-- 
+| Pattern | Interpretation |
+|---|---|
+| active in graph + no report evidence | possible integration/configuration gap or no eligible volume |
+| not active in graph + report activity | possible stale/legacy/misrouted traffic |
+| report parameters do not match graph-derived events/steps | rerun or mark evidence gap |
 
-active in graph + no report evidence = possible integration/configuration gap or no eligible volume
-- 
+Only reports explicitly listed in these Functional Review docs may be run. Each report must be scoped to the campaign under investigation using the applicable entity, mapping, filter, and aggregation syntax. See:
 
-not active in graph + report activity = possible stale/legacy/misrouted traffic
-- 
+- [Entities and context in Extole configurable reporting](https://success.extole.com/en/articles/15433113-entities-and-context-available-in-extole-s-configurable-reporting-system)
+- [Custom data queries using Extole reports](https://success.extole.com/en/articles/15394374-custom-data-queries-using-extole-reports)
 
-report parameters do not match graph-derived events/steps = rerun or mark evidence gap
+## Final-output gate / Completion gate
 
-Only reports explicitly listed in this knowledge document may be run, and each report must be configured before execution to return data only for the campaign under investigation, using the applicable entity, mapping, filter, and aggregation syntax validated against the Extole reporting entity/context documentation and Custom Data Queries documentation.
-​[https://success.extole.com/en/articles/15433113-entities-and-context-available-in-extole-s-configurable-reporting-system](https://success.extole.com/en/articles/15433113-entities-and-context-available-in-extole-s-configurable-reporting-system)
+Before writing findings, evidence gaps, execution errors, or a verdict, verify every required report/source section individually.
 
-[https://success.extole.com/en/articles/15394374-custom-data-queries-using-extole-reports](https://success.extole.com/en/articles/15394374-custom-data-queries-using-extole-reports)
-# **[Functional Review: Conversion & Reward Validation](https://app.intercom.com/a/apps/syy27wia/knowledge-hub/all-content?activeContentId=18428322&activeContentType=article&editorMode=view&native_content=true)**
+For each required report/source, answer:
 
-# [Functional Review: Input / Runtime Event Validation](https://app.intercom.com/a/apps/syy27wia/knowledge-hub/all-content?activeContentId=18427874&activeContentType=article&editorMode=view&native_content=true)
+- Was the documented report/source attempted?
+- Were the documented parameters used exactly as specified?
+- Were required mappings/filters used exactly as documented?
+- Were graph-derived parameters required by this section resolved and supplied?
+- If the first attempt failed, was the failure due to campaign/data behavior or assistant execution?
+- If assistant execution was wrong, was a corrected rerun attempted?
+- If a corrected rerun was not attempted, why not?
+- Was the report status checked?
+- If complete, was it downloaded?
+- If downloaded, did it contain the required fields?
+- Was the result compared to graph/config expectations?
 
-# [Functional Review Email/Webhook/side-effect evidence](https://app.intercom.com/a/apps/syy27wia/knowledge-hub/all-content?activeContentId=18360922&activeContentType=article&editorMode=view&native_content=true)
+If any required condition is unmet, the item is **not reviewed** and must appear under Evidence Gaps or Execution Errors.
+
+> ❗️ Do not convert an assistant execution error into a campaign finding.
+>
+> Do not treat a failed, invalid, pending, empty, or needs-discovery item as reviewed.
+
+### Required attempt checklist
+
+Before producing output, verify:
+
+- INPUT_EVENTS_COUNT attempted
+- INPUT_EVENTS_WITH_TRIGGERED_STEPS attempted
+- CONFIGURABLE_INPUT_RECORDS attempted
+- Event Data vs Rule Expectations attempted (after Input Records)
+- Conversion Audit attempted
+- CONFIGURABLE_REWARDS attempted
+- TOP_PROMOTION_SOURCES_V2 attempted
+- WEBHOOK_EVENTS attempted (when webhooks configured)
+- WEBHOOK_DISPATCH_RESULT_EVENTS attempted (when webhooks configured)
+- EMAIL_DELIVERABILITY attempted
+- campaign graph/configuration reviewed for each checklist item
+- Terms alignment attempted (or listed as deferred with reason)
+- every submitted report status checked
+- every completed report downloaded
+- every completed report analyzed
+
+If any checkbox cannot be marked complete, the output MUST contain an Evidence Gaps or Execution Errors section listing:
+
+- missing item
+- report id, if any
+- current status
+- error
+- classification: Evidence Gap or Execution Error
+- whether a corrected rerun was attempted
+
+## Output format
+
+Deliver a short report with:
+
+- **Header** — client, program, review window, start and end dates, campaign id, V10 confirmed
+- **Summary** — review verdict and one paragraph
+- **Findings by section** — observation, report links, flags, recommended next step
+- **Evidence gaps** — anything not checked, failed, pending, or not available from reports
+- **Execution errors** — assistant/tool execution mistakes, invalid parameters, missing required mappings, omitted graph-derived parameters, or incorrect rerun handling
+
+When event/runtime behavior is reviewed, the final report must also separate:
+
+1. **Expected raw trigger events** — source: campaign graph `triggerEventNames` / `eventNames`
+2. **Actual raw inbound events** — source: Input Events Count / Input Records
+3. **Processed campaign events / outcomes** — source: Conversion Audit, Rewards, Email, Webhook reports
+4. **Event mapping gaps** — expected trigger events with no inbound evidence; inbound events with no configured step mapping; processed outcomes with unclear raw-event evidence
+5. **Data validation gaps** — expected fields, missing fields, malformed fields, sample count checked
+
+Use thousands separators on counts. Prefer step and program names over internal ids in prose.
+
+## Review verdict definitions
+
+| Verdict | Meaning |
+|---|---|
+| Pass | No material runtime flags found |
+| Watch | Non-blocking anomaly or low-confidence concern worth monitoring |
+| Issue | Evidence of a material problem that may affect users, rewards, tracking, emails, or integrations |
+| Needs investigation | Reports are missing, inconclusive, contradictory, or there is not enough traffic to conclude |
+
+## Check docs
+
+- [Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation)
+- [Event Data vs Rule Expectations](doc:functional-review-event-data-rule-alignment)
+- [Conversion & Reward Validation](doc:functional-review-conversion-reward-validation)
+- [Email / Webhook / Side-Effect Validation](doc:functional-review-email-webhook-side-effect-validation)
+- [Terms, Rewards, and Configuration Alignment](doc:functional-review-terms-rewards-and-configuration-alignment)
