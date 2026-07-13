@@ -59,6 +59,7 @@ For each business-event / targetable-step component under review:
 | `expected_value` | Configured comparison value (string); blank for is_blank / is_not_blank |
 | `effect_if_fail` | Trigger fail → step not created; Quality fail → low quality; Reward fail → no reward |
 | `source_event_names` | Raw input names from the owning Input Event rule `triggerEventNames` / `eventNames` |
+| `unique_partner_key` | Configured unique/partner/idempotency key field or expression used for dedup, read from campaign configuration (blank if none) |
 
 ### Event Data Comparison (required handling)
 
@@ -89,6 +90,49 @@ When the graph uses non–Event Data Comparison rules that still depend on event
 - **Legacy data expressions** — record key/value or jsonPath comparisons and apply the same sample-evaluation approach.
 
 If a rule condition cannot be parsed into testable predicates, record **Needs investigation** for that rule — do not silently skip it.
+
+## Partner event key consistency (configuration only)
+
+> ❗️ **Config only.** This check is derived from the campaign graph/configuration alone. Inbound events do not label which field is the unique key. Do **not** infer or validate the key from Input Records or inbound payloads.
+
+**Answers**
+
+- Does this campaign configure more than one distinct unique/partner event key across its business/input events?
+- Are earning/reward-path events missing a configured key where the flow expects dedup?
+
+### Procedure
+
+1. From the campaign configuration, for each business-event / input-event / targetable-step, extract the configured unique/partner event key (dedup/idempotency key field or expression). Record it as `unique_partner_key` on the Step 1 manifest.
+2. Build the set of distinct non-blank configured keys across the campaign.
+3. If more than one distinct key is configured, flag and record each key with its owning event(s).
+4. Note any earning/reward-path event with no configured key where the flow expects deduplication or uniqueness.
+
+### Flag if
+
+- More than one distinct unique partner event key is configured across the campaign's events
+- An earning/reward path event has no configured key where dedup is expected
+
+### Severity
+
+| Finding | Severity |
+|---|---|
+| More than one distinct configured unique/partner event key across the campaign | **Issue** |
+| Missing key on an earning/reward path where dedup is expected | **Issue** |
+| Key configuration cannot be resolved from the graph/config | **Needs investigation** |
+
+### Required output
+
+```text
+Partner event keys (config only):
+  Key: <configured key field/expression>
+    Events: <component names>
+  Key: <configured key field/expression>
+    Events: <component names>
+  Distinct key count: <n>
+  Events with no key (where dedup expected): <component names or none>
+
+Verdict: Pass | Issue | Needs investigation
+```
 
 ## Step 2 — Pull evidence from Input Records
 

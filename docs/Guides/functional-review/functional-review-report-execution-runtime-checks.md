@@ -150,6 +150,7 @@ For each business-event / targetable-step component, record:
 - required or configured data fields under the component
 - rules that depend on event data values
 - reward/action side effects
+- configured unique/partner event key (dedup/idempotency, config only)
 
 Keep these categories separate during analysis:
 
@@ -208,6 +209,7 @@ Before producing output, verify:
 - INPUT_EVENTS_WITH_TRIGGERED_STEPS attempted
 - CONFIGURABLE_INPUT_RECORDS attempted
 - Event Data Rule Alignment attempted (after Input Records)
+- Partner event key consistency checked (config only, Event Data Rule Alignment)
 - Conversion Audit attempted
 - CONFIGURABLE_REWARDS attempted
 - TOP_PROMOTION_SOURCES_V2 attempted
