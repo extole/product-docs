@@ -28,7 +28,7 @@ After Input Records completes, continue with [Event Data Rule Alignment](doc:fun
 |---|---|
 | Report type | `t1owor6ia18bia3ur7zg` |
 | Display name | Input Events Count |
-| Notes | Do **not** submit `INPUT_EVENTS_COUNT` as a `report_type`. It is a display/report-use label only. The same report type is used for Input Events with Triggered Steps; the difference is the parameter shape. |
+| Notes | Do **not** submit `INPUT_EVENTS_COUNT` as a `report_type`. It is a display/report-use label only. |
 
 ### Required parameters
 
@@ -106,7 +106,7 @@ Examples:
 
 | Field | Value |
 |---|---|
-| Report type | `t1owor6ia18bia3ur7zg` |
+| Report type | `INPUT_EVENTS_WITH_TRIGGERED_STEPS` |
 | Display name | Input Events with Triggered Steps |
 
 ### Required parameters
