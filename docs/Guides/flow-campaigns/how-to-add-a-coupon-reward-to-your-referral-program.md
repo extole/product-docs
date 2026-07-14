@@ -11,6 +11,13 @@ excerpt: "Add coupon rewards and configure reward emails on your referral progra
 
 This guide walks you through how to create a coupon reward and add it to your referral campaign in Extole, including optional customization for reward emails and reminders.
 
+There are two parts to setting up a coupon reward:
+
+1. **Create the coupon reward** so it is available to your account.
+2. **Add it to a campaign** — either onto a new event, or by swapping it in for a reward that is already configured.
+
+If your campaign already has a coupon reward and you only want to replace it with a different one of the same type, see [Change the Reward on your Program](doc:change-the-reward-on-your-program).
+
 # **Step 1: Create a Coupon Set**
 
 Before adding a coupon reward to a campaign, you’ll first create a coupon set that contains your coupon codes.
@@ -137,3 +144,15 @@ If you want to remind participants about their reward, you can enable a reminder
 
 
 The reminder email will include the coupon code using the default configuration.
+
+# **Step 5: Verify the Reward**
+
+Before launching, confirm the reward is wired up correctly:
+
+  * The coupon reward appears on the intended event for the intended party (Advocate or Friend).
+
+  * The coupon set has available codes and the alert threshold is set.
+
+  * The reward email previews correctly and shows the coupon code.
+
+Changes to a campaign apply to the draft until you publish the campaign live, so you can review the full configuration before it reaches participants.
