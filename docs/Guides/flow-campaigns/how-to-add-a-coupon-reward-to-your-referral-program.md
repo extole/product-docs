@@ -16,7 +16,7 @@ There are two parts to setting up a coupon reward:
 1. **Create the coupon reward** so it is available to your account.
 2. **Add it to a campaign** — either onto a new event, or by swapping it in for a reward that is already configured.
 
-If your campaign already has a coupon reward and you only want to replace it with a different one of the same type, see [Change the Reward on your Program](doc:change-the-reward-on-your-program).
+If your campaign already has a coupon reward and you only want to replace it with another of the same type, see [Change the Reward on your Program](doc:change-the-reward-on-your-program).
 
 # **Step 1: Create a Coupon Set**
 

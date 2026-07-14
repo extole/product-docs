@@ -10,8 +10,6 @@ This guide is for customers using Extole’s upgraded Flow Builder. If you’re 
 
 Choosing the right reward is key to driving engagement. To keep your program fresh and relevant, we recommend updating rewards regularly. This article covers how to replace an existing reward (of the same type) in your campaign.
 
-If the reward you want doesn't exist yet, create it first and then select it here — see the reward-creation links under [Update the Reward](#update-the-reward) below.
-
 # Navigate to the Event with Rewards
 
 1. Go to the **[Programs Page](https://my.extole.com/programs)** and click the Manage icon for your desired campaign, or from the **Campaign Editor,** select the Flow tab.
