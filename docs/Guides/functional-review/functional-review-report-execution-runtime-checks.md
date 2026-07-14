@@ -150,7 +150,7 @@ For each business-event / targetable-step component, record:
 - required or configured data fields under the component
 - rules that depend on event data values
 - reward/action side effects
-- configured unique/partner event key (dedup/idempotency, config only)
+- configured unique/partner event key (dedup/idempotency, config only) — fields whose `key_type` is `UNIQUE_PARTNER_EVENT_KEY` (from the built campaign)
 
 Keep these categories separate during analysis:
 
@@ -176,6 +176,50 @@ Only reports explicitly listed in these Functional Review docs may be run. Each 
 ## Report reuse window
 
 Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last **2 days**, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
+
+## Profile identity and unique-key validation
+
+A data field can be configured as a unique partner event key (`key_type = UNIQUE_PARTNER_EVENT_KEY`). Extole uses these keys for two jobs: to de-duplicate inbound events — two events sharing the value are treated as the same event — and to identify the person an event belongs to when no stronger identity, such as email, is present. A unique key must therefore be unique to one event or one person. This check is configuration-derived: run it from the built campaign so it holds even when no report is available.
+
+Also check partner-key **consistency** across the campaign (more than one distinct configured key) in [Event Data Rule Alignment](doc:functional-review-event-data-rule-alignment) — Partner event key consistency (configuration only).
+
+### Build the key manifest from the graph
+
+For every business-event / targetable-step, read each data field's `key_type` from the built campaign (`extole_campaign_get` with `built: true`), and list the fields whose `key_type` is `UNIQUE_PARTNER_EVENT_KEY`. Do not read `key_type` from per-component settings — inherited or template values are unreliable; use the built campaign.
+
+### What makes a valid unique key
+
+- Valid — a value unique to a single event or person: an order id, transaction id, event id, sign-up id, partner user id, partner conversion id, membership id, or reward id.
+- Almost never valid — a shared or low-cardinality attribute that many people or many events have in common:
+  - postal / geographic: street address, city, state, zip, country
+  - contact / personal: phone number, first name, last name, full name, date of birth
+  - plan / product descriptors: product, plan, tier, package, speed, product combination
+  - dates: event date, day
+  - demographic / classification: customer class, segment, type, status
+- Borderline — an account-level identifier (customer account number, loyalty id) used as the per-event key. It is unique to an account but not to an event, so when one account legitimately produces repeated events, de-duplication drops the repeats.
+
+### Why a bad unique key is serious
+
+When a shared attribute is a unique partner event key, two failure modes follow:
+
+1. Profile contamination and misattribution. Distinct people who share the value — same city, same zip, same phone number — are identified as the same person, so their events merge onto one profile. An anonymous event that carries no email but does carry the shared attribute attaches to an existing identified profile that happens to match. People then receive events, audiences, or outcomes that are not theirs.
+2. Event de-duplication collisions. Distinct events that share the value are treated as duplicates, so legitimate events are dropped and downstream counts, conversions, and rewards are under-recognized.
+
+### Corroborate at runtime
+
+Confirm a suspected bad key against the reports already in the queue:
+
+- Input Records — the same unique-key value appears across multiple distinct person ids. A genuine unique key maps one value to one person.
+- Input Records / Input Events — anonymous or email-less events resolve onto profiles that already have an email, or a small set of profiles absorbs a disproportionate share of events.
+- Conversion Audit — attribution or profile merges that only make sense if separate people were identified as one.
+
+### Severity guide
+
+- A shared or low-cardinality attribute (address, city, state, zip, phone number, name, date, plan/product descriptor, demographic/class) configured as a unique partner event key → **Issue**. Report the step, the field, and the runtime corroboration when available.
+- An account-level identifier used as the per-event unique key on a step where one account can produce repeated events → **Watch**.
+- Every unique key is a genuinely per-event or per-person identifier → **Pass** for this check.
+
+Record identity-key findings under Anomalies and concerns, and list the fields inspected under Evidence.
 
 ## Final-output gate / Completion gate
 
@@ -210,6 +254,7 @@ Before producing output, verify:
 - CONFIGURABLE_INPUT_RECORDS attempted
 - Event Data Rule Alignment attempted (after Input Records)
 - Partner event key consistency checked (config only, Event Data Rule Alignment)
+- Profile identity / unique-key hygiene checked (built campaign `key_type = UNIQUE_PARTNER_EVENT_KEY`)
 - Conversion Audit attempted
 - CONFIGURABLE_REWARDS attempted
 - TOP_PROMOTION_SOURCES_V2 attempted
