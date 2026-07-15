@@ -1,45 +1,36 @@
 ---
 title: "Functional Review: Overview"
 slug: functional-review-overview
-excerpt: "Use this guide to run a functional review on one live V10 referral or rewards program."
+excerpt: "Run a functional review on one live V10 referral or rewards program — scope, campaign selection, and review map."
 hidden: true
-intercom_source_id: 15384068
 ---
 
-Use this guide to run a functional review on one live V10 referral or rewards program.
+Use this guide to run a functional review on **one live V10 referral or rewards program**.
 
-A functional review compares the live campaign configuration and runtime evidence against expected program behavior. It is typically used before launch, after a material program or integration change, or on a scheduled launch-review cadence.
+A functional review compares live campaign configuration and runtime evidence against expected program behavior. Use it before launch, after a material program or integration change, or on a scheduled launch-review cadence.
+
+> 📘 **Audience**
+>
+> These runbooks are written for both human reviewers and AI agents. Keep report IDs, parameters, mappings, severity thresholds, and fail-closed rules exact.
 
 ## Scope
 
-This review applies to one V10 flow-builder program at a time.
-
-Provide either:
-
-- program label, for example `refer-a-friend`
-
-- live campaign id
-
-Legacy controller-only programs require a different review path.
+- One V10 flow-builder program at a time
+- Provide either a program label (for example `refer-a-friend`) or a live campaign id
+- Legacy controller-only programs require a different review path
 
 ## Campaign selection
 
 A functional review must run against one confirmed V10 flow-builder program.
 
-Before report execution, identify the campaign/program scope:
+Before report execution:
 
 1. If the user provides a program label or live campaign id, use that value.
-
 2. If the user does not provide a campaign/program, discover the available campaign/program list before running reports.
-
 3. If only one eligible V10 campaign exists, run the review against that campaign.
-
-4. If multiple eligible V10 campaigns exist and the user cannot clarify, run the review against the most recently updated or most recently launched/live V10 campaign, and state this selection in the review header.
-
+4. If multiple eligible V10 campaigns exist and the user cannot clarify, run against the most recently updated or most recently launched/live V10 campaign, and state this selection in the review header.
 5. If both V8/legacy and V10 campaigns exist, exclude V8/legacy campaigns unless the user explicitly requested a legacy review path.
-
-6. If no eligible V10 campaign can be confirmed, do not run the V10 functional review. Record an evidence gap: `No eligible V10 campaign could be confirmed`.
-
+6. If no eligible V10 campaign can be confirmed, do **not** run the V10 functional review. Record an evidence gap: `No eligible V10 campaign could be confirmed`.
 7. Do not run one functional review across multiple campaigns unless the user explicitly requested a multi-campaign review.
 
 ### Review-header note
@@ -52,15 +43,17 @@ When the campaign was selected automatically, include this in the review header:
 
 Use a 30-day rolling window ending on the day the review starts.
 
-Record the start and end dates in the review header. Use the same window for every report.
+- Record the start and end dates in the review header
+- Use the same window for every report
+- Default report parameter: `time_range=LAST_MONTH` (rolling 30 days, not a calendar month)
 
 ## Container handling
 
-Run checklist reports across all containers, including production and sandbox/test.
+Run checklist reports across **all containers**, including production and sandbox/test.
 
-Production traffic and outcomes remain the primary evidence for launch sign-off.
-
-Flag production-like users or real customer activity in sandbox/test containers, including live partner ids, non-test emails, or meaningful step/reward volume outside production.
+- Production traffic and outcomes are the primary evidence for launch sign-off
+- Flag production-like users or real customer activity in sandbox/test containers (live partner ids, non-test emails, or meaningful step/reward volume outside production)
+- Say which container each finding came from when counts differ
 
 ## Review principle
 
@@ -69,33 +62,32 @@ Reports are only half of the review. Campaign graph/configuration is the other h
 For each checklist item:
 
 1. Inspect the campaign graph/configuration to determine expected behavior.
-
 2. Run the relevant report or source.
-
 3. Compare observed report output against the expected behavior.
-
 4. Record findings, flags, evidence gaps, and recommended next steps.
 
-Do not judge reports in isolation.
+> ❗️ **Do not judge reports in isolation.**
 
-## Detailed review sections
+## Review map
 
-Use these linked docs for the detailed steps:
+Follow this order:
 
-- [Functional Review: Report Execution + Runtime Checks](functional-review-report-execution-runtime-checks)
-- [Functional Review: Input / Runtime Event Validation](functional-review-input-runtime-event-validation)
-- [Functional Review: Event Data Rule Alignment](functional-review-event-data-rule-alignment)
-- [Functional Review: Conversion & Reward Validation](functional-review-conversion-reward-validation)
-- [Functional Review: Email / Webhook / Side-Effect Validation](functional-review-email-webhook-side-effect-validation)
-- [Functional Review: Terms, Rewards, and Configuration Alignment](functional-review-terms-rewards-and-configuration-alignment)
+1. [Report Execution + Runtime Checks](doc:functional-review-report-execution-runtime-checks) — queue, hard stop, expectation manifest, completion gate, output format
+2. [Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation) — Input Events Count, Triggered Steps, Input Records
+3. [Event Data Rule Alignment](doc:functional-review-event-data-rule-alignment) — sample `event.data` vs graph rule conditions
+4. [Conversion & Reward Validation](doc:functional-review-conversion-reward-validation) — Conversion Audit, Earned Rewards
+5. [Email / Webhook / Side-Effect Validation](doc:functional-review-email-webhook-side-effect-validation) — Promotion sources, Webhooks, Email Deliverability
+6. [Terms, Rewards, and Configuration Alignment](doc:functional-review-terms-rewards-and-configuration-alignment) — Terms copy vs configured rewards (can run while reports generate)
 
 ## Report completion gate
 
-The consolidated review — and any posting of results to a Jira ticket — must wait until every submitted report in the queue has reached a terminal state (completed and downloaded, or failed with a recorded error). A report that is pending, queued, or running is not terminal. Never publish findings, a verdict, or a ticket comment while any queued report is still running; wait for the outstanding reports to complete and incorporate their output first.
+> 🚧 **Pending is not terminal.**
+>
+> The consolidated review — and any posting of results to a Jira ticket — must wait until every submitted report in the queue has reached a terminal state (completed and downloaded, or failed with a recorded error). A report that is pending, queued, or running is not terminal. Never publish findings, a verdict, or a ticket comment while any queued report is still running; wait for the outstanding reports to complete and incorporate their output first.
 
 ## Report reuse window
 
-Reports are expensive and reviews may be re-run while iterating. Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last 2 days, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
+Reports are expensive and reviews may be re-run while iterating. Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last **2 days**, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
 
 ## Example chat prompt
 
