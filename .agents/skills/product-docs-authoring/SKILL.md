@@ -68,6 +68,6 @@ To read and resolve inline PR comments (the common "apply the reviewer's suggest
 
 ## PR workflow
 
-- The repo's default branch is **`v4.0.0`** (ReadMe versioning), not `master`; branch from and target it. Use the ticket id as the branch name when one is in scope, else `docs/<short-description>`.
+- The repo's default branch is **`v4.0.0`** (ReadMe versioning), not `master`; branch from and target it. Name the branch **`v4.0.0_<slug>`** — a short kebab-case description (`v4.0.0_quick-start-campaign`) or a ticket id (`v4.0.0_ENG-12345`) — so ReadMe mirrors it as a previewable branch. A name without the `v4.0.0_` prefix (`docs/…`, `cursor/…`, a bare `ENG-1234`) gets no ReadMe preview. See the [`readme-branch-preview`](../readme-branch-preview/SKILL.md) skill.
 - Doc changes end with an **open PR** (`gh pr create`). A docs-standards or terms-glossary PR is a good candidate for **draft** so the docs team can ratify wording before merge.
 - Keep the PR scoped to docs; don't touch `reference/` or OpenAPI specs unless that is the task.
