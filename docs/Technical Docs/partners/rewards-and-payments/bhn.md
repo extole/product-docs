@@ -1,24 +1,24 @@
 ---
-title: "BHN (Blackhawk Network)"
-excerpt: "Integrate with BHN to reward program participants with open loop and closed loop products from BHN's robust catalogue.\n"
+title: BHN (Blackhawk Network)
+excerpt: >
+  Integrate with BHN to reward program participants with open loop and closed
+  loop products from BHN's robust catalogue.
 ---
-
 ## Overview
 
 With the Extole and BHN integration, you can drive customer acquisition, generate brand advocacy, and build long-term loyalty with your customers. This powerful integration automates reward fulfillment with real-time reward delivery and offers a wide variety of reward options from Virtual Prepaid Cards to Physical Reloadable Cards for your referral and engagement programs.
 
 ## Prerequisites
 
-| Requirement                                    | Description                                                                                                                                                                 |
-| :--------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Blackhawk Network Incentives Customer          | You must be a Blackhawk Network Incentives customer in order to leverage this integration.                                                                                  |
-| Enterprise Hawk Marketplace Account            | You must have an Enterprise Hawk Marketplace account in order to leverage this integration.                                                                                 |
-| BHN Merchant ID                                | The unique identifier associated with your BHN account.                                                                                                                     |
-| BHN Client Program Number                      | The unique identifier associated with your BHN program.                                                                                                                     |
-| BHN Payment Method                             | The method you will use to fund your BHN program. Options include ACH and Draw Down.                                                                                        |
-| BHN FAID Number                                | If you have separate financial accounts within your BHN program, please provide the FAID number where orders should be placed.                                              |
-| BHN Pre-Production and Production Certificates | The certificates needed to generate your Client Key ID for your staging and production integrations. **Your Extole team will request the certificates from your BHN team**. |
-| Extole Webhook IP Address                      | The IP address that needs to be included in any outbound webhook requests sent from Extole to BHN. **Extole will provide the webhook IP address to your BHN team**.         |
+| Requirement                                    | Description                                                                                                                                                                                                                                                                                                                                                                                           |
+| :--------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Enterprise Hawk Marketplace Account            | You must have an Enterprise Hawk Marketplace account in order to leverage this integration.                                                                                                                                                                                                                                                                                                           |
+| BHN Merchant ID                                | The unique identifier associated with your BHN account.                                                                                                                                                                                                                                                                                                                                               |
+| BHN Client Program Number                      | The unique identifier associated with your BHN program.                                                                                                                                                                                                                                                                                                                                               |
+| BHN Payment Method                             | The method you will use to fund your BHN program. Options include ACH and Draw Down.                                                                                                                                                                                                                                                                                                                  |
+| BHN FAID Number                                | If you have separate financial accounts within your BHN program, please provide the FAID number where orders should be placed.                                                                                                                                                                                                                                                                        |
+| BHN Pre-Production and Production Certificates | The certificates needed to generate your Client Key ID to connect to your BHN pre-production (if applicable) and production environments. Send the password protected certificates to support\@extole.com, or request through your Extole team.                                                                                                                                                       |
+| Extole Webhook IP Address                      | The IP address that Extole uses to place orders through the Hawk Marketplace API can be found here: [https://docs.extole.com/docs/develop-behind-your-firewall#outbound-file-transfers-and-webhooks](https://docs.extole.com/docs/develop-behind-your-firewall#outbound-file-transfers-and-webhooks "https://docs.extole.com/docs/develop-behind-your-firewall#outbound-file-transfers-and-webhooks") |
 
 ## Available Products
 
@@ -61,7 +61,9 @@ Your Extole team will help you with this process.
 
 Once the integration is complete, you will be able to see rewards flow in real-time in your My Extole account.
 
-<Image align="center" border={false} src="https://files.readme.io/e465eb6a6fbb58207f2416c21bbe94857c33c8392aa3a3aaecc818c32db3e6a6-1fce53b34f2397e80f7e6a32ee733bfa7eef33fa8717b2c1fddbe950e110dcb8-Screenshot_2024-09-23_at_7.28.10_AM.png" />
+
+<Image src="https://files.readme.io/e465eb6a6fbb58207f2416c21bbe94857c33c8392aa3a3aaecc818c32db3e6a6-1fce53b34f2397e80f7e6a32ee733bfa7eef33fa8717b2c1fddbe950e110dcb8-Screenshot_2024-09-23_at_7.28.10_AM.png" align="center" />
+
 
 ## FAQs
 
@@ -69,7 +71,9 @@ Once the integration is complete, you will be able to see rewards flow in real-t
 
 Extole leverages HTTP status codes from BHN API responses to update the status of a card order (aka reward) in the Extole platform. You can use the Extole platform to understand if a reward has been submitted to BHN, if it's been processed and sent to the recipient, or if the reward failed. Refer to the table below for additional information on reward stages in the Extole platform.
 
-<Image align="center" border={false} width="700px" src="https://files.readme.io/20b5ce8d8ef27ba0362a3bc3266908f35bc75219a9ca702c23f9706dc18fbeb0-77754c9577a4269e8c0b6e247f33fc60754eae832d7eb791659f6fe5a5d7c56f-Screenshot_2025-01-29_at_12.25.21_PM.png" />
+
+<Image src="https://files.readme.io/20b5ce8d8ef27ba0362a3bc3266908f35bc75219a9ca702c23f9706dc18fbeb0-77754c9577a4269e8c0b6e247f33fc60754eae832d7eb791659f6fe5a5d7c56f-Screenshot_2025-01-29_at_12.25.21_PM.png" align="center" width="700px" />
+
 
 Refer to BHN's Developer Documentation for more detailed information on card ordering and response codes for [physical prepaid cards](https://developer.blackhawknetwork.com/hawkmarketplace/docs/placing-prepaid-card-personalized-individual-orders#submitting-the-order), [re-loadable cards](https://developer.blackhawknetwork.com/hawkmarketplace/docs/reloadable-personalized-prepaid-card-orders#responses), and [digital prepaid cards](https://developer.blackhawknetwork.com/hawkmarketplace/docs/placing-prepaid-card-personalized-individual-orders#submitting-the-order).
 
@@ -153,12 +157,14 @@ By default rewards that are in an `EARNED`, `TRYING TO FULFILL`, or `SENT/FULFIL
 
 1. Look up the order number for the reward in the Extole platform. The Order number is the `Partner ID` located on the Reward event.
 
-   <Image border={false} src="https://files.readme.io/4f1074794c1ec074572cbe8f85bb89d995a1ceb96a365bc76460087d66a96b61-3b82f9cbc43ed16d71e9b5d041dfaea03432a0a386fa6bf73c1a518c0c43f29d-image_2.png" />
+   ![](https://files.readme.io/4f1074794c1ec074572cbe8f85bb89d995a1ceb96a365bc76460087d66a96b61-3b82f9cbc43ed16d71e9b5d041dfaea03432a0a386fa6bf73c1a518c0c43f29d-image_2.png)
 
-   <br />
+
+
 2. Log in to BHN's program modeler and look up the order number to see if it can reversed. For reloadable cards, reversals must be submitted within the 10‑day window of ordering. For single‑load cards, the card must be unused and at least 30 days prior to expiration.
+
 3. Once you've reversed the reward, navigate back to the Reward in the Extole system and select`Mark as Revoked`if the reward had already been fulfilled, or `CANCEL` if it was in processing.
 
-<Image border={false} src="https://files.readme.io/5a6dab10439e205aac86884156b97223f34f74dc2194c3fea42d24c133bef5e4-f2f82069cc204caf20dbc8642b6f86ca0f93a0481c5afa8a66d64e4b72ec3764-Screenshot_2025-04-18_at_8.32.38_AM.png" />
+![](https://files.readme.io/5a6dab10439e205aac86884156b97223f34f74dc2194c3fea42d24c133bef5e4-f2f82069cc204caf20dbc8642b6f86ca0f93a0481c5afa8a66d64e4b72ec3764-Screenshot_2025-04-18_at_8.32.38_AM.png)
 
 <br />
