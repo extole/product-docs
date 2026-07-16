@@ -1,40 +1,169 @@
 ---
-title: "Inform Your Support Team about Your Extole Program"
-excerpt: "Use this article as a guide for educating your support team on the ins and outs of Extole and your program.\n"
+title: Preparing Your Support Team for Extole
+excerpt: >
+  Use this article as a guide for educating your support team on the ins and
+  outs of Extole and your program.
 ---
+A well-prepared support team can resolve most customer reward inquiries quickly without escalating every case to the Extole support team or Customer Success Manager.
 
+This guide outlines the information, processes, and documentation your support organization should have before launching an Extole referral program.
 
-# Overview
+# **Train Your Team on the Customer Journey**
 
-Use this article as a guide for educating your support team on the ins and outs of Extole and your program.
+Support representatives don't need to understand every technical detail of your Extole implementation, but they should understand how customers become eligible for rewards.
 
-# What is Extole?
+Your team should know:
 
-- Extole powers the technology behind your company's engagement program.
+- What customer actions qualify for rewards
+- When rewards are expected to be issued
+- How long reward delivery typically takes
+- Common reasons a reward may not be issued
+- When an issue should be escalated
 
-# What is a Refer A Friend program?
+For an overview of the reward lifecycle, see [WISMR 101: Understanding Missing Reward Requests](doc:wismr-101-understanding-customer-reward-inquiries) and [Investigating Missing Rewards and Attribution](doc:how-to-investigate-a-wismr-request)​.
 
-- A referral program rewards existing customers when their share your brand with their friends and family and their referral becomes a new customer.
+# **Document Your Program Rules**
 
-  - For example, "Refer a friend, get X."
+Every support representative should have easy access to your program's key details.
 
-    - A reward is given to both the "Advocate" (the existing customer making the referral) and their "Friend" (the person being referred who becomes a new customer).
+## **Eligible Participants**
 
-# About the Extole Customer Support Team
+Document who can participate in your referral program. Examples include:
 
-- The Extole support team is based out of San Francisco, CA (PST).
-- Support Center Hours: Monday–Friday, 9:00 AM–5:00 PM PST (excluding scheduled holidays)
-- All communications are handled via email and through a ticket-based help system.
+- New customers only
+- Existing customers
+- Employees excluded
+- Geographic restrictions
 
-# When to Escalate a Customer to Extole
+## **Qualifying Actions**
 
-- When you receive an inquiry directly related to your program, attempt to resolve the questions on your own before escalating to Extole Support.
-- It may be helpful to read the **program terms and conditions** set by your company.
-- If your company created an **FAQ** for your customers, become familiar with the answers and direct customers to it as needed.
-- Common questions/issues:
+Document the customer actions that generate rewards. Examples include:
 
-  - **How do I refer my friend?** *For customers looking to sign up and participate in the program.* Direct the customer to the **program URL**, point out any relevant CTAs they can click on, and explain the sharing channels.
-  - **I referred my friend. When will I get my reward?** *An advocate asking when they will receive a reward for referring their friend.* First, ask the customer how long ago their friend transacted *(made a purchase, signed up for a trial, submitted a quote -- whatever the rules of your program may be)*, and determine if the **pending period** has passed or not. If it has not yet passed, inform the customer that their reward will be sent after the **pending period** for qualified referrals. If the **pending period** has already passed, you will need to use My Extole Support.
-  - **Why didn't I get my reward?** *An advocate or friend asking why they haven’t received a reward.* Ask the customer if they met all of the referral requirements (e.g., they didn't refer themselves, the friend is not an existing customer, participants are US residents, the order was not returned, the order met minimum cart value of $X, etc.). If they met all the requirements and did not receive their reward *and* have passed the pending period, you will need to use My Extole Support.
-  - **How do I opt-out of the referral program?** *For customer’s who want to unsubscribe from referral communications.* At the bottom of their most recent referral email, have the customer click on the unsubscribe link.
-  - When in doubt, send the customer a link to the **program terms and conditions** for more information.
+- Account opening
+- First purchase
+- Account funding
+- Subscription
+- Trial completion
+
+## **Reward Details**
+
+Document:
+
+- Reward types
+- Reward amounts
+- Delivery method
+- Expected delivery timeframe
+
+## **Eligibility Requirements**
+
+Clearly explain any requirements that affect reward qualification. Examples include:
+
+- Minimum purchase amount
+- Qualifying products
+- Campaign audience restrictions
+- Account type requirements
+
+Keeping this information in a shared internal knowledge base helps support representatives answer common questions without additional investigation.
+
+# **Establish an Investigation Process**
+
+Define a consistent process for handling missing reward requests. Support representatives should know:
+
+1. What information to collect
+2. Where to find participant information
+3. When they can resolve the issue themselves
+4. When the issue should be escalated
+
+Use **[Investigating Missing Rewards and Attribution](doc:investigating-missing-rewards-and-attribution)** as the standard investigation guide.
+
+# **Create a Standard Information Checklist**
+
+Before escalating a case, collect:
+
+- Participant email address(es)
+- Approximate date and time of the qualifying action
+- Expected reward
+- Referral, order, or account ID (if available)
+- Campaign or program name
+- Screenshots or error messages
+
+Collecting this information before escalation significantly reduces investigation time.
+
+# **Define Escalation Criteria**
+
+Not every reward inquiry requires technical investigation.
+
+Support teams should first verify:
+
+- The customer completed the required action
+- Enough time has passed for processing
+- The reward delivery window has not yet expired
+- The customer meets basic eligibility requirements
+
+Escalate the case when:
+
+- Reward attribution needs investigation
+- Campaign configuration may be incorrect
+- Reward evaluation appears to have failed
+- Reward delivery cannot be confirmed
+- The cause cannot be determined using the standard investigation workflow
+
+# **Prepare Customer Response Templates**
+
+Providing consistent responses improves the customer experience and reduces handling time.
+
+## **Reward Still Processing**
+
+> Thanks for checking in. We can confirm your qualifying action has been received. Your reward is currently being processed and should be delivered soon.
+
+## **Additional Information Required**
+
+> We'd be happy to investigate. Could you provide the email address you used, the approximate date of the qualifying action, and any relevant order or account information?
+
+## **Customer Isn't Eligible**
+
+> We reviewed your participation and found that the qualifying requirements for this promotion weren't met. Because of that, a reward couldn't be issued.
+
+## **Investigation in Progress**
+
+> We've collected the information needed to investigate your request. We'll review your referral activity and follow up as soon as we've completed our investigation.
+
+# **Keep Documentation Up to Date**
+
+Whenever your referral program changes, update your internal support documentation.
+
+Review documentation whenever you change:
+
+- Reward amounts
+- Qualifying events
+- Eligibility requirements
+- Campaign audiences
+- Reward providers
+- Delivery timelines
+
+Keeping documentation current helps prevent inconsistent customer responses.
+
+# **Best Practices**
+
+To help your support team resolve customer inquiries efficiently:
+
+- Train representatives on your referral program before launch.
+- Maintain clear documentation for every active campaign.
+- Standardize the information collected for every investigation.
+- Use a consistent investigation workflow.
+- Keep customer communications clear and non-technical.
+- Update documentation whenever your program changes.
+
+A well-prepared support team can resolve many reward inquiries without escalation, improving both customer satisfaction and response times.
+
+# **Recommended Support Resources**
+
+Every support representative should have access to these documents.
+
+| Resource                                                                                                        | Purpose                                                                   |
+| --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **[WISMR 101: Understanding Customer Reward Inquiries](doc:wismr-101-understanding-customer-reward-inquiries)** | Learn how rewards are earned and why they may be missing.                 |
+| **[Investigating Missing Rewards and Attribution](doc:investigating-missing-rewards-and-attribution)**          | Follow the standard investigation workflow for customer reward inquiries. |
+| Internal program documentation                                                                                  | Review campaign-specific rules, rewards, and eligibility requirements.    |
+
+<br />
