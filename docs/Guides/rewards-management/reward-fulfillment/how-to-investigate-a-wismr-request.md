@@ -16,7 +16,7 @@ Most issues fall into one of these categories:
 
 This is a guide on how to address these questions from your customers. If you are looking for more information on why a WISMR may occur, please review <Anchor target="_blank" href="doc:wismr-101-understanding-customer-reward-inquiries">**WISMR 101: Understanding Missing Reward Requests**</Anchor>​.
 
-For more info on the User Support section as a whole, check out [**Preparing Your Support Team for Extole**](doc:leveraging-user-support-pages).
+For more info on the User Support section as a whole, check out [**Leveraging User Support Pages**](doc:leveraging-user-support-pages).
 
 # **Investigation Workflow**
 
