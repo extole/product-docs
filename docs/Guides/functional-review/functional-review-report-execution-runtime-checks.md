@@ -55,11 +55,21 @@ Before running any report, build a single execution queue containing every repor
 Before submitting the first report, create an internal queue manifest with:
 
 - report/source name
+- required `report_type` (exact documented value)
 - required parameters
 - submission status
 - report id
 - report URL
 - final state
+
+Required input-event report types (do not conflate):
+
+| Queue item | Exact `report_type` |
+|---|---|
+| Input Events Count | `t1owor6ia18bia3ur7zg` |
+| Input Events with Triggered Steps | `INPUT_EVENTS_WITH_TRIGGERED_STEPS` |
+
+> ❗️ **Never reuse Count’s id for Triggered Steps.** Submitting `t1owor6ia18bia3ur7zg` with display name “Input Events with Triggered Steps” (or only changing `period`) is **Invalid execution** — resubmit with `INPUT_EVENTS_WITH_TRIGGERED_STEPS` before analyzing event→step mapping.
 
 Submission of the first report is **not allowed** until every required item is in the manifest.
 
@@ -78,6 +88,7 @@ For each report/source section, complete this decision path:
    - required parameters used exactly as documented
    - required mappings/filters used exactly as documented
    - required graph-derived values supplied (`step_names`, `triggerEventNames`, `eventNames`, campaign id, program label, container)
+   - submitted `report_type` matches the documented type for that queue item (Triggered Steps must be `INPUT_EVENTS_WITH_TRIGGERED_STEPS`, never Count’s `t1owor6ia18bia3ur7zg`; Conversion Audit `step_names` must be reward-capable only)
    - status check completed
    - completed report downloaded
    - required headers/fields present
@@ -249,13 +260,13 @@ If any required condition is unmet, the item is **not reviewed** and must appear
 
 Before producing output, verify:
 
-- INPUT_EVENTS_COUNT attempted
-- INPUT_EVENTS_WITH_TRIGGERED_STEPS attempted
+- Input Events Count attempted with `report_type` `t1owor6ia18bia3ur7zg` (not `INPUT_EVENTS_COUNT`)
+- Input Events with Triggered Steps attempted with `report_type` `INPUT_EVENTS_WITH_TRIGGERED_STEPS` (not `t1owor6ia18bia3ur7zg`)
 - CONFIGURABLE_INPUT_RECORDS attempted
 - Event Data Rule Alignment attempted (after Input Records)
 - Partner event key consistency checked (config only, Event Data Rule Alignment)
 - Profile identity / unique-key hygiene checked (built campaign `key_type = UNIQUE_PARTNER_EVENT_KEY`)
-- Conversion Audit attempted
+- Conversion Audit attempted with reward-capable `step_names` only (no pure click/share/landing steps unless they directly grant or qualify a reward)
 - CONFIGURABLE_REWARDS attempted
 - TOP_PROMOTION_SOURCES_V2 attempted
 - WEBHOOK_EVENTS attempted (when webhooks configured)
@@ -278,6 +289,12 @@ If any checkbox cannot be marked complete after all reports are terminal, the ou
 - classification: Evidence Gap or Execution Error
 - whether a corrected rerun was attempted
 
+Also list these as **Execution Errors** (not campaign findings) when they occurred:
+
+- Input Events with Triggered Steps submitted with Count’s `report_type` (`t1owor6ia18bia3ur7zg`) or any type other than `INPUT_EVENTS_WITH_TRIGGERED_STEPS`
+- Conversion Audit submitted with over-broad `step_names` (non-reward click/share/landing steps included)
+- Input Records incomplete download when earning/reward-path event types were not present in downloaded rows (`Empty/Inconclusive` for those types)
+
 ## Output format
 
 Deliver a short report with:
@@ -291,7 +308,7 @@ Deliver a short report with:
 When event/runtime behavior is reviewed, the final report must also separate:
 
 1. **Expected raw trigger events** — source: campaign graph `triggerEventNames` / `eventNames`
-2. **Actual raw inbound events** — source: Input Events Count / Input Records
+2. **Actual raw inbound events** — source: Input Events Count / Input Records (Count rows outside `expected_trigger_events` are **out of scope** — context only, not findings)
 3. **Processed campaign events / outcomes** — source: Conversion Audit, Rewards, Email, Webhook reports
 4. **Event mapping gaps** — expected trigger events with no inbound evidence; inbound events with no configured step mapping; processed outcomes with unclear raw-event evidence
 5. **Data validation gaps** — expected fields, missing fields, malformed fields, sample count checked

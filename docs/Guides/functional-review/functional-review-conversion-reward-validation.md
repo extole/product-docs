@@ -42,7 +42,9 @@ step_names=<step_names>
 
 `step_names` must be a comma-separated string of business-event step names that can result in a reward.
 
-Include **every** earning/root business-event step whose configured path can issue or contribute to a reward — when a step's reward impact is uncertain, include it rather than omitting it. Sort the names **alphabetically** before joining them with commas. Deterministic derivation matters: the report reuse cache keys on the exact parameter string, so an inconsistent set or ordering forces a full re-run of this multi-hour report on every review.
+Include **every** earning/root business-event step whose configured path can issue or contribute to a reward. Sort the names **alphabetically** before joining them with commas. Deterministic derivation matters: the report reuse cache keys on the exact parameter string, so an inconsistent set or ordering forces a full re-run of this multi-hour report on every review.
+
+“Uncertain” means an earning/root step whose reward impact is unclear from the graph — **not** “include every inbound or funnel step.” Default **exclude** pure click, share, landing, and destination steps unless that step’s path directly grants, qualifies, or earns a reward.
 
 Do **not** include:
 
@@ -52,23 +54,33 @@ Do **not** include:
 - webhook event names
 - frontend zone or page events
 - system events
+- pure click / share / landing / destination steps (for example `share_click`, `share_event`, `share_destination`, friend landing) unless the graph shows that step directly grants or qualifies a reward
+- steps that only incentivize analytics or funnel signals with no reward / earn / qualify path
 
 Derive `step_names` from the campaign graph, **not** from Input Events Count, Conversion Audit output, or high-volume event names.
 
 Examples:
 
 ```text
-step_names="transacted,converted,purchased,outcome"
+# Good — reward-capable earning/root steps only (alphabetical)
+step_names="offline_purchase,reward_evaluation_completed,signed_up"
+
+# Bad — dilutes Conversion Audit with non-reward funnel steps
+step_names="offline_purchase,share_click,share_event,signed_up"
 ```
 
 > ❗️ Do **not** use reward event names. Use the earning/root business step names from the campaign graph.
 >
 > `step_names=#{{step_names}}` should be passed as a string.
 
+> ❗️ **Fail-closed — over-broad `step_names` is invalid execution.**
+>
+> If Conversion Audit was submitted with non-reward funnel steps (for example `share_click` / `share_event`) mixed into `step_names`, treat that run as **Invalid execution** for reward-path conclusions. Discard Pending/Approved mix from that run for reward health, resubmit with reward-capable steps only (alphabetical), and use the corrected report before judging outcomes.
+
 ### Submission guidance
 
 1. Inspect the campaign graph.
-2. Derive `step_names` from configured business-event / targetable-step names that can result in a reward: include every reward-capable step (include uncertain ones), then sort alphabetically.
+2. Derive `step_names` from configured business-event / targetable-step names that can result in a reward: include every reward-capable earning/root step (include uncertain earning steps only), exclude pure click/share/landing unless they directly grant or qualify a reward, then sort alphabetically.
 3. Find the configured report type whose display name is `Conversion Audit`.
 4. Submit that configured report type using the required parameters above.
 5. Do not override `mappings`; rely on the configured report template mappings.

@@ -20,7 +20,7 @@ After Input Records completes, continue with [Event Data Rule Alignment](doc:fun
 **Answers**
 
 - Are all expected configured input events firing?
-- Are unexpected input events arriving that the program does not consume?
+- Among events that belong to this program’s configured triggers, are unexpected or mis-wired names arriving that the program does not consume?
 
 ### Report
 
@@ -28,7 +28,7 @@ After Input Records completes, continue with [Event Data Rule Alignment](doc:fun
 |---|---|
 | Report type | `t1owor6ia18bia3ur7zg` |
 | Display name | Input Events Count |
-| Notes | Do **not** submit `INPUT_EVENTS_COUNT` as a `report_type`. It is a display/report-use label only. |
+| Notes | Do **not** submit `INPUT_EVENTS_COUNT` as a `report_type`. It is a display/report-use label only. This id is **Count only** — never reuse it for Input Events with Triggered Steps. |
 
 ### Required parameters
 
@@ -68,6 +68,8 @@ missing_expected_trigger_events = expected_trigger_events - actual_input_events
 unexpected_input_events = actual_input_events - expected_trigger_events
 ```
 
+`event_names=All` often returns site-wide or unrelated event names on a campaign-scoped Count. Treat names **outside** `expected_trigger_events` as **out of scope** for FR findings (context only) unless the graph shows they feed this program’s triggers, rewards, attribution, or UX. Do not raise Watch/Issue solely because high-volume global names (for example site `conversion` or `new_customer`) appear in the report.
+
 When similar names exist, do not treat them as equivalent without graph evidence.
 
 Examples:
@@ -81,7 +83,7 @@ Examples:
 - Expected event type missing while similar events still arrive
 - Event volume dropped to zero compared with prior sanity-check evidence or expected recent behavior
 - Configured live step appears in the flow but has no supporting inbound events
-- Inbound events arriving that nothing in the program consumes
+- Inbound events that appear mis-wired into **this** program’s triggers/rewards (not merely present as out-of-scope Count noise)
 - Production-like activity in sandbox or test containers
 
 ### Severity
@@ -89,9 +91,10 @@ Examples:
 | Finding | Severity |
 |---|---|
 | No events for the program, or missing key expected event types | **Issue** |
-| Unexpected inbound events not consumed by the program | **Watch** or **Issue**, depending on volume and whether they can affect rewards, attribution, or UX |
+| Mis-wired inbound events that can affect this program’s rewards, attribution, or UX | **Watch** or **Issue**, depending on volume and impact |
 | Production-like traffic in test containers | **Watch** or **Issue**, depending on volume and whether rewards or PII are involved |
 | Quiet week or single-day dip in production | **Watch** |
+| Site-wide / unrelated Count rows outside `expected_trigger_events` | **Out of scope** — mention as context only; do not score as a finding |
 
 ---
 
@@ -108,6 +111,11 @@ Examples:
 |---|---|
 | Report type | `INPUT_EVENTS_WITH_TRIGGERED_STEPS` |
 | Display name | Input Events with Triggered Steps |
+| Notes | Do **not** submit `t1owor6ia18bia3ur7zg` for this check. That id is **Input Events Count only**. Changing `displayName` or `period` does **not** change the report type. |
+
+> ❗️ **Fail-closed — wrong type is invalid execution.**
+>
+> If this check was submitted with `report_type` `t1owor6ia18bia3ur7zg` (or any type other than `INPUT_EVENTS_WITH_TRIGGERED_STEPS`), treat it as **Invalid execution**, discard that output for event→step mapping, and resubmit with `INPUT_EVENTS_WITH_TRIGGERED_STEPS` before analyzing this section.
 
 ### Required parameters
 
@@ -229,6 +237,10 @@ For each sampled event type, report:
 - missing fields
 - malformed fields
 - confidence level
+
+> ❗️ **Incomplete download is not a field-validation finding.**
+>
+> If report metadata `totalRows` (or equivalent) is much larger than the rows actually downloaded, and graph-derived earning/reward-path events (for example `signed_up`, purchase/conversion triggers) are absent from the downloaded chunks, classify those event types as **Empty/Inconclusive**. Prefer additional download chunks or an `event_names`-filtered resubmit before concluding fields are missing. Do not treat “not in the 50-row sample” as proof that required fields are absent on live payloads.
 
 > ❗️ Do not expose raw customer payloads or PII in the final response. Summarize field-level validation instead.
 
