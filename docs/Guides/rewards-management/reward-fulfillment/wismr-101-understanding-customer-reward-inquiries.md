@@ -98,7 +98,7 @@ Once you've collected the necessary information, follow the investigation workfl
 5. determine whether rule conditions passed
 6. identify delivery issues
 
-➡ Continue with: [https://docs.extole.com/docs/how-to-investigate-a-wismr-request.](https://docs.extole.com/docs/how-to-investigate-a-wismr-request "https://docs.extole.com/docs/how-to-investigate-a-wismr-request")
+➡ Continue with [Investigating Missing Rewards and Attribution](doc:how-to-investigate-a-wismr-request)​.
 
 ## FAQ
 
@@ -106,7 +106,7 @@ Once you've collected the necessary information, follow the investigation workfl
 
 The participant may not have completed the required qualifying action, the referral may not have been attributed, or eligibility requirements may not have been met.
 
-See [https://docs.extole.com/docs/how-to-investigate-a-wismr-request](https://docs.extole.com/docs/how-to-investigate-a-wismr-request "https://docs.extole.com/docs/how-to-investigate-a-wismr-request") for the complete investigation workflow.
+See [Investigating Missing Rewards and Attribution](doc:how-to-investigate-a-wismr-request)​ for the complete investigation workflow.
 
 ### Why wasn't a reward issued?
 
