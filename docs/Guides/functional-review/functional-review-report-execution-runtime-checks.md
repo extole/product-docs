@@ -5,7 +5,7 @@ excerpt: "Canonical execution rules for a Functional Review — queue, hard stop
 hidden: true
 ---
 
-Use this guide for the **report-execution and runtime-check** portion of a Functional Review on **one live V10 referral or rewards program**.
+Use this guide for the **report-execution and runtime-check** portion of a Functional Review on **one live referral or rewards program**. V10 flow-builder is the primary target; V8/legacy campaigns run the same queue best-effort under the legacy rules in [Overview](doc:functional-review-overview).
 
 This is the canonical execution-law doc. Check docs inherit these rules; do not skip them when loading only a single check page.
 
@@ -16,6 +16,8 @@ Use this after [Overview](doc:functional-review-overview) has identified:
 - review window
 - containers to review
 - whether V10 flow-builder is confirmed
+
+> ❗️ **`V10 confirmed: No` does not block execution.** When the campaign is V8/legacy, still build the full queue, submit every report, and complete the review — with the legacy disclaimer and configuration-confidence limits from [Overview](doc:functional-review-overview). No report in this queue requires V10.
 
 ## Review window
 
@@ -152,6 +154,8 @@ For every checklist item, first inspect the graph to determine what the program 
 Before analyzing report output, build a graph-derived expectation manifest for the program under review.
 
 Do **not** use business-event / targetable-step component names as expected raw input event names unless the trigger rule explicitly uses the same name.
+
+> 📘 **V8/legacy campaigns.** When V10 flow-builder trigger rules are unavailable, build the manifest from the built V8 controllers, steps, actions, and data fields instead. Record controller/step event names as **candidate** expected raw names (not confirmed trigger names), and use Input Events Count / Input Records output to confirm the actual raw inbound names. An unavailable V10-only source is a section-level evidence gap, not a reason to skip the section or the queue.
 
 For each business-event / targetable-step component, record:
 
@@ -300,6 +304,7 @@ Also list these as **Execution Errors** (not campaign findings) when they occurr
 Deliver a short report with:
 
 - **Header** — client, program, review window, start and end dates, campaign id, V10 confirmed
+- **Legacy disclaimer** — required when the campaign is V8/legacy (see [Overview](doc:functional-review-overview))
 - **Summary** — review verdict and one paragraph
 - **Findings by section** — observation, report links, flags, recommended next step
 - **Evidence gaps** — anything not checked, failed, pending, or not available from reports
@@ -307,7 +312,7 @@ Deliver a short report with:
 
 When event/runtime behavior is reviewed, the final report must also separate:
 
-1. **Expected raw trigger events** — source: campaign graph `triggerEventNames` / `eventNames`
+1. **Expected raw trigger events** — source: campaign graph `triggerEventNames` / `eventNames` (V8/legacy: configuration-derived candidate names, labeled as such)
 2. **Actual raw inbound events** — source: Input Events Count / Input Records (Count rows outside `expected_trigger_events` are **out of scope** — context only, not findings)
 3. **Processed campaign events / outcomes** — source: Conversion Audit, Rewards, Email, Webhook reports
 4. **Event mapping gaps** — expected trigger events with no inbound evidence; inbound events with no configured step mapping; processed outcomes with unclear raw-event evidence
