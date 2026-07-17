@@ -5,7 +5,7 @@ excerpt: "Validate Conversion Audit outcomes and earned rewards against graph-de
 hidden: true
 ---
 
-Validate processed conversion/outcome evidence and earned rewards for one live V10 program.
+Validate processed conversion/outcome evidence and earned rewards for one live program. V10 flow-builder is the primary target; V8/legacy campaigns run these reports best-effort with reward-capable steps derived from V8 controller configuration (see [Overview](doc:functional-review-overview)).
 
 > 🚧 **Execution rules apply.** Follow the queue, hard stop, expectation manifest, and completion gate in [Report Execution + Runtime Checks](doc:functional-review-report-execution-runtime-checks) before recording any finding.
 >
@@ -57,7 +57,7 @@ Do **not** include:
 - pure click / share / landing / destination steps (for example `share_click`, `share_event`, `share_destination`, friend landing) unless the graph shows that step directly grants or qualifies a reward
 - steps that only incentivize analytics or funnel signals with no reward / earn / qualify path
 
-Derive `step_names` from the campaign graph, **not** from Input Events Count, Conversion Audit output, or high-volume event names.
+Derive `step_names` from the campaign graph, **not** from Input Events Count, Conversion Audit output, or high-volume event names. On a V8/legacy campaign, derive them the same way from the built controller/step configuration — reward-capable earning/root steps only.
 
 Examples:
 

@@ -5,7 +5,7 @@ excerpt: "Validate inbound input events, event-to-step mapping, and Input Record
 hidden: true
 ---
 
-Validate raw inbound events and payloads for one live V10 program.
+Validate raw inbound events and payloads for one live program. V10 flow-builder is the primary target; V8/legacy campaigns run these reports best-effort with configuration-derived candidate event names (see [Overview](doc:functional-review-overview)).
 
 > 🚧 **Execution rules apply.** Follow the queue, hard stop, expectation manifest, and completion gate in [Report Execution + Runtime Checks](doc:functional-review-report-execution-runtime-checks) before recording any finding.
 >
@@ -58,6 +58,8 @@ For each business-event / targetable-step component:
 ```text
 business_event_component_name -> triggerEventNames/eventNames -> required data fields -> rules/actions
 ```
+
+**V8/legacy fallback:** when the built campaign exposes no V10 `triggerRules`, derive candidate expected names from the built V8 controller/step configuration instead, label them as configuration-derived candidates, and let the Count output confirm the actual raw inbound names. Do not skip this report because trigger rules are unavailable.
 
 ### Compare
 
@@ -184,6 +186,8 @@ event_names=<graph-derived triggerEventNames / eventNames as a string>
 ```
 
 > ❗️ For `event_names`, use only graph-derived raw input trigger names from `triggerEventNames` / `eventNames`. Do **not** use journey names, business-event component names, content component names, action names, or display names unless the trigger rule explicitly configures the same value as a raw input event name.
+>
+> **V8/legacy fallback:** when V10 trigger rules are unavailable, use the raw inbound names already confirmed by Input Events Count that map to this program's steps. If Count evidence is not yet available, use candidate names from the built V8 controller/step configuration and label the resulting validation as candidate-name based.
 
 ### Required mapping
 

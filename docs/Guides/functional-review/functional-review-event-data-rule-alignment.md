@@ -26,8 +26,8 @@ Before running this check:
 
    `Id=event.id;Client Id=event.clientId;Event Time=event.eventTime;Person Id=person(event.personId).id;Container=event.container;Name=event.name;Api Type=event.apiType;data=event.data;`
 
-3. Input Records used graph-derived `event_names` from `triggerEventNames` / `eventNames` — not business-event component names.
-4. A graph-derived expectation manifest exists (see [Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation)).
+3. Input Records used graph-derived `event_names` from `triggerEventNames` / `eventNames` — not business-event component names. On a V8/legacy campaign, use the legacy fallback names from [Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation).
+4. A graph-derived expectation manifest exists (see [Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation)). On a V8/legacy campaign, the manifest is built from controller/step configuration and its rules are labeled configuration-derived candidates.
 
 ## Core principle
 

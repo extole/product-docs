@@ -1,11 +1,11 @@
 ---
 title: "Functional Review: Terms, Rewards, and Configuration Alignment"
 slug: functional-review-terms-rewards-and-configuration-alignment
-excerpt: "Compare active Terms copy against configured rewards, limits, geography, and qualifying conditions for one live V10 program."
+excerpt: "Compare active Terms copy against configured rewards, limits, geography, and qualifying conditions for one live program."
 hidden: true
 ---
 
-Use this guide for the Terms / rewards / configuration-alignment portion of a Functional Review on **one live V10 referral or rewards program**.
+Use this guide for the Terms / rewards / configuration-alignment portion of a Functional Review on **one live referral or rewards program**.
 
 Inspect the active Terms creative/component and compare available user-facing reward language against the rewards, limits, geography, and qualifying conditions actually configured in the campaign flow.
 
@@ -16,7 +16,7 @@ This part can run while reports are generating — it does not rely on report ou
 ## Scope
 
 - **One program only** — program label (for example `refer-a-friend`) or campaign id
-- **V10 flow-builder programs only** — legacy controller-only programs need a different review path
+- **V10 flow-builder is the primary target** — on a V8/legacy campaign, run this check best-effort against the active Terms creative in the built campaign (see the V8/legacy fallback below); campaign version never blocks the rest of the review
 - Configuration is authoritative for “what should happen”; Terms check is supplemental
 - Do **not** perform legal review
 - Only check whether available user-facing reward promises match configured reward amount, limits, geography, and qualifying conditions
@@ -35,7 +35,7 @@ This part can run while reports are generating — it does not rely on report ou
 - Before making any Terms finding, fetch the selected live campaign using `extole_campaign_get` with `built = true`.
 - Terms copy must come from the active built Terms component’s `termsCopy` variable, usually `components[n].variables[m].values.en`.
 - Do **not** declare Terms copy unavailable, empty, matching, mismatching, or reviewed based on `extole_account_overview`.
-- If the built campaign fetch is not performed, fails, or does not expose an active Terms component `termsCopy`, return **Needs investigation**.
+- If the built campaign fetch is not performed, fails, or does not expose an active Terms component `termsCopy`, apply the V8/legacy fallback below; if no usable Terms copy can be retrieved from the built configuration at all, return **Needs investigation** for this section.
 - Inspect only the active Terms creative/component.
 - Do not use campaign overview, root-level variables, inherited variables, repeated experience variables, or raw component settings as the primary Terms source when the active Terms component has built `termsCopy`.
 - Do not rely on `built_values` from raw component-setting APIs alone.
@@ -64,9 +64,9 @@ No report submission required.
 
 ## Built Terms copy retrieval path
 
-> 🚧 **Hard stop:** do not make a Terms finding unless the active built Terms component `termsCopy` source path is recorded.
+> 🚧 **Hard stop:** do not make a Terms finding unless the Terms copy source path is recorded — the active built Terms component `termsCopy` on V10, or the built legacy Terms source on V8 (see the V8/legacy fallback below).
 >
-> If `termsCopy` cannot be retrieved from the full built campaign configuration, return **Needs investigation** and list the evidence gap.
+> If no usable Terms copy can be retrieved from the full built campaign configuration, return **Needs investigation** for this section and list the evidence gap.
 
 Preferred retrieval path:
 
@@ -97,6 +97,16 @@ built campaign → components[7] terms/content-v10.0 → variables[4] termsCopy 
 5. If still unresolved, record Evidence Gap: `Built active Terms component termsCopy could not be retrieved`.
 
 Do **not** record this evidence gap if only campaign overview was checked — continue with full built campaign first.
+
+### V8/legacy fallback
+
+A V8/legacy campaign usually has no `content-v10.0` Terms component. Do not stop at step 1 of the retrieval path:
+
+1. Fetch the full built campaign (`extole_campaign_get` with `built = true`).
+2. Look for the active Terms creative/content in the built V8 configuration — a Terms zone, Terms controller, or Terms creative content — and use its built copy as the Terms source.
+3. Record the exact V8 source path used, labeled as a legacy Terms source, and note the lower confidence in Evidence.
+4. Compare that copy against configured rewards, limits, geography, and qualifying conditions exactly as in the sections below.
+5. Only if no usable Terms copy can be retrieved from the built V8 configuration, record the evidence gap and return **Needs investigation** — for this section only, not for the whole review.
 
 Do not evaluate inactive, draft, archived, or disabled Terms creatives unless they appear to affect the live user-facing Terms experience.
 

@@ -1,11 +1,11 @@
 ---
 title: "Functional Review: Overview"
 slug: functional-review-overview
-excerpt: "Run a functional review on one live V10 referral or rewards program — scope, campaign selection, and review map."
+excerpt: "Run a functional review on one live referral or rewards program — scope, campaign selection, and review map."
 hidden: true
 ---
 
-Use this guide to run a functional review on **one live V10 referral or rewards program**.
+Use this guide to run a functional review on **one live referral or rewards program**. V10 flow-builder programs are the primary target; legacy (V8) campaigns are reviewed best-effort with a legacy disclaimer (see [Legacy (V8) Campaigns](#legacy-v8-campaigns)).
 
 A functional review compares live campaign configuration and runtime evidence against expected program behavior. Use it before launch, after a material program or integration change, or on a scheduled launch-review cadence.
 
@@ -15,29 +15,44 @@ A functional review compares live campaign configuration and runtime evidence ag
 
 ## Scope
 
-- One V10 flow-builder program at a time
+- One live program at a time — V10 flow-builder is the primary target
 - Provide either a program label (for example `refer-a-friend`) or a live campaign id
-- Legacy controller-only programs require a different review path
+- Legacy (V8) controller campaigns are in scope as a **best-effort legacy review** — never a reason to stop
 
 ## Campaign selection
 
-A functional review must run against one confirmed V10 flow-builder program.
+A functional review runs against one live program.
 
 Before report execution:
 
-1. If the user provides a program label or live campaign id, use that value.
+1. If the user provides a program label or live campaign id, use that value — regardless of the campaign's product version.
 2. If the user does not provide a campaign/program, discover the available campaign/program list before running reports.
-3. If only one eligible V10 campaign exists, run the review against that campaign.
-4. If multiple eligible V10 campaigns exist and the user cannot clarify, run against the most recently updated or most recently launched/live V10 campaign, and state this selection in the review header.
-5. If both V8/legacy and V10 campaigns exist, exclude V8/legacy campaigns unless the user explicitly requested a legacy review path.
-6. If no eligible V10 campaign can be confirmed, do **not** run the V10 functional review. Record an evidence gap: `No eligible V10 campaign could be confirmed`.
-7. Do not run one functional review across multiple campaigns unless the user explicitly requested a multi-campaign review.
+3. If only one eligible live campaign exists, run the review against that campaign.
+4. If multiple eligible live campaigns exist and the user cannot clarify, prefer V10 campaigns over V8/legacy campaigns, then run against the most recently updated or most recently launched/live campaign, and state this selection in the review header.
+5. Record the campaign's product version (`productVersion` from the campaign overview) in the review header as `V10 confirmed: Yes/No`.
+6. Do not run one functional review across multiple campaigns unless the user explicitly requested a multi-campaign review.
+
+> ❗️ **Campaign version never blocks execution.** Do not stop the review, skip the report queue, or withhold a verdict because the selected campaign is V8/legacy. Run the review best-effort under [Legacy (V8) Campaigns](#legacy-v8-campaigns) and disclose the limitations.
 
 ### Review-header note
 
 When the campaign was selected automatically, include this in the review header:
 
-> Campaign selection: No campaign was specified by the user. Available campaigns were reviewed. The functional review was run against the most recent eligible V10 campaign: `<campaign/program>`. Legacy/V8 campaigns were excluded because this review path applies to V10 flow-builder programs only.
+> Campaign selection: No campaign was specified by the user. Available campaigns were reviewed. The functional review was run against the most recent eligible live campaign: `<campaign/program>`. V10 campaigns were preferred over legacy/V8 campaigns where both existed.
+
+## Legacy (V8) Campaigns
+
+When the selected campaign reports `productVersion: V8` (or V10 flow-builder trigger rules are otherwise unavailable), run the same review **best-effort** instead of stopping:
+
+1. **Disclose up front.** Open the review output with a legacy disclaimer:
+
+   > Legacy review disclaimer: This campaign is V8/legacy, not a V10 flow-builder program. This runbook's primary target is V10; the review below is a best-effort legacy review. Expected trigger events, rules, and side effects were derived from V8 controller/step configuration, which is less authoritative than a V10 flow-builder graph. Treat graph-derived conclusions with lower confidence.
+
+2. **Run the full report queue.** Every report in the queue (Input Events Count, Input Events with Triggered Steps, Input Records, Conversion Audit, Rewards, Promotion Sources, Webhooks, Email Deliverability) runs against the campaign id exactly as documented. None of these reports require V10; do not skip any of them because of campaign version.
+3. **Build the expectation manifest from V8 configuration.** Derive expected behavior from the built campaign's controllers, steps, actions, and data fields instead of V10 flow-builder trigger rules. Where V8 configuration does not expose an equivalent of `triggerEventNames` / `eventNames`, treat the controller/step event names as **candidate** expected names, and use Input Events Count / Input Records output to confirm the actual raw inbound names.
+4. **Never present V8 step names as confirmed raw trigger names.** Label them as configuration-derived candidates until report output corroborates them.
+5. **Mark only what is genuinely unavailable.** A V10-specific source that has no V8 equivalent (for example a flow-builder trigger-rule manifest, or an active V10 Terms component `termsCopy`) becomes a **section-level** evidence gap with its V8 fallback noted — not a reason to skip the section's reports or the rest of the review.
+6. **Give a real verdict.** Conclude with the standard verdict definitions, scoped to what the evidence supports. Do not return a blanket `Needs investigation` solely because the campaign is V8.
 
 ## Default review window
 

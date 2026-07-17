@@ -1,11 +1,11 @@
 ---
 title: "Functional Review: Email / Webhook / Side-Effect Validation"
 slug: functional-review-email-webhook-side-effect-validation
-excerpt: "Validate promotion sources, webhook dispatch, and email deliverability for one live V10 program."
+excerpt: "Validate promotion sources, webhook dispatch, and email deliverability for one live program."
 hidden: true
 ---
 
-Validate promotion attribution and outbound side effects for one live V10 program.
+Validate promotion attribution and outbound side effects for one live program. V10 flow-builder is the primary target; V8/legacy campaigns run these reports best-effort (see [Overview](doc:functional-review-overview)).
 
 > 🚧 **Execution rules apply.** Follow the queue, hard stop, expectation manifest, completion gate, and output format in [Report Execution + Runtime Checks](doc:functional-review-report-execution-runtime-checks) before recording any finding.
 >
