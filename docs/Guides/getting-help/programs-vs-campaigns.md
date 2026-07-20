@@ -42,4 +42,4 @@ For instructions, see **[Making Updates to Your Campaign](doc:making-updates-to-
 - Launching an employee referral program
 - Offering a targeted promotion for a specific customer segment
 
-For more details, see **[Campaigns for Selected Audiences](doc:campaigns-for-selected-audiences)**.
+For instructions, see **[Creating a Program](doc:creating-a-program)**. For more details on selected-audience campaigns, see **[Campaigns for Selected Audiences](doc:campaigns-for-selected-audiences)**.
