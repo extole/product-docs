@@ -10,7 +10,7 @@ A program is a set of one or more campaigns targeted to a given audience for a g
 
 Extole creates a new program from a **template** — an existing program type such as Refer a Friend or Offer. Your new program starts as a copy of that template, so it comes with a working set of campaigns, rewards, and rules that you then tailor to your goal. A new program is created as a draft, so nothing goes live until you review it and launch it.
 
-To decide whether you need a new program or a new campaign, see **[Programs vs. Campaigns](doc:programs-vs-campaigns)**.
+To decide whether you need a new program or a new campaign, see **[Programs vs. Campaigns](doc:programs-vs-campaigns)**. If you only want another campaign within an existing program, duplicate a campaign instead — see **[Making Updates to your Campaigns](doc:making-updates-to-your-campaigns)**.
 
 # How to Create a Program
 
