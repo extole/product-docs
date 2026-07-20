@@ -15,7 +15,7 @@ To decide whether you need a new program or a new campaign, see **[Programs vs. 
 # How to Create a Program
 
 1. Go to the **[Programs page](https://my.extole.com/programs)** in My Extole.
-2. Select **New Program**.
+2. Hit the **+ New Program** button.
 3. Choose the **template** for the program type you want to create, such as Refer a Friend or Offer. This template determines the campaigns, rewards, and rules your new program starts with.
 4. Enter a **name** for your program. Extole uses the name to set the program label, the short identifier shown next to the name on the Programs page.
 5. Confirm to create the program.
