@@ -26,8 +26,8 @@ Extole creates your new program as a copy of the template and opens it so you ca
 
 Because a new program is a copy of the template you chose, it inherits that template's setup as a starting point:
 
-- The template's **campaigns** and their flow
-- The **rewards** each campaign issues and their values
+- One **campaign** and its flow — each template comes with a single campaign
+- The **rewards** that campaign issues and their values
 - The **eligibility and quality rules** that govern who gets rewarded
 
 Review these before you launch. The template's reward values and rules reflect the template, not your program's goal, so update the rewards, audience, and rules to match what you intend. To change what a campaign issues, see **[Configuring the Rules of Your Program](doc:configuring-the-rules-of-your-program)**.
