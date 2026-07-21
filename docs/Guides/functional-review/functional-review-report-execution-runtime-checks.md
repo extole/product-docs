@@ -192,6 +192,18 @@ Only reports explicitly listed in these Functional Review docs may be run. Each 
 
 Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last **2 days**, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
 
+## Report completeness — read the full report, sample deliberately
+
+Do not draw conclusions from a partial download. How much of a report you must read depends on the report's role:
+
+**Aggregate / outcome reports** — Input Events Count, Input Events with Triggered Steps, Conversion Audit, Rewards, Top Promotion Sources, Webhook, and Email reports. Analyze the **complete** result set. Before computing any ratio, percentage threshold, or "no evidence" conclusion, confirm the number of rows you analyzed matches the report's `totalRows` (or equivalent). If it does not, page through every chunk — or resubmit filtered — until the full result set is covered.
+
+**Field-validation reports** — Input Records and the checks built on it ([Input / Runtime Event Validation](doc:functional-review-input-runtime-event-validation), [Event Data Rule Alignment](doc:functional-review-event-data-rule-alignment)). These stay sample-based, but the sample is not a fixed row count off the top of the report: it must cover **every** earning/reward-path event type, and **every** distinct reward-path variant of an event, up to the coverage floor those docs define. Always state per-type and per-variant sample counts and confidence.
+
+> ❗️ **Never base a proportion or a "missing / no evidence" finding on a truncated report.**
+>
+> A low-quality share, a reward-match rate, or a "field absent" / "event type absent" conclusion drawn from fewer rows than `totalRows` is **Invalid execution**. Page the remaining rows or resubmit filtered, then recompute before recording the finding.
+
 ## Profile identity and unique-key validation
 
 A data field can be configured as a unique partner event key (`key_type = UNIQUE_PARTNER_EVENT_KEY`). Extole uses these keys for two jobs: to de-duplicate inbound events — two events sharing the value are treated as the same event — and to identify the person an event belongs to when no stronger identity, such as email, is present. A unique key must therefore be unique to one event or one person. This check is configuration-derived: run it from the built campaign so it holds even when no report is available.
@@ -281,6 +293,8 @@ Before producing output, verify:
 - every submitted report reached a terminal state (completed or failed) — no report is still pending, queued, or running
 - every completed report downloaded
 - every completed report analyzed
+- aggregate/outcome reports analyzed over the full result set (rows analyzed match `totalRows`, not a partial download)
+- field-validation sampling covers every earning/reward-path event type and each graph-derived reward-path variant of an event
 
 A pending report never satisfies this gate. If any submitted report is still pending, do not produce the final output or post to the ticket — wait for the report completion callback (or re-check status) and resume when every report is terminal.
 
@@ -298,6 +312,8 @@ Also list these as **Execution Errors** (not campaign findings) when they occurr
 - Input Events with Triggered Steps submitted with Count’s `report_type` (`t1owor6ia18bia3ur7zg`) or any type other than `INPUT_EVENTS_WITH_TRIGGERED_STEPS`
 - Conversion Audit submitted with over-broad `step_names` (non-reward click/share/landing steps included)
 - Input Records incomplete download when earning/reward-path event types were not present in downloaded rows (`Empty/Inconclusive` for those types)
+- Any proportion, threshold, or "no evidence" finding computed from fewer rows than `totalRows` on an aggregate/outcome report
+- Field-validation sampling that skipped an earning/reward-path event type or a graph-derived reward-path variant present in the report
 
 ## Output format
 
@@ -319,6 +335,17 @@ When event/runtime behavior is reviewed, the final report must also separate:
 5. **Data validation gaps** — expected fields, missing fields, malformed fields, sample count checked
 
 Use thousands separators on counts. Prefer step and program names over internal ids in prose.
+
+### Write the report in plain language
+
+This review is read by Extole colleagues today and may be shared with clients — often marketers, not engineers. Write the findings so a non-technical reader can follow them:
+
+- Lead each finding with what it means for the program in plain terms (for example, "some sign-ups aren't earning their reward"), then give the supporting evidence and report links.
+- Say why it matters — the effect on people, rewards, tracking, or emails — not only what a report shows.
+- Use short sentences and everyday words. Choose one plain word over a technical phrase.
+- Keep exact values verbatim — event names, report ids, and the verdict labels (Pass, Watch, Issue, Needs investigation) — but explain any technical term the first time you use it.
+- Keep internal execution vocabulary — queue, hard stop, expectation manifest, terminal state, Invalid execution — out of the findings. It describes how you run the review, not what you report. The Execution errors section, when present, can stay factual and brief.
+- Write slash-compounds as words (for example, "events that earn or qualify for a reward" instead of "earning/reward-path").
 
 ## Review verdict definitions
 

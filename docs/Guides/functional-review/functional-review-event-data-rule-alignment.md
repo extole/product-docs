@@ -142,10 +142,22 @@ For each `source_event_name` in the manifest:
 2. Parse the `data` column as JSON for each sample.
 3. Record sample count and time window covered.
 
-Minimum sample targets:
+### Cover each reward-path variant
 
-- At least **5** recent samples per event type when volume allows
-- If fewer than 5 exist, review all available samples and lower confidence accordingly
+A single `source_event_name` can feed more than one reward or qualification path. When it does, the graph distinguishes those paths by a data-field condition already on the rule manifest — the `parameter` and `expected_value` a rule branches on. Derive that field and its distinguishing values **from the graph rules**; never assume or hardcode them.
+
+Treat each distinct rule-relevant condition branch as its own coverage bucket:
+
+- Group the event's samples by the graph-derived branching field(s).
+- Meet the sample floor **per bucket**, not just per event name, so a minority reward-path variant is not skipped because high-volume traffic filled the sample.
+- Report sample counts per bucket, and mark any bucket you could not sample as **Empty/Inconclusive** for that path — not **Pass**.
+
+If an event feeds only one path, it is a single bucket and needs no split.
+
+Minimum sample targets — per event type, and per reward-path variant when an event branches:
+
+- Aim for **20–30** recent samples when volume allows.
+- If fewer exist, review all available samples and lower confidence accordingly.
 
 ## Step 3 — Evaluate each sample against each applicable rule
 
@@ -201,10 +213,11 @@ Triggered-step gaps alone are not sufficient. Always attempt direct `event.data`
 
 ## Required output per event type
 
-For each reviewed input event name, include:
+For each reviewed input event name, include the block below. When the event branches into more than one reward-path variant, report one block per variant and name the branch.
 
 ```text
 Event: <raw input event name>
+Reward-path variant: <graph-derived branch, or "single path">
 Business event: <component name>
 Samples reviewed: <n> (confidence: high/medium/low)
 
@@ -242,6 +255,7 @@ Record an evidence gap when:
 - Rule condition could not be parsed into testable predicates
 - `data=event.data` mapping was not used (invalid execution — rerun Input Records)
 - Sample count is zero for a high-volume event type that appears in Input Events Count
+- A reward-path variant of an event has no samples while the event type overall has volume
 
 ## Relationship to other runbooks
 
