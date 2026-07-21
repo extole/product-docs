@@ -242,9 +242,17 @@ For each sampled event type, report:
 - malformed fields
 - confidence level
 
+### Sample coverage
+
+A sample is not a fixed number of rows off the top of the report. Cover the events that matter:
+
+- Include **every** graph-derived earning/reward-path event type, not only the highest-volume names that happen to fill the first rows.
+- When one event type feeds more than one reward or qualification path, cover **each** path. The graph distinguishes those paths by a data-field condition; derive that field and its values from the rules, never assume them (see [Event Data Rule Alignment](doc:functional-review-event-data-rule-alignment) for the per-variant sampling floor).
+- If a required event type or reward-path variant is absent from the first chunk, page further or resubmit filtered by `event_names` before concluding it carries no data.
+
 > ❗️ **Incomplete download is not a field-validation finding.**
 >
-> If report metadata `totalRows` (or equivalent) is much larger than the rows actually downloaded, and graph-derived earning/reward-path events (for example `signed_up`, purchase/conversion triggers) are absent from the downloaded chunks, classify those event types as **Empty/Inconclusive**. Prefer additional download chunks or an `event_names`-filtered resubmit before concluding fields are missing. Do not treat “not in the 50-row sample” as proof that required fields are absent on live payloads.
+> If report metadata `totalRows` (or equivalent) is much larger than the rows actually downloaded, and graph-derived earning/reward-path events (for example `signed_up`, purchase/conversion triggers) are absent from the downloaded chunks, classify those event types as **Empty/Inconclusive**. Prefer additional download chunks or an `event_names`-filtered resubmit before concluding fields are missing. On clients that send many event types, a small top-of-report sample is easily dominated by high-volume events, so earning/reward-path events — and minority reward-path variants of an event — can be absent from it. Do not treat “not in a small top-of-report sample” as proof that required fields are absent on live payloads.
 
 > ❗️ Do not expose raw customer payloads or PII in the final response. Summarize field-level validation instead.
 
