@@ -40,47 +40,49 @@ step_names=<step_names>
 
 ### Expect from graph — `step_names`
 
-`step_names` must be a comma-separated string of business-event step names that can result in a reward.
+`step_names` is a comma-separated string of the business-event steps that own a reward action.
 
-Include **every** earning/root business-event step whose configured path can issue or contribute to a reward. Sort the names **alphabetically** before joining them with commas. Deterministic derivation matters: the report reuse cache keys on the exact parameter string, so an inconsistent set or ordering forces a full re-run of this multi-hour report on every review.
+**The test for including a step** — apply it to every business-event / targetable step: include the step **if and only if that step owns an earn-reward, qualify, or incentivize action in the campaign graph**. The step's **name is irrelevant** — a `share_clicked` or landing step that owns a reward action is **in**; a `shared` or `advocate_created` step with no reward action of its own is **out**, even when it sits on the path toward a reward. Include the step that actually owns the reward action, not an upstream or "root" step just because a downstream step rewards.
 
-“Uncertain” means an earning/root step whose reward impact is unclear from the graph — **not** “include every inbound or funnel step.” Default **exclude** pure click, share, landing, and destination steps unless that step’s path directly grants, qualifies, or earns a reward.
+Sort the names **alphabetically**, then join them with commas. Deterministic derivation matters: the report reuse cache keys on the exact parameter string, so an inconsistent set or ordering forces a full re-run of this multi-hour report on every review.
 
-Do **not** include:
+Do **not** include (none of these own a reward action):
 
-- raw inbound input event names unless they are also the configured business-event step name
+- raw inbound input event names, unless the same name is also a reward-owning business-event step
 - reward event names
 - email event names
 - webhook event names
 - frontend zone or page events
 - system events
-- pure click / share / landing / destination steps (for example `share_click`, `share_event`, `share_destination`, friend landing) unless the graph shows that step directly grants or qualifies a reward
-- steps that only incentivize analytics or funnel signals with no reward / earn / qualify path
+- steps that only feed analytics or funnel signals
+- upstream / root steps that lead toward a reward but do not own an earn-reward, qualify, or incentivize action themselves (for example a `shared` or `advocate_created` step whose reward is granted by a later step)
 
-Derive `step_names` from the campaign graph, **not** from Input Events Count, Conversion Audit output, or high-volume event names. On a V8/legacy campaign, derive them the same way from the built controller/step configuration — reward-capable earning/root steps only.
+Derive `step_names` from the campaign graph by reading each step's actions and keeping the steps whose actions include earn-reward / qualify / incentivize. Do **not** derive the set from Input Events Count, Conversion Audit output, high-volume event names, or the campaign's full business-event step list. On a V8/legacy campaign, apply the same test to the built controller/step configuration.
 
 Examples:
 
 ```text
-# Good — reward-capable earning/root steps only (alphabetical)
-step_names="offline_purchase,reward_evaluation_completed,signed_up"
+# Good — every step owns a reward action, including a rewarded share step (alphabetical)
+step_names="converted,share_clicked,signed_up"
 
-# Bad — dilutes Conversion Audit with non-reward funnel steps
-step_names="offline_purchase,share_click,share_event,signed_up"
+# Bad — `advocate_created` and `shared` own no reward action; a later step grants the reward, not these
+step_names="advocate_created,converted,share_clicked,shared,signed_up"
 ```
 
-> ❗️ Do **not** use reward event names. Use the earning/root business step names from the campaign graph.
+The good/bad split turns on the graph, not the name: `share_clicked` belongs **only** because this campaign configures a reward action on it. In a campaign where `share_clicked` owns no reward action, drop it.
+
+> ❗️ Do **not** use reward event names. Use the reward-owning business-event step names from the campaign graph.
 >
 > `step_names=#{{step_names}}` should be passed as a string.
 
-> ❗️ **Fail-closed — over-broad `step_names` is invalid execution.**
+> ❗️ **Fail-closed — including a step that owns no reward action is invalid execution.**
 >
-> If Conversion Audit was submitted with non-reward funnel steps (for example `share_click` / `share_event`) mixed into `step_names`, treat that run as **Invalid execution** for reward-path conclusions. Discard Pending/Approved mix from that run for reward health, resubmit with reward-capable steps only (alphabetical), and use the corrected report before judging outcomes.
+> If Conversion Audit was submitted with any step that owns no earn-reward / qualify / incentivize action (for example an upstream `shared` or `advocate_created` step, or a plain funnel step), treat that run as **Invalid execution** for reward-path conclusions. Discard the Pending/Approved mix from that run for reward health, resubmit with only reward-owning steps (alphabetical), and use the corrected report before judging outcomes.
 
 ### Submission guidance
 
 1. Inspect the campaign graph.
-2. Derive `step_names` from configured business-event / targetable-step names that can result in a reward: include every reward-capable earning/root step (include uncertain earning steps only), exclude pure click/share/landing unless they directly grant or qualify a reward, then sort alphabetically.
+2. For each business-event / targetable step, read its actions. Keep the step **only if** its actions include an earn-reward, qualify, or incentivize action; drop every other step regardless of name. Sort the kept step names alphabetically.
 3. Find the configured report type whose display name is `Conversion Audit`.
 4. Submit that configured report type using the required parameters above.
 5. Do not override `mappings`; rely on the configured report template mappings.
