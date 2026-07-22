@@ -51,7 +51,7 @@ This issues the reward only when the event data matches, while still recording t
 1. Go to the **Programs** page and find your campaign.
 2. Click the **Manage Flow** icon for that campaign.
 3. In Flow Builder, find the **Reward** node you want to gate (e.g. the friend reward on
-   conversion, or a reward-for-action outcome from an [Offer](doc:offer) program — Reward for Action and Offer are the same program type).
+   conversion, or a reward-for-action outcome).
 4. Scroll to the **Reward Rules** section for that reward.
 5. Click **+ New Reward Rule** and choose **Event Data Comparison**.
 6. Configure the comparison:
