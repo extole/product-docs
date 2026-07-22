@@ -188,6 +188,22 @@ Only reports explicitly listed in these Functional Review docs may be run. Each 
 - [Entities and Context Available in Extole's Configurable Reporting System](doc:entities-and-context-available-in-extole-s-configurable-reporting-system)
 - [Custom Data Queries Using Extole Reports](doc:custom-data-queries-using-extole-reports)
 
+### Campaign scope boundary
+
+The scope of the review is the set of event names the **campaign graph configures as this program's triggers** — the `triggerEventNames` / `eventNames` on the manifest above. That configured set is the boundary even when the campaign has little or no traffic yet.
+
+Some reports are **client-wide, not campaign-scoped**, and return traffic from every program the client runs:
+
+- **Input Records** takes no `campaign_id` — it is filtered only by `event_names`.
+- **Input Events Count** with `event_names=All` returns site-wide rows.
+
+Apply the boundary before drawing any conclusion about this campaign:
+
+- An event, label, or placement **outside** the graph-configured trigger set is **client-wide context — out of scope, never a Watch or Issue about this campaign** — no matter how much volume it has (for example affiliate traffic or another program's placement).
+- Confirm that a configured event actually fed **this** campaign using **Input Events with Triggered Steps** (campaign-scoped): it shows which configured events fired this campaign's steps, independent of what the client sends in the raw payload.
+- Row-level `labels` / `target` on raw payloads are **client-optional and often absent**, so use them only as a secondary confirmation when present — never as the primary attribution.
+- Do **not** attribute another program's traffic to this campaign just because it shares an event name. A shared name is in scope only when triggered-step evidence ties it to this campaign.
+
 ## Report reuse window
 
 Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last **2 days**, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
