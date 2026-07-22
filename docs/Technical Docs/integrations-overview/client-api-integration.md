@@ -3,7 +3,7 @@ title: "Create an Integration with the Client API"
 excerpt: "Use Extole's Client API to create, configure, publish, and verify a reusable integration without uploading a component bundle.\n"
 ---
 
-## Overview
+# Overview
 
 Use the Client API to create an integration campaign and configure its behavior directly in Extole. This approach is useful when an integration is created by an installer, an AI agent, or an operational service instead of being packaged and uploaded as a creative bundle.
 
@@ -103,13 +103,13 @@ curl --request POST "$EXTOLE_API_HOST/v1/components/$BUSINESS_EVENT_TEMPLATE_ID/
     "target_campaign_id": "$CAMPAIGN_ID",
     "target_component_absolute_name": "/example",
     "target_setting_name": "businessEvents",
-    "component_name": "conversion",
+    "component_name": "converted",
     "variables": [
       {
         "name": "eventName",
         "type": "STRING",
         "values": {
-          "default": "conversion"
+          "default": "converted"
         }
       },
       {
@@ -117,7 +117,7 @@ curl --request POST "$EXTOLE_API_HOST/v1/components/$BUSINESS_EVENT_TEMPLATE_ID/
         "type": "STRING_LIST",
         "values": {
           "default": [
-            "conversion"
+            "converted"
           ]
         }
       },
@@ -125,21 +125,21 @@ curl --request POST "$EXTOLE_API_HOST/v1/components/$BUSINESS_EVENT_TEMPLATE_ID/
         "name": "singularNounName",
         "type": "STRING",
         "values": {
-          "default": "Conversion"
+          "default": "Converted"
         }
       },
       {
         "name": "pluralNounName",
         "type": "STRING",
         "values": {
-          "default": "Conversions"
+          "default": "Converted Events"
         }
       },
       {
         "name": "rateName",
         "type": "STRING",
         "values": {
-          "default": "Conversion Rate"
+          "default": "Converted Event Rate"
         }
       },
       {
@@ -159,9 +159,9 @@ Create each event as a separate component instance. For example:
 
 | Component name | Template | External event |
 | :------------- | :-------- | :-------------- |
-| `conversion` | `template_transacted_business_event` | `order_created` |
-| `ship` | `template_tracked_business_event` | `order_shipped` |
-| `return` | `template_tracked_business_event` | `order_cancelled` |
+| `converted` | `template_transacted_business_event` | `order_created` |
+| `shipped` | `template_tracked_business_event` | `order_shipped` |
+| `canceled` | `template_tracked_business_event` | `order_canceled` |
 
 ## Configure Input Event Rules
 
@@ -173,7 +173,7 @@ curl --request POST "$EXTOLE_API_HOST/v1/components/$INPUT_EVENT_TEMPLATE_ID/dup
   --header "Content-Type: application/json" \
   --data '{
     "target_campaign_id": "$CAMPAIGN_ID",
-    "target_component_absolute_name": "/example/conversion",
+    "target_component_absolute_name": "/example/converted",
     "target_setting_name": "triggerRules",
     "variables": [
       {
@@ -201,7 +201,7 @@ curl --request POST "$EXTOLE_API_HOST/v1/components/$BUSINESS_EVENT_DATA_TEMPLAT
   --header "Content-Type: application/json" \
   --data '{
     "target_campaign_id": "$CAMPAIGN_ID",
-    "target_component_absolute_name": "/example/conversion",
+    "target_component_absolute_name": "/example/converted",
     "target_setting_name": "data",
     "component_name": "partner_conversion_id",
     "variables": [
@@ -264,9 +264,50 @@ Use these key types for the common fields:
 | `cart_value` | Stores the transaction value. | `VALUE` |
 | `email`, `first_name`, `last_name` | Identifies and describes the person. | `NONE` |
 
+## Create The Reward Supplier
+
+Create a custom reward supplier for the partner fulfillment system. For coupon fulfillment, configure the supplier with the custom-reward type, the partner reward key type `COUPON`, and automatic fulfillment disabled when the partner must create the coupon.
+
+Associate the supplier with the integration component. Save the returned `reward_supplier_id`; the supplier filter and the program's reward rules use this identifier.
+
+For example, create a custom reward supplier with the partner key type `COUPON` and attach it to the integration component:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v2/reward-suppliers/custom-rewards" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "Example Coupons",
+    "face_value": 10,
+    "face_value_type": "USD",
+    "type": "LOYALTY_POINTS",
+    "partner_reward_key_type": "COUPON",
+    "auto_fulfillment_enabled": false,
+    "component_ids": [
+      "$INTEGRATION_COMPONENT_ID"
+    ]
+  }'
+```
+
+The supplier does not connect to the partner by itself. The partner connection is the reward webhook described in the next section.
+
 ## Add An Outbound Reward Webhook
 
-Create a reward webhook that calls the partner's coupon or promotion endpoint when a reward is issued.
+Create a `WEBHOOK` client key with an HMAC secret before creating the reward webhook:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v2/settings/security/keys" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "Example Reward Webhook Key",
+    "type": "WEBHOOK",
+    "algorithm": "HS256",
+    "key": "$WEBHOOK_SECRET"
+  }'
+```
+
+Create a reward webhook that calls the partner's coupon endpoint when a matching reward reaches the configured state. Use the returned client key identifier to sign the outbound request.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/webhooks" \
@@ -275,11 +316,36 @@ curl --request POST "$EXTOLE_API_HOST/v6/webhooks" \
   --data '{
     "name": "Example Coupon Webhook",
     "type": "REWARD",
-    "url": "https://partner.example.com/extole/rewards"
+    "url": "https://partner.example.com/extole/rewards",
+    "client_key_id": "$WEBHOOK_CLIENT_KEY_ID"
   }'
 ```
 
-Use a publicly reachable HTTPS URL when creating the webhook. After the reward supplier component is configured, update the webhook URL, request, and response handlers with the required build-time and runtime expressions.
+Use a publicly reachable HTTPS URL when creating the webhook. The partner endpoint must validate the signature with the shared webhook secret and authenticate any OpenCart API request it makes. Keep the webhook disabled until the endpoint, request expression, and response contract have been tested.
+
+Add a state filter and a supplier filter. The state request uses the plural `states` property.
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v4/webhooks/reward/$WEBHOOK_ID/filters/state" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "states": [
+      "EARNED"
+    ]
+  }'
+
+curl --request POST "$EXTOLE_API_HOST/v4/webhooks/reward/$WEBHOOK_ID/filters/supplier" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "reward_supplier_ids": [
+      "$REWARD_SUPPLIER_ID"
+    ]
+  }'
+```
+
+The filters ensure that the webhook is evaluated only for rewards from the configured supplier in the selected state.
 
 ```bash
 curl --request PUT "$EXTOLE_API_HOST/v6/webhooks/$WEBHOOK_ID" \
@@ -292,7 +358,7 @@ curl --request PUT "$EXTOLE_API_HOST/v6/webhooks/$WEBHOOK_ID" \
   }'
 ```
 
-The partner endpoint should authenticate the request, create or reserve a coupon, and return the coupon code in the response format expected by the configured reward supplier. Verify the response contract with the partner before enabling the webhook.
+The partner endpoint should authenticate the request, create or reserve a coupon in OpenCart, and return the partner coupon identifier in the response format expected by the configured reward supplier. Use the Extole reward or webhook event identifier as an idempotency key so retries do not create multiple coupons. Verify the response contract with the partner before enabling the webhook.
 
 ## Publish The Campaign
 
@@ -309,7 +375,7 @@ The publish operation validates and builds the campaign. Resolve any validation 
 
 ## Verify The Integration
 
-Send a synchronous test event through `POST /v6/events`. Include the campaign program label so the event targets the integration.
+Send a synchronous test event through `POST /v6/events`. Put the campaign program label in the request `data` object so the event can target the integration.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/events" \
@@ -332,7 +398,7 @@ Use the returned `person_id` to list the person's events:
 ```bash
 curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
   --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
-  --data-urlencode "stepName=conversion"
+  --data-urlencode "names=converted"
 ```
 
 Confirm that the expected event exists and that its data contains the mapped `partner_conversion_id`, `cart_value`, and `partner_user_id` values. Test every configured inbound event and verify the outbound webhook with a partner test account before enabling production traffic.
