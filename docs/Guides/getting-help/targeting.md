@@ -319,7 +319,7 @@ Examples include:
 
 - Welcome offer programs
 - Employee programs
-- Reward for offer programs
+- [Offer](doc:offer) programs (also called Reward for Action)
 
 The type of program does not matter.
 

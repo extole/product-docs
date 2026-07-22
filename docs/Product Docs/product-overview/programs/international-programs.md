@@ -14,7 +14,7 @@ For years, we have helped our clients operate referral and other acquisition and
 
 ## Internationalize Any Program
 
-Any Extole program can be run internationally. Whether you're interested in expanding your Refer A Friend, Influencer, Sweepstakes, or Offer program to new markets, we can make it happen with all your countries or locales managed within one program.
+Any Extole program can be run internationally. Whether you're interested in expanding your Refer A Friend, Influencer, Sweepstakes, or [Offer](doc:offer) program (also called Reward for Action) to new markets, we can make it happen with all your countries or locales managed within one program.
 
 ## Create Multi-language Experiences
 

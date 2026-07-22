@@ -9,7 +9,9 @@ Customer Appreciation campaigns let you send a reward to a customer as a simple 
 
 ## Overview
 
-A Customer Appreciation campaign uses the same **Program** structure as other Extole Offer campaigns, but is built around a template designed for direct reward sends. You can send rewards one at a time through **User Support**, or in bulk through **Batch Jobs**.
+A Customer Appreciation campaign is a specific application of the [Offer](doc:offer) program, not the same as the default Offer program. It uses the same **Program** structure and template family, but is built around a template designed for direct reward sends. You can send rewards one at a time through **User Support**, or in bulk through **Batch Jobs**.
+
+The difference is in what triggers the reward. A default Offer program — also called a [Reward for Action](doc:how-to-set-up-a-reward-for-action-offer-program) program — rewards participants for completing a designated action, such as taking a survey or downloading your app. A Customer Appreciation campaign instead sends a reward directly as a thank-you, with no referral, purchase, or completed action required.
 
 ## Prerequisites
 
@@ -58,6 +60,8 @@ A Customer Appreciation campaign uses the same **Program** structure as other Ex
 
 ## Related Resources
 
+- [Offer](doc:offer) — the parent program type (also called Reward for Action) that a Customer Appreciation campaign is built on.
+- [How to Set Up a Reward for Action Offer Program](doc:how-to-set-up-a-reward-for-action-offer-program) — set up a standard, action-based Offer program instead of a direct thank-you send.
 - Work with your CSM for reward template setup and gift card funding
 - See your Batch Jobs documentation for full upload template requirements
 
