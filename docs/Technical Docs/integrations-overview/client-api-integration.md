@@ -99,17 +99,18 @@ Do not use `/versions/`. If the API returns `stale_version` or `concurrent_updat
 
 ## Discover Reusable Components
 
-Find templates at execution time. Filter published components by source name, then confirm `program_label`, `types`, state, and ownership in the response.
+Find templates at execution time through the duplicatable-components endpoint. This endpoint returns components that the current client can duplicate, including components made available through subscriptions and grants.
 
 ```bash
-curl --get "$EXTOLE_API_HOST/v1/components" \
+curl --get "$EXTOLE_API_HOST/v1/components/duplicatable" \
   --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
   --data-urlencode "name=template_transacted_business_event" \
-  --data-urlencode "owner=EXTOLE" \
   --data-urlencode "version_state=PUBLISHED" \
-  --data-urlencode "show_all=true" \
-  --data-urlencode "include_subscribed=true"
+  --data-urlencode "having_any_types=business-event-v10.0" \
+  --data-urlencode "show_all=true"
 ```
+
+After the target component and socket exist, add `target_component_id` and `target_setting_name` to return only components compatible with that socket. Do not use the deprecated `target_socket_name` parameter.
 
 Use these reusable sources:
 
@@ -408,6 +409,8 @@ curl --request POST \
 Use the canonical v10 name that matches the business outcome. Examples include `converted`, `shipped`, `canceled`, `returned`, `account_opened`, and `application_approved`. Do not use a transport-specific name such as `partner_order_created` as the business-event component name.
 
 Create one business-event instance per canonical event. Do not create duplicate legacy controllers alongside the reusable component.
+
+Inspect the duplicated component's evaluated `journeyName` and `roleName` values. Do not hardcode one pair for every integration: these values depend on whether the event is associated with a campaign journey and on the surrounding role and journey hierarchy. Preserve the reusable template's defaults unless the integration contract requires different values, and record the published values during verification. The OpenCart integration publishes `journeyName` as `FRIEND` and `roleName` as `participant`; that result is verified for OpenCart, not a universal default for new integrations.
 
 ## Configure Input Event Rules
 
