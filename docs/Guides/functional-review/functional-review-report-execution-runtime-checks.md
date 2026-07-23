@@ -326,7 +326,7 @@ If any checkbox cannot be marked complete after all reports are terminal, the ou
 Also list these as **Execution Errors** (not campaign findings) when they occurred:
 
 - Input Events with Triggered Steps submitted with Count’s `report_type` (`t1owor6ia18bia3ur7zg`) or any type other than `INPUT_EVENTS_WITH_TRIGGERED_STEPS`
-- Conversion Audit submitted with over-broad `step_names` (non-reward click/share/landing steps included, or steps whose only reward actions are disabled)
+- Conversion Audit submitted with over-broad `step_names` (full business-event funnel dump; `canceled` / `shared` / other non-reward steps; steps whose only reward actions are disabled)
 - Input Records incomplete download when earning/reward-path event types were not present in downloaded rows (`Empty/Inconclusive` for those types)
 - Any proportion, threshold, or "no evidence" finding computed from fewer rows than `totalRows` on an aggregate/outcome report
 - Field-validation sampling that skipped an earning/reward-path event type or a graph-derived reward-path variant present in the report

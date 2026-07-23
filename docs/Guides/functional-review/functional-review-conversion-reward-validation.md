@@ -40,9 +40,18 @@ step_names=<step_names>
 
 ### Expect from graph — `step_names`
 
-`step_names` is a comma-separated string of the business-event steps that own an **enabled** reward action.
+`step_names` is a comma-separated string of the business-event steps that own an **enabled** reward action. It is **not** the campaign's full business-event / funnel list.
 
-**The test for including a step** — apply it to every business-event / targetable step: include the step **if and only if that step owns an earn-reward, qualify, or incentivize action in the campaign graph and that action is enabled** (`enabled: true` on the built action). The step's **name is irrelevant** — a `share_clicked` or landing step that owns an enabled reward action is **in**; a `shared` or `advocate_created` step with no reward action of its own is **out**, even when it sits on the path toward a reward. Include the step that actually owns the enabled reward action, not an upstream or "root" step just because a downstream step rewards.
+**The test for including a step** — apply it to every business-event / targetable step, one step at a time:
+
+1. Open that step's built `actions` (and, on V8, the equivalent controller actions).
+2. Find an action whose type is earn-reward, qualify, or incentivize.
+3. Confirm that action is enabled (`enabled: true`).
+4. Include the step **only if** steps 2 and 3 both pass. Otherwise exclude it.
+
+The step's **name is irrelevant**. A `share_clicked` or landing step that owns an enabled reward action is **in**. A `shared`, `canceled`, `advocate_created`, or other funnel step with **no** earn-reward / qualify / incentivize action of its own is **out**, even when it sits on the path toward a reward, cancels a prior outcome, or appears in Input Events Count. Include the step that actually owns the enabled reward action, not an upstream, cancel, or "root" step just because a downstream step rewards.
+
+**Before submit — justify each name.** For every value in `step_names`, you must be able to point to the specific enabled earn-reward / qualify / incentivize action on that step. If you cannot, remove the name. Do **not** submit a "complete funnel" list of business-event steps.
 
 **Disabled reward actions** — if the step owns an earn-reward, qualify, or incentivize action but that action is disabled (`enabled: false`), **do not** put the step in `step_names`. Record each such step in the review output (step name, action type, and that the reward is disabled) so a human can see rewards that are configured but off. Do not treat a disabled reward as an earning path for this report.
 
@@ -50,6 +59,8 @@ Sort the included names **alphabetically**, then join them with commas. Determin
 
 Do **not** include in `step_names`:
 
+- the full set of business-event / targetable steps on the campaign (that is the most common invalid pattern)
+- cancel / opt-out / revoke style steps such as `canceled` unless that step itself owns an enabled earn-reward / qualify / incentivize action (it almost never does)
 - raw inbound input event names, unless the same name is also an enabled reward-owning business-event step
 - reward event names
 - email event names
@@ -60,13 +71,17 @@ Do **not** include in `step_names`:
 - upstream / root steps that lead toward a reward but do not own an earn-reward, qualify, or incentivize action themselves (for example a `shared` or `advocate_created` step whose reward is granted by a later step)
 - steps whose only earn-reward / qualify / incentivize actions are disabled — list these in the review output instead
 
-Derive `step_names` from the campaign graph by reading each step's actions and keeping the steps that have at least one **enabled** earn-reward / qualify / incentivize action. Do **not** derive the set from Input Events Count, Conversion Audit output, high-volume event names, or the campaign's full business-event step list. On a V8/legacy campaign, apply the same test to the built controller/step configuration.
+Derive `step_names` **only** from the per-step action test above. Do **not** derive the set from Input Events Count, Conversion Audit output, high-volume event names, journey diagrams, or "every business event on the program." On a V8/legacy campaign, apply the same action+enabled test to the built controller/step configuration.
 
 Examples:
 
 ```text
 # Good — every step owns an enabled reward action, including a rewarded share step (alphabetical)
 step_names="converted,share_clicked,signed_up"
+
+# Bad — full funnel dump (HostGator-style). `canceled` and `shared` almost never own a reward action.
+# Do not copy every business-event step into Event Names / step_names.
+step_names="canceled,converted,share_clicked,shared,signed_up"
 
 # Bad — `advocate_created` and `shared` own no reward action; a later step grants the reward, not these
 step_names="advocate_created,converted,share_clicked,shared,signed_up"
@@ -78,7 +93,7 @@ step_names="converted,share_clicked,signed_up"   # invalid when signed_up's rewa
 step_names="converted,share_clicked"
 ```
 
-The good/bad split turns on the graph, not the name: `share_clicked` belongs **only** when this campaign configures an **enabled** reward action on it. Drop the step when it owns no reward action, or when every reward action on it is disabled.
+The good/bad split turns on the graph, not the name: `share_clicked` belongs **only** when this campaign configures an **enabled** reward action on it. Drop the step when it owns no reward action, or when every reward action on it is disabled. Names like `canceled` or `shared` are **not** shortcuts for inclusion.
 
 > ❗️ Do **not** use reward event names. Use the enabled reward-owning business-event step names from the campaign graph.
 >
@@ -86,15 +101,16 @@ The good/bad split turns on the graph, not the name: `share_clicked` belongs **o
 
 > ❗️ **Fail-closed — including a step that owns no enabled reward action is invalid execution.**
 >
-> If Conversion Audit was submitted with any step that owns no enabled earn-reward / qualify / incentivize action (for example an upstream `shared` or `advocate_created` step, a plain funnel step, or a step whose reward action is disabled), treat that run as **Invalid execution** for reward-path conclusions. Discard the Pending/Approved mix from that run for reward health, resubmit with only enabled reward-owning steps (alphabetical), and use the corrected report before judging outcomes.
+> If Conversion Audit was submitted with any step that owns no enabled earn-reward / qualify / incentivize action (for example `canceled`, an upstream `shared` or `advocate_created` step, a plain funnel step, or a step whose reward action is disabled), treat that run as **Invalid execution** for reward-path conclusions. Discard the Pending/Approved mix from that run for reward health, resubmit with only enabled reward-owning steps (alphabetical), and use the corrected report before judging outcomes.
 
 ### Submission guidance
 
 1. Inspect the campaign graph.
-2. For each business-event / targetable step, read its actions. Keep the step in `step_names` **only if** it has an earn-reward, qualify, or incentivize action with `enabled: true`. If it has such an action with `enabled: false`, omit it from `step_names` and record it in the review output as a disabled reward. Drop every other step regardless of name. Sort the kept step names alphabetically.
-3. Find the configured report type whose display name is `Conversion Audit`.
-4. Submit that configured report type using the required parameters above.
-5. Do not override `mappings`; rely on the configured report template mappings.
+2. For each business-event / targetable step, read its `actions`. Keep the step in `step_names` **only if** it has an earn-reward, qualify, or incentivize action with `enabled: true`. If it has such an action with `enabled: false`, omit it from `step_names` and record it in the review output as a disabled reward. Drop every other step — including `canceled`, `shared`, and other funnel names — regardless of how common they are on RAF programs. Sort the kept step names alphabetically.
+3. Self-check: for each kept name, note the enabled reward action that justified it. If any name lacks that justification, remove it before submit.
+4. Find the configured report type whose display name is `Conversion Audit`.
+5. Submit that configured report type using the required parameters above. The UI label may say **Event Names**; still pass only the justified `step_names` set — never the full business-event list.
+6. Do not override `mappings`; rely on the configured report template mappings.
 
 ### Flag if
 
