@@ -27,7 +27,7 @@ This integration is easy to install, requires no custom coding, and includes the
 
 Add your Extole team to both environments so that they can assist with testing and troubleshooting.
 
-### Whitelist your Alkami staging and production domains for your Extole Program
+### Whitelist your digital banking staging and production domains for your Extole Program
 
 Go to Tech Center > Domains > Branded Program Domain  and click the Edit icon.
 
