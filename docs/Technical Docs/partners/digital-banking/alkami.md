@@ -23,9 +23,9 @@ This integration is easy to install, requires no custom coding, and includes the
 
 ## Before you Start
 
-### Add your Extole team to your Alkami staging and production environments
+### Add your Extole team to your digital banking staging and production sites
 
-Add your Extole team to your Alkami environments so that they can assist with testing and troubleshooting.
+Add your Extole team to both environments so that they can assist with testing and troubleshooting.
 
 ### Whitelist your Alkami staging and production domains for your Extole Program
 
