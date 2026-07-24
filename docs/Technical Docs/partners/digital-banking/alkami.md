@@ -49,13 +49,13 @@ When a member taps on a navigation menu item or banner within in Alkami, they'll
 
 ### Step 2:  Set up the Alkami integration in the Extole platform
 
-1. Go to your Program dashboard and create [a promo link](https://docs.extole.com/docs/how-to-create-a-promo-link). Make sure to name your promo link appropriately (e.g `Alkami Embedded`) so that you can track downstream analytics in your Extole dashboard.
+1. Go to your Program dashboard and create <Anchor target="_blank" href="https://docs.extole.com/docs/how-to-create-a-promo-link">a promo link</Anchor>. Make sure to name your promo link appropriately (e.g `Alkami Embedded`) so that you can track downstream analytics in your Extole dashboard.
 2. Then, navigate to `Security` > `Create Access Token`. Create and copy your access token and store it in a safe place, as you will not be able to access it beyond this point.
 3. Lastly, navigate to `Partners` > `Alkami` and install the Alkami integration. Update the promotion URL with the promo link you created above and click`Apply Changes`.
 
 ### Step 3:  Set up a Standard SSO in the Alkami Platform<br />
 
-Please see pre-requisites before completing this step.
+Please see [prerequisites](<## Prerequisites>) before completing this step.
 
 1. In your your Staging Admin Alkami account, navigate to **Set-Up > Standard SSO > Create Default SSO**
 2. In the Default SSO configuration, update the `Name` to **ExtoleReferrals** and the `Description` to **Extole Referrals and Rewards SSO**. Then, grab your Bank Identifier and paste it in a separate document or your notes app.
