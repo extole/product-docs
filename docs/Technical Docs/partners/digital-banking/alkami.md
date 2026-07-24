@@ -26,13 +26,16 @@ This integration is easy to install, requires no custom coding, and includes the
 
 Add your Extole team to your Alkami environments so that they can assist with testing and troubleshooting.
 
-### Whitelist your Alkami domains
+### Whitelist your Alkami staging and production domains for your Extole Program
 
-Submit a request to [support@extole.com](mailto:support@extole.com) to update the Microsite and Promote Destination to allow-framing for your Alkami staging and production domains.
+Go to Tech Center > Domains > Branded Program Domain  and click the Edit icon.
+
+- Under **Production Sites Extole Should Support Requests From** - add the URL of your production digital banking site. Select "This domain and any subdomains" as the type.
+- Repeat the same process for **Testing Sites Extole Should Support Requests From&#x20;**&#x62;ut with URL of your staging digital banking site.
 
 ## Integration Set Up
 
-### Step 1: Configure your Extole creative
+### Step 1: Set-up referral microsite
 
 To configure your referral page, go the Extole campaign editor for your referral campaign, select the `Microsite` creative experience, and edit the copy and creative.
 
