@@ -19,7 +19,7 @@ This integration is easy to install, requires no custom coding, and includes the
 | Member ID                                                        | Your unique identifier for a member. In order to use this integration, this identifier must be available in Alkami. Your member identity value should **NOT** be the members SSN.                                                                                                                                                   |
 | An `Alkami SDK License` with `Standard SSO` enabled              | You must have an Alkami SDK license to use this integration, with the Standard SSO feature enabled.<br /><br />Alkami's Standard SSO feature is in beta. If you do not have access, open a “Feature Request” ticket with Alkami to get access to the Standard SSO Admin Widget and provide your Extole team with the ticket number. |
 | Branded Program Domain                                           | You must create and brand your referral subdomain (share.YourCompany.com). Instructions <Anchor target="_blank" href="https://docs.extole.com/docs/extole-dns-requirements#create-cnames-for-your-domains">here</Anchor>.                                                                                                           |
-| Alkami Integration Component installed in Extole Partners Center | If you do not see the Alkami integration in Extole's Partner center, submit a request to support\@extole.com.                                                                                                                                                                                                                       |
+| Alkami Integration Component installed in Extole Partners Center | If you do not see the Alkami integration in Extole's Partner center, submit a request to [support@extole.com](mailto:support@extole.com).                                                                                                                                                                                           |
 
 ## Before you Start
 
@@ -56,7 +56,7 @@ When a member taps on a navigation menu item or banner within in Alkami, they'll
 
 ### Step 3:  Set up a Standard SSO in the Alkami Platform<br />
 
-Please see [prerequisites](<## Prerequisites>) before completing this step.
+Please see the [prerequisites](https://docs.extole.com/docs/alkami#prerequisites) before completing this step.
 
 1. In your your Staging Admin Alkami account, navigate to **Set-Up > Standard SSO > Create Default SSO**
 2. In the Default SSO configuration, update the `Name` to **ExtoleReferrals** and the `Description` to **Extole Referrals and Rewards SSO**. Then, grab your Bank Identifier and paste it in a separate document or your notes app.
