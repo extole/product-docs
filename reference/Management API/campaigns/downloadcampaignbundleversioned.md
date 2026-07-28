@@ -1,6 +1,6 @@
 ---
 api:
   file: management.json
-  operationId: getVersion
+  operationId: downloadCampaignBundleVersioned
 hidden: false
 ---
