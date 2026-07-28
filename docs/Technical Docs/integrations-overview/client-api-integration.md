@@ -60,8 +60,8 @@ Collect these values before calling the API:
 | Value | Requirement |
 | :---- | :---------- |
 | Client API access token | Server-side token authorized to manage campaigns and components. |
-| Management API host | Use `https://api.extole.io` for production campaign and component calls. |
-| Event API host | Use `https://events.extole.io` for production event submission. |
+| Management API host | The production host for campaign and component calls, held in `EXTOLE_API_HOST`. |
+| Event API host | The production host for event submission, held in `EXTOLE_EVENT_API_HOST`. |
 | Partner platform and version | Determines event hooks, payloads, and authentication options. |
 | Integration name and component name | Human-readable campaign name and stable lowercase component name. |
 | Program label | Unique, stable label used to target events to the integration. |
@@ -71,6 +71,13 @@ Collect these values before calling the API:
 | Partner configuration | Store URL, account identifier, endpoint, status mapping, or equivalent settings. |
 | Outbound requirements | Destination, trigger, authentication, retry contract, and owning program, when outbound behavior is required. |
 | Publication approval | Confirmation that the target client and environment may be changed. |
+
+Management calls and event submission use different hosts. Every example in this guide reads them from these variables:
+
+```bash
+EXTOLE_API_HOST=https://api.extole.io
+EXTOLE_EVENT_API_HOST=https://events.extole.io
+```
 
 Use separate credentials for integration management and event ingestion. The partner application must not receive the Client API management token.
 
