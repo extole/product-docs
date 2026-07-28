@@ -34,18 +34,48 @@ When a ticket is in scope, keep the ticket key **inside** the prefixed name: `v4
 
 ## Verify
 
-After pushing the branch:
+After pushing the branch, confirm the mirror through the API — it is definitive and takes a second:
 
-1. Open **https://docs.extole.com/#/branches** — the branch should be listed with a preview link.
-2. Open the preview and confirm the changed pages render (headings/TOC, nav placement from `_order.yaml`, images).
+```bash
+curl -s -H "Authorization: Bearer $README_API_KEY" \
+  "https://api.readme.com/v2/branches?prefix=v4.0.0" | jq '.data[].name'
+```
+
+The `prefix` parameter is required. **A plain `GET /v2/branches` lists only the handful of ReadMe
+*versions* (`1.1.0`, `2.0.0`, `2.1.0`, `4.0.0`) and never lists mirrored branches** — checking
+without `prefix` shows nothing and looks exactly like a broken sync.
+
+ReadMe drops the leading `v`, so git `v4.0.0_my-slug` appears as `4.0.0_my-slug`. Either spelling
+works when addressing the branch in a later API call.
+
+Then:
+
+1. Confirm the changed page is on the branch and not yet on the default branch:
+   `GET /v2/branches/v4.0.0_<slug>/guides/<page-slug>` returns 200, while
+   `GET /v2/branches/4.0.0/guides/<page-slug>` returns 404 for a new page.
+2. Open the branch in the ReadMe UI and confirm the pages render (headings/TOC, nav placement from
+   `_order.yaml`, images).
 3. Merge into `v4.0.0` to publish; delete the branch after merge.
 
-If the branch does **not** appear, the name almost certainly doesn't match `v4.0.0_<slug>` (most common cause). Rename by pushing the same commit under a matching name and repointing the PR:
+Mirroring takes up to about a minute after the push. If the branch still does not appear **with the
+`prefix` query**, the name almost certainly doesn't match `v4.0.0_<slug>`. Rename by pushing the
+same commit under a matching name and repointing the PR:
 
 ```bash
 git push origin <current-head-sha>:refs/heads/v4.0.0_<slug>
 gh pr create --base v4.0.0 --head v4.0.0_<slug> ...
 ```
+
+## Using the branch in the assistants
+
+A mirrored branch can be used before it is merged. `chat.extole.com` takes the docs branch as
+`?docsBranch=v4.0.0_<slug>`, alongside `?branch=` for a catalog branch, and both resolve
+independently in the same conversation. Give the catalog branch the same name to keep one name in
+your head.
+
+One limit to plan for: ReadMe does not full-text index branch content, so a page that exists only on
+a branch is found by the words in its **title and slug**, not its body. Title a new page after the
+question it answers, or the assistant may not surface it until the branch merges.
 
 ## Scope
 
