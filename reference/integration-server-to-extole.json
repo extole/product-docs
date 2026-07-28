@@ -2236,7 +2236,7 @@
         "type": "object"
       },
       "IdentityKey": {
-        "description": "Name of the identity key used to look up or create this person.",
+        "description": "Name of the identity key this client uses to identify persons, for example `email` or `phone`.",
         "properties": {
           "name": {
             "type": "string"
@@ -2435,6 +2435,23 @@
           },
           "geoIp": {
             "$ref": "#/components/schemas/GeoIp"
+          }
+        },
+        "type": "object"
+      },
+      "OtherPersonResponse": {
+        "description": "The other party in a relationship, identified by this client's identity key.",
+        "properties": {
+          "id": {
+            "description": "Extole-assigned unique identifier for this person. Distinct persons always have distinct ids, even when they share an identity key value or have none.",
+            "type": "string"
+          },
+          "identity_key": {
+            "$ref": "#/components/schemas/IdentityKey"
+          },
+          "identity_key_value": {
+            "description": "Value of this person's identity key, suitable for display. Absent for persons who have not been identified, which is normal for friends who only browsed a share link.",
+            "type": "string"
           }
         },
         "type": "object"
@@ -2952,6 +2969,9 @@
             ],
             "type": "string"
           },
+          "other_person": {
+            "$ref": "#/components/schemas/OtherPersonResponse"
+          },
           "other_person_id": {
             "description": "Extole person id of the other party in the relationship.",
             "type": "string"
@@ -2976,6 +2996,7 @@
           "data",
           "id",
           "my_role",
+          "other_person",
           "other_person_id",
           "program",
           "root_event_id",
@@ -10010,7 +10031,7 @@
     },
     "/v5/persons/{person_id}/relationships": {
       "get": {
-        "description": "Returns the referral relationships for the specified person, showing advocate-friend connections created through campaign participation.",
+        "description": "Returns the referral relationships for the specified person, showing advocate-friend connections created through campaign participation. Each entry carries the requested person's `my_role` (`ADVOCATE` or `FRIEND`) and the `other_person_id` on the other side, rather than being split into fixed advocate and friend collections.\n\nEach entry also carries `other_person`, resolving that person to this client's `identity_key` and `identity_key_value`, so a whole network can be labelled from one request rather than one request per related person. A relationship always names another person, so `other_person` is always present.\n\nRelationships are de-duplicated by identity, keeping the most recent one per related person, unless `include_duplicate_identities` is set. When collapsing persons yourself, key on `identity_key_value`, falling back to `other_person_id` when the person has no identity key value yet. Never key on `email`: clients whose identity key is not `email` routinely have many distinct persons sharing an email or having none, so collapsing on email under-reports the network.",
         "operationId": "listPersonRelationships",
         "parameters": [
           {
