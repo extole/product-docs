@@ -9,7 +9,7 @@ The OpenCart integration sends order lifecycle events from a server-side OpenCar
 
 This integration is inbound-only. It does not create OpenCart coupons and does not include a reward supplier, reward webhook, webhook client key, or reward-supplier socket.
 
-The integration uses OpenCart's publisher-subscriber event system. Read the [OpenCart Events documentation](https://docs.opencart.com/developer-guide/events) before implementing the extension, and verify event routes and listener signatures against the installed OpenCart version.
+The integration uses OpenCart's publisher-subscriber event system. Read the <Anchor label="OpenCart Events documentation" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events documentation</Anchor> before implementing the extension, and verify event routes and listener signatures against the installed OpenCart version.
 
 ## Current Component Structure
 
@@ -418,4 +418,4 @@ Disable order-created emission from `addOrder`. Configure qualifying converted s
 ## Related Documentation
 
 - [Create an Integration With the Client API](doc:client-api-integration)
-- [OpenCart Events](https://docs.opencart.com/developer-guide/events)
+- <Anchor label="OpenCart Events" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events</Anchor>

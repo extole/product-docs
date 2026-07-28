@@ -40,6 +40,7 @@ Professional and informative, optimistic and encouraging, confident. Client-cent
 ## Links & images
 
 - **Internal links:** ReadMe `doc:slug` form (286 occ) — not relative `.md` paths (0 in corpus). Absolute `https://docs.extole.com/...` links are a weaker second choice.
+- **External links open in a new window.** Any link to a destination outside docs.extole.com — a partner's developer documentation, `my.extole.com`, a marketplace listing — uses ReadMe's anchor widget with the attribute: `<Anchor label="OpenCart Events" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events</Anchor>`. This keeps the reader's place in the docs. The pattern is established on the partner and integration pages (33 occ across 8 files, including `shopify-hydrogen`, `alkami`, `webhook-creation`); plain Markdown external links elsewhere in the corpus predate the rule, so convert the ones you touch rather than sweeping the corpus. A raw `<a href="…" target="_blank">` is acceptable inside an existing HTML block, with `rel="noopener noreferrer"`. A host or endpoint shown as a value in backticks (`https://events.extole.io`) is not a link and takes no attribute.
 - **Images:** Markdown `![]()` (561 occ) — not `<img>`. ⚑ Beware: ~102 pages still reference `intercom-attachments` image URLs with `expires=` params (migration artifact, rot risk) — don't add new ones; prefer repo-hosted or ReadMe-hosted assets.
 
 ## Frontmatter
