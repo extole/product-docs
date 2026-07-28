@@ -1,6 +1,6 @@
 ---
 api:
   file: management.json
-  operationId: getTemplateCampaigns
+  operationId: getReportTypeSchema
 hidden: false
 ---

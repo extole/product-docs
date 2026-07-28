@@ -207,6 +207,8 @@ Id=event.id;Client Id=event.clientId;Event Time=event.eventTime;Person Id=person
 
 Input Records validates the raw event payload sent by the client. Confirm that data fields required by the flow are present and compatible with flow-builder rules.
 
+Input Records takes no `campaign_id`, so it returns **client-wide** rows across every program the client runs. Apply the [Campaign scope boundary](doc:functional-review-report-execution-runtime-checks) before drawing conclusions: only events in the graph-configured trigger set are in scope for this campaign, and another program's rows are context only — never a finding about this campaign — even when they share an event name.
+
 ### Flag if
 
 Required data fields missing on samples for events that should carry them, or present but malformed/incompatible.

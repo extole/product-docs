@@ -90,7 +90,7 @@ For each report/source section, complete this decision path:
    - required parameters used exactly as documented
    - required mappings/filters used exactly as documented
    - required graph-derived values supplied (`step_names`, `triggerEventNames`, `eventNames`, campaign id, program label, container)
-   - submitted `report_type` matches the documented type for that queue item (Triggered Steps must be `INPUT_EVENTS_WITH_TRIGGERED_STEPS`, never Count’s `t1owor6ia18bia3ur7zg`; Conversion Audit `step_names` must be reward-capable only)
+   - submitted `report_type` matches the documented type for that queue item (Triggered Steps must be `INPUT_EVENTS_WITH_TRIGGERED_STEPS`, never Count’s `t1owor6ia18bia3ur7zg`; Conversion Audit `step_names` must be enabled reward-owning steps only)
    - status check completed
    - completed report downloaded
    - required headers/fields present
@@ -188,6 +188,22 @@ Only reports explicitly listed in these Functional Review docs may be run. Each 
 - [Entities and Context Available in Extole's Configurable Reporting System](doc:entities-and-context-available-in-extole-s-configurable-reporting-system)
 - [Custom Data Queries Using Extole Reports](doc:custom-data-queries-using-extole-reports)
 
+### Campaign scope boundary
+
+The scope of the review is the set of event names the **campaign graph configures as this program's triggers** — the `triggerEventNames` / `eventNames` on the manifest above. That configured set is the boundary even when the campaign has little or no traffic yet.
+
+Some reports are **client-wide, not campaign-scoped**, and return traffic from every program the client runs:
+
+- **Input Records** takes no `campaign_id` — it is filtered only by `event_names`.
+- **Input Events Count** with `event_names=All` returns site-wide rows.
+
+Apply the boundary before drawing any conclusion about this campaign:
+
+- An event, label, or placement **outside** the graph-configured trigger set is **client-wide context — out of scope, never a Watch or Issue about this campaign** — no matter how much volume it has (for example affiliate traffic or another program's placement).
+- Confirm that a configured event actually fed **this** campaign using **Input Events with Triggered Steps** (campaign-scoped): it shows which configured events fired this campaign's steps, independent of what the client sends in the raw payload.
+- Row-level `labels` / `target` on raw payloads are **client-optional and often absent**, so use them only as a secondary confirmation when present — never as the primary attribution.
+- Do **not** attribute another program's traffic to this campaign just because it shares an event name. A shared name is in scope only when triggered-step evidence ties it to this campaign.
+
 ## Report reuse window
 
 Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last **2 days**, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
@@ -282,7 +298,7 @@ Before producing output, verify:
 - Event Data Rule Alignment attempted (after Input Records)
 - Partner event key consistency checked (config only, Event Data Rule Alignment)
 - Profile identity / unique-key hygiene checked (built campaign `key_type = UNIQUE_PARTNER_EVENT_KEY`)
-- Conversion Audit attempted with reward-capable `step_names` only (no pure click/share/landing steps unless they directly grant or qualify a reward)
+- Conversion Audit attempted with enabled reward-owning `step_names` only (no pure click/share/landing steps unless they directly grant or qualify a reward with an enabled action; disabled reward actions omitted from `step_names` and listed in the review output)
 - CONFIGURABLE_REWARDS attempted
 - TOP_PROMOTION_SOURCES_V2 attempted
 - WEBHOOK_EVENTS attempted (when webhooks configured)
@@ -310,7 +326,7 @@ If any checkbox cannot be marked complete after all reports are terminal, the ou
 Also list these as **Execution Errors** (not campaign findings) when they occurred:
 
 - Input Events with Triggered Steps submitted with Count’s `report_type` (`t1owor6ia18bia3ur7zg`) or any type other than `INPUT_EVENTS_WITH_TRIGGERED_STEPS`
-- Conversion Audit submitted with over-broad `step_names` (non-reward click/share/landing steps included)
+- Conversion Audit submitted with over-broad `step_names` (full business-event funnel dump; `canceled` / `shared` / other non-reward steps; steps whose only reward actions are disabled)
 - Input Records incomplete download when earning/reward-path event types were not present in downloaded rows (`Empty/Inconclusive` for those types)
 - Any proportion, threshold, or "no evidence" finding computed from fewer rows than `totalRows` on an aggregate/outcome report
 - Field-validation sampling that skipped an earning/reward-path event type or a graph-derived reward-path variant present in the report

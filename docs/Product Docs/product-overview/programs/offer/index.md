@@ -5,7 +5,7 @@ excerpt: "Drive action by rewarding customers who complete a specific task in a 
 
 ## Overview
 
-The Offer program provides a way to boost your connection with existing customers by encouraging them to take actions that matter to your brand. If you know your best customers try new product offerings, use your mobile app, or leave ratings and reviews, then why not encourage the rest of your customers to do the same? Targeting an Offer program to customers who have engaged with your brand is a great way to get them to take the “next step” and feel appreciated for driving meaningful outcomes for your business.
+The Offer program — also commonly called the **Reward for Action** program, because it rewards participants for completing a designated action — provides a way to boost your connection with existing customers by encouraging them to take actions that matter to your brand. If you know your best customers try new product offerings, use your mobile app, or leave ratings and reviews, then why not encourage the rest of your customers to do the same? Targeting an Offer program to customers who have engaged with your brand is a great way to get them to take the “next step” and feel appreciated for driving meaningful outcomes for your business.
 
 Outcomes are essential points of the customer journey that indicate that someone is a healthy, engaged customer with the potential for a high CLTV, such as:
 
@@ -45,3 +45,8 @@ Extole performance dashboards provide you with a clear view of how your Offer pr
 * Rewards earned
 
 Our Reports also give you full access to your program data and allow you to gain deeper insights into your participants and overall performance. For example, you could run an Email Stats report to assess the performance of your promotional email.
+
+## Related
+
+- [How to Set Up a Reward for Action Offer Program](doc:how-to-set-up-a-reward-for-action-offer-program) — step-by-step setup for an Offer program (Reward for Action and Offer are two names for the same program type and template).
+- [Customer Appreciation Program](doc:customer-appreciation-program) — a specific application of the Offer program that sends a reward as a simple thank-you, rather than in exchange for a completed action.

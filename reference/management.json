@@ -5091,6 +5091,16 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
+      "report_type_schema_not_supported": {
+        "summary": "report_type_schema_not_supported",
+        "value": {
+          "code": "report_type_schema_not_supported",
+          "http_status_code": 400,
+          "message": "Schema is not supported for this report type",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "report_type_update_invalid": {
         "summary": "report_type_update_invalid",
         "value": {
@@ -5841,6 +5851,16 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
+      "start_date_missing": {
+        "summary": "start_date_missing",
+        "value": {
+          "code": "start_date_missing",
+          "http_status_code": 400,
+          "message": "Start date is required when a pause, end, or stop date is set",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "step_data_default_value_expression_length_out_of_range": {
         "summary": "step_data_default_value_expression_length_out_of_range",
         "value": {
@@ -6507,6 +6527,7 @@
                 "CLIENT_ADMIN",
                 "CLIENT_REPORT_DOWNLOAD",
                 "CLIENT_SUPERUSER",
+                "LOCAL_PROFILE",
                 "ONE_TIME",
                 "PASSWORD_RESET",
                 "UPDATE_PROFILE",
@@ -12328,6 +12349,7 @@
                     "CLIENT_ADMIN",
                     "CLIENT_REPORT_DOWNLOAD",
                     "CLIENT_SUPERUSER",
+                    "LOCAL_PROFILE",
                     "ONE_TIME",
                     "PASSWORD_RESET",
                     "UPDATE_PROFILE",
@@ -12780,6 +12802,7 @@
                   "enum": [
                     "CANCELED",
                     "EARNED",
+                    "EXPIRED",
                     "FAILED",
                     "FULFILLED",
                     "REDEEMED",
@@ -13628,6 +13651,7 @@
                   "enum": [
                     "CANCELED",
                     "EARNED",
+                    "EXPIRED",
                     "FAILED",
                     "FULFILLED",
                     "REDEEMED",
@@ -17417,6 +17441,7 @@
                 "enum": [
                   "CANCELED",
                   "EARNED",
+                  "EXPIRED",
                   "FAILED",
                   "FULFILLED",
                   "REDEEMED",
@@ -24146,6 +24171,7 @@
                     "CLIENT_ADMIN",
                     "CLIENT_REPORT_DOWNLOAD",
                     "CLIENT_SUPERUSER",
+                    "LOCAL_PROFILE",
                     "ONE_TIME",
                     "PASSWORD_RESET",
                     "UPDATE_PROFILE",
@@ -29001,6 +29027,7 @@
                     "enum": [
                       "CANCELED",
                       "EARNED",
+                      "EXPIRED",
                       "FAILED",
                       "FULFILLED",
                       "REDEEMED",
@@ -29169,6 +29196,7 @@
                     "enum": [
                       "CANCELED",
                       "EARNED",
+                      "EXPIRED",
                       "FAILED",
                       "FULFILLED",
                       "REDEEMED",
@@ -41495,6 +41523,7 @@
               "enum": [
                 "CANCELED",
                 "EARNED",
+                "EXPIRED",
                 "FAILED",
                 "FULFILLED",
                 "REDEEMED",
@@ -47199,6 +47228,7 @@
                 "CLIENT_ADMIN",
                 "CLIENT_REPORT_DOWNLOAD",
                 "CLIENT_SUPERUSER",
+                "LOCAL_PROFILE",
                 "ONE_TIME",
                 "PASSWORD_RESET",
                 "UPDATE_PROFILE",
@@ -53833,6 +53863,27 @@
         },
         "type": "object"
       },
+      "ReportTypeSchemaResponse": {
+        "properties": {
+          "columns": {
+            "description": "Columns the report type produces, in output order.",
+            "items": {
+              "$ref": "#/components/schemas/ReportTypeColumnResponse"
+            },
+            "type": "array"
+          },
+          "report_type_id": {
+            "description": "Id of the report type this schema belongs to. Pass it to `GET /v6/report-types/{id}/schema` to fetch this schema on its own.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "columns",
+          "report_type_id"
+        ],
+        "type": "object"
+      },
       "ReportTypeTagRequest": {
         "properties": {
           "name": {
@@ -56765,6 +56816,7 @@
               "enum": [
                 "CANCELED",
                 "EARNED",
+                "EXPIRED",
                 "FAILED",
                 "FULFILLED",
                 "REDEEMED",
@@ -57135,6 +57187,7 @@
                 "enum": [
                   "CANCELED",
                   "EARNED",
+                  "EXPIRED",
                   "FAILED",
                   "FULFILLED",
                   "REDEEMED",
@@ -59285,6 +59338,56 @@
         ],
         "type": "object"
       },
+      "StartAudienceOperationTaskRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TaskRequestBase"
+          },
+          {
+            "properties": {
+              "task_type": {
+                "enum": [
+                  "START_AUDIENCE_OPERATION"
+                ],
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "required": [
+          "order",
+          "task_type"
+        ],
+        "type": "object"
+      },
+      "StartAudienceOperationTaskResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TaskResponseBase"
+          },
+          {
+            "properties": {
+              "id": {
+                "readOnly": true,
+                "type": "string"
+              },
+              "task_type": {
+                "enum": [
+                  "START_AUDIENCE_OPERATION"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "required": [
+          "id",
+          "order",
+          "task_type"
+        ],
+        "type": "object"
+      },
       "StartBatchJobTaskRequest": {
         "allOf": [
           {
@@ -60760,6 +60863,7 @@
         "discriminator": {
           "mapping": {
             "FILE_HEADER_VALIDATOR": "#/components/schemas/FileHeaderValidatorTaskRequest",
+            "START_AUDIENCE_OPERATION": "#/components/schemas/StartAudienceOperationTaskRequest",
             "START_BATCH_JOB": "#/components/schemas/StartBatchJobTaskRequest"
           },
           "propertyName": "task_type"
@@ -60767,6 +60871,9 @@
         "oneOf": [
           {
             "$ref": "#/components/schemas/FileHeaderValidatorTaskRequest"
+          },
+          {
+            "$ref": "#/components/schemas/StartAudienceOperationTaskRequest"
           },
           {
             "$ref": "#/components/schemas/StartBatchJobTaskRequest"
@@ -60786,6 +60893,7 @@
           "task_type": {
             "enum": [
               "FILE_HEADER_VALIDATOR",
+              "START_AUDIENCE_OPERATION",
               "START_BATCH_JOB"
             ],
             "type": "string"
@@ -60797,6 +60905,7 @@
         "discriminator": {
           "mapping": {
             "FILE_HEADER_VALIDATOR": "#/components/schemas/FileHeaderValidatorTaskResponse",
+            "START_AUDIENCE_OPERATION": "#/components/schemas/StartAudienceOperationTaskResponse",
             "START_BATCH_JOB": "#/components/schemas/StartBatchJobTaskResponse"
           },
           "propertyName": "task_type"
@@ -60804,6 +60913,9 @@
         "oneOf": [
           {
             "$ref": "#/components/schemas/FileHeaderValidatorTaskResponse"
+          },
+          {
+            "$ref": "#/components/schemas/StartAudienceOperationTaskResponse"
           },
           {
             "$ref": "#/components/schemas/StartBatchJobTaskResponse"
@@ -60828,6 +60940,7 @@
           "task_type": {
             "enum": [
               "FILE_HEADER_VALIDATOR",
+              "START_AUDIENCE_OPERATION",
               "START_BATCH_JOB"
             ],
             "type": "string"
@@ -98701,6 +98814,138 @@
         "x-extole-visibility": "visible"
       }
     },
+    "/v6/report-types/schemas": {
+      "get": {
+        "description": "Returns the schema for every report type visible to the calling client that produces preconfigured columns. Each entry pairs a `report_type_id` with the ordered `columns` that report type produces. Report types that do not support a schema are omitted from the list. Use this to discover output shapes across report types in one call instead of requesting each schema by id.",
+        "operationId": "listReportTypeSchemas",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ReportTypeSchemaResponse"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Schemas of the visible report types that produce columns, one entry per report type."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "payment_required": {
+                    "$ref": "#/components/examples/payment_required"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Payment Required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unsupported_media_type": {
+                    "$ref": "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Unsupported Media Type"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "too_many_requests": {
+                    "$ref": "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "summary": "List report type schemas",
+        "tags": [
+          "Report Types"
+        ],
+        "x-extole-bundle": "management",
+        "x-extole-visibility": "visible"
+      }
+    },
     "/v6/report-types/{id}": {
       "get": {
         "description": "Returns the full report-type record for the supplied id, including its display name, description, declared `parameters`, supported `formats`, allowed `scopes`, visibility, and associated `tags`.",
@@ -98748,6 +98993,9 @@
                   },
                   "report_type_missing": {
                     "$ref": "#/components/examples/report_type_missing"
+                  },
+                  "report_type_schema_not_supported": {
+                    "$ref": "#/components/examples/report_type_schema_not_supported"
                   }
                 },
                 "schema": {
@@ -99204,6 +99452,152 @@
           }
         },
         "summary": "Delete a report type",
+        "tags": [
+          "Report Types"
+        ],
+        "x-extole-bundle": "management",
+        "x-extole-visibility": "visible"
+      }
+    },
+    "/v6/report-types/{id}/schema": {
+      "get": {
+        "description": "Returns the schema a report type produces - the ordered `columns` that appear in its output. For report types with preconfigured columns, these are the report type's preview columns. Use this to discover a report type's output shape without running the report.",
+        "operationId": "getReportTypeSchema",
+        "parameters": [
+          {
+            "description": "The Extole unique report type identifier.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportTypeSchemaResponse"
+                }
+              }
+            },
+            "description": "Schema the report type produces, as an ordered, non-empty list of output columns."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "report_type_missing": {
+                    "$ref": "#/components/examples/report_type_missing"
+                  },
+                  "report_type_schema_not_supported": {
+                    "$ref": "#/components/examples/report_type_schema_not_supported"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), or the report type exists but does not support a schema because it has no preview columns (`report_type_schema_not_supported`) - inspect the response `code` field for the specific error."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "payment_required": {
+                    "$ref": "#/components/examples/payment_required"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Payment Required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "report_type_not_found": {
+                    "$ref": "#/components/examples/report_type_not_found"
+                  }
+                }
+              }
+            },
+            "description": "Report type was not found. The supplied id does not match any report type accessible to the calling client."
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unsupported_media_type": {
+                    "$ref": "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Unsupported Media Type"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "too_many_requests": {
+                    "$ref": "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "summary": "Get report type schema",
         "tags": [
           "Report Types"
         ],
@@ -108365,6 +108759,9 @@
                   "start_date_after_stop_date": {
                     "$ref": "#/components/examples/start_date_after_stop_date"
                   },
+                  "start_date_missing": {
+                    "$ref": "#/components/examples/start_date_missing"
+                  },
                   "unlock_missing_lock_types": {
                     "$ref": "#/components/examples/unlock_missing_lock_types"
                   }
@@ -108748,6 +109145,9 @@
                   },
                   "start_date_after_stop_date": {
                     "$ref": "#/components/examples/start_date_after_stop_date"
+                  },
+                  "start_date_missing": {
+                    "$ref": "#/components/examples/start_date_missing"
                   },
                   "unlock_missing_lock_types": {
                     "$ref": "#/components/examples/unlock_missing_lock_types"
@@ -109144,6 +109544,9 @@
                   },
                   "start_date_after_stop_date": {
                     "$ref": "#/components/examples/start_date_after_stop_date"
+                  },
+                  "start_date_missing": {
+                    "$ref": "#/components/examples/start_date_missing"
                   },
                   "unlock_missing_lock_types": {
                     "$ref": "#/components/examples/unlock_missing_lock_types"
@@ -110635,6 +111038,9 @@
                   "start_date_after_stop_date": {
                     "$ref": "#/components/examples/start_date_after_stop_date"
                   },
+                  "start_date_missing": {
+                    "$ref": "#/components/examples/start_date_missing"
+                  },
                   "unlock_missing_lock_types": {
                     "$ref": "#/components/examples/unlock_missing_lock_types"
                   }
@@ -111082,6 +111488,9 @@
                   "start_date_after_stop_date": {
                     "$ref": "#/components/examples/start_date_after_stop_date"
                   },
+                  "start_date_missing": {
+                    "$ref": "#/components/examples/start_date_missing"
+                  },
                   "unlock_missing_lock_types": {
                     "$ref": "#/components/examples/unlock_missing_lock_types"
                   }
@@ -111325,6 +111734,9 @@
                   },
                   "start_date_after_stop_date": {
                     "$ref": "#/components/examples/start_date_after_stop_date"
+                  },
+                  "start_date_missing": {
+                    "$ref": "#/components/examples/start_date_missing"
                   },
                   "unlock_missing_lock_types": {
                     "$ref": "#/components/examples/unlock_missing_lock_types"
@@ -116517,138 +116929,6 @@
         "summary": "Delete a reward supplier",
         "tags": [
           "Reward Suppliers"
-        ],
-        "x-extole-bundle": "management",
-        "x-extole-visibility": "visible"
-      }
-    },
-    "/v2/campaigns/template": {
-      "get": {
-        "description": "Returns the shared template (default) campaigns the client can duplicate to create a new campaign or program. Preferred source when creating from a template or the Extole defaults. Use POST /v2/campaigns/{campaignId}/duplicate to create a copy.",
-        "operationId": "getTemplateCampaigns",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CampaignResponse"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful response"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "examples": {
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "examples": {
-                  "payment_required": {
-                    "$ref": "#/components/examples/payment_required"
-                  }
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "415": {
-            "content": {
-              "application/json": {
-                "examples": {
-                  "unsupported_media_type": {
-                    "$ref": "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description": "Unsupported Media Type"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "examples": {
-                  "too_many_requests": {
-                    "$ref": "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description": "Too Many Requests"
-          }
-        },
-        "summary": "List template campaigns",
-        "tags": [
-          "Campaigns"
         ],
         "x-extole-bundle": "management",
         "x-extole-visibility": "visible"

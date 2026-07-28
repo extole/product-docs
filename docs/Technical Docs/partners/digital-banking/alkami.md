@@ -14,25 +14,31 @@ This integration is easy to install, requires no custom coding, and includes the
 
 ## Prerequisites
 
-| Requirement                                         | Description                                                                                                                                                                                                                                                                                                                         |    |
-| :-------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :- |
-| Member ID                                           | Your unique identifier for a member. In order to use this integration, this identifier must be available in Alkami. Your member identity value should **NOT** be the members SSN.                                                                                                                                                   |    |
-| An `Alkami SDK License` with `Standard SSO` enabled | You must have an Alkami SDK license to use this integration, with the Standard SSO feature enabled.<br /><br />Alkami's Standard SSO feature is in beta. If you do not have access, open a “Feature Request” ticket with Alkami to get access to the Standard SSO Admin Widget and provide your Extole team with the ticket number. |    |
-| Branded Program Domain                              | You must create and brand your referral subdomain (share.YourCompany.com). Instructions <Anchor target="_blank" href="https://docs.extole.com/docs/extole-dns-requirements#create-cnames-for-your-domains">here</Anchor>.                                                                                                           |    |
+| Requirement                                                      | Description                                                                                                                                                                                                                                                                                                                         |
+| :--------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Member ID                                                        | Your unique identifier for a member. In order to use this integration, this identifier must be available in Alkami. Your member identity value should **NOT** be the members SSN.                                                                                                                                                   |
+| An `Alkami SDK License` with `Standard SSO` enabled              | You must have an Alkami SDK license to use this integration, with the Standard SSO feature enabled.<br /><br />Alkami's Standard SSO feature is in beta. If you do not have access, open a “Feature Request” ticket with Alkami to get access to the Standard SSO Admin Widget and provide your Extole team with the ticket number. |
+| Branded Program Domain                                           | You must create and brand your referral subdomain (share.YourCompany.com). Instructions <Anchor target="_blank" href="https://docs.extole.com/docs/extole-dns-requirements#create-cnames-for-your-domains">here</Anchor>.                                                                                                           |
+| Alkami Integration Component installed in Extole Partners Center | If you do not see the Alkami integration in Extole's Partner center, submit a request to [support@extole.com](mailto:support@extole.com).                                                                                                                                                                                           |
 
 ## Before you Start
 
-### Add your Extole team to your Alkami staging and production environments
+### Add your Extole team to your digital banking staging and production sites
 
-Add your Extole team to your Alkami environments so that they can assist with testing and troubleshooting.
+Add your Extole team to both environments so that they can assist with testing and troubleshooting.
 
-### Whitelist your Alkami domains
+### Whitelist your digital banking staging and production domains for your Extole Program
 
-Submit a request to [support@extole.com](mailto:support@extole.com) to update the Microsite and Promote Destination to allow-framing for your Alkami staging and production domains.
+Go to Tech Center > Domains > Branded Program Domain  and click the Edit icon.
+
+- Under **Production Sites Extole Should Support Requests From** - add the URL of your production digital banking site. Select "This domain and any subdomains" as the type.
+- Repeat the same process for **Testing Sites Extole Should Support Requests From&#x20;**&#x62;ut with URL of your staging digital banking site.
 
 ## Integration Set Up
 
-### Step 1: Configure your Extole creative
+<br />
+
+### Step 1: Set-up referral microsite
 
 To configure your referral page, go the Extole campaign editor for your referral campaign, select the `Microsite` creative experience, and edit the copy and creative.
 
@@ -42,9 +48,55 @@ To configure your referral page, go the Extole campaign editor for your referral
 
 When a member taps on a navigation menu item or banner within in Alkami, they'll be taken to an embedded version of the microsite.
 
-### Step 2: Create your navigation menu item and banners in Alkami staging
+### Step 2:  Set up the Alkami integration in the Extole platform
 
-In the Alkami admin, create new menu item and name it Refer a Friend. In addition to the menu item, you can also place banner adds on your Alkami Dashboard.
+1. Go to your Program dashboard and create <Anchor target="_blank" href="https://docs.extole.com/docs/how-to-create-a-promo-link">a promo link</Anchor>. Make sure to name your promo link appropriately (e.g `Alkami Embedded`) so that you can track downstream analytics in your Extole dashboard.
+2. Then, navigate to `Security` > `Create Access Token`. Create and copy your access token and store it in a safe place, as you will not be able to access it beyond this point.
+3. Lastly, navigate to `Partners` > `Alkami` and install the Alkami integration. Update the promotion URL with the promo link you created above and click`Apply Changes`.
+
+### Step 3:  Set up a Standard SSO in the Alkami Platform<br />
+
+Please see the [prerequisites](https://docs.extole.com/docs/alkami#prerequisites) before completing this step.
+
+1. In your your Staging Admin Alkami account, navigate to **Set-Up > Standard SSO > Create Default SSO**
+2. In the Default SSO configuration, update the `Name` to **ExtoleReferrals** and the `Description` to **Extole Referrals and Rewards SSO**. Then, grab your Bank Identifier and paste it in a separate document or your notes app.
+3. Delete the default SSO configuration and copy and paste the following configuration. Replace the "MY_ID" from Step #3.2 above, and "MY_TOKEN" with the Token from Step #2.2 above.
+   ```text JSON
+   {
+     "BankIdentifier": "MY_ID",
+     "ProviderName": "ExtoleReferrals",
+     "Description": "Extole Referrals and Rewards SSO",
+     "HttpRequest": {
+       "DisplayLocation": "Inline",
+       "Uri": "{{ Http('http') }}",
+       "Method": "Get"
+     },
+     "Services": [
+       {
+         "Key": "http",
+         "Http": {
+           "Request": {
+             "Uri": "https://api.extole.io/v5/zones/authorize",
+             "Method": "POST",
+             "ContentType": "application/json",
+             "Headers": {
+               "Authorization": "Bearer MY_TOKEN"
+             },
+             "Body": "{\"email\": \"{{ Email }}\", \"first_name\": \"{{ FirstName }}\", \"last_name\": \"{{ LastName }}\", \"member_id\": \"{{ MemberIdentifier }}\"}"
+           },
+           "Response": {
+             "ResponseType": "Json",
+             "OnSuccess": "$.redirectUrl"
+           }
+         }
+       }
+     ]
+   }
+   ```
+
+### Step 4: Create your navigation menu item and banners in Alkami staging
+
+In the Alkami admin, create new menu item and name it Refer a Friend. In addition to the menu item, you can also place banner adds on your Alkami Dashboard. Connect the menu item
 
 
 <Image src="https://files.readme.io/3a033c8fb97697e102d955cd7609d581d84e7f1127ef00847b9ffde532c4190f-839154214e8dd8fdcadc61073e99de74bfb4d438730d2024079dcfbf09e62a5a-image.png" align="center" caption="Example of an Alkami banner ad" />
@@ -55,21 +107,6 @@ In the Alkami admin, create new menu item and name it Refer a Friend. In additio
 
 <Image src="https://files.readme.io/89edf1c1e263c50a9e7a390dfcf3e01409760a2f68c5af3bbad2af7cfb51a87b-637d169b459ddca5e48480d25a84b34def8f42029691ea6e334cefa72d6bea9b-image.png" align="center" caption="Example of a navigation menu item" />
 
-
-<br />
-
-### Step 3:  Set up the integration in the Extole and Alkami platforms
-
-**In the Extole platform:**
-
-1. Go to your Program dashboard and create [a promo link](https://docs.extole.com/docs/how-to-create-a-promo-link). Make sure to name your promo link appropriately (e.g `Alkami Embedded`) so that you can track downstream analytics in your Extole dashboard.
-2. Then, navigate to `Security` > `Create Access Token`. Create and copy your access token and store it in a safe place, as you will not be able to access it beyond this point.
-3. Lastly, navigate to `Partners` > `Alkami` and install the Alkami integration. Update the promotion URL with the promo link you created above and click`Apply Changes`.
-
-**In the Alkami platform:**
-
-4. Navigate to the set-up menu in your Alkami admin and create a `Standard SSO` connection.
-5. Name your SSO Refer a Friend and configure the SSO with the promo link and access token you created in the Extole platform.
 
 ### Step 5: QA and push to production
 

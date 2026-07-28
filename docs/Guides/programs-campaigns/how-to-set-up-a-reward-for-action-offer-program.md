@@ -7,6 +7,8 @@ excerpt: "Learn how to set up a simple reward for action program to reward parti
 
 This guide walks through how to configure a **Reward for Action Program** that issues a reward to a group of users - for example, a $25 Amazon.com gift card to participants who complete a survey.
 
+**Reward for Action** and **Offer** are two names for the same program type and template — you may see either name in My Extole and across our documentation. For a conceptual overview of the program, see [Offer](doc:offer).
+
 This setup assumes the survey is hosted outside of Extole and events are sent in via batch upload or the Create Event page.
 
 # Configuration Steps
