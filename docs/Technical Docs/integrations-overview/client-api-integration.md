@@ -119,7 +119,7 @@ curl --get "$EXTOLE_API_HOST/v1/components/duplicatable" \
   --data-urlencode "show_all=true"
 ```
 
-After the target component and socket exist, add `target_component_id` and `target_setting_name` to return only components compatible with that socket. Do not use the deprecated `target_socket_name` parameter.
+After the target component and socket exist, add `target_component_id` and `target_setting_name` to return only components compatible with that socket. Do not use the deprecated `target_socket_name` parameter. Narrowing this way is the reliable form of the query, because a widely used source such as `input_event` also appears once for every campaign that already installed a copy of it.
 
 Use these reusable sources:
 
@@ -131,7 +131,9 @@ Use these reusable sources:
 | `business_event_data` | `business-events` | Captures one mapped field. |
 | `event_id` | `business-events` | Captures the Extole event identifier when required. |
 
-Stop if discovery returns no exact published match or multiple ambiguous matches. Do not choose the first result without validating its program label and type.
+Validate each candidate's type before duplicating it, and prefer the v10 type when a legacy version of the same name is also returned.
+
+Several results with the same name and the same v10 type are copies of one maintained source, one per campaign that installed it, not a choice between different behaviors. Narrow by the target socket and duplicate the maintained source; that is not the ambiguity worth stopping for. Stop when discovery returns no published match of the required type, or when two genuinely different components could satisfy the request and choosing wrongly would change behavior.
 
 ## Create the Integration Campaign
 
