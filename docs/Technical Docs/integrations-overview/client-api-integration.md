@@ -133,6 +133,8 @@ A webhook whose name or URL expression calls `context.getComponent()` must be cr
 
 Treat that publish as part of the create path rather than a separate decision raised on its own. Publish the campaign, create the webhook, and return the campaign to draft afterwards only when the requester asked for a draft. When your own rules require approval before anything goes live, ask for it once, in the same message as the plan, rather than stopping earlier and reporting the shape as unfinishable.
 
+A published integration campaign has no supported route back to a draft — it has no stop or unpublish action. Do not archive the campaign to approximate one: archiving takes the integration out of use entirely, which is not what a draft request asked for. Say that the campaign is published, and that finishing the shape required it.
+
 Publishing validates every webhook the campaign already owns, so a setting that feeds an existing webhook URL must resolve to something valid first. An account-URL setting left empty produces an invalid destination, campaign validation rejects the publish, and the second webhook can never be attached. Keep a valid placeholder host in that setting — the library's own default is one — until the real host arrives.
 
 ```bash
