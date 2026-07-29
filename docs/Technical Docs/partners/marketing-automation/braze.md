@@ -20,9 +20,11 @@ Braze is an outbound integration: Extole forwards program activity to Braze, and
 | Event tracking | `/users/track` | Custom events, event properties, and user attributes |
 | Campaign trigger | `/campaigns/trigger/send` | API-triggered campaign and Canvas sends |
 
-Both calls use your Braze instance URL and authenticate with your Braze REST API key, stored in Extole as a webhook client key. The integration forwards share-link creation, subscription, and unsubscription activity by default, and any additional Extole events you add during setup.
+Extole calls both endpoints, so a finished Braze integration owns two outbound connections. Both use your Braze instance URL and authenticate with your Braze REST API key, stored in Extole as a webhook client key.
 
-Marketing campaigns attach Braze actions through the integration's webhook settings rather than by referencing a webhook directly, so a Braze action added to a program keeps working after the integration is rebuilt.
+The finished integration forwards exactly three kinds of activity out of the box: share-link creation, subscription, and unsubscription. Any other Extole event — outcomes, shares, reward states — reaches Braze only after you add it during setup, so an installation that already forwards them is sending more than this integration defines.
+
+Program campaigns attach Braze data items to their own events, so the integration also provides a reusable Braze data item for them to use, and it exposes each outbound connection as a setting rather than as a raw webhook reference. A Braze action added to a program that way keeps working after the integration is rebuilt.
 
 For the platform build sequence — installing the library source, reshaping it, attaching webhooks, and verifying the result — see [Integration Categories](doc:integration-categories) and [Create an Integration With the Client API](doc:client-api-integration).
 

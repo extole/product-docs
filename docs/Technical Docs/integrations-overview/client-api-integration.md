@@ -32,7 +32,17 @@ An outbound partner starts from its maintained library source. Installing is one
 
 ### Confirm the Finished Shape
 
-Read the partner page before the first mutation. It names which forwarded events the finished integration keeps, which partner endpoints it calls, which settings hold the account URL and credential, and whether the partner ships a reusable data template. That page is the point of truth. The library source carries defaults that serve every account, so an install left in its raw shape is not a finished integration whenever the partner page specifies something else.
+Read the partner page before the first mutation. It describes the finished integration in product terms, and each statement maps to something the install must contain:
+
+| What the partner page states | What the finished install contains |
+| :--------------------------- | :--------------------------------- |
+| The activity the integration forwards | One child per listed activity, and no child forwarding activity the page does not list |
+| The partner endpoints Extole calls | One webhook per endpoint, each tagged by purpose |
+| That program campaigns attach partner data to their own events | A typed data-item child of the integration component |
+| That the integration exposes its outbound connections as settings | One `WEBHOOK_ID` setting per webhook, resolved by tag |
+| The account URL and credential the partner requires | The matching settings on the integration component |
+
+Read that list as exhaustive rather than as a minimum. A library source ships the union of what every account might want, so it commonly installs children the page does not list and only one of the webhooks the page names. Deleting the extra children and creating the missing webhooks is the reshape; an install left in its raw shape forwards activity the partner page never claimed and omits endpoints it did.
 
 ### Create Missing Component Types
 

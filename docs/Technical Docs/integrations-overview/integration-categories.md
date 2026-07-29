@@ -61,6 +61,8 @@ root
     └── data-item template      partner data component type (when marketing campaigns attach partner actions)
 ```
 
+The partner page's product description is the specification for that tree. The activity it says the integration forwards is the complete set of children, the endpoints it says Extole calls are the complete set of webhooks, and a statement that program campaigns attach partner data to their events means the integration carries a typed data template. A library source ships the union of what every account might want, so the install usually has more children and fewer webhooks than the finished integration.
+
 Alongside the tree, the integration owns one webhook per platform endpoint. Each webhook is tagged by purpose, and the integration component holds a `WEBHOOK_ID` setting per webhook whose buildtime expression resolves the webhook by that tag. Marketing campaigns attach partner actions through those settings rather than by webhook identifier.
 
 Outbound integrations do not replace a marketing program's business events. Installing one never supersedes a program's `converted` or `shipped` event, because the integration reports activity rather than producing it.
