@@ -13,7 +13,7 @@ Integrating Extole and Braze allows you to pull valuable customer insights from 
 
 ## Extole Chat and Client API Contract
 
-Braze is an outbound integration. Start from the maintained `braze` library source, then reshape the install to the target tree below. Do not leave the Extole Defaults V10 library tree as-is, and do not rebuild Braze from `custom_integration`.
+Braze is an outbound integration. The finished shape below is the point of truth for create and reshape work. Start from the maintained `braze` library source, then reshape the install to that finished shape. Do not leave the Extole Defaults V10 library tree as-is, and do not rebuild Braze from `custom_integration`.
 
 ### Target Tree
 
@@ -28,6 +28,19 @@ root
 
 Keep only those three event children. Remove the library children `extole_event`, `extole_reward`, and `extole_shared` after install. Add `braze_data_item` as a child of `braze` with type `braze-data`.
 
+### Prerequisite Component Type
+
+The account must define the `braze-data` component type before `braze_data_item` can be typed. Check with `GET /v1/component-types/braze-data`. When it is missing, create it:
+
+```bash
+curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"braze-data","display_name":"Braze Data Item","schema":"{}"}' \
+  "${EXTOLE_API_HOST}/v1/component-types"
+```
+
+Omit `parent`. Do not create an untyped `braze_data_item` and call the build done — an empty `types` array is not the finished shape.
+
 ### Target Webhooks
 
 The Braze component must own both webhooks:
@@ -37,13 +50,15 @@ The Braze component must own both webhooks:
 | `context.getComponent().getName() + '_event_tracking'` | `{brazeRestUrl}/users/track` | `internal:braze:event`, `internal:braze`, `internal:integration`, `internal:webhook`, `internal:app_type=braze`, `internal:app_data:event_type=event` |
 | `context.getComponent().getName() + '_campaign_trigger'` | `{brazeRestUrl}/campaigns/trigger/send` | `internal:braze:campaign`, `internal:braze`, `internal:app_type=Braze`, `internal:app_data:event_type=email` |
 
-Both use `client_key_id` from `clientKeyId`, `enabled` from `enabled`, method `POST`, type `GENERIC`, and request builder:
+Both use `client_key_id` from `clientKeyId`, `enabled` from `enabled`, method `POST`, type `GENERIC`, `retry_intervals` `[1, 30, 60]`, and request builder:
 
 ```javascript
 javascript@runtime:context.createRequestBuilderWithDefaults().withUserAgent('partner-Extole-Integration/1.0').build();
 ```
 
-The library install already creates the event-tracking webhook. Create the campaign-trigger webhook with `POST /v6/webhooks` and `component_ids: [BRAZE_COMPONENT_ID]` if it is missing.
+The library install already creates the event-tracking webhook. The campaign-trigger webhook must be created with `POST /v6/webhooks` and `component_ids: [BRAZE_COMPONENT_ID]`.
+
+Publishing is required before that create succeeds. Until the Braze campaign has been published at least once, `POST /v6/webhooks` with `component_ids` returns `invalid_component_reference`, and creating the webhook without `component_ids` fails because the name and URL expressions need `context.getComponent()`. Publish the campaign, create the campaign-trigger webhook, then leave the campaign unpublished only when the requester asked for a draft after the finished shape exists.
 
 ### Target Settings on `braze`
 
@@ -51,7 +66,7 @@ The library install already creates the event-tracking webhook. Create the campa
 | :------ | :--- | :------------- |
 | `enabled` | BOOLEAN | `true` |
 | `clientKeyId` | CLIENT_KEY | set when the requester supplies the Braze REST API key; otherwise leave null and report it |
-| `brazeRestUrl` | STRING | Braze instance host, for example `https://rest.iad-01.braze.com` |
+| `brazeRestUrl` | STRING | Braze instance host, for example `https://rest.iad-01.braze.com`; leave the library placeholder only when credentials are still outstanding |
 | `externalIdKey` | STRING | `context.person.email` unless the requester chooses partner user id |
 | `rewardStates` | STRING_LIST | `["FULFILLED"]` |
 | `eventsWebhook` | STRING | buildtime lookup of the webhook tagged `internal:braze:event` |
@@ -73,33 +88,58 @@ javascript@buildtime: (function() { var filteredElements = Java.from(context.get
 
 ### `braze_data_item`
 
-Create under the Braze component (parent via `component_ids`, no socket required):
+Create under the Braze component (parent via `component_ids`, no socket required) only after `braze-data` exists on the account:
 
-| Setting | Value |
-| :------ | :---- |
-| `name` | `handlebars@buildtime:{{component.name}}` |
-| `enabled` | `true` |
-| `valueExpression` | `""` |
+| Field | Value |
+| :---- | :---- |
+| `types` | `["braze-data"]` |
+| `display_name` | `Braze Data Item` |
+| `name` setting | `handlebars@buildtime:{{component.name}}` |
+| `enabled` setting | `true` |
+| `valueExpression` setting | `""` |
 
-Component type: `braze-data`. This is the reusable data-item template marketing campaigns use when attaching Braze event or campaign-trigger actions.
+Install expression (required; this is how marketing campaigns attach Braze actions from the template):
+
+```javascript
+javascript@installtime:const sourceData = Java.from(context.getSourceComponent().getUnanchoredStepData());
+let targetSteps = Java.from(context.getTargetComponent().getSteps());
+const stepName = context.getVariableContext().get("step");
+
+if (stepName !== undefined && stepName !== null) {
+    targetSteps = targetSteps.filter(function (step) {
+        return step.getName() === stepName;
+    });
+}
+
+
+if (targetSteps.length) {
+    for (var i = 0; i < sourceData.length; i++) {
+        targetSteps[0].anchor(sourceData[i]);
+    }
+
+    return;
+}
+```
 
 ### Build Sequence for Extole Chat
 
 1. Confirm no active Braze integration already exists. Extend a live match; ignore archived copies.
-2. Discover `braze` with `GET /v1/components/duplicatable?having_any_types=integration-v10.0`. Prefer the maintained library source over an account's own installed copy.
-3. Install with `POST /v1/components/{SOURCE_COMPONENT_ID}/duplicate` and no `target_campaign_id`.
-4. Delete `extole_event`, `extole_reward`, and `extole_shared` from the new campaign.
-5. Create the campaign-trigger webhook on the Braze component if absent.
-6. Create or update `campaignWebhook` and `eventWebhook` settings on `braze`. Remove parent `triggerEventNames`.
-7. Create `braze_data_item` with type `braze-data` under `braze`.
-8. Create a webhook client key only when the requester supplies the Braze REST API key, then set `clientKeyId` and `brazeRestUrl`. Do not stop the reshape to wait for credentials: finish the tree, webhooks, and settings first, then report what credentials remain.
-9. Read the campaign and `/v6/webhooks` back. The tree and webhooks must match the target above before calling the build done.
-10. Publish only with approval. Do not offer to replace a marketing program's converted or shipped events — Braze is outbound. Report remaining credentials and that program campaigns can attach Braze actions through `eventWebhook` / `campaignWebhook`.
+2. Ensure `braze-data` exists via `GET /v1/component-types/braze-data`; create it when missing.
+3. Discover `braze` with `GET /v1/components/duplicatable?having_any_types=integration-v10.0`. Prefer the maintained library source over an account's own installed copy.
+4. Install with `POST /v1/components/{SOURCE_COMPONENT_ID}/duplicate` and no `target_campaign_id`.
+5. Delete `extole_event`, `extole_reward`, and `extole_shared` from the new campaign.
+6. Create or update `campaignWebhook` and `eventWebhook` settings on `braze`. Remove parent `triggerEventNames` when present.
+7. Create `braze_data_item` with type `braze-data`, the install expression above, and the three settings under `braze`.
+8. Publish the campaign so the Braze component id is referenceable by `/v6/webhooks`.
+9. Create the campaign-trigger webhook on the Braze component if absent.
+10. Create a webhook client key only when the requester supplies the Braze REST API key, then set `clientKeyId` and `brazeRestUrl`. Do not stop the reshape to wait for credentials: finish the tree, webhooks, and settings first, then report what credentials remain.
+11. Read the campaign and `/v6/webhooks` back. The tree must be exactly the target above, both webhooks must be present with the tags above, and `braze_data_item.types` must contain `braze-data` before calling the build done.
+12. Leave unpublished only when the requester asked for a draft after that finished shape exists. Do not offer to replace a marketing program's converted or shipped events — Braze is outbound. Report remaining credentials and that program campaigns can attach Braze actions through `eventWebhook` / `campaignWebhook`.
 
-Creating the campaign-trigger webhook (`POST /v6/webhooks`) and deleting unused library children are part of the create instruction. When those calls are refused in `work` mode because they require `admin`, raise the agent mode to `admin` once, complete the reshape, and continue. Do not stop after the raw library install to ask whether reshape is allowed — the partner page already made that the finished shape.
+Creating the campaign-trigger webhook (`POST /v6/webhooks`), creating the `braze-data` type, and deleting unused library children are part of the create instruction. When those calls are refused in `work` mode because they require `admin`, raise the agent mode to `admin` once, complete the reshape, and continue. Do not stop after the raw library install to ask whether reshape is allowed — this page already made that the finished shape.
 
 ```bash
-# Campaign-trigger webhook body shape
+# Campaign-trigger webhook body shape (after the Braze campaign has been published once)
 curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -111,6 +151,7 @@ curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
     "enabled": "javascript@buildtime:context.getVariableContext().get('"'"'enabled'"'"')",
     "client_key_id": "javascript@buildtime:context.getVariableContext().get(\"clientKeyId\")",
     "request": "javascript@runtime:context.createRequestBuilderWithDefaults().withUserAgent('"'"'partner-Extole-Integration/1.0'"'"').build();",
+    "retry_intervals": [1, 30, 60],
     "tags": ["internal:braze:campaign", "internal:app_type=Braze", "internal:app_data:event_type=email", "internal:braze"],
     "component_ids": ["'"${BRAZE_COMPONENT_ID}"'"]
   }' \
