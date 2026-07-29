@@ -415,10 +415,29 @@ curl --request POST \
         }
       },
       {
+        "name": "aliases",
+        "type": "STRING_LIST",
+        "values": {
+          "default": [
+            "conversion",
+            "customer",
+            "outcome",
+            "transacted"
+          ]
+        }
+      },
+      {
         "name": "singularNounName",
         "type": "STRING",
         "values": {
           "default": "Conversion"
+        }
+      },
+      {
+        "name": "adminUIIcon",
+        "type": "STRING",
+        "values": {
+          "default": "fa-regular fa-shopping-cart"
         }
       },
       {
@@ -457,9 +476,18 @@ Use the canonical v10 name that matches the business outcome. Examples include `
 
 Create one business-event instance per canonical event. Do not create duplicate legacy controllers alongside the reusable component.
 
-Set the reporting names on every duplicate. `singularNounName`, `pluralNounName`, and `rateName` are what reports and the admin funnel display. The templates ship with generic values — a tracked template calls everything "Tracked Events" with a "Tracked Event Rate", and `singularNounName` defaults to an expression that echoes the display name — so two events duplicated from the same template report under identical labels until you override them. Give each canonical event its own noun and rate names, and give each a distinguishable `adminUIIcon`.
+Set the reporting names on every duplicate. `singularNounName`, `pluralNounName`, and `rateName` are what reports and the admin funnel display. The templates ship with generic values — a tracked template calls everything "Tracked Events" with a "Tracked Event Rate", and `singularNounName` defaults to an expression that echoes the display name — so two events duplicated from the same template report under identical labels until you override them. Give each canonical event its own noun and rate names, and give each an `adminUIIcon` that reads as its outcome. No two events in one integration should share an icon.
 
-Leave `aliases` empty unless a real sender emits the alternate name. Aliases are additional inbound names matched to this business event, not descriptive keywords. The same alias must never appear on two business events in one campaign: the match becomes ambiguous, and the event that wins is not something the configuration expresses.
+Set `aliases` to the alias set the platform already uses for that canonical event. Aliases are additional names that this business event matches, and platform consumers subscribe to them: an extension or downstream integration listening for `outcome` sees a `converted` event only because `converted` carries that alias. Read the alias set from an existing program's business event of the same name rather than inventing one. Bundled programs use these:
+
+| Canonical event | Aliases |
+| :-------------- | :------ |
+| `converted` | `conversion`, `customer`, `outcome`, `transacted` |
+| `account_qualified` | `customer`, `outcome` |
+| `account_opened` | `customer` |
+| `shipped`, `canceled` | none |
+
+Do not add partner-flavored aliases, and do not clear an alias set the template or canonical event provides. The same alias must never appear on two business events in one campaign: the match becomes ambiguous, and the event that wins is not something the configuration expresses.
 
 Inspect the duplicated component's evaluated `journeyName` and `roleName` values. Do not hardcode one pair for every integration: these values depend on whether the event is associated with a campaign journey and on the surrounding role and journey hierarchy. Preserve the reusable template's defaults unless the integration contract requires different values, and record the published values during verification.
 
@@ -630,7 +658,9 @@ Treat a successful publish as model validation, not end-to-end verification.
 
 ## Verify Inbound Events
 
-Send a synchronous test event through `POST /v6/events`. Put the current program label inside `data`.
+Send a synchronous test event through `POST /v6/events` on the event host. Event submission uses a different host and a different credential from the management calls above, so a caller that can create campaigns is not necessarily able to submit events. When the calling context has no event credential, hand the request below to whoever does, together with the values the resulting step must contain, and report the integration as built but unverified.
+
+Put the current program label inside `data`.
 
 ```bash
 curl --request POST "$EXTOLE_EVENT_API_HOST/v6/events" \
