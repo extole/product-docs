@@ -42,7 +42,7 @@ Extole Chat must follow these rules when it creates or changes an integration:
 
 1. Confirm the client, environment, partner platform and version, inbound and outbound scope, event contract, credential owner, and publication approval before making changes.
 2. Read the partner's current documentation and verify version-specific event hooks. Do not infer hook names or payload shapes from another platform.
-3. Inspect the target client before creating resources. Reuse the existing integration when its campaign and component identity match the request.
+3. Inspect the target client before creating resources. Reuse an active integration when its campaign and component identity match the request, extend it, and report that. Archived campaigns are not candidates for reuse: they receive no events and hold no program label against a new campaign, so their presence is not a reason to restore one, to pick a different label, or to ask the requester which path to take instead of building what they asked for.
 4. Discover reusable components by name, program label, type, and published state. Do not save library component identifiers in prompts or documentation.
 5. Use campaign-version-scoped mutation endpoints. Refresh the latest campaign version after every mutation.
 6. Use reusable business-event, rule, and data components. Do not create a custom controller when a reusable template implements the behavior.
