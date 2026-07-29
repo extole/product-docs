@@ -39,11 +39,12 @@ curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
 
 After the install:
 
-1. Create a webhook client key only when the partner page requires one and the requester has supplied the secret.
-2. Set the partner configuration settings the installed component already exposes — API URL, external id mapping, enabled events, reward states — rather than inventing new settings.
-3. Read the installed campaign and its `/v6/webhooks` entries back. Confirm the outbound URL, tags, and `client_key_id` expression resolve from those settings.
-4. Do not add inbound business-event scaffolding to an outbound library integration. Do not strip maintained child controllers unless the requester explicitly asks to disable a path.
-5. Publish when validation succeeds, or leave a draft only when the requester asked for one.
+1. Read the partner page. When it defines a target tree or webhook set that differs from the library defaults, reshape the install to that page before calling the build done. Leaving the raw library tree is wrong when the partner page specifies a different finished shape.
+2. Create a webhook client key only when the partner page requires one and the requester has supplied the secret.
+3. Set the partner configuration settings the finished component must expose — including any webhook-id lookups the partner page names — rather than inventing parallel settings.
+4. Read the installed campaign and its `/v6/webhooks` entries back. Confirm the outbound URL, tags, and `client_key_id` expression resolve from those settings.
+5. Do not add inbound business-event scaffolding to an outbound library integration.
+6. Publish when validation succeeds, or leave a draft only when the requester asked for one.
 
 Outbound library integrations push Extole program activity to the partner. They do not replace a marketing program's business events, so do not offer to swap converted or shipped events into a referral theme after installing one. Report which credentials and partner-side permissions remain, and which Extole events the integration already forwards.
 
@@ -77,7 +78,7 @@ Extole Chat must follow these rules when it creates or changes an integration:
 1. Confirm the client, environment, partner platform and version, inbound and outbound scope, event contract, credential owner, and publication approval before making changes.
 2. Read the partner's current documentation and verify version-specific event hooks. Do not infer hook names or payload shapes from another platform.
 3. Inspect the target client before creating resources. Reuse an active integration when its campaign and component identity match the request, extend it, and report that. Archived campaigns are not candidates for reuse: they receive no events and hold no program label against a new campaign, so their presence is not a reason to restore one, to pick a different label, or to ask the requester which path to take instead of building what they asked for.
-4. Discover first whether a maintained `integration-v10.0` source already exists for the partner. When it does, install that source by duplicating it into a new campaign and configure it. Only when no maintained partner integration exists should Chat build from the custom integration template. Do not save library component identifiers in prompts or documentation.
+4. Discover first whether a maintained `integration-v10.0` source already exists for the partner. When it does, install that source by duplicating it into a new campaign, then reshape it to the partner page's finished tree and webhook set before configuring credentials. Only when no maintained partner integration exists should Chat build from the custom integration template. Do not save library component identifiers in prompts or documentation.
 5. Use campaign-version-scoped mutation endpoints. Refresh the latest campaign version after every mutation.
 6. Use reusable business-event, rule, and data components. Do not create a custom controller when a reusable template implements the behavior.
 7. Keep partner input event names distinct from canonical Extole business event names.
