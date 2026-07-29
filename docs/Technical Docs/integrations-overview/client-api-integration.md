@@ -9,7 +9,9 @@ Use the Client API to create an integration campaign and its component hierarchy
 
 An API-created integration is still a component-based integration. It must use the same reusable component types, typed sockets, business-event templates, views, naming conventions, and validation rules as a bundled v10 integration.
 
-The OpenCart integration is the reference implementation used throughout this guide. It receives partner order events and maps them to the canonical Extole business events `converted`, `shipped`, and `canceled`.
+Examples in this guide use a generic partner named `example`. Substitute the real partner name, event names, and field names from that partner's own documentation.
+
+Where a partner-specific page exists in this documentation set, read it first: it carries the wire contract for that platform — event names, payload fields, and status mapping — while this guide carries the build sequence that applies to every platform. Partner pages are published under the partner's name as the page slug, so retrieve the page directly by that slug rather than relying on a keyword search to surface it.
 
 ## What the Workflow Creates
 
@@ -45,7 +47,7 @@ Extole Chat must follow these rules when it creates or changes an integration:
 5. Use campaign-version-scoped mutation endpoints. Refresh the latest campaign version after every mutation.
 6. Use reusable business-event, rule, and data components. Do not create a custom controller when a reusable template implements the behavior.
 7. Keep partner input event names distinct from canonical Extole business event names.
-8. Map every persisted field explicitly. Assign key types based on field semantics, not field spelling.
+8. Map every persisted field explicitly, in the same run that creates the business events. Assign key types based on field semantics, not field spelling. A business event with an empty `data` socket captures nothing and is not a finished event.
 9. Add a `views` socket and at least one configuration view. The view must expose the settings required to complete partner setup.
 10. Create reward suppliers, client keys, or webhooks only when an approved outbound flow uses them.
 11. Build and inspect the complete campaign before publishing. Test every inbound event and every configured outbound path.
@@ -244,7 +246,36 @@ curl --request POST \
 
 Use `variables` when creating a component. Do not send a `settings` property in `CampaignComponentCreateRequest`.
 
-Add partner configuration variables separately. Give each variable a clear display name, description, type, default, importance tag, and priority.
+## Set Integration Display Metadata
+
+The `integration-v10.0` type requires eight settings: `short.description`, `about`, `documentation.url`, `external.url`, `external.integration.url`, `categories`, `logo`, and `imageKey`. The type checks that they are present, not that their values are usable, so a component that passes validation can still render as an unnamed tile with a broken image.
+
+| Setting | Value convention |
+| :------ | :--------------- |
+| `short.description` | One sentence for the integration tile. |
+| `about` | A short paragraph describing what the integration receives and sends. |
+| `documentation.url` | The partner-facing documentation page for this integration. Not this build guide. |
+| `external.url` | The partner's own product site. |
+| `external.integration.url` | The partner's marketplace or extension listing, or an empty string when the partner has none. |
+| `categories` | A single category string already used by other integrations, such as `eCommerce Platform`. The admin groups integrations by exact value, so a new spelling or a list-shaped value creates an orphan category. |
+| `logo` | An image URL, or a buildtime expression resolving an uploaded asset, such as `spel@buildtime:context.getAsset('example').getUrl()`. The admin binds this value directly to an image source; a bare name renders the placeholder image. |
+| `imageKey` | The stable key identifying the integration image. |
+
+Add partner configuration variables separately. Give each variable a clear display name, description, type, default, importance tag, and priority. Prefix partner-specific configuration settings with the integration component name — `exampleAccountUrl`, `exampleSetupInstructions` — so they stay unambiguous when read from the parent component.
+
+Compute setup instructions at build time so the installer reads the values this campaign actually uses rather than values copied from another account:
+
+```json
+{
+  "name": "exampleSetupInstructions",
+  "type": "STRING",
+  "values": {
+    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: https://events.extole.io/v6/events\\nProgram label: \" + context.getProgramLabel() + \"\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\"; })()"
+  }
+}
+```
+
+Never place a credential value in a setting that the configuration view displays.
 
 ## Add Typed Sockets
 
@@ -331,7 +362,7 @@ curl --request POST \
         "name": "status",
         "type": "STRING",
         "values": {
-          "default": "IN_PROGRESS"
+          "default": "javascript@buildtime:context.getComponent().getParent().getVariableValue(\"exampleAccountUrl\") ? \"READY\" : \"IN_PROGRESS\""
         }
       },
       {
@@ -339,8 +370,8 @@ curl --request POST \
         "type": "STRING_LIST",
         "values": {
           "default": [
-            "partnerAccountUrl",
-            "partnerSetupInstructions"
+            "exampleAccountUrl",
+            "exampleSetupInstructions"
           ]
         }
       }
@@ -350,7 +381,7 @@ curl --request POST \
 
 `component_ids` must identify the parent model component. Without it, the platform may try to install the view into the root component, which does not own the `views` socket.
 
-The `settingsToDisplay` values are names of settings on the parent integration model component. Use a buildtime `status` expression to return `READY` only when the settings Extole can verify are complete. Explain any partner-side checks that the status cannot verify.
+The `settingsToDisplay` values are names of settings on the parent integration model component. A hardcoded `status` leaves the tab permanently marked in progress; the buildtime expression above returns `READY` only once the settings Extole can verify are complete. Explain any partner-side checks that the status cannot verify.
 
 Include a parent information setting that gives the installer the endpoint, current program label, partner event names, documentation URL, and credential handling rule. Do not put a credential value in this setting.
 
@@ -384,15 +415,24 @@ curl --request POST \
         }
       },
       {
-        "name": "aliases",
-        "type": "STRING_LIST",
+        "name": "singularNounName",
+        "type": "STRING",
         "values": {
-          "default": [
-            "conversion",
-            "customer",
-            "outcome",
-            "transacted"
-          ]
+          "default": "Conversion"
+        }
+      },
+      {
+        "name": "pluralNounName",
+        "type": "STRING",
+        "values": {
+          "default": "Conversions"
+        }
+      },
+      {
+        "name": "rateName",
+        "type": "STRING",
+        "values": {
+          "default": "Conversion Rate"
         }
       },
       {
@@ -417,7 +457,11 @@ Use the canonical v10 name that matches the business outcome. Examples include `
 
 Create one business-event instance per canonical event. Do not create duplicate legacy controllers alongside the reusable component.
 
-Inspect the duplicated component's evaluated `journeyName` and `roleName` values. Do not hardcode one pair for every integration: these values depend on whether the event is associated with a campaign journey and on the surrounding role and journey hierarchy. Preserve the reusable template's defaults unless the integration contract requires different values, and record the published values during verification. The OpenCart integration publishes `journeyName` as `FRIEND` and `roleName` as `participant`; that result is verified for OpenCart, not a universal default for new integrations.
+Set the reporting names on every duplicate. `singularNounName`, `pluralNounName`, and `rateName` are what reports and the admin funnel display. The templates ship with generic values — a tracked template calls everything "Tracked Events" with a "Tracked Event Rate", and `singularNounName` defaults to an expression that echoes the display name — so two events duplicated from the same template report under identical labels until you override them. Give each canonical event its own noun and rate names, and give each a distinguishable `adminUIIcon`.
+
+Leave `aliases` empty unless a real sender emits the alternate name. Aliases are additional inbound names matched to this business event, not descriptive keywords. The same alias must never appear on two business events in one campaign: the match becomes ambiguous, and the event that wins is not something the configuration expresses.
+
+Inspect the duplicated component's evaluated `journeyName` and `roleName` values. Do not hardcode one pair for every integration: these values depend on whether the event is associated with a campaign journey and on the surrounding role and journey hierarchy. Preserve the reusable template's defaults unless the integration contract requires different values, and record the published values during verification.
 
 ## Configure Input Event Rules
 
@@ -449,6 +493,10 @@ curl --request POST \
 Add a legacy partner event alias only when a real sender still emits it. Document the preferred spelling and migration plan.
 
 ## Configure Event Data
+
+Data capture is the part of the integration that carries meaning. Without it an inbound event produces a step with no transaction identifier, no person key, and no value, so nothing downstream can deduplicate, attribute, reward, or report on it. Create the data components in the same run as the business events they belong to. An integration whose `data` sockets are empty is not built, however complete its tree looks.
+
+Take the field names from the partner's documented payload. When a partner-specific page exists in this documentation set, its payload example is the contract; otherwise use the partner's own developer documentation. Ask the requester for a sample payload only when neither source defines the field, and create the identity and deduplication fields that are defined rather than deferring the whole mapping.
 
 Define a mapping before creating data components:
 
@@ -520,6 +568,8 @@ Set `valueExpression` explicitly when the partner field and Extole field have di
 
 Use `NO_ADDITIONAL_DATA` when the event must store only declared fields. Capture the minimum data needed for identity, deduplication, attribution, rules, and reporting.
 
+Every business event needs its own data components — a field captured on one event is not visible on another. At minimum, each event captures the partner transaction identifier as `UNIQUE_PARTNER_EVENT_KEY` and the partner customer identifier as `PARTNER_PROFILE_KEY`, plus whatever identity the partner sends. Revenue events additionally capture the amount as `VALUE`. Repeat the identity set on lifecycle events such as `shipped` and `canceled`: they arrive independently and must resolve to the same person and the same original transaction.
+
 ## Gate Outbound Resources
 
 Inbound event mapping does not require a reward supplier, webhook, or webhook client key.
@@ -556,7 +606,10 @@ Inspect the latest campaign and built components. Confirm:
 - `businessEvents` accepts `business-event-v10.0`.
 - Each canonical event is a duplicated reusable template.
 - Each event has an `input_event` rule with the expected partner event names.
-- Every data component has the intended source expression and key type.
+- Each event has its own reporting names and no two events share a noun or rate name.
+- No alias appears on more than one business event.
+- Every business event has data components in its `data` socket, and every data component has the intended source expression and key type.
+- The eight required integration display settings hold usable values: a resolvable logo, a category that other integrations already use, and a partner-facing documentation URL.
 - No legacy custom controller duplicates a reusable business event.
 - `views` accepts `view-v10.0`.
 - The configuration view is attached to the model component.
@@ -634,14 +687,16 @@ The creation response must include:
 
 Do not claim the integration is complete while partner-side installation, credentials, status mapping, or end-to-end tests remain outstanding.
 
-## OpenCart Reference Structure
+## Reference Structure for an Order Lifecycle Integration
 
-The OpenCart reference uses this model:
+Most commerce platforms map onto the same three canonical events. Use this as the starting shape and adjust it to the events the partner actually emits:
 
 | Canonical event | Reusable template | Partner input event | Captured fields |
 | :-------------- | :---------------- | :------------------ | :-------------- |
-| `converted` | `template_transacted_business_event` | `opencart_order_created` | `partner_conversion_id`, `cart_value`, `partner_user_id`, `email`, `first_name`, `last_name`, `coupon_code`, `store_url` |
-| `shipped` | `template_tracked_business_event` | `opencart_order_shipped` | `partner_conversion_id`, `partner_user_id`, `email`, `first_name`, `last_name` |
-| `canceled` | `template_tracked_business_event` | `opencart_order_canceled`; legacy `opencart_order_cancelled` | `partner_conversion_id`, `partner_user_id`, `email`, `first_name`, `last_name` |
+| `converted` | `template_transacted_business_event` | The partner's order-created or order-qualified event | `partner_conversion_id`, `cart_value`, `partner_user_id`, `email`, `first_name`, `last_name`, `coupon_code`, and any store or account identifier |
+| `shipped` | `template_tracked_business_event` | The partner's shipment event | `partner_conversion_id`, `partner_user_id`, `email`, `first_name`, `last_name` |
+| `canceled` | `template_tracked_business_event` | The partner's cancellation event, plus any legacy spelling a live sender still emits | `partner_conversion_id`, `partner_user_id`, `email`, `first_name`, `last_name` |
 
-Its configuration view displays the OpenCart store URL and partner setup instructions. The integration is inbound-only. It does not contain a reward-supplier socket, reward webhook, or webhook client key.
+A complete integration of this shape contains one integration model component, three business events, one `input_event` rule per event, one data component per captured field on each event, and one configuration view displaying the partner account setting and the computed setup instructions. It is inbound-only: no reward-supplier socket, reward webhook, or webhook client key.
+
+Platforms with a different lifecycle keep the same construction and change the event set. A lending or account platform maps to `account_opened`, `application_approved`, and `funded`; a subscription platform maps to `converted`, `renewed`, and `canceled`. The canonical name always describes the business outcome, never the partner's transport name.
