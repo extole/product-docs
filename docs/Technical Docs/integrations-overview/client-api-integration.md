@@ -83,6 +83,16 @@ Prefer the maintained library source over an account's own installed copy, which
 
 ### Reshape the Install
 
+The reshape uses these calls. Refresh the campaign version before each version-scoped call:
+
+| Action | Call |
+| :----- | :--- |
+| Delete a library child | `DELETE /v2/campaigns/{campaign_id}/version/{version}/components/{component_id}` |
+| Create a child | `POST /v2/campaigns/{campaign_id}/version/{version}/components` |
+| Add or change a setting | `POST /v2/campaigns/{campaign_id}/version/{version}/components/{component_id}/settings` |
+| Create a webhook | `POST /v6/webhooks` |
+| Publish the campaign | `POST /v2/campaigns/{campaign_id}/version/{version}/publish` |
+
 Bring the installed tree to the partner page's shape in one pass:
 
 - Delete the library children the partner page does not keep. Refresh the campaign version between deletes.
