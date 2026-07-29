@@ -267,7 +267,9 @@ Tag all eight with `internal:ui-display`. That tag means the setting describes t
 
 Add partner configuration variables separately, and never tag them `internal:ui-display` — a partner setting carrying that tag disappears from the configuration view even when `settingsToDisplay` names it, which is the most common reason a freshly built integration looks empty on its configuration tab. Give each one a display name, description, type, default, `importance:basic`, and a priority that orders it in the view. Prefix partner-specific configuration settings with the integration component name — `exampleAccountUrl`, `exampleSetupInstructions` — so they stay unambiguous when read from the parent component.
 
-Compute setup instructions at build time so the installer reads the values this campaign actually uses rather than values copied from another account:
+Setup instructions tell the partner-side installer what to send and where. Give them the event endpoint, the event names, the payload fields, the credential rule, and the documentation link. Leave the program label out: it is an Extole-side targeting device, not something the partner configures, and printing it invites senders to hard-code a value that belongs to this campaign alone.
+
+Compute the instructions at build time so the installer reads the values this campaign actually uses rather than values copied from another account:
 
 ```json
 {
@@ -278,7 +280,7 @@ Compute setup instructions at build time so the installer reads the values this 
   "tags": ["category:configuration", "importance:basic"],
   "priority": "20",
   "values": {
-    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: https://events.extole.io/v6/events\\nProgram label: \" + context.getProgramLabel() + \"\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\"; })()"
+    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: https://events.extole.io/v6/events\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\\nUse a server-side event-ingestion credential. Do not use a management token in the partner application.\"; })()"
   }
 }
 ```
@@ -672,7 +674,7 @@ Treat a successful publish as model validation, not end-to-end verification.
 
 Send a synchronous test event through `POST /v6/events` on the event host. Event submission uses a different host and a different credential from the management calls above, so a caller that can create campaigns is not necessarily able to submit events. When the calling context has no event credential, hand the request below to whoever does, together with the values the resulting step must contain, and report the integration as built but unverified.
 
-Put the current program label inside `data`.
+Put the current program label inside `data` to target this campaign during the test. The label is a testing convenience and does not belong in the partner's own payload or setup instructions.
 
 ```bash
 curl --request POST "$EXTOLE_EVENT_API_HOST/v6/events" \
@@ -712,6 +714,26 @@ Test:
 - Campaign targeting with the current program label.
 - Configuration view contents and status.
 
+## Offer to Connect the Integration to a Program
+
+A finished integration receives partner events and turns them into business events inside its own campaign. The marketing programs in the account still run on the business events their theme shipped with — a generic `converted` on the friend journey, for example — which listen for the platform's default events, not the partner's. Until those two halves are joined, the integration produces activity that no program acts on.
+
+Close the build by proposing two things and doing neither without an answer:
+
+1. Publish the integration campaign, which is what makes the inbound endpoint accept events.
+2. Install the integration's business events into a marketing campaign.
+
+For the second, name the campaign candidates, list the partner events by canonical name, and say for each one whether it supersedes an event the program already has or adds one the program lacks. A partner `converted` supersedes the theme's `converted` on the same journey; `shipped` and `canceled` are usually additions.
+
+On approval, work through the target campaign's journey socket:
+
+- Duplicate each partner business event from the integration into the socket that holds the program's equivalent event, using the same duplication call as the rest of this guide with the integration's component as the source.
+- Remove the superseded default event after its replacement is installed, so the journey does not carry two events with the same canonical name.
+- Add the partner events the program lacks into the same socket.
+- Refresh the campaign version between mutations, then read the built campaign and confirm the journey lists the expected events in lifecycle order.
+
+This changes a program's funnel, so it is never a silent step. Name the campaign and the events before touching them, and report afterwards which events were replaced, which were added, and what the program's journey now contains.
+
 ## Record the Result
 
 The creation response must include:
@@ -723,6 +745,7 @@ The creation response must include:
 - Field mappings and key types.
 - View components and displayed settings.
 - External resources created, or an explicit statement that none were required.
+- Programs whose business events were replaced or added to, or an explicit statement that the integration is not yet connected to a program.
 - Test event identifiers and verification results.
 - Documentation URL.
 - Remaining manual partner steps.
