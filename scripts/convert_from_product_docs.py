@@ -559,12 +559,23 @@ def build_docs_json(tabs):
         "$schema": "https://mintlify.com/docs.json",
         "theme": "mint",
         "name": "Extole Documentation",
-        "colors": {"primary": "#7C3AED", "light": "#A78BFA", "dark": "#5B21B6"},
-        "favicon": "/favicon.svg",
+        "description": "Guides, product documentation, and API reference for the Extole platform.",
+        "colors": {"primary": "#ee0049"},
+        "logo": {
+            "light": "/extole-logo.png",
+            "dark": "/extole-logo.png",
+            "href": "/",
+        },
+        "favicon": {
+            "light": "/Extole-icon-bug.svg",
+            "dark": "/Extole-icon-bug.svg",
+        },
         "navigation": {"tabs": tabs},
         "navbar": {
-            "links": [{"label": "docs.extole.com", "href": "https://docs.extole.com"}],
-            "primary": {"type": "button", "label": "my.extole.com", "href": "https://my.extole.com"},
+            "links": [
+                {"label": "GitHub", "href": "https://github.com/extole"},
+                {"label": "My Extole Login", "href": "https://my.extole.com"},
+            ],
         },
         "contextual": {"options": ["copy", "view", "chatgpt", "claude", "mcp"]},
         "footer": {"socials": {"github": "https://github.com/extole"}},
