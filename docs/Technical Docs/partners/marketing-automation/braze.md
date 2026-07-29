@@ -58,7 +58,7 @@ javascript@runtime:context.createRequestBuilderWithDefaults().withUserAgent('par
 
 The library install already creates the event-tracking webhook. The campaign-trigger webhook must be created with `POST /v6/webhooks` and `component_ids: [BRAZE_COMPONENT_ID]`.
 
-Publishing is required before that create succeeds. Until the Braze campaign has been published at least once, `POST /v6/webhooks` with `component_ids` returns `invalid_component_reference`, and creating the webhook without `component_ids` fails because the name and URL expressions need `context.getComponent()`. Publish the campaign, create the campaign-trigger webhook, then leave the campaign unpublished only when the requester asked for a draft after the finished shape exists.
+Publishing is required before that create succeeds. Until the Braze campaign has been published at least once, `POST /v6/webhooks` with `component_ids` returns `invalid_component_reference`, and creating the webhook without `component_ids` fails because the name and URL expressions need `context.getComponent()`. Treat that publish as part of the create path — do not stop to ask permission for it. Publish the campaign, create the campaign-trigger webhook, then leave the campaign unpublished when the requester asked for a draft after the finished shape exists.
 
 ### Target Settings on `braze`
 
