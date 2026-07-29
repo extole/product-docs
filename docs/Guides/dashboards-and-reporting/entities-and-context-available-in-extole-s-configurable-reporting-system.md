@@ -469,3 +469,112 @@ API Type=input_record(event.rootEventId, event_time_name:event.eventTime).apiTyp
 ```
 Visit Type=step_record(event.earnedStepEventContext.id, step_name:event.earnedStepEventContext.name, event_time_name:event.earnedStepEventContext.eventTime).visitType;
 ```
+
+# AudienceMembershipRecord
+
+**Used in:** Audience Memberships, Audience Memberships Metrics reports · **Access:** `event.*` (no join function — only reachable as the primary record of these two report types)
+
+One audience membership change event: a person entering, updating, or leaving an audience segment.
+
+| Field | Description |
+| --- | --- |
+| `type` | Event type — `AUDIENCE_MEMBERSHIP_CREATED`, `AUDIENCE_MEMBERSHIP_UPDATED`, or `AUDIENCE_MEMBERSHIP_DELETED` |
+| `id` | Event ID |
+| `clientId` | Client that owns this record |
+| `eventTime` | When the membership change occurred |
+| `requestTime` | When the request was received |
+| `deviceProfileId` | Associated device profile (may be null) |
+| `identityProfileId` | Associated identity profile (may be null) |
+| `personId` | Person this membership belongs to |
+| `container` | Environment container |
+| `data` | Custom key-value event data |
+| `appData` | Application-level event data |
+| `audienceId` | Audience segment ID |
+| `audienceName` | Audience segment display name |
+
+# MessageSummary
+
+**Used in:** Message Metrics reports · **Access:** `event.*` (no join function — only reachable as the primary record of this report type)
+
+One outbound message (typically email) triggered by a campaign, with delivery and suppression outcome.
+
+| Field | Description |
+| --- | --- |
+| `clientId` | Client that owns this record |
+| `messageId` | Message ID |
+| `zoneName` | Zone/campaign zone that triggered the message |
+| `programLabel` | Program label (may be null) |
+| `campaignId` | Parent campaign ID (may be null) |
+| `container` | Environment container (may be null) |
+| `optoutList` | Opt-out list name if the message was suppressed (may be null) |
+| `normalizedEmailFrom` | Normalized sender email (may be null) |
+| `normalizedEmailSentAs` | Normalized "sent as" email (may be null) |
+| `normalizedEmailTo` | Normalized recipient email (may be null) |
+| `emailTo` | Recipient email, original form (may be null) |
+| `emailSubject` | Email subject line (may be null) |
+| `doNotSendReason` | Reason the message was not sent, if applicable (may be null) |
+| `status` | Message status — e.g. `SENT`, `FAILED`, `NOT_SENT` |
+| `data` | Custom message data |
+| `triggeredDate` | When the message was triggered |
+| `sentDate` | When the message was sent (may be null) |
+| `recipientId` | Recipient identifier, if known (may be null) |
+
+# WebhookEvent
+
+**Used in:** Webhook Events, Webhook Event Metrics reports · **Access:** `event.*` (no join function — only reachable as the primary record of these two report types)
+
+One webhook trigger event — the event that queues a webhook dispatch, before the dispatch attempt itself.
+
+| Field | Description |
+| --- | --- |
+| `eventId` | Webhook event ID |
+| `clientId` | Client that owns this record |
+| `eventTime` | When the webhook event was generated |
+| `webhookId` | Webhook definition ID |
+| `causeEventId` | ID of the event that triggered this webhook |
+| `rootEventId` | Root event in the causal chain |
+| `causeEventSequence` | Sequence position of the cause event |
+| `data` | Webhook event payload (custom data) |
+
+# WebhookDispatchResultEvent
+
+**Used in:** Webhook Dispatch Results, Webhook Dispatch Result Metrics reports · **Access:** `event.*` (no join function — only reachable as the primary record of these two report types)
+
+The outcome of one webhook dispatch attempt — the HTTP request Extole sent and the response received.
+
+| Field | Description |
+| --- | --- |
+| `clientId` | Client that owns this record |
+| `webhookId` | Webhook definition ID |
+| `url` | Target webhook URL (may be null) |
+| `eventTime` | When the dispatch attempt occurred |
+| `attemptCount` | Number of retry attempts made |
+| `configuredRetriesCount` | Maximum configured retries |
+| `method` | HTTP method used — e.g. `POST` (may be null) |
+| `requestBody` | Request body sent to the webhook endpoint (may be null) |
+| `requestHeaders` | HTTP request headers sent |
+| `responseStatusCode` | HTTP response status code received (may be null) |
+| `responseBody` | Response body received (may be null) |
+| `responseHeaders` | HTTP response headers received |
+| `logMessages` | Dispatch attempt log messages |
+| `tags` | Tags/labels assigned to this dispatch result |
+
+# ClientEvent
+
+**Used in:** Client Event Metrics reports · **Access:** `event.*` (no join function — only reachable as the primary record of this report type)
+
+An operational or business event logged against a client account (e.g. a platform notice or account-level occurrence), distinct from a person's referral-program steps.
+
+| Field | Description |
+| --- | --- |
+| `eventId` | Event ID |
+| `eventType` | Event type classification |
+| `clientId` | Client this event is logged against |
+| `eventTime` | When the event occurred |
+| `name` | Event name |
+| `tags` | Classification tags — e.g. `TECHNICAL`, `BUSINESS_OPERATIONS` |
+| `message` | Human-readable event message |
+| `data` | Structured event data — each value has `value`, `type` (`STRING` or `ATTACHMENT`), and `scope` |
+| `level` | Severity level — `INFO`, `WARN`, or `ERROR` |
+| `userId` | User identifier, if applicable (may be null) |
+| `scope` | Visibility scope of the event |
