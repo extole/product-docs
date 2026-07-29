@@ -131,7 +131,9 @@ if (targetSteps.length) {
 
 A webhook whose name or URL expression calls `context.getComponent()` must be created with `component_ids` naming the integration component, and that reference resolves only after the campaign has been published at least once. Until then, `POST /v6/webhooks` returns `invalid_component_reference`, and creating the same webhook without `component_ids` fails because the expressions have no component to read.
 
-Treat that publish as part of the create path rather than a separate decision to raise with the requester. Publish the campaign, create the webhook, and return the campaign to draft afterwards only when the requester asked for a draft.
+Treat that publish as part of the create path rather than a separate decision raised on its own. Publish the campaign, create the webhook, and return the campaign to draft afterwards only when the requester asked for a draft. When your own rules require approval before anything goes live, ask for it once, in the same message as the plan, rather than stopping earlier and reporting the shape as unfinishable.
+
+Publishing validates every webhook the campaign already owns, so a setting that feeds an existing webhook URL must resolve to something valid first. An account-URL setting left empty produces an invalid destination, campaign validation rejects the publish, and the second webhook can never be attached. Keep a valid placeholder host in that setting — the library's own default is one — until the real host arrives.
 
 ```bash
 curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
@@ -157,7 +159,9 @@ When the account URL setting may be stored without a scheme, build the URL expre
 
 ### Attach the Credential
 
-Create a webhook client key only when the requester has supplied the partner's API secret, then set the credential and account-URL settings on the integration component. Missing credentials do not block the reshape: finish the tree, webhooks, and settings, leave the credential setting null, and report which values remain outstanding.
+Create a webhook client key only when the requester has supplied the partner's API secret, then set the credential setting on the integration component. Missing credentials do not block the reshape: finish the tree, webhooks, and settings, leave the credential setting null, and report which values remain outstanding.
+
+The account URL is different from the secret. Blanking it to signal "not yet configured" breaks the publish that the rest of the reshape depends on, so leave a valid placeholder host in place and report it as a value the requester still has to replace.
 
 ### Verify the Install
 

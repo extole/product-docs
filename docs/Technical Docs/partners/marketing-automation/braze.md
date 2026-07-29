@@ -22,6 +22,8 @@ Braze is an outbound integration: Extole forwards program activity to Braze, and
 
 Extole calls both endpoints, so a finished Braze integration owns two outbound connections. Both use your Braze instance URL and authenticate with your Braze REST API key, stored in Extole as a webhook client key.
 
+The two values arrive on different schedules. The Braze API URL has to hold a valid instance host before the integration can be published, so it keeps a placeholder until you supply yours. The REST API key can stay empty until you are ready; nothing reaches Braze without it.
+
 The finished integration forwards exactly three kinds of activity out of the box: share-link creation, subscription, and unsubscription. Any other Extole event — outcomes, shares, reward states — reaches Braze only after you add it during setup, so an installation that already forwards them is sending more than this integration defines.
 
 Program campaigns attach Braze data items to their own events, so the integration also provides a reusable Braze data item for them to use, and it exposes each outbound connection as a setting rather than as a raw webhook reference. A Braze action added to a program that way keeps working after the integration is rebuilt.
