@@ -260,10 +260,12 @@ The `integration-v10.0` type requires eight settings: `short.description`, `abou
 | `external.url` | The partner's own product site. |
 | `external.integration.url` | The partner's marketplace or extension listing, or an empty string when the partner has none. |
 | `categories` | A single category string already used by other integrations, such as `eCommerce Platform`. The admin groups integrations by exact value, so a new spelling or a list-shaped value creates an orphan category. |
-| `logo` | An image URL, or a buildtime expression resolving an uploaded asset, such as `spel@buildtime:context.getAsset('example').getUrl()`. The admin binds this value directly to an image source; a bare name renders the placeholder image. |
+| `logo` | Type `IMAGE`. An image URL, or a buildtime expression resolving an uploaded asset, such as `spel@buildtime:context.getAsset('example').getUrl()`. The admin binds this value directly to an image source; a bare name renders the placeholder image. |
 | `imageKey` | The stable key identifying the integration image. |
 
-Add partner configuration variables separately. Give each variable a clear display name, description, type, default, importance tag, and priority. Prefix partner-specific configuration settings with the integration component name — `exampleAccountUrl`, `exampleSetupInstructions` — so they stay unambiguous when read from the parent component.
+Tag all eight with `internal:ui-display`. That tag means the setting describes the integration tile, and the admin hides tagged settings from the settings list.
+
+Add partner configuration variables separately, and never tag them `internal:ui-display` — a partner setting carrying that tag disappears from the configuration view even when `settingsToDisplay` names it, which is the most common reason a freshly built integration looks empty on its configuration tab. Give each one a display name, description, type, default, `importance:basic`, and a priority that orders it in the view. Prefix partner-specific configuration settings with the integration component name — `exampleAccountUrl`, `exampleSetupInstructions` — so they stay unambiguous when read from the parent component.
 
 Compute setup instructions at build time so the installer reads the values this campaign actually uses rather than values copied from another account:
 
@@ -271,6 +273,10 @@ Compute setup instructions at build time so the installer reads the values this 
 {
   "name": "exampleSetupInstructions",
   "type": "STRING",
+  "display_name": "Example Extension Setup",
+  "description": "Connection details for the server-side Example extension.",
+  "tags": ["category:configuration", "importance:basic"],
+  "priority": "20",
   "values": {
     "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: https://events.extole.io/v6/events\\nProgram label: \" + context.getProgramLabel() + \"\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\"; })()"
   }
@@ -383,7 +389,7 @@ curl --request POST \
 
 `component_ids` must identify the parent model component. Without it, the platform may try to install the view into the root component, which does not own the `views` socket.
 
-The `settingsToDisplay` values are names of settings on the parent integration model component. A hardcoded `status` leaves the tab permanently marked in progress; the buildtime expression above returns `READY` only once the settings Extole can verify are complete. Explain any partner-side checks that the status cannot verify.
+The `settingsToDisplay` values are names of settings on the parent integration model component. Naming a setting here is necessary but not sufficient: the setting itself must be visible in the settings list, which means it must not carry `internal:ui-display`. Read the built integration back and confirm each named setting appears with its display name before calling the configuration surface done. A hardcoded `status` leaves the tab permanently marked in progress; the buildtime expression above returns `READY` only once the settings Extole can verify are complete. Explain any partner-side checks that the status cannot verify.
 
 Include a parent information setting that gives the installer the endpoint, current program label, partner event names, documentation URL, and credential handling rule. Do not put a credential value in this setting.
 
