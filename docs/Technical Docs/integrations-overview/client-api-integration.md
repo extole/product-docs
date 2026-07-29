@@ -42,6 +42,8 @@ Read the partner page before the first mutation. It describes the finished integ
 | That the integration exposes its outbound connections as settings | One `WEBHOOK_ID` setting per webhook, resolved by tag |
 | The account URL and credential the partner requires | The matching settings on the integration component |
 
+Run that comparison against an integration that already exists in the account, not only against a fresh install. Reading a live integration back and reporting it as already in the requested state, without checking it line by line against the page's description, is what makes an unfinished install permanent — the integration exists, so nobody looks again.
+
 Read that list as exhaustive rather than as a minimum. A library source ships the union of what every account might want, so it commonly installs children the page does not list and only one of the webhooks the page names. Deleting the extra children and creating the missing webhooks is the reshape; an install left in its raw shape forwards activity the partner page never claimed and omits endpoints it did.
 
 ### Create Missing Component Types
