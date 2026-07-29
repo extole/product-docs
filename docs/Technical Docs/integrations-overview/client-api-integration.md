@@ -13,9 +13,43 @@ Examples in this guide use a generic partner named `example`. Substitute the rea
 
 Where a partner-specific page exists in this documentation set, read it first: it carries the wire contract for that platform — event names, payload fields, and status mapping — while this guide carries the build sequence that applies to every platform. Partner pages are published under the partner's name as the page slug, so retrieve the page directly by that slug rather than relying on a keyword search to surface it.
 
-## What the Workflow Creates
+## Choose the Creation Path First
 
-A complete inbound integration contains:
+Two shapes of integration exist on the platform. Pick the path from discovery, not from habit.
+
+| Path | When to use it | What you create |
+| :--- | :------------- | :-------------- |
+| Maintained library install | The duplicatable listing already has an `integration-v10.0` component named for the partner (for example `braze`, `klaviyo`, `iterable`). | A new integration campaign by duplicating that library component with no target campaign. Then configure credentials and partner settings. |
+| Custom Client API build | No maintained partner integration exists, or the request is an inbound partner that must map wire events onto canonical business events. | A new `INTEGRATION` campaign from the custom integration template, then business events, triggers, data capture, and views as in the rest of this guide. |
+
+Before creating anything, query the duplicatable listing for `having_any_types=integration-v10.0` and look for a component whose name matches the partner. Prefer that name match over building from `custom_integration`. Rebuilding a maintained outbound partner from the custom template produces a campaign that looks related and does none of the partner's webhook or credential work.
+
+A library install is the same action the Partners page Install button performs: `POST /v1/components/{SOURCE_COMPONENT_ID}/duplicate` with an empty body, or with only display-name overrides, and without `target_campaign_id`. Omitting the target campaign creates a new root integration campaign that copies the library tree, including its webhooks and child controllers.
+
+```bash
+SOURCE_COMPONENT_ID=$(curl -s -H "Authorization: Bearer ${TOKEN}" \
+  "${EXTOLE_API_HOST}/v1/components/duplicatable?having_any_types=integration-v10.0" \
+  | jq -r '.[] | select(.name=="braze") | .id' | head -n 1)
+
+curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{}' \
+  "${EXTOLE_API_HOST}/v1/components/${SOURCE_COMPONENT_ID}/duplicate"
+```
+
+After the install:
+
+1. Create a webhook client key only when the partner page requires one and the requester has supplied the secret.
+2. Set the partner configuration settings the installed component already exposes — API URL, external id mapping, enabled events, reward states — rather than inventing new settings.
+3. Read the installed campaign and its `/v6/webhooks` entries back. Confirm the outbound URL, tags, and `client_key_id` expression resolve from those settings.
+4. Do not add inbound business-event scaffolding to an outbound library integration. Do not strip maintained child controllers unless the requester explicitly asks to disable a path.
+5. Publish when validation succeeds, or leave a draft only when the requester asked for one.
+
+Outbound library integrations push Extole program activity to the partner. They do not replace a marketing program's business events, so do not offer to swap converted or shipped events into a referral theme after installing one. Report which credentials and partner-side permissions remain, and which Extole events the integration already forwards.
+
+## What the Custom Workflow Creates
+
+A complete inbound custom integration contains:
 
 ```text
 root
@@ -43,7 +77,7 @@ Extole Chat must follow these rules when it creates or changes an integration:
 1. Confirm the client, environment, partner platform and version, inbound and outbound scope, event contract, credential owner, and publication approval before making changes.
 2. Read the partner's current documentation and verify version-specific event hooks. Do not infer hook names or payload shapes from another platform.
 3. Inspect the target client before creating resources. Reuse an active integration when its campaign and component identity match the request, extend it, and report that. Archived campaigns are not candidates for reuse: they receive no events and hold no program label against a new campaign, so their presence is not a reason to restore one, to pick a different label, or to ask the requester which path to take instead of building what they asked for.
-4. Discover reusable components by name, program label, type, and published state. Do not save library component identifiers in prompts or documentation.
+4. Discover first whether a maintained `integration-v10.0` source already exists for the partner. When it does, install that source by duplicating it into a new campaign and configure it. Only when no maintained partner integration exists should Chat build from the custom integration template. Do not save library component identifiers in prompts or documentation.
 5. Use campaign-version-scoped mutation endpoints. Refresh the latest campaign version after every mutation.
 6. Use reusable business-event, rule, and data components. Do not create a custom controller when a reusable template implements the behavior.
 7. Keep partner input event names distinct from canonical Extole business event names.

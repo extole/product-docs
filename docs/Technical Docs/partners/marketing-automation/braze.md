@@ -9,7 +9,58 @@ excerpt: "Set up a connection between your Extole programs and Braze's customer-
 
 Integrating Extole and Braze allows you to pull valuable customer insights from your Extole programs into Braze, empowering you to create more personalized marketing campaigns that boost customer acquisition, engagement, and loyalty. You can also dynamically pull Extole content attributes, such as personalized share codes and links, into Braze communications to turn every customer into a brand advocate.
 
-[Learn more about Braze](https://www.braze.com/).
+<Anchor label="Learn more about Braze" target="_blank" href="https://www.braze.com/" />
+
+## Extole Chat and Client API Contract
+
+Braze is a maintained outbound library integration. It is not built from the custom integration template.
+
+When Extole Chat is asked to create a Braze integration:
+
+1. Confirm whether the account already has an active Braze integration. Extend that one when it matches; otherwise continue.
+2. Discover the maintained source with `GET /v1/components/duplicatable?having_any_types=integration-v10.0` and select the component named `braze`.
+3. Install it the same way the Partners page does: `POST /v1/components/{SOURCE_COMPONENT_ID}/duplicate` with no `target_campaign_id`. That call creates a new `INTEGRATION` campaign whose program label is `braze` and copies the library tree, including the Braze `/users/track` webhook.
+4. Do not rebuild Braze from `custom_integration`. Do not invent inbound business events, input-event rules, or ecommerce field capture for Braze.
+5. Create a webhook client key only when the requester supplies the Braze REST API key:
+
+```bash
+curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Braze Integration",
+    "type": "WEBHOOK",
+    "algorithm": "PASSWORD",
+    "key": "'"${BRAZE_REST_API_KEY}"'",
+    "partner_key_id": "braze"
+  }' \
+  "${EXTOLE_API_HOST}/v2/settings/security/keys"
+```
+
+6. Configure the installed integration component settings:
+
+| Setting | Purpose |
+| :------ | :------ |
+| `clientKeyId` | The webhook client key that holds the Braze REST API key. |
+| `brazeRestUrl` | Braze REST host for the account's instance, for example `https://rest.iad-01.braze.com`. |
+| `externalIdKey` | Expression that identifies the person in Braze. Default is `context.person.email`. |
+| `rewardStates` | Reward states forwarded to Braze. Default is `["FULFILLED"]`. |
+| `triggerEventNames` | Extra Extole step events forwarded through the generic event child. |
+| `enabled` | Master enable for the integration and its webhook. |
+
+7. Read `/v6/webhooks` after install. The event-tracking webhook must target `{brazeRestUrl}/users/track`, carry the `internal:braze:event` tag, and resolve `client_key_id` from `clientKeyId`.
+8. Publish the campaign when validation succeeds, unless the requester asked for a draft.
+9. Report what remains for a person: Braze REST API key with `users.track`, Braze instance URL, external id mapping, and any extra events or reward states beyond the defaults. Do not offer to replace a marketing program's converted or shipped business events after installing Braze — this integration forwards Extole activity outbound; it does not replace inbound conversion mapping.
+
+The maintained library ships these child controllers under the Braze integration component:
+
+| Child | Listens for | Sends to Braze |
+| :---- | :---------- | :------------- |
+| `extole_share_link_created` | `advocate_code_created` shareable events | Custom event plus share link attribute |
+| `extole_shared` | `shared` step events | Journey-scoped shared event |
+| `extole_subscribed` | `opted_in` | Email subscribe attribute `opted_in` |
+| `extole_unsubscribed` | `opted_out` | Email subscribe attribute `unsubscribed` |
+| `extole_reward` | Reward state changes in `rewardStates` | `extole_reward_{STATE}` event |
+| `extole_event` | Events listed in `triggerEventNames` | Prefixed Extole event payload |
 
 [//]: ___
 
