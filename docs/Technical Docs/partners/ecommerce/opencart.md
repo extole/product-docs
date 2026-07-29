@@ -7,44 +7,27 @@ excerpt: "Configure an OpenCart 4.x extension to send order lifecycle events to 
 
 The OpenCart integration sends order lifecycle events from a server-side OpenCart 4.x extension to Extole. Extole maps the partner input events to reusable `converted`, `shipped`, and `canceled` business-event components for attribution, reporting, rules, and program actions.
 
-This integration is inbound-only. It does not create OpenCart coupons and does not include a reward supplier, reward webhook, webhook client key, or reward-supplier socket.
+This integration is inbound only. It does not create OpenCart coupons, issue rewards in the store, or send any data back to OpenCart.
 
 The integration uses OpenCart's publisher-subscriber event system. Read the <Anchor label="OpenCart Events documentation" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events documentation</Anchor> before implementing the extension, and verify event routes and listener signatures against the installed OpenCart version.
 
-## Current Component Structure
+## Integration Model
 
-The Extole integration uses this component model:
+OpenCart is an inbound integration: the store sends order lifecycle events to Extole, and Extole sends nothing back to OpenCart. Each OpenCart event maps to one reusable Extole business event that captures the order and customer fields the rest of your programs use.
 
-```text
-root
-└── opencart                    integration-v10.0
-    ├── opencartStoreUrl
-    ├── opencartSetupInstructions
-    ├── businessEvents          MULTI_SOCKET → business-event-v10.0
-    │   ├── converted
-    │   │   ├── triggerRules → input_event
-    │   │   └── data → eight business_event_data components
-    │   ├── shipped
-    │   │   ├── triggerRules → input_event
-    │   │   └── data → five business_event_data components
-    │   └── canceled
-    │       ├── triggerRules → input_event
-    │       └── data → five business_event_data components
-    └── views                   MULTI_SOCKET → view-v10.0
-        └── configuration       config-view-v10.0
-```
+The integration exposes a configuration view holding the store URL and the extension setup information. Its status stays `IN_PROGRESS` until the store URL is configured.
 
-The configuration view displays the OpenCart store URL and extension setup information. Its status is `IN_PROGRESS` until the store URL is configured.
+For the platform build sequence — creating the campaign, business events, trigger rules, data capture, and views — see [Integration Categories](doc:integration-categories) and [Create an Integration With the Client API](doc:client-api-integration).
 
 ## Event Contract
 
 The deployed model uses these events:
 
-| OpenCart input event | Extole business event | Reusable template |
-| :------------------- | :-------------------- | :---------------- |
-| `opencart_order_created` | `converted` | `template_transacted_business_event` |
-| `opencart_order_shipped` | `shipped` | `template_tracked_business_event` |
-| `opencart_order_canceled` | `canceled` | `template_tracked_business_event` |
+| OpenCart input event | Extole business event | Notes |
+| :------------------- | :-------------------- | :---- |
+| `opencart_order_created` | `converted` | Carries the order total as transaction value |
+| `opencart_order_shipped` | `shipped` | Fulfillment milestone |
+| `opencart_order_canceled` | `canceled` | Cancellation milestone |
 | `opencart_order_cancelled` | `canceled` | Legacy input alias only |
 
 Use `opencart_order_canceled` for new implementations. Keep `opencart_order_cancelled` only while an existing sender requires the legacy spelling.
@@ -57,7 +40,7 @@ The `opencart_order_created` event creates a `converted` event. Emit it only whe
 | :---------- | :---------- |
 | OpenCart 4.x store | Install and enable a server-side extension that can register event listeners and send HTTPS requests. |
 | OpenCart administrator access | Install the extension and configure event, status, and credential settings. |
-| Extole integration campaign | Publish the OpenCart component structure described on this page. |
+| Extole integration campaign | Install and publish the OpenCart integration in your Extole account. |
 | Event-ingestion credential | Use a server-side Extole credential authorized to submit events. Do not use the Client API management token. |
 | Current program label | Target events to the integration's active `PROGRAM` label. |
 | Order-status mapping | Identify the OpenCart status identifiers that mean converted, shipped, and canceled for this store. |
@@ -205,7 +188,7 @@ Persist a delivery marker for each order and Extole input event name. OpenCart c
 
 ## Build the Event Payload
 
-Send the OpenCart source fields expected by the Extole data components.
+Send the OpenCart source fields the Extole field mapping expects.
 
 ### Order Created
 
@@ -285,7 +268,7 @@ The `shipped` and `canceled` business events capture:
 - `first_name`.
 - `last_name`.
 
-All fields are implemented with reusable `business_event_data` components. Each source expression reads the matching key from the cause event. No prehandler or custom event controller performs this mapping.
+Each field reads the matching key from the event payload. Send the source keys exactly as spelled in the payload examples above; a renamed key arrives as an event with the field missing.
 
 ## Send Events Securely
 
@@ -399,7 +382,7 @@ Repeat the test for `opencart_order_shipped` and `opencart_order_canceled`.
 ### Extole Accepts the Input but No Business Event Appears
 
 - Confirm the current program label is inside `data.labels`.
-- Confirm the input event name matches the configured `input_event` rule.
+- Confirm the input event name matches the event name configured on the integration's trigger rule.
 - Confirm the integration campaign is published.
 - Confirm the event contains enough identity data.
 - Confirm the data source keys match `order_id`, `total`, and `customer_id`.
@@ -417,5 +400,6 @@ Disable order-created emission from `addOrder`. Configure qualifying converted s
 
 ## Related Documentation
 
+- [Integration Categories](doc:integration-categories)
 - [Create an Integration With the Client API](doc:client-api-integration)
 - <Anchor label="OpenCart Events" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events</Anchor>
