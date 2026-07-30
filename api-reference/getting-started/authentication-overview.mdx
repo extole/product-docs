@@ -1,0 +1,186 @@
+---
+title: "Authentication"
+description: "Every call to the Extole API carries an access token. The API uses two token models, chosen by where the caller runs."
+---
+
+## Quickstart
+
+For a server-side call:
+
+1. In My Extole, open the <a href="https://my.extole.com/security-center" target="_blank">Security Center</a> and click **+ New Access Token** in the Access Token section. Copy the value.
+2. Send the token as a bearer credential in the `Authorization` header on every request:
+
+`Authorization`
+
+This pattern works for the Management, Management Expert, and Integration: Server to Extole APIs.
+
+For the Integration: Consumer to Extole API (browser and native app), the SDKs handle authentication automatically via cookies. See [Consumer Access Tokens](#consumer-access-tokens) for the lower-level mechanics.
+
+## Token Models
+
+| API                             | Token model           | Caller                                  |
+| ------------------------------- | --------------------- | --------------------------------------- |
+| Integration: Server to Extole   | Bearer access token   | Brand backend services                  |
+| Management API                  | Bearer access token   | Brand backend services or admin tooling |
+| Management Expert API           | Bearer access token   | Brand backend services or admin tooling |
+| Integration: Consumer to Extole | Consumer access token | Browser or native app                   |
+
+Bearer access tokens are issued to the brand and authenticate trusted server-side calls. Consumer access tokens are issued and rotated by Extole during a participant's session and authenticate untrusted calls from a participant's device.
+
+## Bearer Access Tokens
+
+Used for server-side calls from a brand's backend.
+
+### Get a token from My Extole
+
+The fastest path to a working credential is to create a long-lived access token in My Extole.
+
+1. Log in to My Extole and open the <a href="https://my.extole.com/security-center" target="_blank">Security Center</a>.
+2. Scroll to the **Access Token** section and click **+ New Access Token**.
+3. Verify your identity.
+4. Enter a name for the token and click **Create**.
+5. Copy the token. The value is not shown again after you leave the page.
+
+Tokens created in the Security Center are client-scoped and long-lived, suitable as the credential a server uses to call the API.
+
+### Pass the token
+
+Send the token as a bearer credential in the `Authorization` header. This is the recommended pattern.
+
+`Authorization`
+
+Two alternative methods are supported for compatibility:
+
+- Query parameter: `?access_token=YOUR_ACCESS_TOKEN`.
+- Cookie: `access_token=YOUR_ACCESS_TOKEN`.
+
+Prefer the header. The query parameter writes the token into logs and browser history; the cookie is intended for consumer flows.
+
+### Scopes
+
+Tokens carry one or more scopes that determine what the token can do. The scopes most relevant to brand integrations:
+
+- `CLIENT_ADMIN`. Full read and write on the client's configuration and data.
+- `CAMPAIGN_EDIT`. Read and write on campaigns and their components.
+- `USER_SUPPORT`. Read access for support tooling.
+- `ANY`. Any authenticated scope; used on endpoints that only require a valid token.
+
+Endpoints declare a required scope. A call with insufficient scope returns `403` with `scopes_denied`.
+
+### Long-lived vs. short-lived tokens
+
+The Security Center creates long-lived **managed tokens** that are named, listed, and revoked rather than left to expire. Use managed tokens for service-to-service integrations where rotating short-lived tokens would be operationally noisy.
+
+For automation, CI/CD, or applications that rotate credentials, create short-lived tokens programmatically through the `/v4/tokens` endpoint. See the API reference for token creation, exchange, and revocation.
+
+## Consumer Access Tokens
+
+Used for calls from a browser or native app to the Integration: Consumer to Extole API. Issued and rotated by Extole during a participant's session; the SDKs and the `access_token` cookie handle most of the lifecycle automatically.
+
+### Program domain
+
+Consumer API calls go to the **brand's program domain**, not the shared `api.extole.io` host. Two patterns are supported:
+
+- Extole-hosted subdomain: `<brand>.extole.io`.
+- A subdomain of the brand's own domain, configured as a CNAME (for example, `share.brand.com`).
+
+Find the active program domain in My Extole **Tech Center**.
+
+`?access_token=YOUR_ACCESS_TOKEN`
+
+### Cookie lifecycle
+
+When using the JavaScript SDK, you don't typically have to worry about cookies. They are all managed by the core.js library while making zone requests. Other direct event and consumer API calls use those browser-stored access tokens. When the platform binds an identity, Extole rotates the cookie and returns a new token. The cookie is suppressed when cookie consent is not enabled for the program.
+
+### Web Friendly vs API endpoints
+
+The Web Friendly Endpoints are designed for browser-based rendering flows. They can automatically allocate an access token when needed, manage cookies, and typically return 200.
+
+The API Zone Endpoints are intended for direct API integrations. They are typically meant for POST requests only and expect clients to explicitly manage authentication and handle errors.
+
+### Security levels
+
+A consumer access token has one of three identity levels. Each level is a function of what Extole knows about the participant.
+
+| Level          | What it can do                                                                                                                                                                                                                                                                                                                                    |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Anonymous**  | Device-only token. Records journey activity without an identity profile.                                                                                                                                                                                                                                                                          |
+| **Identified** | The token is associated with an email address or `partner_user_id`. Can add journey information to the identity profile; cannot modify profile properties or read private profile data (last name, friend information, reward information). _Note: First name is considered public information and can be read from an identified profile.&#x20;_ |
+| **Verified**   | Carries the `VERIFIED_CONSUMER` scope. Identity has been confirmed. Full access to the profile, including the ability to update profile properties.                                                                                                                                                                                               |
+
+A token is upgraded through the lifecycle as identity is established. The most common upgrade path: anonymous to identified (event carries `email`) to verified (one of the verification methods below).
+
+### Pass the token
+
+Three methods, in order of preference:
+
+- Cookie. The default for browsers; handled automatically by the SDKs and the platform.
+- `Authorization` header. Typical for mobile and server-rendered contexts.
+- Query parameter `?access_token=`. Fallback for email pixels and share-link landings.
+
+### Verifying consumer identity
+
+Three methods upgrade a consumer access token to `VERIFIED_CONSUMER`. Brands typically pick one that matches their existing identity infrastructure.
+
+#### JWT verification
+
+The most common method. The brand signs a JWT carrying the participant's identity and sends it on a consumer call in the `X-Extole-Jwt` header. Extole verifies the signature against a key the brand has registered in My Extole.
+
+`access_token=YOUR_ACCESS_TOKEN`
+
+**The&#x20;**`kid`**&#x20;header.** Every JWT must include a `kid` (key ID) header that matches the Partner Key ID set on the corresponding key in My Extole. Extole uses `kid` to identify which key to use for verification or decryption.
+
+**Signing keys.** Two key types are supported:
+
+- **HMAC shared secret.** The brand generates a high-entropy shared secret and uploads it to My Extole. The brand signs the JWT with the same secret; Extole verifies. Supported algorithms: HS256, HS384, HS512.
+- **RSA key pair.** The brand generates an RSA key pair and uploads only the public key (DER base64 encoded) to My Extole. The brand signs JWTs with the private key; Extole verifies with the public key. Supported algorithms: RS256, RS384, RS512, PS256, PS384, PS512. EC algorithms (ES256, ES384, ES512) are also supported.
+
+**JWE (encrypted JWT).** When the JWT content itself must be encrypted, Extole accepts JWE tokens in the same header. The same key-management flow in My Extole applies.
+
+See the <a href="https://docs.extole.com/docs/verifying-consumers" target="_blank">Verifying Consumers reference</a> for required claim names, including the `scope: VERIFIED_CONSUMER` claim that completes the upgrade.
+
+Verification failures return `401` with one of `jwt_error`, `jwt_authentication_error`, or `invalid_access_token`.
+
+#### Email verification
+
+Extole sends a verification email to the participant. The participant clicks the link to confirm the email address. The token associated with that email is then upgraded to `VERIFIED_CONSUMER`. No brand-side cryptography is required; the trade-off is the round-trip through the participant's inbox.
+
+#### Explicit Authorization (Resource Owner Credential Grant)
+
+For experiences behind a brand login, the brand can use the Authenticated API to mark a consumer token as verified using an OAuth Resource Owner Credential Grant. Useful when the brand already authenticates the participant and wants to forward that proof of identity to Extole.
+
+## Sandbox
+
+Sandbox tenants use the same token endpoints and the same OAuth substrate as production. The `client_id` in a token-creation request distinguishes the sandbox from a production client. Until self-serve sandbox provisioning ships, contact your Extole guide.
+
+## Security Best Practices
+
+- **Never embed a bearer access token in client-side code.** Bearer tokens are server credentials. Use consumer access tokens for browser and native-app integrations.
+- **Never commit a bearer token to a repository.** Treat tokens as secrets. Rotate immediately if a token is exposed.
+- **Rotate JWT signing material on a schedule.** Rotate the HMAC shared secret or RSA key pair when staff with access to it changes, and on a documented cadence.
+- **Use scope minimization.** Issue tokens with the smallest scope set the integration needs. A read-only integration should not carry `CLIENT_ADMIN`.
+- **Use managed tokens for service-to-service integrations.** Managed tokens are easier to inventory and revoke than short-lived tokens generated ad hoc.
+
+## Error Reference
+
+| Status | Code                            | Cause                                                 |
+| ------ | ------------------------------- | ----------------------------------------------------- |
+| 401    | `method_unauthorized`           | Missing, malformed, or expired token.                 |
+| 401    | `invalid_credentials`           | Wrong email or password during token creation.        |
+| 401    | `invalid_access_token`          | Token does not match a known credential.              |
+| 401    | `expired_access_token`          | Token is past its expiration.                         |
+| 401    | `jwt_authentication_error`      | JWT signature did not verify.                         |
+| 403    | `access_denied`                 | Caller is not authorized for the resource.            |
+| 403    | `scopes_denied`                 | Token does not carry a required scope.                |
+| 403    | `missing_credentials`           | Token creation called without sufficient credentials. |
+| 400    | `invalid_access_token_duration` | Token duration outside the allowed range.             |
+| 400    | `invalid_client_id`             | `client_id` is not a known client.                    |
+| 400    | `jwt_error`                     | JWT is malformed or claims are invalid.               |
+
+## Related
+
+- [Getting Started](./getting-started.md)
+- <a href="https://docs.extole.com/docs/generate-long-lived-access-tokens" target="_blank">Generate Long-lived Access Tokens</a>
+- <a href="https://docs.extole.com/docs/verifying-consumers" target="_blank">Verifying Consumers</a>
+
+<br />
