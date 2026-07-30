@@ -295,7 +295,22 @@ curl --request POST \
   }'
 ```
 
-Add a `views` socket whose filters accept every view type the integration uses — the configuration type plus the report-runner and event-stream types — rather than only the configuration type, and subscribe the integration to the support campaign so its templates are installable into the supplier socket.
+Add a `views` socket whose filters accept every view type the integration uses — the configuration type plus the report-runner and event-stream types — rather than only the configuration type.
+
+Then subscribe the integration to the support campaign, so its templates are installable into the supplier socket. That subscription is its own resource too, naming the client that owns the templates, the path to the subscribed component, and the integration component that subscribes:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v1/component-subscriptions" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "client_id": "'"$CLIENT_ID"'",
+    "component_path": "Example Support:/",
+    "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"]
+  }'
+```
+
+Without it the supplier socket accepts the right type and has nothing to offer, which reads in the admin as an integration whose products were never built.
 
 The report-runner and event-stream views each need their element to exist before the view will validate, and those elements follow the same rule as the supplier: what a bundle declares inline under `elements`, the API creates as its own resource attached with `component_ids`.
 
