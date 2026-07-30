@@ -176,7 +176,9 @@ Do not add inbound business-event scaffolding to an outbound install. An outboun
 
 A reward fulfillment partner needs everything an outbound partner needs plus a supply side: a component type for the partner's own reward suppliers, a support campaign holding one template per product the partner sells, and webhooks typed `REWARD` that fire only for rewards from those suppliers. [Integration Categories](doc:integration-categories) describes the model; this section is the order to build it in.
 
-Install the maintained source when the duplicatable listing has one — the install carries the whole shape, including the support campaign it subscribes to — and use the sequence below to build it where no source exists, and to check that an install matches the partner page.
+Install the maintained source when the duplicatable listing has one: the install carries the whole shape, including the support campaign it subscribes to, and the sequence below then serves as the checklist for confirming the install matches the partner page.
+
+**A missing library source is a normal starting condition, not a blocker.** Most accounts can duplicate only the sources they are subscribed to, so a partner the documentation describes may have no source here at all. That is what the sequence below is for. Build it: the API creates every piece — the component type, the support campaign, the templates, the integration, and the webhooks. Reporting that the partner must first be made available to the account, when no one has asked for a library source and the whole shape can be created directly, is a refusal dressed as a prerequisite.
 
 Build in this order, because each step's prerequisite is the step before it.
 
