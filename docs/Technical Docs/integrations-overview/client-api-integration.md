@@ -492,7 +492,9 @@ Name the event stream for the component that owns it and tag it with the partner
 }
 ```
 
-A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type. Order them so configuration comes first.
+A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type.
+
+Order is a setting, not the order you happened to create them in. Give every view an `order` setting typed `INTEGER`, lowest first, with configuration at the front. Views without it arrange themselves arbitrarily, so a marketer can meet the reward activity chart before the tab that asks for credentials.
 
 Every one of them is a view, and the platform's view type requires three settings by name: `title`, `status`, and `settingsToDisplay` — the last typed `STRING_LIST`, not `JSON`. A view created without all three, or with `settingsToDisplay` typed as JSON, is rejected for type validation against three subschemas none of which the error names. Build each view from the body in **Add a Configuration View**, which carries all three, and attach it with `installed_into_socket` — `socket_name` is not a property of a component create.
 
@@ -804,7 +806,7 @@ The integration type requires eight settings: `short.description`, `about`, `doc
 | `external.integration.url` | The partner's marketplace or extension listing, or an empty string when the partner has none. |
 | `categories` | A single category string already used by other integrations, such as `eCommerce Platform`. The admin groups integrations by exact value, so a new spelling or a list-shaped value creates an orphan category. |
 | `logo` | Type `IMAGE`. An image URL, or a buildtime expression resolving an uploaded asset, such as `spel@buildtime:context.getAsset('example').getUrl()`. The admin binds this value directly to an image source; a bare name renders the placeholder image. |
-| `imageKey` | The stable key identifying the integration image. |
+| `imageKey` | The stable key the platform resolves to its own stored partner image. The partner page names it; it is not the partner's name lowercased or the page's slug. |
 
 Tag all eight with `internal:ui-display`. That tag means the setting describes the integration tile, and the admin hides tagged settings from the settings list.
 
@@ -819,6 +821,8 @@ curl --request POST \
 ```
 
 Then give the setting the buildtime expression that resolves it, `spel@buildtime:context.getAsset('example').getUrl()`, which builds into a hosted URL on the account's own asset domain. A reward integration carries a second asset the same way — `reward-supplier-logo`, exposed as a `rewardSupplierLogo` setting — and repeats that asset and setting on every supplier template, so a product shows its own artwork wherever a marketer meets it rather than only on the integration tile.
+
+An upload needs the image file itself, so a build that has no file cannot finish this part. Set `imageKey` from the partner page and leave `logo` unset, then say plainly that the artwork is outstanding and where it goes. Both failures here are worse than an empty setting: a favicon or a hotlinked partner URL is artwork that changes without anyone touching Extole, and a guessed image key resolves to nothing while looking configured.
 
 Add partner configuration variables separately, and never tag them `internal:ui-display` — a partner setting carrying that tag disappears from the configuration view even when `settingsToDisplay` names it, which is the most common reason a freshly built integration looks empty on its configuration tab. Give each one a display name, description, type, default, `importance:basic`, and a priority that orders it in the view. Prefix partner-specific configuration settings with the integration component name — `exampleAccountUrl`, `exampleSetupInstructions` — so they stay unambiguous when read from the parent component.
 

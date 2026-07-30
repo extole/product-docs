@@ -58,6 +58,8 @@ Order calls are retried over a few hours. The status check runs on a much longer
 
 Both credentials sit on the integration: the Merchant ID is a plain setting, and the API credential is a client key that Extole generates from the certificates BHN issues you, so it cannot be self-configured. Alongside its configuration and reward supplier tabs, the integration shows a reward activity chart and a live feed of BHN reward events.
 
+The integration's registered image key is `blackhawkNetwork`. That is the value the admin resolves BHN's artwork by, and it is not derived from the partner's name or this page's slug.
+
 Only the v10 integration is current. Build or install that one; the earlier flavor is not a fallback when something in the v10 shape is inconvenient.
 
 For how this category is built in general terms, see [Integration Categories](doc:integration-categories) and [Create an Integration With the Client API](doc:client-api-integration).
