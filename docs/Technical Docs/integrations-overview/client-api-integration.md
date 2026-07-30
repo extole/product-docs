@@ -67,7 +67,7 @@ Omit `parent`. Creating the child with an empty `types` array instead is not the
 
 A library install is the same action the Partners page Install button performs: `POST /v1/components/{SOURCE_COMPONENT_ID}/duplicate` without `target_campaign_id`. Omitting the target campaign creates a new root integration campaign that copies the library tree, including its webhooks and child controllers.
 
-Send a body carrying at least one property — a request with no body is rejected as `missing_request_body`. Use `component_display_name` for a display override; `display_name` is not a property of this request and is rejected as an unrecognized property.
+Send a body carrying at least one property — a request with no body is rejected as `missing_request_body`. Use `component_display_name` for a display override; `display_name` is not a property of this request and is rejected as an unrecognized property. Omit `target_campaign_id` rather than sending it as null, which is rejected as `invalid_null`: the attribute may be omitted but not nullified.
 
 ```bash
 SOURCE_COMPONENT_ID=$(curl -s -H "Authorization: Bearer ${TOKEN}" \
@@ -177,6 +177,8 @@ Do not add inbound business-event scaffolding to an outbound install. An outboun
 A reward fulfillment partner needs everything an outbound partner needs plus a supply side: a component type for the partner's own reward suppliers, a support campaign holding one template per product the partner sells, and webhooks typed `REWARD` that fire only for rewards from those suppliers. [Integration Categories](doc:integration-categories) describes the model; this section is the order to build it in.
 
 Install the maintained source when the duplicatable listing has one: the install carries the whole shape, including the support campaign it subscribes to, and the sequence below then serves as the checklist for confirming the install matches the partner page.
+
+Confirm the source's type before installing it. A partner that once shipped a legacy integration still exposes that older source under the same partner name, and a name match alone will install the wrong generation. A source typed `integration-v1` or any other pre-v10 type is not the maintained v10 integration; when it is the only source available, build the v10 shape below and say that the only source on offer was legacy.
 
 **A missing library source is a normal starting condition, not a blocker.** Most accounts can duplicate only the sources they are subscribed to, so a partner the documentation describes may have no source here at all. That is what the sequence below is for. Build it: the API creates every piece — the component type, the support campaign, the templates, the integration, and the webhooks. Reporting that the partner must first be made available to the account, when no one has asked for a library source and the whole shape can be created directly, is a refusal dressed as a prerequisite.
 
