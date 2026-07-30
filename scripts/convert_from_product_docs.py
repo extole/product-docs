@@ -104,6 +104,13 @@ def yaml_str(value: str) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
+def has_substantive_index_body(body: str) -> bool:
+    """Return whether an index contains useful overview content, not just a shell."""
+    body_without_headings = re.sub(r"^#{1,6}\s+.*$", "", body, flags=re.MULTILINE)
+    words = re.findall(r"[A-Za-z0-9][A-Za-z0-9'-]*", body_without_headings)
+    return len(words) >= 40
+
+
 # ---- body transforms -------------------------------------------------------
 
 FENCE_RE = re.compile(r"(```.*?```|~~~.*?~~~)", re.DOTALL)
@@ -384,8 +391,9 @@ class Converter:
         slug = str(fm.get("slug") or md.stem)
         return title, desc, slug, fm.get("hidden", False)
 
-    def collect(self, src_dir: Path, out_prefix: str, order):
+    def collect(self, src_dir: Path, out_prefix: str, order, skip_names: set[str] | None = None):
         """Return a Mintlify navigation list for this dir."""
+        skip_names = skip_names or set()
         if order is None:
             order = read_order(src_dir)
         if order is None:
@@ -397,9 +405,18 @@ class Converter:
             names = order
         nav: list = []
         for name in names:
+            if name in skip_names:
+                continue
             md = src_dir / f"{name}.md"
             sub = src_dir / name
-            if md.exists():
+            if md.exists() and sub.is_dir():
+                page = self._make_page(md, out_prefix)
+                children = self.collect(sub, f"{out_prefix}/{slugify(name)}", read_order(sub))
+                if page and children:
+                    nav.append({"group": page.title, "pages": children, "root": page.out_path})
+                elif page:
+                    nav.append(page.out_path)
+            elif md.exists():
                 page = self._make_page(md, out_prefix)
                 if page:
                     nav.append(page.out_path)
@@ -425,18 +442,24 @@ class Converter:
         index = sub / "index.md"
         group_title = humanize(sub.name)
         pages_list: list = []
+        root = None
         if index.exists():
-            fm, _ = split_frontmatter(index.read_text(encoding="utf-8", errors="replace"))
+            fm, body = split_frontmatter(index.read_text(encoding="utf-8", errors="replace"))
             if fm.get("title"):
                 group_title = str(fm["title"])
-            page = self._make_page_named(index, out_prefix2, "index")
-            if page:
-                pages_list.append(page.out_path)
+            if has_substantive_index_body(body):
+                root = self._make_page_named(index, out_prefix2, "index")
+            else:
+                # Remove a placeholder index emitted by an earlier conversion run.
+                (self.out / f"{out_prefix2}/index.mdx").unlink(missing_ok=True)
         order = read_order(sub)
-        pages_list.extend(self.collect(sub, out_prefix2, order))
+        pages_list.extend(self.collect(sub, out_prefix2, order, skip_names={"index"}))
         if not pages_list:
             return None
-        return {"group": group_title, "pages": pages_list}
+        group = {"group": group_title, "pages": pages_list}
+        if root:
+            group["root"] = root.out_path
+        return group
 
     def _make_page_named(self, md: Path, out_prefix: str, out_name: str):
         title, desc, slug, hidden = self._page_meta(md, "")
@@ -455,6 +478,9 @@ class Converter:
             fm_out = [f"title: {yaml_str(page.title)}"]
             if page.description:
                 fm_out.append(f"description: {yaml_str(page.description)}")
+            sidebar_title = NAV_SIDEBAR_TITLES.get(page.out_path)
+            if sidebar_title:
+                fm_out.append(f"sidebarTitle: {yaml_str(sidebar_title)}")
             content = "---\n" + "\n".join(fm_out) + "\n---\n\n" + body.lstrip("\n")
             dest = self.out / (page.out_path + ".mdx")
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -471,6 +497,28 @@ SPEC_TABS = [
     ("Management API", "management.json"),
     ("Management Expert API", "management-expert.json"),
 ]
+
+API_GETTING_STARTED = [
+    "api-overview",
+    "authentication-overview",
+    "common-errors",
+]
+
+# Preserve the established ReadMe Technical Docs sidebar during conversion.
+# These source directories are not part of that published navigation.
+NAV_EXCLUDED_GROUPS = {
+    "Technical Docs": {"components", "flow-campaign"},
+}
+
+# A root makes Mintlify render a group as a regular navigation link. Render these
+# entries as headings and place their overview page first in the group instead.
+NAV_GROUPS_WITHOUT_ROOT = {
+    "Technical Docs": {"extole-ai"},
+}
+
+NAV_SIDEBAR_TITLES = {
+    "technical-docs/extole-ai/index": "Overview",
+}
 
 
 def main():
@@ -498,13 +546,30 @@ def main():
         if not cat_dir.is_dir():
             continue
         tab_prefix = slugify(cat)
-        groups = _as_groups(conv, cat_dir, tab_prefix)
+        groups = _as_groups(
+            conv,
+            cat_dir,
+            tab_prefix,
+            excluded_groups=NAV_EXCLUDED_GROUPS.get(cat, set()),
+            groups_without_root=NAV_GROUPS_WITHOUT_ROOT.get(cat, set()),
+        )
         tabs.append({"tab": humanize(cat), "groups": groups})
 
-    # API reference tab from OpenAPI specs
+    # API reference tab combines its written getting-started guides with native OpenAPI specs.
     spec_out = out / "api-reference"
     spec_out.mkdir(parents=True, exist_ok=True)
     api_groups = []
+    api_getting_started = []
+    api_docs = args.product_docs / "reference" / "Getting Started"
+    for name in API_GETTING_STARTED:
+        source = api_docs / f"{name}.md"
+        if not source.exists():
+            continue
+        page = conv._make_page_named(source, "api-reference/getting-started", name)
+        if page:
+            api_getting_started.append(page.out_path)
+    if api_getting_started:
+        api_groups.append({"group": "Getting Started", "pages": api_getting_started})
     for label, fname in SPEC_TABS:
         src = args.specification / "openapi" / fname
         if not src.exists():
@@ -527,7 +592,13 @@ def main():
     print(f"tabs: {[t['tab'] for t in tabs]}")
 
 
-def _as_groups(conv: Converter, cat_dir: Path, tab_prefix: str):
+def _as_groups(
+    conv: Converter,
+    cat_dir: Path,
+    tab_prefix: str,
+    excluded_groups: set[str] | None = None,
+    groups_without_root: set[str] | None = None,
+):
     """Build the groups[] for a category tab. Leaf pages directly under the
     category are gathered into an 'Overview' group; subdirs become groups."""
     order = read_order(cat_dir)
@@ -536,18 +607,33 @@ def _as_groups(conv: Converter, cat_dir: Path, tab_prefix: str):
             [p.stem for p in cat_dir.glob("*.md")]
             + [p.name for p in cat_dir.iterdir() if p.is_dir()]
         )
+    excluded_groups = excluded_groups or set()
+    groups_without_root = groups_without_root or set()
     groups = []
     loose: list = []
     for name in order:
+        if name in excluded_groups:
+            continue
         md = cat_dir / f"{name}.md"
         sub = cat_dir / name
-        if md.exists():
+        if md.exists() and sub.is_dir():
+            page = conv._make_page(md, tab_prefix)
+            children = conv.collect(sub, f"{tab_prefix}/{slugify(name)}", read_order(sub))
+            if page and children:
+                groups.append({"group": page.title, "pages": children, "root": page.out_path})
+            elif page:
+                loose.append(page.out_path)
+        elif md.exists():
             page = conv._make_page(md, tab_prefix)
             if page:
                 loose.append(page.out_path)
         elif sub.is_dir():
             grp = conv._make_group(sub, tab_prefix)
             if grp:
+                if name in groups_without_root:
+                    root = grp.pop("root", None)
+                    if root:
+                        grp["pages"].insert(0, root)
                 groups.append(grp)
     if loose:
         groups.insert(0, {"group": "Overview", "pages": loose})
