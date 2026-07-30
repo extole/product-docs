@@ -235,6 +235,8 @@ Setting types come from the platform's fixed vocabulary, not from the mathematic
 
 Build exactly the variants the page names. Inventing a variant produces a supplier a client can configure and the partner cannot fulfill; omitting one silently removes a product from the integration.
 
+Give every template its own logo asset and `rewardSupplierLogo` setting, uploaded the way **Set Integration Display Metadata** describes. A template without one is a product that appears as a blank tile next to products that show their artwork.
+
 Then attach a reward supplier to each template. A bundled component declares this as an `elements.reward_suppliers` block in its `component.json`, but that block is a build-layer construct: `elements` is not a property of the component create request, and sending it is rejected as an unrecognized property. Through the API a reward supplier is a component-scoped resource of its own, created the same way a webhook is — with `component_ids` naming the template it belongs to:
 
 ```bash
@@ -331,9 +333,71 @@ The report-runner and event-stream views are each empty until their element exis
 | `report_runners` | `POST /v7/report-runners` |
 | `event_streams` | `POST /v6/event-streams`, with filters added afterwards |
 
-A report runner's `report_type` is an opaque account-scoped identifier, not a readable constant. Look it up with `GET /v6/report-types` and match on display name — an account has a hundred or so, and the identifiers differ between accounts, so a report type copied from another account's integration or spelled as a plausible enum name is rejected. Pick a reward report the account actually has, and keep its parameters to the ones that report type declares rather than composing a mappings expression from scratch.
-
 Attach each of those two to the **view** component that displays it, not to the integration component. Both views resolve what to show by querying their own component for an element of the matching kind, so a report runner hung off the integration leaves the tab reporting that no report runner is configured even though one exists in the account.
+
+#### Build the Report Behind the Activity Tab
+
+A report runner is a scheduled report, a set of parameter values for it, and an attachment to the view that charts it:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v7/report-runners" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "type": "SCHEDULED",
+    "name": "Partner Example Reward Revenue Report",
+    "report_type": "'"$REPORT_TYPE_ID"'",
+    "formats": ["CSV", "JSON"],
+    "scopes": ["CLIENT_SUPERUSER"],
+    "tags": ["partner-graph"],
+    "frequency": "WEEKLY",
+    "schedule_start_date": "2026-04-01T00:00:00-06:00",
+    "enabled": true,
+    "execution_policy": "AWAIT_DATA",
+    "parameters": {
+      "container": "production",
+      "time_range": "ALL_TIME",
+      "campaign_states": "ALL",
+      "visit_type": "NEW_TO_CLIENT",
+      "unattributed_events": "false",
+      "quality": "ALL",
+      "mappings": "date=START_DATE(event.eventTime, period:\"DAY\"); count=group_count(event.id, step_name:\"converted\"); revenue=GROUP_SUM(event.data.amount, step_name:\"converted\")"
+    },
+    "component_ids": ["'"$VIEW_COMPONENT_ID"'"]
+  }'
+```
+
+A scheduled runner needs `schedule_start_date`, and a runner's type is fixed once created: a runner made as `REFRESHING` cannot be turned into a scheduled one, and an update that tries reports the wrong type rather than the wrong field. Delete it and create the runner you meant.
+
+`report_type` is an account-scoped identifier rather than a readable constant, so read the account's types with `GET /v6/report-types` and match on display name. Two properties decide whether a type will work, and neither is its name:
+
+- The **parameters it declares** are the only ones the runner may send, and their values come from the type's own enumerations. A time range is `ALL_TIME`, not `all_time`; a locale list accepts only locales the account declares; a required parameter left out and an invented parameter both come back as the same invalid-format rejection on `parameters` as a whole, so add parameters one at a time when one is refused rather than rewriting the set.
+- The **mappings dialect** it accepts decides what your expression may say. A type whose `mappings` parameter is row-shaped rejects the grouping functions — `group_count`, `GROUP_SUM` — that a charted activity report is built from; a metric-shaped one accepts them. Read the parameter's type before writing the expression, and choose the parent by that rather than by a display name that sounds close.
+
+Accounts differ here, and an account that lacks a suitable type is a normal case rather than a dead end. Create one: a configured report type is a saved set of parameter defaults over a parent type.
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v6/report-types" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "display_name": "Example Reward Revenue",
+    "description": "Reward activity and revenue for the Example integration.",
+    "type": "CONFIGURED",
+    "parent_report_type_id": "'"$PARENT_REPORT_TYPE_ID"'",
+    "categories": ["Customer Activity"],
+    "scopes": ["CLIENT_SUPERUSER"],
+    "allowed_scopes": ["CLIENT_ADMIN", "CLIENT_SUPERUSER"],
+    "visibility": "PUBLIC",
+    "formats": ["CSV", "JSON"],
+    "parameters": [
+      { "name": "mappings", "default_value": "date=START_DATE(event.eventTime, period:\"DAY\"); count=group_count(event.id, step_name:\"converted\")" },
+      { "name": "container", "default_value": "production" }
+    ]
+  }'
+```
+
+The `parameters` list must name **every** parameter the parent declares, giving an empty default to the ones you do not set. Listing only the ones you care about reads as deleting the rest and is rejected as an attempt to remove static parameters, which is the one error here that sounds unrelated to what you sent.
 
 Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
 
@@ -353,7 +417,31 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters"
 
 Without those filters the tab shows every event in the account rather than the integration's reward activity, which looks like a working feed and is not one.
 
-Give the report-runner view a `reportColumnsMapping` setting as well. It is the JSON that maps the report's columns onto a chart — its type, its axis column, and one series per plotted column — and without it the tab has a report behind it and nothing to draw.
+Give the report-runner view a `reportColumnsMapping` setting as well, typed `JSON`. It maps the report's columns onto a chart, and every column it names has to be one the runner's `mappings` expression produces — the axis column and each series column by exactly the name the expression assigns:
+
+```json
+{
+  "chart": { "type": "line" },
+  "xAxis": { "column": "date", "type": "datetime" },
+  "series": [
+    { "name": "Count", "column": "count", "aggregation": "sum" },
+    { "name": "Total Spend", "column": "revenue", "aggregation": "sum" }
+  ]
+}
+```
+
+Without the setting the tab has a report behind it and nothing to draw; with a column the report does not produce, it draws an empty axis. Write the mappings expression and this setting together.
+
+Name the event stream for the component that owns it and tag it with the partner's app type, which is how the feed is recognised as this integration's rather than a stream someone left in the account:
+
+```json
+{
+  "name": "javascript@buildtime:context.getComponent().getName() + ' Reward Events'",
+  "description": "A live feed of reward events produced by the Example integration. The feed runs for 1 hour by default. Refresh the feed to poll for new events.",
+  "tags": ["internal:app_type=example"],
+  "component_ids": ["$VIEW_COMPONENT_ID"]
+}
+```
 
 A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type. Order them so configuration comes first.
 
@@ -668,6 +756,18 @@ The integration type requires eight settings: `short.description`, `about`, `doc
 | `imageKey` | The stable key identifying the integration image. |
 
 Tag all eight with `internal:ui-display`. That tag means the setting describes the integration tile, and the admin hides tagged settings from the settings list.
+
+`logo` and `imageKey` are two different things and both are needed: `imageKey` is a key the platform resolves to its own stored partner image, while `logo` is an image this component carries. Point `logo` at an asset you upload rather than at a URL on the partner's website — a favicon or a hotlinked file is a logo that changes or disappears without anyone touching Extole. Upload the file first, as multipart form data with the metadata in an `asset` part and the bytes in a `file` part:
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/components/$INTEGRATION_COMPONENT_ID/assets" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --form 'asset={"name":"example","tags":[],"description":"Example Logo"};type=application/json' \
+  --form "file=@example.png;type=image/png"
+```
+
+Then give the setting the buildtime expression that resolves it, `spel@buildtime:context.getAsset('example').getUrl()`, which builds into a hosted URL on the account's own asset domain. A reward integration carries a second asset the same way — `reward-supplier-logo`, exposed as a `rewardSupplierLogo` setting — and repeats that asset and setting on every supplier template, so a product shows its own artwork wherever a marketer meets it rather than only on the integration tile.
 
 Add partner configuration variables separately, and never tag them `internal:ui-display` — a partner setting carrying that tag disappears from the configuration view even when `settingsToDisplay` names it, which is the most common reason a freshly built integration looks empty on its configuration tab. Give each one a display name, description, type, default, `importance:basic`, and a priority that orders it in the view. Prefix partner-specific configuration settings with the integration component name — `exampleAccountUrl`, `exampleSetupInstructions` — so they stay unambiguous when read from the parent component.
 
