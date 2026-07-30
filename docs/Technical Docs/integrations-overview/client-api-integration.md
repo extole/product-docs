@@ -343,6 +343,8 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters"
 
 Without those filters the tab shows every event in the account rather than the integration's reward activity, which looks like a working feed and is not one.
 
+Give the report-runner view a `reportColumnsMapping` setting as well. It is the JSON that maps the report's columns onto a chart — its type, its axis column, and one series per plotted column — and without it the tab has a report behind it and nothing to draw.
+
 A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type. Order them so configuration comes first.
 
 ### Create the Reward Webhooks
