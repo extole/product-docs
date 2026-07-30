@@ -1,373 +1,110 @@
 ---
 title: "OpenCart"
-excerpt: "Configure an OpenCart 4.x extension to send order lifecycle events to reusable Extole business events.\n"
+excerpt: "Track order activity from your OpenCart storefront in Extole for attribution, rewarding, reporting, and segmentation.\n"
 ---
 
-# Overview
+## Overview
 
-The OpenCart integration sends order lifecycle events from a server-side OpenCart 4.x extension to Extole. Extole maps the partner input events to reusable `converted`, `shipped`, and `canceled` business-event components for attribution, reporting, rules, and program actions.
+Launch programs like Refer A Friend, Drop A Hint, and Welcome Offer on an OpenCart storefront. The Extole and OpenCart integration reports order activity as it happens — orders placed, shipped, and canceled — so your programs can attribute referrals, reward participants at the right moment, and report on the revenue they drive.
 
-This integration is inbound only. It does not create OpenCart coupons, issue rewards in the store, or send any data back to OpenCart.
+The integration is inbound: OpenCart tells Extole what happened in the store. It does not create OpenCart coupons, issue rewards inside the store, or send any data back to OpenCart. Rewards for OpenCart programs are fulfilled by whichever reward supplier your program uses.
 
-The integration uses OpenCart's publisher-subscriber event system. Read the <Anchor label="OpenCart Events documentation" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events documentation</Anchor> before implementing the extension, and verify event routes and listener signatures against the installed OpenCart version.
-
-## Integration Model
-
-OpenCart is an inbound integration: the store sends order lifecycle events to Extole, and Extole sends nothing back to OpenCart. Each OpenCart event maps to one reusable Extole business event that captures the order and customer fields the rest of your programs use.
-
-The integration exposes a configuration view holding the store URL and the extension setup information. Its status stays `IN_PROGRESS` until the store URL is configured.
-
-For the platform build sequence — creating the campaign, business events, trigger rules, data capture, and views — see [Integration Categories](doc:integration-categories) and [Create an Integration With the Client API](doc:client-api-integration).
-
-## Event Contract
-
-The deployed model uses these events:
-
-| OpenCart input event | Extole business event | Notes |
-| :------------------- | :-------------------- | :---- |
-| `opencart_order_created` | `converted` | Carries the order total as transaction value |
-| `opencart_order_shipped` | `shipped` | Fulfillment milestone |
-| `opencart_order_canceled` | `canceled` | Cancellation milestone |
-| `opencart_order_cancelled` | `canceled` | Legacy input alias only |
-
-Use `opencart_order_canceled` for new implementations. Keep `opencart_order_cancelled` only while an existing sender requires the legacy spelling.
-
-The `opencart_order_created` event creates a `converted` event. Emit it only when the OpenCart order satisfies the program's definition of a valid conversion. If the store creates an order before payment or other qualification is complete, defer this event until the order reaches a configured qualifying status.
+OpenCart has no packaged Extole app. Your store sends events through a server-side OpenCart extension that listens to the store's own order events, which means this integration involves a developer once, at setup. Everything after that is configured in My Extole and in the OpenCart admin.
 
 ## Prerequisites
 
 | Requirement | Description |
 | :---------- | :---------- |
-| OpenCart 4.x store | Install and enable a server-side extension that can register event listeners and send HTTPS requests. |
-| OpenCart administrator access | Install the extension and configure event, status, and credential settings. |
-| Extole integration campaign | Install and publish the OpenCart integration in your Extole account. |
-| Event-ingestion credential | Use a server-side Extole credential authorized to submit events. Do not use the Client API management token. |
-| Current program label | Target events to the integration's active `PROGRAM` label. |
-| Order-status mapping | Identify the OpenCart status identifiers that mean converted, shipped, and canceled for this store. |
-| HTTPS connectivity | Allow the OpenCart server to reach the Extole Event API. |
-| Retry storage | Queue or outbox storage for requests that cannot be delivered immediately. |
+| Extole account | Install and publish the OpenCart integration in your Extole account. |
+| OpenCart 4.x store | A store you can install a server-side extension into. |
+| OpenCart administrator access | Needed to install the extension and configure its event, status, and credential settings. |
+| Developer resource | Someone to build or install the OpenCart extension that sends the events. |
+| Event-ingestion credential | A server-side Extole credential authorized to submit events, generated in the [Security Center](https://my.extole.com/security-center). Do not use a Client API management token. |
+| Order-status decisions | The OpenCart statuses that mean an order is converted, shipped, and canceled in your store. |
+| HTTPS connectivity | The OpenCart server must be able to reach the Extole Event API. |
 
-OpenCart status identifiers are store configuration. Do not copy numeric identifiers from another OpenCart installation.
+## Integration
 
-## Configure the Extole Integration View
+### Step 1: Configure the Extole Integration
 
 Open the installed OpenCart integration in My Extole and select **Configuration**.
 
-1. Enter the public store base URL in **OpenCart Store URL**.
+1. Enter your public store base URL in **OpenCart Store URL**.
 2. Save the integration.
-3. Copy the endpoint, current program label, and event names from **OpenCart Extension Setup**.
-4. Open the linked OpenCart documentation before installing the extension.
+3. Copy the endpoint, current program label, and event names from **OpenCart Extension Setup**. Your extension needs all three.
 
-The integration view does not display or store the event-ingestion secret. Save that credential only in protected server-side OpenCart configuration.
+The integration view never displays or stores the event-ingestion credential. Keep that secret only in protected server-side OpenCart configuration.
 
-## Create the OpenCart Extension
+### Step 2: Install the OpenCart Extension
 
-Create a normal OpenCart extension instead of modifying core files. The extension should contain:
+Install the events as a normal OpenCart extension rather than by editing core files, so an OpenCart upgrade does not silently remove your integration. The extension registers two listeners against the store's publisher-subscriber event system:
 
-- An administrator configuration page.
-- An `install()` method that registers event listeners.
-- An `uninstall()` method that removes every registered listener.
-- Catalog-side listener methods.
-- An order payload mapper.
-- A durable queue or outbox.
-- A delivery worker with retry and logging.
+| OpenCart trigger | What it observes |
+| :--------------- | :--------------- |
+| `catalog/model/checkout/order.addOrder/after` | A new order was created. |
+| `catalog/model/checkout/order.addHistory/after` | An order moved to a new status. |
 
-Store these settings:
+Register both in the extension's `install()` method and remove both in `uninstall()`. After installing, open **Extensions** > **Events** in the OpenCart admin and confirm that both listeners are present and enabled.
 
-| Setting | Purpose |
-| :------ | :------ |
-| Extole event endpoint | Production is `https://events.extole.io/v6/events`. |
-| Event-ingestion credential | Authorizes server-to-server event submission. Store encrypted or in protected server configuration. |
-| Program label | Targets events to the installed Extole integration. |
-| Store URL | Identifies the OpenCart store. |
-| Converted status identifiers | Optional when order creation itself is not a valid conversion. |
-| Shipped status identifiers | Statuses that produce `opencart_order_shipped`. |
-| Canceled status identifiers | Statuses that produce `opencart_order_canceled`. |
-| Request timeout | A short network timeout used by the delivery worker. |
-| Retry policy | Backoff and maximum attempts for temporary failures. |
+OpenCart's event APIs and route syntax have changed across 4.x releases, so verify the trigger paths, the listener signature, and the registration call against the release your store runs. The <Anchor label="OpenCart Events documentation" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events documentation</Anchor> is the reference for both.
 
-## Register OpenCart Event Listeners
+For how the extension should deliver events — the payload, the credential, the outbox, retries, and verification — see [Send Platform Events to Extole](doc:sending-platform-events).
 
-OpenCart event names follow the `namespace/action/stage` convention. Current OpenCart 4.x documentation uses a dot before the model method in the action path.
+### Step 3: Map Your Order Statuses
 
-Register listeners in the extension's administrator-side `install()` method:
-
-```php
-<?php
-namespace Opencart\Admin\Controller\Extension\Extole\Module;
-
-class Extole extends \Opencart\System\Engine\Controller {
-    public function install(): void {
-        $this->load->model('setting/event');
-
-        $this->model_setting_event->addEvent([
-            'description' => 'Extole order created',
-            'code' => 'extole_order_created',
-            'trigger' => 'catalog/model/checkout/order.addOrder/after',
-            'action' => 'extension/extole/events.onOrderCreated',
-            'status' => 1,
-            'sort_order' => 1
-        ]);
-
-        $this->model_setting_event->addEvent([
-            'description' => 'Extole order status changed',
-            'code' => 'extole_order_status_changed',
-            'trigger' => 'catalog/model/checkout/order.addHistory/after',
-            'action' => 'extension/extole/events.onOrderStatusChanged',
-            'status' => 1,
-            'sort_order' => 1
-        ]);
-    }
-
-    public function uninstall(): void {
-        $this->load->model('setting/event');
-        $this->model_setting_event->deleteEventByCode('extole_order_created');
-        $this->model_setting_event->deleteEventByCode('extole_order_status_changed');
-    }
-}
-```
-
-OpenCart event APIs have changed across 4.x releases. Confirm all of the following on the target store:
-
-- `addEvent` accepts the object form shown above.
-- The model action uses the dot method separator.
-- The catalog listener action resolves to the extension class.
-- The listener receives route, arguments, and output for an `after` event.
-
-After installation, open **Extensions** > **Events** and confirm both listeners are present and enabled.
-
-## Handle Order Events
-
-An OpenCart `after` listener receives the route, method arguments, and method output:
-
-```php
-<?php
-namespace Opencart\Catalog\Controller\Extension\Extole;
-
-class Events extends \Opencart\System\Engine\Controller {
-    public function onOrderCreated(string &$route, array &$arguments, mixed &$output): void {
-        $orderId = (string) $output;
-        $this->queueExtoleOrderEvent('opencart_order_created', $orderId);
-    }
-
-    public function onOrderStatusChanged(string &$route, array &$arguments, mixed &$output): void {
-        $orderId = (string) ($arguments[0] ?? '');
-        $orderStatusId = (int) ($arguments[1] ?? 0);
-
-        if ($this->isShippedStatus($orderStatusId)) {
-            $this->queueExtoleOrderEvent('opencart_order_shipped', $orderId);
-        }
-
-        if ($this->isCanceledStatus($orderStatusId)) {
-            $this->queueExtoleOrderEvent('opencart_order_canceled', $orderId);
-        }
-    }
-}
-```
-
-Treat this as a listener contract, not a complete extension. Implement `queueExtoleOrderEvent`, status lookup, configuration access, order loading, and delivery using the conventions of the installed OpenCart release.
-
-Do not perform slow remote requests in the event listener. Persist a sanitized event record and let a worker send it to Extole. A temporary Extole or network failure must not fail checkout or prevent an OpenCart order-status transition.
-
-## Map OpenCart Order Statuses
-
-Configure status identifiers instead of comparing localized status names.
-
-Use this decision flow:
+OpenCart status identifiers are store configuration, and the same number means different things in different stores. Configure identifiers rather than comparing localized status names, and take them from this store:
 
 1. Load the store's current order statuses.
-2. Select one or more statuses that mean the order is a valid conversion.
-3. Select one or more statuses that mean the order has shipped or been fulfilled.
-4. Select one or more statuses that mean the order is canceled.
-5. Reject overlapping mappings unless the store has an explicit reason for them.
+2. Choose the statuses that mean the order is a valid conversion.
+3. Choose the statuses that mean the order shipped or was fulfilled.
+4. Choose the statuses that mean the order was canceled.
+5. Avoid mapping one status to more than one lifecycle event unless you have a reason to.
 6. Test every configured transition.
 
-If order creation already represents a completed, valid transaction, emit `opencart_order_created` from `addOrder`. Otherwise, emit it once when `addHistory` first enters a qualifying converted status.
+If creating an order in your store already represents a completed, valid purchase, report the conversion from order creation. If your store creates orders before payment or another qualification completes, report it instead when the order first reaches a qualifying status — otherwise programs reward purchases that were never paid for.
 
-Persist a delivery marker for each order and Extole input event name. OpenCart can add repeated history records with the same status, and the extension must not enqueue the same lifecycle event repeatedly.
+### Step 4: Verify the Integration
 
-## Build the Event Payload
+Test in a non-production OpenCart store before going live:
 
-Send the OpenCart source fields the Extole field mapping expects.
+1. Confirm both listeners under **Extensions** > **Events**.
+2. Create a qualifying test order and confirm one order-created event.
+3. Move an order to each configured shipped status and confirm one shipped event.
+4. Move a separate order to each configured canceled status and confirm one canceled event.
+5. Repeat a status transition and confirm no duplicate is delivered.
+6. Simulate an Extole timeout and confirm checkout and status changes still succeed.
 
-### Order Created
+Then confirm what Extole recorded, as described in [Send Platform Events to Extole](doc:sending-platform-events).
 
-```json
-{
-  "event_name": "opencart_order_created",
-  "data": {
-    "email": "customer@example.com",
-    "first_name": "Alex",
-    "last_name": "Morgan",
-    "order_id": "10042",
-    "total": 42.5,
-    "customer_id": "customer-9001",
-    "coupon_code": "WELCOME10",
-    "store_url": "https://shop.example.com",
-    "labels": "opencart-integration"
-  }
-}
-```
+## Event Contract
 
-### Order Shipped
+Each OpenCart event becomes one reusable Extole business event:
 
-```json
-{
-  "event_name": "opencart_order_shipped",
-  "data": {
-    "email": "customer@example.com",
-    "first_name": "Alex",
-    "last_name": "Morgan",
-    "order_id": "10042",
-    "customer_id": "customer-9001",
-    "labels": "opencart-integration"
-  }
-}
-```
+| OpenCart event | Extole business event | Notes |
+| :------------- | :-------------------- | :---- |
+| `opencart_order_created` | `converted` | Carries the order total as the transaction value. |
+| `opencart_order_shipped` | `shipped` | Fulfillment milestone. |
+| `opencart_order_canceled` | `canceled` | Cancellation milestone. |
+| `opencart_order_cancelled` | `canceled` | Legacy spelling, accepted as an input alias only. |
 
-### Order Canceled
+Use `opencart_order_canceled` for new implementations, and keep the double-l spelling only while an existing sender depends on it.
 
-```json
-{
-  "event_name": "opencart_order_canceled",
-  "data": {
-    "email": "customer@example.com",
-    "first_name": "Alex",
-    "last_name": "Morgan",
-    "order_id": "10042",
-    "customer_id": "customer-9001",
-    "labels": "opencart-integration"
-  }
-}
-```
+## Data Parameters
 
-Replace `opencart-integration` with the current program label shown in the integration view. The `labels` property belongs inside `data`.
+Extole reads these OpenCart fields by name from the event, so send them exactly as spelled. A renamed key arrives as an event with that field missing.
 
-Do not send payment-card data, passwords, session identifiers, or unrelated order metadata.
+| Extole field | OpenCart field | Role |
+| :----------- | :------------- | :--- |
+| `partner_conversion_id` | `order_id` | Identifies the transaction and deduplicates repeated outcomes for the same order. |
+| `cart_value` | `total` | The order value used for revenue reporting and value-based rewards. |
+| `partner_user_id` | `customer_id` | Identifies the customer in your store. |
+| `email` | `email` | Person identity. |
+| `first_name` | `first_name` | Person detail. |
+| `last_name` | `last_name` | Person detail. |
+| `coupon_code` | `coupon_code` | The code used on the order, when one was. |
+| `store_url` | `store_url` | Identifies the store that produced the event. |
 
-## Understand the Extole Data Mapping
-
-The `converted` business event captures:
-
-| Extole field | OpenCart source field | Key type |
-| :----------- | :-------------------- | :------- |
-| `partner_conversion_id` | `order_id` | `UNIQUE_PARTNER_EVENT_KEY` |
-| `cart_value` | `total` | `VALUE` |
-| `partner_user_id` | `customer_id` | `PARTNER_PROFILE_KEY` |
-| `email` | `email` | `NONE` |
-| `first_name` | `first_name` | `NONE` |
-| `last_name` | `last_name` | `NONE` |
-| `coupon_code` | `coupon_code` | `NONE` |
-| `store_url` | `store_url` | `NONE` |
-
-The `shipped` and `canceled` business events capture:
-
-- `partner_conversion_id` from `order_id`.
-- `partner_user_id` from `customer_id`.
-- `email`.
-- `first_name`.
-- `last_name`.
-
-Each field reads the matching key from the event payload. Send the source keys exactly as spelled in the payload examples above; a renamed key arrives as an event with the field missing.
-
-## Send Events Securely
-
-Send events from the OpenCart server:
-
-```bash
-curl --request POST "https://events.extole.io/v6/events" \
-  --header "Authorization: Bearer $EVENT_INGESTION_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data @event.json
-```
-
-Use `/v6/events` during setup when the extension needs a synchronous response for verification. For sustained high-volume delivery, evaluate `/v6/async-events` and update the worker's verification and retry behavior for asynchronous processing.
-
-Protect the integration by:
-
-- Restricting configuration access to OpenCart administrators.
-- Keeping the event-ingestion credential out of templates, browser code, logs, and event data.
-- Redacting authorization headers in transport logs.
-- Validating and normalizing email, identifiers, URLs, and numeric totals.
-- Using HTTPS certificate verification.
-- Rotating credentials without reinstalling the extension.
-
-## Implement Delivery and Retry
-
-Use an outbox or queue with these fields:
-
-- Local delivery identifier.
-- OpenCart order identifier.
-- Extole input event name.
-- Sanitized payload.
-- Attempt count.
-- Next-attempt time.
-- Last HTTP status and redacted error.
-- Delivered time.
-
-Treat `2xx` as accepted. Retry temporary network failures, `429`, and retryable `5xx` responses with bounded exponential backoff. Do not retry permanent authentication or validation failures indefinitely.
-
-Use the combination of order identifier and input event name as the local idempotency key. Extole also receives `order_id` as `partner_conversion_id`, which allows the business event to identify duplicate order outcomes.
-
-## Verify the OpenCart Extension
-
-Test in a non-production OpenCart environment:
-
-1. Install and enable the extension.
-2. Confirm both listeners under **Extensions** > **Events**.
-3. Save the endpoint, event-ingestion credential, current program label, store URL, and status mappings.
-4. Create a qualifying test order.
-5. Confirm one queued `opencart_order_created` event.
-6. Move the order to each configured shipped status and confirm one `opencart_order_shipped` event.
-7. Move a separate order to each configured canceled status and confirm one `opencart_order_canceled` event.
-8. Repeat a status transition and confirm the outbox does not create a duplicate delivery.
-9. Simulate an Extole timeout and confirm checkout or status changes still succeed.
-10. Confirm the worker retries and later marks the event delivered.
-11. Confirm logs do not contain the authorization token or sensitive order data.
-
-## Verify the Extole Events
-
-Use the synchronous endpoint for the initial verification:
-
-```bash
-curl --request POST "https://events.extole.io/v6/events" \
-  --header "Authorization: Bearer $EVENT_INGESTION_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "event_name": "opencart_order_created",
-    "data": {
-      "email": "test@example.com",
-      "first_name": "OpenCart",
-      "last_name": "Test",
-      "order_id": "test-order-001",
-      "total": 42.50,
-      "customer_id": "test-customer-001",
-      "coupon_code": "TEST10",
-      "store_url": "https://shop.example.com",
-      "labels": "opencart-integration"
-    }
-  }'
-```
-
-Use the returned `person_id` to query the resulting event:
-
-```bash
-curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
-  --data-urlencode "campaign_ids=$CAMPAIGN_ID" \
-  --data-urlencode "names=converted"
-```
-
-Confirm:
-
-- The event name is `converted`.
-- `partner_conversion_id` equals the OpenCart `order_id`.
-- `cart_value` equals the OpenCart `total`.
-- `partner_user_id` equals the OpenCart `customer_id`.
-- Person and order fields match the source payload.
-- A repeated `order_id` is handled as a duplicate outcome.
-
-Repeat the test for `opencart_order_shipped` and `opencart_order_canceled`.
+The shipped and canceled events carry the order identifier, the customer identifier, and the person's name and email. They do not carry a value, because the value was already reported at conversion.
 
 ## Troubleshooting
 
@@ -375,31 +112,28 @@ Repeat the test for `opencart_order_shipped` and `opencart_order_canceled`.
 
 - Confirm the extension is installed and enabled.
 - Confirm the listener appears under **Extensions** > **Events**.
-- Check the exact event route and action syntax for the installed OpenCart version.
+- Check the trigger path and action syntax against the installed OpenCart release.
 - Check **System** > **Maintenance** > **Error Logs**.
-- Confirm the catalog listener class and method are accessible.
+- Confirm the catalog listener class and method are reachable.
 
-### Extole Accepts the Input but No Business Event Appears
+### Shipped or Canceled Is Reported More Than Once
 
-- Confirm the current program label is inside `data.labels`.
-- Confirm the input event name matches the event name configured on the integration's trigger rule.
-- Confirm the integration campaign is published.
-- Confirm the event contains enough identity data.
-- Confirm the data source keys match `order_id`, `total`, and `customer_id`.
+- Map statuses by identifier rather than by name.
+- Record one delivery per order and event name.
+- Ignore repeated history entries for a status already reported.
+- Confirm the store does not map one status to two lifecycle events.
 
-### Shipped or Canceled Fires More Than Once
+### Conversions Are Reported Before Payment
 
-- Use status identifiers rather than names.
-- Record one local delivery per order identifier and event name.
-- Ignore repeated history entries for a status already delivered.
-- Confirm the store does not map the same status to multiple lifecycle events.
+Stop reporting the conversion from order creation. Configure the statuses that qualify as a conversion and report it when an order first reaches one of them.
 
-### Converted Fires Before Payment
+### Extole Accepts the Event but Nothing Appears in the Program
 
-Disable order-created emission from `addOrder`. Configure qualifying converted status identifiers and emit `opencart_order_created` when `addHistory` first reaches one of those statuses.
+The event was accepted without matching the integration. Work through the checklist in [Send Platform Events to Extole](doc:sending-platform-events), starting with the program label.
 
 ## Related Documentation
 
+- [Send Platform Events to Extole](doc:sending-platform-events)
 - [Integration Categories](doc:integration-categories)
 - [Create an Integration With the Client API](doc:client-api-integration)
 - <Anchor label="OpenCart Events" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events</Anchor>

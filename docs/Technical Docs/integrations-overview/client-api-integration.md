@@ -596,6 +596,8 @@ root
 
 The partner event name belongs in an `input_event` trigger rule. The canonical Extole event name belongs on the reusable business-event component. Do not rename the Extole business event to match the partner wire event.
 
+This tree receives events; it does not produce them. The extension, service, or feed that sends them from the partner platform is built against [Send Platform Events to Extole](doc:sending-platform-events), and an inbound integration is finished only when both halves exist.
+
 ## Extole Chat Creation Contract
 
 Extole Chat must follow these rules when it creates or changes an integration:
