@@ -217,7 +217,19 @@ curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
   }'
 ```
 
-Create one component per product variant the partner page names, typed with the supplier type, and give each the settings a client configures — value, the partner's program and account identifiers, payment terms — plus the value-mode toggle and its bounds. Build exactly the variants the page names. Inventing a variant produces a supplier a client can configure and the partner cannot fulfill; omitting one silently removes a product from the integration.
+Create one component per product variant the partner page names, typed with the supplier type, and give each the settings a client configures — value, the partner's program and account identifiers, payment terms — plus the value-mode toggle and its bounds.
+
+Setting types come from the platform's fixed vocabulary, not from the mathematical nature of the value. There is no `DECIMAL` or `DOUBLE`, and a create request naming one is rejected as malformed JSON on the `variables` property. Supplier templates use these:
+
+| Setting | Type |
+| :------ | :--- |
+| Reward value | `STRING` |
+| Cash-back percentage, minimum, and maximum | `INTEGER` |
+| Value-mode toggle and enabled flag | `BOOLEAN` |
+| Partner program number, account identifier | `STRING` |
+| Payment terms | `ENUM` with `allowed_values` — not `enum_values`, which is rejected |
+| Supplier identifier | `REWARD_SUPPLIER_ID` |
+| Logo | `IMAGE` | Build exactly the variants the page names. Inventing a variant produces a supplier a client can configure and the partner cannot fulfill; omitting one silently removes a product from the integration.
 
 Each template declares its supplier through `elements.reward_suppliers`. The element is where the client's settings become a supplier the reward engine can use:
 
