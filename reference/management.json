@@ -101608,7 +101608,7 @@
     },
     "/v6/report-types/schemas": {
       "get": {
-        "description": "Returns the schema for every report type visible to the calling client that produces preconfigured columns. Each entry pairs a `report_type_id` with the ordered `columns` that report type produces. Report types that do not support a schema are omitted from the list. Use this to discover output shapes across report types in one call instead of requesting each schema by id.",
+        "description": "Returns the schema for every report type visible to the calling client whose columns are known ahead of a run. Each entry pairs a `report_type_id` with the ordered `columns` that report type produces. Report types that do not support a schema are omitted from the list. Use this to discover output shapes across report types in one call instead of requesting each schema by id.",
         "operationId": "listReportTypeSchemas",
         "responses": {
           "200": {
@@ -102253,7 +102253,7 @@
     },
     "/v6/report-types/{id}/schema": {
       "get": {
-        "description": "Returns the schema a report type produces - the ordered `columns` that appear in its output. For report types with preconfigured columns, these are the report type's preview columns. Use this to discover a report type's output shape without running the report.",
+        "description": "Returns the schema a report type produces - the ordered `columns` that appear in its output. For report types with fixed columns, these are the report type's preview columns. For configurable report types, they are the client-named columns defined by the report type's column mapping parameters. Use this to discover a report type's output shape without running the report.",
         "operationId": "getReportTypeSchema",
         "parameters": [
           {
@@ -102293,7 +102293,7 @@
                 }
               }
             },
-            "description": "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), or the report type exists but does not support a schema because it has no preview columns (`report_type_schema_not_supported`) - inspect the response `code` field for the specific error."
+            "description": "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), or the report type exists but none of its columns can be determined without running the report (`report_type_schema_not_supported`) - inspect the response `code` field for the specific error."
           },
           "401": {
             "content": {
