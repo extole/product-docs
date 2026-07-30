@@ -303,7 +303,7 @@ A reward integration ships four views: a configuration view for the credential a
 
 Create one webhook per partner order endpoint plus one status check, all typed `REWARD` and attached to the integration component through `component_ids`. As with any component-scoped webhook, the campaign must have been published once before these can be created.
 
-Each webhook needs both filters. The supplier filter resolves, at build time, the supplier elements under the integration's children that carry the variant tag; the state filter restricts the webhook to the reward state it acts on:
+Create the webhook first, without filters. `POST /v6/webhooks` has no filters property — a bundled component declares `webhook_filters` inline, but that is build-layer syntax and the API rejects it:
 
 ```json
 {
@@ -313,16 +313,29 @@ Each webhook needs both filters. The supplier filter resolves, at build time, th
   "client_key_id": "javascript@buildtime:context.getVariableContext().get(\"clientKeyId\")",
   "tags": ["internal:example-variant", "internal:app_type=example", "internal:app_data:event_type=reward"],
   "retry_intervals": [1800, 3600, 10800],
-  "webhook_filters": [
-    {
-      "reward_supplier_ids_filter": "javascript@buildtime:(function(){ let children = Java.from(context.getComponent().getChildren()); let allRewardSuppliers = []; children.forEach(function(child) { let rewardSuppliers = Java.from(child.createElementsQuery().withType('REWARD_SUPPLIER').withTag('internal:example-variant').list()); rewardSuppliers.forEach(function(rewardSupplier) { allRewardSuppliers.push(rewardSupplier.getId()); }); }); return allRewardSuppliers; })()"
-    },
-    {
-      "reward_state_filter": ["EARNED"]
-    }
-  ]
+  "component_ids": ["INTEGRATION_COMPONENT_ID"]
 }
 ```
+
+Then add each filter through its own typed endpoint under the created webhook. The supplier filter takes a buildtime expression resolving the suppliers under the integration's children that carry the variant tag; the state filter takes the reward states the webhook acts on:
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v4/webhooks/reward/$WEBHOOK_ID/filters/supplier" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "reward_supplier_ids": "javascript@buildtime:(function(){ let children = Java.from(context.getComponent().getChildren()); let allRewardSuppliers = []; children.forEach(function(child) { let rewardSuppliers = Java.from(child.createElementsQuery().withType('"'"'REWARD_SUPPLIER'"'"').withTag('"'"'internal:example-variant'"'"').list()); rewardSuppliers.forEach(function(rewardSupplier) { allRewardSuppliers.push(rewardSupplier.getId()); }); }); return allRewardSuppliers; })()"
+  }'
+
+curl --request POST \
+  "$EXTOLE_API_HOST/v4/webhooks/reward/$WEBHOOK_ID/filters/state" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{"states": ["EARNED"]}'
+```
+
+The four filter kinds each have their own path segment — `supplier`, `state`, `tags`, and `expression` — and `GET /v4/webhooks/reward/{webhook_id}/filters` lists what a webhook currently has.
 
 Omitting either filter is the failure worth guarding against. Without the supplier filter the webhook attempts to fulfill every reward in the account through one partner endpoint; without the state filter it re-orders rewards that are already fulfilled.
 
