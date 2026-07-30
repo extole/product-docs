@@ -38,6 +38,30 @@ BHN’s virtual closed loop in addition to Tango's Disbursement (Card Transfer, 
 
 BHN card products can also be used within Extole's Reward Bank. Reward Bank gives your advocates a single place to collect and redeem multiple referral rewards. [Learn more about Reward Bank.](https://www.extole.com/platform/reward-bank/)
 
+## Integration Model
+
+BHN is an outbound reward fulfillment integration: Extole orders cards from BHN when a program participant earns a reward, and BHN's response moves that reward to fulfilled or failed. BHN sends no activity into Extole, so the integration carries no business events.
+
+Each card product is a reward supplier that you install when you create a reward, and you install one per reward you offer. The integration supplies four of them — virtual prepaid cards, physical single-load prepaid cards, physical reloadable prepaid cards, and eGift cards — and each carries its own value, client program number, financial account, and payment type.
+
+Extole calls five Hawk Marketplace endpoints:
+
+| Purpose                                | Endpoint                                                        |
+| :------------------------------------- | :-------------------------------------------------------------- |
+| Order a virtual prepaid card           | `/rewardsOrderProcessing/v1/submitVirtualIndividual`             |
+| Order a physical single-load card      | `/rewardsOrderProcessing/v1/submitOpenLoopPersonalizedIndividual` |
+| Order a physical reloadable card       | `/rewardsOrderProcessing/v1/submitOpenLoopPersonalizedIndividual` |
+| Order an eGift card                    | `/rewardsOrderProcessing/v1/submitEgiftIndividual`               |
+| Check the status of a submitted order  | `/rewardsOrderProcessing/v1/orderInfo/byKeys`                    |
+
+Order calls are retried over a few hours. The status check runs on a much longer schedule, escalating out to roughly a month, because physical cards are manufactured and mailed rather than delivered instantly.
+
+Both credentials sit on the integration: the Merchant ID is a plain setting, and the API credential is a client key that Extole generates from the certificates BHN issues you, so it cannot be self-configured. Alongside its configuration and reward supplier tabs, the integration shows a reward activity chart and a live feed of BHN reward events.
+
+Only the v10 integration is current. Build or install that one; the earlier flavor is not a fallback when something in the v10 shape is inconvenient.
+
+For how this category is built in general terms, see [Integration Categories](doc:integration-categories) and [Create an Integration With the Client API](doc:client-api-integration).
+
 ## Integration
 
 Complete the following steps to quickly get your integration up and running. Your Extole and BHN teams will support you through this process and answer any questions you may have.

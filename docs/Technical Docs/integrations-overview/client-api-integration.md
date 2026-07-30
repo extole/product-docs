@@ -19,10 +19,11 @@ Place the platform in a category before creating anything. [Integration Categori
 
 | Category | When it applies | Build path |
 | :------- | :-------------- | :--------- |
-| Outbound library install | The duplicatable listing already has an `integration-v10.0` component whose name matches the partner. | Duplicate that library component with no target campaign, reshape it to the finished shape on the partner page, then attach webhooks and credentials. Follow **Build an Outbound Library Integration** below. |
+| Outbound library install | The duplicatable listing already has an integration component whose name matches the partner. | Duplicate that library component with no target campaign, reshape it to the finished shape on the partner page, then attach webhooks and credentials. Follow **Build an Outbound Library Integration** below. |
+| Reward fulfillment | The partner supplies gift cards, prepaid cards, points, or payouts that Extole orders when a reward is earned. | Install the maintained source when one exists; otherwise build the supplier type, the support campaign of supplier templates, and the integration with its `REWARD` webhooks. Follow **Build a Reward Fulfillment Integration** below. |
 | Inbound custom build | No maintained source exists for the partner, or the request is an inbound platform that maps wire events onto canonical business events. | Create an `INTEGRATION` campaign from the custom integration template, then add business events, trigger rules, data capture, and views. Follow the rest of this guide. |
 
-Before creating anything, query the duplicatable listing for `having_any_types=integration-v10.0` and look for a component whose name matches the partner. Prefer that name match over building from `custom_integration`. Rebuilding a maintained outbound partner from the custom template produces a campaign that looks related and does none of the partner's webhook or credential work.
+Before creating anything, query the duplicatable listing for integration components and look for one whose name matches the partner. Match on the component name, not on a fixed type version: the integration type is revised over time, so a source may be typed `integration-v10.0`, `integration-v10.1`, or a later revision, and a query pinned to one revision reports a maintained partner as missing. Prefer that name match over building from `custom_integration`. Rebuilding a maintained partner from the custom template produces a campaign that looks related and does none of the partner's webhook or credential work.
 
 A request that adds inbound scope to a maintained outbound partner uses both paths: install the library source first, then add business events to the installed campaign using the inbound sequence.
 
@@ -70,7 +71,7 @@ Send a body carrying at least one property — a request with no body is rejecte
 
 ```bash
 SOURCE_COMPONENT_ID=$(curl -s -H "Authorization: Bearer ${TOKEN}" \
-  "${EXTOLE_API_HOST}/v1/components/duplicatable?having_any_types=integration-v10.0" \
+  "${EXTOLE_API_HOST}/v1/components/duplicatable?having_any_types=integration-v10.0,integration-v10.1" \
   | jq -r --arg name "${PARTNER_COMPONENT_NAME}" '.[] | select(.name==$name) | .id' | head -n 1)
 
 curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
@@ -79,7 +80,7 @@ curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
   "${EXTOLE_API_HOST}/v1/components/${SOURCE_COMPONENT_ID}/duplicate"
 ```
 
-Prefer the maintained library source over an account's own installed copy, which the same query also returns.
+Prefer the maintained library source over an account's own installed copy, which the same query also returns. List every integration type revision the account has, and when a partner the partner page describes as maintained does not appear, re-run the query with no type filter before concluding that no source exists.
 
 ### Reshape the Install
 
@@ -171,13 +172,163 @@ Read the campaign and its `/v6/webhooks` entries back before calling the build d
 
 Do not add inbound business-event scaffolding to an outbound install. An outbound integration reports program activity rather than producing it, so it never supersedes a marketing program's `converted` or `shipped` events, and offering to swap them after an install misrepresents what was built. Report which credentials and partner-side permissions remain and which Extole events the integration already forwards.
 
+## Build a Reward Fulfillment Integration
+
+A reward fulfillment partner needs everything an outbound partner needs plus a supply side: a component type for the partner's own reward suppliers, a support campaign holding one template per product the partner sells, and webhooks typed `REWARD` that fire only for rewards from those suppliers. [Integration Categories](doc:integration-categories) describes the model; this section is the order to build it in.
+
+Install the maintained source when the duplicatable listing has one — the install carries the whole shape, including the support campaign it subscribes to — and use the sequence below to build it where no source exists, and to check that an install matches the partner page.
+
+Build in this order, because each step's prerequisite is the step before it.
+
+### Create the Supplier Component Type
+
+The socket must accept this partner's suppliers and nothing else, so create a component type parented to the platform reward-supplier type:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v1/component-types" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "example-reward-supplier-v10.0",
+    "display_name": "Example Reward Supplier",
+    "parent": "reward-supplier-v10.0"
+  }'
+```
+
+Reusing the platform type instead lets any partner's supplier install into this integration, and reusing an unrelated type leaves the socket filter meaningless. The type has to exist before any template can carry it; a template created untyped satisfies no socket filter and no later attempt to type it in place reliably succeeds.
+
+### Create the Support Campaign and Its Supplier Templates
+
+Create a `CONFIGURATION` campaign with program type `campaign-component` to hold the templates:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "Example Support",
+    "description": "Reward supplier templates installed into the Example integration.",
+    "campaign_type": "CONFIGURATION",
+    "program_type": "campaign-component"
+  }'
+```
+
+Create one component per product variant the partner page names, typed with the supplier type, and give each the settings a client configures — value, the partner's program and account identifiers, payment terms — plus the value-mode toggle and its bounds. Build exactly the variants the page names. Inventing a variant produces a supplier a client can configure and the partner cannot fulfill; omitting one silently removes a product from the integration.
+
+Each template declares its supplier through `elements.reward_suppliers`. The element is where the client's settings become a supplier the reward engine can use:
+
+```json
+{
+  "reward_suppliers": [
+    {
+      "reward_supplier_type": "CUSTOM_REWARD",
+      "name": "javascript@buildtime:context.getVariableContext().get(\"component.displayName\")",
+      "enabled": "javascript@buildtime:context.getVariableContext().get(\"enabled\")",
+      "tags": ["internal:example-variant"],
+      "face_value_type": "USD",
+      "face_value_algorithm_type": "javascript@buildtime:(context.getVariableContext().get(\"dynamicValue\") ? \"CASH_BACK\" : \"FIXED\")",
+      "face_value": "javascript@buildtime:context.getVariableContext().get(\"faceValue\")",
+      "cash_back_percentage": "javascript@buildtime:context.getVariableContext().get(\"cashBackPercentage\") / 100",
+      "cash_back_min": "javascript@buildtime:context.getVariableContext().get(\"cashBackMin\")",
+      "cash_back_max": "javascript@buildtime:context.getVariableContext().get(\"cashBackMax\")",
+      "data": {
+        "clientProgramNumber": "javascript@buildtime:context.getVariableContext().get(\"clientProgramNumber\")",
+        "financialAccountId": "javascript@buildtime:context.getVariableContext().get(\"financialAccountId\")"
+      }
+    }
+  ]
+}
+```
+
+Three parts of that element carry weight beyond their own value:
+
+- The **tag** identifies the product variant. It is how the order webhook finds the suppliers it serves and how the template resolves its own supplier identifier, so a template whose tag differs from the one its webhook filters on is a supplier no webhook will ever fulfill.
+- The **data map** carries the identifiers the order request needs. A request handler cannot read a setting on a component it does not own, so anything the partner endpoint requires per supplier belongs here.
+- The **face-value algorithm** is resolved from the client's toggle rather than fixed in the template, with the percentage stored as a fraction and bounded by the minimum and maximum.
+
+Give each template a `REWARD_SUPPLIER_ID` setting resolving its own element by that tag, so rules and reports can reference the supplier:
+
+```javascript
+javascript@buildtime: (function() { let filteredElements = Java.from(context.getComponent().createElementsQuery().withType('REWARD_SUPPLIER').withTag('internal:example-variant').list()); return filteredElements && filteredElements.length > 0 ? filteredElements[0].getId() : null; })();
+```
+
+### Create the Integration and Its Sockets
+
+Create the `INTEGRATION` campaign, root, and model component as described in **Create the Integration Campaign** and **Create the Component Model**, with the partner's account identifier and a `CLIENT_KEY` credential setting. Then add the supplier socket, filtered to the type created above:
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components/$INTEGRATION_COMPONENT_ID/settings" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "rewardSuppliers",
+    "display_name": "Reward Suppliers",
+    "description": "Example reward suppliers for this integration.",
+    "type": "MULTI_SOCKET",
+    "filters": [
+      {
+        "type": "COMPONENT_TYPE",
+        "component_type": "example-reward-supplier-v10.0"
+      }
+    ]
+  }'
+```
+
+Add a `views` socket whose filters accept every view type the integration uses — the configuration type plus the report-runner and event-stream types — rather than only the configuration type, and subscribe the integration to the support campaign so its templates are installable into the supplier socket.
+
+A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type. Order them so configuration comes first.
+
+### Create the Reward Webhooks
+
+Create one webhook per partner order endpoint plus one status check, all typed `REWARD` and attached to the integration component through `component_ids`. As with any component-scoped webhook, the campaign must have been published once before these can be created.
+
+Each webhook needs both filters. The supplier filter resolves, at build time, the supplier elements under the integration's children that carry the variant tag; the state filter restricts the webhook to the reward state it acts on:
+
+```json
+{
+  "type": "REWARD",
+  "default_method": "POST",
+  "url": "https://api.example.com/rewards/v1/submitOrder",
+  "client_key_id": "javascript@buildtime:context.getVariableContext().get(\"clientKeyId\")",
+  "tags": ["internal:example-variant", "internal:app_type=example", "internal:app_data:event_type=reward"],
+  "retry_intervals": [1800, 3600, 10800],
+  "webhook_filters": [
+    {
+      "reward_supplier_ids_filter": "javascript@buildtime:(function(){ let children = Java.from(context.getComponent().getChildren()); let allRewardSuppliers = []; children.forEach(function(child) { let rewardSuppliers = Java.from(child.createElementsQuery().withType('REWARD_SUPPLIER').withTag('internal:example-variant').list()); rewardSuppliers.forEach(function(rewardSupplier) { allRewardSuppliers.push(rewardSupplier.getId()); }); }); return allRewardSuppliers; })()"
+    },
+    {
+      "reward_state_filter": ["EARNED"]
+    }
+  ]
+}
+```
+
+Omitting either filter is the failure worth guarding against. Without the supplier filter the webhook attempts to fulfill every reward in the account through one partner endpoint; without the state filter it re-orders rewards that are already fulfilled.
+
+The request handler builds the partner order from the reward, the supplier's data map, and the person's profile. The response handler reads the partner's result and does one of three things: mark the reward fulfilled with the partner's identifier and any delivered value, leave it for the next retry when the partner reports the order as still processing, or fail it when the partner rejects it. A handler that always fulfills hides partner rejections behind rewards that were never delivered.
+
+The status-check webhook covers products that do not complete synchronously. It filters on every variant's suppliers and on the fulfillment-failed state, and its retry schedule escalates from hours to days out to about a month, because a physical fulfillment can take weeks. Order webhooks keep the short schedule above; a status check on that schedule exhausts its retries long before the partner finishes.
+
+### Attach the Credential and Verify
+
+Create the client key only once the partner's secret exists — for a partner that authenticates with certificates, that means the certificate material, not a placeholder — then set the credential setting on the integration component. Leave the setting null and report it outstanding when the secret has not arrived; the rest of the shape does not depend on it.
+
+Before calling the build done, read back and confirm:
+
+- The supplier type exists with the platform reward-supplier type as its parent.
+- The support campaign holds one correctly typed template per product the partner page names, each with a reward-supplier element, a variant tag, and its data map.
+- The supplier socket filters to the partner's type, and the views socket accepts every view type in use.
+- Each webhook is type `REWARD`, carries both filters, resolves a non-empty supplier list, and uses the retry schedule its purpose requires.
+- The account identifier is set and the credential is either configured or reported outstanding.
+
 ## What the Inbound Custom Workflow Creates
 
 A complete inbound custom integration contains:
 
 ```text
 root
-└── partner                     integration-v10.0
+└── partner                     integration-v10.x
     ├── businessEvents          MULTI_SOCKET → business-event-v10.0
     │   ├── converted           template_transacted_business_event
     │   │   ├── triggerRules
@@ -201,14 +352,14 @@ Extole Chat must follow these rules when it creates or changes an integration:
 1. Confirm the client, environment, partner platform and version, inbound and outbound scope, event contract, credential owner, and publication approval before making changes.
 2. Read the partner's current documentation and verify version-specific event hooks. Do not infer hook names or payload shapes from another platform.
 3. Inspect the target client before creating resources. Reuse an active integration when its campaign and component identity match the request, extend it, and report that. Archived campaigns are not candidates for reuse: they receive no events and hold no program label against a new campaign, so their presence is not a reason to restore one, to pick a different label, or to ask the requester which path to take instead of building what they asked for.
-4. Discover first whether a maintained `integration-v10.0` source already exists for the partner. When it does, install that source by duplicating it into a new campaign, then reshape it to the partner page's finished tree and webhook set before configuring credentials. Only when no maintained partner integration exists should Chat build from the custom integration template. Do not save library component identifiers in prompts or documentation.
+4. Discover first whether a maintained integration source already exists for the partner, matching on component name across every current `integration-v10.x` type rather than on one pinned revision. When it does, install that source by duplicating it into a new campaign, then reshape it to the partner page's finished tree and webhook set before configuring credentials. Only when no maintained partner integration exists should Chat build from the custom integration template. Do not save library component identifiers in prompts or documentation.
 5. Treat the calls that complete a reshape — creating a component type, deleting an unused library child, publishing, and creating a webhook — as part of the create instruction. Attempt them; when one is refused because it requires a higher mode, raise the mode and continue. A mode that is available but not currently active is not a missing authorization, so never report a shape gap as outside what you are allowed to do without having tried and been refused. Stopping after a raw library install, or reporting a known gap as someone else's step, leaves the requester with an integration the partner page does not describe.
 6. Use campaign-version-scoped mutation endpoints. Refresh the latest campaign version after every mutation.
 7. Use reusable business-event, rule, and data components. Do not create a custom controller when a reusable template implements the behavior.
 8. Keep partner input event names distinct from canonical Extole business event names.
 9. Map every persisted field explicitly, in the same run that creates the business events. Assign key types based on field semantics, not field spelling. A business event with an empty `data` socket captures nothing and is not a finished event.
 10. Add a `views` socket and at least one configuration view. The view must expose the settings required to complete partner setup.
-11. Create reward suppliers, client keys, or webhooks only when an approved outbound flow uses them.
+11. Create reward suppliers, client keys, or webhooks only when an approved outbound flow uses them. A reward fulfillment partner is such a flow: its suppliers, `REWARD` webhooks, and credential setting are the integration, not extras added to an inbound build.
 12. Build and inspect the complete campaign before publishing. Test every inbound event and every configured outbound path.
 13. Keep a resource ledger containing campaign, component, external resource, and test identifiers. Use it for verification and cleanup.
 14. Never put access tokens, secrets, or private client values in documentation, component descriptions, logs, or example payloads.
@@ -407,9 +558,11 @@ curl --request POST \
 
 Use `variables` when creating a component. Do not send a `settings` property in `CampaignComponentCreateRequest`.
 
+Type the model component with the current integration type. `integration-v10.0` is the long-standing revision, and later revisions such as `integration-v10.1` exist; when extending an installed source, keep the type it already carries rather than downgrading it to match this example.
+
 ## Set Integration Display Metadata
 
-The `integration-v10.0` type requires eight settings: `short.description`, `about`, `documentation.url`, `external.url`, `external.integration.url`, `categories`, `logo`, and `imageKey`. The type checks that they are present, not that their values are usable, so a component that passes validation can still render as an unnamed tile with a broken image.
+The integration type requires eight settings: `short.description`, `about`, `documentation.url`, `external.url`, `external.integration.url`, `categories`, `logo`, and `imageKey`. The type checks that they are present, not that their values are usable, so a component that passes validation can still render as an unnamed tile with a broken image.
 
 | Setting | Value convention |
 | :------ | :--------------- |
@@ -805,7 +958,7 @@ Inspect the latest campaign and built components. Confirm:
 
 - Campaign type is `INTEGRATION` and program type is `integration`.
 - Campaign tags identify the model component.
-- The root and `integration-v10.0` model components exist.
+- The root and integration model components exist, the model component carrying an `integration-v10.x` type.
 - `businessEvents` accepts `business-event-v10.0`.
 - Each canonical event is a duplicated reusable template.
 - Each event has an `input_event` rule with the expected partner event names.

@@ -1,18 +1,19 @@
 ---
 title: "Integration Categories"
-excerpt: "Place a partner platform in an integration category — inbound, outbound, or bidirectional — before building the integration.\n"
+excerpt: "Place a partner platform in an integration category — inbound, outbound, reward fulfillment, or bidirectional — before building the integration.\n"
 ---
 
 # Overview
 
 An integration is a campaign whose component tree connects Extole to an outside system. Every integration belongs to a category, and the category decides the component model, the resources the integration needs, and which build sequence to follow in [Create an Integration With the Client API](doc:client-api-integration).
 
-Two questions place any platform:
+Three questions place any platform:
 
 1. Does the platform send activity to Extole? The integration is inbound.
 2. Does Extole send activity to the platform? The integration is outbound.
+3. Does Extole order something of value from the platform when a participant earns a reward? The integration is reward fulfillment, which is outbound in direction but a distinct model.
 
-Answer both before creating anything. A platform that only receives Extole activity needs no business events, and a platform that only sends activity needs no webhooks or credentials.
+Answer all three before creating anything. A platform that only receives Extole activity needs no business events, a platform that only sends activity needs no webhooks or credentials, and only a platform that fulfills rewards needs reward suppliers.
 
 ## Category Summary
 
@@ -20,6 +21,7 @@ Answer both before creating anything. A platform that only receives Extole activ
 | :------- | :-------- | :------------- | :-------------- |
 | Inbound | Platform to Extole | Commerce, core banking, account opening, subscription, point of sale | A campaign built from the custom integration template, with business events, trigger rules, data capture, and a configuration view |
 | Outbound | Extole to platform | Marketing automation, messaging, customer data platforms, analytics | A duplicate of the maintained library source, reshaped to the finished shape on the partner page, with webhooks and a credential |
+| Reward fulfillment | Extole to platform | Gift card, prepaid card, points, and payout providers | A typed reward-supplier component type, a support campaign of supplier templates, an integration whose socket accepts them, and one `REWARD` webhook per order endpoint plus a status check |
 | Bidirectional | Both | Commerce and loyalty platforms that also accept rewards or coupons | The inbound model first, then outbound resources gated on an approved use case |
 
 ## Inbound Integrations
@@ -34,7 +36,7 @@ An inbound integration contains:
 
 ```text
 root
-└── integration                 integration-v10.0
+└── integration                 integration-v10.x
     ├── partner configuration settings
     ├── businessEvents          MULTI_SOCKET → business-event-v10.0
     │   └── canonical event
@@ -56,7 +58,7 @@ An outbound integration contains:
 
 ```text
 root
-└── integration                 integration-v10.0
+└── integration                 integration-v10.x
     ├── one child per forwarded Extole event
     └── data-item template      partner data component type (when marketing campaigns attach partner actions)
 ```
@@ -66,6 +68,59 @@ The partner page's product description is the specification for that tree. The a
 Alongside the tree, the integration owns one webhook per platform endpoint. Each webhook is tagged by purpose, and the integration component holds a `WEBHOOK_ID` setting per webhook whose buildtime expression resolves the webhook by that tag. Marketing campaigns attach partner actions through those settings rather than by webhook identifier.
 
 Outbound integrations do not replace a marketing program's business events. Installing one never supersedes a program's `converted` or `shipped` event, because the integration reports activity rather than producing it.
+
+## Reward Fulfillment Integrations
+
+A reward fulfillment integration orders something of value from the platform when a participant earns a reward: a gift card, a prepaid card, points, or a payout. Extole calls the platform's order endpoint, the platform returns an order result, and the reward moves to fulfilled or fails and is retried.
+
+The direction is outbound, but the model is distinct because the platform sells products rather than accepting messages. Each product a client can offer becomes a **reward supplier** — a configured source of rewards carrying its own value, program identifiers, and payment terms. A client that offers two card types has two reward suppliers drawn from the same integration.
+
+That produces two campaigns instead of one:
+
+- The **integration campaign** holds the partner component, its credential and account settings, its webhooks, and its views.
+- A **support campaign** of type `CONFIGURATION` holds one supplier template per product variant. Templates live apart from the integration because a client installs them repeatedly — a different denomination or program number each time — and each install must be its own configured supplier.
+
+A reward fulfillment integration contains:
+
+```text
+integration campaign
+└── integration                 integration-v10.x
+    ├── credential and account settings
+    ├── rewardSuppliers         MULTI_SOCKET → the partner's own supplier type
+    ├── views                   MULTI_SOCKET → config, report-runner, event-stream views
+    │   ├── configuration       credential and account settings
+    │   ├── reward suppliers    surfaces the rewardSuppliers socket
+    │   ├── reward activity     report-runner-view-v10.0
+    │   └── reward events       event-stream-view-v10.0
+    └── one REWARD webhook per order endpoint, plus a status check
+
+support campaign                CONFIGURATION
+└── one supplier template per product variant
+    └── a reward supplier element tagged with its product variant
+```
+
+### The Supplier Type and Its Templates
+
+The socket filter needs a type that means "a supplier belonging to this partner", so the integration defines its own component type whose parent is the platform's reward-supplier type. Filtering on the platform type instead would let any partner's supplier install into this integration.
+
+Each template declares one reward supplier element. Beyond value and currency, the element carries a data map holding the identifiers the order call needs — program number, financial account, payment terms — and a tag naming the product variant. That tag is load-bearing twice over: the webhooks resolve the suppliers they serve by it, and the template's own supplier-id setting resolves its element by it.
+
+Value is either fixed or a percentage of the event that earned the reward. Templates usually expose that as a toggle, with the supplier's face-value algorithm resolved from it at build time and minimum and maximum bounds applied to the calculated amount.
+
+### Reward Webhooks
+
+These webhooks are type `REWARD`, not the generic type an outbound integration uses, and they do not fire for every reward. Each one filters on two things at once:
+
+- The **reward suppliers** it serves, resolved at build time by collecting the supplier elements under the integration's children that carry the product tag.
+- The **reward state** it acts on — the earned state for an order call, the fulfillment-failed state for a status check.
+
+Getting that pair wrong is the failure mode worth guarding against. A webhook with no supplier filter attempts to fulfill every reward in the account through one partner endpoint; a webhook with no state filter re-orders rewards that are already fulfilled.
+
+Order webhooks pair a request handler that builds the order from reward and person data with a response handler that fulfills the reward, schedules a retry, or fails it. A status-check webhook exists because some products do not complete synchronously — a physical card is manufactured and shipped — so it polls on an escalating retry schedule that can run for weeks, far longer than the minutes-to-hours schedule an order call uses.
+
+### Views
+
+Reward integrations carry more than a configuration tab, because the people using them want to see fulfillment working: a configuration view for the credential and account settings, a view surfacing the supplier socket that reports itself incomplete while no supplier exists, a report-runner view charting reward activity, and an event-stream view filtered to reward event types and the partner's app type.
 
 ## Bidirectional Integrations
 
@@ -83,7 +138,9 @@ Read the platform's own developer documentation and the partner page in this doc
 | The request describes a lifecycle to track — purchases, shipments, cancellations, account openings | Inbound |
 | The platform documents an ingestion API for customer events, attributes, or subscriptions | Outbound |
 | The request describes triggering messages, syncing audiences, or enriching profiles from Extole activity | Outbound |
-| A maintained `integration-v10.0` component already exists for the platform in the duplicatable listing | Outbound library install, unless the request adds inbound scope |
+| The platform sells gift cards, prepaid cards, points, or payouts that Extole orders when a reward is earned | Reward fulfillment |
+| The request names card products, denominations, program numbers, or funding terms | Reward fulfillment |
+| A maintained integration component already exists for the platform in the duplicatable listing | Library install of whichever category that source belongs to, unless the request adds inbound scope |
 
 Discovery decides the category, not habit. Rebuilding a maintained outbound platform from the custom integration template produces a campaign that looks related and performs none of the platform's webhook or credential work.
 
