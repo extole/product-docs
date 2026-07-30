@@ -648,8 +648,16 @@ def build_docs_json(tabs):
         "description": "Guides, product documentation, and API reference for the Extole platform.",
         "redirects": [
             {
+                "source": "/technical-docs/extole-ai/extole-mcp",
+                "destination": "/technical-docs/extole-ai/extole-mcp/index",
+            },
+            {
                 "source": "/technical-docs/extole-mcp",
                 "destination": "/technical-docs/extole-ai/extole-mcp/index",
+            },
+            {
+                "source": "/technical-docs/extole-ai/extole-cli",
+                "destination": "/technical-docs/extole-ai/extole-cli/index",
             },
             {
                 "source": "/technical-docs/extole-cli",
