@@ -231,32 +231,34 @@ Setting types come from the platform's fixed vocabulary, not from the mathematic
 | Supplier identifier | `REWARD_SUPPLIER_ID` |
 | Logo | `IMAGE` | Build exactly the variants the page names. Inventing a variant produces a supplier a client can configure and the partner cannot fulfill; omitting one silently removes a product from the integration.
 
-Each template declares its supplier through `elements.reward_suppliers`. The element is where the client's settings become a supplier the reward engine can use:
+Then attach a reward supplier to each template. A bundled component declares this as an `elements.reward_suppliers` block in its `component.json`, but that block is a build-layer construct: `elements` is not a property of the component create request, and sending it is rejected as an unrecognized property. Through the API a reward supplier is a component-scoped resource of its own, created the same way a webhook is — with `component_ids` naming the template it belongs to:
 
-```json
-{
-  "reward_suppliers": [
-    {
-      "reward_supplier_type": "CUSTOM_REWARD",
-      "name": "javascript@buildtime:context.getVariableContext().get(\"component.displayName\")",
-      "enabled": "javascript@buildtime:context.getVariableContext().get(\"enabled\")",
-      "tags": ["internal:example-variant"],
-      "face_value_type": "USD",
-      "face_value_algorithm_type": "javascript@buildtime:(context.getVariableContext().get(\"dynamicValue\") ? \"CASH_BACK\" : \"FIXED\")",
-      "face_value": "javascript@buildtime:context.getVariableContext().get(\"faceValue\")",
-      "cash_back_percentage": "javascript@buildtime:context.getVariableContext().get(\"cashBackPercentage\") / 100",
-      "cash_back_min": "javascript@buildtime:context.getVariableContext().get(\"cashBackMin\")",
-      "cash_back_max": "javascript@buildtime:context.getVariableContext().get(\"cashBackMax\")",
-      "data": {
-        "clientProgramNumber": "javascript@buildtime:context.getVariableContext().get(\"clientProgramNumber\")",
-        "financialAccountId": "javascript@buildtime:context.getVariableContext().get(\"financialAccountId\")"
-      }
-    }
-  ]
-}
+```bash
+curl --request POST "$EXTOLE_API_HOST/v2/reward-suppliers/custom-rewards" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "javascript@buildtime:context.getVariableContext().get(\"component.displayName\")",
+    "type": "LOYALTY_POINTS",
+    "enabled": "javascript@buildtime:context.getVariableContext().get(\"enabled\")",
+    "tags": ["internal:example-variant"],
+    "face_value_type": "USD",
+    "face_value_algorithm_type": "javascript@buildtime:(context.getVariableContext().get(\"dynamicValue\") ? \"CASH_BACK\" : \"FIXED\")",
+    "face_value": "javascript@buildtime:context.getVariableContext().get(\"faceValue\")",
+    "cash_back_percentage": "javascript@buildtime:context.getVariableContext().get(\"cashBackPercentage\") / 100",
+    "cash_back_min": "javascript@buildtime:context.getVariableContext().get(\"cashBackMin\")",
+    "cash_back_max": "javascript@buildtime:context.getVariableContext().get(\"cashBackMax\")",
+    "data": {
+      "clientProgramNumber": "javascript@buildtime:context.getVariableContext().get(\"clientProgramNumber\")",
+      "financialAccountId": "javascript@buildtime:context.getVariableContext().get(\"financialAccountId\")"
+    },
+    "component_ids": ["'"$TEMPLATE_COMPONENT_ID"'"]
+  }'
 ```
 
-Three parts of that element carry weight beyond their own value:
+The endpoint is the one for the supplier kind you are creating — a partner that fulfills its own products uses the custom-reward endpoint — and `type` there is the custom reward kind, which is separate from the component type the template carries.
+
+Three parts of that supplier carry weight beyond their own value:
 
 - The **tag** identifies the product variant. It is how the order webhook finds the suppliers it serves and how the template resolves its own supplier identifier, so a template whose tag differs from the one its webhook filters on is a supplier no webhook will ever fulfill.
 - The **data map** carries the identifiers the order request needs. A request handler cannot read a setting on a component it does not own, so anything the partner endpoint requires per supplier belongs here.
@@ -333,7 +335,7 @@ Create the client key only once the partner's secret exists — for a partner th
 Before calling the build done, read back and confirm:
 
 - The supplier type exists with the platform reward-supplier type as its parent.
-- The support campaign holds one correctly typed template per product the partner page names, each with a reward-supplier element, a variant tag, and its data map.
+- The support campaign holds one correctly typed template per product the partner page names, each with a reward supplier attached to it, a variant tag, and its data map.
 - The supplier socket filters to the partner's type, and the views socket accepts every view type in use.
 - Each webhook is type `REWARD`, carries both filters, resolves a non-empty supplier list, and uses the retry schedule its purpose requires.
 - The account identifier is set and the credential is either configured or reported outstanding.

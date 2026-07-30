@@ -103,7 +103,7 @@ support campaign                CONFIGURATION
 
 The socket filter needs a type that means "a supplier belonging to this partner", so the integration defines its own component type whose parent is the platform's reward-supplier type. Filtering on the platform type instead would let any partner's supplier install into this integration.
 
-Each template declares one reward supplier element. Beyond value and currency, the element carries a data map holding the identifiers the order call needs — program number, financial account, payment terms — and a tag naming the product variant. That tag is load-bearing twice over: the webhooks resolve the suppliers they serve by it, and the template's own supplier-id setting resolves its element by it.
+Each template owns one reward supplier. Beyond value and currency, the supplier carries a data map holding the identifiers the order call needs — program number, financial account, payment terms — and a tag naming the product variant. That tag is load-bearing twice over: the webhooks resolve the suppliers they serve by it, and the template's own supplier-id setting resolves its element by it.
 
 Value is either fixed or a percentage of the event that earned the reward. Templates usually expose that as a toggle, with the supplier's face-value algorithm resolved from it at build time and minimum and maximum bounds applied to the calculated amount.
 
