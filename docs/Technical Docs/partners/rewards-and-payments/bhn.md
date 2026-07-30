@@ -44,7 +44,7 @@ BHN is an outbound reward fulfillment integration: Extole orders cards from BHN 
 
 Each card product is a reward supplier that you install when you create a reward, and you install one per reward you offer. The integration supplies four of them — virtual prepaid cards, physical single-load prepaid cards, physical reloadable prepaid cards, and eGift cards — and each carries its own value, client program number, financial account, and payment type.
 
-Extole calls five Hawk Marketplace endpoints:
+Extole calls five Hawk Marketplace endpoints, all on `https://api.blackhawknetwork.com`:
 
 | Purpose                                | Endpoint                                                        |
 | :------------------------------------- | :-------------------------------------------------------------- |
