@@ -321,6 +321,8 @@ The report-runner and event-stream views are each empty until their element exis
 | `report_runners` | `POST /v7/report-runners` |
 | `event_streams` | `POST /v6/event-streams`, with filters added afterwards |
 
+A report runner's `report_type` is an opaque account-scoped identifier, not a readable constant. Look it up with `GET /v6/report-types` and match on display name — an account has a hundred or so, and the identifiers differ between accounts, so a report type copied from another account's integration or spelled as a plausible enum name is rejected. Pick a reward report the account actually has, and keep its parameters to the ones that report type declares rather than composing a mappings expression from scratch.
+
 Attach each of those two to the **view** component that displays it, not to the integration component. Both views resolve what to show by querying their own component for an element of the matching kind, so a report runner hung off the integration leaves the tab reporting that no report runner is configured even though one exists in the account.
 
 Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
