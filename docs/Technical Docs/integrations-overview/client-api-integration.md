@@ -297,6 +297,15 @@ curl --request POST \
 
 Add a `views` socket whose filters accept every view type the integration uses — the configuration type plus the report-runner and event-stream types — rather than only the configuration type, and subscribe the integration to the support campaign so its templates are installable into the supplier socket.
 
+The report-runner and event-stream views each need their element to exist before the view will validate, and those elements follow the same rule as the supplier: what a bundle declares inline under `elements`, the API creates as its own resource attached with `component_ids`.
+
+| Element a bundle declares | API resource |
+| :------------------------ | :----------- |
+| `reward_suppliers` | `POST /v2/reward-suppliers/custom-rewards` |
+| `webhooks` | `POST /v6/webhooks`, with filters added per type afterwards |
+| `report_runners` | `POST /v7/report-runners` |
+| `event_streams` | `POST /v6/event-streams` |
+
 A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type. Order them so configuration comes first.
 
 ### Create the Reward Webhooks
