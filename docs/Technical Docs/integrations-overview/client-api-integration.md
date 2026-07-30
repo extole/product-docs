@@ -312,14 +312,34 @@ curl --request POST "$EXTOLE_API_HOST/v1/component-subscriptions" \
 
 Without it the supplier socket accepts the right type and has nothing to offer, which reads in the admin as an integration whose products were never built.
 
-The report-runner and event-stream views each need their element to exist before the view will validate, and those elements follow the same rule as the supplier: what a bundle declares inline under `elements`, the API creates as its own resource attached with `component_ids`.
+The report-runner and event-stream views are each empty until their element exists, and those elements follow the same rule as the supplier: what a bundle declares inline under `elements`, the API creates as its own resource attached with `component_ids`.
 
 | Element a bundle declares | API resource |
 | :------------------------ | :----------- |
 | `reward_suppliers` | `POST /v2/reward-suppliers/custom-rewards` |
 | `webhooks` | `POST /v6/webhooks`, with filters added per type afterwards |
 | `report_runners` | `POST /v7/report-runners` |
-| `event_streams` | `POST /v6/event-streams` |
+| `event_streams` | `POST /v6/event-streams`, with filters added afterwards |
+
+Attach each of those two to the **view** component that displays it, not to the integration component. Both views resolve what to show by querying their own component for an element of the matching kind, so a report runner hung off the integration leaves the tab reporting that no report runner is configured even though one exists in the account.
+
+Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
+
+An event stream's filters are created under the stream and carry a `type` discriminator in the body rather than a path segment, which is the opposite of how reward webhook filters work:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{"type": "EVENT_TYPE", "event_types": ["REWARD", "SEND_REWARD"]}'
+
+curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{"type": "APPLICATION_TYPE", "app_types": ["example"]}'
+```
+
+Without those filters the tab shows every event in the account rather than the integration's reward activity, which looks like a working feed and is not one.
 
 A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type. Order them so configuration comes first.
 
@@ -377,6 +397,7 @@ Before calling the build done, read back and confirm:
 - The support campaign holds one correctly typed template per product the partner page names, each with a reward supplier attached to it, a variant tag, and its data map.
 - The supplier socket filters to the partner's type, and the views socket accepts every view type in use.
 - Each webhook is type `REWARD`, carries both filters, resolves a non-empty supplier list, and uses the retry schedule its purpose requires.
+- The report-runner and event-stream views each resolve to an actual element on that view. Read the built campaign and confirm the identifiers are non-null: an empty tab is the symptom of an element that was never created or was attached to the wrong component, and neither shows up as a failed call.
 - The account identifier is set and the credential is either configured or reported outstanding.
 
 ## What the Inbound Custom Workflow Creates
