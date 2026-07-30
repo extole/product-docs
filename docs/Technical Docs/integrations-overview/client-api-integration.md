@@ -219,6 +219,8 @@ curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
 
 Create one component per product variant the partner page names, typed with the supplier type, and give each the settings a client configures — value, the partner's program and account identifiers, payment terms — plus the value-mode toggle and its bounds.
 
+Name each template with the same token you will use in its tag, so that a template named `example-virtual` carries the tag `internal:example-virtual`. The Rewards page resolves a supplier back to the template a marketer configures by looking for a component tagged `internal:` plus that template's own name, so a template named for the product and tagged for the partner is a supplier the rewards UI cannot place, however correct the rest of it is.
+
 Setting types come from the platform's fixed vocabulary, not from the mathematical nature of the value. There is no `DECIMAL` or `DOUBLE`, and a create request naming one is rejected as malformed JSON on the `variables` property. Supplier templates use these:
 
 | Setting | Type |
@@ -229,7 +231,9 @@ Setting types come from the platform's fixed vocabulary, not from the mathematic
 | Partner program number, account identifier | `STRING` |
 | Payment terms | `ENUM` with `allowed_values` — not `enum_values`, which is rejected |
 | Supplier identifier | `REWARD_SUPPLIER_ID` |
-| Logo | `IMAGE` | Build exactly the variants the page names. Inventing a variant produces a supplier a client can configure and the partner cannot fulfill; omitting one silently removes a product from the integration.
+| Logo | `IMAGE` |
+
+Build exactly the variants the page names. Inventing a variant produces a supplier a client can configure and the partner cannot fulfill; omitting one silently removes a product from the integration.
 
 Then attach a reward supplier to each template. A bundled component declares this as an `elements.reward_suppliers` block in its `component.json`, but that block is a build-layer construct: `elements` is not a property of the component create request, and sending it is rejected as an unrecognized property. Through the API a reward supplier is a component-scoped resource of its own, created the same way a webhook is — with `component_ids` naming the template it belongs to:
 
@@ -240,6 +244,7 @@ curl --request POST "$EXTOLE_API_HOST/v2/reward-suppliers/custom-rewards" \
   --data '{
     "name": "javascript@buildtime:context.getVariableContext().get(\"component.displayName\")",
     "type": "LOYALTY_POINTS",
+    "display_type": "Example Virtual Cards",
     "enabled": "javascript@buildtime:context.getVariableContext().get(\"enabled\")",
     "tags": ["internal:example-variant"],
     "face_value_type": "USD",
@@ -260,9 +265,10 @@ A supplier's `component_ids` reference resolves only after the campaign has been
 
 The endpoint is the one for the supplier kind you are creating — a partner that fulfills its own products uses the custom-reward endpoint — and `type` there is the custom reward kind, which is separate from the component type the template carries.
 
-Three parts of that supplier carry weight beyond their own value:
+Four parts of that supplier carry weight beyond their own value:
 
 - The **tag** identifies the product variant. It is how the order webhook finds the suppliers it serves and how the template resolves its own supplier identifier, so a template whose tag differs from the one its webhook filters on is a supplier no webhook will ever fulfill.
+- The **display type** names the product as a marketer sees it — "Example Virtual Cards" rather than the generic kind. Omit it and the supplier falls back to the generic custom-reward type, which is the one condition that decides whether the partner's products appear as their own choices when a marketer creates a reward. Every variant that shares a product gets the same display type; variants that are different products get different ones.
 - The **data map** carries the identifiers the order request needs. A request handler cannot read a setting on a component it does not own, so anything the partner endpoint requires per supplier belongs here.
 - The **face-value algorithm** is resolved from the client's toggle rather than fixed in the template, with the percentage stored as a fraction and bounded by the minimum and maximum.
 
@@ -271,6 +277,10 @@ Give each template a `REWARD_SUPPLIER_ID` setting resolving its own element by t
 ```javascript
 javascript@buildtime: (function() { let filteredElements = Java.from(context.getComponent().createElementsQuery().withType('REWARD_SUPPLIER').withTag('internal:example-variant').list()); return filteredElements && filteredElements.length > 0 ? filteredElements[0].getId() : null; })();
 ```
+
+Those two conventions are also what puts the partner's products in front of a marketer. When an account builds its own supplier templates rather than installing them from a library, the Rewards page reaches them by display type: it lists the display types the account's suppliers use, and for each one follows the supplier back to its component and then to the component tagged `internal:` plus that component's name. Templates built without a display type, or named differently from their tag, exist and work when a program references them directly, yet never appear among the choices offered when someone creates a reward.
+
+Confirm both before moving on. `GET /v6/reward-suppliers/display-types` should list one entry per product the partner sells alongside the generic custom-reward type, and each built supplier from `GET /v6/reward-suppliers` should name a component whose own name matches its `internal:` tag. Renaming a template afterwards is a normal correction, but it changes the published campaign, so publish again once the names line up.
 
 ### Create the Integration and Its Sockets
 
