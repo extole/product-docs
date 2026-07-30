@@ -494,6 +494,22 @@ Name the event stream for the component that owns it and tag it with the partner
 
 A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type.
 
+The supplier view's status is the one expression worth copying rather than composing. It reports in progress until a supplier exists anywhere under the integration, and it reaches for the suppliers themselves instead of counting children, which is a proxy that goes wrong as soon as the tree gains a view:
+
+```javascript
+javascript@buildtime:(function () {
+  let children = Java.from(context.getComponent().getParent().getChildren());
+  let rewardSupplierIds = [];
+  children.forEach(function (child) {
+    Java.from(child.createElementsQuery().withType("REWARD_SUPPLIER").list())
+      .forEach(function (rewardSupplier) { rewardSupplierIds.push(rewardSupplier.getId()); });
+  });
+  return rewardSupplierIds.length > 0 ? '' : 'IN_PROGRESS';
+}());
+```
+
+Wrap every Java collection in `Java.from` before iterating it, as both loops above do. An expression that walks one directly builds into nothing, and because settings are evaluated as part of the create, the whole component is refused with `campaign_build_failed` naming the variable rather than the mistake.
+
 Order is a setting, not the order you happened to create them in. Give every view an `order` setting typed `INTEGER`, lowest first, with configuration at the front. Views without it arrange themselves arbitrarily, so a marketer can meet the reward activity chart before the tab that asks for credentials.
 
 Every one of them is a view, and the platform's view type requires three settings by name: `title`, `status`, and `settingsToDisplay` — the last typed `STRING_LIST`, not `JSON`. A view created without all three, or with `settingsToDisplay` typed as JSON, is rejected for type validation against three subschemas none of which the error names. Build each view from the body in **Add a Configuration View**, which carries all three, and attach it with `installed_into_socket` — `socket_name` is not a property of a component create.
