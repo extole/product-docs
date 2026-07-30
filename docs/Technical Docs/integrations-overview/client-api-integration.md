@@ -256,6 +256,8 @@ curl --request POST "$EXTOLE_API_HOST/v2/reward-suppliers/custom-rewards" \
   }'
 ```
 
+A supplier's `component_ids` reference resolves only after the campaign has been published at least once, exactly as a webhook's does; until then the create fails with `invalid_component_reference`. Order the work around that rather than against it: create all the templates, publish the support campaign once, then create every supplier. Publishing between each template turns one publish into several and burns the version each time.
+
 The endpoint is the one for the supplier kind you are creating — a partner that fulfills its own products uses the custom-reward endpoint — and `type` there is the custom reward kind, which is separate from the component type the template carries.
 
 Three parts of that supplier carry weight beyond their own value:
