@@ -195,9 +195,12 @@ curl --request POST "$EXTOLE_API_HOST/v1/component-types" \
   --data '{
     "name": "example-reward-supplier-v10.0",
     "display_name": "Example Reward Supplier",
-    "parent": "reward-supplier-v10.0"
+    "parent": "reward-supplier-v10.0",
+    "schema": "{}"
   }'
 ```
+
+`schema` is required even when the type adds no rules of its own, and it is a JSON string rather than an object. An empty schema keeps whatever the parent requires, which is the point of parenting.
 
 Reusing the platform type instead lets any partner's supplier install into this integration, and reusing an unrelated type leaves the socket filter meaningless. The type has to exist before any template can carry it; a template created untyped satisfies no socket filter and no later attempt to type it in place reliably succeeds.
 
@@ -352,6 +355,8 @@ curl --request POST "$EXTOLE_API_HOST/v1/component-subscriptions" \
 
 Without it the supplier socket accepts the right type and has nothing to offer, which reads in the admin as an integration whose products were never built.
 
+`CLIENT_ID` is this account's own client identifier, and `GET /v2/me` returns it for the token you are holding. Read it rather than reusing one from an example: subscribing on behalf of a client you are not authenticated as is refused with `access_denied`, which looks like a permissions problem with the endpoint and is really a wrong account in the body. The integration campaign also has to have been published at least once before it can subscribe, exactly as its webhooks and suppliers do — an unpublished integration component fails the subscription with `invalid_component_reference` naming the component you just created.
+
 The report-runner and event-stream views are each empty until their element exists, and those elements follow the same rule as the supplier: what a bundle declares inline under `elements`, the API creates as its own resource attached with `component_ids`.
 
 | Element a bundle declares | API resource |
@@ -472,6 +477,8 @@ Name the event stream for the component that owns it and tag it with the partner
 ```
 
 A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type. Order them so configuration comes first.
+
+Every one of them is a view, and the platform's view type requires three settings by name: `title`, `status`, and `settingsToDisplay` — the last typed `STRING_LIST`, not `JSON`. A view created without all three, or with `settingsToDisplay` typed as JSON, is rejected for type validation against three subschemas none of which the error names. Build each view from the body in **Add a Configuration View**, which carries all three, and attach it with `installed_into_socket` — `socket_name` is not a property of a component create.
 
 ### Create the Reward Webhooks
 
