@@ -450,7 +450,23 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters"
 
 Without those filters the tab shows every event in the account rather than the integration's reward activity, which looks like a working feed and is not one.
 
-Give the report-runner view a `reportColumnsMapping` setting as well, typed `JSON`. It maps the report's columns onto a chart, and every column it names has to be one the runner's `mappings` expression produces — the axis column and each series column by exactly the name the expression assigns:
+A view points at its element through a setting typed `STRING` — `reportRunnerId` on the report view, `eventStreamId` on the event-stream view. There is no `REPORT_RUNNER_ID` or `EVENT_STREAM_ID` setting type, and naming one is rejected as malformed JSON with the invented type echoed back as the invalid value. The setting holds no literal identifier either: its default is a buildtime query that asks the view's own component for the element it owns, so the view keeps working when the element is recreated.
+
+```json
+{
+  "name": "reportRunnerId",
+  "display_name": "Report Runner ID",
+  "type": "STRING",
+  "values": {
+    "default": "javascript@buildtime:(function(){ let elements = Java.from(context.getComponent().createElementsQuery().withType('REPORT_RUNNER').list()); return elements && elements.length > 0 ? elements[0].getId() : null; })()"
+  },
+  "tags": ["importance:expert"]
+}
+```
+
+The event-stream view uses the same expression with `withType('EVENT_STREAM')`. This is also why the element belongs on the view: the query only ever looks at the component the setting lives on.
+
+Give the report-runner view a `reportColumnsMapping` setting as well, typed `JSON`. Its default is the mapping serialized as a string and escaped; a nested object is refused as `variable_value_invalid_type`, which reports the value as invalid for the type it plainly is. It maps the report's columns onto a chart, and every column it names has to be one the runner's `mappings` expression produces — the axis column and each series column by exactly the name the expression assigns:
 
 ```json
 {
