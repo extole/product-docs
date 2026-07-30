@@ -284,6 +284,8 @@ Those two conventions are also what puts the partner's products in front of a ma
 
 Confirm both before moving on. `GET /v6/reward-suppliers/display-types` should list one entry per product the partner sells alongside the generic custom-reward type, and each built supplier from `GET /v6/reward-suppliers` should name a component whose own name matches its `internal:` tag. Renaming a template afterwards is a normal correction, but it changes the published campaign, so publish again once the names line up.
 
+Default each template's `enabled` setting to `false`. A template describes a product the partner can fulfill, not a reward the account has decided to give, and the rewards list shows enabled suppliers only — so a template that ships enabled appears among the account's live rewards as though someone had created it, while the create-a-reward flow, which asks for disabled ones too, shows it either way. Enabling it is the marketer's act after installing it and filling in the program and account numbers. Check it with `GET /v6/reward-suppliers/built`: the partner's products should be absent by default and present under `include_disabled=true`.
+
 ### Create the Integration and Its Sockets
 
 Create the `INTEGRATION` campaign, root, and model component as described in **Create the Integration Campaign** and **Create the Component Model**, with the partner's account identifier and a `CLIENT_KEY` credential setting. Then add the supplier socket, filtered to the type created above:
