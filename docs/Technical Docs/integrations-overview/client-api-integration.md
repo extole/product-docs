@@ -217,7 +217,33 @@ curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
   }'
 ```
 
-Create one component per product variant the partner page names, typed with the supplier type, and give each the settings a client configures — value, the partner's program and account identifiers, payment terms — plus the value-mode toggle and its bounds.
+Create one component per product variant the partner page names, typed with the supplier type, and give each the settings a client configures — value, the partner's program and account identifiers, payment terms — plus the value-mode toggle and its bounds:
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$SUPPORT_CAMPAIGN_ID/version/$SUPPORT_CAMPAIGN_VERSION/components" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "example-virtual",
+    "display_name": "Example Virtual Prepaid Card",
+    "description": "Send virtual prepaid cards from the Example marketplace.",
+    "types": ["example-reward-supplier-v10.0"],
+    "component_ids": ["'"$SUPPORT_ROOT_COMPONENT_ID"'"],
+    "tags": ["internal:example-virtual"],
+    "variables": [
+      { "name": "rewardSupplierId", "type": "REWARD_SUPPLIER_ID", "values": { "default": null }, "tags": ["importance:expert"] },
+      { "name": "faceValue", "display_name": "Face Value", "type": "STRING", "values": { "default": "0" }, "tags": ["importance:basic"] },
+      { "name": "clientProgramNumber", "display_name": "Client Program Number", "type": "STRING", "values": { "default": "" }, "tags": ["importance:basic"] },
+      { "name": "paymentType", "display_name": "Payment Type", "type": "ENUM", "allowed_values": ["ACH_DEBIT", "DRAW_DOWN"], "values": { "default": "ACH_DEBIT" }, "tags": ["importance:basic"] },
+      { "name": "enabled", "type": "BOOLEAN", "values": { "default": false }, "tags": ["importance:expert"] }
+    ]
+  }'
+```
+
+Two shapes in that body are worth reading closely, because getting either wrong produces an error that names the wrong culprit. A component's settings arrive under `variables` on a create — `settings` is the sub-path you add one setting to later, not a property of the create — and every value sits under `values.default`, never a bare `value`.
+
+The `rewardSupplierId` setting is not optional decoration. The platform's own reward-supplier type declares a schema requiring a setting by that name, so a template created without it is rejected for schema validation with a message about an array item that satisfies no subschema and no mention of the field it wanted. Read a type with `GET /v1/component-types/$TYPE_NAME` when a typed create is refused that way: the schema names what it requires, and the requirement is inherited by every type you derive from it.
 
 Name each template with the same token you will use in its tag, so that a template named `example-virtual` carries the tag `internal:example-virtual`. The Rewards page resolves a supplier back to the template a marketer configures by looking for a component tagged `internal:` plus that template's own name, so a template named for the product and tagged for the partner is a supplier the rewards UI cannot place, however correct the rest of it is.
 
