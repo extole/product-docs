@@ -50,16 +50,26 @@ For complete specifications, refer to:
 
 ***
 
-# Step 2: Set-Up Share and Friend Lead Capture Experiences
+# Step 2: Set-Up Sharing & Lead Capture Experiences
 
-There will be two experiences where advocates and friends will interact with in the referral program:
+There are two experiences where advocates and friends will interact with the referral program:
 
-- Share Experience - where advocates can generate and share their referral link with friends, plus access referral history, program terms and conditions, etc.
-- Friend Landing Experience - where referred friends will land after clicking on a referral. The landing experience incldues an email capture form where they can "redeem" their referral so that Extole can match referrals using their email address.
+- `Share Experience` - where advocates can generate and share their referral link with friends, plus access referral history, program terms and conditions, etc.
+- `Friend Landing Experience -` where referred friends will land after clicking on a referral. The landing experience incldues an email capture form where they can "redeem" their referral so that Extole can match referrals using their email address.
 
 ***
 
-## Option A: Use Extole Hosted Experiences (No-tech)<br /><br />
+## Option A: Use Extole Hosted Experiences (No-tech)
+
+For a no-tech option, Extole can host these experiences for you via branded Microsites which contain your logo, an image header, a body, the share widget, and a footer. If you're using the microsite option, you can proceed with Step #3.
+
+### Advocate Microsite
+
+![](https://files.readme.io/fcbfe5be6b56a3c0bbd4506a4e0e52968b494aa4c69c5341520c3173676628da-Advocate_Microsite.png)
+
+### Friend Landing Microsite
+
+![](https://files.readme.io/b08e776b6103b64484b44b788902d4d27d8aa1f1182b3a41d180793be069ecf0-Friend_Landing_Microsite.png)
 
 <br />
 
