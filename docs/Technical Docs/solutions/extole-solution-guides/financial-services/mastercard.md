@@ -1,6 +1,5 @@
 ---
-title: Mastercard Implementation Guide
-excerpt: Referral in a Box
+title: Mastercard Issuers Implementation Guide
 deprecated: false
 hidden: true
 metadata:
@@ -16,18 +15,16 @@ This guide describes the end-to-end implementation process for launching the Mas
 
 Once Mastercard executes a Statement of Work (SOW) with a participating Financial Institution, Extole will provision a dedicated Extole account and create a new referral campaign with the appropriate emails, experiences, events, and rules.
 
-<br />
-
 # Step 1: Brand the Referral Program<br />
 
 ## White-Label Your Referral Program Domain (Optional)
 
 An optional, but recommended step is to white-label the links and email sender domain used in your referral program to not only improve deliverability but to also ensure that customers trust to click and send share links to their friends.
 
-| Default                            | Branded/White-Labeled             |
-| ---------------------------------- | --------------------------------- |
-| prosperitybank.extole.io/jsmith101 | refer.properitybank.com/jsmith101 |
-| do-not-reply\@referral-mail.com    | do-not-reply\@prosperitybank.com  |
+| Default                                                                 | Branded/White-Labeled                                                     |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| prosperitybank.extole.io/jsmith101                                      | refer.properitybank.com/jsmith101                                         |
+| [do-not-reply@referral-mail.com](mailto:do-not-reply@referral-mail.com) | [do-not-reply@prosperitybank.com](mailto:do-not-reply@prosperitybank.com) |
 
 To white-list program links and emails, FI's can refer to: <Anchor target="_blank" href="https://docs.extole.com/docs/extole-dns-requirements">https://docs.extole.com/docs/extole-dns-requirements</Anchor>
 
@@ -158,15 +155,15 @@ You can link to the embedded share experience or the advocate microsite with pro
 
 ### Test campaign flow end to end
 
-| QA Test Case                                                                                                                         | Owner       |
-| ------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
-| Uploads Sample Audience file to Batch Jobs trigger promo email                                                                       | Mastercard  |
-| Clicks on promo email and creates referral link. Shares referral link to friends testing all channels (Email, QR, social, SMS, etc.) | Mastercard  |
-| Test friend experience by clicking on a referral link and submitting lead capture form.                                              | Mastercard  |
-| Checks profles to ensure referral events are recorded.                                                                               | Extole      |
-| Upload test qualification event files.                                                                                               | Mastercard  |
-| Confirm events and earned rewards are recorded on Extole profiles.                                                                   | Extole      |
-| Run and export Earned Rewards Report. Process for fulfillment.                                                                       | Mastercard  |
+| QA Test Case                                                                                                                         | Owner      |
+| ------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
+| Uploads Sample Audience file to Batch Jobs trigger promo email                                                                       | Mastercard |
+| Clicks on promo email and creates referral link. Shares referral link to friends testing all channels (Email, QR, social, SMS, etc.) | Mastercard |
+| Test friend experience by clicking on a referral link and submitting lead capture form.                                              | Mastercard |
+| Checks profles to ensure referral events are recorded.                                                                               | Extole     |
+| Upload test qualification event files.                                                                                               | Mastercard |
+| Confirm events and earned rewards are recorded on Extole profiles.                                                                   | Extole     |
+| Run and export Earned Rewards Report. Process for fulfillment.                                                                       | Mastercard |
 
 ### Sample Audience File
 
