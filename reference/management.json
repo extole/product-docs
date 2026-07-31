@@ -5161,16 +5161,6 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
-      "required_merchant_token": {
-        "summary": "required_merchant_token",
-        "value": {
-          "code": "required_merchant_token",
-          "http_status_code": 403,
-          "message": "Merchant token required",
-          "parameters": {},
-          "unique_id": "00000000-0000-0000-0000-000000000000"
-        }
-      },
       "reserved_name": {
         "summary": "reserved_name",
         "value": {
@@ -6191,32 +6181,12 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
-      "unsupported_decimal_face_value_type": {
-        "summary": "unsupported_decimal_face_value_type",
-        "value": {
-          "code": "unsupported_decimal_face_value_type",
-          "http_status_code": 400,
-          "message": "Specified PayPal face value type does not support decimals",
-          "parameters": {},
-          "unique_id": "00000000-0000-0000-0000-000000000000"
-        }
-      },
       "unsupported_face_value_algorithm_type": {
         "summary": "unsupported_face_value_algorithm_type",
         "value": {
           "code": "unsupported_face_value_algorithm_type",
           "http_status_code": 400,
           "message": "Face value algorithm type is not supported for this reward supplier",
-          "parameters": {},
-          "unique_id": "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "unsupported_face_value_type": {
-        "summary": "unsupported_face_value_type",
-        "value": {
-          "code": "unsupported_face_value_type",
-          "http_status_code": 400,
-          "message": "Specified PayPal face value type is not supported",
           "parameters": {},
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
@@ -6537,16 +6507,6 @@
           "code": "webhook_not_found",
           "http_status_code": 400,
           "message": "Was unable to find webhook with id",
-          "parameters": {},
-          "unique_id": "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "zero_face_value": {
-        "summary": "zero_face_value",
-        "value": {
-          "code": "zero_face_value",
-          "http_status_code": 400,
-          "message": "Face Value should be a positive non zero number",
           "parameters": {},
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
@@ -17460,71 +17420,12 @@
         ],
         "type": "object"
       },
-      "BuiltPayPalPayoutsRewardSupplierResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BuiltRewardSupplierResponseBase"
-          },
-          {
-            "properties": {
-              "description": {
-                "type": "string"
-              },
-              "id": {
-                "readOnly": true,
-                "type": "string"
-              },
-              "merchant_token": {
-                "type": "string"
-              },
-              "reward_supplier_type": {
-                "enum": [
-                  "PAYPAL_PAYOUTS"
-                ],
-                "type": "string"
-              }
-            },
-            "type": "object"
-          }
-        ],
-        "description": "pay pal payouts reward supplier after buildtime evaluation. Fields `display_type`, `name`, `display_name`, `face_value_algorithm_type`, `face_value`, `cash_back_percentage`, `cash_back_min`, `cash_back_max`, `limit_per_day`, `limit_per_hour`, `face_value_type`, `description`, `enabled`, and `reward_expires_at` are already evaluated.",
-        "required": [
-          "cash_back_max",
-          "cash_back_min",
-          "cash_back_percentage",
-          "component_ids",
-          "component_references",
-          "created_date",
-          "data",
-          "description",
-          "display_name",
-          "display_type",
-          "enabled",
-          "face_value",
-          "face_value_algorithm_type",
-          "face_value_type",
-          "id",
-          "limit_per_day",
-          "limit_per_hour",
-          "merchant_token",
-          "name",
-          "partner_reward_key_type",
-          "partner_reward_supplier_id",
-          "reward_expires_at",
-          "reward_supplier_type",
-          "state_transitions",
-          "tags",
-          "updated_date"
-        ],
-        "type": "object"
-      },
       "BuiltRewardSupplierResponse": {
         "description": "reward supplier after buildtime evaluation. Fields `display_type`, `name`, `display_name`, `face_value_algorithm_type`, `face_value`, `cash_back_percentage`, `cash_back_min`, `cash_back_max`, `limit_per_day`, `limit_per_hour`, `face_value_type`, `enabled`, and `reward_expires_at` are already evaluated.",
         "discriminator": {
           "mapping": {
             "CUSTOM_REWARD": "#/components/schemas/BuiltCustomRewardSupplierResponse",
             "MANUAL_COUPON": "#/components/schemas/BuiltManualCouponRewardSupplierResponse",
-            "PAYPAL_PAYOUTS": "#/components/schemas/BuiltPayPalPayoutsRewardSupplierResponse",
             "SALESFORCE_COUPON": "#/components/schemas/BuiltSalesforceCouponRewardSupplierResponse",
             "TANGO_V2": "#/components/schemas/BuiltTangoRewardSupplierResponse"
           },
@@ -17536,9 +17437,6 @@
           },
           {
             "$ref": "#/components/schemas/BuiltManualCouponRewardSupplierResponse"
-          },
-          {
-            "$ref": "#/components/schemas/BuiltPayPalPayoutsRewardSupplierResponse"
           },
           {
             "$ref": "#/components/schemas/BuiltSalesforceCouponRewardSupplierResponse"
@@ -17681,7 +17579,6 @@
             "enum": [
               "CUSTOM_REWARD",
               "MANUAL_COUPON",
-              "PAYPAL_PAYOUTS",
               "SALESFORCE_COUPON",
               "TANGO_V2"
             ],
@@ -35368,104 +35265,6 @@
           }
         ]
       },
-      "DescriptionInPayPalPayoutsRewardSupplierCreateRequest": {
-        "description": "Choose between static or dynamic description",
-        "oneOf": [
-          {
-            "description": "Static description",
-            "nullable": true,
-            "title": "Static Value",
-            "type": "string"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{description}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('description');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
-      "DescriptionInPayPalPayoutsRewardSupplierResponse": {
-        "description": "The description as configured: a literal value, or an expression (type:string) when defined dynamically.",
-        "oneOf": [
-          {
-            "description": "Literal description",
-            "title": "Static Value",
-            "type": "string"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{description}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('description');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
-      "DescriptionInPayPalPayoutsRewardSupplierUpdateRequest": {
-        "description": "Choose between static or dynamic description",
-        "oneOf": [
-          {
-            "description": "Static description",
-            "nullable": true,
-            "title": "Static Value",
-            "type": "string"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{description}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('description');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
       "DescriptionInRewardSupplierCreateRequestBase": {
         "description": "Choose between static or dynamic description",
         "oneOf": [
@@ -36162,72 +35961,6 @@
         ]
       },
       "DisplayNameInManualCouponRewardSupplierUpdateRequest": {
-        "description": "Choose between static or dynamic display name",
-        "oneOf": [
-          {
-            "description": "Static display name",
-            "nullable": true,
-            "title": "Static Value",
-            "type": "string"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{displayName}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('displayName');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
-      "DisplayNameInPayPalPayoutsRewardSupplierCreateRequest": {
-        "description": "Choose between static or dynamic display name",
-        "oneOf": [
-          {
-            "description": "Static display name",
-            "nullable": true,
-            "title": "Static Value",
-            "type": "string"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{displayName}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('displayName');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
-      "DisplayNameInPayPalPayoutsRewardSupplierUpdateRequest": {
         "description": "Choose between static or dynamic display name",
         "oneOf": [
           {
@@ -47034,74 +46767,6 @@
           }
         ]
       },
-      "LimitPerDayInPayPalPayoutsRewardSupplierCreateRequest": {
-        "description": "Choose between static or dynamic limit per day",
-        "oneOf": [
-          {
-            "description": "Static limit per day",
-            "format": "int32",
-            "nullable": true,
-            "title": "Static Value",
-            "type": "integer"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{limitPerDay}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('limitPerDay');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
-      "LimitPerDayInPayPalPayoutsRewardSupplierUpdateRequest": {
-        "description": "Choose between static or dynamic limit per day",
-        "oneOf": [
-          {
-            "description": "Static limit per day",
-            "format": "int32",
-            "nullable": true,
-            "title": "Static Value",
-            "type": "integer"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{limitPerDay}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('limitPerDay');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
       "LimitPerDayInRewardSupplierCreateRequestBase": {
         "description": "Choose between static or dynamic limit per day",
         "oneOf": [
@@ -47442,74 +47107,6 @@
         ]
       },
       "LimitPerHourInManualCouponRewardSupplierUpdateRequest": {
-        "description": "Choose between static or dynamic limit per hour",
-        "oneOf": [
-          {
-            "description": "Static limit per hour",
-            "format": "int32",
-            "nullable": true,
-            "title": "Static Value",
-            "type": "integer"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{limitPerHour}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('limitPerHour');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
-      "LimitPerHourInPayPalPayoutsRewardSupplierCreateRequest": {
-        "description": "Choose between static or dynamic limit per hour",
-        "oneOf": [
-          {
-            "description": "Static limit per hour",
-            "format": "int32",
-            "nullable": true,
-            "title": "Static Value",
-            "type": "integer"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{limitPerHour}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('limitPerHour');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
-      "LimitPerHourInPayPalPayoutsRewardSupplierUpdateRequest": {
         "description": "Choose between static or dynamic limit per hour",
         "oneOf": [
           {
@@ -51953,146 +51550,6 @@
             "type": "string"
           }
         },
-        "type": "object"
-      },
-      "PayPalPayoutsRewardSupplierCreateRequest": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/RewardSupplierCreateRequestBase"
-          },
-          {
-            "properties": {
-              "description": {
-                "$ref": "#/components/schemas/DescriptionInPayPalPayoutsRewardSupplierCreateRequest"
-              },
-              "display_name": {
-                "$ref": "#/components/schemas/DisplayNameInPayPalPayoutsRewardSupplierCreateRequest"
-              },
-              "limit_per_day": {
-                "$ref": "#/components/schemas/LimitPerDayInPayPalPayoutsRewardSupplierCreateRequest"
-              },
-              "limit_per_hour": {
-                "$ref": "#/components/schemas/LimitPerHourInPayPalPayoutsRewardSupplierCreateRequest"
-              },
-              "merchant_token": {
-                "type": "string"
-              },
-              "reward_expires_at": {
-                "$ref": "#/components/schemas/RewardExpiresAtInPayPalPayoutsRewardSupplierCreateRequest"
-              },
-              "reward_supplier_type": {
-                "enum": [
-                  "PAYPAL_PAYOUTS"
-                ],
-                "type": "string"
-              }
-            },
-            "type": "object"
-          }
-        ],
-        "required": [
-          "face_value_type",
-          "merchant_token",
-          "reward_supplier_type"
-        ],
-        "type": "object"
-      },
-      "PayPalPayoutsRewardSupplierResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/RewardSupplierResponseBase"
-          },
-          {
-            "properties": {
-              "description": {
-                "$ref": "#/components/schemas/DescriptionInPayPalPayoutsRewardSupplierResponse"
-              },
-              "id": {
-                "readOnly": true,
-                "type": "string"
-              },
-              "merchant_token": {
-                "type": "string"
-              },
-              "reward_supplier_type": {
-                "enum": [
-                  "PAYPAL_PAYOUTS"
-                ],
-                "type": "string"
-              }
-            },
-            "type": "object"
-          }
-        ],
-        "description": "Stored pay pal payouts reward supplier definition. Fields `display_type`, `name`, `display_name`, `face_value_algorithm_type`, `face_value`, `cash_back_percentage`, `cash_back_min`, `cash_back_max`, `limit_per_day`, `limit_per_hour`, `face_value_type`, `description`, `enabled`, and `reward_expires_at` are unevaluated and appear in buildtime-evaluatable form.",
-        "required": [
-          "cash_back_max",
-          "cash_back_min",
-          "cash_back_percentage",
-          "component_ids",
-          "component_references",
-          "created_date",
-          "data",
-          "description",
-          "display_name",
-          "display_type",
-          "enabled",
-          "face_value",
-          "face_value_algorithm_type",
-          "face_value_type",
-          "id",
-          "limit_per_day",
-          "limit_per_hour",
-          "merchant_token",
-          "name",
-          "partner_reward_key_type",
-          "partner_reward_supplier_id",
-          "reward_expires_at",
-          "reward_supplier_type",
-          "state_transitions",
-          "tags",
-          "updated_date"
-        ],
-        "type": "object"
-      },
-      "PayPalPayoutsRewardSupplierUpdateRequest": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/RewardSupplierUpdateRequestBase"
-          },
-          {
-            "properties": {
-              "description": {
-                "$ref": "#/components/schemas/DescriptionInPayPalPayoutsRewardSupplierUpdateRequest"
-              },
-              "display_name": {
-                "$ref": "#/components/schemas/DisplayNameInPayPalPayoutsRewardSupplierUpdateRequest"
-              },
-              "limit_per_day": {
-                "$ref": "#/components/schemas/LimitPerDayInPayPalPayoutsRewardSupplierUpdateRequest"
-              },
-              "limit_per_hour": {
-                "$ref": "#/components/schemas/LimitPerHourInPayPalPayoutsRewardSupplierUpdateRequest"
-              },
-              "merchant_token": {
-                "type": "string"
-              },
-              "reward_expires_at": {
-                "$ref": "#/components/schemas/RewardExpiresAtInPayPalPayoutsRewardSupplierUpdateRequest"
-              },
-              "reward_supplier_type": {
-                "enum": [
-                  "PAYPAL_PAYOUTS"
-                ],
-                "type": "string"
-              }
-            },
-            "type": "object"
-          }
-        ],
-        "required": [
-          "reward_supplier_type"
-        ],
         "type": "object"
       },
       "PersistTypesInStepDataResponse": {
@@ -56779,122 +56236,6 @@
           }
         ]
       },
-      "RewardExpiresAtInPayPalPayoutsRewardSupplierCreateRequest": {
-        "description": "Choose between static or dynamic reward expires at",
-        "oneOf": [
-          {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ZonedDateTime"
-              }
-            ],
-            "description": "Static reward expires at",
-            "title": "Static Value"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{rewardExpiresAt}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('rewardExpiresAt');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          },
-          {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
-            "example": "handlebars@runtime:{{rewardExpiresAt}}",
-            "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
-            },
-            "pattern": "^handlebars@runtime:.*",
-            "title": "Runtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
-            "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
-            "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
-            },
-            "pattern": "^javascript@runtime:.*",
-            "title": "Runtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
-      "RewardExpiresAtInPayPalPayoutsRewardSupplierUpdateRequest": {
-        "description": "Choose between static or dynamic reward expires at",
-        "oneOf": [
-          {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ZonedDateTime"
-              }
-            ],
-            "description": "Static reward expires at",
-            "title": "Static Value"
-          },
-          {
-            "description": "Handlebars expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "handlebars@buildtime:{{rewardExpiresAt}}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^handlebars@buildtime:.*",
-            "title": "Buildtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardSupplierBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts).",
-            "example": "javascript@buildtime:function() { return context.getVariableContext().get('rewardExpiresAt');}",
-            "externalDocs": {
-              "description": "RewardSupplierBuildtimeContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/supplier/built/RewardSupplierBuildtimeContext.d.ts"
-            },
-            "pattern": "^javascript@buildtime:.*",
-            "title": "Buildtime - Javascript",
-            "type": "string"
-          },
-          {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
-            "example": "handlebars@runtime:{{rewardExpiresAt}}",
-            "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
-            },
-            "pattern": "^handlebars@runtime:.*",
-            "title": "Runtime - Handlebars",
-            "type": "string"
-          },
-          {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
-            "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
-            "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
-            },
-            "pattern": "^javascript@runtime:.*",
-            "title": "Runtime - Javascript",
-            "type": "string"
-          }
-        ]
-      },
       "RewardExpiresAtInRewardSupplierCreateRequestBase": {
         "description": "Choose between static or dynamic reward expires at",
         "oneOf": [
@@ -57856,7 +57197,6 @@
           "mapping": {
             "CUSTOM_REWARD": "#/components/schemas/CustomRewardSupplierCreateRequest",
             "MANUAL_COUPON": "#/components/schemas/ManualCouponRewardSupplierCreateRequest",
-            "PAYPAL_PAYOUTS": "#/components/schemas/PayPalPayoutsRewardSupplierCreateRequest",
             "SALESFORCE_COUPON": "#/components/schemas/SalesforceCouponRewardSupplierCreateRequest",
             "TANGO_V2": "#/components/schemas/TangoRewardSupplierCreateRequest"
           },
@@ -57868,9 +57208,6 @@
           },
           {
             "$ref": "#/components/schemas/ManualCouponRewardSupplierCreateRequest"
-          },
-          {
-            "$ref": "#/components/schemas/PayPalPayoutsRewardSupplierCreateRequest"
           },
           {
             "$ref": "#/components/schemas/SalesforceCouponRewardSupplierCreateRequest"
@@ -57955,7 +57292,6 @@
             "enum": [
               "CUSTOM_REWARD",
               "MANUAL_COUPON",
-              "PAYPAL_PAYOUTS",
               "SALESFORCE_COUPON",
               "TANGO_V2"
             ],
@@ -58008,7 +57344,6 @@
           "mapping": {
             "CUSTOM_REWARD": "#/components/schemas/CustomRewardSupplierResponse",
             "MANUAL_COUPON": "#/components/schemas/ManualCouponRewardSupplierResponse",
-            "PAYPAL_PAYOUTS": "#/components/schemas/PayPalPayoutsRewardSupplierResponse",
             "SALESFORCE_COUPON": "#/components/schemas/SalesforceCouponRewardSupplierResponse",
             "TANGO_V2": "#/components/schemas/TangoRewardSupplierResponse"
           },
@@ -58020,9 +57355,6 @@
           },
           {
             "$ref": "#/components/schemas/ManualCouponRewardSupplierResponse"
-          },
-          {
-            "$ref": "#/components/schemas/PayPalPayoutsRewardSupplierResponse"
           },
           {
             "$ref": "#/components/schemas/SalesforceCouponRewardSupplierResponse"
@@ -58133,7 +57465,6 @@
             "enum": [
               "CUSTOM_REWARD",
               "MANUAL_COUPON",
-              "PAYPAL_PAYOUTS",
               "SALESFORCE_COUPON",
               "TANGO_V2"
             ],
@@ -58177,7 +57508,6 @@
           "mapping": {
             "CUSTOM_REWARD": "#/components/schemas/CustomRewardSupplierUpdateRequest",
             "MANUAL_COUPON": "#/components/schemas/ManualCouponRewardSupplierUpdateRequest",
-            "PAYPAL_PAYOUTS": "#/components/schemas/PayPalPayoutsRewardSupplierUpdateRequest",
             "SALESFORCE_COUPON": "#/components/schemas/SalesforceCouponRewardSupplierUpdateRequest",
             "TANGO_V2": "#/components/schemas/TangoRewardSupplierUpdateRequest"
           },
@@ -58189,9 +57519,6 @@
           },
           {
             "$ref": "#/components/schemas/ManualCouponRewardSupplierUpdateRequest"
-          },
-          {
-            "$ref": "#/components/schemas/PayPalPayoutsRewardSupplierUpdateRequest"
           },
           {
             "$ref": "#/components/schemas/SalesforceCouponRewardSupplierUpdateRequest"
@@ -58275,7 +57602,6 @@
             "enum": [
               "CUSTOM_REWARD",
               "MANUAL_COUPON",
-              "PAYPAL_PAYOUTS",
               "SALESFORCE_COUPON",
               "TANGO_V2"
             ],
@@ -102417,7 +101743,6 @@
                 "enum": [
                   "CUSTOM_REWARD",
                   "MANUAL_COUPON",
-                  "PAYPAL_PAYOUTS",
                   "SALESFORCE_COUPON",
                   "TANGO_V2"
                 ],
@@ -102833,17 +102158,8 @@
                   "settings_id_missing": {
                     "$ref": "#/components/examples/settings_id_missing"
                   },
-                  "unsupported_decimal_face_value_type": {
-                    "$ref": "#/components/examples/unsupported_decimal_face_value_type"
-                  },
                   "unsupported_face_value_algorithm_type": {
                     "$ref": "#/components/examples/unsupported_face_value_algorithm_type"
-                  },
-                  "unsupported_face_value_type": {
-                    "$ref": "#/components/examples/unsupported_face_value_type"
-                  },
-                  "zero_face_value": {
-                    "$ref": "#/components/examples/zero_face_value"
                   }
                 },
                 "schema": {
@@ -102913,9 +102229,6 @@
                   },
                   "name_missing": {
                     "$ref": "#/components/examples/name_missing"
-                  },
-                  "required_merchant_token": {
-                    "$ref": "#/components/examples/required_merchant_token"
                   },
                   "reward_supplier_not_found": {
                     "$ref": "#/components/examples/reward_supplier_not_found"
@@ -103012,7 +102325,6 @@
                 "enum": [
                   "CUSTOM_REWARD",
                   "MANUAL_COUPON",
-                  "PAYPAL_PAYOUTS",
                   "SALESFORCE_COUPON",
                   "TANGO_V2"
                 ],
@@ -103789,17 +103101,8 @@
                   "settings_id_missing": {
                     "$ref": "#/components/examples/settings_id_missing"
                   },
-                  "unsupported_decimal_face_value_type": {
-                    "$ref": "#/components/examples/unsupported_decimal_face_value_type"
-                  },
                   "unsupported_face_value_algorithm_type": {
                     "$ref": "#/components/examples/unsupported_face_value_algorithm_type"
-                  },
-                  "unsupported_face_value_type": {
-                    "$ref": "#/components/examples/unsupported_face_value_type"
-                  },
-                  "zero_face_value": {
-                    "$ref": "#/components/examples/zero_face_value"
                   }
                 },
                 "schema": {
@@ -103869,9 +103172,6 @@
                   },
                   "name_missing": {
                     "$ref": "#/components/examples/name_missing"
-                  },
-                  "required_merchant_token": {
-                    "$ref": "#/components/examples/required_merchant_token"
                   },
                   "reward_supplier_not_found": {
                     "$ref": "#/components/examples/reward_supplier_not_found"
