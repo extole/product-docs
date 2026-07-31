@@ -151,7 +151,9 @@ You can link to the embedded share experience or the advocate microsite with pro
 
 <br />
 
-### Compliance review and approval of campaign assets<br />
+### Compliance review and approval of campaign assets
+
+Compile a view of all campaign assets by navigating to **Campaign Editor** > **Preview Assets**. Click on the settings icon to select which assets to show or remove from your preview, and export the page as a PDF.
 
 ### Test campaign flow end to end
 
