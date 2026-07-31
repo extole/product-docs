@@ -34,39 +34,25 @@ Once Mastercard executes a Statement of Work (SOW) with a participating Financia
 
 Extole will:
 
-- Provision a new Extole account
-- Create a new Referral in a Box campaign
-- Apply the Mastercard campaign template
-- Configure campaign rules
-- Configure qualification events
-- Configure reward rules
-- Enable reporting
-- Provision user access for Mastercard implementation resources
+- Provision a new Extole account and invite the Mastercard delivery team
+- Create a new Referral in a Box campaign with
+  - Pre-configured emails, experiences, events, and rules&#x20;
 
 Once the account has been provisioned, implementation begins with campaign branding.
 
 ***
 
-# Step 1
-
-# Brand the Referral Program
+# Step 1: Brand the Referral Program
 
 Each Financial Institution customizes the referral experience so it appears as a seamless extension of its own brand.
 
-## White-label Referral Links
+## White-label Referral Emails and Links
 
 Configure branded domains for:
 
 - Referral landing pages
 - Referral sharing links
-- Transactional emails
-
-Example:
-
-```text
-refer.bankname.com
-do-not-reply.bankname.com
-```
+- Transa
 
 Refer to the Extole DNS Requirements documentation:
 
@@ -76,38 +62,7 @@ Refer to the Extole DNS Requirements documentation:
 
 ## Campaign Configuration Template
 
-Complete the campaign configuration workbook provided by Mastercard.
-
-Typical configuration includes:
-
-- Program name
-- Reward values
-- Terms & Conditions
-- Eligibility requirements
-- Campaign copy
-- Brand colors
-- Logos
-- Email copy
-- Landing page copy
-
-***
-
-## Creative Asset Requirements
-
-The following creative assets are required to configure the referral program.
-
-| Asset                 | Required | Notes                                |
-| --------------------- | -------- | ------------------------------------ |
-| Company Logo          | Yes      | SVG or high-resolution PNG preferred |
-| Hero Image            | Optional | Used on landing pages and emails     |
-| Brand Colors          | Yes      | Primary and secondary HEX values     |
-| Primary Font          | Optional | Web-safe fonts used if not supplied  |
-| Referral Email Banner | Optional | Recommended                          |
-| Reward Images         | Optional | Displayed with rewards               |
-| Terms & Conditions    | Yes      | Plain text or URL                    |
-| Privacy Policy URL    | Yes      | Publicly accessible                  |
-| Disclosure Copy       | Yes      | Compliance language                  |
-| Social Sharing Image  | Optional | Used for Facebook, LinkedIn, etc.    |
+CCreative Asset Requirements
 
 For complete specifications, refer to:
 
