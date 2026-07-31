@@ -73,9 +73,13 @@ Displays the sharing experience for advocates onto a page that the FI hosts.
 
 ![](https://files.readme.io/e63fb1f5622f70388188cfe29a2d8ce97d47d195de8194a2b98908e1be174458-Embedded_Share_Experience.png)
 
-To embed the share experience, place Extole's core tag onto all pages of your marketing site:
+<br />To embed the share experience, place Extole's core tag onto all pages of your marketing site. Repace "refer.brand.com" with your branded referral domain, which can be found in **Extole** > **Tech Center** > **Domains**.
 
-<script type="text/javascript" src="https://share.brand.com/core.js" fetchpriority="high" async></script>
+```text
+<script type="text/javascript" src="https://refer.brand.com/core.js" fetchpriority="high" async></script>
+```
+
+Then, place the the embedded share experience tag on the page where you'd like to embed the content: you'd like to embed the share experience
 
 ```html
 <span id="extole_zone_embedded_share_experience"></span>
