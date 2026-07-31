@@ -12,26 +12,19 @@ This guide describes the end-to-end implementation process for launching the Mas
 
 ***
 
-# Step 0
+# Step 0: Account Provisioning
 
-# Account Provisioning
+Once Mastercard executes a Statement of Work (SOW) with a participating Financial Institution, Extole will provision a dedicated Extole account and create a new referral campaign with the appropriate emails, experiences, events, and rules.
 
-Once Mastercard executes a Statement of Work (SOW) with a participating Financial Institution, Extole will provision a dedicated Extole account and create a new referral campaign.
-
-## Extole Responsibilities
-
-- Provision a new Extole account and invite the Mastercard delivery team
-- Create a new Refer-a-Friend campaign with pre-configured emails, experiences, events, and rules&#x20;
-
-***
+<br />
 
 # Step 1: Brand the Referral Program<br />
 
-## White-Label Referral Domain (Optional)
+## White-Label Your Referral Program Domain (Optional)
 
-An optional, but recommended step is to white-label the links and email sender domain used in your referral program to not improve deliverability but to also ensure that customers trust to click and send links to their friends.
+An optional, but recommended step is to white-label the links and email sender domain used in your referral program to not only improve deliverability but to also ensure that customers trust to click and send share links to their friends.
 
-| Un-Branded                         | Branded                           |
+| Default                            | Branded/White-Labeled             |
 | ---------------------------------- | --------------------------------- |
 | prosperitybank.extole.io/jsmith101 | refer.properitybank.com/jsmith101 |
 | do-not-reply\@referral-mail.com    | do-not-reply\@prosperitybank.com  |
@@ -40,7 +33,7 @@ To white-list program links and emails, FI's can refer to: <Anchor target="_blan
 
 ***
 
-## Brand the Campaign Tamplate
+## Brand Your Campaign
 
 CCreative Asset Requirements
 
@@ -57,8 +50,6 @@ There are two experiences where advocates and friends will interact with the ref
 - `Share Experience` - where advocates can generate and share their referral link with friends, plus access referral history, program terms and conditions, etc.
 - `Friend Landing Experience -` where referred friends will land after clicking on a referral. The landing experience incldues an email capture form where they can "redeem" their referral so that Extole can match referrals using their email address.
 
-***
-
 ## Option A: Use Extole Hosted Experiences (No-tech)
 
 For a no-tech option, Extole can host these experiences for you via branded Microsites which contain your logo, an image header, a body, the share widget, and a footer. If you're using the microsite option, you can proceed with Step #3.
@@ -67,7 +58,7 @@ For a no-tech option, Extole can host these experiences for you via branded Micr
 
 ![](https://files.readme.io/fcbfe5be6b56a3c0bbd4506a4e0e52968b494aa4c69c5341520c3173676628da-Advocate_Microsite.png)
 
-### Friend Landing Microsite
+### Friend Landing Microsite&#x20;
 
 ![](https://files.readme.io/b08e776b6103b64484b44b788902d4d27d8aa1f1182b3a41d180793be069ecf0-Friend_Landing_Microsite.png)
 
@@ -153,48 +144,33 @@ extole.createZone({
 
 When the page loads, Extole dynamically renders the Friend Landing Experience inside the specified HTML element.
 
-<br />
+## Add promotion links to your site, digital banking, etc.
 
-***
-
-## Creating Campaign Entry Links
-
-Extole Promo Links should be created for every campaign entry point.
-
-Typical entry points include:
-
-- Website
-- Online Banking
-- Mobile Banking
-- Email
-- SMS
-
-Documentation:
+You can link to the embedded share experience or the advocate microsite with promotion links. Promotion links include tracking parameters so that you can you can track where and how people are sharing the referral program. Create a promotion link for each placement (website header, website footer) and place them in behind a Refer a Friend CTA, button, or banner on your site or digital banking app.
 
 [https://docs.extole.com/docs/how-to-create-a-promo-link](https://docs.extole.com/docs/how-to-create-a-promo-link)
 
-***
+# Step 3: Review, approval, and QA&#x20;
 
-# Step 3
+<br />
 
-# Review, QA & Certification
+### Compliance review and approval of campaign assets<br />
 
-Before launch, Mastercard, Extole, and the Financial Institution complete end-to-end testing using sample campaign data.
+### Test campaign flow end to end
 
-Testing validates:
+| QA Test Case                                                                                                                         | Owner       |
+| ------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
+| Uploads Sample Audience file to Batch Jobs trigger promo email                                                                       | Mastercard  |
+| Clicks on promo email and creates referral link. Shares referral link to friends testing all channels (Email, QR, social, SMS, etc.) | Mastercard  |
+| Test friend experience by clicking on a referral link and submitting lead capture form.                                              | Mastercard  |
+| Checks profles to ensure referral events are recorded.                                                                               | Extole      |
+| Upload test qualification event files.                                                                                               | Mastercard  |
+| Confirm events and earned rewards are recorded on Extole profiles.                                                                   | Extole      |
+| Run and export Earned Rewards Report. Process for fulfillment.                                                                       | Mastercard  |
 
-- Invitation emails
-- Referral sharing
-- Friend registration
-- Qualification processing
-- Referral matching
-- Reward generation
+### Sample Audience File
 
-***
-
-## Sample Audience File
-
-| First Name | Last Name | Email                                                           |
+| first_name | last_name | email                                                           |
 | ---------- | --------- | --------------------------------------------------------------- |
 | John       | Smith     | [john.smith@testbank.com](mailto:john.smith@testbank.com)       |
 | Sarah      | Jones     | [sarah.jones@testbank.com](mailto:sarah.jones@testbank.com)     |
@@ -202,120 +178,61 @@ Testing validates:
 
 ***
 
-## Qualification Event File
+## Sample Qualification Event Files<br /><br />Option A: Extole does the qualification
 
-Qualification events should follow Extole's standard file-based event format.
+If you want Extole to do the qualification, send the qualification critieria as individual events (`account opened`, `account_closed,` `transaction completed`)  to Extole. When qualification runs through Extole, you'll be able to be more agile in modifying your qualification rules in the future. You can also trigger communications or show progress using individual events (e.g send reminder if user opened their account but hasn't transacted yet.)<br /><br />Once event files are uploaded, Extole will match referrals and record earned rewards on advocate and friend profiles.
 
-| first_name | last_name | email                                                           | event_time (ISO 8601) | event_name                       |
-| ---------- | --------- | --------------------------------------------------------------- | --------------------- | -------------------------------- |
-| John       | Smith     | [john.smith@testbank.com](mailto:john.smith@testbank.com)       | 2026-09-15T14:32:18Z  | account_opened                   |
-| Sarah      | Jones     | [sarah.jones@testbank.com](mailto:sarah.jones@testbank.com)     | 2026-09-20T09:15:42Z  | account_closed                   |
-| Michael    | Brown     | [michael.brown@testbank.com](mailto:michael.brown@testbank.com) | 2026-09-25T18:05:11Z  | ten_debit_transactions_completed |
-
-Supported event names:
-
-- account_opened
-- account_closed
-- ten_debit_transactions_completed
+| event_name            | first_name | last_name | email                                                           | event_time           | type             |
+| --------------------- | ---------- | --------- | --------------------------------------------------------------- | -------------------- | ---------------- |
+| account_opened        | John       | Smith     | [john.smith@testbank.com](mailto:john.smith@testbank.com)       | 2026-09-15T14:32:18Z | Premium Checking |
+| account_closed        | Sarah      | Jones     | [sarah.jones@testbank.com](mailto:sarah.jones@testbank.com)     | 2026-09-20T09:15:42Z |                  |
+| transaction_completed | Michael    | Brown     | [michael.brown@testbank.com](mailto:michael.brown@testbank.com) | 2026-09-25T18:05:11Z | Debit            |
 
 ***
 
-## Account Qualified File
+## Option B: FI does the qualification
 
-Financial Institutions may alternatively submit a single qualification file.
+Alternatively, if you'd like to do the qualification and just upload a list of qualified users, you can do so and Extoel will automatically match referrals and record earned rewards on advocate and friend profiles.
 
-| first_name | last_name | email                                                     | event_time (ISO 8601) | event_name        |
-| ---------- | --------- | --------------------------------------------------------- | --------------------- | ----------------- |
-| John       | Smith     | [john.smith@testbank.com](mailto:john.smith@testbank.com) | 2026-09-30T15:10:42Z  | account_qualified |
-
-***
-
-## QA Certification
-
-Implementation is considered complete once:
-
-- Invitation emails are delivered successfully
-- Referral links function correctly
-- Friend registrations are captured
-- Qualification files process successfully
-- Rewards move into the Earned state
-- Mastercard validates the Earned Rewards Report
+| event_name        | first_name | last_name | email                                                     | event_time           |
+| ----------------- | ---------- | --------- | --------------------------------------------------------- | -------------------- |
+| account_qualified | John       | Smith     | [john.smith@testbank.com](mailto:john.smith@testbank.com) | 2026-09-30T15:10:42Z |
 
 ***
 
-# Step 4
+# Step 4: Upload Target Audience & Launch Campaign
 
-# Upload Target Audience & Launch Campaign
+Upon receiving final approval for go-live, Mastercard launches the referral campaign by uploading the final target list to Extole Audiences to trigger the invitation emails.&#x20;
 
-After implementation has been approved, Mastercard launches the referral campaign using an audience provided by the Financial Institution.
+<br />
 
-To protect customer payment information, Extole never receives or stores PAN data.
+### Initial List Pull
 
-***
-
-## Step 4.1
-
-### Financial Institution Generates Target Audience
-
-Prepare a list containing:
+FI pulls a list of all eligible customers and shares with Mastercard via MDE.
 
 | Field      | Required |
 | ---------- | -------- |
-| First Name | ✓        |
-| Last Name  | ✓        |
+| First Name |          |
+| Last Name  |          |
 | Email      | ✓        |
 | PAN        | ✓        |
 
 ***
 
-## Step 4.2
+## Remove PAN data and upload to Extole Audiences
 
-### Upload Through Mastercard Digital Enablement (MDE)
+<br />Mastercard removes the PAN column before uploading the audience to Extole, which triggers the invite email to send.
 
-The Financial Institution securely uploads the audience file through Mastercard Digital Enablement (MDE).
+| Field      | Required |
+| ---------- | -------- |
+| First Name |          |
+| Last Name  |          |
+|            |          |
+| Email      | ✓        |
 
-***
+<br />
 
-## Step 4.3
-
-### Mastercard Removes PAN Data
-
-Mastercard removes the PAN column before uploading the audience to Extole.
-
-The resulting file contains:
-
-| First Name | Last Name | Email                                                     |
-| ---------- | --------- | --------------------------------------------------------- |
-| John       | Smith     | [john.smith@testbank.com](mailto:john.smith@testbank.com) |
-
-***
-
-## Step 4.4
-
-### Mastercard Uploads Audience to Extole
-
-Mastercard imports the sanitized audience into Extole.
-
-***
-
-## Step 4.5
-
-### Campaign Launch
-
-Extole sends invitation emails to all eligible customers.
-
-Customers can:
-
-- Join the referral program
-- Generate referral links
-- Refer friends
-- Track referral progress
-
-***
-
-# Step 5
-
-# Qualification Processing & Reward Fulfillment
+## Step 5: Qualification Processing & Reward Fulfillment
 
 After the campaign launches, Extole must receive qualification data to determine which referrals have satisfied the campaign requirements.
 
