@@ -71,7 +71,9 @@ There will be two experiences where advocates and friends will interact with in 
 
 Displays the sharing experience for advocates onto a page that the FI hosts.
 
-![](https://files.readme.io/e63fb1f5622f70388188cfe29a2d8ce97d47d195de8194a2b98908e1be174458-Embedded_Share_Experience.png)
+
+<Image src="https://files.readme.io/e63fb1f5622f70388188cfe29a2d8ce97d47d195de8194a2b98908e1be174458-Embedded_Share_Experience.png" align="center" caption="Embedded Share Experience = dotted border" />
+
 
 <br />To embed the share experience, place Extole's core tag onto all pages of your marketing site. Repace "refer.brand.com" with your branded referral domain, which can be found in **Extole** > **Tech Center** > **Domains**.
 
