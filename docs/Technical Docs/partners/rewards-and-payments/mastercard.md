@@ -10,18 +10,6 @@ metadata:
 
 This guide describes the end-to-end implementation process for launching the Mastercard **Referral in a Box** solution powered by Extole.
 
-The standard implementation takes approximately four weeks, followed by a pilot campaign and reward fulfillment period.
-
-| Step       | Description                                   | Primary Owner                               |
-| ---------- | --------------------------------------------- | ------------------------------------------- |
-| Step 0     | Account Provisioning                          | Extole                                      |
-| Step 1     | Brand the Referral Program                    | Financial Institution                       |
-| Step 2     | Configure Referral Experience                 | Extole + Financial Institution              |
-| Step 3     | Review, QA & Certification                    | Mastercard + Extole + Financial Institution |
-| Step 4     | Upload Target Audience & Launch Campaign      | Financial Institution + Mastercard          |
-| Step 5     | Qualification Processing & Reward Fulfillment | Financial Institution + Extole + Mastercard |
-| Post Pilot | Reporting & Production Transition             | All Parties                                 |
-
 ***
 
 # Step 0
@@ -32,35 +20,27 @@ Once Mastercard executes a Statement of Work (SOW) with a participating Financia
 
 ## Extole Responsibilities
 
-Extole will:
-
 - Provision a new Extole account and invite the Mastercard delivery team
-- Create a new Referral in a Box campaign with
-  - Pre-configured emails, experiences, events, and rules&#x20;
-
-Once the account has been provisioned, implementation begins with campaign branding.
+- Create a new Refer-a-Friend campaign with pre-configured emails, experiences, events, and rules&#x20;
 
 ***
 
-# Step 1: Brand the Referral Program
+# Step 1: Brand the Referral Program<br />
 
-Each Financial Institution customizes the referral experience so it appears as a seamless extension of its own brand.
+## White-Label Referral Domain (Optional)
 
-## White-label Referral Emails and Links
+An optional, but recommended step is to white-label the links and email sender domain used in your referral program to not improve deliverability but to also ensure that customers trust to click and send links to their friends.
 
-Configure branded domains for:
+| Un-Branded                         | Branded                           |
+| ---------------------------------- | --------------------------------- |
+| prosperitybank.extole.io/jsmith101 | refer.properitybank.com/jsmith101 |
+| do-not-reply\@referral-mail.com    | do-not-reply\@prosperitybank.com  |
 
-- Referral landing pages
-- Referral sharing links
-- Transa
-
-Refer to the Extole DNS Requirements documentation:
-
-[https://docs.extole.com/docs/extole-dns-requirements](https://docs.extole.com/docs/extole-dns-requirements)
+To white-list program links and emails, FI's can refer to: <Anchor target="_blank" href="https://docs.extole.com/docs/extole-dns-requirements">https://docs.extole.com/docs/extole-dns-requirements</Anchor>
 
 ***
 
-## Campaign Configuration Template
+## Brand the Campaign Tamplate
 
 CCreative Asset Requirements
 
@@ -70,50 +50,61 @@ For complete specifications, refer to:
 
 ***
 
-# Step 2
+# Step 2: Set-Up Share and Friend Lead Capture Experiences
 
-# Configure the Referral Experience
+There will be two experiences where advocates and friends will interact with in the referral program:
 
-The referral experience can be deployed using one of two implementation options.
-
-***
-
-## Option A
-
-## Extole Hosted Experience (Recommended)
-
-Extole hosts the complete referral experience.
-
-The Financial Institution simply links customers to the hosted experience from:
-
-- Website
-- Online Banking
-- Mobile Banking
-- Email Campaigns
-- SMS Campaigns
-
-This option requires the least implementation effort.
+- Share Experience - where advocates can generate and share their referral link with friends, plus access referral history, program terms and conditions, etc.
+- Friend Landing Experience - where referred friends will land after clicking on a referral. The landing experience incldues an email capture form where they can "redeem" their referral so that Extole can match referrals using their email address.
 
 ***
 
-## Option B
+## Option A: Use Extole Hosted Experiences (No-tech)<br /><br />
 
-## Embedded Experience
-
-The referral experience can also be embedded directly into an existing website using Extole JavaScript zones.
-
-Two independent experiences are available.
-
-| Zone                               | Purpose                                                  |
-| ---------------------------------- | -------------------------------------------------------- |
-| Embedded Share Experience          | Existing customers share referrals                       |
-| Embedded Friend Landing Experience | Referred friends register after clicking a referral link |
+<br />
 
 ***
+
+## Option B: Embed the experiences on your website (JavaScript SDK)<br />
+
+### Embedded Share Experience
+
+Displays the sharing experience for advocates onto a page that the FI hosts.
+
+![](https://files.readme.io/e63fb1f5622f70388188cfe29a2d8ce97d47d195de8194a2b98908e1be174458-Embedded_Share_Experience.png)
+
+To embed the share experience, place Extole's core tag onto all pages of your marketing site:
+
+<script type="text/javascript" src="https://share.brand.com/core.js" fetchpriority="high" async></script>
+
+```html
+<span id="extole_zone_embedded_share_experience"></span>
+
+<script type="text/javascript">
+(function(c,b,f,k,a){
+    c[b]=c[b]||{};
+    for(c[b].q=c[b].q||[];a<k.length;)
+        f(k[a++],c[b]);
+})(window,"extole",function(c,b){
+    b[c]=b[c]||function(){
+        b.q.push([c,arguments]);
+    };
+},["createZone"],0);
+
+extole.createZone({
+    name: "embedded_share_experience",
+    element_id: "extole_zone_embedded_share_experience"
+});
+</script>
+```
+
+<br />
+
+<br />
 
 ### Embedded Friend Landing Experience
 
-Displays the registration experience shown to referred friends.
+Displays an email capture form that referred friends will complete when clicking on a share link.
 
 ```html
 <span id="extole_zone_embedded_friend_landing_experience"></span>
@@ -138,34 +129,7 @@ extole.createZone({
 
 When the page loads, Extole dynamically renders the Friend Landing Experience inside the specified HTML element.
 
-***
-
-### Embedded Share Experience
-
-Displays the sharing experience for advocates.
-
-```html
-<span id="extole_zone_embedded_share_experience"></span>
-
-<script type="text/javascript">
-(function(c,b,f,k,a){
-    c[b]=c[b]||{};
-    for(c[b].q=c[b].q||[];a<k.length;)
-        f(k[a++],c[b]);
-})(window,"extole",function(c,b){
-    b[c]=b[c]||function(){
-        b.q.push([c,arguments]);
-    };
-},["createZone"],0);
-
-extole.createZone({
-    name: "embedded_share_experience",
-    element_id: "extole_zone_embedded_share_experience"
-});
-</script>
-```
-
-When the page loads, Extole injects the complete advocate sharing experience into the page.
+<br />
 
 ***
 
