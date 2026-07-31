@@ -104,13 +104,21 @@ extole.createZone({
 </script>
 ```
 
-<br />
-
-<br />
-
 ### Embedded Friend Landing Experience
 
 Displays an email capture form that referred friends will complete when clicking on a share link.
+
+
+<Image src="https://files.readme.io/2327ac229829661ce05573bf6695810a0dbb506880038822a53464f670f9cce5-Embedded_Landing_Experience.png" align="center" caption="Embedded Landing Experience = dotted border" />
+
+
+To embed the friend landing experience, make sure you've already placed Extole's core tag onto all pages of your marketing site. Make sure to replace `refer.brand.com` with your branded referral domain, which can be found in **Extole** > **Tech Center** > **Domains**.
+
+```text
+<script type="text/javascript" src="https://refer.brand.com/core.js" fetchpriority="high" async></script>
+```
+
+Then, place the embedded friend landing experience tag onto the page where you'd like to embed the content:&#x20;
 
 ```html
 <span id="extole_zone_embedded_friend_landing_experience"></span>
