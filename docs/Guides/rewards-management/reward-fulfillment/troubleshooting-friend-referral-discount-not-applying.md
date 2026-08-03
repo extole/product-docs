@@ -1,11 +1,7 @@
 ---
 title: "Troubleshooting a Friend's Referral Discount Not Applying"
-excerpt: "---"
+excerpt: "How to investigate and resolve the common support case where a referred friend's refer-a-friend discount is not applied automatically at checkout."
 ---
-
----
-
-**Description:** How to investigate and resolve the common support case where a referred friend reports that their refer-a-friend discount is not being applied automatically to their order.
 
 ## Overview
 
