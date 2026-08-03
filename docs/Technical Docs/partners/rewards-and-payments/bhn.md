@@ -56,11 +56,66 @@ Extole calls five Hawk Marketplace endpoints, all on `https://api.blackhawknetwo
 
 Order calls are retried over a few hours. The status check runs on a much longer schedule, escalating out to roughly a month, because physical cards are manufactured and mailed rather than delivered instantly.
 
+### Reward Connection Contract
+
+Create five `REWARD` webhooks, one for each endpoint above. Each order webhook filters to its matching supplier variant and to `EARNED`, uses `POST`, and has retry intervals `[1800, 3600, 10800]`. The status webhook filters to all four BHN supplier variants and to `FULFILL_FAILED`; its retry intervals are:
+
+```json
+[10800, 10800, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 259200, 259200, 259200, 864000, 1296000, 2592000]
+```
+
+The exact supplier tags are `internal:bhn-virtual`, `internal:bhn-physical-single-load`, `internal:bhn-physical-reloadable`, and `internal:bhn-egift-card`. Template names use the same tokens without the `internal:` prefix. The status response is complete when BHN returns `Complete`, `Funding Posted`, or `Shipped`; a BHN error marks the reward failed, and every other state retries until the final configured attempt.
+
 Both credentials sit on the integration: the Merchant ID is a plain setting, and the API credential is a client key that Extole generates from the certificates BHN issues you, so it cannot be self-configured. Alongside its configuration and reward supplier tabs, the integration shows a reward activity chart and a live feed of BHN reward events.
 
 The integration's registered image key is `blackhawkNetwork`. That is the value the admin resolves BHN's artwork by, and it is not derived from the partner's name or this page's slug.
 
 Only the v10 integration is current. Build or install that one; the earlier flavor is not a fallback when something in the v10 shape is inconvenient.
+
+### Reward Activity Report Contract
+
+The Reward Activity tab owns one enabled, scheduled report runner. Its account-local report type is named `Reward Revenue`; find that name through `GET /v6/report-types`, and use the returned identifier rather than carrying an identifier from another account. If this account has no type by that name, create a configured type from a parent that accepts metric mappings, with the defaults below, before creating the runner.
+
+| Runner property | Required value |
+| :-------------- | :------------- |
+| Name | `Partner BHN Reward Revenue Report` |
+| Type | `SCHEDULED` |
+| Formats | `JSON`, `CSV` |
+| Frequency | `WEEKLY` |
+| Schedule start | `2026-03-31T23:00:00-07:00` |
+| Scopes | `CLIENT_SUPERUSER` |
+| Tags | `internal:category:Performance & Metrics`, `partner-graph` |
+| Execution policy | `AWAIT_DATA` |
+| Attachment | The Reward Activity view, not the integration component |
+
+Its parameters are part of the product contract:
+
+```json
+{
+  "container": "production",
+  "mappings": "date=START_DATE(event.eventTime, period:\"DAY\"); reason=event.data.referral_reason; coupon_used=BOOLEAN_FORMAT(event.data.coupon_codes!=\"null\",\"COUPON USED\",\"NO COUPON USED\");quality=event.quality; count=group_count(event.id, step_name:\"converted\");hidden(reward_id)=LAST(COLLECTION(PERSON(event.data.related_person_id).steps, filter:rootEventId==event.rootEventId, filter: stepName==\"reward_earned\"),sortBy: eventDate).data.reward_id; revenue=GROUP_SUM(event.data.amount, step_name:\"converted\");rewarded=BOOLEAN_FORMAT(reward_id == \"null\",\"UNREWARDED\",\"REWARDED\")",
+  "locales": "ALL",
+  "time_range": "all_time",
+  "campaign_states": "ALL",
+  "visit_type": "NEW_TO_CLIENT",
+  "unattributed_events": "false",
+  "include_totals": "false",
+  "quality": "ALL"
+}
+```
+
+Do not substitute a reward-earned count or reward face value for this mapping: this report charts the conversion revenue and reward relationship that BHN program managers use. The Reward Activity view's `reportColumnsMapping` must use the `date`, `count`, and `revenue` columns this mapping emits.
+
+```json
+{
+  "chart": { "type": "line" },
+  "xAxis": { "column": "date", "type": "datetime" },
+  "series": [
+    { "name": "Count", "column": "count", "aggregation": "sum" },
+    { "name": "Total Spend", "column": "revenue", "aggregation": "sum" }
+  ]
+}
+```
 
 For how this category is built in general terms, see [Integration Categories](doc:integration-categories) and [Create an Integration With the Client API](doc:client-api-integration).
 
