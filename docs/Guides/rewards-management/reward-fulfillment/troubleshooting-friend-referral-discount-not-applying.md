@@ -18,13 +18,18 @@ Two conditions matter:
 
 If there is no recorded click, Extole never reached the point where the friend discount could be activated.
 
+## How the Discount Reaches the Friend
+
+Depending on the program, the friend discount is either shown on the friend landing page for the friend to copy, or added to the link the friend follows to your site. Whether it then applies on its own at checkout depends on the program's configuration and your commerce platform. If the friend expects the code to apply automatically but the program is set up to display a code to enter, that is the intended behavior — confirm the program's intended experience before treating it as a defect.
+
 ## Diagnose in the Platform
 
 Look the friend up under **User Support** and confirm what actually happened before deciding on a fix:
 
 1. Search for the friend by email and open their profile.
 2. In the **Activity** section, look for a `share_click` and the friend's landing, sign-up, or conversion events. If referral emails were delivered and opened but there is **no `share_click`**, the referral was never attributed.
-3. In the **Rewards** section, check whether any friend coupon or discount was issued. If none is present, no discount code exists to apply yet.
+3. Check the **status and quality** of the friend's events. A click or sign-up can be recorded but marked suspicious or low quality and auto-declined, which stops the discount from being issued. See [Visit Type and Quality](doc:visit-type-and-quality).
+4. In the **Rewards** section, check whether any friend coupon or discount was issued. If none is present, no discount code exists to apply yet.
 
 For related reward-status checks, see [How to Investigate a WISMR Request](doc:how-to-investigate-a-wismr-request).
 
@@ -34,7 +39,17 @@ For related reward-status checks, see [How to Investigate a WISMR Request](doc:h
 | --- | --- |
 | Emails delivered and opened, but no `share_click` | The friend opened the email but never clicked the referral button, or a scanner logged the open |
 | A `share_click` exists but on a different browser/device than checkout | Cookies were disabled or cleared, or the friend switched browsers between clicking and buying |
-| The friend clicked and landed, but the discount is missing at checkout | The coupon may not be appended to the destination URL or applied at checkout — a technical or configuration issue (see When to Contact Extole) |
+| A click or sign-up exists but is suspicious / low quality | The friend was flagged as ineligible — for example self-referral signals or the friend is not a new customer (see If the Friend Is Not Eligible) |
+| The friend clicked and landed, but the discount is missing at checkout | The code may not be carried through to checkout — a secondary redirect on your site can strip it, or your commerce platform needs specific setup to apply it automatically (a technical or configuration issue; see When to Contact Extole) |
+
+## If the Friend Is Not Eligible
+
+Some referrals are intentionally not rewarded. Extole evaluates each friend event against quality and eligibility rules, and an event that fails is marked suspicious and auto-declined, so no discount is issued. Common reasons include self-referral signals — the advocate and friend appear to be the same person, or share a browser, device, or IP address — and the friend not being a new customer. For the full list and how to configure them, see [Configuring the Rules of Your Program](doc:configuring-the-rules-of-your-program) and [New Customer Rule](doc:new-customer-rule).
+
+When you respond to the friend:
+
+- Point them to the program's terms — for example, "valid for first-time customers only" — rather than naming the specific rule that was triggered.
+- If a genuine customer made a good-faith attempt to participate, you can approve the declined event from their profile to issue the reward. Weigh this against the added fraud risk of overriding quality rules.
 
 ## Resolution Steps
 
@@ -48,11 +63,14 @@ Creating a replacement reward issues real value, so complete step 3 only after y
 
 ## When to Contact Extole
 
-Contact Extole support if the friend clicked the referral link and the referral is attributed correctly but no discount was issued, or if the coupon appears in the referral link but is not applied at checkout. Include the friend's email, the advocate's email, and the approximate time of the click so the referral can be located.
+Contact Extole support if the friend clicked the referral link and the referral is attributed correctly but no discount was issued, or if the coupon appears in the referral link but is not applied at checkout. Because your site and commerce platform handle the final step of applying the code, persistent auto-apply failures usually need your own technical or commerce team alongside Extole. Include the friend's email, the advocate's email, and the approximate time of the click so the referral can be located.
 
 ## Related Articles
 
 - [How to Investigate a WISMR Request](doc:how-to-investigate-a-wismr-request)
 - [WISMR 101: Understanding Customer Reward Inquiries](doc:wismr-101-understanding-customer-reward-inquiries)
 - [How to Manually Create a Referral or other Event](doc:how-to-manually-create-a-referral-or-other-event)
+- [Configuring the Rules of Your Program](doc:configuring-the-rules-of-your-program)
+- [New Customer Rule](doc:new-customer-rule)
+- [Visit Type and Quality](doc:visit-type-and-quality)
 - [Extole Cookie Handling](doc:extole-cookie-handling)
