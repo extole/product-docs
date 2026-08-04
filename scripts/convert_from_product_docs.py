@@ -128,6 +128,15 @@ HTML_IMAGE_RE = re.compile(
     r"<img\b[^>]*?\bsrc\s*=\s*(?P<quote>[\"'])(?P<url>https?://.*?)(?P=quote)",
     re.IGNORECASE | re.DOTALL,
 )
+LOCAL_MARKDOWN_IMAGE_RE = re.compile(
+    r"!\[(?P<alt>[^\]]*)\]\(\s*(?P<path>/images/extole/[^\s)]+)(?P<title>\s+(?:\"[^\"]*\"|'[^']*'))?\s*\)"
+)
+LOCAL_HTML_IMAGE_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+HTML_LOCAL_SRC_RE = re.compile(r"\bsrc=(?:\"(?P<double>/images/extole/[^\"]*)\"|'(?P<single>/images/extole/[^']*)')", re.IGNORECASE)
+HTML_ALT_RE = re.compile(r"\balt=(?:\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)')", re.IGNORECASE)
+FILENAME_ALT_RE = re.compile(r"^.+\.(?:png|jpe?g|gif|webp|svg)$", re.IGNORECASE)
+HEADING_RE = re.compile(r"^#{1,6}\s+(.+?)\s*$")
+FRONTMATTER_TITLE_RE = re.compile(r"^title:\s*[\"']?(.+?)[\"']?\s*$", re.MULTILINE)
 
 MAX_IMAGE_BYTES = 20 * 1024 * 1024
 IMAGE_WORKERS = 4
@@ -189,6 +198,118 @@ def rewrite_remote_images(text: str, local_paths: dict[str, str]) -> str:
     return _restore(text, fences, mark="\x01")
 
 
+def _plain_image_context(text: str) -> str:
+    text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"[`*_~]", "", text)
+    text = re.sub(r"^\s*(?:[-*+] |\d+[.)] )", "", text)
+    return re.sub(r"\s+", " ", text).strip(" \t:-")
+
+
+def _short_alt_text(text: str) -> str:
+    return text if len(text) <= 180 else text[:177].rsplit(" ", 1)[0] + "..."
+
+
+def _needs_context_alt(alt: str) -> bool:
+    return not alt.strip() or bool(FILENAME_ALT_RE.fullmatch(alt.strip()))
+
+
+def _html_attr(match: re.Match | None) -> str:
+    if not match:
+        return ""
+    return next((value for value in match.groupdict().values() if value is not None), "")
+
+
+def _set_html_alt(tag: str, alt: str) -> str:
+    escaped = alt.replace('"', "'")
+    if HTML_ALT_RE.search(tag):
+        return HTML_ALT_RE.sub(f'alt="{escaped}"', tag, count=1)
+    suffix = " />" if tag.rstrip().endswith("/>") else ">"
+    return tag.rstrip().removesuffix("/>").removesuffix(">") + f' alt="{escaped}"{suffix}'
+
+
+def add_context_alt_text(text: str, fallback_title: str) -> tuple[str, int]:
+    """Fill empty or filename-only local image alt text from nearby MDX prose."""
+    title_match = FRONTMATTER_TITLE_RE.search(text)
+    title = _plain_image_context(title_match.group(1)) if title_match else fallback_title
+    guide_title = title if title.lower().endswith("guide") else f"{title} guide"
+    heading = ""
+    context = ""
+    updated_lines = []
+    changed = 0
+    frontmatter_delimiters = 2 if text.startswith("---\n") else 0
+
+    for line in text.splitlines(keepends=True):
+        stripped = line.strip()
+        if frontmatter_delimiters:
+            updated_lines.append(line)
+            if stripped == "---":
+                frontmatter_delimiters -= 1
+            continue
+
+        heading_match = HEADING_RE.match(line)
+        if heading_match:
+            heading = _plain_image_context(heading_match.group(1))
+
+        def markdown_repl(match):
+            nonlocal changed
+            alt = match.group("alt")
+            if not _needs_context_alt(alt):
+                return match.group(0)
+            replacement = (
+                f"Screenshot showing {context}"
+                if context
+                else f"Screenshot for {heading} in the {guide_title}."
+                if heading
+                else f"Screenshot from the {guide_title}."
+            )
+            changed += 1
+            return f"![{_short_alt_text(replacement)}]({match.group('path')}{match.group('title') or ''})"
+
+        line = LOCAL_MARKDOWN_IMAGE_RE.sub(markdown_repl, line)
+
+        def html_repl(match):
+            nonlocal changed
+            tag = match.group(0)
+            if not _html_attr(HTML_LOCAL_SRC_RE.search(tag)):
+                return tag
+            alt = _html_attr(HTML_ALT_RE.search(tag))
+            if not _needs_context_alt(alt):
+                return tag
+            replacement = (
+                f"Screenshot showing {context}"
+                if context
+                else f"Screenshot for {heading} in the {guide_title}."
+                if heading
+                else f"Screenshot from the {guide_title}."
+            )
+            changed += 1
+            return _set_html_alt(tag, _short_alt_text(replacement))
+
+        line = LOCAL_HTML_IMAGE_RE.sub(html_repl, line)
+        updated_lines.append(line)
+
+        visible = _plain_image_context(line)
+        if not heading_match and visible and "/images/extole/" not in line and not line.lstrip().startswith(("{/*", "[//]:")):
+            context = visible
+
+    return "".join(updated_lines), changed
+
+
+def normalize_local_image_alt_text(out: Path) -> tuple[int, int]:
+    """Apply deterministic context alt text to all generated MDX pages."""
+    pages = 0
+    images = 0
+    for page in sorted(out.rglob("*.mdx")):
+        original = page.read_text(encoding="utf-8", errors="replace")
+        updated, changed = add_context_alt_text(original, page.stem.replace("-", " ").title())
+        if changed:
+            page.write_text(updated, encoding="utf-8")
+            pages += 1
+            images += changed
+    return pages, images
+
+
 def image_extension(data: bytes, content_type: str, source_url: str) -> str:
     """Resolve a safe image suffix from the response before writing it locally."""
     content_type = content_type.lower().split(";", 1)[0].strip()
@@ -237,6 +358,21 @@ class ImageMigrator:
                 if isinstance(url, str):
                     cached[url] = asset
         return cached
+
+    def rewrite_cached(self) -> tuple[int, int, int]:
+        """Rewrite known remote images using local assets without any network access."""
+        cached = self._cached_assets(self._load_manifest())
+        local_paths = {url: asset["path"] for url, asset in cached.items()}
+        rewritten = 0
+        unresolved = 0
+        for page in sorted(self.out.rglob("*.mdx")):
+            original = page.read_text(encoding="utf-8", errors="replace")
+            unresolved += len(remote_image_urls(original) - set(local_paths))
+            updated = rewrite_remote_images(original, local_paths)
+            if updated != original:
+                page.write_text(updated, encoding="utf-8")
+                rewritten += 1
+        return len({asset["path"] for asset in cached.values()}), rewritten, unresolved
 
     @staticmethod
     def _fetch(url: str) -> dict:
@@ -747,7 +883,7 @@ def main():
     ap.add_argument(
         "--migrate-images",
         action="store_true",
-        help="download remote MDX images into images/extole and rewrite their references",
+        help="download uncached remote MDX images into images/extole and rewrite their references",
     )
     args = ap.parse_args()
 
@@ -818,6 +954,12 @@ def main():
 
     conv.write_pages()
 
+    assets, pages, unresolved = ImageMigrator(out).rewrite_cached()
+    print(f"cached local image assets: {assets}")
+    print(f"pages rewritten from image cache: {pages}")
+    if unresolved:
+        print(f"uncached remote image references: {unresolved}")
+
     docs_json = build_docs_json(tabs)
     (out / "docs.json").write_text(json.dumps(docs_json, indent=2) + "\n", encoding="utf-8")
 
@@ -830,6 +972,10 @@ def main():
         if failures:
             print(f"image failures: {failures}")
             raise SystemExit(1)
+
+    alt_pages, alt_images = normalize_local_image_alt_text(out)
+    print(f"pages with contextual image alt text: {alt_pages}")
+    print(f"contextual image alt text updates: {alt_images}")
 
     print(f"pages written: {len(conv.pages)}")
     print(f"api specs: {len(api_groups)}")

@@ -1,4 +1,6 @@
 import importlib.util
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -50,6 +52,65 @@ class RemoteImageRewriteTests(unittest.TestCase):
     def test_detects_common_image_extensions(self):
         self.assertEqual(converter.image_extension(b"\x89PNG\r\n\x1a\n", "application/octet-stream", "https://example.com/1"), ".png")
         self.assertEqual(converter.image_extension(b"<svg viewBox=\"0 0 1 1\" />", "text/plain", "https://example.com/1"), ".svg")
+
+    def test_rewrites_cached_images_without_downloading(self):
+        source_url = "https://files.readme.io/example-image.png"
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            asset = out / "images/extole/example.png"
+            asset.parent.mkdir(parents=True)
+            asset.write_bytes(b"local image")
+            (out / "images/extole-manifest.json").write_text(
+                json.dumps({"assets": [{"path": "/images/extole/example.png", "sourceUrls": [source_url]}]}),
+                encoding="utf-8",
+            )
+            page = out / "guide.mdx"
+            page.write_text(f"![Example]({source_url})\n", encoding="utf-8")
+
+            assets, pages, unresolved = converter.ImageMigrator(out).rewrite_cached()
+
+            self.assertEqual((assets, pages, unresolved), (1, 1, 0))
+            self.assertEqual(page.read_text(encoding="utf-8"), "![Example](/images/extole/example.png)\n")
+
+    def test_adds_context_alt_text_for_empty_and_filename_values(self):
+        source = '''---
+title: "Sample guide"
+---
+
+## Create an audience
+
+Click **Add member** to include a person in the audience.
+
+![](/images/extole/empty.png)
+![Screen Shot 2024-01-01.png](/images/extole/named.png)
+<img src="/images/extole/html.png" alt="" />
+'''
+
+        result, changed = converter.add_context_alt_text(source, "Fallback")
+
+        expected = "Screenshot showing Click Add member to include a person in the audience."
+        self.assertEqual(changed, 3)
+        self.assertIn(f"![{expected}](/images/extole/empty.png)", result)
+        self.assertIn(f"![{expected}](/images/extole/named.png)", result)
+        self.assertIn(f'<img src="/images/extole/html.png" alt="{expected}" />', result)
+
+    def test_context_alt_uses_section_fallback_without_nearby_prose(self):
+        source = '''---
+title: "Sample guide"
+---
+
+## Create an audience
+
+![Screen Shot 2024-01-01.png](/images/extole/named.png)
+'''
+
+        result, changed = converter.add_context_alt_text(source, "Fallback")
+
+        self.assertEqual(changed, 1)
+        self.assertIn(
+            "![Screenshot for Create an audience in the Sample guide.](/images/extole/named.png)",
+            result,
+        )
 
 
 if __name__ == "__main__":
