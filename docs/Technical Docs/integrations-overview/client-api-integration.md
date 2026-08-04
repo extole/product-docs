@@ -9,6 +9,42 @@ Use the Client API to create an integration campaign and its component hierarchy
 
 An API-created integration is still a component-based integration. It must use the same reusable component types, typed sockets, business-event templates, views, naming conventions, and validation rules as a bundled v10 integration.
 
+## Decide Whether This Is an Install or a Client-Local Build
+
+Creating an integration-shaped campaign and installing a registered integration are different outcomes.
+The distinction matters whenever the requester expects the result on the My Extole
+<Anchor label="Integrations page" target="_blank" href="https://my.extole.com/integrations">Integrations page</Anchor>.
+
+| Requested outcome | Correct action | What makes it appear |
+| :---------------- | :------------- | :------------------- |
+| A registered integration every client can find and install | Publish the partner's integration component to the Extole-owned library. | An Extole-owned component tagged `internal:type:integration` and `internal:self-managed`. |
+| An installed instance for this client | Duplicate the library source, or build the campaign and component tree below. | A non-root component owned by this client, tagged `internal:type:integration` and `internal:self-managed`. |
+| A development-account build to inspect, configure, or test through campaign and component APIs | Create the campaign and component tree directly. | The same client-owned component; it is visible to this client only. |
+
+The Integrations page selects built components by the tag `internal:type:integration`. Among those, it
+treats a component as this client's installed integration when the component's source client is this
+client, and as an available type to install when the source client is Extole. Two further conditions
+decide whether a client-owned component shows up at all:
+
+- **Root components are excluded.** The integration component must be a child of the campaign root,
+  never the root component itself.
+- **Without `internal:self-managed` the entry renders as unavailable** rather than installed.
+
+The tags that decide visibility therefore sit on the non-root integration component. A build that
+follows the component model below is visible; one that puts the integration tags only on the campaign,
+or only on the root component, is not.
+
+`internal:integration-component-name:<component-name>` is a separate, older convention. Library bundles
+carry it on the integration campaign so an installed copy can be traced back to the component it came
+from, and this guide keeps it for parity with those bundles. The Integrations page does not read it, so
+setting it does not make a build appear and omitting it does not hide one. Do not reach for it to fix a
+build that is missing from the page — check the component's tags, its owner, and whether it is the root.
+
+Building the tree in one account does not register a new partner for anyone else. When the request is
+for a new installable partner that every client can see, build and validate the shape in the
+development account first, then publish the reusable component to the Extole-owned library, and say
+plainly that the account-local build is not yet an installable integration.
+
 Examples in this guide use a generic partner named `example`. Substitute the real partner name, event names, and field names from that partner's own documentation.
 
 Where a partner-specific page exists in this documentation set, read it first: it carries the wire contract for that platform — event names, payload fields, and status mapping — while this guide carries the build sequence that applies to every platform. Partner pages are published under the partner's name as the page slug, so retrieve the page directly by that slug rather than relying on a keyword search to surface it.
@@ -21,7 +57,7 @@ Place the platform in a category before creating anything. [Integration Categori
 | :------- | :-------------- | :--------- |
 | Outbound library install | The duplicatable listing already has an integration component whose name matches the partner. | Duplicate that library component with no target campaign, reshape it to the finished shape on the partner page, then attach webhooks and credentials. Follow **Build an Outbound Library Integration** below. |
 | Reward fulfillment | The partner supplies gift cards, prepaid cards, points, or payouts that Extole orders when a reward is earned. | Install the maintained source when one exists; otherwise build the supplier type, the support campaign of supplier templates, and the integration with its `REWARD` webhooks. Follow **Build a Reward Fulfillment Integration** below. |
-| Inbound custom build | No maintained source exists for the partner, or the request is an inbound platform that maps wire events onto canonical business events. | Create an `INTEGRATION` campaign from the custom integration template, then add business events, trigger rules, data capture, and views. Follow the rest of this guide. |
+| Inbound custom build | No maintained source exists for the partner, or the request is an inbound platform that maps wire events onto canonical business events. | Create an `INTEGRATION` campaign from the custom integration template, then add business events, trigger rules, data capture, and views. This is a client-local build unless a registered integration component is published separately. |
 
 Before creating anything, query the duplicatable listing for integration components and look for one whose name matches the partner. Match on the component name, not on a fixed type version: the integration type is revised over time, so a source may be typed `integration-v10.0`, `integration-v10.1`, or a later revision, and a query pinned to one revision reports a maintained partner as missing. Prefer that name match over building from `custom_integration`. Rebuilding a maintained partner from the custom template produces a campaign that looks related and does none of the partner's webhook or credential work.
 
@@ -138,22 +174,21 @@ A published integration campaign has no supported route back to a draft — it h
 
 Publishing validates every webhook the campaign already owns, so a setting that feeds an existing webhook URL must resolve to something valid first. An account-URL setting left empty produces an invalid destination, campaign validation rejects the publish, and the second webhook can never be attached. Keep a valid placeholder host in that setting — the library's own default is one — until the real host arrives.
 
-```bash
-curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "javascript@buildtime:context.getComponent().getName() + '"'"'_message_trigger'"'"'",
-    "url": "javascript@buildtime:context.getVariableContext().get(\"partnerRestUrl\") + \"/partner/endpoint/path\"",
-    "type": "GENERIC",
-    "default_method": "POST",
-    "enabled": "javascript@buildtime:context.getVariableContext().get('"'"'enabled'"'"')",
-    "client_key_id": "javascript@buildtime:context.getVariableContext().get(\"clientKeyId\")",
-    "request": "javascript@runtime:context.createRequestBuilderWithDefaults().withUserAgent('"'"'partner-Extole-Integration/1.0'"'"').build();",
-    "retry_intervals": [1, 30, 60],
-    "tags": ["internal:partner:campaign", "internal:partner"],
-    "component_ids": ["'"${INTEGRATION_COMPONENT_ID}"'"]
-  }' \
-  "${EXTOLE_API_HOST}/v6/webhooks"
+`POST /v6/webhooks`:
+
+```json
+{
+  "name": "javascript@buildtime:context.getComponent().getName() + '_message_trigger'",
+  "url": "javascript@buildtime:context.getVariableContext().get('partnerRestUrl') + '/partner/endpoint/path'",
+  "type": "GENERIC",
+  "default_method": "POST",
+  "enabled": "javascript@buildtime:context.getVariableContext().get('enabled')",
+  "client_key_id": "javascript@buildtime:context.getVariableContext().get('clientKeyId')",
+  "request": "javascript@runtime:context.createRequestBuilderWithDefaults().withUserAgent('partner-Extole-Integration/1.0').build();",
+  "retry_intervals": [1, 30, 60],
+  "tags": ["internal:partner:campaign", "internal:partner"],
+  "component_ids": ["INTEGRATION_COMPONENT_ID"]
+}
 ```
 
 Name each webhook for the endpoint it calls — an ingestion endpoint and a message-trigger endpoint are separate webhooks with separate tags. Tag every webhook by purpose, because the tags are what the `WEBHOOK_ID` settings resolve: an untagged webhook produces a setting that evaluates to null and an integration that silently sends nothing.
@@ -180,7 +215,16 @@ Install the maintained source when the duplicatable listing has one: the install
 
 Confirm the source's type before installing it. A partner that once shipped a legacy integration still exposes that older source under the same partner name, and a name match alone will install the wrong generation. A source typed `integration-v1` or any other pre-v10 type is not the maintained v10 integration; when it is the only source available, build the v10 shape below and say that the only source on offer was legacy.
 
-**A missing library source is a normal starting condition, not a blocker.** Most accounts can duplicate only the sources they are subscribed to, so a partner the documentation describes may have no source here at all. That is what the sequence below is for. Build it: the API creates every piece — the component type, the support campaign, the templates, the integration, and the webhooks. Reporting that the partner must first be made available to the account, when no one has asked for a library source and the whole shape can be created directly, is a refusal dressed as a prerequisite.
+**A missing library source is a normal starting condition for a client-local build, not a blocker.**
+Most accounts can duplicate only the sources they are subscribed to, so a partner the documentation
+describes may have no source here at all. That is what the sequence below is for: the API creates every
+piece — the component type, the support campaign, the templates, the integration, and the webhooks.
+
+The exception is a request to make the partner installable for every client. That needs a registered,
+Extole-owned integration component, which a client-local build does not produce. Build and validate the
+shape in the development account when asked — it will appear on that account's own Integrations page
+once its non-root component carries the tags described above — then publish or request publication of
+the reusable component before calling the partner an installable integration.
 
 Build in this order, because each step's prerequisite is the step before it.
 
@@ -534,20 +578,20 @@ Create the webhook first, without filters. `POST /v6/webhooks` has no filters pr
 
 Then add each filter through its own typed endpoint under the created webhook. The supplier filter takes a buildtime expression resolving the suppliers under the integration's children that carry the variant tag; the state filter takes the reward states the webhook acts on:
 
-```bash
-curl --request POST \
-  "$EXTOLE_API_HOST/v4/webhooks/reward/$WEBHOOK_ID/filters/supplier" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "reward_supplier_ids": "javascript@buildtime:(function(){ let children = Java.from(context.getComponent().getChildren()); let allRewardSuppliers = []; children.forEach(function(child) { let rewardSuppliers = Java.from(child.createElementsQuery().withType('"'"'REWARD_SUPPLIER'"'"').withTag('"'"'internal:example-variant'"'"').list()); rewardSuppliers.forEach(function(rewardSupplier) { allRewardSuppliers.push(rewardSupplier.getId()); }); }); return allRewardSuppliers; })()"
-  }'
+`POST /v4/webhooks/reward/{webhook_id}/filters/supplier`:
 
-curl --request POST \
-  "$EXTOLE_API_HOST/v4/webhooks/reward/$WEBHOOK_ID/filters/state" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{"states": ["EARNED"]}'
+```json
+{
+  "reward_supplier_ids": "javascript@buildtime:(function(){ let children = Java.from(context.getComponent().getChildren()); let allRewardSuppliers = []; children.forEach(function(child) { let rewardSuppliers = Java.from(child.createElementsQuery().withType('REWARD_SUPPLIER').withTag('internal:example-variant').list()); rewardSuppliers.forEach(function(rewardSupplier) { allRewardSuppliers.push(rewardSupplier.getId()); }); }); return allRewardSuppliers; })()"
+}
+```
+
+`POST /v4/webhooks/reward/{webhook_id}/filters/state`:
+
+```json
+{
+  "states": ["EARNED"]
+}
 ```
 
 The four filter kinds each have their own path segment — `supplier`, `state`, `tags`, and `expression` — and `GET /v4/webhooks/reward/{webhook_id}/filters` lists what a webhook currently has.
@@ -700,7 +744,10 @@ Several results with the same name and the same v10 type are copies of one maint
 
 ## Create the Integration Campaign
 
-Create an `INTEGRATION` campaign with the `integration` program type. Add campaign tags that identify the integration model component.
+Create an `INTEGRATION` campaign with the `integration` program type. The campaign tag below names the
+integration component this campaign carries, matching what library bundles do so an installed copy can
+be traced back to its source. It is not what puts the integration on the Integrations page; the
+component tags created two sections down are.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
@@ -711,10 +758,7 @@ curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
     "description": "Receives partner lifecycle events and maps them to Extole business events.",
     "campaign_type": "INTEGRATION",
     "program_type": "integration",
-    "tags": [
-      "internal:type:integration",
-      "internal:integration-component-name:example"
-    ]
+    "tags": ["internal:integration-component-name:example"]
   }'
 ```
 
@@ -736,7 +780,9 @@ A campaign has one active `PROGRAM` label. Creating a new one replaces the previ
 
 ## Create the Component Model
 
-Create a root component following the Custom Integration Template conventions:
+Create a root component following the Custom Integration Template conventions. Leave
+`internal:type:integration` off the root: the Integrations page excludes root components, so the tag
+does nothing there and the integration component created in the next step is what carries it.
 
 ```bash
 curl --request POST \
@@ -746,10 +792,7 @@ curl --request POST \
   --data '{
     "name": "root",
     "description": "Declares campaign-level variables and cross-campaign inheritance.",
-    "tags": [
-      "internal:type:integration",
-      "internal:self-managed"
-    ]
+    "tags": ["internal:self-managed"]
   }'
 ```
 
@@ -1224,7 +1267,7 @@ When outbound scope is later removed, archive resources in dependency order:
 Inspect the latest campaign and built components. Confirm:
 
 - Campaign type is `INTEGRATION` and program type is `integration`.
-- Campaign tags identify the model component.
+- When the build must appear as an installed integration, the integration model component is a child of the root, is owned by this client, and carries both `internal:type:integration` and `internal:self-managed`. Read the component back and check the tags rather than assuming the create request applied them.
 - The root and integration model components exist, the model component carrying an `integration-v10.x` type.
 - `businessEvents` accepts `business-event-v10.0`.
 - Each canonical event is a duplicated reusable template.
