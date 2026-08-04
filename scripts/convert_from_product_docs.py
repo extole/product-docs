@@ -15,9 +15,15 @@ It writes .mdx pages, copies the OpenAPI specs, and regenerates docs.json.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+from urllib.error import HTTPError, URLError
+from urllib.parse import unquote, urlparse
+from urllib.request import Request, urlopen
 
 try:
     import yaml
@@ -115,6 +121,27 @@ def has_substantive_index_body(body: str) -> bool:
 
 FENCE_RE = re.compile(r"(```.*?```|~~~.*?~~~)", re.DOTALL)
 INLINE_CODE_RE = re.compile(r"(`[^`\n]+`)")
+MARKDOWN_IMAGE_RE = re.compile(
+    r"!\[[^\]]*\]\(\s*(?P<url>https?://[^\s)]+)(?:\s+(?:\"[^\"]*\"|'[^']*'))?\s*\)"
+)
+HTML_IMAGE_RE = re.compile(
+    r"<img\b[^>]*?\bsrc\s*=\s*(?P<quote>[\"'])(?P<url>https?://.*?)(?P=quote)",
+    re.IGNORECASE | re.DOTALL,
+)
+
+MAX_IMAGE_BYTES = 20 * 1024 * 1024
+IMAGE_WORKERS = 4
+IMAGE_EXTENSION_BY_CONTENT_TYPE = {
+    "image/avif": ".avif",
+    "image/bmp": ".bmp",
+    "image/gif": ".gif",
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/svg+xml": ".svg",
+    "image/tiff": ".tif",
+    "image/webp": ".webp",
+    "image/x-icon": ".ico",
+}
 
 
 def _protect(text: str, pattern: re.Pattern, store: list, mark: str = "\x00") -> str:
@@ -129,6 +156,197 @@ def _restore(text: str, store: list, mark: str = "\x00") -> str:
     for i, chunk in enumerate(store):
         text = text.replace(f"{mark}{i}{mark}", chunk)
     return text
+
+
+def remote_image_urls(text: str) -> set[str]:
+    """Return remote URLs used as rendered images, excluding code examples."""
+    fences: list = []
+    text = _protect(text, FENCE_RE, fences, mark="\x01")
+    inlines: list = []
+    text = _protect(text, INLINE_CODE_RE, inlines, mark="\x02")
+    return {
+        m.group("url")
+        for pattern in (MARKDOWN_IMAGE_RE, HTML_IMAGE_RE)
+        for m in pattern.finditer(text)
+    }
+
+
+def rewrite_remote_images(text: str, local_paths: dict[str, str]) -> str:
+    """Replace only rendered remote image URLs with mapped local asset paths."""
+    fences: list = []
+    text = _protect(text, FENCE_RE, fences, mark="\x01")
+    inlines: list = []
+    text = _protect(text, INLINE_CODE_RE, inlines, mark="\x02")
+
+    def repl(match):
+        url = match.group("url")
+        local_path = local_paths.get(url)
+        return match.group(0) if not local_path else match.group(0).replace(url, local_path, 1)
+
+    text = MARKDOWN_IMAGE_RE.sub(repl, text)
+    text = HTML_IMAGE_RE.sub(repl, text)
+    text = _restore(text, inlines, mark="\x02")
+    return _restore(text, fences, mark="\x01")
+
+
+def image_extension(data: bytes, content_type: str, source_url: str) -> str:
+    """Resolve a safe image suffix from the response before writing it locally."""
+    content_type = content_type.lower().split(";", 1)[0].strip()
+    extension = IMAGE_EXTENSION_BY_CONTENT_TYPE.get(content_type)
+    if extension:
+        return extension
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return ".png"
+    if data.startswith(b"\xff\xd8\xff"):
+        return ".jpg"
+    if data.startswith((b"GIF87a", b"GIF89a")):
+        return ".gif"
+    if data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+        return ".webp"
+    if data.lstrip().startswith((b"<svg", b"<?xml")) and b"<svg" in data[:4096].lower():
+        return ".svg"
+    extension = Path(unquote(urlparse(source_url).path)).suffix.lower()
+    if extension in {".avif", ".bmp", ".gif", ".ico", ".jpeg", ".jpg", ".png", ".svg", ".tif", ".tiff", ".webp"}:
+        return ".jpg" if extension == ".jpeg" else extension
+    raise ValueError(f"response is not a recognized image ({content_type or 'no content type'})")
+
+
+class ImageMigrator:
+    """Download external MDX images and replace them with Mintlify-local paths."""
+
+    def __init__(self, out: Path):
+        self.out = out
+        self.manifest_path = out / "images" / "extole-manifest.json"
+
+    def _load_manifest(self) -> dict:
+        if not self.manifest_path.exists():
+            return {}
+        try:
+            data = json.loads(self.manifest_path.read_text(encoding="utf-8"))
+            return data if isinstance(data, dict) else {}
+        except (OSError, json.JSONDecodeError):
+            return {}
+
+    def _cached_assets(self, manifest: dict) -> dict[str, dict]:
+        cached = {}
+        for asset in manifest.get("assets", []):
+            path = asset.get("path")
+            if not isinstance(path, str) or not (self.out / path.lstrip("/")).is_file():
+                continue
+            for url in asset.get("sourceUrls", []):
+                if isinstance(url, str):
+                    cached[url] = asset
+        return cached
+
+    @staticmethod
+    def _fetch(url: str) -> dict:
+        for attempt in range(3):
+            try:
+                request = Request(url, headers={"User-Agent": "Extole-Mintlify-Image-Migration/1.0"})
+                with urlopen(request, timeout=30) as response:
+                    length = response.headers.get("Content-Length")
+                    if length and int(length) > MAX_IMAGE_BYTES:
+                        raise ValueError(f"image exceeds Mintlify's 20 MB limit ({length} bytes)")
+                    data = response.read(MAX_IMAGE_BYTES + 1)
+                    if len(data) > MAX_IMAGE_BYTES:
+                        raise ValueError("image exceeds Mintlify's 20 MB limit")
+                    content_type = response.headers.get_content_type()
+                    extension = image_extension(data, content_type, url)
+                    return {
+                        "url": url,
+                        "data": data,
+                        "contentType": content_type,
+                        "extension": extension,
+                    }
+            except (HTTPError, URLError, OSError, ValueError) as exc:
+                if attempt == 2:
+                    return {"url": url, "error": str(exc)}
+                time.sleep(2**attempt)
+        raise AssertionError("unreachable")  # pragma: no cover
+
+    def run(self) -> tuple[int, int, int]:
+        references: dict[str, set[str]] = {}
+        for page in sorted(self.out.rglob("*.mdx")):
+            for url in remote_image_urls(page.read_text(encoding="utf-8", errors="replace")):
+                references.setdefault(url, set()).add(page.relative_to(self.out).as_posix())
+
+        manifest = self._load_manifest()
+        cached = self._cached_assets(manifest)
+        resolved: dict[str, dict] = {}
+        pending = []
+        for url in sorted(references):
+            if url in cached:
+                resolved[url] = cached[url]
+            else:
+                pending.append(url)
+
+        downloaded = []
+        if pending:
+            with ThreadPoolExecutor(max_workers=IMAGE_WORKERS) as pool:
+                futures = {pool.submit(self._fetch, url): url for url in pending}
+                for future in as_completed(futures):
+                    downloaded.append(future.result())
+
+        failures = []
+        for result in downloaded:
+            url = result["url"]
+            if "error" in result:
+                failures.append({"url": url, "error": result["error"], "references": sorted(references[url])})
+                continue
+            digest = hashlib.sha256(result["data"]).hexdigest()
+            local_path = f"/images/extole/{digest}{result['extension']}"
+            destination = self.out / local_path.lstrip("/")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            if not destination.exists():
+                destination.write_bytes(result["data"])
+            resolved[url] = {
+                "path": local_path,
+                "sha256": digest,
+                "contentType": result["contentType"],
+                "bytes": len(result["data"]),
+                "sourceUrls": [url],
+            }
+
+        assets_by_digest: dict[str, dict] = {}
+        for url, asset in resolved.items():
+            digest = asset["sha256"]
+            merged = assets_by_digest.setdefault(
+                digest,
+                {
+                    "path": asset["path"],
+                    "sha256": digest,
+                    "contentType": asset.get("contentType", "application/octet-stream"),
+                    "bytes": asset.get("bytes", 0),
+                    "sourceUrls": [],
+                    "references": [],
+                },
+            )
+            merged["sourceUrls"].append(url)
+            merged["references"].extend(references[url])
+
+        local_paths = {url: asset["path"] for url, asset in resolved.items()}
+        rewritten = 0
+        for page in sorted(self.out.rglob("*.mdx")):
+            original = page.read_text(encoding="utf-8", errors="replace")
+            updated = rewrite_remote_images(original, local_paths)
+            if updated != original:
+                page.write_text(updated, encoding="utf-8")
+                rewritten += 1
+
+        assets = []
+        for asset in assets_by_digest.values():
+            asset["sourceUrls"] = sorted(set(asset["sourceUrls"]))
+            asset["references"] = sorted(set(asset["references"]))
+            assets.append(asset)
+        assets.sort(key=lambda asset: asset["path"])
+        output = {
+            "schemaVersion": 1,
+            "assets": assets,
+            "failures": sorted(failures, key=lambda failure: failure["url"]),
+        }
+        self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        self.manifest_path.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
+        return len(assets), rewritten, len(failures)
 
 
 def convert_callouts(body: str) -> str:
@@ -523,12 +741,30 @@ NAV_SIDEBAR_TITLES = {
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--product-docs", required=True, type=Path)
-    ap.add_argument("--specification", required=True, type=Path)
+    ap.add_argument("--product-docs", type=Path)
+    ap.add_argument("--specification", type=Path)
     ap.add_argument("--out", required=True, type=Path)
+    ap.add_argument(
+        "--migrate-images",
+        action="store_true",
+        help="download remote MDX images into images/extole and rewrite their references",
+    )
     args = ap.parse_args()
 
     out = args.out.resolve()
+
+    if not args.product_docs and not args.specification:
+        if not args.migrate_images:
+            ap.error("--product-docs and --specification are required unless --migrate-images is used alone")
+        assets, pages, failures = ImageMigrator(out).run()
+        print(f"local image assets: {assets}")
+        print(f"pages rewritten: {pages}")
+        if failures:
+            print(f"image failures: {failures}")
+            raise SystemExit(1)
+        return
+    if not args.product_docs or not args.specification:
+        ap.error("--product-docs and --specification must be provided together")
 
     # clean previously generated content dirs (keep repo scaffolding)
     conv = Converter(args.product_docs, out)
@@ -586,6 +822,14 @@ def main():
     (out / "docs.json").write_text(json.dumps(docs_json, indent=2) + "\n", encoding="utf-8")
 
     write_home(out)
+
+    if args.migrate_images:
+        assets, pages, failures = ImageMigrator(out).run()
+        print(f"local image assets: {assets}")
+        print(f"pages rewritten: {pages}")
+        if failures:
+            print(f"image failures: {failures}")
+            raise SystemExit(1)
 
     print(f"pages written: {len(conv.pages)}")
     print(f"api specs: {len(api_groups)}")

@@ -26,9 +26,22 @@ single biggest structural win over the ReadMe setup.
 python scripts/convert_from_product_docs.py \
   --product-docs /path/to/extole/product-docs \
   --specification /path/to/extole/extole-specification \
-  --out .
+  --out . \
+  --migrate-images
 npx mint@latest validate   # strict build check — currently: 0 errors, 0 warnings
 ```
+
+To migrate images already present in this repository without regenerating pages:
+
+```bash
+python scripts/convert_from_product_docs.py --out . --migrate-images
+```
+
+The image migration downloads each rendered remote image into `images/extole/`,
+rewrites only Markdown and `<img>` image references, and records source URLs,
+checksums, local paths, and referring pages in `images/extole-manifest.json`.
+The manifest makes repeat runs deterministic and reports expired or invalid source
+URLs without replacing them with broken local paths.
 
 ## The hard part: ReadMe markdown → MDX
 
@@ -51,8 +64,8 @@ fails. This is where the migration cost lives:
 | Raw HTML comments, unclosed `<br>`/`<hr>`/`<img>` | 35 files | Stripped / self-closed |
 
 Frontmatter is normalized (`title` kept, `excerpt` → `description`; ReadMe-only
-keys dropped). Images continue to be served from their existing Intercom/ReadMe
-CDN URLs — no asset migration was required.
+keys dropped). Rendered images are downloaded into this repository and rewritten
+to local Mintlify paths when the converter runs with `--migrate-images`.
 
 ### What the iteration actually looked like
 
