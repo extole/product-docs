@@ -18,7 +18,7 @@ Follow this three-step process for integrating MANTL with Extole to automaticall
 
 # Step 1: Tag your account opening flow
 
-Use Google Tag Manager (GTM) to add Extole's core tag to your account opening flow. The core tag is used for attribution and serving confirmation messages throughout the OAO flow.&#x20;
+Use Google Tag Manager (GTM) to add Extole's core tag to all of your account opening pages. The core tag is an async tag used for attribution and serving confirmation messages when prospects click on an Extole link.
 
 <Callout icon="📘" theme="info">
   Learn more about [Extole's Javascript tags](https://docs.extole.com/docs/javascript-sdk)
