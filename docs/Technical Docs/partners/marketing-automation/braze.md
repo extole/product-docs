@@ -28,7 +28,7 @@ The finished integration forwards exactly three kinds of activity out of the box
 
 Program campaigns attach Braze data items to their own events, so the integration also provides a reusable Braze data item for them to use, and it exposes each outbound connection as a setting rather than as a raw webhook reference. A Braze action added to a program that way keeps working after the integration is rebuilt.
 
-For the platform build sequence — installing the library source, reshaping it, attaching webhooks, and verifying the result — see [Integration Categories](doc:integration-categories) and [Create an Integration With the Client API](doc:client-api-integration).
+For the platform build sequence — installing the library source, reshaping it, attaching webhooks, and verifying the result — see [Integration Categories](doc:integration-categories), [Build an Outbound Library Integration](doc:integration-build-outbound), and [Create the Integration Campaign and Component Model](doc:integration-component-model).
 
 [//]: ___
 

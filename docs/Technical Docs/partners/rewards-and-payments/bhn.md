@@ -117,7 +117,7 @@ Do not substitute a reward-earned count or reward face value for this mapping: t
 }
 ```
 
-For how this category is built in general terms, see [Integration Categories](doc:integration-categories) and [Create an Integration With the Client API](doc:client-api-integration).
+For how this category is built in general terms, see [Integration Categories](doc:integration-categories), [Build a Reward Fulfillment Integration](doc:integration-build-reward-fulfillment) for the sequence, and [Create the Integration Campaign and Component Model](doc:integration-component-model) for the campaign, component, and display metadata every path needs.
 
 ## Integration
 

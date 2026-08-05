@@ -136,4 +136,5 @@ The event was accepted without matching the integration. Work through the checkl
 - [Send Platform Events to Extole](doc:sending-platform-events)
 - [Integration Categories](doc:integration-categories)
 - [Create an Integration With the Client API](doc:client-api-integration)
+- [Map Inbound Partner Events](doc:integration-inbound-events)
 - <Anchor label="OpenCart Events" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events</Anchor>
