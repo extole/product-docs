@@ -175,6 +175,8 @@ Review the reward rule configuration and determine which condition failed.
 
 The reward has already been created, meaning that the issue is likely related to delivery rather than reward generation.
 
+If the reward is in a **Sent** state, open the reward and click **Resend** on the Reward Details page. If the reward should go to a corrected email address for a Tango gift, see [How to Resend Tango Rewards](doc:how-to-resend-tango-rewards). For other suppliers, or if Resend does not resolve the issue, contact [support@extole.com](mailto:support@extole.com).
+
 # **Explaining the Outcome to the Customer**
 
 After identifying the cause, communicate the result in clear, non-technical language.
