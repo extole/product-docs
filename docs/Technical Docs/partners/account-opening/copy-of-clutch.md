@@ -31,12 +31,22 @@ You can find your core tag in the [Extole platform](https://my.extole.com/tech-c
 
 ## Step 2: Set up UTM tracking parameters in your Extole campaign<br />
 
-Extole should be notified once the account has been opened. The webhook response body should include the person ID and application ID.
+When a prospect clicks on an Extole link, Extole can append their advocate or offer code as a dynamic UTM parameter in the URL. MANTL stores all UTM parameters throughout the lifecycle of the application. To append the Extole code as a UTM parameter:
 
-[https://api.mantl.com/rest/docs#/webhooks/postapplication_booked](https://api.mantl.com/rest/docs#/webhooks/postapplication_booked "https://api.mantl.com/rest/docs#/webhooks/postapplication_booked") <br />[https://dev.extole.com/reference/create-event](https://dev.extole.com/reference/create-event "https://dev.extole.com/reference/create-event")
+1. Navigate to `Share Link Behavior` in your Extole Flow campaign
+2. Set the `Destination for Clicks on Share Links` to your specific online account opening URL.
+3. Append the advocate's referral code to your tracking parameters by updating the `utm_term` variable with the following value:
 
-## Step 3: Extole connects to MANTL to retrieve customer identifier
+```Text value
+{[ advocateCode ]}
+```
 
-Extole will then use the MANTL Accounts API to retrieve the members email address and additional information for reward qualification and fulfillment
+<Callout icon="📘" theme="info">
+  If you are already using the `utm_term` parameter, you can use a different UTM parameter to pass the `advocate_code` .&#x20;
+</Callout>
 
-&#x20;[https://api.mantl.com/rest/docs#/Accounts/getAccount](https://api.mantl.com/rest/docs#/Accounts/getAccount "https://api.mantl.com/rest/docs#/Accounts/getAccount")&#x20;
+## Step 3: Push&#x20;
+
+<br />
+
+<br />
