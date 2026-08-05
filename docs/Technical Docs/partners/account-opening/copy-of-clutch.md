@@ -4,7 +4,7 @@ excerpt: >-
   MANTL accelerates digital account opening with a streamlined platform built
   for scalability. 
 deprecated: false
-hidden: true
+hidden: false
 metadata:
   robots: index
 ---
