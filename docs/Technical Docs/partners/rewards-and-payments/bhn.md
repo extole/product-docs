@@ -66,7 +66,16 @@ Create five `REWARD` webhooks, one for each endpoint above. Each order webhook f
 
 The exact supplier tags are `internal:bhn-virtual`, `internal:bhn-physical-single-load`, `internal:bhn-physical-reloadable`, and `internal:bhn-egift-card`. Template names use the same tokens without the `internal:` prefix. The status response is complete when BHN returns `Complete`, `Funding Posted`, or `Shipped`; a BHN error marks the reward failed, and every other state retries until the final configured attempt.
 
-Both credentials sit on the integration: the Merchant ID is a plain setting, and the API credential is a client key that Extole generates from the certificates BHN issues you, so it cannot be self-configured. Alongside its configuration and reward supplier tabs, the integration shows a reward activity chart and a live feed of BHN reward events.
+Both credentials sit on the integration: the Merchant ID is a plain setting, and the API credential is a client key that Extole generates from the certificates BHN issues you, so it cannot be self-configured.
+
+The integration carries four tabs, and all four are part of the shape rather than optional extras:
+
+| Tab | View type | What it shows |
+| :-- | :-------- | :------------ |
+| Configuration | `config-view-v10.0` | The Merchant ID and the BHN client key. |
+| Reward Suppliers | `config-view-v10.0` | The supplier socket, reporting in progress until a product is installed. |
+| Reward Activity | `report-runner-view-v10.0` | A scheduled reward revenue report charting BHN fulfillment. |
+| Reward Events | `event-stream-view-v10.0` | A live feed of BHN reward events, tagged `internal:app_type=bhn`. |
 
 The integration's registered image key is `blackhawkNetwork`, and it is not derived from the partner's name or this page's slug. The image key feeds the partner detail view; the tile on the Integrations page comes from the logo setting instead, and BHN's artwork is already published on the registered `bhn` component for both the integration and its four reward products.
 

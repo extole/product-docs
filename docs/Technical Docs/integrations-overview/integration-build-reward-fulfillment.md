@@ -9,6 +9,33 @@ This page is one part of the Client API integration guide. Start at [Create an I
 
 A reward fulfillment partner needs everything an outbound partner needs plus a supply side: a component type for the partner's own reward suppliers, a support campaign holding one template per product the partner sells, and webhooks typed `REWARD` that fire only for rewards from those suppliers. [Integration Categories](doc:integration-categories) describes the model; this section is the order to build it in.
 
+### The Finished Shape
+
+Compare against this before reporting a build complete:
+
+```text
+root
+└── example                       integration-v10.x
+    ├── rewardSuppliers           MULTI_SOCKET → example-reward-supplier-v10.0
+    │   └── one installed template per product the partner sells
+    └── views                     MULTI_SOCKET
+        ├── configuration         config-view-v10.0           credential and account settings
+        ├── reward-suppliers      config-view-v10.0           the supplier socket
+        ├── report-runner-view    report-runner-view-v10.0    the reward activity chart
+        └── event-streams         event-stream-view-v10.0     the live feed of reward events
+
+Support campaign
+└── one template per product      example-reward-supplier-v10.0
+    └── a reward supplier attached to the template
+
+Resources attached by component_ids
+├── one REWARD webhook per product, plus the status webhook   → the integration component
+├── a report runner                                           → the report-runner view
+└── an event stream                                           → the event-stream view
+```
+
+**Four views, not two.** A build that stops at the configuration and supplier views has left out the two surfaces a marketer opens to see whether fulfillment is working, and they are the ones that look most obviously broken when missing: the activity tab reports that no report runner is configured, and there is no reward feed at all. The report runner and the event stream are each created after their view exists and after the campaign is republished, so they are the last things built and the easiest to drop.
+
 Install the maintained source when the duplicatable listing has one: the install carries the whole shape, including the support campaign it subscribes to, and the sequence below then serves as the checklist for confirming the install matches the partner page.
 
 Confirm the source's type before installing it. A partner that once shipped a legacy integration still exposes that older source under the same partner name, and a name match alone will install the wrong generation. A source typed `integration-v1` or any other pre-v10 type is not the maintained v10 integration; when it is the only source available, build the v10 shape below and say that the only source on offer was legacy.
