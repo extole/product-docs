@@ -308,7 +308,7 @@ Setting types come from the platform's fixed vocabulary, not from the mathematic
 
 Build exactly the variants the page names. Inventing a variant produces a supplier a client can configure and the partner cannot fulfill; omitting one silently removes a product from the integration.
 
-Give every template its own logo asset and `rewardSupplierLogo` setting, uploaded the way **Set Integration Display Metadata** describes. A template without one is a product that appears as a blank tile next to products that show their artwork.
+Give every template its own `rewardSupplierLogo` setting, sourced the way **Give the Integration a Logo That Resolves** describes: copy the built URL from the registered supplier template when one exists, or upload the file when you have it. A template without one is a product that appears as a blank tile next to products that show their artwork.
 
 Then attach a reward supplier to each template. A bundled component declares this as an `elements.reward_suppliers` block in its `component.json`, but that block is a build-layer construct: `elements` is not a property of the component create request, and sending it is rejected as an unrecognized property. Through the API a reward supplier is a component-scoped resource of its own, created the same way a webhook is — with `component_ids` naming the template it belongs to:
 
@@ -868,12 +868,38 @@ The integration type requires eight settings: `short.description`, `about`, `doc
 | `external.url` | The partner's own product site. |
 | `external.integration.url` | The partner's marketplace or extension listing, or an empty string when the partner has none. |
 | `categories` | A single category string already used by other integrations, such as `eCommerce Platform`. The admin groups integrations by exact value, so a new spelling or a list-shaped value creates an orphan category. |
-| `logo` | Type `IMAGE`. An image URL, or a buildtime expression resolving an uploaded asset, such as `spel@buildtime:context.getAsset('example').getUrl()`. The admin binds this value directly to an image source; a bare name renders the placeholder image. |
-| `imageKey` | The stable key the platform resolves to its own stored partner image. The partner page names it; it is not the partner's name lowercased or the page's slug. |
+| `logo` | Type `IMAGE`. **This is the image the Integrations page renders.** Either an absolute image URL or a buildtime expression resolving an asset this component owns, such as `spel@buildtime:context.getAsset('example').getUrl()`. The admin binds the built value straight to an image source, so anything that is not a working URL after the build shows the grey Extole placeholder. |
+| `imageKey` | The stable key the platform resolves to its own stored partner image, used by the older partner detail view. The partner page names it; it is not the partner's name lowercased or the page's slug. It does not render the integration tile, so it is never a substitute for `logo`. |
 
 Tag all eight with `internal:ui-display`. That tag means the setting describes the integration tile, and the admin hides tagged settings from the settings list.
 
-`logo` and `imageKey` are two different things and both are needed: `imageKey` is a key the platform resolves to its own stored partner image, while `logo` is an image this component carries. Point `logo` at an asset you upload rather than at a URL on the partner's website — a favicon or a hotlinked file is a logo that changes or disappears without anyone touching Extole. Upload the file first, as multipart form data with the metadata in an `asset` part and the bytes in a `file` part:
+### Give the Integration a Logo That Resolves
+
+An integration with everything else in place and no working `logo` is the most common way a finished build looks broken: every other tile shows artwork and this one shows a grey placeholder. Treat the logo as part of the build, not as an optional flourish.
+
+The Integrations page reads the **built** value of `logo`. Confirm what a component actually renders by reading the built listing rather than the source component:
+
+```bash
+curl --request GET \
+  "$EXTOLE_API_HOST/v1/components/built?having_all_tags=internal:type:integration&limit=50" \
+  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN"
+```
+
+A resolved logo looks like an absolute URL on Extole's asset host:
+
+```json
+{
+  "name": "logo",
+  "type": "IMAGE",
+  "values": { "default": "https://origin.xtlo.net/type=asset:clientShortName=example-components:originAssetId=tj9rg15cj0eu6mdf3b8c/example.png" }
+}
+```
+
+When a registered component for this partner already exists, that built URL is the artwork to use: copy it verbatim into your component's `logo`. It is served from Extole's own asset host and is already what every client sees on the available-to-install tile for that partner, so it needs no upload and no file. Copy `rewardSupplierLogo` the same way for a reward integration.
+
+Copy from `/v1/components/built`, never from `/v1/components`. The source listing returns the unresolved expression `spel@buildtime:context.getAsset('example').getUrl()`, and that expression names an asset your component does not own, so pasting it produces a setting that looks configured and resolves to nothing.
+
+When you have the image file itself, upload it as multipart form data with the metadata in an `asset` part and the bytes in a `file` part:
 
 ```bash
 curl --request POST \
@@ -885,7 +911,9 @@ curl --request POST \
 
 Then give the setting the buildtime expression that resolves it, `spel@buildtime:context.getAsset('example').getUrl()`, which builds into a hosted URL on the account's own asset domain. A reward integration carries a second asset the same way — `reward-supplier-logo`, exposed as a `rewardSupplierLogo` setting — and repeats that asset and setting on every supplier template, so a product shows its own artwork wherever a marketer meets it rather than only on the integration tile.
 
-An upload needs the image file itself, so a build that has no file cannot finish this part. Set `imageKey` from the partner page and leave `logo` unset, then say plainly that the artwork is outstanding and where it goes. Both failures here are worse than an empty setting: a favicon or a hotlinked partner URL is artwork that changes without anyone touching Extole, and a guessed image key resolves to nothing while looking configured.
+Only a partner with no registered component anywhere and no supplied file leaves the logo genuinely unresolvable. In that case set `imageKey` from the partner page, leave `logo` empty, and say plainly that the tile will show the placeholder until artwork arrives and which setting it goes in. Do not fill the gap with a favicon or a hotlinked URL on the partner's website — that is artwork which changes or disappears without anyone touching Extole — and do not guess an image key, which resolves to nothing while looking configured.
+
+After setting either one, read the component back from `/v1/components/built` and confirm `logo` holds an absolute URL. A value that is still an expression, or absent, is a tile with no image.
 
 Add partner configuration variables separately, and never tag them `internal:ui-display` — a partner setting carrying that tag disappears from the configuration view even when `settingsToDisplay` names it, which is the most common reason a freshly built integration looks empty on its configuration tab. Give each one a display name, description, type, default, `importance:basic`, and a priority that orders it in the view. Prefix partner-specific configuration settings with the integration component name — `exampleAccountUrl`, `exampleSetupInstructions` — so they stay unambiguous when read from the parent component.
 
@@ -1275,7 +1303,8 @@ Inspect the latest campaign and built components. Confirm:
 - Each event has its own reporting names and no two events share a noun or rate name.
 - No alias appears on more than one business event.
 - Every business event has data components in its `data` socket, and every data component has the intended source expression and key type.
-- The eight required integration display settings hold usable values: a resolvable logo, a category that other integrations already use, and a partner-facing documentation URL.
+- The eight required integration display settings hold usable values: a category that other integrations already use, and a partner-facing documentation URL.
+- Read from `/v1/components/built`, `logo` on the integration component and `rewardSupplierLogo` on every supplier template each hold an absolute URL. An empty value, or one still showing a `spel@buildtime:` expression, is a tile that renders the grey placeholder.
 - No legacy custom controller duplicates a reusable business event.
 - `views` accepts `view-v10.0`.
 - The configuration view is attached to the model component.

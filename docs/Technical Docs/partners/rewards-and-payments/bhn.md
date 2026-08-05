@@ -68,7 +68,7 @@ The exact supplier tags are `internal:bhn-virtual`, `internal:bhn-physical-singl
 
 Both credentials sit on the integration: the Merchant ID is a plain setting, and the API credential is a client key that Extole generates from the certificates BHN issues you, so it cannot be self-configured. Alongside its configuration and reward supplier tabs, the integration shows a reward activity chart and a live feed of BHN reward events.
 
-The integration's registered image key is `blackhawkNetwork`. That is the value the admin resolves BHN's artwork by, and it is not derived from the partner's name or this page's slug.
+The integration's registered image key is `blackhawkNetwork`, and it is not derived from the partner's name or this page's slug. The image key feeds the partner detail view; the tile on the Integrations page comes from the logo setting instead, and BHN's artwork is already published on the registered `bhn` component for both the integration and its four reward products.
 
 Only the v10 integration is current. Build or install that one; the earlier flavor is not a fallback when something in the v10 shape is inconvenient.
 
