@@ -15,7 +15,7 @@ Follow this three-step process for integrating MANTL with Extole to automaticall
 
 ## Step 1: Tag your account opening flow
 
-Use Google Tag Manager (GTM) to deploy Extole's core and event tags. Core tags are used for attribution and serving confirmation messages throughout the OAO flow. Event tags are used to enforce quality rules and track key conversion milestones throughout the account opening process.
+Use Google Tag Manager (GTM) to add Extole's core tag to your account opening flow. The core tag is used for attribution and serving confirmation messages throughout the OAO flow.&#x20;
 
 <Callout icon="📘" theme="info">
   Learn more about [Extole's Javascript tags](https://docs.extole.com/docs/javascript-sdk)
@@ -29,9 +29,9 @@ You can find your core tag in the [Extole platform](https://my.extole.com/tech-c
 <script type="text/javascript" src="https://share.{{your_company}}.org/core.js" async />
 ```
 
-## Step 2: Set up UTM tracking parameters in your Extole campaign<br />
+## Step 2: Set up UTM tracking parameters in your Extole campaign
 
-When a prospect clicks on an Extole link, Extole can append their advocate or offer code as a dynamic UTM parameter in the URL. MANTL stores all UTM parameters throughout the lifecycle of the application. To append the Extole code as a UTM parameter:
+When a prospect clicks on an Extole link, Extole will append a unique advocate or offer code as a UTM parameter in the URL. On redirect, MANTL will store and update all UTM parameters throughout the application lifecycle. To append the Extole code as a UTM parameter:
 
 1. Navigate to `Share Link Behavior` in your Extole Flow campaign
 2. Set the `Destination for Clicks on Share Links` to your specific online account opening URL.
@@ -45,8 +45,8 @@ When a prospect clicks on an Extole link, Extole can append their advocate or of
   If you are already using the `utm_term` parameter, you can use a different UTM parameter to pass the `advocate_code` .&#x20;
 </Callout>
 
-## Step 3: Push&#x20;
+## Step 3: Send new account openings to Extole's SFTP server
 
-<br />
+In order for Extole to track if the referral resulted in an opened account, you'll need to push <Anchor target="_blank" href="https://storage.googleapis.com/mantl-reports-documentation-production/schema/reports_documentation.html">MANTL's Simplified Acquisition report</Anchor> to Extole's SFTP Server on a daily basis. Extole will extract the `email`, `first_name,` `last_name`,  `utm_term_first_touch`,  `account_created_at`,  and `account_type` columns to track the referral. Alternatively, you can push this data into your core system and send Extole a daily file of users who have opened accounts with your institution.&#x20;
 
 <br />
