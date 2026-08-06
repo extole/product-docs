@@ -3,6 +3,25 @@
   var enhancing = false;
   var scheduled = null;
 
+  var TOOLBAR =
+    "mb-3 flex flex-wrap items-center gap-2";
+  var LABEL =
+    "text-xs font-semibold text-stone-500 dark:text-stone-400";
+  var META =
+    "text-xs text-stone-500 dark:text-stone-400";
+  var COMBO =
+    "relative min-w-64 flex-1 basis-72";
+  var INPUT =
+    "w-full min-w-64 max-w-full appearance-none rounded-lg border border-stone-300 bg-white px-3 py-2 font-mono text-sm leading-5 text-inherit outline-none focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-violet-700/35 dark:border-stone-700 dark:bg-stone-900";
+  var MENU =
+    "absolute left-0 right-0 top-full z-40 mt-1 max-h-72 overflow-auto rounded-lg border border-stone-300 bg-white shadow-lg dark:border-stone-700 dark:bg-stone-900";
+  var OPTION =
+    "block w-full cursor-pointer border-0 bg-transparent px-3 py-2 text-left font-mono text-xs text-inherit hover:bg-violet-700/10 hover:text-violet-700";
+  var OPTION_ACTIVE =
+    "bg-violet-700/10 text-violet-700";
+  var EMPTY =
+    "px-3 py-3 text-xs text-stone-500 dark:text-stone-400";
+
   function el(tag, className, attrs) {
     var node = document.createElement(tag);
     if (className) {
@@ -54,21 +73,21 @@
   }
 
   function buildCombobox(root, list, tabs) {
-    var toolbar = el("div", "extole-type-ui-toolbar", {
+    var toolbar = el("div", TOOLBAR, {
       "data-extole-type-ui": "combobox",
     });
-    toolbar.appendChild(el("span", "extole-type-ui-label", { text: "Type" }));
+    toolbar.appendChild(el("span", LABEL, { text: "Type" }));
 
-    var combo = el("div", "extole-type-ui-combo");
-    var input = el("input", "extole-type-ui-combo-input", {
+    var combo = el("div", COMBO);
+    var input = el("input", INPUT, {
       type: "search",
       placeholder: "Search types…",
       "aria-label": "Search schema types",
       autocomplete: "off",
     });
-    var menu = el("div", "extole-type-ui-combo-menu");
+    var menu = el("div", MENU);
     menu.hidden = true;
-    var meta = el("span", "extole-type-ui-meta");
+    var meta = el("span", META);
 
     var active = tabs[selectedIndex(tabs)];
     var selectedLabel = tabLabel(active);
@@ -82,20 +101,16 @@
         return !q || tabLabel(tab).toLowerCase().indexOf(q) !== -1;
       });
       if (!matches.length) {
-        menu.appendChild(
-          el("div", "extole-type-ui-combo-empty", { text: "No matching types" })
-        );
+        menu.appendChild(el("div", EMPTY, { text: "No matching types" }));
         menu.hidden = false;
         return;
       }
       matches.forEach(function (tab) {
-        var option = el("button", "extole-type-ui-combo-option", {
+        var isActive = tab.getAttribute("aria-selected") === "true";
+        var option = el("button", OPTION + (isActive ? " " + OPTION_ACTIVE : ""), {
           type: "button",
           text: tabLabel(tab),
         });
-        if (tab.getAttribute("aria-selected") === "true") {
-          option.setAttribute("data-active", "true");
-        }
         option.addEventListener("mousedown", function (event) {
           event.preventDefault();
           activateTab(tab);
