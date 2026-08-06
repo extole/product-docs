@@ -1,5 +1,5 @@
 (function () {
-  var MIN_TABS = 8;
+  var MIN_TABS = 1;
   var enhancing = false;
   var scheduled = null;
 
