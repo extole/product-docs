@@ -12,7 +12,9 @@
   var COMBO =
     "relative min-w-64 flex-1 basis-72";
   var INPUT =
-    "w-full min-w-64 max-w-full appearance-none rounded-lg border border-stone-300 bg-white px-3 py-2 font-mono text-sm leading-5 text-inherit outline-none focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-violet-700/35 dark:border-stone-700 dark:bg-stone-900";
+    "w-full min-w-64 max-w-full appearance-none rounded-lg border border-stone-300 bg-white py-2 pl-3 pr-10 font-mono text-sm leading-5 text-inherit outline-none focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-violet-700/35 dark:border-stone-700 dark:bg-stone-900";
+  var ARROW =
+    "pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500 dark:text-stone-400";
   var MENU =
     "absolute left-0 right-0 top-full z-40 mt-1 max-h-72 overflow-auto rounded-lg border border-stone-300 bg-white shadow-lg dark:border-stone-700 dark:bg-stone-900";
   var OPTION =
@@ -37,6 +39,23 @@
       });
     }
     return node;
+  }
+
+  function dropdownArrow() {
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", ARROW);
+    svg.setAttribute("viewBox", "0 0 20 20");
+    svg.setAttribute("fill", "currentColor");
+    svg.setAttribute("aria-hidden", "true");
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("fill-rule", "evenodd");
+    path.setAttribute("clip-rule", "evenodd");
+    path.setAttribute(
+      "d",
+      "M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+    );
+    svg.appendChild(path);
+    return svg;
   }
 
   function tabLabel(tab) {
@@ -80,12 +99,17 @@
 
     var combo = el("div", COMBO);
     var input = el("input", INPUT, {
-      type: "search",
+      type: "text",
+      role: "combobox",
+      "aria-autocomplete": "list",
+      "aria-expanded": "false",
       placeholder: "Search types…",
       "aria-label": "Search schema types",
       autocomplete: "off",
     });
-    var menu = el("div", MENU);
+    var menu = el("div", MENU, {
+      role: "listbox",
+    });
     menu.hidden = true;
     var meta = el("span", META);
 
@@ -93,6 +117,10 @@
     var selectedLabel = tabLabel(active);
     input.value = selectedLabel;
     meta.textContent = tabs.length + " variants";
+
+    function setExpanded(open) {
+      input.setAttribute("aria-expanded", open ? "true" : "false");
+    }
 
     function renderMenu(query) {
       menu.innerHTML = "";
@@ -103,12 +131,14 @@
       if (!matches.length) {
         menu.appendChild(el("div", EMPTY, { text: "No matching types" }));
         menu.hidden = false;
+        setExpanded(true);
         return;
       }
       matches.forEach(function (tab) {
         var isActive = tab.getAttribute("aria-selected") === "true";
         var option = el("button", OPTION + (isActive ? " " + OPTION_ACTIVE : ""), {
           type: "button",
+          role: "option",
           text: tabLabel(tab),
         });
         option.addEventListener("mousedown", function (event) {
@@ -117,10 +147,12 @@
           selectedLabel = tabLabel(tab);
           input.value = selectedLabel;
           menu.hidden = true;
+          setExpanded(false);
         });
         menu.appendChild(option);
       });
       menu.hidden = false;
+      setExpanded(true);
     }
 
     input.addEventListener("focus", function () {
@@ -133,6 +165,7 @@
     input.addEventListener("blur", function () {
       window.setTimeout(function () {
         menu.hidden = true;
+        setExpanded(false);
         if (!input.value.trim()) {
           input.value = selectedLabel;
         }
@@ -140,6 +173,7 @@
     });
 
     combo.appendChild(input);
+    combo.appendChild(dropdownArrow());
     combo.appendChild(menu);
     toolbar.appendChild(combo);
     toolbar.appendChild(meta);
