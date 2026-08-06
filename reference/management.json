@@ -5941,16 +5941,6 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
-      "start_batch_job_event_name_required": {
-        "summary": "start_batch_job_event_name_required",
-        "value": {
-          "code": "start_batch_job_event_name_required",
-          "http_status_code": 400,
-          "message": "Start batch job task requires an event name",
-          "parameters": {},
-          "unique_id": "00000000-0000-0000-0000-000000000000"
-        }
-      },
       "start_date_after_stop_date": {
         "summary": "start_date_after_stop_date",
         "value": {
@@ -17905,6 +17895,31 @@
         ],
         "type": "object"
       },
+      "BuiltStartAudienceOperationTaskResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BuiltTaskResponseBase"
+          },
+          {
+            "properties": {
+              "task_type": {
+                "enum": [
+                  "START_AUDIENCE_OPERATION"
+                ],
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "required": [
+          "component_ids",
+          "id",
+          "job_id",
+          "order",
+          "task_type"
+        ],
+        "type": "object"
+      },
       "BuiltStartBatchJobTaskResponse": {
         "allOf": [
           {
@@ -17922,7 +17937,7 @@
                 "type": "string"
               },
               "event_name": {
-                "description": "Name of the event that starts the batch job, resolved when the campaign was published.",
+                "description": "Name of the event dispatched for every row the batch job consumes, resolved when the campaign was published. Empty when the batch job takes the event per row from its data source instead.",
                 "type": "string"
               },
               "task_type": {
@@ -18107,6 +18122,7 @@
         "discriminator": {
           "mapping": {
             "FILE_HEADER_VALIDATOR": "#/components/schemas/BuiltFileHeaderValidatorTaskResponse",
+            "START_AUDIENCE_OPERATION": "#/components/schemas/BuiltStartAudienceOperationTaskResponse",
             "START_BATCH_JOB": "#/components/schemas/BuiltStartBatchJobTaskResponse"
           },
           "propertyName": "task_type"
@@ -18114,6 +18130,9 @@
         "oneOf": [
           {
             "$ref": "#/components/schemas/BuiltFileHeaderValidatorTaskResponse"
+          },
+          {
+            "$ref": "#/components/schemas/BuiltStartAudienceOperationTaskResponse"
           },
           {
             "$ref": "#/components/schemas/BuiltStartBatchJobTaskResponse"
@@ -37949,6 +37968,108 @@
           }
         ]
       },
+      "EventNameInStartBatchJobTaskRequest": {
+        "description": "Name of the event dispatched for every row the batch job consumes. A literal value or a buildtime expression resolved from component references when the task is saved. Optional: omit it, or let the expression resolve to an empty value, for a batch job that takes the event per row from its data source instead.",
+        "oneOf": [
+          {
+            "allOf": [
+              {
+                "type": "string"
+              },
+              {
+                "not": {
+                  "anyOf": [
+                    {
+                      "pattern": "^handlebars@buildtime:.*",
+                      "type": "string"
+                    },
+                    {
+                      "pattern": "^javascript@buildtime:.*",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "type": "string"
+              }
+            ],
+            "description": "Static event name",
+            "title": "Static Value"
+          },
+          {
+            "description": "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{eventName}}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('eventName');}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
+      "EventNameInStartBatchJobTaskResponse": {
+        "description": "Name of the event dispatched for every row the batch job consumes. A literal value or a buildtime expression resolved from component references when the task is saved. Absent for a batch job that takes the event per row from its data source instead.",
+        "oneOf": [
+          {
+            "allOf": [
+              {
+                "type": "string"
+              },
+              {
+                "not": {
+                  "anyOf": [
+                    {
+                      "pattern": "^handlebars@buildtime:.*",
+                      "type": "string"
+                    },
+                    {
+                      "pattern": "^javascript@buildtime:.*",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "type": "string"
+              }
+            ],
+            "description": "Literal event name",
+            "title": "Static Value"
+          },
+          {
+            "description": "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{eventName}}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('eventName');}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
       "EventNamesInCampaignControllerTriggerEventResponse": {
         "description": "The event names as configured: a literal value, or an expression (type:string) when defined dynamically.",
         "oneOf": [
@@ -39762,6 +39883,78 @@
           }
         ]
       },
+      "ExpectedHeadersInFileHeaderValidatorTaskRequest": {
+        "description": "Headers the validated file is expected to contain. A literal value or a buildtime expression resolved from component references when the task is saved.",
+        "oneOf": [
+          {
+            "description": "Static expected headers",
+            "items": {
+              "description": "Headers the validated file is expected to contain. A literal value or a buildtime expression resolved from component references when the task is saved.",
+              "type": "string"
+            },
+            "title": "Static Value",
+            "type": "array"
+          },
+          {
+            "description": "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{expectedHeaders}}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('expectedHeaders');}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
+      "ExpectedHeadersInFileHeaderValidatorTaskResponse": {
+        "description": "Headers the validated file is expected to contain. A literal value or a buildtime expression resolved from component references when the task is saved.",
+        "oneOf": [
+          {
+            "description": "Literal expected headers",
+            "items": {
+              "description": "Headers the validated file is expected to contain. A literal value or a buildtime expression resolved from component references when the task is saved.",
+              "type": "string"
+            },
+            "title": "Static Value",
+            "type": "array"
+          },
+          {
+            "description": "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{expectedHeaders}}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('expectedHeaders');}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
       "ExpressionInBuiltCampaignControllerActionExpressionResponse": {
         "description": "The expression as configured: a literal value, or an expression (type:string) when defined dynamically.",
         "oneOf": [
@@ -40948,10 +41141,7 @@
           {
             "properties": {
               "expected_headers": {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
+                "$ref": "#/components/schemas/ExpectedHeadersInFileHeaderValidatorTaskRequest"
               },
               "match_mode": {
                 "enum": [
@@ -40962,11 +41152,7 @@
                 "type": "string"
               },
               "on_mismatch": {
-                "enum": [
-                  "FAIL",
-                  "WARN"
-                ],
-                "type": "string"
+                "$ref": "#/components/schemas/OnMismatchInFileHeaderValidatorTaskRequest"
               },
               "task_type": {
                 "enum": [
@@ -40994,10 +41180,7 @@
           {
             "properties": {
               "expected_headers": {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
+                "$ref": "#/components/schemas/ExpectedHeadersInFileHeaderValidatorTaskResponse"
               },
               "match_mode": {
                 "enum": [
@@ -41008,11 +41191,7 @@
                 "type": "string"
               },
               "on_mismatch": {
-                "enum": [
-                  "FAIL",
-                  "WARN"
-                ],
-                "type": "string"
+                "$ref": "#/components/schemas/OnMismatchInFileHeaderValidatorTaskResponse"
               },
               "task_type": {
                 "enum": [
@@ -41024,7 +41203,7 @@
             "type": "object"
           }
         ],
-        "description": "Stored file header validator task definition. Field `order` is unevaluated and appears in buildtime-evaluatable form.",
+        "description": "Stored file header validator task definition. Fields `order`, `expected_headers`, and `on_mismatch` are unevaluated and appear in buildtime-evaluatable form.",
         "required": [
           "component_ids",
           "component_references",
@@ -51269,6 +51448,78 @@
         ],
         "type": "object"
       },
+      "OnMismatchInFileHeaderValidatorTaskRequest": {
+        "description": "Action taken when the headers do not match. A literal value or a buildtime expression resolved from component references when the task is saved.",
+        "oneOf": [
+          {
+            "description": "Static on mismatch",
+            "enum": [
+              "FAIL",
+              "WARN"
+            ],
+            "title": "Static Value",
+            "type": "string"
+          },
+          {
+            "description": "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{onMismatch}}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('onMismatch');}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
+      "OnMismatchInFileHeaderValidatorTaskResponse": {
+        "description": "Action taken when the headers do not match. A literal value or a buildtime expression resolved from component references when the task is saved.",
+        "oneOf": [
+          {
+            "description": "Literal on mismatch",
+            "enum": [
+              "FAIL",
+              "WARN"
+            ],
+            "title": "Static Value",
+            "type": "string"
+          },
+          {
+            "description": "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{onMismatch}}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('onMismatch');}",
+            "externalDocs": {
+              "description": "JobBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
       "OperatorInCampaignControllerTriggerGroupResponse": {
         "description": "The operator as configured: a literal value, or an expression (type:string) when defined dynamically.",
         "oneOf": [
@@ -60304,7 +60555,7 @@
                 "type": "string"
               },
               "event_name": {
-                "type": "string"
+                "$ref": "#/components/schemas/EventNameInStartBatchJobTaskRequest"
               },
               "task_type": {
                 "enum": [
@@ -60339,7 +60590,7 @@
                 "type": "string"
               },
               "event_name": {
-                "type": "string"
+                "$ref": "#/components/schemas/EventNameInStartBatchJobTaskResponse"
               },
               "task_type": {
                 "enum": [
@@ -60351,7 +60602,7 @@
             "type": "object"
           }
         ],
-        "description": "Stored start batch job task definition. Field `order` is unevaluated and appears in buildtime-evaluatable form.",
+        "description": "Stored start batch job task definition. Fields `order` and `event_name` are unevaluated and appear in buildtime-evaluatable form.",
         "required": [
           "component_ids",
           "component_references",
@@ -97819,9 +98070,6 @@
                   "start_batch_job_data_source_type_required": {
                     "$ref": "#/components/examples/start_batch_job_data_source_type_required"
                   },
-                  "start_batch_job_event_name_required": {
-                    "$ref": "#/components/examples/start_batch_job_event_name_required"
-                  },
                   "task_evaluation_failed": {
                     "$ref": "#/components/examples/task_evaluation_failed"
                   },
@@ -99352,9 +99600,6 @@
                   "start_batch_job_data_source_type_required": {
                     "$ref": "#/components/examples/start_batch_job_data_source_type_required"
                   },
-                  "start_batch_job_event_name_required": {
-                    "$ref": "#/components/examples/start_batch_job_event_name_required"
-                  },
                   "task_evaluation_failed": {
                     "$ref": "#/components/examples/task_evaluation_failed"
                   },
@@ -99799,9 +100044,6 @@
                   },
                   "start_batch_job_data_source_type_required": {
                     "$ref": "#/components/examples/start_batch_job_data_source_type_required"
-                  },
-                  "start_batch_job_event_name_required": {
-                    "$ref": "#/components/examples/start_batch_job_event_name_required"
                   },
                   "task_evaluation_failed": {
                     "$ref": "#/components/examples/task_evaluation_failed"
