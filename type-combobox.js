@@ -10,11 +10,11 @@
   var META =
     "text-xs text-stone-500 dark:text-stone-400";
   var COMBO =
-    "relative min-w-64 flex-1 basis-72";
+    "relative min-w-64 flex-1 basis-72 cursor-pointer";
   var INPUT =
-    "w-full min-w-64 max-w-full appearance-none rounded-lg border border-stone-300 bg-white py-2 pl-3 pr-10 font-mono text-sm leading-5 text-inherit outline-none focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-violet-700/35 dark:border-stone-700 dark:bg-stone-900";
+    "w-full min-w-64 max-w-full cursor-pointer appearance-none rounded-lg border border-stone-300 bg-white py-2 pl-3 pr-10 font-mono text-sm leading-5 text-inherit outline-none focus:cursor-text focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-violet-700/35 dark:border-stone-700 dark:bg-stone-900";
   var ARROW =
-    "pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500 dark:text-stone-400";
+    "pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 cursor-pointer text-stone-500 dark:text-stone-400";
   var MENU =
     "absolute left-0 right-0 top-full z-40 mt-1 max-h-72 overflow-auto rounded-lg border border-stone-300 bg-white shadow-lg dark:border-stone-700 dark:bg-stone-900";
   var OPTION =
