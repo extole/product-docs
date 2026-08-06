@@ -117,13 +117,15 @@ class OpenApiNavigationTests(unittest.TestCase):
     def test_groups_tags_and_operations_in_readme_order(self):
         spec = {
             "paths": {
-                "/zebra": {"get": {"tags": ["Alpha"], "summary": "Get a zebra"}},
-                "/aardvark": {"delete": {"tags": ["Alpha"], "summary": "Create an aardvark"}},
-                "/beta-get": {"get": {"tags": ["Beta"], "summary": "Manage a beta"}},
-                "/beta-post": {"post": {"tags": ["Beta"], "summary": "Manage a beta"}},
-                "/beta-put": {"put": {"tags": ["Beta"], "summary": "Manage a beta"}},
-                "/beta-delete": {"delete": {"tags": ["Beta"], "summary": "Manage a beta"}},
-                "/beta-patch": {"patch": {"tags": ["Beta"], "summary": "Manage a beta"}},
+                "/zebra": {"delete": {"tags": ["Alpha"], "summary": "A title that does not control sorting"}},
+                "/aardvark": {"get": {"tags": ["Alpha"], "summary": "Z title that does not control sorting"}},
+                "/beta": {
+                    "get": {"tags": ["Beta"]},
+                    "post": {"tags": ["Beta"]},
+                    "put": {"tags": ["Beta"]},
+                    "delete": {"tags": ["Beta"]},
+                    "patch": {"tags": ["Beta"]},
+                },
                 "/hidden": {"get": {"tags": ["Alpha"], "x-hidden": True}},
             }
         }
@@ -131,13 +133,13 @@ class OpenApiNavigationTests(unittest.TestCase):
         groups = converter.openapi_navigation_groups(spec)
 
         self.assertEqual([group["group"] for group in groups], ["Alpha", "Beta"])
-        self.assertEqual(groups[0]["pages"], ["DELETE /aardvark", "GET /zebra"])
+        self.assertEqual(groups[0]["pages"], ["GET /aardvark", "DELETE /zebra"])
         self.assertEqual(groups[1]["pages"], [
-            "GET /beta-get",
-            "POST /beta-post",
-            "PUT /beta-put",
-            "DELETE /beta-delete",
-            "PATCH /beta-patch",
+            "GET /beta",
+            "POST /beta",
+            "PUT /beta",
+            "DELETE /beta",
+            "PATCH /beta",
         ])
 
     def test_sync_api_navigation_replaces_automatic_spec_groups(self):
