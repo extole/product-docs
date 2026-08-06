@@ -3,7 +3,7 @@ title: "Build an Outbound Library Integration"
 excerpt: "Install a maintained partner source, reshape it to the documented tree, and attach its outbound webhooks and credential.\n"
 ---
 
-This page is one part of the Client API integration guide. Start at [Create an Integration With the Client API](doc:client-api-integration) for the build paths and the creation contract.
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](doc:management-api-integration) for the build paths and the creation contract.
 
 ## Build an Outbound Library Integration
 

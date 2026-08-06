@@ -5,7 +5,7 @@ excerpt: "Place a partner platform in an integration category — inbound, outbo
 
 # Overview
 
-An integration is a campaign whose component tree connects Extole to an outside system. Every integration belongs to a category, and the category decides the component model, the resources the integration needs, and which build sequence to follow in [Create an Integration With the Client API](doc:client-api-integration).
+An integration is a campaign whose component tree connects Extole to an outside system. Every integration belongs to a category, and the category decides the component model, the resources the integration needs, and which build sequence to follow in [Create an Integration with the Management API](doc:management-api-integration).
 
 Three questions place any platform:
 
@@ -26,7 +26,7 @@ Answer all three before creating anything. A platform that only receives Extole 
 
 ## Inbound Integrations
 
-An inbound integration turns a platform's own event names into canonical Extole business events. The platform posts to the Event API from a server-side extension, a middleware service, or a file feed, and Extole maps each arriving event to a reusable business-event component. Building the campaign is only half of it: see [Send Platform Events to Extole](doc:sending-platform-events) for the sending half that runs in the platform.
+An inbound integration turns a platform's own event names into canonical Extole business events. The platform posts to the Events API from a server-side extension, a middleware service, or a file feed, and Extole maps each arriving event to a reusable business-event component. Building the campaign is only half of it: see [Send Platform Events to Extole](doc:sending-platform-events) for the sending half that runs in the platform.
 
 Two vocabularies meet here and must not be conflated. The platform's wire event name belongs on the trigger rule that listens for it. The business event carries the canonical name the rest of the platform already understands — `converted`, `shipped`, `canceled`, `account_opened`, and the other names bundled programs use. Never rename a business event to match a platform's wire name.
 
@@ -146,7 +146,7 @@ Discovery decides the category, not habit. Rebuilding a maintained outbound plat
 
 ## Related Documentation
 
-- [Create an Integration With the Client API](doc:client-api-integration)
+- [Create an Integration with the Management API](doc:management-api-integration)
 - [Send Platform Events to Extole](doc:sending-platform-events)
 - [Integrating with Extole](doc:integrating-with-extole)
 - [Key Concepts](doc:key-concepts)

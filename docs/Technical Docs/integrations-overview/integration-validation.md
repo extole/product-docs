@@ -3,7 +3,7 @@ title: "Validate and Publish an Integration"
 excerpt: "Gate outbound resources, validate the finished shape before publishing, and connect a finished integration to a program.\n"
 ---
 
-This page is one part of the Client API integration guide. Start at [Create an Integration With the Client API](doc:client-api-integration) for the build paths and the creation contract.
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](doc:management-api-integration) for the build paths and the creation contract.
 
 ## Gate Outbound Resources
 
@@ -59,7 +59,7 @@ Publish the explicit version that was validated:
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/publish" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{}'
 ```

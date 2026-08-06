@@ -3,7 +3,7 @@ title: "Create the Integration Campaign and Component Model"
 excerpt: "Create the campaign, root, and integration component, set the display metadata and logo the admin renders, and add typed sockets and a configuration view.\n"
 ---
 
-This page is one part of the Client API integration guide. Start at [Create an Integration With the Client API](doc:client-api-integration) for the build paths and the creation contract.
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](doc:management-api-integration) for the build paths and the creation contract.
 
 ## Create the Integration Campaign
 
@@ -14,7 +14,7 @@ component tags created two sections down are.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "Example Integration",
@@ -31,7 +31,7 @@ Replace the default with a unique, readable program label when the integration c
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/labels" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "example-integration",
@@ -50,7 +50,7 @@ does nothing there and the integration component created in the next step is wha
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "root",
@@ -64,7 +64,7 @@ Record `ROOT_COMPONENT_ID`, refresh the campaign version, and create the model c
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "example",
@@ -147,7 +147,7 @@ The Integrations page reads the **built** value of `logo`. Confirm what a compon
 ```bash
 curl --request GET \
   "$EXTOLE_API_HOST/v1/components/built?having_all_tags=internal:type:integration&limit=50" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN"
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
 ```
 
 A resolved logo looks like an absolute URL on Extole's asset host:
@@ -169,7 +169,7 @@ When you have the image file itself, upload it as multipart form data with the m
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/components/$INTEGRATION_COMPONENT_ID/assets" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --form 'asset={"name":"example","tags":[],"description":"Example Logo"};type=application/json' \
   --form "file=@example.png;type=image/png"
 ```
@@ -210,7 +210,7 @@ Compute the instructions at build time so the installer reads the values this ca
   "tags": ["category:configuration", "importance:basic"],
   "priority": "20",
   "values": {
-    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: https://events.extole.io/v6/events\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\\nUse a server-side event-ingestion credential. Do not use a management token in the partner application.\"; })()"
+    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: https://events.extole.io/v6/events\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\\nUse a server-side access token from the Security Center. Do not use a token that can manage campaigns in the partner application.\"; })()"
   }
 }
 ```
@@ -224,7 +224,7 @@ Add a `businessEvents` multi-socket to the integration component:
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components/$INTEGRATION_COMPONENT_ID/settings" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "businessEvents",
@@ -245,7 +245,7 @@ Add a `views` multi-socket:
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components/$INTEGRATION_COMPONENT_ID/settings" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "views",
@@ -270,7 +270,7 @@ Create a `config-view-v10.0` child and attach it to the integration model compon
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "configuration",

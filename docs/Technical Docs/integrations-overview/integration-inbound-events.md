@@ -3,7 +3,7 @@ title: "Map Inbound Partner Events"
 excerpt: "Add reusable business events, input event rules, and event data to an integration that receives partner events, then verify what arrives.\n"
 ---
 
-This page is one part of the Client API integration guide. Start at [Create an Integration With the Client API](doc:client-api-integration) for the build paths and the creation contract.
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](doc:management-api-integration) for the build paths and the creation contract.
 
 ## What the Inbound Custom Workflow Creates
 
@@ -42,7 +42,7 @@ Duplicate the source component into the model component's `businessEvents` socke
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v1/components/$BUSINESS_EVENT_TEMPLATE_ID/duplicate" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "target_campaign_id": "'"$CAMPAIGN_ID"'",
@@ -145,7 +145,7 @@ Duplicate `input_event` from the `rules` program into each business event's `tri
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v1/components/$INPUT_EVENT_TEMPLATE_ID/duplicate" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "target_campaign_id": "'"$CAMPAIGN_ID"'",
@@ -192,7 +192,7 @@ Duplicate one `business_event_data` component into the business event's `data` s
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v1/components/$BUSINESS_EVENT_DATA_TEMPLATE_ID/duplicate" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "target_campaign_id": "'"$CAMPAIGN_ID"'",
@@ -255,7 +255,7 @@ Put the current program label inside `data` to target this campaign during the t
 
 ```bash
 curl --request POST "$EXTOLE_EVENT_API_HOST/v6/events" \
-  --header "Authorization: Bearer $EVENT_INGESTION_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $EVENTS_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "event_name": "partner_order_created",
@@ -273,7 +273,7 @@ Use the returned `person_id` to list the person's resulting events:
 
 ```bash
 curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --data-urlencode "campaign_ids=$CAMPAIGN_ID" \
   --data-urlencode "names=converted"
 ```

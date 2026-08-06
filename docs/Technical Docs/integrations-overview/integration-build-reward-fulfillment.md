@@ -3,7 +3,7 @@ title: "Build a Reward Fulfillment Integration"
 excerpt: "Create the supplier type, support campaign, supplier templates, reward webhooks, report runner, and event stream for a partner that fulfills rewards.\n"
 ---
 
-This page is one part of the Client API integration guide. Start at [Create an Integration With the Client API](doc:client-api-integration) for the build paths and the creation contract.
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](doc:management-api-integration) for the build paths and the creation contract.
 
 ## Build a Reward Fulfillment Integration
 
@@ -49,7 +49,7 @@ The exception is a request to make the partner installable for every client. Tha
 Extole-owned integration component, which a client-local build does not produce. Build and validate the
 shape in the development account when asked — it will appear on that account's own Integrations page
 once its non-root component carries the tags described in
-[Create an Integration With the Client API](doc:client-api-integration) — then publish or request
+[Create an Integration with the Management API](doc:management-api-integration) — then publish or request
 publication of the reusable component before calling the partner an installable integration.
 
 Build in this order, because each step's prerequisite is the step before it.
@@ -60,7 +60,7 @@ The socket must accept this partner's suppliers and nothing else, so create a co
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v1/component-types" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "example-reward-supplier-v10.0",
@@ -80,7 +80,7 @@ Create a `CONFIGURATION` campaign with program type `campaign-component` to hold
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "Example Support",
@@ -95,7 +95,7 @@ Create one component per product variant the partner page names, typed with the 
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v2/campaigns/$SUPPORT_CAMPAIGN_ID/version/$SUPPORT_CAMPAIGN_VERSION/components" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "example-virtual",
@@ -140,7 +140,7 @@ Then attach a reward supplier to each template. A bundled component declares thi
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v2/reward-suppliers/custom-rewards" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "javascript@buildtime:context.getVariableContext().get(\"component.displayName\")",
@@ -192,7 +192,7 @@ Create the `INTEGRATION` campaign, root, and model component as described in [Cr
 ```bash
 curl --request POST \
   "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components/$INTEGRATION_COMPONENT_ID/settings" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "rewardSuppliers",
@@ -214,7 +214,7 @@ Then subscribe the integration to the support campaign, so its templates are ins
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v1/component-subscriptions" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "client_id": "'"$CLIENT_ID"'",
@@ -244,7 +244,7 @@ A report runner is a scheduled report, a set of parameter values for it, and an 
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v7/report-runners" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "type": "SCHEDULED",
@@ -281,7 +281,7 @@ Accounts differ here, and an account that lacks a suitable type is a normal case
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/report-types" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "display_name": "Example Reward Revenue",
@@ -308,12 +308,12 @@ An event stream's filters are created under the stream and carry a `type` discri
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"type": "EVENT_TYPE", "event_types": ["REWARD", "SEND_REWARD"]}'
 
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"type": "APPLICATION_TYPE", "app_types": ["example"]}'
 ```

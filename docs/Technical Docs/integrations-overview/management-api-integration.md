@@ -1,13 +1,19 @@
 ---
-title: "Create an Integration With the Client API"
+title: "Create an Integration with the Management API"
 excerpt: "Choose the build path for an integration, follow the creation contract, and gather what every path needs.\n"
 ---
 
 # Overview
 
-Use the Client API to create an integration campaign and its component hierarchy directly in Extole. This workflow is intended for Extole Chat, installers, and operational services that must build an integration without adding a bundle to the creative repository.
+Use the [Management API](doc:rest-apis) to create an integration campaign and its component hierarchy directly in Extole. This workflow is for installers, solution engineers, and the operational services that build an integration for a client account rather than shipping it as a packaged bundle in Extole's integration library.
 
-An API-created integration is still a component-based integration. It must use the same reusable component types, typed sockets, business-event templates, views, naming conventions, and validation rules as a bundled v10 integration.
+An API-created integration is still a component-based integration, so it must follow the same rules as a packaged one:
+
+- **Reusable component types**, rather than one-off controllers written for a single partner.
+- **Typed sockets** — the named attachment points on a component that accept only components of a declared type, such as a `views` socket that holds view components. [Create the Integration Campaign and Component Model](doc:integration-component-model) describes each socket this build uses.
+- **Business-event templates** — maintained components that produce a canonical Extole event such as `converted` or `shipped`, duplicated into your campaign instead of rebuilt. [Integration Categories](doc:integration-categories) explains how a partner's own event names map onto them.
+- **v10 component types**, the current generation of the integration component model. Type names carry the generation as a suffix, as in `integration-v10.1` and `config-view-v10.0`.
+- The same **naming conventions and validation rules** a packaged integration passes before it is published.
 
 ## Decide Whether This Is an Install or a Client-Local Build
 
@@ -79,15 +85,15 @@ enough to be retrieved whole:
 Read the page for the path you are on rather than working from this one alone. A build that stops after
 the campaign and the integration component has created the container and none of the integration.
 
-## Extole Chat Creation Contract
+## Creation Contract
 
-Extole Chat must follow these rules when it creates or changes an integration:
+Follow these rules whenever you create or change an integration through the API, whether you are working by hand or driving the calls from a service:
 
 1. Confirm the client, environment, partner platform and version, inbound and outbound scope, event contract, credential owner, and publication approval before making changes.
 2. Read the partner's current documentation and verify version-specific event hooks. Do not infer hook names or payload shapes from another platform.
 3. Inspect the target client before creating resources. Reuse an active integration when its campaign and component identity match the request, extend it, and report that. Archived campaigns are not candidates for reuse: they receive no events and hold no program label against a new campaign, so their presence is not a reason to restore one, to pick a different label, or to ask the requester which path to take instead of building what they asked for.
-4. Discover first whether a maintained integration source already exists for the partner, matching on component name across every current `integration-v10.x` type rather than on one pinned revision. When it does, install that source by duplicating it into a new campaign, then reshape it to the partner page's finished tree and webhook set before configuring credentials. Only when no maintained partner integration exists should Chat build from the custom integration template. Do not save library component identifiers in prompts or documentation.
-5. Treat the calls that complete a reshape — creating a component type, deleting an unused library child, publishing, and creating a webhook — as part of the create instruction. Attempt them; when one is refused because it requires a higher mode, raise the mode and continue. A mode that is available but not currently active is not a missing authorization, so never report a shape gap as outside what you are allowed to do without having tried and been refused. Stopping after a raw library install, or reporting a known gap as someone else's step, leaves the requester with an integration the partner page does not describe.
+4. Discover first whether a maintained integration source already exists for the partner, matching on component name across every current `integration-v10.x` type rather than on one pinned revision. When it does, install that source by duplicating it into a new campaign, then reshape it to the partner page's finished tree and webhook set before configuring credentials. Build from the custom integration template only when no maintained partner integration exists. Do not record library component identifiers in documentation or stored instructions.
+5. Treat the calls that complete a reshape — creating a component type, deleting an unused library child, publishing, and creating a webhook — as part of the create instruction rather than as follow-up work for someone else. When one is refused because it requires a higher permission level, raise it and continue; a permission that is available but not currently in effect is not a missing authorization. Stopping after a raw library install leaves the requester with an integration the partner page does not describe.
 6. Use campaign-version-scoped mutation endpoints. Refresh the latest campaign version after every mutation.
 7. Use reusable business-event, rule, and data components. Do not create a custom controller when a reusable template implements the behavior.
 8. Keep partner input event names distinct from canonical Extole business event names.
@@ -105,9 +111,9 @@ Collect these values before calling the API:
 
 | Value | Requirement |
 | :---- | :---------- |
-| Client API access token | Server-side token authorized to manage campaigns and components. |
+| Access Token | A server-side access token, created in the [Security Center](https://my.extole.com/security-center), authorized to manage campaigns and components and to read people during verification. |
 | Management API host | The production host for campaign and component calls, held in `EXTOLE_API_HOST`. |
-| Event API host | The production host for event submission, held in `EXTOLE_EVENT_API_HOST`. |
+| Events API host | The production host for event submission, held in `EXTOLE_EVENT_API_HOST`. |
 | Partner platform and version | Determines event hooks, payloads, and authentication options. |
 | Integration name and component name | Human-readable campaign name and stable lowercase component name. |
 | Program label | Unique, stable label used to target events to the integration. |
@@ -125,7 +131,9 @@ EXTOLE_API_HOST=https://api.extole.io
 EXTOLE_EVENT_API_HOST=https://events.extole.io
 ```
 
-Use separate credentials for integration management and event ingestion. The partner application must not receive the Client API management token.
+Both hosts are current. Management API calls — campaigns, components, webhooks, reward suppliers — go to `api.extole.io`, as described in [REST APIs](doc:rest-apis). Event submission goes to `events.extole.io`, the host the Server to Extole API reference publishes for the event endpoints. Partner pages written against the earlier `api.extole.io/v5/events` path remain valid; use `events.extole.io/v6/events` for new senders. [Send Platform Events to Extole](doc:sending-platform-events) covers the sending side in full.
+
+Use separate access tokens for integration management and event ingestion. The partner application receives only the event-ingestion token, never the one that can manage campaigns and components.
 
 ## Use Roll-Forward Campaign Versions
 
@@ -137,7 +145,7 @@ Refresh the version before every version-scoped mutation:
 CAMPAIGN_VERSION=$(
   curl --silent --show-error --fail-with-body \
     "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID" \
-    --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" |
+    --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" |
   jq --raw-output '.version'
 )
 ```
@@ -156,7 +164,7 @@ Find templates at execution time through the duplicatable-components endpoint. T
 
 ```bash
 curl --get "$EXTOLE_API_HOST/v1/components/duplicatable" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --data-urlencode "name=template_transacted_business_event" \
   --data-urlencode "version_state=PUBLISHED" \
   --data-urlencode "having_any_types=business-event-v10.0" \

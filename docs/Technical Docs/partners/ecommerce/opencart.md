@@ -19,9 +19,9 @@ OpenCart has no packaged Extole app. Your store sends events through a server-si
 | OpenCart 4.x store | A store you can install a server-side extension into. |
 | OpenCart administrator access | Needed to install the extension and configure its event, status, and credential settings. |
 | Developer resource | Someone to build or install the OpenCart extension that sends the events. |
-| Event-ingestion credential | A server-side Extole credential authorized to submit events, generated in the [Security Center](https://my.extole.com/security-center). Do not use a Client API management token. |
+| Access Token | A server-side Extole access token authorized to submit events, created in the [Security Center](https://my.extole.com/security-center). Do not use a token that can also manage campaigns and components. |
 | Order-status decisions | The OpenCart statuses that mean an order is converted, shipped, and canceled in your store. |
-| HTTPS connectivity | The OpenCart server must be able to reach the Extole Event API. |
+| HTTPS connectivity | The OpenCart server must be able to reach the Extole Events API. |
 
 ## Integration
 
@@ -33,7 +33,7 @@ Open the installed OpenCart integration in My Extole and select **Configuration*
 2. Save the integration.
 3. Copy the endpoint, current program label, and event names from **OpenCart Extension Setup**. Your extension needs all three.
 
-The integration view never displays or stores the event-ingestion credential. Keep that secret only in protected server-side OpenCart configuration.
+The integration view never displays or stores the access token. Keep that secret only in protected server-side OpenCart configuration.
 
 ### Step 2: Install the OpenCart Extension
 
@@ -78,7 +78,7 @@ Then confirm what Extole recorded, as described in [Send Platform Events to Exto
 
 ## Event Contract
 
-Each OpenCart event becomes one reusable Extole business event:
+Each OpenCart event becomes one **business event** — the canonical name Extole uses for that outcome across every program and report, independent of what the sending platform calls it. OpenCart's `opencart_order_created` and another platform's order event both arrive as `converted`, so a program built on `converted` works the same whichever store sends it. [Integration Categories](doc:integration-categories) covers the distinction in more detail.
 
 | OpenCart event | Extole business event | Notes |
 | :------------- | :-------------------- | :---- |
@@ -135,6 +135,6 @@ The event was accepted without matching the integration. Work through the checkl
 
 - [Send Platform Events to Extole](doc:sending-platform-events)
 - [Integration Categories](doc:integration-categories)
-- [Create an Integration With the Client API](doc:client-api-integration)
-- [Map Inbound Partner Events](doc:integration-inbound-events)
 - <Anchor label="OpenCart Events" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events</Anchor>
+
+Building the OpenCart integration inside Extole, rather than installing and configuring it, is covered by [Create an Integration with the Management API](doc:management-api-integration) and [Map Inbound Partner Events](doc:integration-inbound-events).

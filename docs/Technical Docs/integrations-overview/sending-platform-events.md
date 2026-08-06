@@ -1,22 +1,22 @@
 ---
 title: "Send Platform Events to Extole"
-excerpt: "Deliver a platform's lifecycle events to the Extole Event API from a server-side extension, with a durable outbox, retries, and verification.\n"
+excerpt: "Deliver a platform's lifecycle events to the Extole Events API from a server-side extension, with a durable outbox, retries, and verification.\n"
 ---
 
 # Overview
 
-An inbound integration has two halves. Inside Extole, an integration campaign maps arriving platform events onto canonical business events — see [Create an Integration With the Client API](doc:client-api-integration). Outside Extole, something in the platform has to send those events. This page is the sending half, and it applies to any platform that can run server-side code: an ecommerce extension, a plugin, a middleware service, or a scheduled job.
+An inbound integration has two halves. Inside Extole, an integration campaign maps arriving platform events onto canonical business events — see [Create an Integration with the Management API](doc:management-api-integration). Outside Extole, something in the platform has to send those events. This page is the sending half, and it applies to any platform that can run server-side code: an ecommerce extension, a plugin, a middleware service, or a scheduled job.
 
-Sending happens server-side. An event carries an ingestion credential, and any credential placed in storefront templates, theme files, or browser code is published to everyone who visits the site. Platforms whose events can only be produced in the browser belong on the JavaScript SDK instead.
+Sending happens server-side. An event carries an access token, and any token placed in storefront templates, theme files, or browser code is published to everyone who visits the site. Platforms whose events can only be produced in the browser belong on the JavaScript SDK instead.
 
 ## What the Sender Needs
 
-Hold these as configuration rather than constants in code, so a credential rotates and a program label changes without a code release:
+Hold these as configuration rather than constants in code, so a token rotates and a program label changes without a code release:
 
 | Setting | Purpose |
 | :------ | :------ |
 | Event endpoint | `https://events.extole.io/v6/events` in production. |
-| Event-ingestion credential | Authorizes server-to-server submission. Store it encrypted or in protected server configuration. Never use a Client API management token to send events. |
+| Access Token | A server-side Extole access token, created in the [Security Center](https://my.extole.com/security-center), that authorizes event submission. Store it encrypted or in protected server configuration. Never send events with a token that can also manage campaigns and components. |
 | Program label | Targets events at the installed integration. Read the current label from the integration's configuration view. |
 | Platform identifier | The store URL, site identifier, or tenant that produced the event. |
 | Status or state mapping | The platform's own status identifiers that mean the event happened. |
@@ -55,11 +55,13 @@ Send what the integration maps and nothing more. Payment-card data, passwords, s
 
 ## Choose the Endpoint
 
+Events go to `https://events.extole.io`, the host the Server to Extole API reference publishes for the event endpoints. Extole's other server-side calls — retrieving a person, reading rewards, and everything in the [Management API](doc:rest-apis) — go to `api.extole.io`, so a sender talks to both hosts. Partner pages that document the earlier `https://api.extole.io/v5/events` path still work and do not need to be changed; point a new sender at `events.extole.io/v6/events`.
+
 Use `/v6/events` while building the sender: it responds synchronously, so the worker can verify what Extole did with each event. For sustained high-volume delivery, evaluate `/v6/async-events` and update the worker's verification and retry behavior for asynchronous processing, since acceptance no longer means the event has been processed.
 
 ```bash
 curl --request POST "https://events.extole.io/v6/events" \
-  --header "Authorization: Bearer $EVENT_INGESTION_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $EVENTS_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data @event.json
 ```
@@ -83,11 +85,11 @@ Use the entity identifier together with the event name as the local idempotency 
 ## Protect the Integration
 
 - Restrict sender configuration to platform administrators.
-- Keep the ingestion credential out of templates, browser code, logs, and event data.
+- Keep the access token out of templates, browser code, logs, and event data.
 - Redact authorization headers in transport logs.
 - Validate and normalize emails, identifiers, URLs, and numeric values before sending.
 - Verify HTTPS certificates.
-- Allow credential rotation without reinstalling the extension.
+- Allow token rotation without reinstalling the extension.
 
 ## Verify What Arrives
 
@@ -95,7 +97,7 @@ Send one event synchronously and follow it through to the business event it prod
 
 ```bash
 curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
-  --header "Authorization: Bearer $CLIENT_API_ACCESS_TOKEN" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --data-urlencode "campaign_ids=$CAMPAIGN_ID" \
   --data-urlencode "names=converted"
 ```
@@ -115,5 +117,5 @@ A `2xx` means the event was accepted, not that it matched anything. Check, in th
 ## Related Documentation
 
 - [Integration Categories](doc:integration-categories)
-- [Create an Integration With the Client API](doc:client-api-integration)
+- [Create an Integration with the Management API](doc:management-api-integration)
 - [Integrating with Extole](doc:integrating-with-extole)
