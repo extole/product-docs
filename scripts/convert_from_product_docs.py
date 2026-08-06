@@ -11,6 +11,9 @@ Usage:
       --out .
 
 It writes .mdx pages, copies the OpenAPI specs, and regenerates docs.json.
+
+To update only the generated API navigation from the local OpenAPI bundles:
+  python scripts/convert_from_product_docs.py --out . --sync-api-navigation
 """
 from __future__ import annotations
 
@@ -852,6 +855,17 @@ SPEC_TABS = [
     ("Management Expert API", "management-expert.json"),
 ]
 
+OPENAPI_METHOD_ORDER = {
+    "get": 0,
+    "post": 1,
+    "put": 2,
+    "patch": 3,
+    "delete": 4,
+    "head": 5,
+    "options": 6,
+    "trace": 7,
+}
+
 API_GETTING_STARTED = [
     "api-overview",
     "authentication-overview",
@@ -875,11 +889,84 @@ NAV_SIDEBAR_TITLES = {
 }
 
 
+def openapi_navigation_groups(spec: dict) -> list[dict]:
+    """Generate ReadMe-equivalent tag groups for a Mintlify OpenAPI section.
+
+    Mintlify's automatic OpenAPI navigation follows JSON insertion order. ReadMe
+    instead groups endpoints alphabetically by tag, then orders them by HTTP
+    method and URL. Explicit page references make that ordering stable in both
+    the generated docs and the standalone sync command below.
+    """
+    operations_by_tag: dict[str, list[tuple[str, str]]] = {}
+    for path, path_item in (spec.get("paths") or {}).items():
+        if not isinstance(path_item, dict):
+            continue
+        for method, operation in path_item.items():
+            if method not in OPENAPI_METHOD_ORDER or not isinstance(operation, dict):
+                continue
+            if operation.get("x-hidden") or operation.get("x-excluded"):
+                continue
+            for tag in operation.get("tags") or ["Endpoints"]:
+                operations_by_tag.setdefault(str(tag), []).append((method, path))
+
+    groups = []
+    for tag in sorted(operations_by_tag, key=str.casefold):
+        operations = sorted(
+            operations_by_tag[tag],
+            key=lambda item: (OPENAPI_METHOD_ORDER[item[0]], item[1].casefold()),
+        )
+        groups.append(
+            {
+                "group": tag,
+                "pages": [f"{method.upper()} {path}" for method, path in operations],
+            }
+        )
+    return groups
+
+
+def api_reference_group(label: str, filename: str, spec: dict) -> dict:
+    return {
+        "group": label,
+        "openapi": f"api-reference/{filename}",
+        "pages": openapi_navigation_groups(spec),
+    }
+
+
+def sync_api_navigation(out: Path) -> int:
+    """Refresh the API Reference tab from the OpenAPI bundles already in ``out``."""
+    docs_path = out / "docs.json"
+    docs = json.loads(docs_path.read_text(encoding="utf-8"))
+    api_tab = next(
+        (tab for tab in docs.get("navigation", {}).get("tabs", []) if tab.get("tab") == "API Reference"),
+        None,
+    )
+    if not api_tab:
+        raise ValueError("docs.json does not define an API Reference tab")
+
+    getting_started = next(
+        (group for group in api_tab.get("groups", []) if group.get("group") == "Getting Started"),
+        None,
+    )
+    groups = [getting_started] if getting_started else []
+    for label, filename in SPEC_TABS:
+        spec_path = out / "api-reference" / filename
+        if spec_path.exists():
+            groups.append(api_reference_group(label, filename, json.loads(spec_path.read_text(encoding="utf-8"))))
+    api_tab["groups"] = groups
+    docs_path.write_text(json.dumps(docs, indent=2) + "\n", encoding="utf-8")
+    return len(groups) - (1 if getting_started else 0)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--product-docs", type=Path)
     ap.add_argument("--specification", type=Path)
     ap.add_argument("--out", required=True, type=Path)
+    ap.add_argument(
+        "--sync-api-navigation",
+        action="store_true",
+        help="rewrite the API Reference navigation from local api-reference OpenAPI bundles",
+    )
     ap.add_argument(
         "--migrate-images",
         action="store_true",
@@ -888,6 +975,10 @@ def main():
     args = ap.parse_args()
 
     out = args.out.resolve()
+
+    if args.sync_api_navigation:
+        print(f"API specs synchronized: {sync_api_navigation(out)}")
+        return
 
     if not args.product_docs and not args.specification:
         if not args.migrate_images:
@@ -949,7 +1040,7 @@ def main():
         spec = json.loads(src.read_text(encoding="utf-8"))
         add_union_titles(spec)
         (spec_out / fname).write_text(json.dumps(spec, indent=2), encoding="utf-8")
-        api_groups.append({"group": label, "openapi": f"api-reference/{fname}"})
+        api_groups.append(api_reference_group(label, fname, spec))
     tabs.append({"tab": "API Reference", "groups": api_groups})
 
     conv.write_pages()
@@ -1054,7 +1145,11 @@ def build_docs_json(tabs):
                 "destination": "/technical-docs/extole-ai/extole-cli/index",
             },
         ],
-        "colors": {"primary": "#ee0049"},
+        "colors": {
+            "primary": "#ee0049",
+            "light": "#ee0049",
+            "dark": "#ee0049",
+        },
         "logo": {
             "light": "/extole-logo.png",
             "dark": "/extole-logo.png",
