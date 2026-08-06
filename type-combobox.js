@@ -1,9 +1,17 @@
 (function () {
+  var registry = [];
+
   function labelOf(tab) {
     var btn = tab.querySelector('[data-component-part="tab-button"]');
     return ((btn && btn.textContent) || tab.textContent || "")
       .trim()
       .replace(/\s+/g, " ");
+  }
+
+  function sameLabels(a, b) {
+    if (a.length !== b.length) return false;
+    for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+    return true;
   }
 
   function enhance(list) {
@@ -65,13 +73,37 @@
       setOpen(true);
     }
 
-    function pick(i) {
+    function apply(i) {
       selected = i;
       var btn = tabs[i].querySelector('[data-component-part="tab-button"]');
       (btn || tabs[i]).click();
       input.value = labels[i];
       setOpen(false);
     }
+
+    function pick(i) {
+      apply(i);
+      var label = labels[i];
+      for (var r = 0; r < registry.length; r++) {
+        var other = registry[r];
+        if (other.list === list || !sameLabels(labels, other.labels)) continue;
+        other.applyByLabel(label);
+      }
+    }
+
+    var api = {
+      list: list,
+      labels: labels,
+      applyByLabel: function (label) {
+        var idx = labels.indexOf(label);
+        if (idx < 0 || idx === selected) {
+          if (idx >= 0) input.value = labels[idx];
+          return;
+        }
+        apply(idx);
+      },
+    };
+    registry.push(api);
 
     function enterSearch() {
       input.value = "";
