@@ -156,8 +156,10 @@
     }
 
     input.addEventListener("focus", function () {
-      input.value = "";
       renderMenu("");
+      try {
+        input.select();
+      } catch (e) {}
     });
     input.addEventListener("input", function () {
       renderMenu(input.value);
