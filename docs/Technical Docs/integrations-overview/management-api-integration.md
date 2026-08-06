@@ -112,8 +112,7 @@ Collect these values before calling the API:
 | Value | Requirement |
 | :---- | :---------- |
 | Access Token | A server-side access token, created in the [Security Center](https://my.extole.com/security-center), authorized to manage campaigns and components and to read people during verification. |
-| Management API host | The production host for campaign and component calls, held in `EXTOLE_API_HOST`. |
-| Events API host | The production host for event submission, held in `EXTOLE_EVENT_API_HOST`. |
+| Extole API host | The production host for campaign, component, and event calls, held in `EXTOLE_API_HOST`. |
 | Partner platform and version | Determines event hooks, payloads, and authentication options. |
 | Integration name and component name | Human-readable campaign name and stable lowercase component name. |
 | Program label | Unique, stable label used to target events to the integration. |
@@ -124,16 +123,15 @@ Collect these values before calling the API:
 | Outbound requirements | Destination, trigger, authentication, retry contract, and owning program, when outbound behavior is required. |
 | Publication approval | Confirmation that the target client and environment may be changed. |
 
-Management calls and event submission use different hosts. Every example in this guide reads them from these variables:
+Management calls and event submission share one host. Every example in this guide reads it from this variable:
 
 ```bash
 EXTOLE_API_HOST=https://api.extole.io
-EXTOLE_EVENT_API_HOST=https://events.extole.io
 ```
 
-Both hosts are current. Management API calls — campaigns, components, webhooks, reward suppliers — go to `api.extole.io`, as described in [REST APIs](doc:rest-apis). Event submission goes to `events.extole.io`, the host the Server to Extole API reference publishes for the event endpoints. Partner pages written against the earlier `api.extole.io/v5/events` path remain valid; use `events.extole.io/v6/events` for new senders. [Send Platform Events to Extole](doc:sending-platform-events) covers the sending side in full.
+Campaigns, components, webhooks, and reward suppliers are Management API calls; event submission is a Server to Extole call. Both go to `api.extole.io`, as described in [REST APIs](doc:rest-apis). [Send Platform Events to Extole](doc:sending-platform-events) covers the sending side in full.
 
-Use separate access tokens for integration management and event ingestion. The partner application receives only the event-ingestion token, never the one that can manage campaigns and components.
+One host does not mean one credential. Use separate access tokens for integration management and event submission: the partner application receives only the token that can submit events, never the one that can manage campaigns and components.
 
 ## Use Roll-Forward Campaign Versions
 

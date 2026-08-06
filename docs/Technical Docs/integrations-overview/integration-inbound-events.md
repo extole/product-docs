@@ -249,12 +249,12 @@ Every business event needs its own data components — a field captured on one e
 
 ## Verify Inbound Events
 
-Send a synchronous test event through `POST /v6/events` on the event host. Event submission uses a different host and a different credential from the management calls above, so a caller that can create campaigns is not necessarily able to submit events. When the calling context has no event credential, hand the request below to whoever does, together with the values the resulting step must contain, and report the integration as built but unverified.
+Send a synchronous test event through `POST /v6/events`. Event submission uses the same host as the management calls above but a different access token, so a caller that can create campaigns is not necessarily able to submit events. When the calling context has no event-submission token, hand the request below to whoever does, together with the values the resulting step must contain, and report the integration as built but unverified.
 
 Put the current program label inside `data` to target this campaign during the test. The label is a testing convenience and does not belong in the partner's own payload or setup instructions.
 
 ```bash
-curl --request POST "$EXTOLE_EVENT_API_HOST/v6/events" \
+curl --request POST "$EXTOLE_API_HOST/v6/events" \
   --header "Authorization: Bearer $EVENTS_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{

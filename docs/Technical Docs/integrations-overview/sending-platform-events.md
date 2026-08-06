@@ -15,7 +15,7 @@ Hold these as configuration rather than constants in code, so a token rotates an
 
 | Setting | Purpose |
 | :------ | :------ |
-| Event endpoint | `https://events.extole.io/v6/events` in production. |
+| Event endpoint | `https://api.extole.io/v6/events` in production. |
 | Access Token | A server-side Extole access token, created in the [Security Center](https://my.extole.com/security-center), that authorizes event submission. Store it encrypted or in protected server configuration. Never send events with a token that can also manage campaigns and components. |
 | Program label | Targets events at the installed integration. Read the current label from the integration's configuration view. |
 | Platform identifier | The store URL, site identifier, or tenant that produced the event. |
@@ -55,16 +55,18 @@ Send what the integration maps and nothing more. Payment-card data, passwords, s
 
 ## Choose the Endpoint
 
-Events go to `https://events.extole.io`, the host the Server to Extole API reference publishes for the event endpoints. Extole's other server-side calls — retrieving a person, reading rewards, and everything in the [Management API](doc:rest-apis) — go to `api.extole.io`, so a sender talks to both hosts. Partner pages that document the earlier `https://api.extole.io/v5/events` path still work and do not need to be changed; point a new sender at `events.extole.io/v6/events`.
+Events go to `https://api.extole.io`, the same host as Extole's other server-side calls — retrieving a person, reading rewards, and the [Management API](doc:rest-apis).
 
-Use `/v6/events` while building the sender: it responds synchronously, so the worker can verify what Extole did with each event. For sustained high-volume delivery, evaluate `/v6/async-events` and update the worker's verification and retry behavior for asynchronous processing, since acceptance no longer means the event has been processed.
+Use `/v6/events` while building the sender: it responds synchronously, so the worker can verify what Extole did with each event. For sustained high-volume delivery, evaluate `/v6/async-events` and update the worker's verification and retry behavior for asynchronous processing, since acceptance no longer means the event has been processed. Partner pages that document `/v5/events` describe a still-supported path; prefer `/v6/events` for a new sender.
 
 ```bash
-curl --request POST "https://events.extole.io/v6/events" \
+curl --request POST "https://api.extole.io/v6/events" \
   --header "Authorization: Bearer $EVENTS_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data @event.json
 ```
+
+A sender that receives `204 No Content` with an empty body is not talking to the Events API. The endpoint answers a valid submission with `200` and a JSON body carrying the `person_id`; treat an empty `204` as a misrouted request and check the host before assuming the events were accepted.
 
 ## Deliver Through an Outbox
 
