@@ -7,7 +7,7 @@
   }
 
   function enhance(list) {
-    if (list.dataset.extoleCombo || !list.closest("field")) return;
+    if (list.dataset.extoleCombo || !list.closest(".object-param-field")) return;
     var tabs = list.querySelectorAll('[data-component-part="tab"]');
     if (!tabs.length) return;
     list.dataset.extoleCombo = "1";
@@ -110,7 +110,7 @@
     if (
       base.matches &&
       base.matches('[data-component-part="tabs-list"]') &&
-      base.closest("field")
+      base.closest(".object-param-field")
     ) {
       enhance(base);
     }
