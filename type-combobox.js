@@ -122,12 +122,21 @@
       input.setAttribute("aria-expanded", open ? "true" : "false");
     }
 
+    function setMetaCount(visible) {
+      if (visible == null) {
+        meta.textContent = tabs.length + " variants";
+        return;
+      }
+      meta.textContent = visible + "/" + tabs.length + " variants";
+    }
+
     function renderMenu(query) {
       menu.innerHTML = "";
       var q = (query || "").trim().toLowerCase();
       var matches = tabs.filter(function (tab) {
         return !q || tabLabel(tab).toLowerCase().indexOf(q) !== -1;
       });
+      setMetaCount(matches.length);
       if (!matches.length) {
         menu.appendChild(el("div", EMPTY, { text: "No matching types" }));
         menu.hidden = false;
@@ -148,6 +157,7 @@
           input.value = selectedLabel;
           menu.hidden = true;
           setExpanded(false);
+          setMetaCount(null);
         });
         menu.appendChild(option);
       });
@@ -168,6 +178,7 @@
       window.setTimeout(function () {
         menu.hidden = true;
         setExpanded(false);
+        setMetaCount(null);
         if (!input.value.trim()) {
           input.value = selectedLabel;
         }
