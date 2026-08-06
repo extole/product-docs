@@ -29,7 +29,7 @@ Support campaign
     └── a reward supplier attached to the template
 
 Resources attached by component_ids
-├── one REWARD webhook per product, plus the status webhook   → the integration component
+├── one REWARD webhook per order endpoint, plus the status check → the integration component
 ├── a report runner                                           → the report-runner view
 └── an event stream                                           → the event-stream view
 ```
@@ -107,7 +107,12 @@ curl --request POST \
     "variables": [
       { "name": "rewardSupplierId", "type": "REWARD_SUPPLIER_ID", "values": { "default": null }, "tags": ["importance:expert"] },
       { "name": "faceValue", "display_name": "Face Value", "type": "STRING", "values": { "default": "0" }, "tags": ["importance:basic"] },
+      { "name": "dynamicValue", "display_name": "Percentage Of Purchase", "type": "BOOLEAN", "values": { "default": false }, "tags": ["importance:basic"] },
+      { "name": "cashBackPercentage", "display_name": "Cash Back Percentage", "type": "INTEGER", "values": { "default": 0 }, "tags": ["importance:basic"] },
+      { "name": "cashBackMin", "display_name": "Minimum Reward Value", "type": "INTEGER", "values": { "default": 0 }, "tags": ["importance:basic"] },
+      { "name": "cashBackMax", "display_name": "Maximum Reward Value", "type": "INTEGER", "values": { "default": 0 }, "tags": ["importance:basic"] },
       { "name": "clientProgramNumber", "display_name": "Client Program Number", "type": "STRING", "values": { "default": "" }, "tags": ["importance:basic"] },
+      { "name": "financialAccountId", "display_name": "Financial Account ID", "type": "STRING", "values": { "default": "" }, "tags": ["importance:basic"] },
       { "name": "paymentType", "display_name": "Payment Type", "type": "ENUM", "allowed_values": ["ACH_DEBIT", "DRAW_DOWN"], "values": { "default": "ACH_DEBIT" }, "tags": ["importance:basic"] },
       { "name": "enabled", "type": "BOOLEAN", "values": { "default": false }, "tags": ["importance:expert"] }
     ]
@@ -115,6 +120,8 @@ curl --request POST \
 ```
 
 Two shapes in that body are worth reading closely, because getting either wrong produces an error that names the wrong culprit. A component's settings arrive under `variables` on a create — `settings` is the sub-path you add one setting to later, not a property of the create — and every value sits under `values.default`, never a bare `value`.
+
+Declare every setting the supplier's expressions will read. The supplier created below resolves `dynamicValue`, `cashBackPercentage`, `cashBackMin`, `cashBackMax`, and `financialAccountId` from this template, and a buildtime expression reading a setting the component does not declare returns null rather than failing: the face-value algorithm falls back to the wrong branch and the partner's account identifier leaves the order request empty. Add the setting or drop the expression — do not leave one referring to the other.
 
 The `rewardSupplierId` setting is not optional decoration. The platform's own reward-supplier type declares a schema requiring a setting by that name, so a template created without it is rejected for schema validation with a message about an array item that satisfies no subschema and no mention of the field it wanted. Read a type with `GET /v1/component-types/$TYPE_NAME` when a typed create is refused that way: the schema names what it requires, and the requirement is inherited by every type you derive from it.
 
@@ -254,7 +261,7 @@ curl --request POST "$EXTOLE_API_HOST/v7/report-runners" \
     "scopes": ["CLIENT_SUPERUSER"],
     "tags": ["partner-graph"],
     "frequency": "WEEKLY",
-    "schedule_start_date": "2026-04-01T00:00:00-06:00",
+    "schedule_start_date": "'"$SCHEDULE_START_DATE"'",
     "enabled": true,
     "execution_policy": "AWAIT_DATA",
     "parameters": {
@@ -270,7 +277,9 @@ curl --request POST "$EXTOLE_API_HOST/v7/report-runners" \
   }'
 ```
 
-A scheduled runner needs `schedule_start_date`, and a runner's type is fixed once created: a runner made as `REFRESHING` cannot be turned into a scheduled one, and an update that tries reports the wrong type rather than the wrong field. Delete it and create the runner you meant.
+A scheduled runner needs `schedule_start_date`, as an ISO-8601 timestamp with an offset chosen when you create the runner. Pick a date in the future — a start date already in the past is the reason a runner that reports itself as enabled never produces a report.
+
+A runner's type is fixed once created: a runner made as `REFRESHING` cannot be turned into a scheduled one, and an update that tries reports the wrong type rather than the wrong field. Delete it and create the runner you meant.
 
 `report_type` is an account-scoped identifier rather than a readable constant, so read the account's types with `GET /v6/report-types` and match on display name. Two properties decide whether a type will work, and neither is its name:
 
@@ -295,12 +304,19 @@ curl --request POST "$EXTOLE_API_HOST/v6/report-types" \
     "formats": ["CSV", "JSON"],
     "parameters": [
       { "name": "mappings", "default_value": "date=START_DATE(event.eventTime, period:\"DAY\"); count=group_count(event.id, step_name:\"converted\")" },
-      { "name": "container", "default_value": "production" }
+      { "name": "container", "default_value": "production" },
+      { "name": "time_range", "default_value": "" },
+      { "name": "campaign_states", "default_value": "" },
+      { "name": "visit_type", "default_value": "" },
+      { "name": "unattributed_events", "default_value": "" },
+      { "name": "quality", "default_value": "" }
     ]
   }'
 ```
 
-The `parameters` list must name **every** parameter the parent declares, giving an empty default to the ones you do not set. Listing only the ones you care about reads as deleting the rest and is rejected as an attempt to remove static parameters, which is the one error here that sounds unrelated to what you sent.
+The `parameters` list must name **every** parameter the parent declares, giving an empty default to the ones you do not set. Listing only the ones you care about reads as deleting the rest and is rejected as an attempt to remove static parameters, which is the one error here that sounds unrelated to what you sent. Read the parent with `GET /v6/report-types` and copy its parameter names rather than working from the list above, which shows the shape and not one particular parent's set.
+
+The list also has to cover everything the runner sends, because it works in both directions: a configured type declares what its runners may pass, so a runner sending `time_range` against a type that omits it is rejected the same way an invented parameter is. The runner created earlier sends seven parameters, which is why all seven appear here.
 
 Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
 
@@ -426,7 +442,11 @@ Reward states are a closed vocabulary and the two a reward integration needs are
 
 Omitting either filter is the failure worth guarding against. Without the supplier filter the webhook attempts to fulfill every reward in the account through one partner endpoint; without the state filter it re-orders rewards that are already fulfilled.
 
-The request handler builds the partner order from the reward, the supplier's data map, and the person's profile. Its field-level body comes from the partner's own developer documentation, which this documentation set links to rather than reproduces. Not having that body in hand does not stop the build: the webhook, its filters, its client key, and its retry schedule are the shape, and a handler that assembles the documented fields is a starting point to be reviewed against the partner's API. Create the webhooks with the best handler the available documentation supports and report the handler bodies as requiring partner-side verification. Leaving the webhooks uncreated because the exact payload was not on hand produces an integration with suppliers that can never be fulfilled, which is a worse answer than a handler that needs review. The response handler reads the partner's result and does one of three things: mark the reward fulfilled with the partner's identifier and any delivered value, leave it for the next retry when the partner reports the order as still processing, or fail it when the partner rejects it. A handler that always fulfills hides partner rejections behind rewards that were never delivered.
+The request handler builds the partner order from the reward, the supplier's data map, and the person's profile. Its field-level body comes from the partner's own developer documentation, which this documentation set links to rather than reproduces.
+
+Not having that body in hand does not stop the build, but it does stop the webhook going live. Create the webhook, its filters, its client key, and its retry schedule — that is the shape, and leaving it uncreated produces an integration with suppliers that can never be fulfilled. Then **leave the webhook disabled until the payload contract is confirmed against the partner's documentation.** A handler assembled from an inferred payload is a draft: enabled, it sends real reward orders in a shape the partner may reject or, worse, accept and fulfill wrongly. Disabled, it is a shape waiting on one verification step. Report the reward path as incomplete while it stays that way, and never describe it as production-ready — this is the same rule the [creation contract](doc:management-api-integration) states as not inferring payload shapes and not reporting a disabled webhook as finished.
+
+The response handler reads the partner's result and does one of three things: mark the reward fulfilled with the partner's identifier and any delivered value, leave it for the next retry when the partner reports the order as still processing, or fail it when the partner rejects it. A handler that always fulfills hides partner rejections behind rewards that were never delivered.
 
 The status-check webhook covers products that do not complete synchronously. It filters on every variant's suppliers and on the fulfillment-failed state, and its retry schedule escalates from hours to days out to about a month, because a physical fulfillment can take weeks. Order webhooks keep the short schedule above; a status check on that schedule exhausts its retries long before the partner finishes.
 
@@ -440,5 +460,6 @@ Before calling the build done, read back and confirm:
 - The support campaign holds one correctly typed template per product the partner page names, each with a reward supplier attached to it, a variant tag, and its data map.
 - The supplier socket filters to the partner's type, and the views socket accepts every view type in use.
 - Each webhook is type `REWARD`, carries both filters, resolves a non-empty supplier list, and uses the retry schedule its purpose requires.
+- The webhook count matches the partner's order endpoints plus one status check — not the number of products. Several products ordered through one endpoint share one webhook, and its supplier filter resolves every variant that endpoint serves.
 - The report-runner and event-stream views each resolve to an actual element on that view. Read the built campaign and confirm the identifiers are non-null: an empty tab is the symptom of an element that was never created or was attached to the wrong component, and neither shows up as a failed call.
 - The account identifier is set and the credential is either configured or reported outstanding.

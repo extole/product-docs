@@ -211,7 +211,7 @@ curl --request POST \
         "name": "valueExpression",
         "type": "STRING",
         "values": {
-          "default": "javascript@runtime:context.getCauseEvent().getData()['order_id']"
+          "default": "javascript@runtime:context.getCauseEvent().getData()[\"order_id\"]"
         }
       },
       {
@@ -243,9 +243,17 @@ curl --request POST \
 
 Set `valueExpression` explicitly when the partner field and Extole field have distinct names. Verify the expression against a real sanitized partner payload. Do not rely on the data component's name-derived default when the source field differs.
 
+Quote the key with escaped double quotes, as above. A single-quoted `--data` payload cannot contain single quotes: the shell closes the string at the first one, so `getData()['order_id']` reaches the API as `getData()[order_id]`, which reads an undefined variable instead of the partner field and silently captures nothing.
+
 Use `NO_ADDITIONAL_DATA` when the event must store only declared fields. Capture the minimum data needed for identity, deduplication, attribution, rules, and reporting.
 
-Every business event needs its own data components — a field captured on one event is not visible on another. At minimum, each event captures the partner transaction identifier as `UNIQUE_PARTNER_EVENT_KEY` and the partner customer identifier as `PARTNER_PROFILE_KEY`, plus whatever identity the partner sends. Revenue events additionally capture the amount as `VALUE`. Repeat the identity set on lifecycle events such as `shipped` and `canceled`: they arrive independently and must resolve to the same person and the same original transaction.
+Every business event needs its own data components — a field captured on one event is not visible on another. What each event must capture follows the table above rather than one fixed set:
+
+- **Enough identity to resolve a person**, on every event. Capture the partner customer identifier as `PARTNER_PROFILE_KEY` whenever the partner sends a stable one, and `email` when it is the only identity available.
+- **The transaction identifier as `UNIQUE_PARTNER_EVENT_KEY`, on transaction events.** An event tied to an order, a purchase, or another partner-side record needs it to deduplicate. A standalone lifecycle event such as `account_opened` has no transaction to key on, and requiring one there invents a field the partner does not send.
+- **The amount as `VALUE`**, on revenue events.
+
+Repeat the identity set on lifecycle events such as `shipped` and `canceled`: they arrive independently and must resolve to the same person and, through the transaction identifier they carry, the same original transaction.
 
 ## Verify Inbound Events
 

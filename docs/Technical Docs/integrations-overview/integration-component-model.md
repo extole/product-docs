@@ -110,10 +110,62 @@ curl --request POST \
         "tags": [
           "internal:ui-display"
         ]
+      },
+      {
+        "name": "external.url",
+        "type": "STRING",
+        "values": {
+          "default": "https://www.example.com"
+        },
+        "tags": [
+          "internal:ui-display"
+        ]
+      },
+      {
+        "name": "external.integration.url",
+        "type": "STRING",
+        "values": {
+          "default": "https://marketplace.example.com/extole"
+        },
+        "tags": [
+          "internal:ui-display"
+        ]
+      },
+      {
+        "name": "categories",
+        "type": "STRING",
+        "values": {
+          "default": "eCommerce Platform"
+        },
+        "tags": [
+          "internal:ui-display"
+        ]
+      },
+      {
+        "name": "logo",
+        "type": "IMAGE",
+        "values": {
+          "default": "https://origin.xtlo.net/type=asset:clientShortName=example-components:originAssetId=tj9rg15cj0eu6mdf3b8c/example.png"
+        },
+        "tags": [
+          "internal:ui-display"
+        ]
+      },
+      {
+        "name": "imageKey",
+        "type": "STRING",
+        "values": {
+          "default": "example"
+        },
+        "tags": [
+          "internal:ui-display"
+        ]
       }
     ]
   }'
 ```
+
+All eight display settings are in that one create request. The integration type requires every one of them, so a create that sends only a readable subset — a description and a documentation link, say — is rejected rather than partially accepted, and there is no later mutation that makes the component valid without them. The next section covers what each value should say.
 
 Use `variables` when creating a component. Do not send a `settings` property in `CampaignComponentCreateRequest`.
 
@@ -197,9 +249,11 @@ After setting it, read the component back from `/v1/components/built` and confir
 
 Add partner configuration variables separately, and never tag them `internal:ui-display` — a partner setting carrying that tag disappears from the configuration view even when `settingsToDisplay` names it, which is the most common reason a freshly built integration looks empty on its configuration tab. Give each one a display name, description, type, default, `importance:basic`, and a priority that orders it in the view. Prefix partner-specific configuration settings with the integration component name — `exampleAccountUrl`, `exampleSetupInstructions` — so they stay unambiguous when read from the parent component.
 
-Setup instructions tell the partner-side installer what to send and where. Give them the event endpoint, the event names, the payload fields, the credential rule, and the documentation link. Leave the program label out: it is an Extole-side targeting device, not something the partner configures, and printing it invites senders to hard-code a value that belongs to this campaign alone.
+Setup instructions tell the partner-side installer what to send and where. Give them the event endpoint, the current program label, the event names, the payload fields, the credential rule, and the documentation link.
 
-Compute the instructions at build time so the installer reads the values this campaign actually uses rather than values copied from another account:
+The program label belongs here because the sender cannot work without it: it is what targets an arriving event at this integration, and [Send Platform Events to Extole](doc:sending-platform-events) tells implementers to read the current label from this view. Take the value from the campaign you read in the previous step rather than typing a label from another account, and tell the installer to hold it as configuration rather than as a constant in code. Because the value is interpolated when the setting is created, replacing the campaign's `PROGRAM` label later means updating this setting too — otherwise the view keeps advertising a label that no longer targets anything.
+
+Compute the instructions at build time so the installer reads the values this campaign actually uses rather than values copied from another account. Substitute the campaign's current program label for `PROGRAM_LABEL` before sending the request:
 
 ```json
 {
@@ -210,7 +264,7 @@ Compute the instructions at build time so the installer reads the values this ca
   "tags": ["category:configuration", "importance:basic"],
   "priority": "20",
   "values": {
-    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: https://api.extole.io/v6/events\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\\nUse a server-side access token from the Security Center. Do not use a token that can manage campaigns in the partner application.\"; })()"
+    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: https://api.extole.io/v6/events\\nProgram label (send as data.labels): PROGRAM_LABEL\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\\nUse a server-side access token from the Security Center. Do not use a token that can manage campaigns in the partner application.\"; })()"
   }
 }
 ```
@@ -323,4 +377,6 @@ curl --request POST \
 
 The `settingsToDisplay` values are names of settings on the parent integration model component. Naming a setting here is necessary but not sufficient: the setting itself must be visible in the settings list, which means it must not carry `internal:ui-display`. Read the built integration back and confirm each named setting appears with its display name before calling the configuration surface done. A hardcoded `status` leaves the tab permanently marked in progress; the buildtime expression above returns `READY` only once the settings Extole can verify are complete. Explain any partner-side checks that the status cannot verify.
 
-Include a parent information setting that gives the installer the endpoint, current program label, partner event names, documentation URL, and credential handling rule. Do not put a credential value in this setting.
+The information setting the installer reads is the `exampleSetupInstructions` built above, not a further one to invent: it already carries the endpoint, the current program label, the partner event names, the documentation URL, and the credential rule. Name it in `settingsToDisplay`, as the example does — a configuration view that omits it renders a tab with an account URL and nothing telling the installer what to send or where. Do not put a credential value in it.
+
+Every name in `settingsToDisplay` must be a setting that exists on the parent integration component. A name with no matching parent setting fails validation, and the two names in the example resolve to the two partner settings created above.

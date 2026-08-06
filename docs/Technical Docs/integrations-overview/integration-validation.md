@@ -46,7 +46,19 @@ Inspect the latest campaign and built components. Confirm:
 - Each event has its own reporting names and no two events share a noun or rate name.
 - No alias appears on more than one business event.
 - Every business event has data components in its `data` socket, and every data component has the intended source expression and key type.
-- The eight required integration display settings hold usable values: a category that other integrations already use, and a partner-facing documentation URL.
+- The eight required integration display settings hold usable values, not merely present ones. Read each from `/v1/components/built` and check it against the value convention in [Create the Integration Campaign and Component Model](doc:integration-component-model):
+
+  | Setting | What to confirm |
+  | :------ | :-------------- |
+  | `short.description` | One sentence, describing this partner rather than integrations generally. |
+  | `about` | A paragraph naming what the integration receives and sends. |
+  | `documentation.url` | The partner-facing page for this integration — not this build guide. |
+  | `external.url` | The partner's own product site. |
+  | `external.integration.url` | The partner's marketplace or extension listing, or an empty string when there is none. |
+  | `categories` | A category string other integrations already use, spelled identically. |
+  | `logo` | An absolute URL on Extole's asset host. |
+  | `imageKey` | The key the partner page names, not the partner's name lowercased. |
+
 - Read from `/v1/components/built`, `logo` on the integration component and `rewardSupplierLogo` on every supplier template each hold an absolute URL. An empty value, or one still showing a `spel@buildtime:` expression, is a tile that renders the grey placeholder.
 - No legacy custom controller duplicates a reusable business event.
 - `views` accepts `view-v10.0`.

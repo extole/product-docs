@@ -48,17 +48,27 @@ A library install is the same action the Partners page Install button performs: 
 Send a body carrying at least one property — a request with no body is rejected as `missing_request_body`. Use `component_display_name` for a display override; `display_name` is not a property of this request and is rejected as an unrecognized property. Omit `target_campaign_id` rather than sending it as null, which is rejected as `invalid_null`: the attribute may be omitted but not nullified.
 
 ```bash
-SOURCE_COMPONENT_ID=$(curl -s -H "Authorization: Bearer ${TOKEN}" \
-  "${EXTOLE_API_HOST}/v1/components/duplicatable?having_any_types=integration-v10.0,integration-v10.1" \
-  | jq -r --arg name "${PARTNER_COMPONENT_NAME}" '.[] | select(.name==$name) | .id' | head -n 1)
+CANDIDATES=$(curl -s -H "Authorization: Bearer ${TOKEN}" --get \
+  "${EXTOLE_API_HOST}/v1/components/duplicatable" \
+  --data-urlencode "version_state=PUBLISHED" \
+  --data-urlencode "show_all=true" \
+  | jq --arg name "${PARTNER_COMPONENT_NAME}" \
+      '[.[] | select(.name == $name)
+             | select(any((.types // [])[]; startswith("integration-v10")))]')
 
+jq -r '.[] | "\(.id)\t\(.types | join(","))"' <<< "${CANDIDATES}"
+```
+
+Read that list before duplicating anything. The query returns the maintained library source *and* one copy for every account that already installed it, so the first result is not reliably the one to install — `head -n 1` picks whichever the API happened to order first, and installing a client's copy carries that client's configuration into the new campaign. Choose the Extole-owned source, and when the list has more than one entry and you cannot tell them apart, stop and ask rather than guessing.
+
+Match on the component name across every current `integration-v10.x` revision rather than pinning `having_any_types` to a fixed pair. The integration type is revised over time, so a query pinned to `integration-v10.0,integration-v10.1` reports a maintained partner as missing once its source moves to a later revision. When a partner the partner page describes as maintained still does not appear, re-run with no type filter before concluding that no source exists.
+
+```bash
 curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"component_display_name":"Partner"}' \
   "${EXTOLE_API_HOST}/v1/components/${SOURCE_COMPONENT_ID}/duplicate"
 ```
-
-Prefer the maintained library source over an account's own installed copy, which the same query also returns. List every integration type revision the account has, and when a partner the partner page describes as maintained does not appear, re-run the query with no type filter before concluding that no source exists.
 
 ### Reshape the Install
 
@@ -80,8 +90,10 @@ Bring the installed tree to the partner page's shape in one pass:
 - Set one `WEBHOOK_ID` setting per partner endpoint, resolved by webhook tag rather than by identifier, so the setting survives a rebuild:
 
 ```javascript
-javascript@buildtime: (function() { var filteredElements = Java.from(context.getComponent().createElementsQuery().withType('WEBHOOK').withTag('internal:partner:event').list()); return filteredElements && filteredElements.length > 0 ? filteredElements[0].getId() : null; })();
+javascript@buildtime: (function() { var filteredElements = Java.from(context.getComponent().createElementsQuery().withType('WEBHOOK').withTag('internal:partner:message-trigger').list()); return filteredElements && filteredElements.length > 0 ? filteredElements[0].getId() : null; })();
 ```
+
+The tag in the expression must be the purpose tag carried by exactly one webhook — here `internal:partner:message-trigger`, matching the example below. Two mistakes make this fail quietly. A tag no webhook carries resolves the setting to `null`, and the integration sends nothing. A tag several webhooks share makes `[0]` arbitrary, so two settings can bind to the same endpoint. Give each webhook its own purpose tag and reference that tag, rather than a shared one such as `internal:partner`.
 
 A partner data template is a typed child of the integration component, created through `component_ids` with no socket. Its install expression is what lets a marketing campaign attach partner actions from the template, by anchoring the source component's unanchored step data onto the target event:
 
@@ -116,6 +128,8 @@ A published integration campaign has no supported route back to a draft — it h
 
 Publishing validates every webhook the campaign already owns, so a setting that feeds an existing webhook URL must resolve to something valid first. An account-URL setting left empty produces an invalid destination, campaign validation rejects the publish, and the second webhook can never be attached. Keep a valid placeholder host in that setting — the library's own default is one — until the real host arrives.
 
+Leave the webhook disabled while it points at that placeholder. A placeholder satisfies validation but is not the partner, so an enabled webhook resolving to it dispatches live program data to a host that should never receive it, and a missing client key means those requests also go out unsigned. Set `enabled` to `false` until both the real URL and the credential are configured, then enable it as the step that puts the outbound path into service.
+
 `POST /v6/webhooks`:
 
 ```json
@@ -128,12 +142,12 @@ Publishing validates every webhook the campaign already owns, so a setting that 
   "client_key_id": "javascript@buildtime:context.getVariableContext().get('clientKeyId')",
   "request": "javascript@runtime:context.createRequestBuilderWithDefaults().withUserAgent('partner-Extole-Integration/1.0').build();",
   "retry_intervals": [1, 30, 60],
-  "tags": ["internal:partner:campaign", "internal:partner"],
+  "tags": ["internal:partner:message-trigger", "internal:partner"],
   "component_ids": ["INTEGRATION_COMPONENT_ID"]
 }
 ```
 
-Name each webhook for the endpoint it calls — an ingestion endpoint and a message-trigger endpoint are separate webhooks with separate tags. Tag every webhook by purpose, because the tags are what the `WEBHOOK_ID` settings resolve: an untagged webhook produces a setting that evaluates to null and an integration that silently sends nothing.
+Name each webhook for the endpoint it calls — an ingestion endpoint and a message-trigger endpoint are separate webhooks with separate tags. Tag every webhook by purpose, because the tags are what the `WEBHOOK_ID` settings resolve: an untagged webhook produces a setting that evaluates to null and an integration that silently sends nothing. Keep the broad `internal:partner` tag for listing every webhook the integration owns, but never resolve a setting through it, since it matches all of them.
 
 When the account URL setting may be stored without a scheme, build the URL expression to add `https://` rather than assuming the stored value carries it.
 

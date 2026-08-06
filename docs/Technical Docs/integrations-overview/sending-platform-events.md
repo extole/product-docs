@@ -84,11 +84,21 @@ Treat `2xx` as accepted. Retry temporary network failures, `429`, and retryable 
 
 Use the entity identifier together with the event name as the local idempotency key. Platforms re-fire hooks and record repeated status history, so a sender without that key delivers the same lifecycle event several times. Extole deduplicates too, on the field mapped as the unique partner event key, but a duplicate suppressed locally never becomes an event someone has to explain.
 
+### Treat the Outbox as a Store of Personal Data
+
+The queued payload holds an email address, a customer identifier, and an order identifier, so the outbox is a database of customer personal data that the platform did not have before this integration was installed. Sanitizing a payload means dropping fields the integration does not map — card data, passwords, session identifiers — and that is a different thing from removing personal data, because the fields Extole needs to resolve a person are exactly the personal ones. Plan for the store rather than acquiring it by accident:
+
+- **Encrypt the payload at rest**, using the platform's own encryption facility where it has one, and keep the outbox out of database exports and support bundles.
+- **Restrict read access** to the delivery worker and platform administrators. A queue table readable by every extension on the store is a copy of the customer list.
+- **Delete delivered records on a defined schedule.** Keep them only as long as retries and troubleshooting need — days, not indefinitely — and purge failed records on their own, longer clock once they are beyond retry. An outbox with no deletion policy grows into the oldest unmanaged copy of the customer list on the server.
+- **Log the identifiers, not the payload.** Record the delivery identifier, the entity identifier, the event name, and the HTTP status; keep the email and the rest of `data` out of application and transport logs, where retention is usually longer and access wider than the outbox's own.
+- **Honor the store's erasure requests.** When a customer is deleted in the platform, delete their undelivered outbox records too, or the sender keeps sending events about someone the store has already forgotten.
+
 ## Protect the Integration
 
 - Restrict sender configuration to platform administrators.
 - Keep the access token out of templates, browser code, logs, and event data.
-- Redact authorization headers in transport logs.
+- Redact authorization headers and request bodies in transport logs. A debug log that captures the full request re-creates, in a less protected place, the personal data the outbox is careful with.
 - Validate and normalize emails, identifiers, URLs, and numeric values before sending.
 - Verify HTTPS certificates.
 - Allow token rotation without reinstalling the extension.

@@ -56,6 +56,8 @@ Extole calls five Hawk Marketplace endpoints, all on `https://api.blackhawknetwo
 
 Order calls are retried over a few hours. The status check runs on a much longer schedule, escalating out to roughly a month, because physical cards are manufactured and mailed rather than delivered instantly.
 
+Ordering a reloadable card is the only call Extole makes for it. The order carries the reward's value, so the card arrives loaded, and BHN's separate <Anchor label="SubmitFunding" target="_blank" href="https://developer.blackhawknetwork.com/hawkmarketplace/reference/dosubmitfunding">`submitFunding`</Anchor> operation — the one that adds money to a card already issued — is not part of this integration. From Extole's side a reloadable card therefore behaves like a single-load card that happens to support reloading later. A program that needs to add value to a card it previously issued does that outside Extole, through BHN directly.
+
 ### Reward Connection Contract
 
 Create five `REWARD` webhooks, one for each endpoint above. Each order webhook filters to its matching supplier variant and to `EARNED`, uses `POST`, and has retry intervals `[1800, 3600, 10800]`. The status webhook filters to all four BHN supplier variants and to `FULFILL_FAILED`; its retry intervals are:
@@ -64,7 +66,23 @@ Create five `REWARD` webhooks, one for each endpoint above. Each order webhook f
 [10800, 10800, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 259200, 259200, 259200, 864000, 1296000, 2592000]
 ```
 
-The exact supplier tags are `internal:bhn-virtual`, `internal:bhn-physical-single-load`, `internal:bhn-physical-reloadable`, and `internal:bhn-egift-card`. Template names use the same tokens without the `internal:` prefix. The status response is complete when BHN returns `Complete`, `Funding Posted`, or `Shipped`; a BHN error marks the reward failed, and every other state retries until the final configured attempt.
+The exact supplier tags are `internal:bhn-virtual`, `internal:bhn-physical-single-load`, `internal:bhn-physical-reloadable`, and `internal:bhn-egift-card`. Template names use the same tokens without the `internal:` prefix.
+
+#### Map BHN Order Statuses
+
+The status webhook reads `orderStatus` from BHN's <Anchor label="Order Status Reference" target="_blank" href="https://developer.blackhawknetwork.com/hawkmarketplace/docs/get-order-information">Order Status Reference</Anchor>. Map it as follows:
+
+| BHN `orderStatus` | Treat as | Why |
+| :---------------- | :------- | :-- |
+| `Complete` | Fulfilled | BHN's own final status for a successfully delivered order. |
+| `Shipped` | Fulfilled, physical products only | BHN has been notified the card shipped, and moves the order to `Complete` overnight. Real-time eGift and Virtual products never ship, so this status cannot arrive for them. |
+| `Cancelled`, `Declined`, `Error`, `Failure` | Failed, terminal | Each is final. Do not retry: the order will not progress, and `Failure` in particular means a real-time order that must be resubmitted as a new order rather than re-checked. |
+| `Funding Hold`, `Settlement Error`, `Not All Records Funded`, `Not All Records Reversed`, `Not All Records Processed` | Failed, needs attention | The order is stuck on payment or partially processed. Retrying the status check will not clear it; it needs someone to look at the funding account. |
+| `In Process`, `Funding Posted`, `Successfully Sent To Processor` | Still processing | Keep checking until the retry schedule is exhausted. |
+
+`Funding Posted` is the one to get right. It means BHN received the order and will fulfill it shortly — not that the card reached anyone. Marking a reward fulfilled on `Funding Posted` closes it before delivery, so a card that is later cancelled or declined stays recorded as delivered and no retry ever corrects it.
+
+Because the terminal statuses differ by product, define the mapping per supplier rather than once for all four. A physical order passes through `Shipped` on its way to `Complete`; a real-time eGift or Virtual order reaches `Complete` or `Failure` and never sees `Shipped` at all.
 
 Both credentials sit on the integration: the Merchant ID is a plain setting, and the API credential is a client key that Extole generates from the certificates BHN issues you, so it cannot be self-configured.
 
@@ -91,7 +109,7 @@ The Reward Activity tab owns one enabled, scheduled report runner. Its account-l
 | Type | `SCHEDULED` |
 | Formats | `JSON`, `CSV` |
 | Frequency | `WEEKLY` |
-| Schedule start | `2026-03-31T23:00:00-07:00` |
+| Schedule start | A future timestamp chosen when the runner is created, in ISO-8601 with an offset. A start date in the past leaves the runner enabled and never running. |
 | Scopes | `CLIENT_SUPERUSER` |
 | Tags | `internal:category:Performance & Metrics`, `partner-graph` |
 | Execution policy | `AWAIT_DATA` |

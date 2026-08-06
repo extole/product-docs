@@ -46,6 +46,8 @@ Install the events as a normal OpenCart extension rather than by editing core fi
 
 Register both in the extension's `install()` method and remove both in `uninstall()`. After installing, open **Extensions** > **Events** in the OpenCart admin and confirm that both listeners are present and enabled.
 
+Both listeners are always registered, but which one reports the conversion depends on the mode you choose in Step 3. The order-created listener is not automatically a conversion — in deferred mode it observes the order and sends nothing until a qualifying status arrives.
+
 OpenCart's event APIs and route syntax have changed across 4.x releases, so verify the trigger paths, the listener signature, and the registration call against the release your store runs. The <Anchor label="OpenCart Events documentation" target="_blank" href="https://docs.opencart.com/developer-guide/events">OpenCart Events documentation</Anchor> is the reference for both.
 
 For how the extension should deliver events — the payload, the credential, the outbox, retries, and verification — see [Send Platform Events to Extole](doc:sending-platform-events).
@@ -61,18 +63,32 @@ OpenCart status identifiers are store configuration, and the same number means d
 5. Avoid mapping one status to more than one lifecycle event unless you have a reason to.
 6. Test every configured transition.
 
-If creating an order in your store already represents a completed, valid purchase, report the conversion from order creation. If your store creates orders before payment or another qualification completes, report it instead when the order first reaches a qualifying status — otherwise programs reward purchases that were never paid for.
+#### Choose When the Conversion Is Reported
+
+Stores differ on what an order means at the moment it is created, so the extension supports two modes. Pick one per store and configure it, rather than leaving it to whichever listener happens to fire first.
+
+| Mode | Use it when | What the extension sends |
+| :--- | :---------- | :----------------------- |
+| **Convert on order creation** | Creating an order in your store already represents a completed, valid purchase — payment is captured at checkout. | The `addOrder/after` listener sends `opencart_order_created`. Qualifying statuses are not used for conversion. |
+| **Convert on qualifying status** | Your store creates orders before payment, fraud review, or another qualification completes. | The `addOrder/after` listener sends nothing. The `addHistory/after` listener sends `opencart_order_created` the first time the order reaches one of your configured conversion statuses. |
+
+Both modes send the same event name, so the Extole side of the integration is identical either way — only the moment changes.
+
+Two rules make deferred mode safe. The creation event must be **suppressed, not merely delayed**: an extension that sends it at creation and again at the qualifying status reports two conversions for one order, and Extole deduplicates on `partner_conversion_id` only if both carry the same order identifier. And the qualifying transition must fire **once per order**: OpenCart records repeated history entries, and an order can re-enter a qualifying status after leaving it, so record that the conversion was reported and ignore later qualifying transitions for that order.
+
+Choosing wrong in the safe direction is better than the unsafe one. Convert-on-creation in a store that qualifies orders later rewards purchases that were never paid for; deferred mode in a store that captures payment at checkout only delays the conversion until the status moves.
 
 ### Step 4: Verify the Integration
 
 Test in a non-production OpenCart store before going live:
 
 1. Confirm both listeners under **Extensions** > **Events**.
-2. Create a qualifying test order and confirm one order-created event.
-3. Move an order to each configured shipped status and confirm one shipped event.
-4. Move a separate order to each configured canceled status and confirm one canceled event.
-5. Repeat a status transition and confirm no duplicate is delivered.
-6. Simulate an Extole timeout and confirm checkout and status changes still succeed.
+2. Create a test order and confirm the conversion arrives at the moment your mode calls for — immediately in convert-on-creation mode, and only once the order reaches a conversion status in deferred mode.
+3. In deferred mode, confirm that creating an order and leaving it below the conversion status produces no conversion at all.
+4. Move an order to each configured shipped status and confirm one shipped event.
+5. Move a separate order to each configured canceled status and confirm one canceled event.
+6. Repeat a status transition, including a second entry into a conversion status, and confirm no duplicate is delivered.
+7. Simulate an Extole timeout and confirm checkout and status changes still succeed.
 
 Then confirm what Extole recorded, as described in [Send Platform Events to Extole](doc:sending-platform-events).
 
@@ -82,7 +98,7 @@ Each OpenCart event becomes one **business event** — the canonical name Extole
 
 | OpenCart event | Extole business event | Notes |
 | :------------- | :-------------------- | :---- |
-| `opencart_order_created` | `converted` | Carries the order total as the transaction value. |
+| `opencart_order_created` | `converted` | Carries the order total as the transaction value. Sent at order creation or at the first qualifying status, depending on the mode chosen in Step 3. |
 | `opencart_order_shipped` | `shipped` | Fulfillment milestone. |
 | `opencart_order_canceled` | `canceled` | Cancellation milestone. |
 | `opencart_order_cancelled` | `canceled` | Legacy spelling, accepted as an input alias only. |
