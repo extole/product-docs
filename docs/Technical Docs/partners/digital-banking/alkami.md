@@ -14,12 +14,12 @@ This integration is easy to install, requires no custom coding, and includes the
 
 ## Prerequisites
 
-| Requirement                                                      | Description                                                                                                                                                                                                                                                                                                                         |
-| :--------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Member ID                                                        | Your unique identifier for a member. In order to use this integration, this identifier must be available in Alkami. Your member identity value should **NOT** be the members SSN.                                                                                                                                                   |
-| An `Alkami SDK License` with `Standard SSO` enabled              | You must have an Alkami SDK license to use this integration, with the Standard SSO feature enabled.<br /><br />Alkami's Standard SSO feature is in beta. If you do not have access, open a “Feature Request” ticket with Alkami to get access to the Standard SSO Admin Widget and provide your Extole team with the ticket number. |
-| Branded Program Domain                                           | You must create and brand your referral subdomain (share.YourCompany.com). Instructions <Anchor target="_blank" href="https://docs.extole.com/docs/extole-dns-requirements#create-cnames-for-your-domains">here</Anchor>.                                                                                                           |
-| Alkami Integration Component installed in Extole Partners Center | If you do not see the Alkami integration in Extole's Partner center, submit a request to [support@extole.com](mailto:support@extole.com).                                                                                                                                                                                           |
+| Requirement                                                      | Description                                                                                                                                                                                                                                                                     |
+| :--------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Member ID                                                        | Your unique identifier for a member. In order to use this integration, this identifier must be available in Alkami. Your member identity value should **NOT** be the members SSN.                                                                                               |
+| An `Alkami SDK License` with `Standard SSO` enabled              | You must have an Alkami SDK license to use this integration, with the Standard SSO feature enabled.<br /><br />Alkami's Standard SSO feature is in beta. If you do not have access, open a “Feature Request” ticket with Alkami to get access to the Standard SSO Admin Widget. |
+| Branded Program Domain                                           | You must create and brand your referral subdomain (share.YourCompany.com). Instructions <Anchor target="_blank" href="https://docs.extole.com/docs/extole-dns-requirements#create-cnames-for-your-domains">here</Anchor>.                                                       |
+| Alkami Integration Component installed in Extole Partners Center | If you do not see the Alkami integration in Extole's Partner center, submit a request to [support@extole.com](mailto:support@extole.com).                                                                                                                                       |
 
 ## Before you Start
 
@@ -169,5 +169,3 @@ The following member data is securely transmitted from Alkami to Extole via SSO.
 | `email`required      | Member's email address        | `janedoe@example.com` |
 | `first_name`         | Member's first name           | Jane                  |
 | `last_name`          | Member's last name            | Doe                   |
-
-<br />
