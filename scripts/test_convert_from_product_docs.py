@@ -121,6 +121,9 @@ class OpenApiNavigationTests(unittest.TestCase):
                 "/aardvark": {"delete": {"tags": ["Alpha"], "summary": "Create an aardvark"}},
                 "/beta-get": {"get": {"tags": ["Beta"], "summary": "Manage a beta"}},
                 "/beta-post": {"post": {"tags": ["Beta"], "summary": "Manage a beta"}},
+                "/beta-put": {"put": {"tags": ["Beta"], "summary": "Manage a beta"}},
+                "/beta-delete": {"delete": {"tags": ["Beta"], "summary": "Manage a beta"}},
+                "/beta-patch": {"patch": {"tags": ["Beta"], "summary": "Manage a beta"}},
                 "/hidden": {"get": {"tags": ["Alpha"], "x-hidden": True}},
             }
         }
@@ -129,7 +132,13 @@ class OpenApiNavigationTests(unittest.TestCase):
 
         self.assertEqual([group["group"] for group in groups], ["Alpha", "Beta"])
         self.assertEqual(groups[0]["pages"], ["DELETE /aardvark", "GET /zebra"])
-        self.assertEqual(groups[1]["pages"], ["GET /beta-get", "POST /beta-post"])
+        self.assertEqual(groups[1]["pages"], [
+            "GET /beta-get",
+            "POST /beta-post",
+            "PUT /beta-put",
+            "DELETE /beta-delete",
+            "PATCH /beta-patch",
+        ])
 
     def test_sync_api_navigation_replaces_automatic_spec_groups(self):
         with tempfile.TemporaryDirectory() as directory:
