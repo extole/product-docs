@@ -35,12 +35,12 @@
     var menu = ui.querySelector(".extole-type-combo-menu");
     var meta = ui.querySelector(".extole-type-combo-meta");
     input.value = labels[selected];
-    meta.textContent = tabs.length + " variants";
+    meta.textContent = tabs.length + "/" + tabs.length + " variants";
 
     function setOpen(open) {
       menu.hidden = !open;
       input.setAttribute("aria-expanded", open ? "true" : "false");
-      if (!open) meta.textContent = tabs.length + " variants";
+      if (!open) meta.textContent = tabs.length + "/" + tabs.length + " variants";
     }
 
     function paint(query) {
