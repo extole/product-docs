@@ -1,5 +1,6 @@
 (function () {
   var registry = [];
+  var pending = new WeakMap();
 
   function labelOf(tab) {
     var btn = tab.querySelector('[data-component-part="tab-button"]');
@@ -14,10 +15,22 @@
     return true;
   }
 
-  function enhance(list) {
-    if (list.dataset.extoleCombo || !list.closest(".object-param-field")) return;
+  function shouldEnhance(list, tabCount) {
+    if (list.closest(".object-param-field")) return tabCount >= 1;
+    if (list.closest('[role="dialog"]')) return tabCount >= 8;
+    return false;
+  }
+
+  function tabNodes(list) {
     var tabs = list.querySelectorAll('[data-component-part="tab"]');
-    if (!tabs.length) return;
+    if (tabs.length) return tabs;
+    return list.querySelectorAll('[role="tab"]');
+  }
+
+  function enhance(list) {
+    if (list.dataset.extoleCombo) return;
+    var tabs = tabNodes(list);
+    if (!shouldEnhance(list, tabs.length)) return;
     list.dataset.extoleCombo = "1";
 
     var labels = [];
@@ -91,7 +104,7 @@
       }
     }
 
-    var api = {
+    registry.push({
       list: list,
       labels: labels,
       applyByLabel: function (label) {
@@ -102,8 +115,7 @@
         }
         apply(idx);
       },
-    };
-    registry.push(api);
+    });
 
     function enterSearch() {
       input.value = "";
@@ -137,19 +149,35 @@
     root.insertBefore(ui, list);
   }
 
+  function queueEnhance(list) {
+    if (!list || list.dataset.extoleCombo) return;
+    var prev = pending.get(list);
+    if (prev) clearTimeout(prev);
+    pending.set(
+      list,
+      setTimeout(function () {
+        pending.delete(list);
+        enhance(list);
+      }, 50)
+    );
+  }
+
   function scan(root) {
     var base = root && root.nodeType === 1 ? root : document;
+    if (base.closest) {
+      var near = base.closest('[data-component-part="tabs-list"]');
+      if (near) queueEnhance(near);
+    }
     if (
       base.matches &&
-      base.matches('[data-component-part="tabs-list"]') &&
-      base.closest(".object-param-field")
+      base.matches('[data-component-part="tabs-list"]')
     ) {
-      enhance(base);
+      queueEnhance(base);
     }
     var lists = base.querySelectorAll
       ? base.querySelectorAll('[data-component-part="tabs-list"]')
       : [];
-    for (var i = 0; i < lists.length; i++) enhance(lists[i]);
+    for (var i = 0; i < lists.length; i++) queueEnhance(lists[i]);
   }
 
   scan(document);
