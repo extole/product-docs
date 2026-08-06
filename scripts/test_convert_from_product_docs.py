@@ -117,8 +117,10 @@ class OpenApiNavigationTests(unittest.TestCase):
     def test_groups_tags_and_operations_in_readme_order(self):
         spec = {
             "paths": {
-                "/zebra": {"post": {"tags": ["Beta"]}, "get": {"tags": ["Alpha"]}},
-                "/aardvark": {"get": {"tags": ["Beta"]}, "delete": {"tags": ["Alpha"]}},
+                "/zebra": {"get": {"tags": ["Alpha"], "summary": "Get a zebra"}},
+                "/aardvark": {"delete": {"tags": ["Alpha"], "summary": "Create an aardvark"}},
+                "/beta-get": {"get": {"tags": ["Beta"], "summary": "Manage a beta"}},
+                "/beta-post": {"post": {"tags": ["Beta"], "summary": "Manage a beta"}},
                 "/hidden": {"get": {"tags": ["Alpha"], "x-hidden": True}},
             }
         }
@@ -126,8 +128,8 @@ class OpenApiNavigationTests(unittest.TestCase):
         groups = converter.openapi_navigation_groups(spec)
 
         self.assertEqual([group["group"] for group in groups], ["Alpha", "Beta"])
-        self.assertEqual(groups[0]["pages"], ["GET /zebra", "DELETE /aardvark"])
-        self.assertEqual(groups[1]["pages"], ["GET /aardvark", "POST /zebra"])
+        self.assertEqual(groups[0]["pages"], ["DELETE /aardvark", "GET /zebra"])
+        self.assertEqual(groups[1]["pages"], ["GET /beta-get", "POST /beta-post"])
 
     def test_sync_api_navigation_replaces_automatic_spec_groups(self):
         with tempfile.TemporaryDirectory() as directory:

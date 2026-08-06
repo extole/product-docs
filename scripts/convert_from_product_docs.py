@@ -893,11 +893,11 @@ def openapi_navigation_groups(spec: dict) -> list[dict]:
     """Generate ReadMe-equivalent tag groups for a Mintlify OpenAPI section.
 
     Mintlify's automatic OpenAPI navigation follows JSON insertion order. ReadMe
-    instead groups endpoints alphabetically by tag, then orders them by HTTP
-    method and URL. Explicit page references make that ordering stable in both
-    the generated docs and the standalone sync command below.
+    instead groups endpoints alphabetically by tag, then orders them by operation
+    title and HTTP method. Explicit page references make that ordering stable in
+    both the generated docs and the standalone sync command below.
     """
-    operations_by_tag: dict[str, list[tuple[str, str]]] = {}
+    operations_by_tag: dict[str, list[tuple[str, str, str]]] = {}
     for path, path_item in (spec.get("paths") or {}).items():
         if not isinstance(path_item, dict):
             continue
@@ -906,19 +906,20 @@ def openapi_navigation_groups(spec: dict) -> list[dict]:
                 continue
             if operation.get("x-hidden") or operation.get("x-excluded"):
                 continue
+            title = str(operation.get("summary") or operation.get("operationId") or path).strip()
             for tag in operation.get("tags") or ["Endpoints"]:
-                operations_by_tag.setdefault(str(tag), []).append((method, path))
+                operations_by_tag.setdefault(str(tag), []).append((title, method, path))
 
     groups = []
     for tag in sorted(operations_by_tag, key=str.casefold):
         operations = sorted(
             operations_by_tag[tag],
-            key=lambda item: (OPENAPI_METHOD_ORDER[item[0]], item[1].casefold()),
+            key=lambda item: (item[0].casefold(), OPENAPI_METHOD_ORDER[item[1]], item[2].casefold()),
         )
         groups.append(
             {
                 "group": tag,
-                "pages": [f"{method.upper()} {path}" for method, path in operations],
+                "pages": [f"{method.upper()} {path}" for _, method, path in operations],
             }
         )
     return groups
