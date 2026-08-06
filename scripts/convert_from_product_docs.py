@@ -855,16 +855,7 @@ SPEC_TABS = [
     ("Management Expert API", "management-expert.json"),
 ]
 
-OPENAPI_METHOD_ORDER = {
-    "get": 0,
-    "post": 1,
-    "put": 2,
-    "delete": 3,
-    "patch": 4,
-    "head": 5,
-    "options": 6,
-    "trace": 7,
-}
+OPENAPI_METHODS = frozenset({"get", "post", "put", "delete", "patch", "head", "options", "trace"})
 
 API_GETTING_STARTED = [
     "api-overview",
@@ -892,17 +883,17 @@ NAV_SIDEBAR_TITLES = {
 def openapi_navigation_groups(spec: dict) -> list[dict]:
     """Generate ReadMe-equivalent tag groups for a Mintlify OpenAPI section.
 
-    Mintlify's automatic OpenAPI navigation follows JSON insertion order. ReadMe
-    instead groups endpoints alphabetically by tag, then orders them by URL path
-    and HTTP method. Explicit page references make that ordering stable in both
-    the generated docs and the standalone sync command below.
+    Mintlify's automatic OpenAPI navigation follows JSON insertion order. Group
+    endpoints alphabetically by tag while preserving the source order of the
+    operations within each tag. Explicit page references make that behavior
+    stable in both the generated docs and the standalone sync command below.
     """
     operations_by_tag: dict[str, list[tuple[str, str]]] = {}
     for path, path_item in (spec.get("paths") or {}).items():
         if not isinstance(path_item, dict):
             continue
         for method, operation in path_item.items():
-            if method not in OPENAPI_METHOD_ORDER or not isinstance(operation, dict):
+            if method not in OPENAPI_METHODS or not isinstance(operation, dict):
                 continue
             if operation.get("x-hidden") or operation.get("x-excluded"):
                 continue
@@ -911,10 +902,7 @@ def openapi_navigation_groups(spec: dict) -> list[dict]:
 
     groups = []
     for tag in sorted(operations_by_tag, key=str.casefold):
-        operations = sorted(
-            operations_by_tag[tag],
-            key=lambda item: (item[1].casefold(), OPENAPI_METHOD_ORDER[item[0]]),
-        )
+        operations = operations_by_tag[tag]
         groups.append(
             {
                 "group": tag,

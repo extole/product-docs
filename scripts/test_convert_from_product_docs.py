@@ -120,10 +120,10 @@ class OpenApiNavigationTests(unittest.TestCase):
                 "/zebra": {"delete": {"tags": ["Alpha"], "summary": "A title that does not control sorting"}},
                 "/aardvark": {"get": {"tags": ["Alpha"], "summary": "Z title that does not control sorting"}},
                 "/beta": {
-                    "get": {"tags": ["Beta"]},
-                    "post": {"tags": ["Beta"]},
-                    "put": {"tags": ["Beta"]},
                     "delete": {"tags": ["Beta"]},
+                    "post": {"tags": ["Beta"]},
+                    "get": {"tags": ["Beta"]},
+                    "put": {"tags": ["Beta"]},
                     "patch": {"tags": ["Beta"]},
                 },
                 "/hidden": {"get": {"tags": ["Alpha"], "x-hidden": True}},
@@ -133,12 +133,12 @@ class OpenApiNavigationTests(unittest.TestCase):
         groups = converter.openapi_navigation_groups(spec)
 
         self.assertEqual([group["group"] for group in groups], ["Alpha", "Beta"])
-        self.assertEqual(groups[0]["pages"], ["GET /aardvark", "DELETE /zebra"])
+        self.assertEqual(groups[0]["pages"], ["DELETE /zebra", "GET /aardvark"])
         self.assertEqual(groups[1]["pages"], [
-            "GET /beta",
-            "POST /beta",
-            "PUT /beta",
             "DELETE /beta",
+            "POST /beta",
+            "GET /beta",
+            "PUT /beta",
             "PATCH /beta",
         ])
 
