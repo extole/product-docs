@@ -1,5 +1,5 @@
 ---
-title: Copy of MANTL
+title: MANTL
 excerpt: >-
   MANTL accelerates digital account opening with a streamlined platform built
   for scalability. 
