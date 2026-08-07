@@ -48,7 +48,7 @@ html.dark .extole-type-combo-empty {
 
 .extole-type-combo-wrap input:focus {
   cursor: text;
-  outline: 2px solid rgb(124 58 237 / 0.35);
+  outline: 2px solid rgb(238 0 73 / 0.35);
   outline-offset: 1px;
 }
 
@@ -107,8 +107,14 @@ html.dark .extole-type-combo-menu {
 
 .extole-type-combo-menu button:hover,
 .extole-type-combo-menu button[aria-selected="true"] {
-  background: rgb(124 58 237 / 0.1);
-  color: #7c3aed;
+  background: rgb(28 25 23 / 0.06);
+  color: var(--api-ink);
+}
+
+html.dark .extole-type-combo-menu button:hover,
+html.dark .extole-type-combo-menu button[aria-selected="true"] {
+  background: rgb(255 255 255 / 0.08);
+  color: var(--api-ink);
 }
 
 .extole-type-combo-empty {
@@ -123,4 +129,370 @@ html.dark .extole-type-combo-menu {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   min-width: 12ch;
+}
+
+/* ==========================================================================
+   API REFERENCE — parameter rows
+
+   Scope contract: every rule anchors on `.param-head`, `div:has(> .param-head)`,
+   one of the three generated row classes, or `.api-section*`. None of these
+   exist on prose pages, and none exist inside the "Try it" playground modal —
+   which carries ~74 required pills and ~254 info pills that must keep their
+   stock capsule styling.
+
+   No `!important` needed: Mintlify ships Tailwind inside `@layer utilities`,
+   and this file is injected unlayered and last, so it wins at any specificity.
+
+   Padding and borders never go on the `*-param-field` element itself. The
+   generator emits zero-height stub rows (`<div class="primitive-param-field">
+   <div class=""></div></div>`) that would otherwise materialise as visible
+   empty rows. Spacing lives on the inner wrapper, which stubs lack.
+   ========================================================================== */
+
+:root {
+  --api-ink: #1c1917;
+  --api-body: #44403c;
+  --api-meta: #57534e;
+  --api-faint: #a8a29e;
+  --api-accent: #b3003a;
+  --api-warn: #b45309;
+  --api-rule: #ded9d1;      /* box borders — must read as an edge          */
+  --api-rule-soft: #ebe7e1; /* internal hairlines — must not compete       */
+  /* No fill in light mode. The canvas is a warm #faf9f7, so a panel light
+     enough to lift off it lands on pure white and reads as a cool block
+     fighting the palette. The border alone carries the container here. */
+  --api-panel: transparent; /* schema container fill                       */
+  --api-row: transparent;   /* individual field fill                       */
+  --api-wash: rgb(179 0 58 / 0.07);
+  --api-row-pad: 0.625rem;
+  --api-gap: 0.375rem;
+}
+
+/* The dark canvas is #0e090c — near black. The previous #292524 border sat at
+   ~1.3:1 against it and was effectively invisible, so dark mode needs both a
+   stronger edge and a lifted surface; light mode does not. Hence the surfaces
+   diverge rather than being one token flipped. */
+html.dark {
+  --api-ink: #f5f3f1;
+  --api-body: #d6d3d1;
+  --api-meta: #a8a29e;
+  --api-faint: #78716c;
+  --api-accent: #ff7096;
+  --api-warn: #fcd34d;
+  --api-rule: #46403d;                    /* ~2.0:1 on #0e090c             */
+  --api-rule-soft: #2f2a28;
+  --api-panel: rgb(255 255 255 / 0.04);
+  --api-row: rgb(255 255 255 / 0.022);
+  --api-wash: rgb(255 112 150 / 0.10);
+}
+
+/* --- Density. The 24px/24px .py-6 wrapper is the whole 72px row. ---------- */
+.primitive-param-field > .py-6,
+.object-param-field > .py-6,
+.array-param-field > .py-6 {
+  padding-block: var(--api-row-pad);
+}
+
+/* Same effect keyed to structure rather than a Tailwind utility, so density
+   survives a silent @mintlify/client update that renames `py-6`. Isolated in
+   @supports so a :has()-less engine cannot invalidate the rule above. */
+@supports selector(:has(*)) {
+  div:has(> .param-head) {
+    padding-block: var(--api-row-pad);
+  }
+}
+
+.param-head > div {
+  padding-block: 0;
+  margin-right: 0;
+}
+
+.param-head > div > div {
+  row-gap: 0.125rem;
+  column-gap: 0.5rem;
+}
+
+.param-head [data-component-part="field-meta"] > div {
+  line-height: 20px;
+}
+
+/* Head-to-body gap. The inner block carries its own mt-6, which a margin rule
+   on the outer wrapper alone does not reach. :not(:empty) skips the trailing
+   placeholder div every row carries. */
+.param-head ~ div:not(:empty) {
+  margin-top: var(--api-gap);
+}
+
+.param-head ~ div:not(:empty) > * {
+  margin-top: 0;
+}
+
+.param-head ~ div:not(:empty) > * + * {
+  margin-top: var(--api-gap);
+}
+
+/* Mintlify's --gray-100 is tinted pink by the brand colour, which reads as
+   noise at a 41px rhythm. Border colour only, never border width. */
+.primitive-param-field,
+.object-param-field,
+.array-param-field {
+  border-color: var(--api-rule-soft);
+}
+
+/* The section label sits above boxed rows that already carry their own edges,
+   so Mintlify's underline is a third horizontal line doing no work. The border
+   is on the heading's inner flex row, not on .api-section-heading itself. */
+.api-section-heading > div {
+  border-bottom: 0;
+}
+
+/* The endpoint bar ships two concentric bordered shells: an outer one wrapping
+   the whole bar including "Try it", and an inner one around just the method
+   pill and path, 7px inside it. Drop the inner — the outer already delimits the
+   bar, and the path keeps its padding, radius and hover-copy affordance.
+   `> .method-pill` is what isolates it: the outer shell holds the pill as a
+   descendant, not a child, and the sidebar's pills are .method-nav-pill. */
+@supports selector(:has(*)) {
+  div:has(> .method-pill) {
+    border: 0;
+  }
+}
+
+/* The schema container — the .object-param-field that wraps a whole Body or
+   Response tree (type selector plus every field) — reads as a card, so the
+   payload is visibly one object.
+
+   `:not(:has(> .py-6))` selects exactly these wrappers and excludes individual
+   object parameter rows, which do carry a direct .py-6. `:has(.param-head)`
+   then excludes the empty stub elements the generator emits, which would
+   otherwise materialise as visible empty boxes. Note :has() may not be nested
+   inside :has(), so a wrapper-inside-wrapper guard cannot be expressed here;
+   wrappers are top level on every page checked. */
+@supports selector(:has(*)) {
+  .object-param-field:not(:has(> .py-6)):has(.param-head) {
+    margin-block: var(--api-gap);
+    border: 1px solid var(--api-rule);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    background: var(--api-panel);
+  }
+}
+
+/* Each field is its own box inside that panel — all three row kinds, so a row
+   never loses its edge just because its type is an array or an object and it
+   reads as a rendering fault beside boxed neighbours.
+
+   `:has(> .py-6)` is the discriminator, the same one the container rule above
+   negates: a real field row owns exactly one direct .py-6, every container and
+   placeholder owns none. That single test excludes all three things that must
+   not be boxed — the generator's empty stubs, the head-less blocks carrying an
+   array's item schema or an "Available options" list (already enclosed by their
+   parent field), and container wrappers. A `:has(.param-head)` test looks
+   equivalent but is not: a container matches it too, via its children's heads,
+   which double-bordered any response returning an array of objects. */
+@supports selector(:has(*)) {
+  .primitive-param-field:has(> .py-6),
+  .array-param-field:has(> .py-6),
+  .object-param-field:has(> .py-6) {
+    margin-block: var(--api-gap);
+    border: 1px solid var(--api-rule);
+    border-radius: 0.375rem;
+    padding-inline: 0.75rem;
+    background: var(--api-row);
+  }
+}
+
+/* --- Param names. #ee0049 measures 4.22:1 on the real page background and
+   fails WCAG AA as body text. Target the data attribute, not .text-primary:
+   that utility is shared with 72 type-selector tab buttons and the pagination
+   focus rings, and the deep-link anchor in every .param-head resolves
+   --primary for its focus border. --------------------------------------- */
+.param-head [data-component-part="field-name"] {
+  color: var(--api-ink);
+  font-weight: 600;
+  letter-spacing: -0.006em;
+}
+
+/* Stock `break-all` chops snake_case mid-token even when the whole name would
+   fit on the next line. */
+.param-head {
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* --- Required reads as another word in the meta line, typeset exactly like
+   the type: capsule stripped, inheriting field-meta's 12px, same weight and
+   colour as the info pills. The stock capsule is red-600 hardcoded upstream,
+   unrelated to --primary, so recolouring it disturbs no branding. --------- */
+.param-head [data-component-part="field-required-pill"] {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--api-meta);
+  font-weight: 500;
+}
+
+/* Continue the middot run so the meta reads "string · header · required"
+   rather than dropping the separator at the last item. */
+.param-head [data-component-part="field-info-pill"]
+  + [data-component-part="field-required-pill"]::before {
+  content: "\00B7";
+  margin-right: 0.35em;
+  color: var(--api-faint);
+}
+
+/* On a response, `required` is a server guarantee that the field is always
+   present, not an obligation on the caller — the same OpenAPI keyword pointing
+   the opposite way. Reading it as an instruction is misleading, so drop it.
+   Field ids are namespaced by section (body-*, response-*, parameter-*), which
+   is the only hook that distinguishes them. The middot is generated on the
+   pill's own ::before, so it disappears with it and leaves no dangling
+   separator. This removes the word from the accessibility tree too — deliberate
+   here, since on a response it was never addressed to the caller. */
+.param-head[id^="response-"] [data-component-part="field-required-pill"] {
+  display: none;
+}
+
+/* --- Type and location: capsules become plain muted text with one middot,
+   so they read as part of the name's token group. These stone/red palettes
+   are hardcoded upstream, not derived from --primary. ------------------- */
+.param-head [data-component-part="field-info-pill"] {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--api-meta);
+  font-weight: 500;
+}
+
+.param-head [data-component-part="field-info-pill"]
+  + [data-component-part="field-info-pill"]::before {
+  content: "\00B7";
+  margin-right: 0.35em;
+  color: var(--api-faint);
+}
+
+.param-head [data-component-part="field-meta"] > :last-child {
+  margin-right: 0;
+}
+
+/* Render zero times today; both exist in the client bundle. Pre-flattened so a
+   future x-mint.pre/post cannot reintroduce loose capsules. */
+.param-head [data-component-part="field-meta-pre"],
+.param-head [data-component-part="field-meta-post"] {
+  font-weight: 400;
+}
+
+.param-head [data-component-part="field-deprecated-pill"] {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--api-warn);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+/* --- Description prose. Set deliberately darker than the type meta: you read
+   the description, you glance at the type. A one-line row is a complete
+   record, where a 72px card with an empty body reads as a rendering bug. --- */
+.param-head ~ div .prose {
+  color: var(--api-body);
+}
+
+.param-head ~ div .prose p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.param-head ~ div .prose > * + * {
+  margin-top: 0.5rem;
+}
+
+.param-head ~ div .prose code {
+  color: var(--api-ink);
+}
+
+/* "Available options:" ships as prose-sm without prose. On a spec where most
+   properties have no description it is often the only documentation a field
+   has, so it stays legible — but as metadata, not as a second body column. */
+.param-head ~ div .prose-sm:not(.prose) {
+  color: var(--api-meta);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.param-head ~ div .prose-sm:not(.prose) code {
+  color: var(--api-body);
+}
+
+/* Some enum blocks render as their own row with no .param-head, so the gap
+   reset above cannot reach their mt-6 and they sit 24px adrift of the rows
+   that do carry a head. Match the rhythm of the rest. */
+@supports selector(:has(*)) {
+  .primitive-param-field:not(:has(.param-head)) .prose-sm:not(.prose),
+  .object-param-field:not(:has(.param-head)) .prose-sm:not(.prose),
+  .array-param-field:not(:has(.param-head)) .prose-sm:not(.prose) {
+    margin-top: var(--api-gap);
+  }
+}
+
+/* --- Nesting: a rule, not a card. "Show child attributes" is otherwise a
+   rounded bordered box nested inside another rounded bordered box at depth 2. */
+.param-head ~ div [data-component-part="expandable"] {
+  margin-top: 0.5rem;
+  border: 0;
+  border-radius: 0;
+}
+
+.param-head ~ div [data-component-part="expandable-button"] {
+  width: auto;
+  padding: 0.125rem 0;
+  border-radius: 0;
+  color: var(--api-meta);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.param-head ~ div [data-component-part="expandable-button"]:hover {
+  background: none;
+  color: var(--api-ink);
+}
+
+.param-head ~ div [data-component-part="expandable-content"] {
+  margin: 0.25rem 0 0;
+  padding: 0 0 0 0.875rem;
+  border-top: 0;
+  border-left: 1px solid var(--api-rule);
+}
+
+/* --- Section labels become table captions. Authorizations / Path Parameters /
+   Body / Response otherwise outrank the content they label. ---------------- */
+.api-section-heading {
+  gap: 0.5rem;
+}
+
+.api-section-heading-title {
+  color: var(--api-meta);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@supports selector(:has(*)) {
+  div:has(> .api-section) {
+    margin-bottom: 2rem;
+  }
+}
+
+/* --- Deep-link target. At 41px rows an anchor jump otherwise lands in an
+   undifferentiated wall. Box shadows are ink overflow, not scrollable
+   overflow, so the gutter bleed adds no horizontal page scroll. ----------- */
+@supports selector(:has(*)) {
+  div:has(> .param-head:target) {
+    border-radius: 2px;
+    background: var(--api-wash);
+    box-shadow: 10px 0 0 var(--api-wash), -10px 0 0 var(--api-wash);
+  }
 }
