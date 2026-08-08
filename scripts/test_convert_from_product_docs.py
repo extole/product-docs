@@ -113,5 +113,79 @@ title: "Sample guide"
         )
 
 
+class OpenApiNavigationTests(unittest.TestCase):
+    def test_groups_tags_and_operations_in_readme_order(self):
+        spec = {
+            "paths": {
+                "/zebra": {"delete": {"tags": ["Alpha"], "summary": "A title that does not control sorting"}},
+                "/aardvark": {"get": {"tags": ["Alpha"], "summary": "Z title that does not control sorting"}},
+                "/beta": {
+                    "delete": {"tags": ["Beta"]},
+                    "post": {"tags": ["Beta"]},
+                    "get": {"tags": ["Beta"]},
+                    "put": {"tags": ["Beta"]},
+                    "patch": {"tags": ["Beta"]},
+                },
+                "/hidden": {"get": {"tags": ["Alpha"], "x-hidden": True}},
+            }
+        }
+
+        groups = converter.openapi_navigation_groups(spec)
+
+        self.assertEqual([group["group"] for group in groups], ["Alpha", "Beta"])
+        self.assertEqual(groups[0]["pages"], ["DELETE /zebra", "GET /aardvark"])
+        self.assertEqual(groups[1]["pages"], [
+            "DELETE /beta",
+            "POST /beta",
+            "GET /beta",
+            "PUT /beta",
+            "PATCH /beta",
+        ])
+
+    def test_sync_api_navigation_replaces_automatic_spec_groups(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            spec_dir = out / "api-reference"
+            spec_dir.mkdir()
+            (spec_dir / "integration-consumer-to-extole.json").write_text(
+                json.dumps(
+                    {
+                        "paths": {
+                            "/profiles/{id}": {"get": {"tags": ["Profiles"]}},
+                            "/auth": {"post": {"tags": ["Authentication"]}},
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (out / "docs.json").write_text(
+                json.dumps(
+                    {
+                        "navigation": {
+                            "tabs": [
+                                {
+                                    "tab": "API Reference",
+                                    "groups": [
+                                        {"group": "Getting Started", "pages": ["api-reference/overview"]},
+                                        {"group": "Consumer to Extole API", "openapi": "api-reference/old.json", "pages": []},
+                                    ],
+                                }
+                            ]
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            self.assertEqual(converter.sync_api_navigation(out), 1)
+
+            groups = json.loads((out / "docs.json").read_text(encoding="utf-8"))["navigation"]["tabs"][0]["groups"]
+            self.assertEqual([group["group"] for group in groups], ["Getting Started", "Consumer to Extole API"])
+            self.assertEqual(groups[1]["pages"], [
+                {"group": "Authentication", "pages": ["POST /auth"]},
+                {"group": "Profiles", "pages": ["GET /profiles/{id}"]},
+            ])
+
+
 if __name__ == "__main__":
     unittest.main()
