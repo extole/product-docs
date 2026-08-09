@@ -189,3 +189,61 @@ class OpenApiNavigationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NavMirroredPathTests(unittest.TestCase):
+    """A page's URL must equal its navigation breadcrumb."""
+
+    def test_slugify_nav_expands_ampersand(self):
+        # plain slugify drops "&", collapsing the label to programs-campaigns
+        self.assertEqual(converter.slugify("Programs & Campaigns"), "programs-campaigns")
+        self.assertEqual(converter.slugify_nav("Programs & Campaigns"), "programs-and-campaigns")
+        self.assertEqual(converter.slugify_nav("Audiences & Segmentation"), "audiences-and-segmentation")
+
+    def test_tab_roots_drop_the_docs_suffix(self):
+        self.assertEqual(converter.TAB_SLUGS["Product Docs"], "product")
+        self.assertEqual(converter.TAB_SLUGS["Technical Docs"], "technical")
+        self.assertEqual(converter.API_TAB_SLUG, "api-reference")
+
+    def test_group_directory_comes_from_the_sidebar_label_not_the_folder(self):
+        """The regression this restructure fixed: a folder named getting-started
+        served a group labelled "Extole Overview" at /…/getting-started/…"""
+        with tempfile.TemporaryDirectory() as directory:
+            src = Path(directory) / "src"
+            out = Path(directory) / "out"
+            group = src / "getting-started"
+            group.mkdir(parents=True)
+            (group / "index.md").write_text('---\ntitle: "Extole Overview"\n---\n', encoding="utf-8")
+            (group / "what-is-extole.md").write_text(
+                '---\ntitle: "What is Extole?"\n---\n\nBody.\n', encoding="utf-8"
+            )
+            conv = converter.Converter(src, out)
+            grp = conv._make_group(group, "product")
+
+            self.assertEqual(grp["group"], "Extole Overview")
+            self.assertEqual(grp["pages"], ["product/extole-overview/what-is-extole"])
+
+    def test_openapi_groups_share_the_generated_page_prefix(self):
+        """Mintlify serves generated operation pages from /api-reference wherever
+        the bundle lives, so the tab root has to match or the tab splits."""
+        group = converter.api_reference_group("Management API", "management.json", {"paths": {}})
+        self.assertEqual(group["openapi"], "api-reference/management.json")
+
+    def test_redirects_survive_regeneration(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            (out / converter.URL_MAP_FILE).write_text(
+                json.dumps({"redirects": [
+                    {"source": "/product-docs/getting-started/what-is-extole",
+                     "destination": "/product/extole-overview/what-is-extole"},
+                    {"source": "/bad"},  # malformed entries are ignored
+                ]}),
+                encoding="utf-8",
+            )
+            redirects = converter.read_redirects(out)
+            self.assertEqual(len(redirects), 1)
+            self.assertEqual(converter.build_docs_json([], redirects)["redirects"], redirects)
+
+    def test_read_redirects_tolerates_a_missing_map(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(converter.read_redirects(Path(directory)), [])
