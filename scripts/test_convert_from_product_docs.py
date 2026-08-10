@@ -247,3 +247,73 @@ class NavMirroredPathTests(unittest.TestCase):
     def test_read_redirects_tolerates_a_missing_map(self):
         with tempfile.TemporaryDirectory() as directory:
             self.assertEqual(converter.read_redirects(Path(directory)), [])
+
+
+class GroupIndexTests(unittest.TestCase):
+    def _group(self, index_frontmatter):
+        directory = tempfile.mkdtemp()
+        src, out = Path(directory) / "src", Path(directory) / "out"
+        group = src / "offer"
+        group.mkdir(parents=True)
+        body = "\n\n" + ("word " * 60)
+        (group / "index.md").write_text(index_frontmatter + body, encoding="utf-8")
+        (group / "customer-appreciation.md").write_text(
+            '---\ntitle: "Customer Appreciation"\n---\n\nBody.\n', encoding="utf-8"
+        )
+        conv = converter.Converter(src, out)
+        return conv, conv._make_group(group, "product")
+
+    def test_hidden_group_index_is_not_published(self):
+        """It was read but never acted on, so an internal page marked hidden
+        upstream was still written and served, just missing from the nav."""
+        conv, grp = self._group('---\ntitle: "Offer"\nhidden: true\n---\n')
+        self.assertNotIn("root", grp)
+        self.assertEqual([p.out_path for p in conv.pages if p.out_path.endswith("/index")], [])
+
+    def test_group_index_is_reachable_by_its_folder_name(self):
+        """Upstream writes [Offer](doc:offer) for a page at offer/index.md whose
+        own stem is the useless "index"; without the alias it cannot resolve."""
+        conv, grp = self._group('---\ntitle: "Offer"\n---\n')
+        self.assertEqual(grp["root"], "product/offer/index")
+        self.assertEqual(conv.slug_to_path.get("offer"), "product/offer/index")
+        self.assertEqual(
+            converter.rewrite_links("See [Offer](doc:offer).", conv.slug_to_path),
+            "See [Offer](/product/offer/index).",
+        )
+
+
+class GroupWithOnlyHiddenChildrenTests(unittest.TestCase):
+    def test_overview_survives_when_every_child_is_hidden(self):
+        """Returning None here wrote the root page to disk but left it out of
+        the navigation — live but unreachable."""
+        with tempfile.TemporaryDirectory() as directory:
+            src, out = Path(directory) / "src", Path(directory) / "out"
+            group = src / "financial-services"
+            group.mkdir(parents=True)
+            (group / "index.md").write_text(
+                '---\ntitle: "Financial Services"\n---\n\n' + ("word " * 60), encoding="utf-8"
+            )
+            (group / "mastercard.md").write_text(
+                '---\ntitle: "Mastercard"\nhidden: true\n---\n\nBody.\n', encoding="utf-8"
+            )
+            conv = converter.Converter(src, out)
+            grp = conv._make_group(group, "technical")
+
+            written = [p.out_path for p in conv.pages]
+            self.assertEqual(written, ["technical/financial-services/index"])
+            self.assertIsNotNone(grp)
+            self.assertEqual(grp["pages"], ["technical/financial-services/index"])
+            # nothing written to disk may be absent from the nav
+            self.assertEqual(set(written) - set(grp["pages"]), set())
+
+    def test_group_is_dropped_when_there_is_nothing_to_show(self):
+        with tempfile.TemporaryDirectory() as directory:
+            src, out = Path(directory) / "src", Path(directory) / "out"
+            group = src / "empty"
+            group.mkdir(parents=True)
+            (group / "only.md").write_text(
+                '---\ntitle: "Only"\nhidden: true\n---\n\nBody.\n', encoding="utf-8"
+            )
+            conv = converter.Converter(src, out)
+            self.assertIsNone(conv._make_group(group, "technical"))
+            self.assertEqual(conv.pages, [])

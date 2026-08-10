@@ -846,6 +846,13 @@ class Converter:
         order = read_order(sub)
         pages_list.extend(self.collect(sub, out_prefix2, order, skip_names={"index"}))
         if not pages_list:
+            # Every child was hidden or skipped. The root page has already been
+            # registered by now, so returning None here wrote it to disk and left
+            # it out of the navigation — live but unreachable. Keep the overview
+            # as the group's only entry when it is real content, and drop the
+            # group outright when there is nothing to show.
+            if root:
+                return {"group": group_title, "pages": [root.out_path]}
             return None
         group = {"group": group_title, "pages": pages_list}
         if root:
@@ -854,11 +861,22 @@ class Converter:
 
     def _make_page_named(self, md: Path, out_prefix: str, out_name: str):
         title, desc, slug, hidden = self._page_meta(md, "")
+        # `hidden` was read here but never acted on, unlike in _make_page, so a
+        # group index marked hidden upstream was still written and served at its
+        # URL while absent from the navigation — an unlisted but live page.
+        if hidden:
+            return None
         out_rel = f"{out_prefix}/{out_name}".strip("/")
         page = Page(md, out_rel, title, desc, slug, md.stem)
         self.pages.append(page)
         self.slug_to_path[slug] = out_rel
         self.slug_to_path.setdefault(md.stem, out_rel)
+        # A group index inherits its folder's name as a link target: upstream
+        # writes [Offer](doc:offer) for a page living at offer/index.md, whose
+        # own stem is the useless "index". Without this the link cannot resolve
+        # and falls through to a bare /offer.
+        if out_name == "index":
+            self.slug_to_path.setdefault(md.parent.name, out_rel)
         return page
 
     def write_pages(self):
@@ -1021,7 +1039,9 @@ def main():
     if not args.product_docs or not args.specification:
         ap.error("--product-docs and --specification must be provided together")
 
-    # clean previously generated content dirs (keep repo scaffolding)
+    removed = clean_generated_pages(out)
+    if removed:
+        print(f"stale generated pages removed: {removed}")
     conv = Converter(args.product_docs, out)
 
     # top-level categories become tabs, in docs/_order.yaml order
@@ -1155,6 +1175,35 @@ def _as_groups(
 
 
 URL_MAP_FILE = "url-map.json"
+
+
+def clean_generated_pages(out: Path) -> int:
+    """Delete the .mdx pages under the generated tab roots, then prune empties.
+
+    The converter is overwrite-only, so without this a page that upstream
+    renamed or deleted lingers forever: it stays on disk serving its old URL
+    while disappearing from the navigation. Renaming a folder used to leave the
+    whole old tree behind as a silent duplicate.
+
+    Only `.mdx` under the tab roots is touched. The OpenAPI bundles are left for
+    the spec copy to overwrite, so an unreferenced scratch .json in that folder
+    survives, and every non-generated file — index.mdx, images/, public/,
+    scripts/, docs.json, url-map.json — is outside the tab roots entirely.
+    """
+    roots = [out / slug for slug in (*TAB_SLUGS.values(), API_TAB_SLUG)]
+    removed = 0
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for page in root.rglob("*.mdx"):
+            page.unlink()
+            removed += 1
+        for d in sorted(root.rglob("*"), key=lambda p: -len(p.parts)):
+            if d.is_dir() and not any(d.iterdir()):
+                d.rmdir()
+        if not any(root.iterdir()):
+            root.rmdir()
+    return removed
 
 
 def read_redirects(out: Path) -> list:

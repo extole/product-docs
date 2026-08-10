@@ -31,6 +31,16 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
+      "CONSUMER_EVENT_MISSING": {
+        "summary": "CONSUMER_EVENT_MISSING",
+        "value": {
+          "code": "CONSUMER_EVENT_MISSING",
+          "http_status_code": 400,
+          "message": "Consumer event is missing in the share request.",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "EXISTING_LINK": {
         "summary": "EXISTING_LINK",
         "value": {
@@ -2757,6 +2767,7 @@
             "enum": [
               "CANCELED",
               "EARNED",
+              "EXPIRED",
               "FAILED",
               "FULFILLED",
               "REDEEMED",
@@ -3122,6 +3133,7 @@
             "items": {
               "description": "Set of permission scopes granted to this token.",
               "enum": [
+                "LOCAL_PROFILE",
                 "UPDATE_PROFILE",
                 "VERIFIED_CONSUMER"
               ],
@@ -7768,7 +7780,7 @@
     },
     "/api/v4/persons/{personId}/assets": {
       "get": {
-        "description": "Returns all assets attached to the person profile identified by `personId`. Assets are binary or text files associated with a program participant — for example, wallet passes, QR codes, or uploaded images. Use `getPersonAsset` to fetch a single asset's metadata, or `downloadPersonAsset` to retrieve its content.",
+        "description": "Returns all assets attached to the person profile identified by `personId`. Assets are binary or text files associated with a program participant \u2014 for example, wallet passes, QR codes, or uploaded images. Use `getPersonAsset` to fetch a single asset's metadata, or `downloadPersonAsset` to retrieve its content.",
         "operationId": "listPersonAssets",
         "parameters": [
           {
@@ -7899,7 +7911,7 @@
     },
     "/api/v4/persons/{personId}/assets/download": {
       "get": {
-        "description": "Streams the binary or text content of the asset matching the `name` query parameter for the person identified by `personId`. Returns HTTP 302 if the content is hosted at a remote URL; returns HTTP 200 with the raw content otherwise. Use the id variant (`downloadPersonAsset`) when you have the asset id.",
+        "description": "Streams the binary or text content of the asset matching the `name` query parameter for the person identified by `personId`. Returns HTTP 302 if the content is hosted at a remote URL; returns HTTP 200 with the raw content otherwise. Use the id variant (`downloadPersonAsset`) when you have the asset id. The access token is optional on this operation: omit it and Extole serves only the person's `PUBLIC` assets, resolving the client from the request domain. Supply a token belonging to the person to reach their `PRIVATE` assets. Omitting the token is the recommended way to render another person's avatar, so no token has to be embedded in an image URL. ",
         "operationId": "downloadPersonAssetByName",
         "parameters": [
           {
@@ -8179,7 +8191,7 @@
     },
     "/api/v4/persons/{personId}/assets/{assetId}/download": {
       "get": {
-        "description": "Streams the binary or text content of the asset identified by `assetId`. Returns HTTP 302 if the content is hosted at a remote URL; returns HTTP 200 with the raw content otherwise. Use the `name` variant (`downloadPersonAssetByName`) when you have the asset name but not the id.",
+        "description": "Streams the binary or text content of the asset identified by `assetId`. Returns HTTP 302 if the content is hosted at a remote URL; returns HTTP 200 with the raw content otherwise. Use the `name` variant (`downloadPersonAssetByName`) when you have the asset name but not the id. The access token is optional on this operation: omit it and Extole serves only the person's `PUBLIC` assets, resolving the client from the request domain. Supply a token belonging to the person to reach their `PRIVATE` assets. Omitting the token is the recommended way to render another person's avatar, so no token has to be embedded in an image URL. ",
         "operationId": "downloadPersonAsset",
         "parameters": [
           {
@@ -10197,7 +10209,7 @@
     },
     "/events/{event_name}": {
       "get": {
-        "description": "Fires the named consumer event using data from the query string and optional JWT claim. Always returns HTTP 200 regardless of outcome — check for an `X-Extole-Error-Message` response header to detect processing errors. A new `access_token` cookie may be set on the response when the event establishes or upgrades a consumer identity.",
+        "description": "Fires the named consumer event using data from the query string and optional JWT claim. Always returns HTTP 200 regardless of outcome \u2014 check for an `X-Extole-Error-Message` response header to detect processing errors. A new `access_token` cookie may be set on the response when the event establishes or upgrades a consumer identity.",
         "operationId": "fetchConsumerEventByName",
         "parameters": [
           {
@@ -10384,6 +10396,9 @@
                 "examples": {
                   "CHANNEL_MISSING": {
                     "$ref": "#/components/examples/CHANNEL_MISSING"
+                  },
+                  "CONSUMER_EVENT_MISSING": {
+                    "$ref": "#/components/examples/CONSUMER_EVENT_MISSING"
                   },
                   "INVALID_RECIPIENTS": {
                     "$ref": "#/components/examples/INVALID_RECIPIENTS"
@@ -11818,7 +11833,7 @@
     },
     "/zones": {
       "post": {
-        "description": "Web-friendly zone rendering at `POST /zones`. Intended for direct use from a browser page or web SDK embed — accepts form-encoded, plain-text, and multipart bodies in addition to JSON, and handles cookie-based identity automatically. Renders the zone identified by `event_name` in the request body, applies any other body fields as targeting data passed to the creative, and returns the rendered creative content (HTML, JavaScript, JSON, or plain text). If `event_name` is omitted, returns an empty 200 with `Extole-Log: target zone=unknown`; the access token is still allocated and written as a cookie. For backend zone rendering use `POST /api/v6/zones` instead.",
+        "description": "Web-friendly zone rendering at `POST /zones`. Intended for direct use from a browser page or web SDK embed \u2014 accepts form-encoded, plain-text, and multipart bodies in addition to JSON, and handles cookie-based identity automatically. Renders the zone identified by `event_name` in the request body, applies any other body fields as targeting data passed to the creative, and returns the rendered creative content (HTML, JavaScript, JSON, or plain text). If `event_name` is omitted, returns an empty 200 with `Extole-Log: target zone=unknown`; the access token is still allocated and written as a cookie. For backend zone rendering use `POST /api/v6/zones` instead.",
         "operationId": "renderZoneWeb",
         "requestBody": {
           "content": {
@@ -11973,7 +11988,7 @@
     },
     "/zones/{zone_name}": {
       "post": {
-        "description": "Web-friendly zone rendering at `POST /zones/{zone_name}`. Intended for direct use from a browser page or web SDK embed — accepts form-encoded and multipart bodies in addition to JSON, and handles cookie-based identity automatically. Renders the zone identified by `zone_name` and returns its content (HTML, JavaScript, JSON, or plain text). For backend zone rendering use `POST /api/v6/zones/{event_name}` instead.",
+        "description": "Web-friendly zone rendering at `POST /zones/{zone_name}`. Intended for direct use from a browser page or web SDK embed \u2014 accepts form-encoded and multipart bodies in addition to JSON, and handles cookie-based identity automatically. Renders the zone identified by `zone_name` and returns its content (HTML, JavaScript, JSON, or plain text). For backend zone rendering use `POST /api/v6/zones/{event_name}` instead.",
         "operationId": "renderZoneByNameWeb",
         "parameters": [
           {
