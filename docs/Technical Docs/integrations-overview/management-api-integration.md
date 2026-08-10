@@ -1,6 +1,6 @@
 ---
 title: "Create an Integration with the Management API"
-excerpt: "Choose the build path for an integration, follow the creation contract, and gather what every path needs.\n"
+excerpt: "Choose the build path for an integration, follow the creation contract, and resolve every input a build needs from the partner's name.\n"
 ---
 
 # Overview
@@ -105,23 +105,27 @@ Follow these rules whenever you create or change an integration through the API,
 14. Never put access tokens, secrets, or private client values in documentation, component descriptions, logs, or example payloads.
 15. Report partial results as incomplete. Do not describe a draft, disabled webhook, placeholder URL, or unverified event as production-ready.
 
-## Gather Requirements
+## Resolve the Inputs
 
-Collect these values before calling the API:
+An integration build needs the values below, but almost none of them are things to request from whoever asked for the integration. The partner's name is the input that must be supplied, because it selects the partner page; from there the category, the wire contract, and the finished shape are all readable. Work down this table resolving each value from its source, and treat a question to the requester as the last resort it is:
 
-| Value | Requirement |
-| :---- | :---------- |
+| Value | Where it comes from |
+| :---- | :------------------ |
+| Partner platform and version | The partner page for this partner, then the partner's own developer documentation for hooks and version differences. |
+| Integration category | [Integration Categories](doc:integration-categories), which fixes the shape the rest of the build takes. |
 | Access Token | A server-side access token, created in the [Security Center](https://my.extole.com/security-center), authorized to manage campaigns and components and to read people during verification. |
 | Extole API host | The production host for campaign, component, and event calls, held in `EXTOLE_API_HOST`. |
-| Partner platform and version | Determines event hooks, payloads, and authentication options. |
-| Integration name and component name | Human-readable campaign name and stable lowercase component name. |
-| Program label | Unique, stable label used to target events to the integration. |
-| Inbound event contract | Partner event names, identity fields, unique identifiers, and values. |
-| Canonical business events | Extole names such as `converted`, `shipped`, or `canceled`. |
-| Field mapping | Explicit source-to-destination mapping for every captured field. |
-| Partner configuration | Store URL, account identifier, endpoint, status mapping, or equivalent settings. |
-| Outbound requirements | Destination, trigger, authentication, retry contract, and owning program, when outbound behavior is required. |
-| Publication approval | Confirmation that the target client and environment may be changed. |
+| Target client | The client the session is already authenticated to. Never ask which client to build in: an identifier supplied from memory builds a live integration in the wrong account. |
+| Integration name and component name | Derived from the partner name — a human-readable campaign name and a stable lowercase component name. |
+| Program label | Derived from the integration name, unique and stable, used to target events to the integration. |
+| Inbound event contract | The partner page, then the partner's developer documentation: event names, identity fields, unique identifiers, and values. |
+| Canonical business events | Extole names such as `converted`, `shipped`, or `canceled`, chosen to match the outcome each partner event describes. |
+| Field mapping | The documented partner contract, mapped source-to-destination for every captured field. |
+| Partner configuration | The partner page names which settings the integration exposes, such as store URL, account identifier, endpoint, or status mapping. Their values are configured by the operator afterward and do not block the build. |
+| Outbound requirements | The partner page, when the category calls for outbound behavior: destination, trigger, authentication, retry contract, and owning program. |
+| Publication approval | The request itself. Where it is absent, build to a draft and say what remains rather than stopping to ask before anything is built. |
+
+Only three kinds of value genuinely have no source you can read: a partner-side secret, an account identifier issued by the partner, and an artwork file. Build everything that does not depend on them, then name exactly those in your closing report. A build that stops at the start to collect the whole table has produced nothing, and the answers would have been the same ones the pages already give.
 
 Management calls and event submission share one host. Every example in this guide reads it from this variable:
 
