@@ -1,0 +1,152 @@
+---
+title: "How to Resend Tango Rewards"
+excerpt: "Check a Tango gift card reward's status, resend it to the same or a corrected email address, and handle rewards stuck in Trying to Fulfill.\n"
+---
+
+
+# Overview
+
+When a customer reports a missing Tango gift card reward, or a reward went to the wrong email address, you can often resolve it by resending the **same** existing reward rather than cancelling it or issuing a new one. This page covers how to check a Tango reward's status, resend it to the same or a corrected email address, and what to do when a reward is stuck in a **Trying to Fulfill** state.
+
+This page is specific to Tango gift card rewards (including Promo Link and other Tango products). For the general reward-inquiry workflow, see [How to Investigate a WISMR Request](doc:how-to-investigate-a-wismr-request). To set up or fund Tango rewards, see [How to Reward with Tango Gift Cards](doc:how-to-reward-with-tango-gift-cards). For Tango cancellation limits, see [General Information About Tango Gift Cards](doc:general-information-about-tango-gift-cards).
+
+# Identify the Reward
+
+Every Tango reward has a **Partner ID** (the `partner_reward_id`), for example `RA260720-4353638-41`. This is the key identifier used to look up the reward in Tango, so include it in any support request.
+
+Confirm you are referencing the Partner ID and not the Extole reward ID. The Partner ID is sometimes referred to as a UID or Order ID, so align on which identifier you are sharing to avoid delays.
+
+# Check the Reward Status First
+
+Before resending, confirm the current status of the reward:
+
+1. Click **User Support** in the sidebar and search for the person.
+2. Click the person's email to open their profile, then scroll to the **Rewards** section.
+3. Click the reward to open the **Reward Details** page and review its status.
+
+The two most common Tango reward statuses are **Sent** and **Cancelled**. Extole cannot show whether a delivered gift card has been redeemed — redemption status is not available in the platform.
+
+# Resend to the Same Email Address
+
+If the reward should go to the email already on file, with no destination change, start with **Resend** in My Extole. Split the answer by audience: the client only gets the self-serve step; Extole works a longer investigation order if that fails.
+
+## What to Tell the Client
+
+Tell the client only this:
+
+1. In My Extole, open **User Support**, find the person, open the reward, and for a **Sent** reward click **Resend**.
+2. Ask the recipient to check inbox and spam/junk for the Tango reward email (often from `noreply@tangocard.com`).
+3. If **Resend** is missing, fails, or the email still does not arrive after they try, reply to support with the person email (or Partner ID) and what they tried.
+
+Do **not** ask the client to use the Tango Portal, run reports, or check SendGrid.
+
+The **Resend** button in Extole redelivers using the destination already associated with that Tango order. It does not change the destination address.
+
+## Extole Investigation Order (After Client Self-Serve)
+
+When the client reports that My Extole **Resend** failed or the recipient still cannot find the email, Extole works these steps in order. Do not skip ahead, and do not put steps 2–5 in the client-facing reply.
+
+1. **My Extole Resend** — Confirm the reward is **Sent**, retry **Resend** on the Reward Details page, and note whether the UI action succeeds.
+2. **Tango Portal Resend** — Look up the reward by **Partner ID** in Tango and resend the same reward to the same email (Actions → Resend).
+3. **Email Send Results by Email** — Run the Email Send Results by Email report for that recipient and time window to confirm whether a send was recorded.
+4. **SendGrid** — Check SendGrid for that send (delivered, bounced, dropped, deferred, or missing).
+5. **Engineering** — If steps 1–4 still do not explain or fix delivery, escalate to Engineering with Partner ID, Extole reward id, what each prior step showed, and links or exports from the report and SendGrid.
+
+# Resend to a Corrected Email Address
+
+Yes — for Tango rewards, the same issued reward can be resent to a corrected email address when the original email was a typo or has been updated. You do **not** need to cancel the original reward or issue a replacement makegood first.
+
+Resending to a different email address is handled by the Extole team **in Tango** (not by clicking **Resend** in My Extole after editing the profile). Contact [support@extole.com](mailto:support@extole.com) and include the details below.
+
+## Check Both Email Addresses in Extole
+
+Before you contact support, search **User Support** for both addresses:
+
+| What you find | What to tell support |
+| --- | --- |
+| Both the incorrect and correct emails already have person profiles | You can ask Extole to erase or clean up the incorrect profile after the resend (confirm that is what you want). |
+| Only the incorrect email exists | You can ask Extole to update that person to the correct email after the Tango resend. |
+| Only the correct email exists (reward still shows on the incorrect identity) | Call that out — handling can vary case by case. |
+
+Ask the requester what they want done with the incorrect email or profile once the reward has been delivered to the correct address.
+
+## What to Send to Support
+
+Include:
+
+- The reward's **Partner ID** (for example `RA260720-4353638-41`)
+- The incorrect email address
+- The correct email address
+- Whether both profiles exist in Extole, and what you want done with the incorrect profile
+
+## What Extole Does in Tango
+
+Extole looks up the reward in Tango by Partner ID and resends it to the corrected address:
+
+1. Open Tango and look up the reward using the **Partner ID**.
+2. Open **Actions** and click **Resend**.
+3. In the window that appears, enter the reason the delivery failed and choose the appropriate reason.
+4. Under the email address field, replace the incorrect address with the correct one.
+5. Click **Resend**.
+
+That action resends the **same** Tango reward to the corrected email. After the Tango resend succeeds, Extole can update or clean up the person profile in Extole as agreed with you.
+
+> 🚧 Do Not Use Extole Resend to Change the Destination Email
+>
+> Updating the person email in Extole and then clicking **Resend** on the Reward Details page still delivers to the **original** Tango destination. Destination changes must be done with **Resend** in Tango. Update the Extole profile only after the Tango resend (or as part of the agreed cleanup).
+
+# Cancel and Reissue a Reward
+
+Some customers request that a reward be cancelled and reissued. Whether this is possible depends on the gift card type:
+
+- **Amazon gift cards** cannot be cancelled, and their redemption status cannot be determined.
+- **Other gift card types** (for example certain Visa or Mastercard products) can be cancelled only if they have not yet been redeemed, and only under Tango's cancellation policy.
+
+Cancellations are handled through Tango, so contact [support@extole.com](mailto:support@extole.com) to request a cancellation and reissue. Tango sends an email confirmation once a reward is cancelled, and Extole can confirm the cancellation directly in the Tango history.
+
+Before requesting a cancellation, consider whether it is necessary. If the goal is to reach a corrected email address, **resending the existing reward in Tango is the preferred path** — see [Resend to a Corrected Email Address](#resend-to-a-corrected-email-address).
+
+# Rewards Stuck in Trying to Fulfill
+
+A reward enters the **Trying to Fulfill** state when Extole cannot complete fulfillment automatically. Extole retries fulfillment up to five times; if every attempt fails, the reward stops retrying and needs manual attention.
+
+## Find the Cause Before Retrying
+
+Do not click **Retry** until you know why the reward is stuck. The most common causes are:
+
+- The account is out of reward funds.
+- The hourly reward limit was exceeded.
+- The daily reward limit was exceeded.
+
+## If the Account Is Out of Funds
+
+If the account has run out of reward funds, no retry will succeed until funds are added. Do not keep retrying. Add funds first (see [How to Reward with Tango Gift Cards](doc:how-to-reward-with-tango-gift-cards)), then retry the reward.
+
+## If an Hourly or Daily Limit Was Exceeded
+
+If an hourly or daily reward limit caused the reward to stop, you can fulfill it by temporarily adjusting the limit:
+
+1. Navigate to **Rewards** and locate the reward configuration.
+2. Temporarily increase the hourly or daily reward limit.
+3. Return to the individual reward in the **Trying to Fulfill** state and click **Retry**.
+4. Confirm the reward is sent successfully.
+5. Immediately return to the reward configuration and restore the original limits.
+
+> 🚧 Changing Reward Limits Is Risky
+>
+> Raising a reward limit can allow additional rewards to be sent unintentionally. Only adjust limits when necessary, and restore the original values as soon as the intended reward has been sent.
+
+# Quick Reference
+
+| Situation | What to Do | Who Handles It |
+| --- | --- | --- |
+| Resend to the same email (client) | Click **Resend** on the Reward Details page; reply to support only if that fails or the email still does not arrive | You, in Extole |
+| Resend to the same email (Extole follow-up) | My Extole Resend → Tango Portal Resend → Email Send Results by Email → SendGrid → Engineering | Extole, then Engineering |
+| Resend to a corrected email | Contact support with Partner ID, both emails, and profile preference; Extole resends in Tango | Extole, through Tango |
+| Update Extole email then click Resend in Extole | Does **not** change the Tango destination — do not use this for typos | — |
+| Cancel and reissue (non-Amazon, unredeemed) | Contact support; prefer Tango resend when the only issue is email | Extole, through Tango |
+| Amazon gift card cancellation | Not possible | — |
+| Trying to Fulfill — out of funds | Add funds, then click **Retry** | You, in Extole |
+| Trying to Fulfill — limit exceeded | Temporarily raise the limit, retry, then restore it | You, in Extole |
+
+For help with any of these requests, contact [support@extole.com](mailto:support@extole.com).

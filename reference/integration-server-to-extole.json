@@ -291,6 +291,16 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
+      "expired_reward_expiration_date_clearing_not_allowed": {
+        "summary": "expired_reward_expiration_date_clearing_not_allowed",
+        "value": {
+          "code": "expired_reward_expiration_date_clearing_not_allowed",
+          "http_status_code": 400,
+          "message": "Cannot clear the expiration date of an expired reward.",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "expired_state_unreachable": {
         "summary": "expired_state_unreachable",
         "value": {
@@ -407,6 +417,16 @@
           "code": "forwarding_profile_is_device",
           "http_status_code": 400,
           "message": "Forwarding profile is device",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "future_expiration_date_not_allowed_for_expired_reward": {
+        "summary": "future_expiration_date_not_allowed_for_expired_reward",
+        "value": {
+          "code": "future_expiration_date_not_allowed_for_expired_reward",
+          "http_status_code": 400,
+          "message": "Cannot set a future date as expiration date, on an expired reward",
           "parameters": {},
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
@@ -557,16 +577,6 @@
           "code": "invalid_redirect",
           "http_status_code": 400,
           "message": "Invalid redirect",
-          "parameters": {},
-          "unique_id": "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "invalid_reward_expiration_date": {
-        "summary": "invalid_reward_expiration_date",
-        "value": {
-          "code": "invalid_reward_expiration_date",
-          "http_status_code": 400,
-          "message": "Reward expiration date must be after the reward creation date",
           "parameters": {},
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
@@ -857,6 +867,16 @@
           "code": "retry_claimed_reward_not_allowed",
           "http_status_code": 400,
           "message": "Retry for Claimed Reward is not allowed",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "reward_expiration_before_reward_creation_not_allowed": {
+        "summary": "reward_expiration_before_reward_creation_not_allowed",
+        "value": {
+          "code": "reward_expiration_before_reward_creation_not_allowed",
+          "http_status_code": 400,
+          "message": "Reward expiration date must be after the reward creation date",
           "parameters": {},
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
@@ -2236,7 +2256,7 @@
         "type": "object"
       },
       "IdentityKey": {
-        "description": "Name of the identity key used to look up or create this person.",
+        "description": "Name of the identity key this client uses to identify persons, for example `email` or `phone`.",
         "properties": {
           "name": {
             "type": "string"
@@ -2435,6 +2455,23 @@
           },
           "geoIp": {
             "$ref": "#/components/schemas/GeoIp"
+          }
+        },
+        "type": "object"
+      },
+      "OtherPersonResponse": {
+        "description": "The other party in a relationship, identified by this client's identity key.",
+        "properties": {
+          "id": {
+            "description": "Extole-assigned unique identifier for this person. Distinct persons always have distinct ids, even when they share an identity key value or have none.",
+            "type": "string"
+          },
+          "identity_key": {
+            "$ref": "#/components/schemas/IdentityKey"
+          },
+          "identity_key_value": {
+            "description": "Value of this person's identity key, suitable for display. Absent for persons who have not been identified, which is normal for friends who only browsed a share link.",
+            "type": "string"
           }
         },
         "type": "object"
@@ -2952,6 +2989,9 @@
             ],
             "type": "string"
           },
+          "other_person": {
+            "$ref": "#/components/schemas/OtherPersonResponse"
+          },
           "other_person_id": {
             "description": "Extole person id of the other party in the relationship.",
             "type": "string"
@@ -2976,6 +3016,7 @@
           "data",
           "id",
           "my_role",
+          "other_person",
           "other_person_id",
           "program",
           "root_event_id",
@@ -4774,17 +4815,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -4797,6 +4841,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -4969,8 +5016,14 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
@@ -4978,14 +5031,14 @@
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
                   },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
-                  },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -5142,17 +5195,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -5165,6 +5221,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -5327,17 +5386,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -5350,6 +5412,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -5512,17 +5577,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -5535,6 +5603,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -5697,17 +5768,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -5720,6 +5794,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -5882,17 +5959,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -5905,6 +5985,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -6067,17 +6150,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -6090,6 +6176,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -6252,17 +6341,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -6275,6 +6367,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -6437,17 +6532,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -6460,6 +6558,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -10010,7 +10111,7 @@
     },
     "/v5/persons/{person_id}/relationships": {
       "get": {
-        "description": "Returns the referral relationships for the specified person, showing advocate-friend connections created through campaign participation.",
+        "description": "Returns the referral relationships for the specified person, showing advocate-friend connections created through campaign participation. Each entry carries the requested person's `my_role` (`ADVOCATE` or `FRIEND`) and the `other_person_id` on the other side, rather than being split into fixed advocate and friend collections.\n\nEach entry also carries `other_person`, resolving that person to this client's `identity_key` and `identity_key_value`, so a whole network can be labelled from one request rather than one request per related person. A relationship always names another person, so `other_person` is always present.\n\nRelationships are de-duplicated by identity, keeping the most recent one per related person, unless `include_duplicate_identities` is set. When collapsing persons yourself, key on `identity_key_value`, falling back to `other_person_id` when the person has no identity key value yet. Never key on `email`: clients whose identity key is not `email` routinely have many distinct persons sharing an email or having none, so collapsing on email under-reports the network.",
         "operationId": "listPersonRelationships",
         "parameters": [
           {
@@ -10330,7 +10431,6 @@
                 "enum": [
                   "CUSTOM_REWARD",
                   "MANUAL_COUPON",
-                  "PAYPAL_PAYOUTS",
                   "SALESFORCE_COUPON",
                   "TANGO_V2"
                 ],
@@ -15228,17 +15328,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -15251,6 +15354,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -15426,17 +15532,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -15449,6 +15558,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -15625,17 +15737,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -15648,6 +15763,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -15819,17 +15937,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -15842,6 +15963,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -16014,17 +16138,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -16037,6 +16164,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -16208,17 +16338,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -16231,6 +16364,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -16402,17 +16538,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -16425,6 +16564,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -16584,17 +16726,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -16607,6 +16752,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"
@@ -16778,17 +16926,20 @@
                   "binding_error": {
                     "$ref": "#/components/examples/binding_error"
                   },
+                  "expired_reward_expiration_date_clearing_not_allowed": {
+                    "$ref": "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
                   "expired_state_unreachable": {
                     "$ref": "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward": {
+                    "$ref": "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
                   },
                   "invalid_json": {
                     "$ref": "#/components/examples/invalid_json"
                   },
                   "invalid_parameter": {
                     "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_reward_expiration_date": {
-                    "$ref": "#/components/examples/invalid_reward_expiration_date"
                   },
                   "missing_request_body": {
                     "$ref": "#/components/examples/missing_request_body"
@@ -16801,6 +16952,9 @@
                   },
                   "retry_claimed_reward_not_allowed": {
                     "$ref": "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed": {
+                    "$ref": "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
                   "reward_illegal_state_transition": {
                     "$ref": "#/components/examples/reward_illegal_state_transition"

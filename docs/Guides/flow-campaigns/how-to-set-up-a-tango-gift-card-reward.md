@@ -73,3 +73,4 @@ excerpt: "Set up or change Tango gift card rewards using Extole's upgraded Flow 
 - [A/B Testing your Offer](doc:a-b-testing-your-offer)
 - [Making Updates to your Campaign](doc:making-updates-to-your-campaigns)
 - [Pausing and Ending Campaigns](doc:pausing-ending-and-scheduling-campaigns)
+- [How to Resend Tango Rewards](doc:how-to-resend-tango-rewards) — same-email resend, corrected-email resend, and Trying to Fulfill

@@ -59,3 +59,5 @@ If recipients report missing emails:
 If you want to customize the Tango email template (for example, branded header images, template copy, or dynamic tags), **contact your Extole CSM or Extole Support**. They can help confirm the right setup, ensure the correct **Gift Card Template ID** is used in your campaign.
 
 For more information on Tango Rewards, check out **[How to Reward with Tango Gift Cards](doc:how-to-reward-with-tango-gift-cards)**.
+
+If a reward email went to the wrong or mistyped address, see **[How to Resend Tango Rewards](doc:how-to-resend-tango-rewards)** — the same Tango reward can often be resent to a corrected email without cancelling or reissuing.

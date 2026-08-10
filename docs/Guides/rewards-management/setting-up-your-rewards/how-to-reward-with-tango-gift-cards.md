@@ -98,6 +98,8 @@ If you don't see this section, go to the **Rules** tab and search for the events
 ### Can Tango Gift Cards be cancelled?
 
 > Visa and Mastercard rewards may be cancelled if they were sent in error and haven't been redeemed. Amazon cards cannot be cancelled. There are fees associated with canceled cards. Reach out to support@extole.com for this type of request.
+>
+> If the only issue is a wrong or mistyped recipient email, prefer resending the existing reward to the corrected address rather than cancelling. See [How to Resend Tango Rewards](doc:how-to-resend-tango-rewards).
 
 >
 
