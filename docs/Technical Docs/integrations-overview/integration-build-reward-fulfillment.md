@@ -52,7 +52,9 @@ once its non-root component carries the tags described in
 [Create an Integration with the Management API](doc:management-api-integration) — then publish or request
 publication of the reusable component before calling the partner an installable integration.
 
-Build in this order, because each step's prerequisite is the step before it.
+The dependencies here are real, but they are not one straight chain, and reading them as one puts the thing that was asked for last. Only three orderings are forced: the component type must exist before any template can carry it and before the supplier socket can filter on it; the support campaign and its templates must exist before the integration can subscribe to them; and the integration campaign must have been published once before it can subscribe or attach resources.
+
+Create the integration campaign and its component as soon as the component type exists — before the support campaign, not after it. It depends on neither the support campaign nor the templates, and it is the deliverable. A build interrupted partway through the scaffolding otherwise leaves the account holding a support campaign, a set of templates, and no integration, which is indistinguishable from nothing having been built. The sections below are written in the order you configure them and assume the integration campaign already exists.
 
 ### Create the Supplier Component Type
 
@@ -75,6 +77,8 @@ curl --request POST "$EXTOLE_API_HOST/v1/component-types" \
 Reusing the platform type instead lets any partner's supplier install into this integration, and reusing an unrelated type leaves the socket filter meaningless. The type has to exist before any template can carry it; a template created untyped satisfies no socket filter and no later attempt to type it in place reliably succeeds.
 
 ### Create the Support Campaign and Its Supplier Templates
+
+This is scaffolding for the integration, so [the integration campaign](#create-the-integration-and-its-sockets) should already exist before you start it. The templates here are what that integration subscribes to.
 
 Create a `CONFIGURATION` campaign with program type `campaign-component` to hold the templates:
 
