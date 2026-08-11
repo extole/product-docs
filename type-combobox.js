@@ -28,7 +28,7 @@
 
   function shouldEnhance(list, tabCount) {
     if (list.closest(".object-param-field")) return tabCount >= 2;
-    if (list.closest('[role="dialog"]')) return tabCount >= 8;
+    if (list.closest('[role="dialog"]')) return tabCount >= 2;
     return false;
   }
 
