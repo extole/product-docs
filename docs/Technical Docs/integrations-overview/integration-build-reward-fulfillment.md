@@ -36,6 +36,8 @@ Resources attached by component_ids
 
 **Four views, not two.** A build that stops at the configuration and supplier views has left out the two surfaces a marketer opens to see whether fulfillment is working, and they are the ones that look most obviously broken when missing: the activity tab reports that no report runner is configured, and there is no reward feed at all. The report runner and the event stream are each created after their view exists and after the campaign is republished, so they are the last things built and the easiest to drop.
 
+**The component names above are literal.** Only `example` stands in for the partner. Name the four views `configuration`, `reward-suppliers`, `report-runner-view`, and `event-streams`, and the integration campaign and its support campaign after the partner and the generation they implement, as in `Example V10` and `Example V10 Support`. Descriptive substitutes such as `reward-activity` for `report-runner-view`, or `Example Reward Supplier Templates` for the support campaign, build a working integration that no longer diffs against the packaged one, which is how a client-local build is checked when a marketer reports that a tab looks wrong. The user-facing tab labels come from each view's `title`, so renaming the component changes nothing a marketer sees and everything about whether the build can be compared.
+
 Install the maintained source when the duplicatable listing has one: the install carries the whole shape, including the support campaign it subscribes to, and the sequence below then serves as the checklist for confirming the install matches the partner page.
 
 Confirm the source's type before installing it. A partner that once shipped a legacy integration still exposes that older source under the same partner name, and a name match alone will install the wrong generation. A source typed `integration-v1` or any other pre-v10 type is not the maintained v10 integration; when it is the only source available, build the v10 shape below and say that the only source on offer was legacy.
@@ -80,7 +82,7 @@ Reusing the platform type instead lets any partner's supplier install into this 
 
 This is scaffolding for the integration, so [the integration campaign](#create-the-integration-and-its-sockets) should already exist before you start it. The templates here are what that integration subscribes to.
 
-Create a `CONFIGURATION` campaign with program type `campaign-component` to hold the templates:
+Create a `CONFIGURATION` campaign with program type `campaign-component` to hold the templates, named for the integration it supports so the pair reads as one unit in the campaign list:
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
