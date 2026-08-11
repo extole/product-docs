@@ -33,8 +33,7 @@
   }
 
   function setSelectValue(sel, value) {
-    var wasDisabled = sel.disabled;
-    if (wasDisabled) sel.disabled = false;
+    sel.disabled = false;
     var desc = Object.getOwnPropertyDescriptor(
       HTMLSelectElement.prototype,
       "value"
@@ -42,7 +41,6 @@
     desc.set.call(sel, value);
     sel.dispatchEvent(new Event("input", { bubbles: true }));
     sel.dispatchEvent(new Event("change", { bubbles: true }));
-    sel.disabled = true;
   }
 
   function enhance(list) {
@@ -145,7 +143,7 @@
     }
 
     function lockTypeSelect(sel) {
-      if (!sel) return;
+      if (!sel || !ui.isConnected) return;
       sel.disabled = true;
       sel.setAttribute("aria-disabled", "true");
       sel.title = "Choose the type from the Type dropdown above";
@@ -155,25 +153,17 @@
       var sel = activeTypeSelect();
       if (!typeSelectHas(sel, label)) return false;
       if (sel.value !== label) setSelectValue(sel, label);
-      else lockTypeSelect(sel);
+      lockTypeSelect(sel);
       return sel.value === label;
     }
 
-    function lockAllTypeSelects() {
-      if (!dialogScoped || !scope) return;
-      var nodes = scope.querySelectorAll(
-        '[data-testid="api-input-type"] select'
-      );
-      for (var i = 0; i < nodes.length; i++) lockTypeSelect(nodes[i]);
-    }
-
     function scheduleTypeSync(label) {
-      if (!dialogScoped) return;
+      if (!dialogScoped || !ui.isConnected) return;
       if (fillTimer) clearInterval(fillTimer);
       var gen = ++fillGen;
       var tries = 0;
       fillTimer = setInterval(function () {
-        if (gen !== fillGen || !list.isConnected) {
+        if (gen !== fillGen || !list.isConnected || !ui.isConnected) {
           clearInterval(fillTimer);
           fillTimer = null;
           return;
@@ -289,10 +279,9 @@
         syncFromDom(true);
       });
       new MutationObserver(function () {
-        if (!list.isConnected) return;
-        lockAllTypeSelects();
+        if (!list.isConnected || !ui.isConnected) return;
+        lockTypeSelect(activeTypeSelect());
       }).observe(scope, { childList: true, subtree: true });
-      lockAllTypeSelects();
     }
 
     new MutationObserver(function () {
