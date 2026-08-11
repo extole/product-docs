@@ -33,7 +33,6 @@
   }
 
   function setSelectValue(sel, value) {
-    sel.disabled = false;
     var desc = Object.getOwnPropertyDescriptor(
       HTMLSelectElement.prototype,
       "value"
@@ -142,18 +141,21 @@
       if (tab !== btn) tab.click();
     }
 
-    function lockTypeSelect(sel) {
+    function hideTypeSelect(sel) {
       if (!sel || !ui.isConnected) return;
-      sel.disabled = true;
-      sel.setAttribute("aria-disabled", "true");
-      sel.title = "Choose the type from the Type dropdown above";
+      sel.disabled = false;
+      sel.removeAttribute("aria-disabled");
+      sel.removeAttribute("title");
+      var field = sel.closest('[data-testid="api-input-type"]') || sel;
+      field.classList.add("extole-type-field-hidden");
+      field.setAttribute("aria-hidden", "true");
     }
 
     function syncTypeToLabel(label) {
       var sel = activeTypeSelect();
       if (!typeSelectHas(sel, label)) return false;
       if (sel.value !== label) setSelectValue(sel, label);
-      lockTypeSelect(sel);
+      hideTypeSelect(sel);
       return sel.value === label;
     }
 
@@ -280,7 +282,7 @@
       });
       new MutationObserver(function () {
         if (!list.isConnected || !ui.isConnected) return;
-        lockTypeSelect(activeTypeSelect());
+        hideTypeSelect(activeTypeSelect());
       }).observe(scope, { childList: true, subtree: true });
     }
 
