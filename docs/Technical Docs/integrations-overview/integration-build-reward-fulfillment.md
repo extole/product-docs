@@ -408,10 +408,11 @@ Every one of them is a view, and the platform's view type requires three setting
 
 Create one webhook per partner order endpoint plus one status check, all typed `REWARD` and attached to the integration component through `component_ids`. As with any component-scoped webhook, the campaign must have been published once before these can be created.
 
-Create the webhook first, without filters. `POST /v6/webhooks` has no filters property — a bundled component declares `webhook_filters` inline, but that is build-layer syntax and the API rejects it:
+Create the webhook first, without filters. `POST /v6/webhooks` has no filters property — a bundled component declares `webhook_filters` inline, but that is build-layer syntax and the API rejects it. `name` is required and is not defaulted from the URL or the type; a body without it is rejected with `webhook_missing_name`:
 
 ```json
 {
+  "name": "Example Virtual Prepaid Card Order",
   "type": "REWARD",
   "default_method": "POST",
   "url": "https://api.example.com/rewards/v1/submitOrder",
