@@ -9,7 +9,7 @@ hidden: false
 
 Extole's configurable reporting framework has a fixed set of report types, each built on one primary entity — the record accessed as `event.*` in that report's [mapping expressions](doc:custom-data-queries-using-extole-reports). This page maps every configurable report type to its primary entity and tells you where that entity's fields are documented. For expression syntax, see [Custom Data Queries using Extole Reports](doc:custom-data-queries-using-extole-reports); for entity field references, see [Entities and Context Available in Extole's Configurable Reporting System](doc:entities-and-context-available-in-extole-s-configurable-reporting-system).
 
-The entity names below are the platform records a report reads. A **StepRecord** is one step in the referral lifecycle recorded on a person's profile — a share, a click, a conversion, a reward earned; an **InputRecord** is one raw inbound event before it becomes a step. Full field lists for every entity are in [Entities and Context](doc:entities-and-context-available-in-extole-s-configurable-reporting-system).
+The entity names below are the platform records a report reads. A **StepRecord** is one step in the referral lifecycle recorded on a person's profile — a share, a click, a conversion, a reward earned; an **InputRecord** is one raw inbound event, before Extole records it on a profile. Full field lists for every entity are in [Entities and Context](doc:entities-and-context-available-in-extole-s-configurable-reporting-system).
 
 A report type is either a **records** report (one row per entity) or a **metrics** report (grouped counts/rates/sums over an entity, using `GROUP_*` mapping functions). Some entities back both a records and a metrics report type.
 
