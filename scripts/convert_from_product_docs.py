@@ -21,6 +21,7 @@ import argparse
 import hashlib
 import json
 import re
+import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -754,12 +755,122 @@ def humanize(name: str) -> str:
     return re.sub(r"[-_]+", " ", name).strip().title()
 
 
+def child_names(d: Path) -> set[str]:
+    """Every name in `d` that could become a page or a group."""
+    return {p.stem for p in d.glob("*.md")} | {p.name for p in d.iterdir() if p.is_dir()}
+
+
+def claimed_slugs(docs_root: Path) -> set[str]:
+    """Slugs that the _order.yaml traversal already serves somewhere.
+
+    Used to tell a genuinely dropped page from a deliberate de-duplication:
+    upstream keeps shallow copies of a dozen guides that _order.yaml
+    intentionally omits because a deeper copy is canonical, and both carry the
+    same slug. Restoring those would publish the same content at two URLs.
+    """
+    claimed: set[str] = set()
+
+    def visit(md: Path):
+        fm, body = split_frontmatter(md.read_text(encoding="utf-8", errors="replace"))
+        if fm.get("hidden", False):
+            return
+        if md.name == "index.md" and not has_substantive_index_body(body):
+            return
+        claimed.add(str(fm.get("slug") or md.stem))
+
+    def walk(d: Path):
+        index = d / "index.md"
+        if index.exists():
+            visit(index)
+        order = read_order(d)
+        names = order if order is not None else sorted(child_names(d))
+        for name in names:
+            if name == "index":
+                continue
+            md = d / f"{name}.md"
+            if md.exists():
+                visit(md)
+            sub = d / name
+            if sub.is_dir():
+                walk(sub)
+
+    walk(docs_root)
+    return claimed
+
+
+def plan_rescues(docs_root: Path) -> dict[Path, list[str]]:
+    """Find pages that _order.yaml drops and nothing else publishes.
+
+    `_order.yaml` is an allowlist, and it used to fail silently in both
+    directions: a file it never mentioned disappeared from the site, and an
+    entry that matched no file matched nothing quietly. Together those lost 15
+    Flow Campaigns guides (whose order file lists 2 of its 17 pages) and the
+    Fulfilled Rewards Report, misspelled `fulfilled-reports-report` in its
+    order file. All 16 are live URLs on the ReadMe site.
+
+    Anything unlisted whose slug is already served stays dropped -- see
+    claimed_slugs. Everything else is appended after the ordered names, and
+    every decision is printed so the next omission is visible rather than
+    silent.
+    """
+    def warn(msg: str):
+        # stderr, so --dump-slug-map emits clean JSON on stdout.
+        print(f"warning: {msg}", file=sys.stderr)
+
+    if not docs_root.is_dir():
+        return {}
+    claimed = claimed_slugs(docs_root)
+    rescues: dict[Path, list[str]] = {}
+    for d in [docs_root, *sorted(p for p in docs_root.rglob("*") if p.is_dir())]:
+        order = read_order(d)
+        if order is None:
+            continue
+        present = child_names(d)
+        for name in order:
+            if name not in present:
+                warn(f"{d}/_order.yaml lists '{name}', which matches nothing on disk")
+        add = []
+        for name in sorted(present - set(order) - {"index"}):
+            md = d / f"{name}.md"
+            if not md.exists():
+                warn(f"{d}/{name}/ is unlisted in _order.yaml; left out")
+                continue
+            fm, _ = split_frontmatter(md.read_text(encoding="utf-8", errors="replace"))
+            if fm.get("hidden", False):
+                continue
+            slug = str(fm.get("slug") or name)
+            if slug in claimed:
+                warn(f"{d}/{name}.md is unlisted; skipped, '{slug}' is served elsewhere")
+                continue
+            warn(f"{d}/{name}.md is unlisted in _order.yaml; appending it")
+            add.append(name)
+        if add:
+            rescues[d.resolve()] = add
+    return rescues
+
+
 class Converter:
-    def __init__(self, product_docs: Path, out: Path):
+    def __init__(self, product_docs: Path, out: Path, dry_run: bool = False):
         self.docs_root = product_docs / "docs"
         self.out = out
+        self.dry_run = dry_run
         self.pages: list[Page] = []
         self.slug_to_path: dict[str, str] = {}
+        # Upstream slug -> URL prefix for a folder whose index.md was too thin to
+        # publish. It has no page of its own here, but ReadMe served it as a real
+        # category URL, so a redirect still needs somewhere to point.
+        self.group_prefixes: dict[str, str] = {}
+        self.rescues = plan_rescues(self.docs_root)
+
+    def names_for(self, src_dir: Path, order):
+        """Child names for a directory, in navigation order.
+
+        Ordered names lead; pages that _order.yaml dropped without another copy
+        to serve them follow, so an omission no longer deletes content.
+        """
+        if order is None:
+            return sorted(child_names(src_dir))
+        return [*order, *self.rescues.get(src_dir.resolve(), [])]
 
     def _page_meta(self, md: Path, out_rel: str):
         fm, _ = split_frontmatter(md.read_text(encoding="utf-8", errors="replace"))
@@ -776,13 +887,7 @@ class Converter:
         skip_names = skip_names or set()
         if order is None:
             order = read_order(src_dir)
-        if order is None:
-            names = sorted(
-                [p.stem for p in src_dir.glob("*.md")]
-                + [p.name for p in src_dir.iterdir() if p.is_dir()]
-            )
-        else:
-            names = order
+        names = self.names_for(src_dir, order)
         nav: list = []
         for name in names:
             if name in skip_names:
@@ -841,8 +946,13 @@ class Converter:
             if has_substantive_index_body(body):
                 root = self._make_page_named(index, out_prefix2, "index")
             else:
-                # Remove a placeholder index emitted by an earlier conversion run.
-                (self.out / f"{out_prefix2}/index.mdx").unlink(missing_ok=True)
+                if not fm.get("hidden", False):
+                    self.group_prefixes[str(fm.get("slug") or sub.name)] = out_prefix2
+                    self.group_prefixes.setdefault(sub.name, out_prefix2)
+                if not self.dry_run:
+                    # Remove a placeholder index emitted by an earlier run. The
+                    # only write inside collect(), so --dump-slug-map skips it.
+                    (self.out / f"{out_prefix2}/index.mdx").unlink(missing_ok=True)
         order = read_order(sub)
         pages_list.extend(self.collect(sub, out_prefix2, order, skip_names={"index"}))
         if not pages_list:
@@ -1018,6 +1128,11 @@ def main():
         action="store_true",
         help="download uncached remote MDX images into images/extole and rewrite their references",
     )
+    ap.add_argument(
+        "--dump-slug-map",
+        action="store_true",
+        help="print the upstream slug -> Mintlify path map as JSON and exit, writing nothing",
+    )
     args = ap.parse_args()
 
     out = args.out.resolve()
@@ -1039,10 +1154,11 @@ def main():
     if not args.product_docs or not args.specification:
         ap.error("--product-docs and --specification must be provided together")
 
-    removed = clean_generated_pages(out)
-    if removed:
-        print(f"stale generated pages removed: {removed}")
-    conv = Converter(args.product_docs, out)
+    if not args.dump_slug_map:
+        removed = clean_generated_pages(out)
+        if removed:
+            print(f"stale generated pages removed: {removed}")
+    conv = Converter(args.product_docs, out, dry_run=args.dump_slug_map)
 
     # top-level categories become tabs, in docs/_order.yaml order
     top_order = read_order(conv.docs_root) or sorted(
@@ -1068,7 +1184,8 @@ def main():
 
     # API reference tab combines its written getting-started guides with native OpenAPI specs.
     spec_out = out / API_TAB_SLUG
-    spec_out.mkdir(parents=True, exist_ok=True)
+    if not args.dump_slug_map:
+        spec_out.mkdir(parents=True, exist_ok=True)
     api_groups = []
     api_getting_started = []
     api_docs = args.product_docs / "reference" / "Getting Started"
@@ -1087,9 +1204,18 @@ def main():
             continue
         spec = json.loads(src.read_text(encoding="utf-8"))
         add_union_titles(spec)
-        (spec_out / fname).write_text(json.dumps(spec, indent=2), encoding="utf-8")
+        if not args.dump_slug_map:
+            (spec_out / fname).write_text(json.dumps(spec, indent=2), encoding="utf-8")
         api_groups.append(api_reference_group(label, fname, spec))
     tabs.append({"tab": "API Reference", "groups": api_groups})
+    tabs.extend(read_extra_tabs(out, {t["tab"] for t in tabs}))
+
+    if args.dump_slug_map:
+        print(json.dumps(
+            {"pages": conv.slug_to_path, "groups": conv.group_prefixes},
+            indent=2, sort_keys=True,
+        ))
+        return
 
     conv.write_pages()
 
@@ -1132,12 +1258,7 @@ def _as_groups(
 ):
     """Build the groups[] for a category tab. Leaf pages directly under the
     category are gathered into an 'Overview' group; subdirs become groups."""
-    order = read_order(cat_dir)
-    if order is None:
-        order = sorted(
-            [p.stem for p in cat_dir.glob("*.md")]
-            + [p.name for p in cat_dir.iterdir() if p.is_dir()]
-        )
+    order = conv.names_for(cat_dir, read_order(cat_dir))
     excluded_groups = excluded_groups or set()
     groups_without_root = groups_without_root or set()
     groups = []
@@ -1213,6 +1334,11 @@ def read_redirects(out: Path) -> list:
     silently dropped any that had been added to docs.json by hand. Keeping them
     in url-map.json makes them survive, and makes a URL change reviewable as a
     diff to that file.
+
+    Two lists live there. `redirects` is hand-maintained and small.
+    `readme_redirects` is the ~800-entry ReadMe map, regenerated wholesale by
+    build_readme_redirects.py, kept separate so the curated entries stay
+    reviewable and win any collision.
     """
     f = out / URL_MAP_FILE
     if not f.exists():
@@ -1221,14 +1347,43 @@ def read_redirects(out: Path) -> list:
         data = json.loads(f.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return []
-    entries = data.get("redirects") if isinstance(data, dict) else data
-    if not isinstance(entries, list):
+    if not isinstance(data, dict):
+        data = {"redirects": data}
+
+    def valid(key):
+        entries = data.get(key)
+        return [
+            e for e in entries
+            if isinstance(e, dict) and isinstance(e.get("source"), str)
+            and isinstance(e.get("destination"), str)
+        ] if isinstance(entries, list) else []
+
+    curated = valid("redirects")
+    claimed = {e["source"] for e in curated}
+    return curated + [e for e in valid("readme_redirects") if e["source"] not in claimed]
+
+
+def read_extra_tabs(out: Path, generated: set[str]) -> list:
+    """Keep tabs in docs.json that this script does not generate.
+
+    The navigation is rebuilt from scratch on every run from the upstream
+    categories plus API Reference, so News -- hand-assembled from the ReadMe
+    changelog and newsletters, with no upstream source -- disappeared on the
+    next conversion. Its .mdx files survive clean_generated_pages, which only
+    touches the tab roots, so the pages stayed on disk and served nothing.
+    Same failure mode the redirects had before url-map.json.
+    """
+    f = out / "docs.json"
+    if not f.exists():
         return []
-    return [
-        e for e in entries
-        if isinstance(e, dict) and isinstance(e.get("source"), str)
-        and isinstance(e.get("destination"), str)
-    ]
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    tabs = (data.get("navigation") or {}).get("tabs")
+    if not isinstance(tabs, list):
+        return []
+    return [t for t in tabs if isinstance(t, dict) and t.get("tab") not in generated]
 
 
 def build_docs_json(tabs, redirects=None):
