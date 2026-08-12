@@ -12,7 +12,7 @@ Use this document alongside [Custom Data Queries using Extole Reports](doc:custo
 
 In a report mapping, the primary row record is accessed as `event.*`. Which entity that is depends on the report type — see [Configurable Report Types and Their Entities](doc:configurable-report-types-and-their-entities) for the mapping from report type to entity.
 
-Two fields recur across entities and have their own guides: [Visit Type and Quality](doc:visit-type-and-quality) and [Understanding Extole Journeys](doc:understanding-extole-journeys-extended-reference-for-reporting).
+Some fields recur across entities and have a guide of their own. For `quality` and `visitType`, see [Visit Type and Quality](doc:visit-type-and-quality); for `journeyName` and the journey structure behind it, see [Understanding Extole Journeys](doc:understanding-extole-journeys-extended-reference-for-reporting).
 
 # StepRecord
 
