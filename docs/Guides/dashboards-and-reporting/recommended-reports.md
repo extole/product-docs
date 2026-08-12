@@ -87,3 +87,17 @@ Choose specific metrics (like those on your dashboard) and segment performance d
 >
 
 >
+
+# All Recommended Reports
+
+- [Acquisition Rate Report](doc:acquisition-rate-report)
+- [Email Stats Report](doc:email-stats-report)
+- [Events Report](doc:events-report)
+- [Fulfilled Rewards Report](doc:fulfilled-rewards-report)
+- [Metrics Report](doc:metrics-report)
+- [Participation Rate Report](doc:participation-rate-report)
+- [Rewards Reporting](doc:rewards-reporting)
+- [Successful Advocates Report](doc:successful-advocates-report)
+- [Top Promotion Sources Report](doc:top-promotion-sources-report)
+
+See also [Audience Reports](doc:audience-reports), [Rewards Reports](doc:rewards-reports), and [Configurable Report Types and Their Entities](doc:configurable-report-types-and-their-entities) for building a report from scratch.
