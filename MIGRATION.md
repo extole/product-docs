@@ -52,7 +52,7 @@ fails. This is where the migration cost lives:
 | ReadMe construct | Count | Handling |
 |---|---|---|
 | `[text](doc:slug)` internal links | 286 | Rewritten to real `/tab/group/slug` paths (95% resolved from a slug→path map) |
-| `[text](ref:op)` reference links | 4 | Pointed at `/api-reference` |
+| `[text](ref:op)` reference links | 4 | Pointed at `/api` |
 | Emoji callouts (`> 📘`, `> 🚧`, `> 👍` …) | 67 files | Converted to `<Info>` / `<Warning>` / `<Tip>` / `<Danger>` components |
 | `<Image align={…} alt={512}>` widget | many | Converted to plain `<img … />` (JSX attrs stripped) |
 | `<Table align={[…]}>` widget | 40 files | Unwrapped; inner HTML/markdown table preserved |

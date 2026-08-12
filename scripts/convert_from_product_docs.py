@@ -58,6 +58,29 @@ def slugify(name: str) -> str:
     return s.strip("-") or "page"
 
 
+def slugify_nav(name: str) -> str:
+    """Slugify a navigation label for use as a URL path segment.
+
+    A page's URL is its navigation breadcrumb, so directory names are derived
+    from the sidebar label rather than from the upstream folder name. Kept
+    separate from slugify() because "&" must survive as "and" here — plain
+    slugify() drops it, turning "Programs & Campaigns" into "programs-campaigns"
+    — while page filenames still slugify from their upstream stem unchanged.
+    """
+    return slugify(re.sub(r"\s*&\s*", " and ", name))
+
+
+# Tab roots are the one segment not taken from a navigation label: the tab is
+# labelled "Product Docs" but the URL should read /product/... .
+TAB_SLUGS = {
+    "Product Docs": "product",
+    "Technical Docs": "technical",
+    "Guides": "guides",
+}
+
+API_TAB_SLUG = "api-reference"
+
+
 def add_union_titles(spec: dict) -> int:
     """Lift discriminator mapping keys onto oneOf branches as titles.
 
@@ -655,7 +678,7 @@ def rewrite_links(text: str, slug_to_path: dict) -> str:
         return f"](/{slugify(target)}{anchor})"
 
     text = re.sub(r"\]\(doc:([^)\s]+)\)", doc_repl, text)
-    text = re.sub(r"\]\(ref:([^)\s]+)\)", "](/api-reference)", text)
+    text = re.sub(r"\]\(ref:([^)\s]+)\)", f"](/{API_TAB_SLUG})", text)
     return text
 
 
@@ -767,8 +790,13 @@ class Converter:
             md = src_dir / f"{name}.md"
             sub = src_dir / name
             if md.exists() and sub.is_dir():
+                # The sibling page is this group's label and its landing page,
+                # so its title names the child directory too.
                 page = self._make_page(md, out_prefix)
-                children = self.collect(sub, f"{out_prefix}/{slugify(name)}", read_order(sub))
+                label = page.title if page else humanize(name)
+                children = self.collect(
+                    sub, f"{out_prefix}/{slugify_nav(label)}".strip("/"), read_order(sub)
+                )
                 if page and children:
                     nav.append({"group": page.title, "pages": children, "root": page.out_path})
                 elif page:
@@ -795,15 +823,21 @@ class Converter:
         return page
 
     def _make_group(self, sub: Path, out_prefix: str):
-        out_prefix2 = f"{out_prefix}/{slugify(sub.name)}".strip("/")
+        # Resolve the sidebar label first: it, not the upstream folder name,
+        # supplies this level's URL segment. Reading index.md used to happen
+        # after the prefix was built, which is why a folder called
+        # "getting-started" served a group labelled "Extole Overview".
         index = sub / "index.md"
         group_title = humanize(sub.name)
-        pages_list: list = []
-        root = None
+        fm, body = {}, ""
         if index.exists():
             fm, body = split_frontmatter(index.read_text(encoding="utf-8", errors="replace"))
             if fm.get("title"):
                 group_title = str(fm["title"])
+        out_prefix2 = f"{out_prefix}/{slugify_nav(group_title)}".strip("/")
+        pages_list: list = []
+        root = None
+        if index.exists():
             if has_substantive_index_body(body):
                 root = self._make_page_named(index, out_prefix2, "index")
             else:
@@ -812,6 +846,13 @@ class Converter:
         order = read_order(sub)
         pages_list.extend(self.collect(sub, out_prefix2, order, skip_names={"index"}))
         if not pages_list:
+            # Every child was hidden or skipped. The root page has already been
+            # registered by now, so returning None here wrote it to disk and left
+            # it out of the navigation — live but unreachable. Keep the overview
+            # as the group's only entry when it is real content, and drop the
+            # group outright when there is nothing to show.
+            if root:
+                return {"group": group_title, "pages": [root.out_path]}
             return None
         group = {"group": group_title, "pages": pages_list}
         if root:
@@ -820,11 +861,22 @@ class Converter:
 
     def _make_page_named(self, md: Path, out_prefix: str, out_name: str):
         title, desc, slug, hidden = self._page_meta(md, "")
+        # `hidden` was read here but never acted on, unlike in _make_page, so a
+        # group index marked hidden upstream was still written and served at its
+        # URL while absent from the navigation — an unlisted but live page.
+        if hidden:
+            return None
         out_rel = f"{out_prefix}/{out_name}".strip("/")
         page = Page(md, out_rel, title, desc, slug, md.stem)
         self.pages.append(page)
         self.slug_to_path[slug] = out_rel
         self.slug_to_path.setdefault(md.stem, out_rel)
+        # A group index inherits its folder's name as a link target: upstream
+        # writes [Offer](doc:offer) for a page living at offer/index.md, whose
+        # own stem is the useless "index". Without this the link cannot resolve
+        # and falls through to a bare /offer.
+        if out_name == "index":
+            self.slug_to_path.setdefault(md.parent.name, out_rel)
         return page
 
     def write_pages(self):
@@ -876,7 +928,7 @@ NAV_GROUPS_WITHOUT_ROOT = {
 }
 
 NAV_SIDEBAR_TITLES = {
-    "technical-docs/extole-ai/index": "Overview",
+    "technical/extole-ai-tools/index": "Overview",
 }
 
 
@@ -915,7 +967,13 @@ def openapi_navigation_groups(spec: dict) -> list[dict]:
 def api_reference_group(label: str, filename: str, spec: dict) -> dict:
     return {
         "group": label,
-        "openapi": f"api-reference/{filename}",
+        # Mintlify serves the operation pages it generates from this spec under
+        # /api-reference regardless of the tab name or where the bundle lives.
+        # That prefix is why API_TAB_SLUG is "api-reference": the hand-written
+        # getting-started pages have to share it or the tab splits in two. To
+        # move both, set an explicit {"source": ..., "directory": ...} here and
+        # change API_TAB_SLUG to match.
+        "openapi": f"{API_TAB_SLUG}/{filename}",
         "pages": openapi_navigation_groups(spec),
     }
 
@@ -937,7 +995,7 @@ def sync_api_navigation(out: Path) -> int:
     )
     groups = [getting_started] if getting_started else []
     for label, filename in SPEC_TABS:
-        spec_path = out / "api-reference" / filename
+        spec_path = out / API_TAB_SLUG / filename
         if spec_path.exists():
             groups.append(api_reference_group(label, filename, json.loads(spec_path.read_text(encoding="utf-8"))))
     api_tab["groups"] = groups
@@ -981,7 +1039,9 @@ def main():
     if not args.product_docs or not args.specification:
         ap.error("--product-docs and --specification must be provided together")
 
-    # clean previously generated content dirs (keep repo scaffolding)
+    removed = clean_generated_pages(out)
+    if removed:
+        print(f"stale generated pages removed: {removed}")
     conv = Converter(args.product_docs, out)
 
     # top-level categories become tabs, in docs/_order.yaml order
@@ -996,7 +1056,7 @@ def main():
         cat_dir = conv.docs_root / cat
         if not cat_dir.is_dir():
             continue
-        tab_prefix = slugify(cat)
+        tab_prefix = TAB_SLUGS.get(cat, slugify(cat))
         groups = _as_groups(
             conv,
             cat_dir,
@@ -1007,7 +1067,7 @@ def main():
         tabs.append({"tab": humanize(cat), "groups": groups})
 
     # API reference tab combines its written getting-started guides with native OpenAPI specs.
-    spec_out = out / "api-reference"
+    spec_out = out / API_TAB_SLUG
     spec_out.mkdir(parents=True, exist_ok=True)
     api_groups = []
     api_getting_started = []
@@ -1016,7 +1076,7 @@ def main():
         source = api_docs / f"{name}.md"
         if not source.exists():
             continue
-        page = conv._make_page_named(source, "api-reference/getting-started", name)
+        page = conv._make_page_named(source, f"{API_TAB_SLUG}/getting-started", name)
         if page:
             api_getting_started.append(page.out_path)
     if api_getting_started:
@@ -1039,8 +1099,10 @@ def main():
     if unresolved:
         print(f"uncached remote image references: {unresolved}")
 
-    docs_json = build_docs_json(tabs)
+    redirects = read_redirects(out)
+    docs_json = build_docs_json(tabs, redirects)
     (out / "docs.json").write_text(json.dumps(docs_json, indent=2) + "\n", encoding="utf-8")
+    print(f"redirects carried over from {URL_MAP_FILE}: {len(redirects)}")
 
     write_home(out)
 
@@ -1087,7 +1149,10 @@ def _as_groups(
         sub = cat_dir / name
         if md.exists() and sub.is_dir():
             page = conv._make_page(md, tab_prefix)
-            children = conv.collect(sub, f"{tab_prefix}/{slugify(name)}", read_order(sub))
+            label = page.title if page else humanize(name)
+            children = conv.collect(
+                sub, f"{tab_prefix}/{slugify_nav(label)}".strip("/"), read_order(sub)
+            )
             if page and children:
                 groups.append({"group": page.title, "pages": children, "root": page.out_path})
             elif page:
@@ -1109,30 +1174,70 @@ def _as_groups(
     return groups
 
 
-def build_docs_json(tabs):
+URL_MAP_FILE = "url-map.json"
+
+
+def clean_generated_pages(out: Path) -> int:
+    """Delete the .mdx pages under the generated tab roots, then prune empties.
+
+    The converter is overwrite-only, so without this a page that upstream
+    renamed or deleted lingers forever: it stays on disk serving its old URL
+    while disappearing from the navigation. Renaming a folder used to leave the
+    whole old tree behind as a silent duplicate.
+
+    Only `.mdx` under the tab roots is touched. The OpenAPI bundles are left for
+    the spec copy to overwrite, so an unreferenced scratch .json in that folder
+    survives, and every non-generated file — index.mdx, images/, public/,
+    scripts/, docs.json, url-map.json — is outside the tab roots entirely.
+    """
+    roots = [out / slug for slug in (*TAB_SLUGS.values(), API_TAB_SLUG)]
+    removed = 0
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for page in root.rglob("*.mdx"):
+            page.unlink()
+            removed += 1
+        for d in sorted(root.rglob("*"), key=lambda p: -len(p.parts)):
+            if d.is_dir() and not any(d.iterdir()):
+                d.rmdir()
+        if not any(root.iterdir()):
+            root.rmdir()
+    return removed
+
+
+def read_redirects(out: Path) -> list:
+    """Load the checked-in old -> new URL map.
+
+    Redirects used to be a literal in this function, which meant a regeneration
+    silently dropped any that had been added to docs.json by hand. Keeping them
+    in url-map.json makes them survive, and makes a URL change reviewable as a
+    diff to that file.
+    """
+    f = out / URL_MAP_FILE
+    if not f.exists():
+        return []
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    entries = data.get("redirects") if isinstance(data, dict) else data
+    if not isinstance(entries, list):
+        return []
+    return [
+        e for e in entries
+        if isinstance(e, dict) and isinstance(e.get("source"), str)
+        and isinstance(e.get("destination"), str)
+    ]
+
+
+def build_docs_json(tabs, redirects=None):
     return {
         "$schema": "https://mintlify.com/docs.json",
         "theme": "mint",
         "name": "Extole Documentation",
         "description": "Guides, product documentation, and API reference for the Extole platform.",
-        "redirects": [
-            {
-                "source": "/technical-docs/extole-ai/extole-mcp",
-                "destination": "/technical-docs/extole-ai/extole-mcp/index",
-            },
-            {
-                "source": "/technical-docs/extole-mcp",
-                "destination": "/technical-docs/extole-ai/extole-mcp/index",
-            },
-            {
-                "source": "/technical-docs/extole-ai/extole-cli",
-                "destination": "/technical-docs/extole-ai/extole-cli/index",
-            },
-            {
-                "source": "/technical-docs/extole-cli",
-                "destination": "/technical-docs/extole-ai/extole-cli/index",
-            },
-        ],
+        "redirects": redirects or [],
         "colors": {
             "primary": "#ee0049",
             "light": "#ee0049",
@@ -1175,13 +1280,13 @@ description: "Guides, product documentation, and API reference for the Extole pl
   <Card title="Guides" icon="book-open" href="/guides">
     How-to guides for programs, audiences, rewards, and reporting.
   </Card>
-  <Card title="Product Docs" icon="rectangle-list" href="/product-docs">
+  <Card title="Product Docs" icon="rectangle-list" href="/product">
     Feature and product documentation.
   </Card>
-  <Card title="Technical Docs" icon="code" href="/technical-docs">
+  <Card title="Technical Docs" icon="code" href="/technical">
     Integration, data, and technical reference.
   </Card>
-  <Card title="API Reference" icon="terminal" href="/api-reference">
+  <Card title="API Reference" icon="terminal" href="/api">
     Consumer, Server, and Management REST APIs.
   </Card>
 </CardGroup>

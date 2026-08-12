@@ -1,0 +1,435 @@
+---
+title: "Salesforce Commerce Cloud (SFRA)"
+description: "Implement Extole's cartridge into your Salesforce Commerce Cloud site."
+---
+
+## Overview
+
+[//]: # "Does Extole have an integration with Salesforce Commerce Cloud (SFRA)?"
+
+Extole is proud to power referral marketing programs for the world's best-known brands and to help challenger brands become the household names of tomorrow. Extole serves both B2C and B2B companies across a range of verticals, including financial services, retail, and consumer subscription markets. Extole technology powers hundreds of referral programs that help acquire millions of new customers.
+
+This document describes how to implement Extole’s cartridge into the Salesforce Commerce Cloud site. The Extole cartridge is a self-contained cartridge that can easily integrate into any Salesforce Commerce Cloud project. The cartridge can be configured in Business Manager and contains all the elements necessary for you to perform a successful best practices implementation of Extole.
+
+After the cartridge is deployed, configured, and integrated with the storefront templates, you will have all the power of Extole marketing programs applied to your site.
+
+The cartridge is available in the [My Extole Partners Center](https://my.extole.com/partners).
+
+[//]: ___
+
+## Prerequisites
+
+[//]: # "What are the requirements for the Extole integration with Salesforce Commerce Cloud (SFRA)?"
+
+Before performing the steps in this document, ensure that you and your organization have satisfied the following criteria:
+
+| Requirement                      | Description                                                                                                                                                                                                 |
+| :------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Extole Account and Client ID     | In order to take advantage of this integration, you must have  an Extole Account (there you can find your Extole Client ID, more details below).                                                            |
+| Extole Cartridge Zip File        | The downloaded and unzipped Extole cartridge ZIP file from the [My Extole Partners Center](https://my.extole.com/partners).                                                                                 |
+| Extole Cartridge Package Folders | The contents of the Extole cartridge package, which consists of four folders: `int_extole`, `int_extole_controllers`, `int_extole_sfra`, and a Metadata folder containing Extole’s custom site preferences. |
+
+[//]: ___
+
+## Functionalities
+
+[//]: # "What does the Extole integration with Salesforce Commerce Cloud (SFRA) do?"
+
+The Extole cartridge integration provides the following functionality:
+
+* Extole’s core Javascript library.
+* Extole Zone Tags: Zone tags can be placed anywhere on a webpage with the help of a modular ISML template, where the zone tag name is passed as a parameter.
+* Extole Conversion Tag: Javascript tag that passes conversion events to Extole.
+* Extole Approval API: A description of the Extole API Call sub-pipeline and example of integration with `ExtoleOrderStatusUpdate` job. The cartridge includes the scheduled order status update job, which sends “approve” or “decline” statuses to Extole based on order status (Confirmed, Declined, Failed) after a certain configured time period.
+* OCAPI coupon enablement: By following the integration guide, Extole will be able to read and manage your coupon codes systematically.
+
+[//]: ___
+
+## Compatibility
+
+[//]: # "What version is the Extole cartridge compatible with?"
+
+The cartridge is designed for Salesforce Commerce Cloud API version 22.4 (Compatibility Mode: 21.7) with SFRA version 6.0.0. The cartridge is designed with US locale but has multi-locale and multi-currency support.
+
+[//]: ___
+
+## Integration
+
+[//]: # "How do I integrate the Extole Salesforce Commerce Cloud (SFCC SFRA) cartridge?"
+
+### Installing Cartridge on sandbox
+
+1. Open Salesforce Commerce Cloud Studio.
+2. Import the downloaded cartridge ZIP file. On the import screen, select the folders `int_extole` and `int_extole_sfra`.
+
+<img src="/images/extole/0eeea3bd5081a5ac9926babd6ff0d545979776885c42fb610857b0edbe207c13.png" alt="Screenshot showing Import the downloaded cartridge ZIP file. On the import screen, select the folders intextole and intextolesfra." />
+  Demandware Import
+&lt;/Image>
+
+3. Link the cartridge to your sandbox. Right click on the ExtoleSandbox and select Properties from the dropdown menu.
+
+![Screenshot showing Link the cartridge to your sandbox. Right click on the ExtoleSandbox and select Properties from the dropdown menu.](/images/extole/f9611f7ae784b1e997be0f5d4847839bf1a4d403a24d31fc79fdd4d2cdf1144d.png "unnamed (18).png")
+
+4. In the Properties menu, select Project References and check int\_extole and  int\_extole\_sfra.
+
+![Screenshot showing In the Properties menu, select Project References and check int\extole and int\extole\sfra.](/images/extole/29b1da4716e458206c53f4946dc3e9ff0f09b7adb27eec3352b0159ac31a806c.png "unnamed (19).png")
+
+### Extole API Credentials
+
+Please reach out to your Extole team to get your Extole API credentials: User ID and Password data.
+
+### Business Manager Setup
+
+1. Go to Business Manager and open Administration > Sites > Manage Sites. Select your site, then select the Settings tab. In the cartridge path, at the beginning, add `int_extole:int_extole_sfra:`.
+
+![Screenshot showing Go to Business Manager and open Administration > Sites > Manage Sites. Select your site, then select the Settings tab. In the cartridge path, at the...](/images/extole/c82bed3d13728ca582743230542099b7c712722151245b92cc09f6eea4ff2b08.png "unnamed (20).png")
+
+2. Navigate to Administration > Sites > Manage Sites and select Business Manager site. In the cartridge path, at the beginning, add `int_extole:`.
+
+![Screenshot showing Navigate to Administration > Sites > Manage Sites and select Business Manager site. In the cartridge path, at the beginning, add intextole:.](/images/extole/5851192afebd6aaaa6af0da93387518b0ec066f728f1b4fac355af1997f10f82.png "unnamed (21).png")
+
+3. Open Administration > Site Development > Site Import & Export.
+4. Under the Upload Archive, select Local, then choose the `extole.zip` file and click the Upload button. All metadata, service, and job configurations will be imported.
+
+<img src="/images/extole/c042c9185e464f2a8fbad9fd3014e813661bd77c052f7462942f3d969b021fd6.png" alt="Screenshot showing Under the Upload Archive, select Local, then choose the extole.zip file and click the Upload button. All metadata, service, and job configurations will be..." />
+  Business Manager Upload
+&lt;/Image>
+
+### Extole Site Preferences Setup
+
+In order to properly configure the Extole site preferences, you will need several pieces of information from your Extole Account. To get started, open your Extole Account. In a new browser window, pull up Business Manager and navigate to Sites > Your Site > Site Preferences > Custom Site Preferences > Extole.
+
+#### Extole Core URL
+
+1. Once you’ve logged into your Extole Account, navigate to the Tech Center in the left-hand menu. 
+2. From the dropdown options, click on Tag Generator. 
+3. Find the Core Tag and copy the URL. 
+4. Go to your other browser window with Business Manager open, and paste the URL into the Core Tag URL field of the Extole Custom Site Preferences page.
+
+![Screenshot showing Go to your other browser window with Business Manager open, and paste the URL into the Core Tag URL field of the Extole Custom Site Preferences page.](/images/extole/b253e1d3ee9a50630a427f20a9871169354b19c25b20cc0ea25909fa35ad8ba1.png "unnamed (23).png")
+
+5. If you want to have the tag URL on a page with the same domain as your storefront (so it won’t be affected by third-party ad blockers), you will need to set up a CNAME for the core tag domain. To do so, return to your Extole Account and click on the Tech Center. Follow the instructions in Extole’s Program Domain Setup Guide.
+
+<Info>
+**Example**
+
+
+For the site URL `https://fakeshoeshop.com/`, the share experience microsite would have a URL like `https://share.fakeshoeshop.com/`, and the core tag would have the following URL: `https://share.fakeshoeshop.com/core.js`.
+</Info>
+
+![Screenshot showing For the site URL https://fakeshoeshop.com/, the share experience microsite would have a URL like https://share.fakeshoeshop.com/, and the core tag would have...](/images/extole/5ea2c7626f834cf4882fa6be76575703790141a2f82de66f56ebd2b32991d062.png "unnamed (24).png")
+
+#### Extole Access Token
+
+1. In your Extole Account, click on Security Center in the left-hand menu. 
+2. Click on the + New Access Token button. You will be asked to verify your identity. Once you have done so, name the key appropriately and hit Create. *Note: Make sure to copy the token immediately. Once it’s created and you navigate away from this page, it will disappear.*
+3. Return to your other browser window with Business Manager open, and paste the token into the API Access Token field of the Extole Custom Site Preferences page. 
+
+![Screenshot showing Return to your other browser window with Business Manager open, and paste the token into the API Access Token field of the Extole Custom Site Preferences page.](/images/extole/85315c64c83ffae4722af7933553f77e181368ab1b0557779f3a4740d4bf588f.png "unnamed (25).png")
+
+#### Extole JWT Token Key Identifier and Token Secret Key
+
+1. In your Extole Account, click on Security Center in the left-hand menu.
+2. Click the + New Key button.
+
+![Screenshot showing Click the + New Key button.](/images/extole/738aab0159a8bb5f53c42f182448719d13e8e12fa25bd2c43a284fc265e107fd.png "unnamed (26).png")
+
+3. On the key creation page, fill in the necessary fields.
+
+| Key Field      | Description                                                                           |
+| :------------- | :------------------------------------------------------------------------------------ |
+| Key Name       | The Key Name is used as a reference to the Access Key in your Extole Account.         |
+| Key Type       | JWT                                                                                   |
+| Algorithm      | HS256                                                                                 |
+| Partner Key ID | The unique identifier for the key. This is the same as the “kid” in the token header. |
+| Key            | The key itself (32 or more characters in length).                                     |
+
+![Screenshot showing | Key | The key itself (32 or more characters in length). |](/images/extole/91f214a2a679a56819eabd07c7e4c0e43ae719f6cc69bcc1b74a45f54eee0f8b.png "unnamed (27).png")
+
+4. Copy the Partner Key ID value and paste it into the JWT Token Key Identifier field on the Extole Custom Site Preferences page of Business Manager.
+5. Copy the Key value and paste it into the JWT Token Secret Key field on the Extole Custom Site Preferences page of Business Manager. 
+
+#### Configure Remaining Custom Site Preferences
+
+After collecting all of the necessary information from your Extole Account and pasting the data in the proper fields, make sure to configure all of the remaining fields properly on the Extole Custom Site Preferences page of Business Manager. 
+
+1. Make sure your Instance Type is set to Sandbox.
+2. For the Extole activated option, select Yes from the dropdown menu.
+
+![Screenshot showing For the Extole activated option, select Yes from the dropdown menu.](/images/extole/d832bcf880dca2fdae35b9c7eb661386edafb9f62bddfa47fbcf59de8715f017.png "unnamed (28).png")
+
+3. Enter your Site Label, which is your Extole Client ID. You can find your Client ID from the Settings menu of your Extole account.
+4. For the Activate Approval API Calls option, select Yes from the dropdown menu.
+5. Set your Orders Return Window to the number of days you allow orders to be returned after purchase.
+
+![Screenshot showing Set your Orders Return Window to the number of days you allow orders to be returned after purchase.](/images/extole/e4bcbcdf69302d52d237ae627cbd5a659b161ecaeadba754da9ffd75aab8a793.png "unnamed (29).png")
+
+6. For the Send Online Product Variations attribute, select No from the dropdown menu.
+
+![Screenshot showing For the Send Online Product Variations attribute, select No from the dropdown menu.](/images/extole/740b414b9cf8d8622dde813f20fb1208ca87876e057f3fc1a46406682afa091e.png "unnamed (30).png")
+
+### Configure Extole API Service Credentials
+
+The current cartridge uses the advantages of the Extole API V3. 
+
+1. Open Administration >  Operations >  Services > Service Credentials > ExtoleCredentials. 
+2. Type in a name for your credentials in the required Name field.
+3. Paste in the URL for the Extole Events API endpoint: [https://api.extole.io/v3/events/approve](https://api.extole.io/v3/events/approve).
+4. Enter the Access Token Name and Token values you created in the Extole Tech Center in the User and Password fields.
+
+![Screenshot showing Enter the Access Token Name and Token values you created in the Extole Tech Center in the User and Password fields.](/images/extole/806a4e3b78b58e61186fd6f2d6010ccf6fbc07f5a4899803b2ad40f24e36cbb4.png "unnamed (31).png")
+
+[//]: ___
+
+## Open Commerce API (OCAPI) Enablement
+
+[//]: # "How do I enable Open Commerce API (OCAPI) for the Extole Salesforce (SFCC SFRA) cartridge?"
+
+Extole can programmatically manage coupon codes within the Salesforce Commerce Cloud system by interfacing with OCAPI. The following configurations in Business Manager are required.
+
+1. Go to Business Manager > Administration > Site Development > Open Commerce API Settings.
+2. From the Select Type dropdown, choose Data. Leave the Select Context dropdown set to Global (organization-wide).
+
+![Screenshot showing From the Select Type dropdown, choose Data. Leave the Select Context dropdown set to Global (organization-wide).](/images/extole/7a8993f21032d4debce330b563ffe331838151d8b38106651d6912b42756b2f0.png "unnamed (32).png")
+
+3. Update your OCAPI settings to include the clients section below (you may need to amend your settings), which will enable Extole to create, read, and update coupons.
+
+`int_extole`
+
+<Warning>
+**Important Note**
+
+
+Make sure to replace \{site\_id\} with your actual Site ID. You can find your Site ID in the far-left corner of the Business Manager toolbar.
+
+For the purposes of this document, test credentials were used. You will need to generate a new API Client ID in Account Manager and update these settings within each environment.
+</Warning>
+
+[//]: ___
+
+### Coupon Creation
+
+[//]: # "How do I create coupons for the Extole Salesforce (SFCC SFRA) cartridge?"
+
+1. In Business Manager, navigate to Merchant Tools (desired Site) > Online Marketing > Coupons. 
+2. In the upper right, click New. 
+3. Configure your New Coupon: Type in an ID to identify your coupons, select the Coupon Type “System-Generated,” enter the Number of Codes you would like, and add a Coupon Prefix (extole).
+
+![Screenshot showing Configure your New Coupon: Type in an ID to identify your coupons, select the Coupon Type “System-Generated,” enter the Number of Codes you would like, and...](/images/extole/1ffd3e2e87937f5b310bb6b10f3d6a7978538f35292d5b7b76fcbfbc2e95826e.jpg "unnamed.jpeg")
+
+4. In your Extole Account, navigate to Rewards and click on the + New Reward button. 
+5. Select Salesforce Commerce Cloud Coupon from the available coupon types and make sure to input the Coupon ID you configured in Business Manager.
+6. Request help from your implementation manager if you need help with this action. 
+
+[//]: ___
+
+## Custom Code
+
+[//]: # "How do I add Extole tags for the Extole Salesforce (SFCC SFRA) cartridge?"
+
+### Extole Javascript Library
+
+The Extole Javascript library should preferably be embedded in the `<header>` tag on all pages of your website.
+
+Paste the following code sample into your htmlHead.isml:
+
+`int_extole_controllers`
+
+Include the `extole.js` script file in your `common/scripts.isml` template:
+
+`int_extole_sfra`
+
+### Extole Zone tags
+
+Extole zone tags are placeholders that can be embedded anywhere on your site. Once embedded, zone tags serve program content you’ve configured in the Extole Campaign Editor, including banners, CTAs, pop-ups, overlays, and so on. 
+
+An example of a common tag placement is a global header. In this case, you would add the zone tag to the header of every page on your site.
+
+If the zone tag you want to use doesn’t need to be placed in a specific location (like for a popup), then the tag must be placed at the bottom of your isml template. 
+
+Zone tags can pass additional information such as product, category, or customer data within the ‘data’ parameter to personalize your customers’ sharing experience.
+
+**Recommended Zone Tags & Placements** 
+
+| Zone Tag                       | Placement                                                               |
+| :----------------------------- | :---------------------------------------------------------------------- |
+| `global_header`                | Place in the header of the site, all pages.                             |
+| `global_footer`                | Place in the footer of the site, all pages.                             |
+| `overlay`                      | Place on all pages.                                                     |
+| `homepage` / `homepage_module` | Place in homepage banner containers.                                    |
+| `category`                     | Place in all categories on product listing pages (PLP).                 |
+| `product`                      | Place on all product details pages (PDP).                               |
+| `social`                       | Place in the PDP social sharing buttons area.                           |
+| `my_account`                   | Place on the My Account page.                                           |
+| `registration`                 | Place on the My Account page, but only when a customer first registers. |
+| `confirmation`                 | Place on the order confirmation page.                                   |
+
+Each tag can be customized, meaning you can specify what information needs to be added to the tag. For example, take a look at the zone tag integration below:
+
+`ExtoleOrderStatusUpdate`
+
+#### Zone Tag Parameters
+
+In the above example, `Extole-Zonetag` is the name of the controller that renders the tag on the page, which is followed by the tag parameters. Tag parameters have the format `parameter name1`, `value1`, `parameter name2`, `value2`.
+
+<table>
+  <thead>
+    <tr>
+      <th>
+        Zone Tag Parameter
+      </th>
+
+      <th>
+        Description
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        name (required)
+      </td>
+
+      <td>
+        The name of the tag, such as global\_header. See the list of valid tag names above.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        elementId (required)
+      </td>
+
+      <td>
+        The Extole popup element ID.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        predefined\_data (optional)
+      </td>
+
+      <td>
+        A comma-separated string. It could include objects like customer, category, product, order, jwt.  
+
+        Predefined data configuration is stored in the file 'int\_extole/cartridge/scripts/extole/defaultConfig.json'.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+#### Predefined Data Configuration
+
+The predefined data configuration includes the name of the SFCC objects like customer, category, product, order, jwt. See the configurations for each of the listed object types below:
+
+`int_extole`
+
+Each object has an attributes/pathToValues pair defined, where attributes is the name of the attribute for the Extole tag, and pathToValues is the path to the attribute value. 
+
+#### Attributes
+
+If the attribute name starts with a letter it is used as a path to a SFCC object. See the list of available attributes below.
+
+| Attribute                             | Description                                                                                                                                                                                                                                                                                                                                                                                                |
+| :------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mapped_data` (optional)              | A comma-separated string of attributes / pathToValues pairs — \{attributeName: sfccObject.attribute\}. Here, attributes is the name of the attribute for the Extole tag, and pathToValues is the path to the attribute value of the SFCC object. You can specify additional properties for objects: customer, category, product, order, jwt. These properties will be added to predefined data at this tag. |
+| `data` (optional)                     | JSON string of attribute:value pairs. This data is added to the tag without processing.                                                                                                                                                                                                                                                                                                                    |
+| `productId` (optional)                | Selected Product ID for the PDP page. This parameter is added to get information about the product.                                                                                                                                                                                                                                                                                                        |
+| `categoryId` (optional)               | Selected Category ID for the categories page. This parameter is added to get information about the category.                                                                                                                                                                                                                                                                                               |
+| `orderId` and `orderToken` (optional) | Order ID and order token for the “Thank you” page. This parameter is added to get information about the order.                                                                                                                                                                                                                                                                                             |
+| `jwt` (optional)                      | A comma-separated string of attribute:value pairs. Add the JWT token to the tag and include required JWT attributes plus attributes specified in formatted string.                                                                                                                                                                                                                                         |
+
+#### Computed Attributes
+
+If the name of the attribute starts with $ like `order.$orderTotal`, this attribute value should be a result of a call to the `orderTotal` function. See the list of available computed attributes below.
+
+| Computed Attribute           | Description                                                                          |
+| :--------------------------- | :----------------------------------------------------------------------------------- |
+| `customer.$customerId`       | Get Customer ID for the anonymous user or Customer Number for registered user.       |
+| `category.$categoryTitle`    | Get category name. If the category name ID is empty, get category ID.                |
+| `category.$categoryImageURL` | Get category image URL.                                                              |
+| `category.$categoryURL`      | Get category page URL.                                                               |
+| `product.$productTitle`      | Get product name. If the product name ID is empty, get product ID.                   |
+| `product.$productImageURL`   | Get product image URL.                                                               |
+| `product.$productURL`        | Get product page URL.                                                                |
+| `order.$cartValue`           | Get the full order value before coupons.                                             |
+| `order.$couponList`          | Get a list of coupon codes separated by commas.                                      |
+| `order.$orderCustomerId`     | Get Order customer ID for the anonymous user or Customer Number for registered user. |
+
+#### Example Zone Tag Data
+
+Tag data example:
+
+`int_extole_sfra`
+
+Results in the following create zone object:
+
+`int_extole:int_extole_sfra:`
+
+### Salesforce Commerce Cloud Caching
+
+Any inclusion of assets from the cartridge: template/zonetag, should be done so in a way that is uncached. This will avoid situations in which the wrong customer's information is being used in the tags.
+
+Methods to include cartridge assets without caching:
+
+* Using a remote include
+* Using the cartridge ISM component
+
+If you are seeing the wrong customer's data being passed, please identify how you are including zone tags in your codebase and see if any local includes can be changed to remote includes with caching disabled.
+
+### Extole Conversion tag
+
+Most programs reward advocates when a conversion event occurs, such as a purchase. This can be communicated to Extole by adding the conversion tag to the conversion confirmation page on your site.
+
+The conversion tag should pass information about the conversion to allow Extole to run reward rules, quality rules, and attribute the conversion to a referral when possible.
+
+A Conversion tag needs to be added in your confirmation.isml page to track conversion events in Extole.
+
+`int_extole:`
+
+Example of Conversion tag data into order confirmation page HTML:
+
+`extole.zip`
+
+| Conversion Tag Attribute           | Description                                                                                                                                                                                       |
+| :--------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| first\_name (recommended)          | The first name of the person making the purchase. This is used for personalization and client customer support lookups.                                                                           |
+| last\_name (recommended)           | The last name of the person making the purchase. This is used for personalization.                                                                                                                |
+| email (required)                   | The email address of the person making the purchase. This is used for quality detection (self referral, bad domains), referral matching, and optionally to trigger program alerts and promotions. |
+| partner\_user\_id (recommended)    | YOUR unique identifier for this person making the purchase such as an account id or member id. This is used to detect uniqueness, quality, and can help match if people switch emails.            |
+| partner\_conversion\_id (required) | YOUR order number that uniquely identifies this transaction.                                                                                                                                      |
+| cart\_value (required)             | The value of the purchase. Ideally this is the gross cart value before coupons have been applied. This is used to let you view and analyze the revenue generated from your referral program.      |
+| coupon\_code (required)            | The coupon code that may have been used to make the purchase.                                                                                                                                     |
+
+### Online Product Variations Properties
+
+In your IDE, update the detail.js script to reflect your product details. This entails updating selected product variation values from your product details page (PDP). These values are stored on the storefront in the window\.extole.selectedProduct property.
+
+**Note**: Don't forget to build your Javascript code after incorporating these changes.
+
+1. Open app\_storefront\_base/cartridge/client/default/js/product/detail.js.
+2. To the function `updateAttribute`, add the following code to line 70:
+
+`https://fakeshoeshop.com/`
+
+![Screenshot showing https://fakeshoeshop.com/](/images/extole/051229a0e6e297450bf852e4ca3c1039c89dd0caf546511b6f530bb066a300cc.png "unnamed (33).png")
+
+[//]: ___
+
+## Styling Your Extole Campaign
+
+Please contact your Extole CSM or Implementation Manager to create new campaign designs and integrate them with your site.
+
+## Testing
+
+[//]: # "How do I test the Extole Salesforce (SFCC SFRA) cartridge?"
+
+Test cases to verify the integration can be found in the [EXT] Code implementation [EXT] Code implementation `Tests.xlsx` file.
+
+## Support
+
+For technical support please contact your Extole contact, or for cartridge specific questions you may email [support@extole.com](mailto:support@extole.com).
+
+[//]: ___

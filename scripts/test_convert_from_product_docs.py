@@ -189,3 +189,131 @@ class OpenApiNavigationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NavMirroredPathTests(unittest.TestCase):
+    """A page's URL must equal its navigation breadcrumb."""
+
+    def test_slugify_nav_expands_ampersand(self):
+        # plain slugify drops "&", collapsing the label to programs-campaigns
+        self.assertEqual(converter.slugify("Programs & Campaigns"), "programs-campaigns")
+        self.assertEqual(converter.slugify_nav("Programs & Campaigns"), "programs-and-campaigns")
+        self.assertEqual(converter.slugify_nav("Audiences & Segmentation"), "audiences-and-segmentation")
+
+    def test_tab_roots_drop_the_docs_suffix(self):
+        self.assertEqual(converter.TAB_SLUGS["Product Docs"], "product")
+        self.assertEqual(converter.TAB_SLUGS["Technical Docs"], "technical")
+        self.assertEqual(converter.API_TAB_SLUG, "api-reference")
+
+    def test_group_directory_comes_from_the_sidebar_label_not_the_folder(self):
+        """The regression this restructure fixed: a folder named getting-started
+        served a group labelled "Extole Overview" at /…/getting-started/…"""
+        with tempfile.TemporaryDirectory() as directory:
+            src = Path(directory) / "src"
+            out = Path(directory) / "out"
+            group = src / "getting-started"
+            group.mkdir(parents=True)
+            (group / "index.md").write_text('---\ntitle: "Extole Overview"\n---\n', encoding="utf-8")
+            (group / "what-is-extole.md").write_text(
+                '---\ntitle: "What is Extole?"\n---\n\nBody.\n', encoding="utf-8"
+            )
+            conv = converter.Converter(src, out)
+            grp = conv._make_group(group, "product")
+
+            self.assertEqual(grp["group"], "Extole Overview")
+            self.assertEqual(grp["pages"], ["product/extole-overview/what-is-extole"])
+
+    def test_openapi_groups_share_the_generated_page_prefix(self):
+        """Mintlify serves generated operation pages from /api-reference wherever
+        the bundle lives, so the tab root has to match or the tab splits."""
+        group = converter.api_reference_group("Management API", "management.json", {"paths": {}})
+        self.assertEqual(group["openapi"], "api-reference/management.json")
+
+    def test_redirects_survive_regeneration(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            (out / converter.URL_MAP_FILE).write_text(
+                json.dumps({"redirects": [
+                    {"source": "/product-docs/getting-started/what-is-extole",
+                     "destination": "/product/extole-overview/what-is-extole"},
+                    {"source": "/bad"},  # malformed entries are ignored
+                ]}),
+                encoding="utf-8",
+            )
+            redirects = converter.read_redirects(out)
+            self.assertEqual(len(redirects), 1)
+            self.assertEqual(converter.build_docs_json([], redirects)["redirects"], redirects)
+
+    def test_read_redirects_tolerates_a_missing_map(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(converter.read_redirects(Path(directory)), [])
+
+
+class GroupIndexTests(unittest.TestCase):
+    def _group(self, index_frontmatter):
+        directory = tempfile.mkdtemp()
+        src, out = Path(directory) / "src", Path(directory) / "out"
+        group = src / "offer"
+        group.mkdir(parents=True)
+        body = "\n\n" + ("word " * 60)
+        (group / "index.md").write_text(index_frontmatter + body, encoding="utf-8")
+        (group / "customer-appreciation.md").write_text(
+            '---\ntitle: "Customer Appreciation"\n---\n\nBody.\n', encoding="utf-8"
+        )
+        conv = converter.Converter(src, out)
+        return conv, conv._make_group(group, "product")
+
+    def test_hidden_group_index_is_not_published(self):
+        """It was read but never acted on, so an internal page marked hidden
+        upstream was still written and served, just missing from the nav."""
+        conv, grp = self._group('---\ntitle: "Offer"\nhidden: true\n---\n')
+        self.assertNotIn("root", grp)
+        self.assertEqual([p.out_path for p in conv.pages if p.out_path.endswith("/index")], [])
+
+    def test_group_index_is_reachable_by_its_folder_name(self):
+        """Upstream writes [Offer](doc:offer) for a page at offer/index.md whose
+        own stem is the useless "index"; without the alias it cannot resolve."""
+        conv, grp = self._group('---\ntitle: "Offer"\n---\n')
+        self.assertEqual(grp["root"], "product/offer/index")
+        self.assertEqual(conv.slug_to_path.get("offer"), "product/offer/index")
+        self.assertEqual(
+            converter.rewrite_links("See [Offer](doc:offer).", conv.slug_to_path),
+            "See [Offer](/product/offer/index).",
+        )
+
+
+class GroupWithOnlyHiddenChildrenTests(unittest.TestCase):
+    def test_overview_survives_when_every_child_is_hidden(self):
+        """Returning None here wrote the root page to disk but left it out of
+        the navigation — live but unreachable."""
+        with tempfile.TemporaryDirectory() as directory:
+            src, out = Path(directory) / "src", Path(directory) / "out"
+            group = src / "financial-services"
+            group.mkdir(parents=True)
+            (group / "index.md").write_text(
+                '---\ntitle: "Financial Services"\n---\n\n' + ("word " * 60), encoding="utf-8"
+            )
+            (group / "mastercard.md").write_text(
+                '---\ntitle: "Mastercard"\nhidden: true\n---\n\nBody.\n', encoding="utf-8"
+            )
+            conv = converter.Converter(src, out)
+            grp = conv._make_group(group, "technical")
+
+            written = [p.out_path for p in conv.pages]
+            self.assertEqual(written, ["technical/financial-services/index"])
+            self.assertIsNotNone(grp)
+            self.assertEqual(grp["pages"], ["technical/financial-services/index"])
+            # nothing written to disk may be absent from the nav
+            self.assertEqual(set(written) - set(grp["pages"]), set())
+
+    def test_group_is_dropped_when_there_is_nothing_to_show(self):
+        with tempfile.TemporaryDirectory() as directory:
+            src, out = Path(directory) / "src", Path(directory) / "out"
+            group = src / "empty"
+            group.mkdir(parents=True)
+            (group / "only.md").write_text(
+                '---\ntitle: "Only"\nhidden: true\n---\n\nBody.\n', encoding="utf-8"
+            )
+            conv = converter.Converter(src, out)
+            self.assertIsNone(conv._make_group(group, "technical"))
+            self.assertEqual(conv.pages, [])
