@@ -37,6 +37,8 @@ The Events Report is one of Extole's most used reports for its flexibility to pu
 
 > The list of predefined mappings, located below the list of mappings described above, is a great starting place for finding specific pieces of data from the event or person associated with the event to pull into the report.
 
+> To write your own mapping instead of picking a predefined one, see [Custom Data Queries using Extole Reports](doc:custom-data-queries-using-extole-reports) for the syntax and [Entities and Context Available in Extole's Configurable Reporting System](doc:entities-and-context-available-in-extole-s-configurable-reporting-system) for the fields an Events report can reach.
+
 >
 
  ![Screen](https://extole-5ef307a0e5b1.intercom-attachments-7.com/i/o/syy27wia/1421733824/86c3f1c9e6fee3809be00880e14d/17800732135059?expires=1778306400&signature=1be72cc7c8509d1d1ba34c417475cdb4b0bca65ab9329a97eb01e98780708dab&req=dSQlF859noldXfMW3nq%2BgUJbO96iVl%2BJfLj7AecB%2Bt1R7c5Qw0ae9AmSI4A7%0AZoFbHWleanMCdZVCjzsEGnwur1o%3D%0A)
