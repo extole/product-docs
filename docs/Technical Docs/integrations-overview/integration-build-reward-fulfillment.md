@@ -287,7 +287,16 @@ A scheduled runner needs `schedule_start_date`, as an ISO-8601 timestamp with an
 
 A runner's type is fixed once created: a runner made as `REFRESHING` cannot be turned into a scheduled one, and an update that tries reports the wrong type rather than the wrong field. Delete it and create the runner you meant.
 
-`report_type` is an account-scoped identifier rather than a readable constant, so read the account's types with `GET /v6/report-types` and match on display name. Two properties decide whether a type will work, and neither is its name:
+`report_type` is an account-scoped identifier rather than a readable constant, so read the account's types and match on display name. Ask for the ones you want rather than the whole catalog: a mature account holds a couple of hundred types and the unfiltered listing runs to roughly a megabyte, which no tool-mediated read will return.
+
+```bash
+curl --request GET "$EXTOLE_API_HOST/v6/report-types?display_name=Reward%20Revenue" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
+```
+
+The listing accepts `display_name`, `search_query`, `report_type_id`, `tags`, `limit`, and `offset`. **The identifier you pass as `report_type` is the type's `name`** — an opaque string such as `r84a5841xf0hehbzsf6j`. There is no `id` field on a report type, so a projection that asks for one comes back as a list of nulls, which reads like an account with no usable types rather than the wrong field name. Read a single candidate in full with `GET /v6/report-types/{id}`, whose path segment takes that same `name` value, before choosing between types that share a display name.
+
+An empty result is worth one more read before you act on it: a truncated or over-large response is not an absent type, and reporting the account as lacking a report type is how a build ends with a Reward Activity tab that says no report runner is configured while three usable types sit in the account. Two properties decide whether a type will work, and neither is its display name:
 
 - The **parameters it declares** are the only ones the runner may send, and their values come from the type's own enumerations. A time range is `ALL_TIME`, not `all_time`; a locale list accepts only locales the account declares; a required parameter left out and an invented parameter both come back as the same invalid-format rejection on `parameters` as a whole, so add parameters one at a time when one is refused rather than rewriting the set.
 - The **mappings dialect** it accepts decides what your expression may say. A type whose `mappings` parameter is row-shaped rejects the grouping functions — `group_count`, `GROUP_SUM` — that a charted activity report is built from; a metric-shaped one accepts them. Read the parameter's type before writing the expression, and choose the parent by that rather than by a display name that sounds close.
@@ -468,5 +477,6 @@ Before calling the build done, read back and confirm:
 - The supplier socket filters to the partner's type, and the views socket accepts every view type in use.
 - Each webhook is type `REWARD`, carries both filters, resolves a non-empty supplier list, and uses the retry schedule its purpose requires.
 - The webhook count matches the partner's order endpoints plus one status check — not the number of products. Several products ordered through one endpoint share one webhook, and its supplier filter resolves every variant that endpoint serves.
-- The report-runner and event-stream views each resolve to an actual element on that view. Read the built campaign and confirm the identifiers are non-null: an empty tab is the symptom of an element that was never created or was attached to the wrong component, and neither shows up as a failed call.
+- The report-runner and event-stream views each resolve to an actual element on that view. Read the built campaign and confirm `reportRunnerId` and `eventStreamId` are non-null: an empty tab is the symptom of an element that was never created or was attached to the wrong component, and neither shows up as a failed call. A view whose `reportColumnsMapping` is set but whose `reportRunnerId` is null is the common half-built case — the chart is described and has nothing to chart.
+- The integration component's `logo` is the partner's registered component artwork or a file the partner supplied. A favicon from the partner's website satisfies the setting's type and renders as a broken tile, so it is a build left unfinished rather than a build with artwork.
 - The account identifier is set and the credential is either configured or reported outstanding.
