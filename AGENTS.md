@@ -7,6 +7,7 @@ This repo holds **Extole's customer-facing documentation**. Pages publish to **d
 Before you write or edit a doc, load the **product-docs-authoring** skill and the **product-docs-style** rule:
 
 - Skill: [`.agents/skills/product-docs-authoring/SKILL.md`](.agents/skills/product-docs-authoring/SKILL.md) — the authoring workflow, page structure, nav, PR flow, and reviewer self-check.
+- Skill: [`.agents/skills/readme-branch-preview/SKILL.md`](.agents/skills/readme-branch-preview/SKILL.md) — **load before creating any branch/PR** (from any tool, including catalog): branches must be named `v4.0.0_<slug>` so ReadMe mirrors them as a previewable branch before merge.
 - Rule (always-on): [`.agents/rules/product-docs-style.mdc`](.agents/rules/product-docs-style.mdc) — the terminology and style fixes to apply automatically, in the same edit, before human review.
 - Terms: [`.agents/skills/product-docs-authoring/glossary.md`](.agents/skills/product-docs-authoring/glossary.md) — preferred terms + open decisions.
 - Style: [`.agents/skills/product-docs-authoring/style-guide.md`](.agents/skills/product-docs-authoring/style-guide.md) — voice, capitalization, formatting, links.
@@ -34,7 +35,7 @@ The canonical human-owned sources are the **Extole Style Guide** and **Content S
 1. **Follow the standards above for every doc change.** Apply the unambiguous terminology/style fixes automatically; don't leave them for the reviewer.
 2. **Never invent product behavior, event names, or metrics.** Match the actual system; verify or flag when unsure.
 3. **Keep literals verbatim** — event names (`promotion clicked`, `converted`), schema fields (`step_name`), and API identifiers are not style targets.
-4. **Default branch is `v4.0.0`** (ReadMe versioning), not `master`. Branch from and target it.
+4. **Default branch is `v4.0.0`** (ReadMe versioning), not `master`. Branch from and target it, and **name the branch `v4.0.0_<slug>`** (a kebab-case description or a ticket id, e.g. `v4.0.0_add-gemini-guide`, `v4.0.0_ENG-28706`). ReadMe only mirrors branches whose name matches `<version>_<slug>`; a mismatched name (`cursor/…`, `docs/…`, a bare `ENG-1234`) gets **no** preview at https://docs.extole.com/#/branches. See the [`readme-branch-preview`](.agents/skills/readme-branch-preview/SKILL.md) skill.
 5. **Scope PRs to docs.** Don't touch `reference/` / OpenAPI specs unless that's the task.
 
 ## Open decisions

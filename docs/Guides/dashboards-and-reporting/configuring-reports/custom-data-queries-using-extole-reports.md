@@ -10,6 +10,8 @@ intercom_source_id: 15394374
 
 Extole's configurable reporting framework lets you define exactly what data a report returns, how it is shaped, and which rows are included — all through a mapping expression language passed as report parameters. This document is a complete reference for that language.
 
+You set these expressions in the Advanced section of a report's configuration screen — see [Advanced Report Configuration](doc:advanced-report-configuration). To pick which report type to run, see [Configurable Report Types and Their Entities](doc:configurable-report-types-and-their-entities); for the fields each entity exposes, see [Entities and Context Available in Extole's Configurable Reporting System](doc:entities-and-context-available-in-extole-s-configurable-reporting-system). If a pre-built report already answers your question, check [Report Types](doc:report-types) first.
+
 # Glossary
 
 | Term | Description |

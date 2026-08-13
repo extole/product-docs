@@ -164,8 +164,17 @@ Prefer the `termsCopy` associated with the active Terms creative/component for t
 | Rendered Terms page (if available) disagrees with live reward amounts, caps, geography, or qualifying conditions | **Issue** |
 | Unresolved placeholders that cannot be resolved from the same active Terms configuration | **Needs investigation** |
 | `termsCopy` cannot be retrieved or confidently associated | **Needs investigation** |
+| Unresolved placeholders or generic template defaults in **any** configured locale, even when another locale resolves cleanly | **Needs investigation** for this section, recorded under Anomalies and concerns |
 | Configured limit exists but Terms impact is unclear | **Watch** |
 | Caps configured but no evidence limits ever apply | informational unless launch requires proof |
+
+### Check every configured locale
+
+`termsCopy` usually holds one value per locale (`values.en`, `values.fr`, `values.es`, …). Evaluate each configured locale, and report the result per locale.
+
+A locale left as template scaffolding is a finding in its own right, not a footnote to a clean `en`: that locale's published Terms name another company and promise reward amounts the program does not issue. A resolved `en` does not discharge it, and the section verdict is set by the worst locale rather than by the primary one.
+
+Record it under **Anomalies and concerns**, name the affected locales, and ask whether those locales are exposed to live traffic — that answer sets the real severity and only a human reviewer can supply it. Do not attempt to repair the copy as part of the review.
 
 ---
 

@@ -24,7 +24,7 @@ If you would like a more general introduction to our reports, please reference o
 
   - Learn about dates you may be interested in capturing in our article on [Using My Timeline Dates](doc:using-my-timeline-dates).
 
-6. In the Advanced section, you can choose the file format of your report and optionally have it delivered via SFTP if you have a server set up in your account.  
+6. In the Advanced section, you can choose the file format of your report, define which columns it returns, and optionally have it delivered via SFTP if you have a server set up in your account. See [Advanced Report Configuration](doc:advanced-report-configuration).  
 ​![Screen_Shot_2023-05-31_at_3.08.45_PM.png](https://extole-5ef307a0e5b1.intercom-attachments-7.com/i/o/syy27wia/1421734536/50d0c6a2fab73ab2e1edf418873d/17136401471123?expires=1778306400&signature=e84d8f36e1c80952029a0de1892f12d898306700fbe2f5129112c02f0fd06fd9&req=dSQlF859mYRcX%2FMW3nq%2BgQQoXO12RqggPTzbTod9RNKuOen%2F%2F1UzNEkpMphm%0AQR%2FOgd%2FwHqo0HYF4e1ibZcSF0n4%3D%0A)
 7. Once you've finished your configuration, hit Save & Run to kick off your report.
 

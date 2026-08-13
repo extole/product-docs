@@ -36,7 +36,7 @@ Complete the following steps to set up a metrics report.
     - Language and Country: If you're running an international program, do you want to break out programs and campaigns by locals?
     - Device Type: How does each metric compare based on device type? Are more customers engaging with your program on desktop or mobile?
 
-7. Select **+ New** **Step** or **+ New Rate** to add columns that display counts, values, rates, or percentages for each dimension you’ve chosen.
+7. Select **+ New** **Step** or **+ New Rate** to add columns that display counts, values, rates, or percentages for each dimension you’ve chosen. You can also define these columns as expressions, using the `GROUP_*` and rate functions in [Custom Data Queries using Extole Reports](doc:custom-data-queries-using-extole-reports).
 
   - Step Options
 

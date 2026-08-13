@@ -6,7 +6,10 @@ excerpt: "Program and Campaign Dashboards give you total counts of events, but y
 
 # Overview
 
-Program and Campaign Dashboards give you total counts of events, but you can use the [Configured Funnel Report](https://intercom.help/extole-9fe74198ce07/en/articles/10772104  <!-- TODO: rewrite to doc:slug once target is migrated -->) to understand the number of unique people who have done a specific event.
+Program and Campaign Dashboards give you total counts of events, but you can use the [Configured Funnel Report](https://intercom.help/extole-9fe74198ce07/en/articles/10772104) to understand the number of unique people who have done a specific event. To count unique people in a report you build yourself, use `GROUP_COUNT_DISTINCT` — see [Custom Data Queries using Extole Reports](doc:custom-data-queries-using-extole-reports).
+
+<!-- TODO: rewrite the Configured Funnel Report link to doc:<slug> once that page is migrated. -->
+
 
 For example, our dashboards show a number of shares, whereas configuring a People count in the report, you could get a count of *unique* people who have shared with their friends. This table will explain the typical names and definitions associated with a Refer A Friend program. All metrics are customizable to your specific needs.
 

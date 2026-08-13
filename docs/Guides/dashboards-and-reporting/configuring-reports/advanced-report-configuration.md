@@ -21,3 +21,13 @@ All reports have the option to be delivered via secure file transfer protocol (S
 **Formats**
 
 Some reports give you file formats to choose from: XLSX, JSON, or CSV. You can select one or multiple of these options.
+
+**Columns**
+
+Most reports let you shape their output with three fields, each written as an expression:
+
+- **Mappings**: define the columns the report returns, and their order.
+- **Filters**: exclude rows from the result.
+- **Sort Order**: control the order of the rows.
+
+See [Custom Data Queries using Extole Reports](doc:custom-data-queries-using-extole-reports) for the expression syntax, and [Entities and Context Available in Extole's Configurable Reporting System](doc:entities-and-context-available-in-extole-s-configurable-reporting-system) for the fields each report type exposes.
