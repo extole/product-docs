@@ -5171,6 +5171,16 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
+      "report_type_mapping_suggestion_parameter_not_found": {
+        "summary": "report_type_mapping_suggestion_parameter_not_found",
+        "value": {
+          "code": "report_type_mapping_suggestion_parameter_not_found",
+          "http_status_code": 400,
+          "message": "Report type does not have a parameter with the supplied name",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "report_type_missing": {
         "summary": "report_type_missing",
         "value": {
@@ -49573,6 +49583,52 @@
         },
         "type": "object"
       },
+      "MappingSuggestionGroupResponse": {
+        "properties": {
+          "display_name": {
+            "description": "Human-readable group heading suitable for a picker, e.g. `Person Location`.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Stable identifier of this suggestion group, e.g. `event`, `person`, `campaign`.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "suggestions": {
+            "description": "Suggestions in this group, in display order.",
+            "items": {
+              "$ref": "#/components/schemas/MappingSuggestionResponse"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "display_name",
+          "name",
+          "suggestions"
+        ],
+        "type": "object"
+      },
+      "MappingSuggestionResponse": {
+        "properties": {
+          "column_name": {
+            "description": "Default report column name for this suggestion - the left-hand side of the `name=expression` pair appended to the mapping parameter. Rename it freely; the `expression` determines the value.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "expression": {
+            "description": "Complete, ready-to-use column expression. Append `columnName=expression` to the mapping parameter's `;`-separated value as-is - no prefix or wrapping is ever needed.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "column_name",
+          "expression"
+        ],
+        "type": "object"
+      },
       "MatchTypeInFileNameMatchesTriggerRequest": {
         "description": "How the pattern is matched against filenames. A literal value or a buildtime expression resolved from component references when the trigger is saved.",
         "oneOf": [
@@ -53077,6 +53133,94 @@
           }
         ]
       },
+      "ParameterMappingSuggestionsResponse": {
+        "properties": {
+          "groups": {
+            "description": "Suggestion groups for this parameter, in display order.",
+            "items": {
+              "$ref": "#/components/schemas/MappingSuggestionGroupResponse"
+            },
+            "type": "array"
+          },
+          "parameter_name": {
+            "description": "Name of the report type parameter these suggestions apply to, e.g. `mappings`. Matches the `name` of an entry in the report type's `parameters` list.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "parameter_type_name": {
+            "description": "Type of the parameter, e.g. `ROW_MAPPINGS`. Matches the parameter's `type.name` on the report type, so a client can key its editor off the type while binding suggestions to the parameter by name.",
+            "enum": [
+              "AUDIENCE_ID",
+              "AUDIENCE_IDS",
+              "AUDIENCE_MEMBERSHIPS_METRIC_MAPPING",
+              "AUDIENCE_MEMBERSHIPS_ROW_MAPPINGS",
+              "AUDIENCE_MEMBERS_ROW_MAPPINGS",
+              "BOOLEAN",
+              "CAMPAIGN_ID",
+              "CAMPAIGN_IDS",
+              "CHANNEL_MAPPING",
+              "CLIENT_EVENT_METRIC_MAPPINGS",
+              "CLIENT_ID",
+              "CLIENT_IDS",
+              "DATE",
+              "DATE_RANGE",
+              "DECIMAL",
+              "EMAIL_NAMES",
+              "ENUM",
+              "ENUM_LIST",
+              "EQUALITY",
+              "FILTER_MAPPINGS",
+              "FLOWS",
+              "FLOW_FILTER",
+              "GRANULAR_TIME_RANGE",
+              "ID",
+              "IDS",
+              "INPUT_RECORD_METRIC_MAPPING",
+              "INPUT_RECORD_ROW_MAPPINGS",
+              "INTEGER",
+              "LONG",
+              "MESSAGE_SUMMARY_METRIC_MAPPINGS",
+              "METRIC_MAPPINGS",
+              "MODEL_CONFIGURATION_METRIC_MAPPING",
+              "NORMALIZED_EMAIL",
+              "NOT_ARCHIVED_CAMPAIGN_ID",
+              "PERSON_DIMENSION_MAPPINGS",
+              "PERSON_MAPPINGS",
+              "PROGRAM_LABEL",
+              "PROGRAM_LABELS",
+              "REGEX",
+              "REWARD_EVENT_METRIC_MAPPINGS",
+              "REWARD_ROW_MAPPINGS",
+              "REWARD_SUPPLIER_DISPLAY_TYPES",
+              "REWARD_SUPPLIER_IDS",
+              "REWARD_SUPPLIER_TYPES",
+              "ROW_MAPPINGS",
+              "SORT_ORDER_MAPPINGS",
+              "SORT_ORDER_MAPPINGS_ON_STEPS",
+              "STEP",
+              "STEPS",
+              "STEP_COLUMN_LIST",
+              "STRING",
+              "STRING_LIST",
+              "TIERS",
+              "TIME",
+              "TIME_RANGE",
+              "WEBHOOK_DISPATCH_METRIC_MAPPING",
+              "WEBHOOK_DISPATCH_ROW_MAPPINGS",
+              "WEBHOOK_METRIC_MAPPING",
+              "WEBHOOK_ROW_MAPPINGS"
+            ],
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "groups",
+          "parameter_name",
+          "parameter_type_name"
+        ],
+        "type": "object"
+      },
       "ParentJobIdInTaskRequestBase": {
         "description": "Id of the job this task belongs to. A literal job id or a buildtime expression resolved from component references when the task is saved; when omitted the task belongs to the job in the request path.",
         "oneOf": [
@@ -56084,6 +56228,27 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "ReportTypeMappingSuggestionsResponse": {
+        "properties": {
+          "parameters": {
+            "description": "One entry per mapping parameter of the report type that has suggestions, in the report type's parameter order. Empty when the report type has no mapping parameters with suggestions - that is a valid answer, not an error.",
+            "items": {
+              "$ref": "#/components/schemas/ParameterMappingSuggestionsResponse"
+            },
+            "type": "array"
+          },
+          "report_type_id": {
+            "description": "Id of the report type these suggestions belong to.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "parameters",
+          "report_type_id"
+        ],
         "type": "object"
       },
       "ReportTypeParameterDetailsRequest": {
@@ -105232,6 +105397,9 @@
                   "report_type_has_dependent_types": {
                     "$ref": "#/components/examples/report_type_has_dependent_types"
                   },
+                  "report_type_mapping_suggestion_parameter_not_found": {
+                    "$ref": "#/components/examples/report_type_mapping_suggestion_parameter_not_found"
+                  },
                   "report_type_missing": {
                     "$ref": "#/components/examples/report_type_missing"
                   },
@@ -105702,6 +105870,160 @@
           }
         },
         "summary": "Delete a report type",
+        "tags": [
+          "Report Types"
+        ],
+        "x-extole-bundle": "management",
+        "x-extole-visibility": "visible"
+      }
+    },
+    "/v6/report-types/{id}/mapping-suggestions": {
+      "get": {
+        "description": "Returns the column expressions this report type's mapping parameters accept, as ordered suggestion groups of `column_name` / `expression` pairs. Where the schema endpoints describe the columns a report produces, this endpoint describes the expressions that can go into its column mapping parameters. Each `expression` is complete and ready to append to the parameter's `;`-separated `name=expression` mapping value. Suggestions are derived from the contracts the report executor resolves expressions against, so every suggestion resolves to a real value when the report runs. A report type whose mapping parameters have no suggestions yet, or which has no mapping parameters at all, returns an empty `parameters` list.",
+        "operationId": "getReportTypeMappingSuggestions",
+        "parameters": [
+          {
+            "description": "The Extole unique report type identifier.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional parameter name to narrow the response to a single mapping parameter. Rejected when the report type has no parameter with this name.",
+            "in": "query",
+            "name": "parameter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportTypeMappingSuggestionsResponse"
+                }
+              }
+            },
+            "description": "Mapping suggestions per mapping parameter of the report type, as ordered groups of complete column expressions."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "report_type_mapping_suggestion_parameter_not_found": {
+                    "$ref": "#/components/examples/report_type_mapping_suggestion_parameter_not_found"
+                  },
+                  "report_type_missing": {
+                    "$ref": "#/components/examples/report_type_missing"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), or the supplied `parameter` query does not name a parameter of this report type (`report_type_mapping_suggestion_parameter_not_found`) - inspect the response `code` field for the specific error."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "payment_required": {
+                    "$ref": "#/components/examples/payment_required"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Payment Required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "report_type_not_found": {
+                    "$ref": "#/components/examples/report_type_not_found"
+                  }
+                }
+              }
+            },
+            "description": "Report type was not found. The supplied id does not match any report type accessible to the calling client."
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unsupported_media_type": {
+                    "$ref": "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Unsupported Media Type"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "too_many_requests": {
+                    "$ref": "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "summary": "Get report type mapping suggestions",
         "tags": [
           "Report Types"
         ],
