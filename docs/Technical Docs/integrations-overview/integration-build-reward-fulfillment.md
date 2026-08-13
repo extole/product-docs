@@ -177,6 +177,16 @@ curl --request POST "$EXTOLE_API_HOST/v2/reward-suppliers/custom-rewards" \
 
 A supplier's `component_ids` reference resolves only after the campaign has been published at least once, exactly as a webhook's does; until then the create fails with `invalid_component_reference`. Order the work around that rather than against it: create all the templates, publish the support campaign once, then create every supplier. Publishing between each template turns one publish into several and burns the version each time.
 
+The publish is one call, and it takes the version you are publishing:
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/publish" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
+```
+
+Read `$CAMPAIGN_VERSION` from the campaign immediately before publishing rather than counting your own writes: every component and settings call increments it, so a version computed from memory is usually one behind. That operation is **not carried in the OpenAPI specification**, so a reference lookup for it returns nothing found — which is a gap in the specification and not evidence that publishing is unavailable. This page and [Validate and Publish an Integration](doc:integration-validation) are its documentation; take the call from here rather than searching for a published operation that does not exist, and note that `POST /v2/campaigns/{campaignId}/publish` is the specification's variant of the same action.
+
 The endpoint is the one for the supplier kind you are creating — a partner that fulfills its own products uses the custom-reward endpoint — and `type` there is the custom reward kind, which is separate from the component type the template carries.
 
 Four parts of that supplier carry weight beyond their own value:
