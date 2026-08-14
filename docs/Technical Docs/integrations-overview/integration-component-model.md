@@ -202,7 +202,7 @@ curl --request GET \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
 ```
 
-A resolved logo looks like an absolute URL on Extole's asset host (`origin.xtlo.net`), for example an `originAssetId` path under that host:
+A resolved logo looks like an absolute URL on Extole's asset host, for example an `originAssetId` path under that host:
 
 ```json
 {
@@ -218,7 +218,7 @@ Copy from `/v1/components/built`, never from `/v1/components`. The source listin
 
 When no registered component carries the artwork, the partner's own website does. Read the partner's home page or brand page and take the logo address out of the markup — the `og:image` meta tag, the logo `<img>` in the header, or the download link on a press or brand-assets page — and use that absolute URL. Prefer a file the partner publishes for reuse over one lifted from a page layout, and prefer PNG or SVG over a sprite or a background image that no single URL addresses.
 
-Then fetch the address you intend to store and confirm it answers with the image before you set the setting. A URL that 404s, redirects to a landing page, or returns an HTML error body where an image should be passes the `IMAGE` type check and renders the same grey placeholder as an empty value — so the tile looks broken in exactly the way the setting was supposed to prevent. That failure has a common shape: an image address copied out of Extole's own documentation, on `files.readme.io`, which serves a "Image Not Found" page once the doc it belonged to is edited. Documentation images are screenshots and diagrams of the product rather than partner artwork, and a favicon is a browser-tab icon rather than a logo; neither belongs in this setting.
+Then fetch the address you intend to store and confirm it answers with the image before you set the setting. A URL that 404s, redirects to a landing page, or returns an HTML error body where an image should be passes the `IMAGE` type check and renders the same grey placeholder as an empty value — so the tile looks broken in exactly the way the setting was supposed to prevent. That failure has a common shape: an image address copied out of Extole's own documentation, which serves a "Image Not Found" page once the doc it belonged to is edited. Documentation images are screenshots and diagrams of the product rather than partner artwork, and a favicon is a browser-tab icon rather than a logo; neither belongs in this setting.
 
 When you have the image file itself, upload it as multipart form data with the metadata in an `asset` part and the bytes in a `file` part:
 
