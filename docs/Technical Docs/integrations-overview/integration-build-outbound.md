@@ -9,7 +9,7 @@ This page is one part of the Management API integration guide. Start at [Create 
 
 - A server-side access token authorized to manage campaigns, components, and webhooks.
 - The partner page for this integration, which names the finished tree, endpoints, and tag namespace.
-- The production API host in `EXTOLE_API_HOST` (`https://api.extole.io`).
+- The production API host in `EXTOLE_API_HOST`.
 - Confirmation that the duplicatable listing already has a maintained integration component whose name matches the partner. If it does not, this is not an outbound library install — use [Create the Integration Campaign and Component Model](doc:integration-component-model) instead.
 
 ## Required Parameters

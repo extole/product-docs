@@ -115,7 +115,7 @@ curl --request POST \
         "name": "external.url",
         "type": "STRING",
         "values": {
-          "default": "https://www.example.com"
+          "default": "PARTNER_PRODUCT_SITE"
         },
         "tags": [
           "internal:ui-display"
@@ -125,7 +125,7 @@ curl --request POST \
         "name": "external.integration.url",
         "type": "STRING",
         "values": {
-          "default": "https://marketplace.example.com/extole"
+          "default": "PARTNER_MARKETPLACE_LISTING"
         },
         "tags": [
           "internal:ui-display"
@@ -145,7 +145,7 @@ curl --request POST \
         "name": "logo",
         "type": "IMAGE",
         "values": {
-          "default": "https://origin.xtlo.net/type=asset:clientShortName=example-components:originAssetId=tj9rg15cj0eu6mdf3b8c/example.png"
+          "default": "ASSET_HOST_LOGO_URL"
         },
         "tags": [
           "internal:ui-display"
@@ -165,7 +165,7 @@ curl --request POST \
   }'
 ```
 
-All eight display settings are in that one create request. The integration type requires every one of them, so a create that sends only a readable subset — a description and a documentation link, say — is rejected rather than partially accepted, and there is no later mutation that makes the component valid without them. The next section covers what each value should say.
+All eight display settings are in that one create request. The integration type requires every one of them, so a create that sends only a readable subset — a description and a documentation link, say — is rejected rather than partially accepted, and there is no later mutation that makes the component valid without them. Replace `PARTNER_PRODUCT_SITE`, `PARTNER_MARKETPLACE_LISTING`, and `ASSET_HOST_LOGO_URL` with the absolute URLs the next section describes. The next section covers what each value should say.
 
 Use `variables` when creating a component. Do not send a `settings` property in `CampaignComponentCreateRequest`.
 
@@ -180,8 +180,8 @@ The integration type requires eight settings: `short.description`, `about`, `doc
 | `short.description` | One sentence for the integration tile. |
 | `about` | A short paragraph describing what the integration receives and sends. |
 | `documentation.url` | The partner-facing documentation page for this integration. Not this build guide. |
-| `external.url` | The partner's own product site. |
-| `external.integration.url` | The partner's marketplace or extension listing, or an empty string when the partner has none. |
+| `external.url` | The partner's own product site, as an absolute URL. |
+| `external.integration.url` | The partner's marketplace or extension listing as an absolute URL, or an empty string when the partner has none. |
 | `categories` | A single category string already used by other integrations, such as `eCommerce Platform`. The admin groups integrations by exact value, so a new spelling or a list-shaped value creates an orphan category. |
 | `logo` | Type `IMAGE`. **This is the image the Integrations page renders.** Either an absolute image URL or a buildtime expression resolving an asset this component owns, such as `spel@buildtime:context.getAsset('example').getUrl()`. The admin binds the built value straight to an image source, so anything that is not a working URL after the build shows the grey Extole placeholder. |
 | `imageKey` | The stable key the platform resolves to its own stored partner image, used by the older partner detail view. The partner page names it; it is not the partner's name lowercased or the page's slug. It does not render the integration tile, so it is never a substitute for `logo`. |
@@ -202,13 +202,13 @@ curl --request GET \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
 ```
 
-A resolved logo looks like an absolute URL on Extole's asset host:
+A resolved logo looks like an absolute URL on Extole's asset host (`origin.xtlo.net`), for example an `originAssetId` path under that host:
 
 ```json
 {
   "name": "logo",
   "type": "IMAGE",
-  "values": { "default": "https://origin.xtlo.net/type=asset:clientShortName=example-components:originAssetId=tj9rg15cj0eu6mdf3b8c/example.png" }
+  "values": { "default": "ASSET_HOST_LOGO_URL" }
 }
 ```
 
@@ -268,7 +268,7 @@ Compute the instructions at build time so the installer reads the values this ca
   "tags": ["category:configuration", "importance:basic"],
   "priority": "20",
   "values": {
-    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: https://api.extole.io/v6/events\\nProgram label (send as data.labels): PROGRAM_LABEL\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\\nUse a server-side access token from the Security Center. Do not use a token that can manage campaigns in the partner application.\"; })()"
+    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: POST /v6/events — see Send Platform Events to Extole\\nProgram label (send as data.labels): PROGRAM_LABEL\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\\nUse a server-side access token from the Security Center. Do not use a token that can manage campaigns in the partner application.\"; })()"
   }
 }
 ```
