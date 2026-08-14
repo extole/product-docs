@@ -113,7 +113,7 @@ An integration build needs the values below, but almost none of them are things 
 | :---- | :------------------ |
 | Partner platform and version | The partner page for this partner, then the partner's own developer documentation for hooks and version differences. |
 | Integration category | [Integration Categories](doc:integration-categories), which fixes the shape the rest of the build takes. |
-| Access Token | A server-side access token, created in the [Security Center](https://my.extole.com/security-center), authorized to manage campaigns and components and to read people during verification. |
+| Access Token | A server-side access token, created in the <Anchor label="Security Center" target="_blank" href="https://my.extole.com/security-center">Security Center</Anchor>, authorized to manage campaigns and components and to read people during verification. |
 | Extole API host | The production host for campaign, component, and event calls, held in `EXTOLE_API_HOST`. |
 | Target client | The client the session is already authenticated to. Never ask which client to build in: an identifier supplied from memory builds a live integration in the wrong account. |
 | Integration name and component name | Derived from the partner name — a human-readable campaign name and a stable lowercase component name. |

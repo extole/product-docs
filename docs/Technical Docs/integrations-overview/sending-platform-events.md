@@ -16,7 +16,7 @@ Hold these as configuration rather than constants in code, so a token rotates an
 | Setting | Purpose |
 | :------ | :------ |
 | Event endpoint | `https://api.extole.io/v6/events` in production. |
-| Access Token | A server-side Extole access token, created in the [Security Center](https://my.extole.com/security-center), that authorizes event submission. Store it encrypted or in protected server configuration. Never send events with a token that can also manage campaigns and components. |
+| Access Token | A server-side Extole access token, created in the <Anchor label="Security Center" target="_blank" href="https://my.extole.com/security-center">Security Center</Anchor>, that authorizes event submission. Store it encrypted or in protected server configuration. Never send events with a token that can also manage campaigns and components. |
 | Program label | Targets events at the installed integration. Read the current label from the integration's configuration view. |
 | Platform identifier | The store URL, site identifier, or tenant that produced the event. |
 | Status or state mapping | The platform's own status identifiers that mean the event happened. |

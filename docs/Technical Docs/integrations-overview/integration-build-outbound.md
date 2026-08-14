@@ -5,6 +5,25 @@ excerpt: "Install a maintained partner source, reshape it to the documented tree
 
 This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](doc:management-api-integration) for the build paths and the creation contract.
 
+## Prerequisites
+
+- A server-side access token authorized to manage campaigns, components, and webhooks.
+- The partner page for this integration, which names the finished tree, endpoints, and tag namespace.
+- The production API host in `EXTOLE_API_HOST` (`https://api.extole.io`).
+- Confirmation that the duplicatable listing already has a maintained integration component whose name matches the partner. If it does not, this is not an outbound library install — use [Create the Integration Campaign and Component Model](doc:integration-component-model) instead.
+
+## Required Parameters
+
+| Parameter | Purpose |
+| :-------- | :------ |
+| `TOKEN` | Bearer token on every call. |
+| `EXTOLE_API_HOST` | Production host for campaign, component, and webhook calls. |
+| `PARTNER_COMPONENT_NAME` | The library component name from the partner page. |
+| `SOURCE_COMPONENT_ID` | Identifier of the Extole-owned library source chosen from the duplicatable listing. |
+| `INTEGRATION_COMPONENT_ID` | Identifier of the installed integration component, used when attaching component-scoped webhooks. |
+
+The partner's API secret is required only to attach the credential. Finish the tree, webhooks, and settings without it, leave the credential setting null, and report the value as outstanding.
+
 ## Build an Outbound Library Integration
 
 An outbound partner starts from its maintained library source. Installing is one call; the finished shape is what the partner page defines. Every step below runs against a partner-agnostic contract, so substitute the component name, endpoints, and tag namespace from the partner page.
@@ -156,6 +175,20 @@ When the account URL setting may be stored without a scheme, build the URL expre
 Create a webhook client key only when the requester has supplied the partner's API secret, then set the credential setting on the integration component. Missing credentials do not block the reshape: finish the tree, webhooks, and settings, leave the credential setting null, and report which values remain outstanding.
 
 The account URL is different from the secret. Blanking it to signal "not yet configured" breaks the publish that the rest of the reshape depends on, so leave a valid placeholder host in place and report it as a value the requester still has to replace.
+
+## Error Handling
+
+| Response | Cause | What to do |
+| :------- | :---- | :--------- |
+| `missing_request_body` | The duplicate request had no body. | Send a JSON object with at least one property, such as `component_display_name`. |
+| Unrecognized property | The body used `display_name`. | Use `component_display_name`. `display_name` is not a property of this request. |
+| `invalid_null` | `target_campaign_id` was sent as null. | Omit the attribute. A library install creates a new campaign by leaving it off. |
+| `invalid_component_reference` | A webhook whose expressions call `context.getComponent()` was created before the campaign had been published. | Publish the campaign once, then create the webhook with `component_ids`. |
+| Campaign validation rejects the publish | An account-URL setting that feeds a webhook URL is empty or not a valid host. | Keep a valid placeholder host in that setting until the real host arrives. |
+| Webhook setting evaluates to `null` | The `WEBHOOK_ID` expression filters on a tag no webhook carries, or several webhooks share the tag and `[0]` is arbitrary. | Give each webhook its own purpose tag and resolve the setting through that tag. |
+| The first duplicatable result is the wrong source | The listing returns the library source and one copy per account that already installed it. | Choose the Extole-owned source. Stop and ask when the list has more than one entry you cannot tell apart. |
+
+A `2xx` on the duplicate call means the library tree was copied, not that the install matches the partner page. Reshape, attach webhooks, and read the campaign back before calling the build done.
 
 ### Verify the Install
 

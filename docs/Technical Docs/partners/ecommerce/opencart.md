@@ -19,7 +19,7 @@ OpenCart has no packaged Extole app. Your store sends events through a server-si
 | OpenCart 4.x store | A store you can install a server-side extension into. |
 | OpenCart administrator access | Needed to install the extension and configure its event, status, and credential settings. |
 | Developer resource | Someone to build or install the OpenCart extension that sends the events. |
-| Access Token | A server-side Extole access token authorized to submit events, created in the [Security Center](https://my.extole.com/security-center). Do not use a token that can also manage campaigns and components. |
+| Access Token | A server-side Extole access token authorized to submit events, created in the <Anchor label="Security Center" target="_blank" href="https://my.extole.com/security-center">Security Center</Anchor>. Do not use a token that can also manage campaigns and components. |
 | Order-status decisions | The OpenCart statuses that mean an order is converted, shipped, and canceled in your store. |
 | HTTPS connectivity | The OpenCart server must be able to reach the Extole Events API. |
 

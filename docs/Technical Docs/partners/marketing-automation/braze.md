@@ -42,7 +42,7 @@ The table below lists the prerequisites you need to complete this partnership in
 | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
 | Braze Account      | A Braze account is required in order to take advantage of this partnership.                                                        |
 | Braze REST API Key | A Braze REST API key with both the `users.track` and `campaigns.trigger.send` permissions, created within your Braze **Settings** > **REST API Key** > **Create New API Key**. Extole calls both endpoints, and a key missing either permission is rejected with `403 Access Denied` on the calls it does not cover. Braze does not allow a key's permissions to be edited after it is created, so a key that already exists with only `users.track` has to be replaced rather than amended. |
-| Braze API URL      | Your Braze API URL is specific to your Braze Instance. You can find it [here](https://www.braze.com/docs/api/basics/#endpoints).   |
+| Braze API URL      | Your Braze API URL is specific to your Braze Instance. You can find it <Anchor label="in Braze's API documentation" target="_blank" href="https://www.braze.com/docs/api/basics/#endpoints">in Braze's API documentation</Anchor>.   |
 
 [//]: ___
 
@@ -77,14 +77,14 @@ Key = Your Braze Rest API Key
 
 Save the key.
 
-![](https://files.readme.io/cf654412922ca8461d8655cb52995316410aad0d5c412952108c1388a13d0a7d-0a00e27-image.png)
+![The My Extole Security Center form for creating a webhook key named Braze Integration](https://files.readme.io/cf654412922ca8461d8655cb52995316410aad0d5c412952108c1388a13d0a7d-0a00e27-image.png)
 
 ### Connect to Your Braze Account
 
-1. Select the Braze integration on the [Partners](https://my.extole.com/partners) page of your My Extole account.
+1. Select the Braze integration on the <Anchor label="Partners" target="_blank" href="https://my.extole.com/partners">Partners</Anchor> page of your My Extole account.
 2. Within the Braze integration, hit the Install button to initiate the connection between Extole and Braze.
 3. Fill out the required fields, starting with the Braze REST API key. Create it in your Braze account under **Settings** > **REST API Key** > **Create New API Key**, and select both the `users.track` and `campaigns.trigger.send` options. Extole uses `users.track` to record events and attributes and `campaigns.trigger.send` to trigger campaigns and Canvases, so a key with only the first authorizes half the integration. Select both at creation: Braze does not let you add a permission to an existing key.
-4. Enter your Braze API URL. This URL depends on which instance your Braze account is provisioned to. You can find it [here](https://www.braze.com/docs/api/basics/#endpoints).
+4. Enter your Braze API URL. This URL depends on which instance your Braze account is provisioned to. You can find it <Anchor label="in Braze's API documentation" target="_blank" href="https://www.braze.com/docs/api/basics/#endpoints">in Braze's API documentation</Anchor>.
 5. Add any additional Extole events you'd like to send to Braze beyond the defaults. The default events, event properties, and user attributes are described in the [Extole Events table](https://docs.extole.com/docs/braze#extole-program-events) below.
 6. Add any additional Reward states you'd like to send to Braze beyond the default `FULFILLED` state. Refer to the [Extole Rewards table](https://docs.extole.com/docs/braze#extole-rewards) below for a description of all available reward states.
 7. Select your Braze External ID key mapping, which is how Extole updates user profiles in Braze. You can map the Braze External ID key to Extole's`email_address`or `partner_user_id`for the user.
@@ -452,6 +452,6 @@ For certain use cases, such as a new email or SMS subscription where Extole does
 
 After connecting your accounts, events will automatically begin flowing from Extole to Braze without any action on your part. A live view of events being sent to Braze can be found in Extole’s Outbound Webhook Center for troubleshooting. 
 
-![](https://files.readme.io/b743a3b1fdcab7760e996b0cc7471b6607f0e4fc2686016faed197a1b01cab5e-e9550ed-Screen_Shot_2022-04-19_at_5.16.47_PM.png "Screen Shot 2022-04-19 at 5.16.47 PM.png")
+![The Extole Outbound Webhook Center showing live events sent to Braze](https://files.readme.io/b743a3b1fdcab7760e996b0cc7471b6607f0e4fc2686016faed197a1b01cab5e-e9550ed-Screen_Shot_2022-04-19_at_5.16.47_PM.png)
 
 [//]: ___

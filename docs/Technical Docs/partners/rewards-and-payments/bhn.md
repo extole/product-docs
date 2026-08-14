@@ -18,7 +18,7 @@ With the Extole and BHN integration, you can drive customer acquisition, generat
 | BHN Payment Method                             | The method you will use to fund your BHN program. Options include ACH and Draw Down.                                                                                                                                                                                                                                                                                                                  |
 | BHN FAID Number                                | If you have separate financial accounts within your BHN program, please provide the FAID number where orders should be placed.                                                                                                                                                                                                                                                                        |
 | BHN Pre-Production and Production Certificates | The certificates needed to generate your Client Key ID to connect to your BHN pre-production (if applicable) and production environments. Send the password protected certificates to support\@extole.com, or request through your Extole team.                                                                                                                                                       |
-| Extole Webhook IP Address                      | The IP address that Extole uses to place orders through the Hawk Marketplace API can be found here: [https://docs.extole.com/docs/develop-behind-your-firewall#outbound-file-transfers-and-webhooks](https://docs.extole.com/docs/develop-behind-your-firewall#outbound-file-transfers-and-webhooks "https://docs.extole.com/docs/develop-behind-your-firewall#outbound-file-transfers-and-webhooks") |
+| Extole Webhook IP Address                      | The IP address that Extole uses to place orders through the Hawk Marketplace API is listed under [Develop Behind Your Firewall](doc:develop-behind-your-firewall#outbound-file-transfers-and-webhooks). |
 
 ## Available Products
 
@@ -36,7 +36,7 @@ BHN’s virtual closed loop in addition to Tango's Disbursement (Card Transfer, 
 
 ### Compatible with Reward Bank
 
-BHN card products can also be used within Extole's Reward Bank. Reward Bank gives your advocates a single place to collect and redeem multiple referral rewards. [Learn more about Reward Bank.](https://www.extole.com/platform/reward-bank/)
+BHN card products can also be used within Extole's Reward Bank. Reward Bank gives your advocates a single place to collect and redeem multiple referral rewards. <Anchor label="Learn more about Reward Bank" target="_blank" href="https://www.extole.com/platform/reward-bank/">Learn more about Reward Bank</Anchor>.
 
 ## Integration Model
 
@@ -170,7 +170,7 @@ Your Extole team will help you with this process.
 Once the integration is complete, you will be able to see rewards flow in real-time in your My Extole account.
 
 
-<Image src="https://files.readme.io/e465eb6a6fbb58207f2416c21bbe94857c33c8392aa3a3aaecc818c32db3e6a6-1fce53b34f2397e80f7e6a32ee733bfa7eef33fa8717b2c1fddbe950e110dcb8-Screenshot_2024-09-23_at_7.28.10_AM.png" align="center" />
+<Image alt="The BHN integration in My Extole showing rewards flowing in real time after setup" src="https://files.readme.io/e465eb6a6fbb58207f2416c21bbe94857c33c8392aa3a3aaecc818c32db3e6a6-1fce53b34f2397e80f7e6a32ee733bfa7eef33fa8717b2c1fddbe950e110dcb8-Screenshot_2024-09-23_at_7.28.10_AM.png" align="center" />
 
 
 ## FAQs
@@ -180,10 +180,10 @@ Once the integration is complete, you will be able to see rewards flow in real-t
 Extole leverages HTTP status codes from BHN API responses to update the status of a card order (aka reward) in the Extole platform. You can use the Extole platform to understand if a reward has been submitted to BHN, if it's been processed and sent to the recipient, or if the reward failed. Refer to the table below for additional information on reward stages in the Extole platform.
 
 
-<Image src="https://files.readme.io/20b5ce8d8ef27ba0362a3bc3266908f35bc75219a9ca702c23f9706dc18fbeb0-77754c9577a4269e8c0b6e247f33fc60754eae832d7eb791659f6fe5a5d7c56f-Screenshot_2025-01-29_at_12.25.21_PM.png" align="center" width="700px" />
+<Image alt="Table of Extole reward states mapped from BHN API responses" src="https://files.readme.io/20b5ce8d8ef27ba0362a3bc3266908f35bc75219a9ca702c23f9706dc18fbeb0-77754c9577a4269e8c0b6e247f33fc60754eae832d7eb791659f6fe5a5d7c56f-Screenshot_2025-01-29_at_12.25.21_PM.png" align="center" width="700px" />
 
 
-Refer to BHN's Developer Documentation for more detailed information on card ordering and response codes for [physical prepaid cards](https://developer.blackhawknetwork.com/hawkmarketplace/docs/placing-prepaid-card-personalized-individual-orders#submitting-the-order), [re-loadable cards](https://developer.blackhawknetwork.com/hawkmarketplace/docs/reloadable-personalized-prepaid-card-orders#responses), and [digital prepaid cards](https://developer.blackhawknetwork.com/hawkmarketplace/docs/placing-prepaid-card-personalized-individual-orders#submitting-the-order).
+Refer to BHN's Developer Documentation for more detailed information on card ordering and response codes for <Anchor label="physical prepaid cards" target="_blank" href="https://developer.blackhawknetwork.com/hawkmarketplace/docs/placing-prepaid-card-personalized-individual-orders#submitting-the-order">physical prepaid cards</Anchor>, <Anchor label="re-loadable cards" target="_blank" href="https://developer.blackhawknetwork.com/hawkmarketplace/docs/reloadable-personalized-prepaid-card-orders#responses">re-loadable cards</Anchor>, and <Anchor label="digital prepaid cards" target="_blank" href="https://developer.blackhawknetwork.com/hawkmarketplace/docs/placing-prepaid-card-personalized-individual-orders#submitting-the-order">digital prepaid cards</Anchor>.
 
 <Table align={["left","left"]}>
   <thead>
@@ -265,7 +265,7 @@ By default rewards that are in an `EARNED`, `TRYING TO FULFILL`, or `SENT/FULFIL
 
 1. Look up the order number for the reward in the Extole platform. The Order number is the `Partner ID` located on the Reward event.
 
-   ![](https://files.readme.io/4f1074794c1ec074572cbe8f85bb89d995a1ceb96a365bc76460087d66a96b61-3b82f9cbc43ed16d71e9b5d041dfaea03432a0a386fa6bf73c1a518c0c43f29d-image_2.png)
+   ![The Partner ID field on a reward event in My Extole, used as the BHN order number](https://files.readme.io/4f1074794c1ec074572cbe8f85bb89d995a1ceb96a365bc76460087d66a96b61-3b82f9cbc43ed16d71e9b5d041dfaea03432a0a386fa6bf73c1a518c0c43f29d-image_2.png)
 
 
 
@@ -273,6 +273,6 @@ By default rewards that are in an `EARNED`, `TRYING TO FULFILL`, or `SENT/FULFIL
 
 3. Once you've reversed the reward, navigate back to the Reward in the Extole system and select`Mark as Revoked`if the reward had already been fulfilled, or `CANCEL` if it was in processing.
 
-![](https://files.readme.io/5a6dab10439e205aac86884156b97223f34f74dc2194c3fea42d24c133bef5e4-f2f82069cc204caf20dbc8642b6f86ca0f93a0481c5afa8a66d64e4b72ec3764-Screenshot_2025-04-18_at_8.32.38_AM.png)
+![The reward actions menu in My Extole with Mark as Revoked and Cancel](https://files.readme.io/5a6dab10439e205aac86884156b97223f34f74dc2194c3fea42d24c133bef5e4-f2f82069cc204caf20dbc8642b6f86ca0f93a0481c5afa8a66d64e4b72ec3764-Screenshot_2025-04-18_at_8.32.38_AM.png)
 
 <br />
