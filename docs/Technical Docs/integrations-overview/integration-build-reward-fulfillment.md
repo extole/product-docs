@@ -120,6 +120,7 @@ curl --request POST \
       { "name": "clientProgramNumber", "display_name": "Client Program Number", "type": "STRING", "values": { "default": "" }, "tags": ["importance:basic"] },
       { "name": "financialAccountId", "display_name": "Financial Account ID", "type": "STRING", "values": { "default": "" }, "tags": ["importance:basic"] },
       { "name": "paymentType", "display_name": "Payment Type", "type": "ENUM", "allowed_values": ["ACH_DEBIT", "DRAW_DOWN"], "values": { "default": "ACH_DEBIT" }, "tags": ["importance:basic"] },
+      { "name": "rewardSupplierLogo", "type": "IMAGE", "values": { "default": null }, "tags": ["importance:expert"] },
       { "name": "enabled", "type": "BOOLEAN", "values": { "default": false }, "tags": ["importance:expert"] }
     ]
   }'
@@ -181,11 +182,11 @@ The publish is one call, and it takes the version you are publishing:
 
 ```bash
 curl --request POST \
-  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/publish" \
+  "$EXTOLE_API_HOST/v2/campaigns/$SUPPORT_CAMPAIGN_ID/version/$SUPPORT_CAMPAIGN_VERSION/publish" \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
 ```
 
-Read `$CAMPAIGN_VERSION` from the campaign immediately before publishing rather than counting your own writes: every component and settings call increments it, so a version computed from memory is usually one behind. That operation is **not carried in the OpenAPI specification**, so a reference lookup for it returns nothing found — which is a gap in the specification and not evidence that publishing is unavailable. This page and [Validate and Publish an Integration](doc:integration-validation) are its documentation; take the call from here rather than searching for a published operation that does not exist, and note that `POST /v2/campaigns/{campaignId}/publish` is the specification's variant of the same action.
+Read `$SUPPORT_CAMPAIGN_VERSION` from the support campaign immediately before publishing rather than counting your own writes: every component and settings call increments it, so a version computed from memory is usually one behind. That operation is **not carried in the OpenAPI specification**, so a reference lookup for it returns nothing found — which is a gap in the specification and not evidence that publishing is unavailable. This page and [Validate and Publish an Integration](doc:integration-validation) are its documentation; take the call from here rather than searching for a published operation that does not exist, and note that `POST /v2/campaigns/{campaignId}/publish` is the specification's variant of the same action.
 
 The endpoint is the one for the supplier kind you are creating — a partner that fulfills its own products uses the custom-reward endpoint — and `type` there is the custom reward kind, which is separate from the component type the template carries.
 
@@ -210,7 +211,7 @@ Default each template's `enabled` setting to `false`. A template describes a pro
 
 ### Create the Integration and Its Sockets
 
-Create the `INTEGRATION` campaign, root, and model component as described in [Create the Integration Campaign](doc:integration-component-model) and [Create the Component Model](doc:integration-component-model), with the partner's account identifier and a `CLIENT_KEY` credential setting. Then add the supplier socket, filtered to the type created above:
+Create the `INTEGRATION` campaign, root, and model component as described in [Create the Integration Campaign](doc:integration-component-model) and [Create the Component Model](doc:integration-component-model). Declare the credential settings under the names the partner page uses — for BHN that is `merchantId` (`STRING`) and `clientKeyId` (`CLIENT_KEY`). A prefixed invention such as `bhnMerchantId` is a different setting, and webhook `client_key_id` expressions plus request handlers that call `context.getVariable("merchantId")` will read null. Then add the supplier socket, filtered to the type created above:
 
 ```bash
 curl --request POST \
@@ -260,6 +261,8 @@ The report-runner and event-stream views are each empty until their element exis
 | `event_streams` | `POST /v6/event-streams`, with filters added afterwards |
 
 Attach each of those two to the **view** component that displays it, not to the integration component. Both views resolve what to show by querying their own component for an element of the matching kind, so a report runner hung off the integration leaves the tab reporting that no report runner is configured even though one exists in the account.
+
+Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
 
 #### Build the Report Behind the Activity Tab
 
@@ -343,11 +346,19 @@ The `parameters` list must name **every** parameter the parent declares, giving 
 
 The list also has to cover everything the runner sends, because it works in both directions: a configured type declares what its runners may pass, so a runner sending `time_range` against a type that omits it is rejected the same way an invented parameter is. The runner created earlier sends seven parameters, which is why all seven appear here.
 
-Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
-
-An event stream's filters are created under the stream and carry a `type` discriminator in the body rather than a path segment, which is the opposite of how reward webhook filters work:
+An event stream's filters are created under the stream and carry a `type` discriminator in the body rather than a path segment, which is the opposite of how reward webhook filters work. Create the stream first, after the campaign republish above, then add each filter:
 
 ```bash
+curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "javascript@buildtime:context.getComponent().getName() + '\'' Reward Events'\''",
+    "description": "A live feed of reward events produced by the Example integration. The feed runs for 1 hour by default. Refresh the feed to poll for new events.",
+    "tags": ["internal:app_type=example"],
+    "component_ids": ["'"$VIEW_COMPONENT_ID"'"]
+  }'
+
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
@@ -379,29 +390,25 @@ The event-stream view uses the same expression with `withType('EVENT_STREAM')`. 
 
 Give the report-runner view a `reportColumnsMapping` setting as well, typed `JSON`. Its default is the mapping serialized as a string and escaped; a nested object is refused as `variable_value_invalid_type`, which reports the value as invalid for the type it plainly is. It maps the report's columns onto a chart, and every column it names has to be one the runner's `mappings` expression produces — the axis column and each series column by exactly the name the expression assigns:
 
-```json
-{
-  "chart": { "type": "line" },
-  "xAxis": { "column": "date", "type": "datetime" },
-  "series": [
-    { "name": "Count", "column": "count", "aggregation": "sum" },
-    { "name": "Total Spend", "column": "revenue", "aggregation": "sum" }
-  ]
-}
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components/$REPORT_VIEW_COMPONENT_ID/settings" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "reportColumnsMapping",
+    "display_name": "Report columns mapping",
+    "type": "JSON",
+    "values": {
+      "default": "{\"chart\":{\"type\":\"line\"},\"xAxis\":{\"column\":\"date\",\"type\":\"datetime\"},\"series\":[{\"name\":\"Count\",\"column\":\"count\",\"aggregation\":\"sum\"},{\"name\":\"Total Spend\",\"column\":\"revenue\",\"aggregation\":\"sum\"}]}"
+    },
+    "tags": ["importance:expert"]
+  }'
 ```
 
 Without the setting the tab has a report behind it and nothing to draw; with a column the report does not produce, it draws an empty axis. Write the mappings expression and this setting together.
 
-Name the event stream for the component that owns it and tag it with the partner's app type, which is how the feed is recognised as this integration's rather than a stream someone left in the account:
-
-```json
-{
-  "name": "javascript@buildtime:context.getComponent().getName() + ' Reward Events'",
-  "description": "A live feed of reward events produced by the Example integration. The feed runs for 1 hour by default. Refresh the feed to poll for new events.",
-  "tags": ["internal:app_type=example"],
-  "component_ids": ["$VIEW_COMPONENT_ID"]
-}
-```
+The event-stream create request above is what returns `$EVENT_STREAM_ID`. Name that stream for the view that owns it and tag it with the partner's app type, which is how the feed is recognised as this integration's rather than a stream someone left in the account.
 
 A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type.
 

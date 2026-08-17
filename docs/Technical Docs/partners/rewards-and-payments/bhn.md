@@ -97,7 +97,7 @@ The JSON body always carries `clientProgramNumber`, `paymentType`, and `orderDet
 | :------ | :---------------- |
 | Virtual and eGift | `emailContent.subject` `"You earned a reward!"`, `emailContent.unsubscribeData.methodType` `"NONE"`; recipient has `firstName`, `lastName`, `email`. |
 | Physical single-load | Recipient also has `id` (the person id) and `address` from person data `address_line1`, `address_line2`, `address_city`, `address_region`, `address_postal_code`, `address_country`. |
-| Physical reloadable | Recipient `id` is a per-person card key stored as `blackhawk.card.{cardName}.cardId`. If this person already has a non-failed reward for the same `clientProgramNumber`, rewrite the URL to `/rewardsOrderProcessing/v1/submitFunding` and send only `recipient.id` plus `amount`. |
+| Physical reloadable | Recipient `id` is a per-person card key stored as `blackhawk.card.{cardName}.cardId`. If this person already has a non-failed reward for the same `clientProgramNumber`, rewrite the URL to `/rewardsOrderProcessing/v1/submitFunding`. That body still includes `clientProgramNumber`, `paymentType`, and `financialAccountId` when present; the `recipient` object contains only `id` (the stored card key). `amount` stays on the order detail. |
 
 The shared order response handler parses the BHN JSON. On HTTP 4xx or `responseBody.errors`, it sends `createFailedRewardCommandEventBuilder()` unless the first error code is `orderDetails.recipient.id.doesNotExist`, which returns `"RETRY"`. HTTP 5xx returns `"RETRY"`. A 2xx without errors sends `createFulfillRewardCommandEventBuilder().withSuccess(false)` — that marks the reward as processing, not delivered — and returns `"OK"`.
 
@@ -135,7 +135,7 @@ Only the v10 integration is current. Build or install that one; the earlier flav
 
 ### Reward Activity Report Contract
 
-The Reward Activity tab owns one enabled, scheduled report runner. Its account-local report type is named `Reward Revenue`; find that name through `GET /v6/report-types`, and use the returned identifier rather than carrying an identifier from another account. If this account has no type by that name, create a configured type from a parent that accepts metric mappings, with the defaults below, before creating the runner.
+The Reward Activity tab owns one enabled, scheduled report runner. Its account-local report type is named `Reward Revenue`; find that name through `GET /v6/report-types?display_name=Reward%20Revenue`, and use the returned identifier rather than carrying an identifier from another account. Confirm the selected type declares `locales`, `include_totals`, and a metric-shaped `mappings` parameter. If this account has no type by that name, create a configured type from a parent that accepts metric mappings, with the defaults below, before creating the runner.
 
 | Runner property | Required value |
 | :-------------- | :------------- |
@@ -156,7 +156,7 @@ Its parameters are part of the product contract:
   "container": "production",
   "mappings": "date=START_DATE(event.eventTime, period:\"DAY\"); reason=event.data.referral_reason; coupon_used=BOOLEAN_FORMAT(event.data.coupon_codes!=\"null\",\"COUPON USED\",\"NO COUPON USED\");quality=event.quality; count=group_count(event.id, step_name:\"converted\");hidden(reward_id)=LAST(COLLECTION(PERSON(event.data.related_person_id).steps, filter:rootEventId==event.rootEventId, filter: stepName==\"reward_earned\"),sortBy: eventDate).data.reward_id; revenue=GROUP_SUM(event.data.amount, step_name:\"converted\");rewarded=BOOLEAN_FORMAT(reward_id == \"null\",\"UNREWARDED\",\"REWARDED\")",
   "locales": "ALL",
-  "time_range": "all_time",
+  "time_range": "ALL_TIME",
   "campaign_states": "ALL",
   "visit_type": "NEW_TO_CLIENT",
   "unattributed_events": "false",
@@ -196,10 +196,10 @@ Your Extole team will help you with this process.
 ### Set up the BHN Reward Supplier from your Rewards page
 
 1. Go to Rewards page in your My Extole account and hit **+ New Reward**.
-2. Select the Reward Type—Virtual Card or Physical Card.
+2. Select the BHN product that matches what you are offering: **BHN Virtual Prepaid Cards**, **BHN Physical Single-Load Prepaid Cards**, **BHN Physical Reloadable Prepaid Cards**, or **BHN eGift Cards**. Virtual and eGift are emailed; physical single-load and physical reloadable are mailed, and only reloadable cards can receive later value on the same card.
 3. Specify the name of the reward, the value of the reward, and the Client Program Number and FAID (optional) supplied by your BHN team. You can also get your program number and FAID from the Hawk Marketplace Portal.
 4. Select the appropriate Payment Type. Confirm your preferred payment method (ACH Debit or Drawdown) and complete the necessary documentation for setup. This step can be confirmed with your BHN team.
-5. Save the configuration and use the newly created reward.
+5. Save the configuration and use the newly created reward. For a reloadable card, the first reward issues the card; later rewards for the same person and Client Program Number fund that card through BHN's `submitFunding` path rather than creating a second card.
 
 Once the integration is complete, you will be able to see rewards flow in real-time in your My Extole account.
 
