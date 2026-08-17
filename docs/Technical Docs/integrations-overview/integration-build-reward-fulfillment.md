@@ -120,6 +120,7 @@ curl --request POST \
       { "name": "clientProgramNumber", "display_name": "Client Program Number", "type": "STRING", "values": { "default": "" }, "tags": ["importance:basic"] },
       { "name": "financialAccountId", "display_name": "Financial Account ID", "type": "STRING", "values": { "default": "" }, "tags": ["importance:basic"] },
       { "name": "paymentType", "display_name": "Payment Type", "type": "ENUM", "allowed_values": ["ACH_DEBIT", "DRAW_DOWN"], "values": { "default": "ACH_DEBIT" }, "tags": ["importance:basic"] },
+      { "name": "rewardSupplierLogo", "type": "IMAGE", "values": { "default": null }, "tags": ["importance:expert"] },
       { "name": "enabled", "type": "BOOLEAN", "values": { "default": false }, "tags": ["importance:expert"] }
     ]
   }'
@@ -181,11 +182,11 @@ The publish is one call, and it takes the version you are publishing:
 
 ```bash
 curl --request POST \
-  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/publish" \
+  "$EXTOLE_API_HOST/v2/campaigns/$SUPPORT_CAMPAIGN_ID/version/$SUPPORT_CAMPAIGN_VERSION/publish" \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
 ```
 
-Read `$CAMPAIGN_VERSION` from the campaign immediately before publishing rather than counting your own writes: every component and settings call increments it, so a version computed from memory is usually one behind. That operation is **not carried in the OpenAPI specification**, so a reference lookup for it returns nothing found — which is a gap in the specification and not evidence that publishing is unavailable. This page and [Validate and Publish an Integration](doc:integration-validation) are its documentation; take the call from here rather than searching for a published operation that does not exist, and note that `POST /v2/campaigns/{campaignId}/publish` is the specification's variant of the same action.
+Read `$SUPPORT_CAMPAIGN_VERSION` from the support campaign immediately before publishing rather than counting your own writes: every component and settings call increments it, so a version computed from memory is usually one behind. That operation is **not carried in the OpenAPI specification**, so a reference lookup for it returns nothing found — which is a gap in the specification and not evidence that publishing is unavailable. This page and [Validate and Publish an Integration](doc:integration-validation) are its documentation; take the call from here rather than searching for a published operation that does not exist, and note that `POST /v2/campaigns/{campaignId}/publish` is the specification's variant of the same action.
 
 The endpoint is the one for the supplier kind you are creating — a partner that fulfills its own products uses the custom-reward endpoint — and `type` there is the custom reward kind, which is separate from the component type the template carries.
 
@@ -210,7 +211,7 @@ Default each template's `enabled` setting to `false`. A template describes a pro
 
 ### Create the Integration and Its Sockets
 
-Create the `INTEGRATION` campaign, root, and model component as described in [Create the Integration Campaign](doc:integration-component-model) and [Create the Component Model](doc:integration-component-model), with the partner's account identifier and a `CLIENT_KEY` credential setting. Then add the supplier socket, filtered to the type created above:
+Create the `INTEGRATION` campaign, root, and model component as described in [Create the Integration Campaign](doc:integration-component-model) and [Create the Component Model](doc:integration-component-model). Declare the credential settings under the names the partner page uses — for BHN that is `merchantId` (`STRING`) and `clientKeyId` (`CLIENT_KEY`). A prefixed invention such as `bhnMerchantId` is a different setting, and webhook `client_key_id` expressions plus request handlers that call `context.getVariable("merchantId")` will read null. Then add the supplier socket, filtered to the type created above:
 
 ```bash
 curl --request POST \
@@ -259,7 +260,9 @@ The report-runner and event-stream views are each empty until their element exis
 | `report_runners` | `POST /v7/report-runners` |
 | `event_streams` | `POST /v6/event-streams`, with filters added afterwards |
 
-Attach each of those two to the **view** component that displays it, not to the integration component. Both views resolve what to show by querying their own component for an element of the matching kind, so a report runner hung off the integration leaves the tab reporting that no report runner is configured even though one exists in the account.
+Attach each of those two to the **view** component that displays it, not to the integration component. The report runner uses `$REPORT_VIEW_COMPONENT_ID`; the event stream uses `$EVENT_STREAM_VIEW_COMPONENT_ID`. Both views resolve what to show by querying their own component for an element of the matching kind, so a report runner hung off the integration — or off the event-stream view — leaves the tab reporting that no report runner is configured even though one exists in the account.
+
+Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
 
 #### Build the Report Behind the Activity Tab
 
@@ -289,7 +292,7 @@ curl --request POST "$EXTOLE_API_HOST/v7/report-runners" \
       "quality": "ALL",
       "mappings": "date=START_DATE(event.eventTime, period:\"DAY\"); count=group_count(event.id, step_name:\"converted\"); revenue=GROUP_SUM(event.data.amount, step_name:\"converted\")"
     },
-    "component_ids": ["'"$VIEW_COMPONENT_ID"'"]
+    "component_ids": ["'"$REPORT_VIEW_COMPONENT_ID"'"]
   }'
 ```
 
@@ -343,11 +346,19 @@ The `parameters` list must name **every** parameter the parent declares, giving 
 
 The list also has to cover everything the runner sends, because it works in both directions: a configured type declares what its runners may pass, so a runner sending `time_range` against a type that omits it is rejected the same way an invented parameter is. The runner created earlier sends seven parameters, which is why all seven appear here.
 
-Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
-
-An event stream's filters are created under the stream and carry a `type` discriminator in the body rather than a path segment, which is the opposite of how reward webhook filters work:
+An event stream's filters are created under the stream and carry a `type` discriminator in the body rather than a path segment, which is the opposite of how reward webhook filters work. Create the stream first, after the campaign republish above, then add each filter:
 
 ```bash
+curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "javascript@buildtime:context.getComponent().getName() + '\'' Reward Events'\''",
+    "description": "A live feed of reward events produced by the Example integration. The feed runs for 1 hour by default. Refresh the feed to poll for new events.",
+    "tags": ["internal:app_type=example"],
+    "component_ids": ["'"$EVENT_STREAM_VIEW_COMPONENT_ID"'"]
+  }'
+
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
@@ -379,29 +390,25 @@ The event-stream view uses the same expression with `withType('EVENT_STREAM')`. 
 
 Give the report-runner view a `reportColumnsMapping` setting as well, typed `JSON`. Its default is the mapping serialized as a string and escaped; a nested object is refused as `variable_value_invalid_type`, which reports the value as invalid for the type it plainly is. It maps the report's columns onto a chart, and every column it names has to be one the runner's `mappings` expression produces — the axis column and each series column by exactly the name the expression assigns:
 
-```json
-{
-  "chart": { "type": "line" },
-  "xAxis": { "column": "date", "type": "datetime" },
-  "series": [
-    { "name": "Count", "column": "count", "aggregation": "sum" },
-    { "name": "Total Spend", "column": "revenue", "aggregation": "sum" }
-  ]
-}
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components/$REPORT_VIEW_COMPONENT_ID/settings" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "reportColumnsMapping",
+    "display_name": "Report columns mapping",
+    "type": "JSON",
+    "values": {
+      "default": "{\"chart\":{\"type\":\"line\"},\"xAxis\":{\"column\":\"date\",\"type\":\"datetime\"},\"series\":[{\"name\":\"Count\",\"column\":\"count\",\"aggregation\":\"sum\"},{\"name\":\"Total Spend\",\"column\":\"revenue\",\"aggregation\":\"sum\"}]}"
+    },
+    "tags": ["importance:expert"]
+  }'
 ```
 
 Without the setting the tab has a report behind it and nothing to draw; with a column the report does not produce, it draws an empty axis. Write the mappings expression and this setting together.
 
-Name the event stream for the component that owns it and tag it with the partner's app type, which is how the feed is recognised as this integration's rather than a stream someone left in the account:
-
-```json
-{
-  "name": "javascript@buildtime:context.getComponent().getName() + ' Reward Events'",
-  "description": "A live feed of reward events produced by the Example integration. The feed runs for 1 hour by default. Refresh the feed to poll for new events.",
-  "tags": ["internal:app_type=example"],
-  "component_ids": ["$VIEW_COMPONENT_ID"]
-}
-```
+The event-stream create request above is what returns `$EVENT_STREAM_ID`. Name that stream for the view that owns it and tag it with the partner's app type, which is how the feed is recognised as this integration's rather than a stream someone left in the account.
 
 A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type.
 
@@ -468,11 +475,25 @@ Reward states are a closed vocabulary and the two a reward integration needs are
 
 Omitting either filter is the failure worth guarding against. Without the supplier filter the webhook attempts to fulfill every reward in the account through one partner endpoint; without the state filter it re-orders rewards that are already fulfilled.
 
-The request handler builds the partner order from the reward, the supplier's data map, and the person's profile. Its field-level body comes from the partner's own developer documentation, which this documentation set links to rather than reproduces.
+The request handler builds the partner order from the reward, the supplier's data map, and the person's profile. When the partner page publishes that body — BHN does — write it onto the webhook as `request` and write the matching `response_handler`. Those are properties of `POST /v6/webhooks` and of a later `PUT /v6/webhooks/{id}`. A webhook whose `request` is still `javascript@runtime:context.createRequestBuilderWithDefaults().build()` and whose `response_handler` is null has no fulfillment path.
 
-Not having that body in hand does not stop the build, but it does stop the webhook going live. Create the webhook, its filters, its client key, and its retry schedule — that is the shape, and leaving it uncreated produces an integration with suppliers that can never be fulfilled. Then **leave the webhook disabled until the payload contract is confirmed against the partner's documentation.** A handler assembled from an inferred payload is a draft: enabled, it sends real reward orders in a shape the partner may reject or, worse, accept and fulfill wrongly. Disabled, it is a shape waiting on one verification step. Report the reward path as incomplete while it stays that way, and never describe it as production-ready — this is the same rule the [creation contract](doc:management-api-integration) states as not inferring payload shapes and not reporting a disabled webhook as finished.
+The runtime those handlers run in is:
 
-The response handler reads the partner's result and does one of three things: mark the reward fulfilled with the partner's identifier and any delivered value, leave it for the next retry when the partner reports the order as still processing, or fail it when the partner rejects it. A handler that always fulfills hides partner rejections behind rewards that were never delivered.
+| Need | Call |
+| :-- | :-- |
+| The reward being fulfilled | `context.getReward()` |
+| A setting on the integration | `context.getVariable("merchantId")` |
+| An empty request | `context.createRequestBuilder()` |
+| Headers and JSON | `.addHeader(...)`, `.withBody(JSON.stringify(body))`, `.build()` |
+| Mark processing, not delivered | `context.createFulfillRewardCommandEventBuilder().withSuccess(false).send()` |
+| Mark delivered | `.withSuccess(true).withPartnerRewardId(partnerId).send()` |
+| Mark failed | `context.createFailedRewardCommandEventBuilder().withMessage(...).send()` |
+| Ask the dispatcher to try again | return `"RETRY"` |
+| Finish this attempt | return `"OK"` |
+
+Order webhooks commonly fulfill with `withSuccess(false)` so the status-check webhook can close the reward later. A handler that always fulfills with `withSuccess(true)` hides partner rejections behind rewards that were never delivered.
+
+Leave the webhook **disabled** only while a required credential or the partner page's payload contract is still missing. Once both are present, `PUT` the handlers and set `enabled` to true. Do not report that the runtime methods above are unpublished, and do not wait for a packaged script from engineering when the partner page already names the body.
 
 The status-check webhook covers products that do not complete synchronously. It filters on every variant's suppliers and on the fulfillment-failed state, and its retry schedule escalates from hours to days out to about a month, because a physical fulfillment can take weeks. Order webhooks keep the short schedule above; a status check on that schedule exhausts its retries long before the partner finishes.
 
@@ -486,6 +507,7 @@ Before calling the build done, read back and confirm:
 - The support campaign holds one correctly typed template per product the partner page names, each with a reward supplier attached to it, a variant tag, and its data map.
 - The supplier socket filters to the partner's type, and the views socket accepts every view type in use.
 - Each webhook is type `REWARD`, carries both filters, resolves a non-empty supplier list, and uses the retry schedule its purpose requires.
+- Each webhook's `request` and `response_handler` match the partner page, and `enabled` is true once the credential setting is populated. An empty default request builder is not the partner page's handler.
 - The webhook count matches the partner's order endpoints plus one status check — not the number of products. Several products ordered through one endpoint share one webhook, and its supplier filter resolves every variant that endpoint serves.
 - The report-runner and event-stream views each resolve to an actual element on that view. Read the built campaign and confirm `reportRunnerId` and `eventStreamId` are non-null: an empty tab is the symptom of an element that was never created or was attached to the wrong component, and neither shows up as a failed call. A view whose `reportColumnsMapping` is set but whose `reportRunnerId` is null is the common half-built case — the chart is described and has nothing to chart.
 - The integration component's `logo` resolves to the partner's actual artwork — the registered component's URL, a file the partner supplied, or the logo published on the partner's own site — and you fetched that URL and saw an image come back. A favicon, a product screenshot from Extole's documentation, or any address that answers with an error page satisfies the setting's type and renders a broken tile, so it is a build left unfinished rather than a build with artwork.
