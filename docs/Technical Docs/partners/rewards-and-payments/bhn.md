@@ -103,7 +103,7 @@ The shared order response handler parses the BHN JSON. On HTTP 4xx or `responseB
 
 The status request uses `context.createLegacyRequestBuilderWithDefaults()`, sets method `GET`, headers `merchantId` and `requestId` (`"S" + rewardId + "_" + attemptCount`), and URL `{webhookUrl}?requestId={rewardId}&clientProgramNumber={clientProgramNumber}`.
 
-The status response handler treats `orderStatus` values `Complete`, `Funding Posted`, and `Shipped` as completed: `createFulfillRewardCommandEventBuilder().withSuccess(true).withPartnerRewardId(orderNumber)`. Any other status, or HTTP 5xx, returns `"RETRY"` until the configured retry count is exhausted, then fails the reward. BHN errors in the body fail it immediately.
+The status response handler treats `orderStatus` values `Complete`, `Funding Posted`, and `Shipped` as completed: `createFulfillRewardCommandEventBuilder().withSuccess(true).withPartnerRewardId(orderNumber)`. `responseBody.errors` fails the reward immediately. Any other `orderStatus` — including `Cancelled`, `Declined`, `Error`, `Failure`, the funding-hold statuses, `In Process`, and `Successfully Sent To Processor` — or HTTP 5xx returns `"RETRY"` until the configured retry count is exhausted, then fails the reward.
 
 #### Map BHN Order Statuses
 
@@ -114,9 +114,9 @@ The status webhook reads `orderStatus` from BHN's <Anchor label="Order Status Re
 | `Complete` | Fulfilled | BHN's own final status for a successfully delivered order. |
 | `Shipped` | Fulfilled | BHN has been notified the card shipped. Real-time eGift and Virtual products never ship. |
 | `Funding Posted` | Fulfilled | The packaged integration closes the reward here rather than waiting for `Complete`. |
-| `Cancelled`, `Declined`, `Error`, `Failure` | Failed, terminal | Each is final. Do not retry. |
-| `Funding Hold`, `Settlement Error`, `Not All Records Funded`, `Not All Records Reversed`, `Not All Records Processed` | Failed, needs attention | The order is stuck on payment. |
-| `In Process`, `Successfully Sent To Processor` | Still processing | Keep checking until the retry schedule is exhausted. |
+| `Cancelled`, `Declined`, `Error`, `Failure` | Retry, then fail | The packaged handler does not fail these on first sight. It returns `"RETRY"` until the schedule is exhausted, then fails the reward. |
+| `Funding Hold`, `Settlement Error`, `Not All Records Funded`, `Not All Records Reversed`, `Not All Records Processed` | Retry, then fail | Same: retry until exhausted, then fail. These usually mean the funding account needs attention. |
+| `In Process`, `Successfully Sent To Processor` | Still processing | Keep checking until the retry schedule is exhausted, then fail. |
 
 The views socket accepts `config-view-v10.0`, `report-runner-view-v10.0`, and `event-stream-view-v10.0`, and is tagged `internal:view`. Configuration's `settingsToDisplay` is `merchantId` and `clientKeyId`.
 

@@ -260,7 +260,7 @@ The report-runner and event-stream views are each empty until their element exis
 | `report_runners` | `POST /v7/report-runners` |
 | `event_streams` | `POST /v6/event-streams`, with filters added afterwards |
 
-Attach each of those two to the **view** component that displays it, not to the integration component. Both views resolve what to show by querying their own component for an element of the matching kind, so a report runner hung off the integration leaves the tab reporting that no report runner is configured even though one exists in the account.
+Attach each of those two to the **view** component that displays it, not to the integration component. The report runner uses `$REPORT_VIEW_COMPONENT_ID`; the event stream uses `$EVENT_STREAM_VIEW_COMPONENT_ID`. Both views resolve what to show by querying their own component for an element of the matching kind, so a report runner hung off the integration — or off the event-stream view — leaves the tab reporting that no report runner is configured even though one exists in the account.
 
 Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
 
@@ -292,7 +292,7 @@ curl --request POST "$EXTOLE_API_HOST/v7/report-runners" \
       "quality": "ALL",
       "mappings": "date=START_DATE(event.eventTime, period:\"DAY\"); count=group_count(event.id, step_name:\"converted\"); revenue=GROUP_SUM(event.data.amount, step_name:\"converted\")"
     },
-    "component_ids": ["'"$VIEW_COMPONENT_ID"'"]
+    "component_ids": ["'"$REPORT_VIEW_COMPONENT_ID"'"]
   }'
 ```
 
@@ -356,7 +356,7 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
     "name": "javascript@buildtime:context.getComponent().getName() + '\'' Reward Events'\''",
     "description": "A live feed of reward events produced by the Example integration. The feed runs for 1 hour by default. Refresh the feed to poll for new events.",
     "tags": ["internal:app_type=example"],
-    "component_ids": ["'"$VIEW_COMPONENT_ID"'"]
+    "component_ids": ["'"$EVENT_STREAM_VIEW_COMPONENT_ID"'"]
   }'
 
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
