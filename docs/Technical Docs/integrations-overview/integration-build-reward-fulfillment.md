@@ -468,11 +468,25 @@ Reward states are a closed vocabulary and the two a reward integration needs are
 
 Omitting either filter is the failure worth guarding against. Without the supplier filter the webhook attempts to fulfill every reward in the account through one partner endpoint; without the state filter it re-orders rewards that are already fulfilled.
 
-The request handler builds the partner order from the reward, the supplier's data map, and the person's profile. Its field-level body comes from the partner's own developer documentation, which this documentation set links to rather than reproduces.
+The request handler builds the partner order from the reward, the supplier's data map, and the person's profile. When the partner page publishes that body — BHN does — write it onto the webhook as `request` and write the matching `response_handler`. Those are properties of `POST /v6/webhooks` and of a later `PUT /v6/webhooks/{id}`. A webhook whose `request` is still `javascript@runtime:context.createRequestBuilderWithDefaults().build()` and whose `response_handler` is null has no fulfillment path.
 
-Not having that body in hand does not stop the build, but it does stop the webhook going live. Create the webhook, its filters, its client key, and its retry schedule — that is the shape, and leaving it uncreated produces an integration with suppliers that can never be fulfilled. Then **leave the webhook disabled until the payload contract is confirmed against the partner's documentation.** A handler assembled from an inferred payload is a draft: enabled, it sends real reward orders in a shape the partner may reject or, worse, accept and fulfill wrongly. Disabled, it is a shape waiting on one verification step. Report the reward path as incomplete while it stays that way, and never describe it as production-ready — this is the same rule the [creation contract](doc:management-api-integration) states as not inferring payload shapes and not reporting a disabled webhook as finished.
+The runtime those handlers run in is:
 
-The response handler reads the partner's result and does one of three things: mark the reward fulfilled with the partner's identifier and any delivered value, leave it for the next retry when the partner reports the order as still processing, or fail it when the partner rejects it. A handler that always fulfills hides partner rejections behind rewards that were never delivered.
+| Need | Call |
+| :-- | :-- |
+| The reward being fulfilled | `context.getReward()` |
+| A setting on the integration | `context.getVariable("merchantId")` |
+| An empty request | `context.createRequestBuilder()` |
+| Headers and JSON | `.addHeader(...)`, `.withBody(JSON.stringify(body))`, `.build()` |
+| Mark processing, not delivered | `context.createFulfillRewardCommandEventBuilder().withSuccess(false).send()` |
+| Mark delivered | `.withSuccess(true).withPartnerRewardId(partnerId).send()` |
+| Mark failed | `context.createFailedRewardCommandEventBuilder().withMessage(...).send()` |
+| Ask the dispatcher to try again | return `"RETRY"` |
+| Finish this attempt | return `"OK"` |
+
+Order webhooks commonly fulfill with `withSuccess(false)` so the status-check webhook can close the reward later. A handler that always fulfills with `withSuccess(true)` hides partner rejections behind rewards that were never delivered.
+
+Leave the webhook **disabled** only while a required credential or the partner page's payload contract is still missing. Once both are present, `PUT` the handlers and set `enabled` to true. Do not report that the runtime methods above are unpublished, and do not wait for a packaged script from engineering when the partner page already names the body.
 
 The status-check webhook covers products that do not complete synchronously. It filters on every variant's suppliers and on the fulfillment-failed state, and its retry schedule escalates from hours to days out to about a month, because a physical fulfillment can take weeks. Order webhooks keep the short schedule above; a status check on that schedule exhausts its retries long before the partner finishes.
 
@@ -486,6 +500,7 @@ Before calling the build done, read back and confirm:
 - The support campaign holds one correctly typed template per product the partner page names, each with a reward supplier attached to it, a variant tag, and its data map.
 - The supplier socket filters to the partner's type, and the views socket accepts every view type in use.
 - Each webhook is type `REWARD`, carries both filters, resolves a non-empty supplier list, and uses the retry schedule its purpose requires.
+- Each webhook's `request` and `response_handler` match the partner page, and `enabled` is true once the credential setting is populated. An empty default request builder is not the partner page's handler.
 - The webhook count matches the partner's order endpoints plus one status check — not the number of products. Several products ordered through one endpoint share one webhook, and its supplier filter resolves every variant that endpoint serves.
 - The report-runner and event-stream views each resolve to an actual element on that view. Read the built campaign and confirm `reportRunnerId` and `eventStreamId` are non-null: an empty tab is the symptom of an element that was never created or was attached to the wrong component, and neither shows up as a failed call. A view whose `reportColumnsMapping` is set but whose `reportRunnerId` is null is the common half-built case — the chart is described and has nothing to chart.
 - The integration component's `logo` resolves to the partner's actual artwork — the registered component's URL, a file the partner supplied, or the logo published on the partner's own site — and you fetched that URL and saw an image come back. A favicon, a product screenshot from Extole's documentation, or any address that answers with an error page satisfies the setting's type and renders a broken tile, so it is a build left unfinished rather than a build with artwork.
