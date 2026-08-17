@@ -1,0 +1,113 @@
+---
+title: "Validate and Publish an Integration"
+excerpt: "Gate outbound resources, validate the finished shape before publishing, and connect a finished integration to a program.\n"
+---
+
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](doc:management-api-integration) for the build paths and the creation contract.
+
+## Gate Outbound Resources
+
+This section applies to an inbound custom build that someone proposes to extend outbound. The webhooks and credential an outbound library install ships with are already part of its finished shape and are not gated here.
+
+Inbound event mapping does not require a reward supplier, webhook, or webhook client key.
+
+Create outbound resources only when all of these conditions are true:
+
+- The requested scope includes a defined outbound use case.
+- A program action or reward rule produces the event or reward.
+- The destination endpoint and authentication contract exist.
+- Retry, idempotency, error handling, and ownership are defined.
+- The integration or program has a configuration surface for required values.
+- The path can be tested before it is enabled.
+
+A reward-supplier socket does not connect a partner. A reward supplier models fulfillment inventory or behavior. A webhook is the HTTP transport. Creating either resource without the other program wiring leaves unused external resources and misleading configuration.
+
+When outbound scope is later removed, archive resources in dependency order:
+
+1. Disable the webhook.
+2. Remove webhook filters and component references.
+3. Archive the webhook.
+4. Remove reward-supplier references from rules and components.
+5. Archive the reward supplier.
+6. Remove and archive the client key after all active references are gone.
+7. Remove unused component settings and sockets.
+8. Publish and verify the resulting campaign.
+
+## Validate Before Publishing
+
+Inspect the latest campaign and built components. Confirm:
+
+- Campaign type is `INTEGRATION` and program type is `integration`.
+- When the build must appear as an installed integration, the integration model component is a child of the root, is owned by this client, and carries both `internal:type:integration` and `internal:self-managed`. Read the component back and check the tags rather than assuming the create request applied them.
+- The root and integration model components exist, the model component carrying an `integration-v10.x` type.
+- `businessEvents` accepts `business-event-v10.0`.
+- Each canonical event is a duplicated reusable template.
+- Each event has an `input_event` rule with the expected partner event names.
+- Each event has its own reporting names and no two events share a noun or rate name.
+- No alias appears on more than one business event.
+- Every business event has data components in its `data` socket, and every data component has the intended source expression and key type.
+- The eight required integration display settings hold usable values, not merely present ones. Read each from `/v1/components/built` and check it against the value convention in [Create the Integration Campaign and Component Model](doc:integration-component-model):
+
+  | Setting | What to confirm |
+  | :------ | :-------------- |
+  | `short.description` | One sentence, describing this partner rather than integrations generally. |
+  | `about` | A paragraph naming what the integration receives and sends. |
+  | `documentation.url` | The partner-facing page for this integration — not this build guide. |
+  | `external.url` | The partner's own product site. |
+  | `external.integration.url` | The partner's marketplace or extension listing, or an empty string when there is none. |
+  | `categories` | A category string other integrations already use, spelled identically. |
+  | `logo` | An absolute URL on Extole's asset host. |
+  | `imageKey` | The key the partner page names, not the partner's name lowercased. |
+
+- Read from `/v1/components/built`, `logo` on the integration component and `rewardSupplierLogo` on every supplier template each hold an absolute URL. An empty value, or one still showing a `spel@buildtime:` expression, is a tile that renders the grey placeholder.
+- No legacy custom controller duplicates a reusable business event.
+- `views` accepts `view-v10.0`.
+- The configuration view is attached to the model component.
+- `settingsToDisplay` references existing parent settings.
+- No unrequested reward supplier, webhook, client key, or socket exists.
+
+Publish the explicit version that was validated:
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/publish" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{}'
+```
+
+Treat a successful publish as model validation, not end-to-end verification.
+
+## Offer to Connect the Integration to a Program
+
+A finished integration receives partner events and turns them into business events inside its own campaign. The marketing programs in the account still run on the business events their theme shipped with — a generic `converted` on the friend journey, for example — which listen for the platform's default events, not the partner's. Until those two halves are joined, the integration produces activity that no program acts on.
+
+Close the build by proposing two things and doing neither without an answer:
+
+1. Publish the integration campaign, which is what makes the inbound endpoint accept events.
+2. Install the integration's business events into a marketing campaign.
+
+For the second, name the campaign candidates, list the partner events by canonical name, and say for each one whether it supersedes an event the program already has or adds one the program lacks. A partner `converted` supersedes the theme's `converted` on the same journey; `shipped` and `canceled` are usually additions.
+
+On approval, work through the target campaign's journey socket:
+
+- Duplicate each partner business event from the integration into the socket that holds the program's equivalent event, using the same duplication call as the rest of this guide with the integration's component as the source.
+- Remove the superseded default event after its replacement is installed, so the journey does not carry two events with the same canonical name.
+- Add the partner events the program lacks into the same socket.
+- Refresh the campaign version between mutations, then read the built campaign and confirm the journey lists the expected events in lifecycle order.
+
+This changes a program's funnel, so it is never a silent step. Name the campaign and the events before touching them, and report afterwards which events were replaced, which were added, and what the program's journey now contains.
+
+## Reference Structure for an Order Lifecycle Integration
+
+Most commerce platforms map onto the same three canonical events. Use this as the starting shape and adjust it to the events the partner actually emits:
+
+| Canonical event | Reusable template | Partner input event | Captured fields |
+| :-------------- | :---------------- | :------------------ | :-------------- |
+| `converted` | `template_transacted_business_event` | The partner's order-created or order-qualified event | `partner_conversion_id`, `cart_value`, `partner_user_id`, `email`, `first_name`, `last_name`, `coupon_code`, and any store or account identifier |
+| `shipped` | `template_tracked_business_event` | The partner's shipment event | `partner_conversion_id`, `partner_user_id`, `email`, `first_name`, `last_name` |
+| `canceled` | `template_tracked_business_event` | The partner's cancellation event, plus any legacy spelling a live sender still emits | `partner_conversion_id`, `partner_user_id`, `email`, `first_name`, `last_name` |
+
+A complete integration of this shape contains one integration model component, three business events, one `input_event` rule per event, one data component per captured field on each event, and one configuration view displaying the partner account setting and the computed setup instructions. It is inbound-only: no reward-supplier socket, reward webhook, or webhook client key.
+
+Platforms with a different lifecycle keep the same construction and change the event set. A lending or account platform maps to `account_opened`, `application_approved`, and `funded`; a subscription platform maps to `converted`, `renewed`, and `canceled`. The canonical name always describes the business outcome, never the partner's transport name.
