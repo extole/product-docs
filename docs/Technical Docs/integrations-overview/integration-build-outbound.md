@@ -44,6 +44,8 @@ Run that comparison against an integration that already exists in the account, n
 
 Read that list as exhaustive rather than as a minimum. A library source ships the union of what every account might want, so it commonly installs children the page does not list and only one of the webhooks the page names. Deleting the extra children and creating the missing webhooks is the reshape; an install left in its raw shape forwards activity the partner page never claimed and omits endpoints it did.
 
+One part of the finished shape is not on the partner page: the report-runner view and event-stream view every integration carries. A library source may or may not ship them, so read the installed `views` socket and add whichever is missing from [Add the Activity and Event Views](doc:integration-activity-views), charting and streaming the activity this integration forwards.
+
 ### Create Missing Component Types
 
 A partner page can require a component type the account has never used, and a typed child cannot be created before its type exists. Check the type, and create it when it is missing:

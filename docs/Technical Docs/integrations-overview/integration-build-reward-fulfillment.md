@@ -1,6 +1,6 @@
 ---
 title: "Build a Reward Fulfillment Integration"
-excerpt: "Create the supplier type, support campaign, supplier templates, reward webhooks, report runner, and event stream for a partner that fulfills rewards.\n"
+excerpt: "Create the supplier type, support campaign, supplier templates, and reward webhooks for a partner that fulfills rewards, and give its activity and event views their reward-specific values.\n"
 ---
 
 This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](doc:management-api-integration) for the build paths and the creation contract.
@@ -260,157 +260,49 @@ The report-runner and event-stream views are each empty until their element exis
 | `report_runners` | `POST /v7/report-runners` |
 | `event_streams` | `POST /v6/event-streams`, with filters added afterwards |
 
-Attach each of those two to the **view** component that displays it, not to the integration component. The report runner uses `$REPORT_VIEW_COMPONENT_ID`; the event stream uses `$EVENT_STREAM_VIEW_COMPONENT_ID`. Both views resolve what to show by querying their own component for an element of the matching kind, so a report runner hung off the integration — or off the event-stream view — leaves the tab reporting that no report runner is configured even though one exists in the account.
+The last two rows are the same build every integration does, whatever the partner sells, so they have their own page rather than a reward-flavored copy here.
 
-Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
+#### Give the Reward Activity Tab Its Report and Feed
 
-#### Build the Report Behind the Activity Tab
+A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type.
 
-A report runner is a scheduled report, a set of parameter values for it, and an attachment to the view that charts it:
+Build the last two from [Add the Activity and Event Views](doc:integration-activity-views), which carries the view bodies, the settings the view type requires, the ordering, the republish that has to precede an element attaching, and the report-type lookup. Three values on those views are reward-specific.
 
-```bash
-curl --request POST "$EXTOLE_API_HOST/v7/report-runners" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "type": "SCHEDULED",
-    "name": "Partner Example Reward Revenue Report",
-    "report_type": "'"$REPORT_TYPE_ID"'",
-    "formats": ["CSV", "JSON"],
-    "scopes": ["CLIENT_SUPERUSER"],
-    "tags": ["partner-graph"],
-    "frequency": "WEEKLY",
-    "schedule_start_date": "'"$SCHEDULE_START_DATE"'",
-    "enabled": true,
-    "execution_policy": "AWAIT_DATA",
-    "parameters": {
-      "container": "production",
-      "time_range": "ALL_TIME",
-      "campaign_states": "ALL",
-      "visit_type": "NEW_TO_CLIENT",
-      "unattributed_events": "false",
-      "quality": "ALL",
-      "mappings": "date=START_DATE(event.eventTime, period:\"DAY\"); count=group_count(event.id, step_name:\"converted\"); revenue=GROUP_SUM(event.data.amount, step_name:\"converted\")"
-    },
-    "component_ids": ["'"$REPORT_VIEW_COMPONENT_ID"'"]
-  }'
+The runner's `mappings` expression counts reward activity and the revenue behind it:
+
+```text
+date=START_DATE(event.eventTime, period:"DAY"); count=group_count(event.id, step_name:"converted"); revenue=GROUP_SUM(event.data.amount, step_name:"converted")
 ```
 
-A scheduled runner needs `schedule_start_date`, as an ISO-8601 timestamp with an offset chosen when you create the runner. Pick a date in the future — a start date already in the past is the reason a runner that reports itself as enabled never produces a report.
+The view's `reportColumnsMapping` names the columns that expression produces. It describes this chart:
 
-A runner's type is fixed once created: a runner made as `REFRESHING` cannot be turned into a scheduled one, and an update that tries reports the wrong type rather than the wrong field. Delete it and create the runner you meant.
-
-`report_type` is an account-scoped identifier rather than a readable constant, so read the account's types and match on display name. Ask for the ones you want rather than the whole catalog: a mature account holds a couple of hundred types and the unfiltered listing runs to roughly a megabyte, which no tool-mediated read will return.
-
-```bash
-curl --request GET "$EXTOLE_API_HOST/v6/report-types?display_name=Reward%20Revenue" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
+```json
+{
+  "chart": { "type": "line" },
+  "xAxis": { "column": "date", "type": "datetime" },
+  "series": [
+    { "name": "Count", "column": "count", "aggregation": "sum" },
+    { "name": "Total Spend", "column": "revenue", "aggregation": "sum" }
+  ]
+}
 ```
 
-The listing accepts `display_name`, `search_query`, `report_type_id`, `tags`, `limit`, and `offset`. **The identifier you pass as `report_type` is the type's `name`** — an opaque string such as `r84a5841xf0hehbzsf6j`. There is no `id` field on a report type, so a projection that asks for one comes back as a list of nulls, which reads like an account with no usable types rather than the wrong field name. Read a single candidate in full with `GET /v6/report-types/{id}`, whose path segment takes that same `name` value, before choosing between types that share a display name.
+The setting holds that object serialized as an escaped JSON string, which is the form to put in `values.default`. Sending the object itself is rejected as `variable_value_invalid_type`:
 
-An empty result is worth one more read before you act on it: a truncated or over-large response is not an absent type, and reporting the account as lacking a report type is how a build ends with a Reward Activity tab that says no report runner is configured while three usable types sit in the account. Two properties decide whether a type will work, and neither is its display name:
-
-- The **parameters it declares** are the only ones the runner may send, and their values come from the type's own enumerations. A time range is `ALL_TIME`, not `all_time`; a locale list accepts only locales the account declares; a required parameter left out and an invented parameter both come back as the same invalid-format rejection on `parameters` as a whole, so add parameters one at a time when one is refused rather than rewriting the set.
-- The **mappings dialect** it accepts decides what your expression may say. A type whose `mappings` parameter is row-shaped rejects the grouping functions — `group_count`, `GROUP_SUM` — that a charted activity report is built from; a metric-shaped one accepts them. Read the parameter's type before writing the expression, and choose the parent by that rather than by a display name that sounds close.
-
-Accounts differ here, and an account that lacks a suitable type is a normal case rather than a dead end. Create one: a configured report type is a saved set of parameter defaults over a parent type.
-
-```bash
-curl --request POST "$EXTOLE_API_HOST/v6/report-types" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "display_name": "Example Reward Revenue",
-    "description": "Reward activity and revenue for the Example integration.",
-    "type": "CONFIGURED",
-    "parent_report_type_id": "'"$PARENT_REPORT_TYPE_ID"'",
-    "categories": ["Customer Activity"],
-    "scopes": ["CLIENT_SUPERUSER"],
-    "allowed_scopes": ["CLIENT_ADMIN", "CLIENT_SUPERUSER"],
-    "visibility": "PUBLIC",
-    "formats": ["CSV", "JSON"],
-    "parameters": [
-      { "name": "mappings", "default_value": "date=START_DATE(event.eventTime, period:\"DAY\"); count=group_count(event.id, step_name:\"converted\")" },
-      { "name": "container", "default_value": "production" },
-      { "name": "time_range", "default_value": "" },
-      { "name": "campaign_states", "default_value": "" },
-      { "name": "visit_type", "default_value": "" },
-      { "name": "unattributed_events", "default_value": "" },
-      { "name": "quality", "default_value": "" }
-    ]
-  }'
+```text
+"{\"chart\":{\"type\":\"line\"},\"xAxis\":{\"column\":\"date\",\"type\":\"datetime\"},\"series\":[{\"name\":\"Count\",\"column\":\"count\",\"aggregation\":\"sum\"},{\"name\":\"Total Spend\",\"column\":\"revenue\",\"aggregation\":\"sum\"}]}"
 ```
 
-The `parameters` list must name **every** parameter the parent declares, giving an empty default to the ones you do not set. Listing only the ones you care about reads as deleting the rest and is rejected as an attempt to remove static parameters, which is the one error here that sounds unrelated to what you sent. Read the parent with `GET /v6/report-types` and copy its parameter names rather than working from the list above, which shows the shape and not one particular parent's set.
-
-The list also has to cover everything the runner sends, because it works in both directions: a configured type declares what its runners may pass, so a runner sending `time_range` against a type that omits it is rejected the same way an invented parameter is. The runner created earlier sends seven parameters, which is why all seven appear here.
-
-An event stream's filters are created under the stream and carry a `type` discriminator in the body rather than a path segment, which is the opposite of how reward webhook filters work. Create the stream first, after the campaign republish above, then add each filter:
+The event stream carries an event-type filter as well as the application-type filter every stream gets, so the feed shows fulfillment activity rather than every event in the account. `$EVENT_STREAM_ID` is what the stream create returned:
 
 ```bash
-curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "name": "javascript@buildtime:context.getComponent().getName() + '\'' Reward Events'\''",
-    "description": "A live feed of reward events produced by the Example integration. The feed runs for 1 hour by default. Refresh the feed to poll for new events.",
-    "tags": ["internal:app_type=example"],
-    "component_ids": ["'"$EVENT_STREAM_VIEW_COMPONENT_ID"'"]
-  }'
-
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"type": "EVENT_TYPE", "event_types": ["REWARD", "SEND_REWARD"]}'
-
-curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{"type": "APPLICATION_TYPE", "app_types": ["example"]}'
 ```
 
-Without those filters the tab shows every event in the account rather than the integration's reward activity, which looks like a working feed and is not one.
-
-A view points at its element through a setting typed `STRING` — `reportRunnerId` on the report view, `eventStreamId` on the event-stream view. There is no `REPORT_RUNNER_ID` or `EVENT_STREAM_ID` setting type, and naming one is rejected as malformed JSON with the invented type echoed back as the invalid value. The setting holds no literal identifier either: its default is a buildtime query that asks the view's own component for the element it owns, so the view keeps working when the element is recreated.
-
-```json
-{
-  "name": "reportRunnerId",
-  "display_name": "Report Runner ID",
-  "type": "STRING",
-  "values": {
-    "default": "javascript@buildtime:(function(){ let elements = Java.from(context.getComponent().createElementsQuery().withType('REPORT_RUNNER').list()); return elements && elements.length > 0 ? elements[0].getId() : null; })()"
-  },
-  "tags": ["importance:expert"]
-}
-```
-
-The event-stream view uses the same expression with `withType('EVENT_STREAM')`. This is also why the element belongs on the view: the query only ever looks at the component the setting lives on.
-
-Give the report-runner view a `reportColumnsMapping` setting as well, typed `JSON`. Its default is the mapping serialized as a string and escaped; a nested object is refused as `variable_value_invalid_type`, which reports the value as invalid for the type it plainly is. It maps the report's columns onto a chart, and every column it names has to be one the runner's `mappings` expression produces — the axis column and each series column by exactly the name the expression assigns:
-
-```bash
-curl --request POST \
-  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components/$REPORT_VIEW_COMPONENT_ID/settings" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "name": "reportColumnsMapping",
-    "display_name": "Report columns mapping",
-    "type": "JSON",
-    "values": {
-      "default": "{\"chart\":{\"type\":\"line\"},\"xAxis\":{\"column\":\"date\",\"type\":\"datetime\"},\"series\":[{\"name\":\"Count\",\"column\":\"count\",\"aggregation\":\"sum\"},{\"name\":\"Total Spend\",\"column\":\"revenue\",\"aggregation\":\"sum\"}]}"
-    },
-    "tags": ["importance:expert"]
-  }'
-```
-
-Without the setting the tab has a report behind it and nothing to draw; with a column the report does not produce, it draws an empty axis. Write the mappings expression and this setting together.
-
-The event-stream create request above is what returns `$EVENT_STREAM_ID`. Name that stream for the view that owns it and tag it with the partner's app type, which is how the feed is recognised as this integration's rather than a stream someone left in the account.
-
-A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type.
+Where the partner page publishes a report runner contract, that contract is literal. Copy its name, schedule, formats, tags, scopes, execution policy, and every parameter and mapping expression, looking up only the account-local report type and component identifiers. A runner with a plausible count or revenue mapping is not equivalent to the partner's report.
 
 The supplier view's status is the one expression worth copying rather than composing. It reports in progress until a supplier exists anywhere under the integration, and it reaches for the suppliers themselves instead of counting children, which is a proxy that goes wrong as soon as the tree gains a view:
 
@@ -426,11 +318,7 @@ javascript@buildtime:(function () {
 }());
 ```
 
-Wrap every Java collection in `Java.from` before iterating it, as both loops above do. An expression that walks one directly builds into nothing, and because settings are evaluated as part of the create, the whole component is refused with `campaign_build_failed` naming the variable rather than the mistake.
-
-Order is a setting, not the order you happened to create them in. Give every view an `order` setting typed `INTEGER`, lowest first, with configuration at the front. Views without it arrange themselves arbitrarily, so a marketer can meet the reward activity chart before the tab that asks for credentials.
-
-Every one of them is a view, and the platform's view type requires three settings by name: `title`, `status`, and `settingsToDisplay` — the last typed `STRING_LIST`, not `JSON`. A view created without all three, or with `settingsToDisplay` typed as JSON, is rejected for type validation against three subschemas none of which the error names. Build each view from the body in [Add a Configuration View](doc:integration-component-model), which carries all three, and attach it with `installed_into_socket` — `socket_name` is not a property of a component create.
+Wrap every Java collection in `Java.from` before iterating it, as both loops in that expression do. An expression that walks one directly builds into nothing, and because settings are evaluated as part of the create, the whole component is refused with `campaign_build_failed` naming the variable rather than the mistake.
 
 ### Create the Reward Webhooks
 

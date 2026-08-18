@@ -19,10 +19,12 @@ Answer all three before creating anything. A platform that only receives Extole 
 
 | Category | Direction | Platform types | What you create |
 | :------- | :-------- | :------------- | :-------------- |
-| Inbound | Platform to Extole | Commerce, core banking, account opening, subscription, point of sale | A campaign built from the custom integration template, with business events, trigger rules, data capture, and a configuration view |
+| Inbound | Platform to Extole | Commerce, core banking, account opening, subscription, point of sale | A campaign built from the custom integration template, with business events, trigger rules, and data capture |
 | Outbound | Extole to platform | Marketing automation, messaging, customer data platforms, analytics | A duplicate of the maintained library source, reshaped to the finished shape on the partner page, with webhooks and a credential |
-| Reward fulfillment | Extole to platform | Gift card, prepaid card, points, and payout providers | A typed reward-supplier component type, a support campaign of supplier templates, an integration whose socket accepts them, and one `REWARD` webhook per order endpoint plus a status check |
+| Reward fulfillment | Extole to platform | Gift card, prepaid card, points, and payout providers | A typed reward-supplier component type, a support campaign of supplier templates, an integration whose socket accepts them, one `REWARD` webhook per order endpoint plus a status check, and a fourth view exposing the supplier socket |
 | Bidirectional | Both | Commerce and loyalty platforms that also accept rewards or coupons | The inbound model first, then outbound resources gated on an approved use case |
+
+Every row also gets the same three views — a configuration view, a report-runner view, and an event-stream view — so the column above lists only what is specific to the category. The views are described under each category below and built from [Add the Activity and Event Views](doc:integration-activity-views).
 
 ## Inbound Integrations
 
@@ -43,10 +45,14 @@ root
     │       ├── triggerRules    → input_event rule carrying the platform's event names
     │       └── data            → one component per captured field
     └── views                   MULTI_SOCKET → view-v10.0
-        └── configuration       config-view-v10.0
+        ├── configuration       config-view-v10.0
+        ├── report-runner-view  report-runner-view-v10.0
+        └── event-streams       event-stream-view-v10.0
 ```
 
 Inbound integrations need no reward supplier, webhook, or client key. Creating those resources for completeness leaves credentials and unused resources that someone later has to reconcile.
+
+These three views are the baseline, not an inbound-specific set. Every integration carries a configuration view, an activity chart, and a live event feed; the category decides what the chart counts and what the feed filters to, and a reward fulfillment partner adds a fourth view on top of them.
 
 ## Outbound Integrations
 
@@ -60,7 +66,8 @@ An outbound integration contains:
 root
 └── integration                 integration-v10.x
     ├── one child per forwarded Extole event
-    └── data-item template      partner data component type (when marketing campaigns attach partner actions)
+    ├── data-item template      partner data component type (when marketing campaigns attach partner actions)
+    └── views                   MULTI_SOCKET → configuration, report-runner, event-stream views
 ```
 
 The partner page's product description is the specification for that tree. The activity it says the integration forwards is the complete set of children, the endpoints it says Extole calls are the complete set of webhooks, and a statement that program campaigns attach partner data to their events means the integration carries a typed data template. A library source ships the union of what every account might want, so the install usually has more children and fewer webhooks than the finished integration.

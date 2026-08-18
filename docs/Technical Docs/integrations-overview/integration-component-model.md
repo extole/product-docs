@@ -319,7 +319,7 @@ curl --request POST \
   }'
 ```
 
-Socket filters are part of the model contract. Do not create an untyped socket or attach a component that does not satisfy its filter.
+Socket filters are part of the model contract. Do not create an untyped socket or attach a component that does not satisfy its filter. `view-v10.0` is the parent of every view type the integration uses, so one filter on it accepts the configuration view built below along with the `report-runner-view-v10.0` and `event-stream-view-v10.0` children added in [Add the Activity and Event Views](doc:integration-activity-views).
 
 ## Add a Configuration View
 
@@ -384,3 +384,5 @@ The `settingsToDisplay` values are names of settings on the parent integration m
 The information setting the installer reads is the `exampleSetupInstructions` built above, not a further one to invent: it already carries the endpoint, the current program label, the partner event names, the documentation URL, and the credential rule. Name it in `settingsToDisplay`, as the example does — a configuration view that omits it renders a tab with an account URL and nothing telling the installer what to send or where. Do not put a credential value in it.
 
 Every name in `settingsToDisplay` must be a setting that exists on the parent integration component. A name with no matching parent setting fails validation, and the two names in the example resolve to the two partner settings created above.
+
+The configuration view is one of three. Continue to [Add the Activity and Event Views](doc:integration-activity-views) for the report-runner view and event-stream view every integration also carries, whichever build path brought you here.

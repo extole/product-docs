@@ -64,6 +64,9 @@ Inspect the latest campaign and built components. Confirm:
 - `views` accepts `view-v10.0`.
 - The configuration view is attached to the model component.
 - `settingsToDisplay` references existing parent settings.
+- The `views` socket holds the three baseline views: the configuration view, a `report-runner-view-v10.0`, and an `event-stream-view-v10.0`. Two views is an integration missing the surfaces a marketer opens to see whether it is working. A reward fulfillment build carries a fourth, the `reward-suppliers` configuration view, and the baseline three are not optional there either.
+- Read from `/v1/components/built`, `reportRunnerId` on the report-runner view and `eventStreamId` on the event-stream view each resolve to an identifier rather than null. A null value means the element was never created, or was attached to the integration component instead of the view that reads it. Neither shows up as a failed call.
+- Every column named in `reportColumnsMapping` is one the report runner's `mappings` expression produces, and the event stream carries its filters. A view with a chart mapping and a null runner, or a stream with no filters, renders a tab that exists and says nothing. [Add the Activity and Event Views](doc:integration-activity-views) covers both.
 - No unrequested reward supplier, webhook, client key, or socket exists.
 
 Publish the explicit version that was validated:
@@ -108,6 +111,6 @@ Most commerce platforms map onto the same three canonical events. Use this as th
 | `shipped` | `template_tracked_business_event` | The partner's shipment event | `partner_conversion_id`, `partner_user_id`, `email`, `first_name`, `last_name` |
 | `canceled` | `template_tracked_business_event` | The partner's cancellation event, plus any legacy spelling a live sender still emits | `partner_conversion_id`, `partner_user_id`, `email`, `first_name`, `last_name` |
 
-A complete integration of this shape contains one integration model component, three business events, one `input_event` rule per event, one data component per captured field on each event, and one configuration view displaying the partner account setting and the computed setup instructions. It is inbound-only: no reward-supplier socket, reward webhook, or webhook client key.
+A complete integration of this shape contains one integration model component, three business events, one `input_event` rule per event, one data component per captured field on each event, and three views: a configuration view displaying the partner account setting and the computed setup instructions, a report-runner view charting the events the integration produces, and an event-stream view feeding them live. It is inbound-only: no reward-supplier socket, reward webhook, or webhook client key.
 
 Platforms with a different lifecycle keep the same construction and change the event set. A lending or account platform maps to `account_opened`, `application_approved`, and `funded`; a subscription platform maps to `converted`, `renewed`, and `canceled`. The canonical name always describes the business outcome, never the partner's transport name.
