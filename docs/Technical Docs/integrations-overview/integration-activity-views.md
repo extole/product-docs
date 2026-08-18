@@ -298,7 +298,7 @@ curl --request POST \
 
 Refresh `$CAMPAIGN_VERSION` first. Creating the elements does not change the campaign, but anything else in the same session does, and the version that succeeded at the first publish is not the version to send at the second.
 
-Nothing fails if you skip this. Both elements exist, both are attached, every call returned success, and both tabs are empty — which is why the confirmation below reads the built values rather than trusting the create responses.
+No call fails if you skip this. Both elements exist, both are attached, and every create returned success. What the omission costs shows up in two later places: the built `reportRunnerId` and `eventStreamId` are null, so [Confirm the Tabs Resolve](#confirm-the-tabs-resolve) fails, and a marketer opening the integration meets an activity tab reporting that no report runner is configured and no event feed at all. That gap between a clean set of responses and an empty pair of tabs is why the confirmation reads the built values instead of trusting the create calls.
 
 ## Error Handling
 
