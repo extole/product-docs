@@ -42,7 +42,8 @@ Inspect the latest campaign and built components. Confirm:
 - The root and integration model components exist, the model component carrying an `integration-v10.x` type.
 - `businessEvents` accepts `business-event-v10.0`.
 - Each canonical event is a duplicated reusable template.
-- Each event has an `input_event` rule with the expected partner event names.
+- Each event has an `input_event` rule with the expected partner event names — or, where a prehandler renames the inbound event, with the canonical names the prehandler produces.
+- Whoever sends the inbound event can actually send the shape the rules expect. When the sender is the partner's own webhook rather than something built for this integration, a prehandler exists, is `enabled`, carries at least one condition, and is referenced to the integration component. A disabled prehandler, or one with an empty condition list, passes every structural check on this page and still leaves the integration inert. [Normalize Inbound Events with a Prehandler](doc:integration-prehandlers) covers all three.
 - Each event has its own reporting names and no two events share a noun or rate name.
 - No alias appears on more than one business event.
 - Every business event has data components in its `data` socket, and every data component has the intended source expression and key type.
@@ -79,7 +80,7 @@ curl --request POST \
   --data '{}'
 ```
 
-Treat a successful publish as model validation, not end-to-end verification.
+Treat a successful publish as model validation, not end-to-end verification. Nothing above proves an event reaches a step, and two of the pieces this guide creates — a prehandler script and a data component's `valueExpression` — are stored without ever being executed. Send a real payload and read the resulting step before reporting the integration as working.
 
 ## Offer to Connect the Integration to a Program
 

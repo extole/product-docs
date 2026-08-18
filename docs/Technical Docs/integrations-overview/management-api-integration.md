@@ -81,6 +81,7 @@ enough to be retrieved whole:
 | [Build an Outbound Library Integration](doc:integration-build-outbound) | Installing a maintained partner source and reshaping it, then attaching its outbound webhooks and credential. |
 | [Build a Reward Fulfillment Integration](doc:integration-build-reward-fulfillment) | A partner that fulfills rewards: supplier type, support campaign, supplier templates, and reward webhooks. |
 | [Map Inbound Partner Events](doc:integration-inbound-events) | Business events, input event rules, and event data for an integration that receives partner events. |
+| [Normalize Inbound Events with a Prehandler](doc:integration-prehandlers) | Reshaping a partner's own webhook at ingest, when the partner rather than the customer decides the payload shape. |
 | [Validate and Publish an Integration](doc:integration-validation) | Gating outbound resources, the validation checklist, and connecting the integration to a program. |
 
 Read the page for the path you are on rather than working from this one alone. A build that stops after
@@ -98,13 +99,14 @@ Follow these rules whenever you create or change an integration through the API,
 6. Use campaign-version-scoped mutation endpoints. Refresh the latest campaign version after every mutation.
 7. Use reusable business-event, rule, and data components. Do not create a custom controller when a reusable template implements the behavior.
 8. Keep partner input event names distinct from canonical Extole business event names.
-9. Map every persisted field explicitly, in the same run that creates the business events. Assign key types based on field semantics, not field spelling. A business event with an empty `data` socket captures nothing and is not a finished event.
-10. Add a `views` socket and three views: a configuration view exposing the settings that complete partner setup, a report-runner view charting what the integration processes, and an event-stream view carrying its live feed. The activity and event views apply to every category — what the partner does decides what the report counts and what the feed filters to, never whether the tabs exist.
-11. Create reward suppliers, client keys, or webhooks only when an approved outbound flow uses them. A reward fulfillment partner is such a flow: its suppliers, `REWARD` webhooks, and credential setting are the integration, not extras added to an inbound build.
-12. Build and inspect the complete campaign before publishing. Test every inbound event and every configured outbound path.
-13. Keep a resource ledger containing campaign, component, external resource, and test identifiers. Use it for verification and cleanup.
-14. Never put access tokens, secrets, or private client values in documentation, component descriptions, logs, or example payloads.
-15. Report partial results as incomplete. Do not describe a draft, disabled webhook, placeholder URL, or unverified event as production-ready.
+9. Settle who shapes the inbound payload before writing setup instructions. An extension or service built for this integration can send Extole-shaped events; a partner's own webhook sends whatever the partner defined, and reconciling it needs a prehandler as described in [Normalize Inbound Events with a Prehandler](doc:integration-prehandlers). Instructions that ask the customer to build a translation service in front of Extole are a design decision, not a default — take that path only when asked, and say so in the closing report.
+10. Map every persisted field explicitly, in the same run that creates the business events. Assign key types based on field semantics, not field spelling. A business event with an empty `data` socket captures nothing and is not a finished event.
+11. Add a `views` socket and three views: a configuration view exposing the settings that complete partner setup, a report-runner view charting what the integration processes, and an event-stream view carrying its live feed. The activity and event views apply to every category — what the partner does decides what the report counts and what the feed filters to, never whether the tabs exist.
+12. Create reward suppliers, client keys, or webhooks only when an approved outbound flow uses them. A reward fulfillment partner is such a flow: its suppliers, `REWARD` webhooks, and credential setting are the integration, not extras added to an inbound build.
+13. Build and inspect the complete campaign before publishing. Test every inbound event and every configured outbound path.
+14. Keep a resource ledger containing campaign, component, external resource, and test identifiers. Use it for verification and cleanup.
+15. Never put access tokens, secrets, or private client values in documentation, component descriptions, logs, or example payloads.
+16. Report partial results as incomplete. Do not describe a draft, disabled webhook, placeholder URL, or unverified event as production-ready.
 
 ## Resolve the Inputs
 
