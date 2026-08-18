@@ -19,10 +19,12 @@ Answer all three before creating anything. A platform that only receives Extole 
 
 | Category | Direction | Platform types | What you create |
 | :------- | :-------- | :------------- | :-------------- |
-| Inbound | Platform to Extole | Commerce, core banking, account opening, subscription, point of sale | A campaign built from the custom integration template, with business events, trigger rules, data capture, and a configuration view |
+| Inbound | Platform to Extole | Commerce, core banking, account opening, subscription, point of sale | A campaign built from the custom integration template, with business events, trigger rules, and data capture |
 | Outbound | Extole to platform | Marketing automation, messaging, customer data platforms, analytics | A duplicate of the maintained library source, reshaped to the finished shape on the partner page, with webhooks and a credential |
-| Reward fulfillment | Extole to platform | Gift card, prepaid card, points, and payout providers | A typed reward-supplier component type, a support campaign of supplier templates, an integration whose socket accepts them, and one `REWARD` webhook per order endpoint plus a status check |
+| Reward fulfillment | Extole to platform | Gift card, prepaid card, points, and payout providers | A typed reward-supplier component type, a support campaign of supplier templates, an integration whose socket accepts them, one `REWARD` webhook per order endpoint plus a status check, and a fourth view exposing the supplier socket |
 | Bidirectional | Both | Commerce and loyalty platforms that also accept rewards or coupons | The inbound model first, then outbound resources gated on an approved use case |
+
+Every row also gets the same three views — a configuration view, a report-runner view, and an event-stream view — so the column above lists only what is specific to the category. The views are described under each category below and built from [Add the Activity and Event Views](doc:integration-activity-views).
 
 ## Inbound Integrations
 
@@ -52,7 +54,7 @@ root
 
 Inbound integrations need no reward supplier, webhook, or client key. Creating those resources for completeness leaves credentials and unused resources that someone later has to reconcile.
 
-The three views are not category-specific. Every integration carries a configuration view, an activity chart, and a live event feed; the category decides what the chart counts and what the feed filters to.
+These three views are the baseline, not an inbound-specific set. Every integration carries a configuration view, an activity chart, and a live event feed; the category decides what the chart counts and what the feed filters to, and a reward fulfillment partner adds a fourth view on top of them.
 
 ## Outbound Integrations
 

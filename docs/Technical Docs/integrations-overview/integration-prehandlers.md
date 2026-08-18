@@ -20,7 +20,7 @@ The question is not what the partner sends. It is **who controls the shape of wh
 | An extension, plugin, or service written for this integration | Post `POST /v6/events` with the canonical `event_name` and flat data keys | Not needed |
 | The partner's own webhook, with a payload shape the partner defines | Post exactly what the partner decided to post, and nothing else | **Required** |
 
-`POST /v6/events` takes `event_name` as a required field of the request body. A partner webhook does not have one — Stripe names its event in a `type` field, Shopify names it nowhere in the body at all — so a partner whose webhook shape is fixed cannot post to that endpoint at all. There are only two ways to reconcile that, and they are not equivalent:
+`POST /v6/events` takes `event_name` as a required field of the request body. A partner webhook does not have one. Some platforms name the event in a body field of their own choosing, such as `type` or `topic`; others carry it only in a header, or only implicitly in which endpoint you registered for it. A partner whose webhook shape is fixed therefore cannot post to that endpoint at all, whatever its payload contains. There are only two ways to reconcile that, and they are not equivalent:
 
 - **A prehandler**, which does the reshaping inside Extole. The partner points its webhook at Extole and the integration is finished.
 - **A translation service the customer builds and hosts**, which receives the partner's webhook, reshapes it, and posts the result. The integration is finished only after the customer completes an engineering project that no part of this guide describes.
@@ -51,16 +51,16 @@ curl --request POST "$EXTOLE_API_HOST/v6/prehandlers" \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
-    "name": "example_v10_payment_to_converted",
-    "description": "Renames the Example payment webhook to the canonical converted event and flattens its payload.",
+    "name": "example_v10_order_completed_to_converted",
+    "description": "Renames the Example order webhook to the canonical converted event and flattens its payload.",
     "enabled": true,
     "order": 0,
     "conditions": [
       { "type": "HTTP_HEADER_MATCH", "http_header_names": ["x-example-signature"] },
-      { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var body = context.getProcessedRawEvent().getData(); return body.get(\"type\") === \"payment.succeeded\"; })();" }
+      { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var body = context.getProcessedRawEvent().getData(); return body.get(\"type\") === \"order.completed\"; })();" }
     ],
     "actions": [
-      { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var builder = context.getEventBuilder(); var body = context.getProcessedRawEvent().getData(); var object = body.get(\"data\").object; if (!object) { return; } builder.withEventName(\"converted\"); builder.addData(\"partner_conversion_id\", object.id); builder.addData(\"partner_user_id\", object.customer); builder.addData(\"cart_value\", object.amount / 100); builder.addData(\"email\", object.receipt_email); })();" }
+      { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var builder = context.getEventBuilder(); var body = context.getProcessedRawEvent().getData(); var order = body.get(\"data\").order; if (!order) { return; } builder.withEventName(\"converted\"); builder.addData(\"partner_conversion_id\", order.id); builder.addData(\"partner_user_id\", order.customer_id); builder.addData(\"cart_value\", order.total_amount); builder.addData(\"email\", order.customer_email); })();" }
     ],
     "component_references": [{ "component_id": "'"$INTEGRATION_COMPONENT_ID"'" }]
   }'
@@ -72,7 +72,7 @@ Three fields decide whether it does anything at all, and each defaults to the va
 - **`order` defaults to `0`**, and prehandlers run in ascending order. When one prehandler sets the app type another reads, or one renames an event another matches by name, the order is the dependency between them and not a formality.
 - **Conditions are ANDed, and an empty condition list matches everything.** A prehandler with no conditions runs its actions against every event in the account, including web events that have nothing to do with the partner. Always give it at least one condition.
 
-Names are unique per client and accept only alphanumeric characters, dashes, dots, and underscores. A name with a space in it is rejected as `prehandler_name_contains_illegal_character`, and a repeat is rejected as `prehandler_name_duplicated`. Name it after the component and the transformation, as the packaged Shopify integration does with `shopify_v10_order_created_to_conversion_event`, so the prehandler list reads as a set of transformations rather than a set of scripts.
+Names are unique per client and accept only alphanumeric characters, dashes, dots, and underscores. A name with a space in it is rejected as `prehandler_name_contains_illegal_character`, and a repeat is rejected as `prehandler_name_duplicated`. Follow the packaged convention and name it after the component, the generation, and the transformation — `example_v10_order_created_to_conversion_event` — so the prehandler list reads as a set of transformations rather than a set of scripts.
 
 ### Choose the Conditions
 
@@ -85,7 +85,9 @@ Names are unique per client and accept only alphanumeric characters, dashes, dot
 | `BLOCK_MATCH` | `considered_block_list_types` | The event matching an account block list. |
 | `JAVASCRIPT_V1` | `javascript` | Same as `EXPRESSION`, with a bare function body instead of an evaluatable. |
 
-Recognize the partner before you reshape anything. A webhook carries a partner-specific signature or source header — `x-shopify-shop-domain` for Shopify, a signature header for most others — and an `HTTP_HEADER_MATCH` on it is what keeps the prehandler from firing on unrelated traffic. When an account holds two instances of the same integration, add an expression condition comparing a value in the request against a setting on this instance's component, which is what the packaged Shopify prehandler does with the shop URL.
+Recognize the partner before you reshape anything. A webhook almost always carries a partner-specific header — a request signature, the sending store or account domain, a delivery identifier — and an `HTTP_HEADER_MATCH` on it is what keeps the prehandler from firing on unrelated traffic. Take the header name from the partner's webhook documentation, and read a real delivery to confirm it arrives, because header lists in partner documentation are frequently incomplete.
+
+When an account holds two instances of the same integration, that is not enough on its own: both instances see the same header. Add an expression condition comparing a value in the request — the sending store URL, the partner account identifier, whatever the payload or headers carry — against the corresponding setting on this instance's component. This is how the packaged integrations scope a shared partner app to one installation.
 
 `EXPRESSION` and `JAVASCRIPT_V1` do the same work through different fields. `EXPRESSION` takes an evaluatable string beginning `javascript@runtime:`; `JAVASCRIPT_V1` takes a bare function body under a `javascript` key. Bundled components use `EXPRESSION`, and matching them keeps a client-local build comparable to a packaged one.
 
@@ -99,7 +101,7 @@ Recognize the partner before you reshape anything. A webhook carries a partner-s
 | `SET_SANDBOX` | `sandbox_id` | Routes the event to a sandbox. |
 | `JAVASCRIPT_V1` | `javascript` | As `EXPRESSION`, with a bare function body. |
 
-Use `MAP_DATA_ATTRIBUTES` when the transformation is a flat rename and `EXPRESSION` when it is not. A partner payload that nests its interesting fields — an `object` under a `data` key, a line-item array to be summed, an amount in cents to be divided — needs an expression, because the mapping types address top-level keys.
+Use `MAP_DATA_ATTRIBUTES` when the transformation is a flat rename and `EXPRESSION` when it is not. A partner payload that nests its interesting fields — an order object under a `data` key, a line-item array to be summed, an amount in minor units to be divided — needs an expression, because the mapping types address top-level keys.
 
 ## What the Scripts Can Reach
 
@@ -128,7 +130,7 @@ The builder is where an action does its work:
 | `withDeviceId(id)` / `withPageId(id)` / `withDeviceType(type)` / `withDeviceOs(os)` | Device attribution |
 | `addJwt(jwt)` / `addSourceGeoIp(ip)` / `removeSourceGeoIp(ip)` | Identity and geolocation inputs |
 
-`getHttpHeaders()` returns each header as an array of values, so a single-valued header is read as `getHttpHeaders().get("x-example-signature")[0]`. `getData()` returns a map; the shipped Shopify scripts read it both as `data.get("shop_url")` and as `data.customer`, and the explicit `.get(name)` form is the one that works in both places.
+`getHttpHeaders()` returns each header as an array of values, so a single-valued header is read as `getHttpHeaders().get("x-example-signature")[0]`. `getData()` returns a map, and the packaged prehandler scripts read it both as `data.get("field_name")` and as `data.field_name`. Use the explicit `.get(name)` form, which works in both places.
 
 `getCandidatePerson()` returns null on anonymous and first-touch traffic. Calling a method on it without a guard is the most common cause of the `prehandler_action_execution_failure` alerts described in the prehandler alert runbook, and it fails on exactly the traffic a new integration sees first.
 
