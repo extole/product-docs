@@ -274,10 +274,23 @@ The runner's `mappings` expression counts reward activity and the revenue behind
 date=START_DATE(event.eventTime, period:"DAY"); count=group_count(event.id, step_name:"converted"); revenue=GROUP_SUM(event.data.amount, step_name:"converted")
 ```
 
-The view's `reportColumnsMapping` names the columns that expression produces, serialized as an escaped JSON string:
+The view's `reportColumnsMapping` names the columns that expression produces. It describes this chart:
 
 ```json
-{"chart":{"type":"line"},"xAxis":{"column":"date","type":"datetime"},"series":[{"name":"Count","column":"count","aggregation":"sum"},{"name":"Total Spend","column":"revenue","aggregation":"sum"}]}
+{
+  "chart": { "type": "line" },
+  "xAxis": { "column": "date", "type": "datetime" },
+  "series": [
+    { "name": "Count", "column": "count", "aggregation": "sum" },
+    { "name": "Total Spend", "column": "revenue", "aggregation": "sum" }
+  ]
+}
+```
+
+The setting holds that object serialized as an escaped JSON string, which is the form to put in `values.default`. Sending the object itself is rejected as `variable_value_invalid_type`:
+
+```text
+"{\"chart\":{\"type\":\"line\"},\"xAxis\":{\"column\":\"date\",\"type\":\"datetime\"},\"series\":[{\"name\":\"Count\",\"column\":\"count\",\"aggregation\":\"sum\"},{\"name\":\"Total Spend\",\"column\":\"revenue\",\"aggregation\":\"sum\"}]}"
 ```
 
 The event stream carries an event-type filter as well as the application-type filter every stream gets, so the feed shows fulfillment activity rather than every event in the account. `$EVENT_STREAM_ID` is what the stream create returned:

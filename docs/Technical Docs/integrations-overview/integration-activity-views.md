@@ -140,11 +140,13 @@ What a bundled component declares inline under `elements`, the API creates as it
 | Element a bundle declares | API resource |
 | :------------------------ | :----------- |
 | `report_runners` | `POST /v7/report-runners` |
-| `event_streams` | `POST /v6/event-streams`, with filters added afterwards |
+| `event_streams` | `POST /v6/event-streams`, with filters added afterward |
 
 Attach each to the **view** component that displays it, not to the integration component. The report runner uses `$REPORT_VIEW_COMPONENT_ID`; the event stream uses `$EVENT_STREAM_VIEW_COMPONENT_ID`. Both views resolve what to show by querying their own component for an element of the matching kind, so a report runner hung off the integration — or off the event-stream view — leaves the tab reporting that no report runner is configured even though one exists in the account.
 
 Republish the campaign after creating the views and before creating their elements. The `component_ids` reference resolves against the published campaign, so a resource created against a view component added since the last publish is rejected with `invalid_component_reference` — the same rule that governs webhooks and reward suppliers, and the easiest one to trip over here because the view was created minutes earlier in the same session.
+
+That is the first of two publishes. The second, after both elements exist, is covered in [Republish Again So the Views Resolve Their Elements](#republish-again-so-the-views-resolve-their-elements) below, and skipping it leaves both tabs empty.
 
 ```bash
 curl --request POST \
@@ -267,6 +269,37 @@ Filter to this integration's own activity. The application-type filter narrows t
 
 Name the stream for the view that owns it and tag it with the partner's app type, which is how the feed is recognized as this integration's rather than a stream someone left in the account.
 
+## Republish Again So the Views Resolve Their Elements
+
+Neither view stores the identifier you just created. Each carries a `javascript@buildtime` query that looks up the element attached to its own component:
+
+```text
+javascript@buildtime:(function(){ let elements = Java.from(context.getComponent().createElementsQuery().withType('REPORT_RUNNER').list()); return elements && elements.length > 0 ? elements[0].getId() : null; })();
+```
+
+The event-stream view carries the same query with `withType('EVENT_STREAM')`. Both evaluate when the campaign is built, and both return null when nothing of that type is attached yet — which is exactly the state at the publish above, because that publish is what made the views referenceable in the first place.
+
+So the sequence is publish, create the elements, publish again:
+
+```bash
+CAMPAIGN_VERSION=$(
+  curl --silent --show-error --fail-with-body \
+    "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID" \
+    --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" |
+  jq --raw-output '.version'
+)
+
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/publish" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{}'
+```
+
+Refresh `$CAMPAIGN_VERSION` first. Creating the elements does not change the campaign, but anything else in the same session does, and the version that succeeded at the first publish is not the version to send at the second.
+
+Nothing fails if you skip this. Both elements exist, both are attached, every call returned success, and both tabs are empty — which is why the confirmation below reads the built values rather than trusting the create responses.
+
 ## Error Handling
 
 | Response | Cause | What to do |
@@ -279,9 +312,12 @@ Name the stream for the view that owns it and tag it with the partner's app type
 | Invalid format on `parameters` as a whole | The runner sent a parameter the report type does not declare, omitted a required one, or used a value outside the type's enumeration. | Read the type's declared parameters and add them one at a time. |
 | An attempt to remove static parameters | A configured report type was created naming only some of the parent's parameters. | List every parameter the parent declares, with an empty default for the ones you do not set. |
 | The runner reports itself enabled and produces nothing | `schedule_start_date` is in the past. | Recreate the runner with a future start date. |
+| `reportRunnerId` or `eventStreamId` is null on a view whose element exists and is attached | The campaign was not published again after the element was created, so the view's buildtime query last evaluated against a component with nothing attached. | Refresh the version and publish again, then read the built value. |
 
 ## Confirm the Tabs Resolve
 
-Read the built campaign and confirm `reportRunnerId` and `eventStreamId` are non-null. An empty tab is the symptom of an element that was never created or was attached to the wrong component, and neither shows up as a failed call. A view whose `reportColumnsMapping` is set but whose `reportRunnerId` is null is the common half-built case — the chart is described and has nothing to chart.
+Read the built campaign and confirm `reportRunnerId` and `eventStreamId` are non-null. An empty tab is the symptom of an element that was never created, was attached to the wrong component, or exists and is attached but has not been through a publish since. None of the three shows up as a failed call. A view whose `reportColumnsMapping` is set but whose `reportRunnerId` is null is the common half-built case — the chart is described and has nothing to chart.
+
+Read the **built** form specifically. The component's own definition holds the buildtime query rather than an identifier, so a view that looks unresolved in the campaign version is the normal state and says nothing about whether the tab works.
 
 Confirm as well that the event stream carries its filters, and that every column the chart mapping names is one the runner's `mappings` expression produces. A stream with no filters and a chart with no matching columns both render as surfaces that exist and say nothing.
