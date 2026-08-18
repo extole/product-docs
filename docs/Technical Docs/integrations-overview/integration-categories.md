@@ -43,10 +43,14 @@ root
     │       ├── triggerRules    → input_event rule carrying the platform's event names
     │       └── data            → one component per captured field
     └── views                   MULTI_SOCKET → view-v10.0
-        └── configuration       config-view-v10.0
+        ├── configuration       config-view-v10.0
+        ├── report-runner-view  report-runner-view-v10.0
+        └── event-streams       event-stream-view-v10.0
 ```
 
 Inbound integrations need no reward supplier, webhook, or client key. Creating those resources for completeness leaves credentials and unused resources that someone later has to reconcile.
+
+The three views are not category-specific. Every integration carries a configuration view, an activity chart, and a live event feed; the category decides what the chart counts and what the feed filters to.
 
 ## Outbound Integrations
 
@@ -60,7 +64,8 @@ An outbound integration contains:
 root
 └── integration                 integration-v10.x
     ├── one child per forwarded Extole event
-    └── data-item template      partner data component type (when marketing campaigns attach partner actions)
+    ├── data-item template      partner data component type (when marketing campaigns attach partner actions)
+    └── views                   MULTI_SOCKET → configuration, report-runner, event-stream views
 ```
 
 The partner page's product description is the specification for that tree. The activity it says the integration forwards is the complete set of children, the endpoints it says Extole calls are the complete set of webhooks, and a statement that program campaigns attach partner data to their events means the integration carries a typed data template. A library source ships the union of what every account might want, so the install usually has more children and fewer webhooks than the finished integration.

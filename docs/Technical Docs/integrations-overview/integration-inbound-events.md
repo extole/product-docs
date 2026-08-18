@@ -23,8 +23,12 @@ root
     │   ├── shipped             template_tracked_business_event
     │   └── canceled            template_tracked_business_event
     └── views                   MULTI_SOCKET → view-v10.0
-        └── configuration       config-view-v10.0
+        ├── configuration       config-view-v10.0
+        ├── report-runner-view  report-runner-view-v10.0
+        └── event-streams       event-stream-view-v10.0
 ```
+
+An inbound build carries the same three views as every other category. The configuration view comes from [Create the Integration Campaign and Component Model](doc:integration-component-model); the other two, and the report runner and event stream they resolve to, come from [Add the Activity and Event Views](doc:integration-activity-views). Chart and stream the canonical business events this integration produces.
 
 The partner event name belongs in an `input_event` trigger rule. The canonical Extole event name belongs on the reusable business-event component. Do not rename the Extole business event to match the partner wire event.
 

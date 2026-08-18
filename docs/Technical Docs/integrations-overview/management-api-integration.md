@@ -77,8 +77,9 @@ enough to be retrieved whole:
 | Page | Use it for |
 | :--- | :--------- |
 | [Create the Integration Campaign and Component Model](doc:integration-component-model) | The campaign, root, and integration component; display metadata and the logo the admin renders; typed sockets and the configuration view. Every path needs this page. |
+| [Add the Activity and Event Views](doc:integration-activity-views) | The report-runner view and event-stream view, the report runner and event stream behind them, and the republish that has to precede each attachment. Every path needs this page. |
 | [Build an Outbound Library Integration](doc:integration-build-outbound) | Installing a maintained partner source and reshaping it, then attaching its outbound webhooks and credential. |
-| [Build a Reward Fulfillment Integration](doc:integration-build-reward-fulfillment) | A partner that fulfills rewards: supplier type, support campaign, supplier templates, reward webhooks, report runner, and event stream. |
+| [Build a Reward Fulfillment Integration](doc:integration-build-reward-fulfillment) | A partner that fulfills rewards: supplier type, support campaign, supplier templates, and reward webhooks. |
 | [Map Inbound Partner Events](doc:integration-inbound-events) | Business events, input event rules, and event data for an integration that receives partner events. |
 | [Validate and Publish an Integration](doc:integration-validation) | Gating outbound resources, the validation checklist, and connecting the integration to a program. |
 
@@ -98,7 +99,7 @@ Follow these rules whenever you create or change an integration through the API,
 7. Use reusable business-event, rule, and data components. Do not create a custom controller when a reusable template implements the behavior.
 8. Keep partner input event names distinct from canonical Extole business event names.
 9. Map every persisted field explicitly, in the same run that creates the business events. Assign key types based on field semantics, not field spelling. A business event with an empty `data` socket captures nothing and is not a finished event.
-10. Add a `views` socket and at least one configuration view. The view must expose the settings required to complete partner setup.
+10. Add a `views` socket and three views: a configuration view exposing the settings that complete partner setup, a report-runner view charting what the integration processes, and an event-stream view carrying its live feed. The activity and event views apply to every category — what the partner does decides what the report counts and what the feed filters to, never whether the tabs exist.
 11. Create reward suppliers, client keys, or webhooks only when an approved outbound flow uses them. A reward fulfillment partner is such a flow: its suppliers, `REWARD` webhooks, and credential setting are the integration, not extras added to an inbound build.
 12. Build and inspect the complete campaign before publishing. Test every inbound event and every configured outbound path.
 13. Keep a resource ledger containing campaign, component, external resource, and test identifiers. Use it for verification and cleanup.
@@ -198,7 +199,7 @@ The creation response must include:
 - Root and model component identifiers.
 - Canonical business events and partner trigger names.
 - Field mappings and key types.
-- View components and displayed settings.
+- View components and displayed settings, including the report runner behind the activity view and the event stream behind the event view, each named with the identifier its view resolves to.
 - External resources created, or an explicit statement that none were required.
 - Programs whose business events were replaced or added to, or an explicit statement that the integration is not yet connected to a program.
 - Test event identifiers and verification results.
