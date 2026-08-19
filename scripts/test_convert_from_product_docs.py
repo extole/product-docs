@@ -1,4 +1,6 @@
+import contextlib
 import importlib.util
+import io
 import json
 import tempfile
 import unittest
@@ -317,3 +319,109 @@ class GroupWithOnlyHiddenChildrenTests(unittest.TestCase):
             conv = converter.Converter(src, out)
             self.assertIsNone(conv._make_group(group, "technical"))
             self.assertEqual(conv.pages, [])
+
+
+class OrderYamlOmissionTests(unittest.TestCase):
+    """_order.yaml was an allowlist that failed silently in both directions.
+
+    Anything it did not mention vanished from the site, and an entry matching
+    no file matched nothing quietly — between them, 15 Flow Campaigns guides
+    and the Fulfilled Rewards Report were live on ReadMe and absent here.
+    """
+
+    def _tree(self, directory, guides_order, extra=()):
+        src = Path(directory) / "src"
+        docs = src / "docs"
+        guides = docs / "Guides"
+        deep = guides / "deep"
+        deep.mkdir(parents=True)
+        (docs / "_order.yaml").write_text("- Guides\n", encoding="utf-8")
+        (guides / "_order.yaml").write_text(guides_order, encoding="utf-8")
+        (deep / "_order.yaml").write_text("- dupe\n", encoding="utf-8")
+        page = '---\ntitle: "{}"\n---\n\nBody.\n'
+        (guides / "listed.md").write_text(page.format("Listed"), encoding="utf-8")
+        (guides / "orphan.md").write_text(page.format("Orphan"), encoding="utf-8")
+        # the shallow copy of a guide whose canonical version lives in deep/
+        (guides / "dupe.md").write_text(page.format("Dupe"), encoding="utf-8")
+        (deep / "dupe.md").write_text(page.format("Dupe"), encoding="utf-8")
+        for name in extra:
+            (guides / f"{name}.md").write_text(page.format(name), encoding="utf-8")
+        return src, Path(directory) / "out", guides
+
+    def test_a_page_no_one_else_serves_is_restored_after_the_ordered_ones(self):
+        with tempfile.TemporaryDirectory() as directory:
+            src, out, guides = self._tree(directory, "- listed\n- deep\n")
+            conv = converter.Converter(src, out)
+            nav = conv.collect(guides, "guides", converter.read_order(guides))
+
+            self.assertEqual(nav[0], "guides/listed")
+            self.assertIn("guides/orphan", nav)
+            # restored, never reordered ahead of the curated names
+            self.assertGreater(nav.index("guides/orphan"), nav.index("guides/listed"))
+
+    def test_a_deliberate_duplicate_stays_dropped(self):
+        """Upstream keeps shallow copies that _order.yaml omits on purpose,
+        because a deeper copy is canonical and both carry the same slug."""
+        with tempfile.TemporaryDirectory() as directory:
+            src, out, guides = self._tree(directory, "- listed\n- deep\n")
+            conv = converter.Converter(src, out)
+            conv.collect(guides, "guides", converter.read_order(guides))
+
+            written = [p.out_path for p in conv.pages]
+            self.assertIn("guides/deep/dupe", written)
+            self.assertNotIn("guides/dupe", written)
+
+    def test_an_order_entry_matching_no_file_is_reported(self):
+        """The Fulfilled Rewards Report was lost to exactly this: its order
+        file says fulfilled-reports-report, the file is fulfilled-rewards."""
+        with tempfile.TemporaryDirectory() as directory:
+            src, out, guides = self._tree(directory, "- listed\n- deep\n- typoed-name\n")
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                converter.Converter(src, out)
+
+            self.assertIn("typoed-name", stderr.getvalue())
+            self.assertIn("matches nothing on disk", stderr.getvalue())
+
+    def test_restoring_a_page_is_announced(self):
+        with tempfile.TemporaryDirectory() as directory:
+            src, out, _ = self._tree(directory, "- listed\n- deep\n")
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                converter.Converter(src, out)
+
+            self.assertIn("orphan.md is unlisted", stderr.getvalue())
+
+    def test_a_hidden_unlisted_page_is_left_alone(self):
+        with tempfile.TemporaryDirectory() as directory:
+            src, out, guides = self._tree(directory, "- listed\n- deep\n")
+            (guides / "secret.md").write_text(
+                '---\ntitle: "Secret"\nhidden: true\n---\n\nBody.\n', encoding="utf-8"
+            )
+            conv = converter.Converter(src, out)
+            conv.collect(guides, "guides", converter.read_order(guides))
+
+            self.assertNotIn("guides/secret", [p.out_path for p in conv.pages])
+
+
+class PreservedTabTests(unittest.TestCase):
+    def test_a_hand_authored_tab_survives_regeneration(self):
+        """News is assembled from the ReadMe changelog and newsletters and has
+        no upstream source, so rebuilding the navigation used to drop it while
+        its .mdx files stayed on disk, serving nothing."""
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            (out / "docs.json").write_text(
+                json.dumps({"navigation": {"tabs": [
+                    {"tab": "Guides", "groups": [{"group": "stale", "pages": ["x"]}]},
+                    {"tab": "News", "pages": ["news/recent-releases"]},
+                ]}}),
+                encoding="utf-8",
+            )
+            kept = converter.read_extra_tabs(out, {"Guides", "API Reference"})
+
+            self.assertEqual(kept, [{"tab": "News", "pages": ["news/recent-releases"]}])
+
+    def test_read_extra_tabs_tolerates_a_missing_docs_json(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(converter.read_extra_tabs(Path(directory), set()), [])
