@@ -56,19 +56,8 @@
         document.documentElement.removeAttribute("data-extole-driving");
         scanSoon();
         var now = document.activeElement;
-        if (
-          now &&
-          now !== active &&
-          now.closest &&
-          now.closest(".extole-eval-map")
-        ) {
-          return;
-        }
-        if (
-          active &&
-          active !== document.body &&
-          typeof active.focus === "function"
-        ) {
+        if (now && now.closest && now.closest(".extole-eval-map")) return;
+        if (active && active !== document.body && typeof active.focus === "function") {
           try {
             active.focus();
           } catch (err) {}
@@ -242,6 +231,7 @@
     var marker = "values." + key;
     var dels = field.querySelectorAll('[aria-label="Delete item"]');
     for (var i = 0; i < dels.length; i++) {
+      if (dels[i].closest(".extole-eval-map")) continue;
       var block = dels[i].closest(".py-5") || dels[i].parentElement;
       if (!block) continue;
       var text = (block.innerText || block.textContent || "").replace(/\s+/g, " ");
@@ -252,6 +242,16 @@
       return block;
     }
     return null;
+  }
+
+  function nativeDeletes(field) {
+    var dels = field.querySelectorAll('[aria-label="Delete item"]');
+    var out = [];
+    for (var i = 0; i < dels.length; i++) {
+      if (dels[i].closest(".extole-eval-map")) continue;
+      out.push(dels[i]);
+    }
+    return out;
   }
 
   function typeChip(block) {
@@ -291,12 +291,6 @@
     return { kind: "scalar", raw: raw };
   }
 
-  function nativeTypeIndex(row) {
-    var idx = +row.querySelector("select").value;
-    if (idx !== 0) return idx;
-    return parsedStatic(suffixOf(row)).kind === "scalar" ? 1 : 0;
-  }
-
   function spec(row) {
     return TYPES[+row.querySelector("select").value] || TYPES[0];
   }
@@ -324,6 +318,19 @@
     return want;
   }
 
+  function nativeTypeIndex(row) {
+    var idx = +row.querySelector("select").value;
+    if (idx !== 0) return idx;
+    return parsedStatic(suffixOf(row)).kind === "scalar" ? 1 : 0;
+  }
+
+  function bumpKey(row) {
+    var keyEl = row.querySelector(".extole-eval-map-key");
+    if (keyEl && !keyOf(row) && (suffixOf(row) || spec(row).prefix)) {
+      keyEl.value = "default";
+    }
+  }
+
   function paint(row) {
     var s = spec(row);
     var prefix = row.querySelector(".extole-eval-map-prefix");
@@ -348,6 +355,31 @@
     hint.hidden = !msg;
   }
 
+  function itemsFromUi(field) {
+    var rows = field.querySelectorAll(".extole-eval-map-row");
+    var items = [];
+    for (var i = 0; i < rows.length; i++) {
+      bumpKey(rows[i]);
+      paint(rows[i]);
+      var key = keyOf(rows[i]);
+      if (!key) continue;
+      items.push({
+        key: key,
+        idx: nativeTypeIndex(rows[i]),
+        want: wantedValue(rows[i]),
+      });
+    }
+    return items;
+  }
+
+  function signature(items) {
+    return items
+      .map(function (item) {
+        return item.key + "\0" + item.idx + "\0" + item.want;
+      })
+      .join("\n");
+  }
+
   function queue(field, job) {
     field._extoleMapQ = (field._extoleMapQ || Promise.resolve())
       .then(function () {
@@ -367,19 +399,11 @@
     });
   }
 
-  function ensureNativeKey(field, row, key) {
+  function ensureNativeKey(field, key) {
     var existing = nativeEntry(field, key);
-    if (existing) {
-      row.dataset.nativeKey = key;
-      return Promise.resolve(existing);
-    }
+    if (existing) return Promise.resolve(existing);
     var pending = pendingKeyInput(field);
-    if (pending) {
-      return commitPendingKey(field, key).then(function (block) {
-        if (block) row.dataset.nativeKey = key;
-        return block;
-      });
-    }
+    if (pending) return commitPendingKey(field, key);
     var add = addButton(field);
     if (!add) return Promise.resolve(null);
     add.click();
@@ -387,9 +411,6 @@
       return pendingKeyInput(field);
     }).then(function () {
       return commitPendingKey(field, key);
-    }).then(function (block) {
-      if (block) row.dataset.nativeKey = key;
-      return block;
     });
   }
 
@@ -409,119 +430,22 @@
     return null;
   }
 
-  function mapAlreadyOnType(field, idx) {
-    var rows = field.querySelectorAll(".extole-eval-map-row");
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].dataset.nativeType === String(idx)) return true;
-    }
-    return false;
-  }
-
-  function ensureNativeType(field, row, key, idx) {
+  function setNativeType(field, key, idx) {
     var wantString = idx !== 0;
     var kind = nativeValueKind(field, key);
-    if (row.dataset.nativeType === String(idx) && kind) return Promise.resolve();
-    if (mapAlreadyOnType(field, idx) && wantString && kind === "string") {
-      row.dataset.nativeType = String(idx);
-      return Promise.resolve();
-    }
-    if (mapAlreadyOnType(field, idx) && !wantString && kind === "object") {
-      row.dataset.nativeType = String(idx);
-      return Promise.resolve();
-    }
-    var block = nativeEntry(field, key);
-    var chip = typeChip(block);
+    if (wantString && kind === "string") return Promise.resolve();
+    if (!wantString && kind === "object") return Promise.resolve();
+    var chip = typeChip(nativeEntry(field, key));
     if (!chip) return Promise.resolve();
     chip.click();
     return waitFor(function () {
       return typeMenuItem(idx);
     }).then(function (item) {
-      if (!item) return;
-      item.click();
-      row.dataset.nativeType = String(idx);
+      if (item) item.click();
     });
   }
 
-  function restoreOtherValues(field, current) {
-    var rows = field.querySelectorAll(".extole-eval-map-row");
-    var chain = Promise.resolve();
-    for (var i = 0; i < rows.length; i++) {
-      (function (other) {
-        if (other === current) return;
-        var key = other.dataset.nativeKey;
-        if (!key) return;
-        chain = chain.then(function () {
-          return fillNativeValue(field, other, key);
-        });
-      })(rows[i]);
-    }
-    return chain;
-  }
-
-  function bumpKeyOn(row) {
-    var keyEl = row.querySelector(".extole-eval-map-key");
-    if (keyEl && !keyOf(row) && (suffixOf(row) || spec(row).prefix)) {
-      keyEl.value = "default";
-    }
-  }
-
-  function confirmNative(field, row) {
-    var key = keyOf(row);
-    if (!key) {
-      setSaveState(row, true);
-      return;
-    }
-    var input = nativeValueInput(field, key);
-    if (row.dataset.nativeKey === key && input && input.value === wantedValue(row)) {
-      markSaved(row);
-    } else {
-      setSaveState(row, true);
-    }
-  }
-
-  function saveAll(field) {
-    var rows = [].slice.call(field.querySelectorAll(".extole-eval-map-row"));
-    rows.forEach(function (row) {
-      bumpKeyOn(row);
-      paint(row);
-    });
-    var keyed = rows.filter(function (row) {
-      return keyOf(row);
-    });
-    if (!keyed.length) return Promise.resolve();
-    var dirty = keyed.some(function (row) {
-      return (
-        row.dataset.nativeKey !== keyOf(row) ||
-        snapshot(row) !== (row.dataset.saved || "")
-      );
-    });
-    if (!dirty) return Promise.resolve();
-    keyed.forEach(function (row) {
-      var btn = row.querySelector(".extole-eval-map-save");
-      if (btn) btn.disabled = true;
-    });
-    var chain = Promise.resolve();
-    keyed.forEach(function (row) {
-      chain = chain.then(function () {
-        return syncRow(field, row);
-      });
-    });
-    return chain.then(function () {
-      keyed.forEach(function (row) {
-        confirmNative(field, row);
-      });
-    });
-  }
-
-  function saveSoon(field) {
-    clearTimeout(field._extoleSaveT);
-    field._extoleSaveT = setTimeout(function () {
-      saveAll(field);
-    }, 500);
-  }
-
-  function fillNativeValue(field, row, key) {
-    var want = wantedValue(row);
+  function fillNativeValue(field, key, want) {
     return waitFor(function () {
       return nativeValueInput(field, key);
     }, 3000).then(function (input) {
@@ -532,59 +456,89 @@
     });
   }
 
-  function snapshot(row) {
-    return (
-      keyOf(row) +
-      "\0" +
-      row.querySelector("select").value +
-      "\0" +
-      fullValue(row)
-    );
+  function clearNative(field) {
+    function step() {
+      var dels = nativeDeletes(field);
+      if (!dels.length) return Promise.resolve();
+      var left = dels.length;
+      dels[0].click();
+      return waitFor(function () {
+        return nativeDeletes(field).length < left;
+      }, 1500).then(step);
+    }
+    var pending = pendingKeyInput(field);
+    if (pending) enterKey(pending);
+    return step();
   }
 
-  function setSaveState(row, dirty) {
-    var save = row.querySelector(".extole-eval-map-save");
-    if (!save) return;
-    save.disabled = !dirty;
-    save.setAttribute("aria-disabled", dirty ? "false" : "true");
-    save.classList.toggle("is-active", !!dirty);
+  function putItem(field, item) {
+    return ensureNativeKey(field, item.key)
+      .then(function () {
+        return setNativeType(field, item.key, item.idx);
+      })
+      .then(function () {
+        return fillNativeValue(field, item.key, item.want);
+      });
   }
 
-  function markDirty(row) {
-    paint(row);
-    setSaveState(row, snapshot(row) !== (row.dataset.saved || ""));
+  function fillAll(field, items) {
+    var chain = Promise.resolve();
+    items.forEach(function (item) {
+      chain = chain.then(function () {
+        return fillNativeValue(field, item.key, item.want);
+      });
+    });
+    return chain;
   }
 
-  function markSaved(row) {
-    row.dataset.saved = snapshot(row);
-    setSaveState(row, false);
-  }
-
-  function syncRow(field, row) {
-    paint(row);
-    var key = keyOf(row);
-    if (!key) return Promise.resolve();
-    var idx = nativeTypeIndex(row);
+  function writeNative(field) {
+    clearTimeout(field._extoleMapT);
     return queue(field, function () {
-      var prev = row.dataset.nativeKey;
-      if (prev && prev !== key) {
-        var old = nativeEntry(field, prev);
-        var del = old && old.querySelector('[aria-label="Delete item"]');
-        if (del) del.click();
-        row.dataset.nativeKey = "";
-        row.dataset.nativeType = "";
-      }
-      return ensureNativeKey(field, row, key)
+      var items = itemsFromUi(field);
+      var sig = signature(items);
+      if (field._extoleMapSig === sig) return Promise.resolve();
+      return clearNative(field)
         .then(function () {
-          return ensureNativeType(field, row, key, idx);
+          var chain = Promise.resolve();
+          items.forEach(function (item) {
+            chain = chain.then(function () {
+              return putItem(field, item);
+            });
+          });
+          return chain;
         })
         .then(function () {
-          return fillNativeValue(field, row, key);
+          return fillAll(field, items);
         })
         .then(function () {
-          return restoreOtherValues(field, row);
+          var missing = items.filter(function (item) {
+            return !nativeEntry(field, item.key);
+          });
+          if (!missing.length) return;
+          var chain = Promise.resolve();
+          missing.forEach(function (item) {
+            chain = chain.then(function () {
+              return putItem(field, item);
+            });
+          });
+          return chain.then(function () {
+            return fillAll(field, items);
+          });
+        })
+        .then(function () {
+          field._extoleMapSig = signature(items);
+          if (signature(itemsFromUi(field)) !== field._extoleMapSig) {
+            scheduleWrite(field);
+          }
         });
     });
+  }
+
+  function scheduleWrite(field) {
+    clearTimeout(field._extoleMapT);
+    field._extoleMapT = setTimeout(function () {
+      writeNative(field);
+    }, 400);
   }
 
   function maybePrefill(row) {
@@ -597,80 +551,50 @@
     var keyEl = row.querySelector(".extole-eval-map-key");
     var typeEl = row.querySelector("select");
     var valEl = row.querySelector(".extole-eval-map-input");
-    var save = row.querySelector(".extole-eval-map-save");
     var remove = row.querySelector(".extole-eval-map-remove");
     paint(row);
-    if (!row.dataset.saved) row.dataset.saved = snapshot(row);
-    markDirty(row);
 
-    function bumpKey() {
-      bumpKeyOn(row);
+    function onEdit() {
+      bumpKey(row);
+      paint(row);
+      scheduleWrite(field);
     }
 
-    function noteEdit() {
-      bumpKey();
-      markDirty(row);
-    }
-
-    function saveRow() {
-      clearTimeout(field._extoleSaveT);
-      return saveAll(field);
-    }
-
-    keyEl.addEventListener("input", noteEdit);
+    keyEl.addEventListener("input", onEdit);
     keyEl.addEventListener("blur", function () {
-      if (keyOf(row)) saveSoon(field);
+      if (keyOf(row)) writeNative(field);
     });
     keyEl.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
-        saveRow();
+        writeNative(field);
       }
     });
     typeEl.addEventListener("change", function () {
       maybePrefill(row);
-      row.dataset.nativeType = "";
-      noteEdit();
-      saveSoon(field);
+      onEdit();
     });
-    valEl.addEventListener("input", function () {
-      noteEdit();
-      saveSoon(field);
-    });
+    valEl.addEventListener("input", onEdit);
     valEl.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
-        saveRow();
+        writeNative(field);
       }
-    });
-    save.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      saveRow();
     });
     remove.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
       var rows = field.querySelectorAll(".extole-eval-map-row");
-      queue(field, function () {
-        var block = nativeEntry(field, row.dataset.nativeKey);
-        var del = block && block.querySelector('[aria-label="Delete item"]');
-        if (del) del.click();
-      }).then(function () {
-        if (rows.length <= 1) {
-          keyEl.value = "";
-          valEl.value = "";
-          typeEl.selectedIndex = 0;
-          row.dataset.nativeKey = "";
-          row.dataset.nativeType = "";
-          row.dataset.saved = "";
-          paint(row);
-          row.dataset.saved = snapshot(row);
-          markDirty(row);
-          return;
-        }
+      if (rows.length <= 1) {
+        keyEl.value = "";
+        valEl.value = "";
+        typeEl.selectedIndex = 0;
+        paint(row);
+      } else {
         row.remove();
-      });
+      }
+      field._extoleMapSig = "";
+      writeNative(field);
     });
   }
 
@@ -689,7 +613,6 @@
       '<span class="extole-eval-map-prefix" hidden></span>' +
       '<input class="extole-eval-map-input" type="text" spellcheck="false" autocomplete="off" aria-label="Map value">' +
       "</label>" +
-      '<button type="button" class="extole-eval-map-save" aria-label="OK" title="OK" disabled>✓</button>' +
       '<button type="button" class="extole-eval-map-remove" aria-label="Remove entry">×</button>' +
       '<p class="extole-eval-map-hint" hidden></p>';
     return row;
@@ -717,12 +640,13 @@
     }
     var existing = field.querySelector(":scope > .extole-eval-map");
     if (existing) {
-      if (existing.querySelector(".extole-eval-map-save")) return;
+      if (existing.dataset.extoleMapV === "3") return;
       existing.remove();
     }
 
     var ui = document.createElement("div");
     ui.className = "extole-eval-map";
+    ui.dataset.extoleMapV = "3";
     function stopBubble(e) {
       e.stopPropagation();
     }
@@ -745,11 +669,11 @@
     more.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
+      writeNative(field);
       var next = buildRow();
       list.appendChild(next);
       bindRow(field, next);
       next.querySelector(".extole-eval-map-key").focus();
-      saveAll(field);
     });
 
     ui.appendChild(list);
