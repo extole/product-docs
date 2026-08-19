@@ -1417,7 +1417,15 @@ def build_docs_json(tabs, redirects=None):
                 {"label": "My Extole Login", "href": "https://my.extole.com"},
             ],
         },
-        "contextual": {"options": ["copy", "view", "chatgpt", "claude", "mcp"]},
+        # Each page's More actions menu, in Mintlify's own enum order.
+        # "assistant" is the Ask AI entry and needs a Pro plan, which also
+        # gates the separate Ask AI widget beside the search box -- that one
+        # has no docs.json setting at all. "download-spec" appears only on
+        # pages backed by an OpenAPI bundle, so it is inert outside API
+        # Reference.
+        "contextual": {
+            "options": ["copy", "assistant", "download-spec", "chatgpt", "claude", "cursor"]
+        },
         "footer": {"socials": {"github": "https://github.com/extole"}},
     }
 
