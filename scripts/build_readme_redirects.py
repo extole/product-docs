@@ -36,7 +36,7 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from convert_from_product_docs import slugify  # noqa: E402
+from convert_from_product_docs import SPEC_TABS, slugify  # noqa: E402
 
 URL_MAP_FILE = "url-map.json"
 GENERATED_KEY = "readme_redirects"
@@ -100,10 +100,17 @@ def operation_destinations(api_dir: Path):
     The tag map covers ReadMe's own section landing pages (/reference/events-1),
     which are categories rather than operations -- the same case as a /docs
     category, and resolved the same way: the first page inside.
+
+    Only the bundles in SPEC_TABS are read. Globbing the folder instead meant an
+    unpublished spec sitting there could supply a destination for a page this
+    site does not serve.
     """
     dest: dict[str, str] = {}
     tag_first: dict[str, str] = {}
-    for bundle in sorted(api_dir.glob("*.json")):
+    for _, filename in SPEC_TABS:
+        bundle = api_dir / filename
+        if not bundle.exists():
+            continue
         try:
             spec = json.loads(bundle.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):

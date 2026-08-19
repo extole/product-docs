@@ -1010,11 +1010,14 @@ class Converter:
 # main
 # ---------------------------------------------------------------------------
 
+# The bundles this site publishes. extole-specification also builds
+# management-expert.json, which ReadMe has never published -- its reference/
+# tree ships only the three below -- so it is deliberately absent here. Adding
+# a bundle to this list is what puts it on the site; nothing else does.
 SPEC_TABS = [
     ("Consumer to Extole API", "integration-consumer-to-extole.json"),
     ("Server to Extole API", "integration-server-to-extole.json"),
     ("Management API", "management.json"),
-    ("Management Expert API", "management-expert.json"),
 ]
 
 OPENAPI_METHODS = frozenset({"get", "post", "put", "delete", "patch", "head", "options", "trace"})
