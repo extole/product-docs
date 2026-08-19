@@ -449,6 +449,54 @@
     return chain;
   }
 
+  function bumpKeyOn(row) {
+    var keyEl = row.querySelector(".extole-eval-map-key");
+    if (keyEl && !keyOf(row) && (suffixOf(row) || spec(row).prefix)) {
+      keyEl.value = "default";
+    }
+  }
+
+  function confirmNative(field, row) {
+    var key = keyOf(row);
+    if (!key) {
+      setSaveState(row, true);
+      return;
+    }
+    var input = nativeValueInput(field, key);
+    if (row.dataset.nativeKey === key && input && input.value === wantedValue(row)) {
+      markSaved(row);
+    } else {
+      setSaveState(row, true);
+    }
+  }
+
+  function saveAll(field) {
+    var rows = [].slice.call(field.querySelectorAll(".extole-eval-map-row"));
+    rows.forEach(function (row) {
+      bumpKeyOn(row);
+      paint(row);
+    });
+    var keyed = rows.filter(function (row) {
+      return keyOf(row);
+    });
+    if (!keyed.length) return Promise.resolve();
+    keyed.forEach(function (row) {
+      var btn = row.querySelector(".extole-eval-map-save");
+      if (btn) btn.disabled = true;
+    });
+    var chain = Promise.resolve();
+    keyed.forEach(function (row) {
+      chain = chain.then(function () {
+        return syncRow(field, row);
+      });
+    });
+    return chain.then(function () {
+      keyed.forEach(function (row) {
+        confirmNative(field, row);
+      });
+    });
+  }
+
   function fillNativeValue(field, row, key) {
     var want = wantedValue(row);
     return waitFor(function () {
@@ -533,9 +581,7 @@
     markDirty(row);
 
     function bumpKey() {
-      if (!keyOf(row) && (suffixOf(row) || spec(row).prefix)) {
-        keyEl.value = "default";
-      }
+      bumpKeyOn(row);
     }
 
     function noteEdit() {
@@ -544,20 +590,7 @@
     }
 
     function saveRow() {
-      bumpKey();
-      paint(row);
-      if (!keyOf(row)) return;
-      save.disabled = true;
-      return syncRow(field, row).then(function () {
-        var key = keyOf(row);
-        if (row.dataset.nativeKey !== key) {
-          setSaveState(row, true);
-          return;
-        }
-        var input = nativeValueInput(field, key);
-        if (input && input.value === wantedValue(row)) markSaved(row);
-        else setSaveState(row, true);
-      });
+      return saveAll(field);
     }
 
     keyEl.addEventListener("input", noteEdit);
