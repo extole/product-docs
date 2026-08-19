@@ -26,6 +26,13 @@
     return tab.id;
   }
 
+  function isEvaluatableLabels(labels) {
+    if (!labels || labels.length < 2 || labels.length > 8) return false;
+    var joined = labels.join("\n");
+    if (!/Static Value/i.test(joined)) return false;
+    return /Handlebars|Javascript/i.test(joined);
+  }
+
   function shouldEnhance(list, tabCount) {
     if (list.closest(".object-param-field")) return tabCount >= 2;
     if (list.closest('[role="dialog"]')) return tabCount >= 2;
@@ -43,19 +50,20 @@
   }
 
   function enhance(list) {
-    if (list.dataset.extoleCombo) return;
+    if (list.dataset.extoleCombo || list.dataset.extoleEval) return;
     var tabs = tabNodes(list);
     if (!shouldEnhance(list, tabs.length)) return;
-    list.dataset.extoleCombo = "1";
-
-    var dialogScoped = !!list.closest('[role="dialog"]');
-    var scope = dialogScoped ? list.closest('[role="dialog"]') : document;
     var labels = [];
     var selected = 0;
     for (var i = 0; i < tabs.length; i++) {
       labels.push(labelOf(tabs[i]));
       if (tabs[i].getAttribute("aria-selected") === "true") selected = i;
     }
+    if (isEvaluatableLabels(labels)) return;
+    list.dataset.extoleCombo = "1";
+
+    var dialogScoped = !!list.closest('[role="dialog"]');
+    var scope = dialogScoped ? list.closest('[role="dialog"]') : document;
 
     var root = list.parentElement;
     if (!root) return;
