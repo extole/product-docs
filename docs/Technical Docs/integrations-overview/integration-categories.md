@@ -32,7 +32,7 @@ An inbound integration turns a platform's own event names into canonical Extole 
 
 Inbound splits again on a question worth asking early: whether the sending half is something anyone will write. A platform with an extension or plugin can send Extole-shaped events, and the tree below is the whole integration. A platform that only emits its own fixed webhook — a payment processor, most SaaS products with a webhook page and no plugin — sends what it decided to send, and the reconciliation happens inside Extole with a prehandler, described in [Normalize Inbound Events with a Prehandler](doc:integration-prehandlers). The tree is identical either way; what differs is whether it is reachable.
 
-Two vocabularies meet here and must not be conflated. The platform's wire event name belongs on the trigger rule that listens for it. The business event carries the canonical name the rest of the platform already understands — `converted`, `shipped`, `canceled`, `account_opened`, and the other names bundled programs use. Never rename a business event to match a platform's wire name.
+Two vocabularies meet here and must not be conflated. The trigger rule carries the name that reaches it: the platform's wire event name, or the canonical name a prehandler produced from it. The business event carries the canonical name the rest of the platform already understands — `converted`, `shipped`, `canceled`, `account_opened`, and the other names bundled programs use. Never rename a business event to match a platform's wire name.
 
 Data capture is the integration. A business event with an empty `data` socket produces an event with no transaction identifier, no person key, and no value, so nothing downstream can deduplicate, attribute, reward, or report on it.
 

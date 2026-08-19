@@ -85,7 +85,7 @@ curl --request POST "$EXTOLE_API_HOST/v6/prehandlers" \
       { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var body = context.getProcessedRawEvent().getData(); return body.get(\"type\") === \"order.completed\"; })();" }
     ],
     "actions": [
-      { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var builder = context.getEventBuilder(); var body = context.getProcessedRawEvent().getData(); var order = body.get(\"data\").order; if (!order) { return; } builder.withEventName(\"converted\"); builder.addData(\"partner_conversion_id\", order.id); builder.addData(\"partner_user_id\", order.customer_id); builder.addData(\"cart_value\", order.total_amount); builder.addData(\"email\", order.customer_email); })();" }
+      { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var builder = context.getEventBuilder(); var body = context.getProcessedRawEvent().getData(); var data = body.get(\"data\"); if (!data) { return; } var order = data.get(\"order\"); if (!order) { return; } builder.withEventName(\"converted\"); builder.addData(\"partner_conversion_id\", order.get(\"id\")); builder.addData(\"partner_user_id\", order.get(\"customer_id\")); builder.addData(\"cart_value\", order.get(\"total_amount\")); builder.addData(\"email\", order.get(\"customer_email\")); })();" }
     ],
     "component_references": [{ "component_id": "'"$INTEGRATION_COMPONENT_ID"'" }]
   }'
@@ -93,7 +93,7 @@ curl --request POST "$EXTOLE_API_HOST/v6/prehandlers" \
 
 Three fields decide whether it does anything at all, and each defaults to the value that does nothing:
 
-- **`enabled` defaults to `false`.** A prehandler created without it is stored, listed, and never run. This is the single most common reason a prehandler that plainly exists has no effect.
+- **`enabled` defaults to `false`.** A prehandler created without it is stored, listed, and never run. This is a common reason a prehandler that plainly exists has no effect.
 - **`order` defaults to `0`**, and prehandlers run in ascending order. When one prehandler sets the app type another reads, or one renames an event another matches by name, the order is the dependency between them and not a formality.
 - **Conditions are ANDed, and an empty condition list matches everything.** A prehandler with no conditions runs its actions against every event in the account, including web events that have nothing to do with the partner. Always give it at least one condition.
 
@@ -121,7 +121,7 @@ When an account holds two instances of the same integration, that is not enough 
 | `type` | Fields | Does |
 | :----- | :----- | :--- |
 | `EXPRESSION` | `expression` | Anything the builder exposes. The only action type that can rename an event. |
-| `SET_DATA` | `data`, `default_data`, `delete_data` | Sets, defaults, and removes data keys. Values are evaluatables. |
+| `SET_DATA` | `data`, `default_data`, `delete_data` | Sets, defaults, and removes data keys. Values are evaluatable expressions. |
 | `MAP_DATA_ATTRIBUTES` | `data_attribute_mappings` | Copies `source_attribute` to `attribute`, with an optional `default_value`. |
 | `SET_SANDBOX` | `sandbox_id` | Routes the event to a sandbox. |
 | `JAVASCRIPT_V1` | `javascript` | As `EXPRESSION`, with a bare function body. |
