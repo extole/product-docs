@@ -55,6 +55,15 @@
       .finally(function () {
         document.documentElement.removeAttribute("data-extole-driving");
         scanSoon();
+        var now = document.activeElement;
+        if (
+          now &&
+          now !== active &&
+          now.closest &&
+          now.closest(".extole-eval-map")
+        ) {
+          return;
+        }
         if (
           active &&
           active !== document.body &&
@@ -480,6 +489,13 @@
       return keyOf(row);
     });
     if (!keyed.length) return Promise.resolve();
+    var dirty = keyed.some(function (row) {
+      return (
+        row.dataset.nativeKey !== keyOf(row) ||
+        snapshot(row) !== (row.dataset.saved || "")
+      );
+    });
+    if (!dirty) return Promise.resolve();
     keyed.forEach(function (row) {
       var btn = row.querySelector(".extole-eval-map-save");
       if (btn) btn.disabled = true;
@@ -495,6 +511,13 @@
         confirmNative(field, row);
       });
     });
+  }
+
+  function saveSoon(field) {
+    clearTimeout(field._extoleSaveT);
+    field._extoleSaveT = setTimeout(function () {
+      saveAll(field);
+    }, 500);
   }
 
   function fillNativeValue(field, row, key) {
@@ -590,10 +613,14 @@
     }
 
     function saveRow() {
+      clearTimeout(field._extoleSaveT);
       return saveAll(field);
     }
 
     keyEl.addEventListener("input", noteEdit);
+    keyEl.addEventListener("blur", function () {
+      if (keyOf(row)) saveSoon(field);
+    });
     keyEl.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -604,8 +631,12 @@
       maybePrefill(row);
       row.dataset.nativeType = "";
       noteEdit();
+      saveSoon(field);
     });
-    valEl.addEventListener("input", noteEdit);
+    valEl.addEventListener("input", function () {
+      noteEdit();
+      saveSoon(field);
+    });
     valEl.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -718,6 +749,7 @@
       list.appendChild(next);
       bindRow(field, next);
       next.querySelector(".extole-eval-map-key").focus();
+      saveAll(field);
     });
 
     ui.appendChild(list);
