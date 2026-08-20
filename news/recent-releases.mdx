@@ -4,6 +4,137 @@ description: "Quarterly release notes and year-in-review summaries for the Extol
 rss: true
 ---
 
+<Update label="August 2026" description="2026-08-20">
+  ## August 2026
+
+  Covers changes released between 21 July and 20 August 2026.
+
+  ### Rewards
+
+  #### Expire a Reward
+
+  You can now expire a reward. Add the **Expire Reward** action to a step in your campaign, set the
+  expiration date, and add an optional message explaining why. Expired is a full reward state, so
+  expired rewards are reported alongside earned and fulfilled ones instead of sitting as unclaimed
+  forever, and the Rewards Center chart counts them correctly.
+
+  Extole also refuses to earn a reward whose supplier expiration date is already in the past, so a
+  participant never receives a reward that cannot be redeemed.
+
+  **Where to find it**: the campaign editor, on the step that should expire the reward.
+
+  **API**: `POST /v2/rewards/{reward_id}/expire` expires one reward.
+  `GET /v2/rewards/{reward_id}/expirations` lists the expirations recorded against it. The campaign
+  action is `/v2/campaigns/{campaignId}/controllers/{controllerId}/actions/expire-rewards`, with a
+  `/built` variant for the built campaign.
+
+  ### Reporting
+
+  #### A Rebuilt Report Configuration Form
+
+  The form you use to build and schedule a report has been rebuilt. Everything below is in
+  [Reports](https://my.extole.com/reports).
+
+  - **Reorder by dragging.** Drag report mappings and metric columns into the order you want, instead
+    of clicking an arrow once per position.
+  - **Read the whole expression.** The **Add Mappings** dialog and the column list show the full
+    mapping expression rather than the first 30 characters, so you can tell two similar mappings
+    apart and find one by searching for its name.
+  - **Suggestions that match your report.** Mapping suggestions are derived from the report type you
+    picked, so the list offers columns that report can actually produce.
+  - **Steps grouped by business flow.** Step options in the report parameters are grouped by flow
+    again, so you pick the step you mean rather than scanning one long list.
+  - **Schedule when duplicating.** The **Schedule** option is available again when you duplicate an
+    existing report.
+  - **Turn SFTP delivery off.** A report set to deliver over SFTP can be switched back to no
+    delivery.
+  - **Custom date ranges.** Selecting **Custom** shows the start and end date pickers and keeps the
+    dates you enter, whether or not the report already had a time range saved.
+  - **Source and channel suggestions.** The source and channel parameters offer a searchable list of
+    the values in your account.
+  - **Search with punctuation.** Searching your reports for a term containing special characters
+    returns the right reports.
+
+  #### Email Open and Delivery Data in Message Metrics
+
+  The **Message Metrics** report has four new columns: **Delivered Date**, **First Opened Date**,
+  **Last Opened Date** and **Opened Count**. You can report on how many times a message was opened,
+  and when, without exporting to another tool.
+
+  #### Scheduled Report Accuracy
+
+  A scheduled report using the **Last Report Run** time range no longer overlaps the window of the
+  report that ran before it, so consecutive runs no longer double-count the same period.
+
+  ### Ask Extole
+
+  The Extole assistant inside My Extole had a substantial month. Open it from the chat icon anywhere
+  in [My Extole](https://my.extole.com).
+
+  - **One assistant everywhere.** The full-page assistant and the one docked in the corner are now
+    the same experience, so a conversation looks and behaves identically wherever you open it, and
+    the sidebar remembers whether you collapsed it.
+  - **Rate each answer.** Thumbs up or down applies to the individual answer. A rating used to apply
+    to the whole conversation, so the last one you gave replaced the earlier ones.
+  - **Charts and diagrams in answers.** An answer that reports numbers can draw them as a chart, and
+    diagrams render as images rather than as code.
+  - **Updates arrive live.** The assistant receives new messages over a live connection instead of
+    checking for them once a second, so an answer appears as soon as it is ready.
+  - **Choose how the assistant works.** Pick the mode from the composer before you send, or approve
+    one with a button when the assistant proposes it.
+
+  To use Extole from your own AI tools instead — Claude, ChatGPT, Cursor, Copilot, Gemini Enterprise
+  or Glean — see [Extole MCP Server](/technical/extole-ai-tools/extole-mcp-server/index).
+
+  ### Integrations and Webhooks
+
+  - **Dynamic data on outbound webhooks.** A webhook action can send data values resolved at send
+    time, with validation on the values you configure and time zone support for dates. Configure it
+    in [**Tech Center** > **Outbound Webhooks**](https://my.extole.com/tech-center/outbound-webhooks).
+  - **More context for webhook payloads.** The webhook runtime context exposes the cause event id and
+    the user id, so a payload can carry the event that triggered it and the user who acted.
+  - **Tango email failures are recognized correctly.** An unserviceable recipient domain reported by
+    Tango is detected whatever HTTP status it arrives with, so the reward is marked failed instead of
+    being retried against an address that cannot receive it.
+  - **BHN eGift Card.** The BHN eGift Card reward supplier has a new required field. If you fulfill
+    rewards through BHN eGift Cards, review your reward supplier configuration.
+
+  ### Campaign Configuration
+
+  - **Date and time settings.** A component setting can hold a date with a time, edited with a
+    calendar and clock rather than typed as text.
+  - **Trigger and component reference settings.** A component can declare a setting that points at
+    another component, and a setting that carries a trigger configuration, so packaged components
+    are wired together without editing the campaign by hand.
+  - **Schedule pickers match reality.** The campaign schedule pickers offer only the dates a campaign
+    in its current state can still reach.
+  - **Program titles are links.** On **All Programs**, a program title is a real link, so
+    command-click, middle-click and **Open in New Tab** work.
+
+  ### Emails and Creative
+
+  These fixes apply to campaigns created from the shared templates from now on. A campaign already
+  running keeps its own copy of the template until it is migrated, so contact your Client Success
+  Manager if one of these affects a live program.
+
+  - **Welcome email quality rules are honored.** The v10 welcome email respects the trigger event
+    quality setting it declares, so a welcome email is not sent for a step that failed quality
+    checks.
+  - **Promotion email CTA button renders.** The generic promotion email shows its call-to-action
+    button.
+  - **Q2 mobile banking placement.** The end page no longer shakes while scrolling.
+
+  ### New Documentation
+
+  - [Integration Prehandlers](https://docs.extole.com/docs/integration-prehandlers) — how to accept a
+    partner webhook whose shape you cannot change.
+  - [Integration Activity Views](https://docs.extole.com/docs/integration-activity-views) — the
+    activity and event views included in every integration build.
+  - [How to Resend Tango Rewards](/guides/rewards-management/reward-fulfillment/how-to-resend-tango-rewards)
+  - [Troubleshooting: Friend Referral Discount Not Applying](/guides/rewards-management/reward-fulfillment/troubleshooting-friend-referral-discount-not-applying)
+  - [MANTL](/technical/partners/account-opening/mantl) — account opening partner integration.
+</Update>
+
 <Update label="2025 Year in Review" description="2026-01-16">
   ## 2025 Year in Review
 
