@@ -20,12 +20,36 @@ The question is not what the partner sends. It is **who controls the shape of wh
 | An extension, plugin, or service written for this integration | Post `POST /v6/events` with the canonical `event_name` and flat data keys | Not needed |
 | The partner's own webhook, with a payload shape the partner defines | Post exactly what the partner decided to post, and nothing else | **Required** |
 
-`POST /v6/events` takes `event_name` as a required field of the request body. A partner webhook does not have one. Some platforms name the event in a body field of their own choosing, such as `type` or `topic`; others carry it only in a header, or only implicitly in which endpoint you registered for it. A partner whose webhook shape is fixed therefore cannot post to that endpoint at all, whatever its payload contains. There are only two ways to reconcile that, and they are not equivalent:
+`POST /v6/events` takes `event_name` as a required field of the request body. A partner webhook does not have one. Some platforms name the event in a body field of their own choosing, such as `type` or `topic`; others carry it only in a header, or only implicitly in which endpoint you registered for it. None of them flatten their payload into the keys an integration's data components read. There are only two ways to reconcile that, and they are not equivalent:
 
 - **A prehandler**, which does the reshaping inside Extole. The partner points its webhook at Extole and the integration is finished.
 - **A translation service the customer builds and hosts**, which receives the partner's webhook, reshapes it, and posts the result. The integration is finished only after the customer completes an engineering project that no part of this guide describes.
 
 Choose the second only when the customer has asked for it. Writing setup instructions that tell a customer to stand up a webhook receiver is not a completed integration; it is an integration with its hardest step moved into the instructions. If you take that path, say so plainly and say why, rather than leaving it for the reader to discover in the configuration tab.
+
+## Give the Partner a URL It Can Post To
+
+A partner's webhook configuration usually accepts a URL and nothing else — no body template and no headers. The named form of the Events API is built for that:
+
+```
+https://api.extole.io/v6/events/example_webhook?access_token=$EVENTS_API_ACCESS_TOKEN
+```
+
+Two properties make it work where `POST /v6/events` does not. The last path segment becomes the event name, so you choose the wire name rather than asking the partner to send one. And the request body becomes the event's data as it arrived, with no required fields, so the partner's own envelope — its event type, its field names, its nesting — is accepted whole and reaches the prehandler intact.
+
+Name the segment after the partner's wire event rather than the canonical one, `example_webhook` rather than `converted`, because producing the canonical name is the prehandler's job. Then match that segment with an `EVENT_NAME_MATCH` condition. It is the one condition guaranteed to hold, because you chose the value.
+
+The access token authorizes the delivery. Extole reads it from the `access_token` query parameter, an `Authorization` header, or a cookie, in that order, and a partner that can only set a URL has the query parameter. Create the token in the <Anchor label="Security Center" target="_blank" href="https://my.extole.com/security-center">Security Center</Anchor> as described in [Send Platform Events to Extole](doc:sending-platform-events), and authorize it for event submission only — never a token that can also manage campaigns and components.
+
+One field in the partner's body is inspected at the API boundary: a top-level `event_time`, which must parse as a date or the delivery is rejected as `invalid_event_time_format`. Nothing else in the body is read until the prehandler runs.
+
+### Request Signatures Are Not Verified
+
+The token in the URL authenticates an inbound event. Extole does not verify a partner's request-signature header — `Stripe-Signature`, `X-Shopify-Hmac-Sha256`, or any other — on packaged and client-local integrations alike.
+
+**The partner's webhook signing secret is therefore not required, and the build is not blocked on obtaining it.** Say so when someone offers to go find it. Matching a signature header in a condition recognizes the partner's traffic rather than authenticating it, and it works from the header being present rather than from its contents.
+
+Treat the endpoint URL as the credential it carries. Register it in the partner's webhook configuration, keep it out of shared documents, and rotate the token as you would any other server-side token. When a customer's security review calls for cryptographic verification of the partner's signature, raise it as a requirement rather than composing a verification script in a prehandler.
 
 ## Prerequisites
 
@@ -39,6 +63,7 @@ Choose the second only when the customer has asked for it. Writing setup instruc
 | Parameter | Purpose |
 | :-------- | :------ |
 | `MANAGEMENT_API_ACCESS_TOKEN` | Bearer token on every call. |
+| `EVENTS_API_ACCESS_TOKEN` | Authorizes the partner's deliveries to the named endpoint above. A separate, event-submission-only token. |
 | `EXTOLE_API_HOST` | Production host. |
 | `INTEGRATION_COMPONENT_ID` | The model component the prehandler is scoped to, which is also the component whose settings its scripts can read. |
 
@@ -56,7 +81,7 @@ curl --request POST "$EXTOLE_API_HOST/v6/prehandlers" \
     "enabled": true,
     "order": 0,
     "conditions": [
-      { "type": "HTTP_HEADER_MATCH", "http_header_names": ["x-example-signature"] },
+      { "type": "EVENT_NAME_MATCH", "event_names": ["example_webhook"] },
       { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var body = context.getProcessedRawEvent().getData(); return body.get(\"type\") === \"order.completed\"; })();" }
     ],
     "actions": [
@@ -78,16 +103,16 @@ Names are unique per client and accept only alphanumeric characters, dashes, dot
 
 | `type` | Fields | Matches on |
 | :----- | :----- | :--------- |
-| `EVENT_NAME_MATCH` | `event_names` | The event name as it arrived. Useless for a partner webhook that carries no name. |
-| `HTTP_HEADER_MATCH` | `http_headers`, `http_header_names` | Presence of a header, or a header with one of a set of values. The reliable way to recognize a partner webhook. |
+| `EVENT_NAME_MATCH` | `event_names` | The event name as it arrived, which for a partner webhook is the path segment you gave it. |
+| `HTTP_HEADER_MATCH` | `http_headers`, `http_header_names` | Presence of a header, or a header with one of a set of values. Narrows an endpoint that receives more than one kind of traffic. |
 | `DATA_EXISTS` | `data_keys` | Presence of a key in the event data. |
 | `EXPRESSION` | `expression` | Anything the script context can reach. |
 | `BLOCK_MATCH` | `considered_block_list_types` | The event matching an account block list. |
 | `JAVASCRIPT_V1` | `javascript` | Same as `EXPRESSION`, with a bare function body instead of an evaluatable. |
 
-Recognize the partner before you reshape anything. A webhook almost always carries a partner-specific header — a request signature, the sending store or account domain, a delivery identifier — and an `HTTP_HEADER_MATCH` on it is what keeps the prehandler from firing on unrelated traffic. Take the header name from the partner's webhook documentation, and read a real delivery to confirm it arrives, because header lists in partner documentation are frequently incomplete.
+Recognize the partner before you reshape anything. When the partner posts to the named endpoint above, the path segment is that recognition, and an `EVENT_NAME_MATCH` on it keeps the prehandler from firing on unrelated traffic. A header condition adds a second signal where one is warranted: a webhook almost always carries a partner-specific header — a request signature, the sending store or account domain, a delivery identifier. Take the header name from the partner's webhook documentation, and read a real delivery to confirm it arrives, because header lists in partner documentation are frequently incomplete.
 
-When an account holds two instances of the same integration, that is not enough on its own: both instances see the same header. Add an expression condition comparing a value in the request — the sending store URL, the partner account identifier, whatever the payload or headers carry — against the corresponding setting on this instance's component. This is how the packaged integrations scope a shared partner app to one installation.
+When an account holds two instances of the same integration, that is not enough on its own: both instances answer the same event name and see the same header. Add an expression condition comparing a value in the request — the sending store URL, the partner account identifier, whatever the payload or headers carry — against the corresponding setting on this instance's component. This is how the packaged integrations scope a shared partner app to one installation.
 
 `EXPRESSION` and `JAVASCRIPT_V1` do the same work through different fields. `EXPRESSION` takes an evaluatable string beginning `javascript@runtime:`; `JAVASCRIPT_V1` takes a bare function body under a `javascript` key. Bundled components use `EXPRESSION`, and matching them keeps a client-local build comparable to a packaged one.
 
