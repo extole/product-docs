@@ -51,6 +51,12 @@ The token in the URL authenticates an inbound event. Extole does not verify a pa
 
 Treat the endpoint URL as the credential it carries. Register it in the partner's webhook configuration, keep it out of shared documents, and rotate the token as you would any other server-side token. When a customer's security review calls for cryptographic verification of the partner's signature, raise it as a requirement rather than composing a verification script in a prehandler.
 
+### The Configuration View Has to Render That URL
+
+Nobody at Extole configures the partner. Somebody opens the integration's configuration tab, reads the setup instructions, and pastes a URL into the partner's console — so the endpoint is only delivered once those instructions render it, computed from the campaign as described in [Create the Integration Campaign and Component Model](doc:integration-component-model).
+
+Setup instructions that refer to "the Extole inbound event endpoint" without producing it are not setup instructions. The integration they belong to is published, enabled, and receiving nothing, because the one step left to a person is the one step nobody was given. List the partner events to enable and the endpoint to send them to, in the form above.
+
 ## Prerequisites
 
 - A server-side access token authorized to manage prehandlers. Creating one is an administrative operation, not a campaign edit.
@@ -128,6 +134,14 @@ When an account holds two instances of the same integration, that is not enough 
 
 Use `MAP_DATA_ATTRIBUTES` when the transformation is a flat rename and `EXPRESSION` when it is not. A partner payload that nests its interesting fields — an order object under a `data` key, a line-item array to be summed, an amount in minor units to be divided — needs an expression, because the mapping types address top-level keys.
 
+### Emit the Whole Identity Set, Including the Email Address
+
+A data component can only read a key the prehandler left behind, so the reshape decides what identity the platform ever sees. Flatten the full set that [Map Inbound Partner Events](doc:integration-inbound-events) requires on the event — the transaction identifier, the partner's customer identifier, and the email address — on every event, including the lifecycle ones that arrive later.
+
+The email address is the one that gets dropped. A partner nests it away from the fields that look important: Stripe carries it as `receipt_email` on the payment intent and as `billing_details.email` on the charge, while the payment intent id and customer id sit at the top of the object and reach the reshape without being looked for.
+
+Dropping it does not fail anything. Extole resolves a person from the event's data using `person_id`, `email`, `partner_user_id`, and any key a published campaign registers as `PARTNER_PROFILE_KEY`, so a partner customer id captured that way does recognise a returning customer. What it cannot do is reach them, or connect them to who they already are: a person known only by a partner-side identifier has no address to send a reward or a message to, and the same human arriving through the web stays a separate person, because no key the two deliveries carry is the same. An integration that captures the transaction and the amount and not the email produces accurate reporting about people nobody can contact.
+
 ## What the Scripts Can Reach
 
 Both conditions and actions receive a context object. A condition returns a boolean; an action returns nothing and works through the builder.
@@ -180,6 +194,37 @@ Send a real event and read the result. A prehandler is never finished at the cre
 Because prehandlers run first, the `input_event` rule in [Map Inbound Partner Events](doc:integration-inbound-events) should list the **canonical** event name when a prehandler renames the event, not the partner's wire name. Listing the wire name there is a rule that will never match, and it looks correct in the tree.
 
 The same applies to data components. Their `valueExpression` reads the event as the prehandler left it, so a mapping written against the partner's raw nesting captures nothing once the prehandler has flattened it. Write the prehandler and the data mappings against one agreed shape, and prefer flattening in the prehandler so the data components stay simple.
+
+## Change a Prehandler That Is Already Live
+
+A prehandler is corrected in place, with the same body the create call takes:
+
+```bash
+curl --request PUT "$EXTOLE_API_HOST/v6/prehandlers/$PREHANDLER_ID" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "enabled": true,
+    "conditions": [ ... every condition the prehandler should end up with ... ],
+    "actions": [ ... every action the prehandler should end up with ... ],
+    "component_references": [{ "component_id": "'"$INTEGRATION_COMPONENT_ID"'" }]
+  }'
+```
+
+An omitted field keeps its current value, and that is the only part of this body that behaves additively. A `conditions` or `actions` list that is present **replaces the whole list**, so a change to one action is sent as the complete set of actions the prehandler should have afterwards — send only the corrected one and the rest are gone. A `tags` set that is present and empty removes every tag.
+
+The call is made against the prehandler rather than against the campaign: it takes no campaign version and produces none, so a correction here is not a campaign edit and does not wait on a publish. It also gets the same treatment as a create, which is to say almost none — the reshape script is still not executed, and a `200` still means only that the prehandler was stored.
+
+The rest of the resource:
+
+| Call | Returns |
+| :--- | :------ |
+| `GET /v6/prehandlers` | Every prehandler in the account, in execution order. |
+| `GET /v6/prehandlers/built` | The same list as the runtime evaluates it. |
+| `GET /v6/prehandlers/{prehandler_id}` | One prehandler as it was written. |
+| `GET /v6/prehandlers/{prehandler_id}/built` | One prehandler as the runtime evaluates it. |
+| `POST /v6/prehandlers/{prehandler_id}/archive` and `/unarchive` | Take a prehandler out of service and back into it. |
+| `DELETE /v6/prehandlers/{prehandler_id}` | Remove it. |
 
 ## Error Handling
 
