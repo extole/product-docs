@@ -3,7 +3,7 @@
 A generated Mintlify port of Extole's documentation, standing up the **Phase 1
 Mintlify bake-off** from [`extole/ai-tools#346`](https://github.com/extole/ai-tools/pull/346).
 
-- **Sources:** guides from [`extole/product-docs`](https://github.com/extole/product-docs)
+- **Sources:** guides from [`extole/product-docs-readme`](https://github.com/extole/product-docs-readme)
   + OpenAPI bundles from [`extole/extole-specification`](https://github.com/extole/extole-specification).
 - **Generator:** [`scripts/convert_from_product_docs.py`](scripts/convert_from_product_docs.py)
   (deterministic, re-runnable).

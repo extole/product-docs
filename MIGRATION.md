@@ -12,7 +12,7 @@ sources and can be re-run at any time.
 
 | Source | → | Mintlify |
 |---|---|---|
-| `extole/product-docs` `docs/` — 461 ReadMe-flavored `.md` (Guides / Product Docs / Technical Docs) | → | **426 `.mdx` pages** (hidden pages dropped) |
+| `extole/product-docs-readme` `docs/` — 461 ReadMe-flavored `.md` (Guides / Product Docs / Technical Docs) | → | **426 `.mdx` pages** (hidden pages dropped) |
 | `extole/extole-specification` `openapi/*.json` — 4 bundles, 446 operations | → | **Native OpenAPI reference** (auto-generated; no per-endpoint stubs) |
 | Per-directory `_order.yaml` sidebar ordering | → | `docs.json` `navigation.tabs` → `groups` → `pages` |
 
@@ -24,7 +24,7 @@ single biggest structural win over the ReadMe setup.
 
 ```bash
 python scripts/convert_from_product_docs.py \
-  --product-docs /path/to/extole/product-docs \
+  --product-docs /path/to/extole/product-docs-readme \
   --specification /path/to/extole/extole-specification \
   --out . \
   --migrate-images
