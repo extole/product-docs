@@ -21,9 +21,9 @@ This tree receives events; it does not produce them. The extension, service, or 
 
 Everything on this page assumes the event arrives with a name in `event_name` and its fields readable in `data`. That assumption holds when the sender is built for this integration — an extension, a plugin, or a service written against [Send Platform Events to Extole](/technical/integration-overview/sending-platform-events) — because whoever writes it can shape what it sends.
 
-It does not hold when the sender is **the partner's own webhook**. A partner defines its payload for its own purposes: the event type sits in a body field rather than in `event_name`, and the interesting values sit two or three levels down. `POST /v6/events` requires `event_name` as a field of the request body, so such a webhook cannot post to it at all.
+It does not hold when the sender is **the partner's own webhook**. A partner defines its payload for its own purposes: the event type sits in a body field rather than in `event_name`, and the interesting values sit two or three levels down. Such a webhook still reaches Extole — the named form of the Events API takes the event name from the URL and accepts any body — but what arrives is the partner's shape, not the shape this page assumes.
 
-Reconcile that inside Extole with a prehandler, which renames the event and flattens the payload before any rule on this page sees it. [Normalize Inbound Events with a Prehandler](/technical/integration-overview/integration-prehandlers) covers the decision and the build. Two things on this page change when one is in play: the `input_event` rule lists the **canonical** name the prehandler produces rather than the partner's wire name, and each data component's `valueExpression` reads the flattened field rather than the partner's nesting.
+Reconcile that inside Extole with a prehandler, which renames the event and flattens the payload before any rule on this page sees it. [Normalize Inbound Events with a Prehandler](/technical/integration-overview/integration-prehandlers) covers the endpoint to give the partner, the decision, and the build. Two things on this page change when one is in play: the `input_event` rule lists the name the prehandler produces rather than the partner's wire name — an integration-owned name such as `example_order_completed`, never the canonical outcome name the business event itself carries — and each data component's `valueExpression` reads the flattened field rather than the partner's nesting.
 
 The alternative — instructing the customer to build and host a service that receives the partner's webhook and re-posts it in Extole's shape — is a customer engineering project, and one this guide does not describe. Choose it deliberately or not at all.
 
@@ -40,7 +40,11 @@ Duplicate the source component into the model component's `businessEvents` socke
 
 Use the canonical v10 name that matches the business outcome. Examples include `converted`, `shipped`, `canceled`, `returned`, `account_opened`, and `application_approved`. Do not use a transport-specific name such as `partner_order_created` as the business-event component name.
 
-Create one business-event instance per canonical event. Do not create duplicate legacy controllers alongside the reusable component.
+Let the partner's events decide how many you create. Enumerate the wire events in scope, decide which outcome each one represents, and create a business event for every distinct outcome — then give each the canonical name that fits it. Do not create duplicate legacy controllers alongside the reusable component.
+
+Enumerating in the other direction is the mistake that survives: pick the canonical names first and the wire events get fitted into whichever of them is nearest. A failed authorization and a refunded charge are both tempting to call `canceled`, and an integration that calls them both that has no way to distinguish a payment that never completed from money that was taken and given back — not in a report, not in a rule, not in a clawback. `returned` is on the list above for exactly that outcome. Two wire events share one business event only when they are genuinely the same thing happening twice, and the test is whether anyone would ever need them apart.
+
+Count the events you created against the wire events in scope before calling this stage done. Three wire events and two business events is either a deliberate merge you can name, or an outcome that quietly lost its own identity.
 
 Set `sequence` so the events sort in lifecycle order, with the outcome event first and later milestones after it. The value orders steps within the funnel; the exact numbers matter only relative to one another.
 
@@ -113,11 +117,11 @@ Send a synchronous test event through `POST /v6/events`. Event submission uses t
 
 Put the current program label inside `data` to target this campaign during the test. The label is a testing convenience and does not belong in the partner's own payload or setup instructions.
 
-`POST /v6/events`
+`input_event`
 
 Use the returned `person_id` to list the person's resulting events:
 
-`event_name`
+`example_order_completed`
 
 Confirm the canonical event name and every mapped value. Use a new unique identifier for each repeat test unless duplicate handling is the behavior under test.
 
