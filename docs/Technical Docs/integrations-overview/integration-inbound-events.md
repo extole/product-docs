@@ -34,6 +34,16 @@ The partner event name belongs in an `input_event` trigger rule. The canonical E
 
 This tree receives events; it does not produce them. The extension, service, or feed that sends them from the partner platform is built against [Send Platform Events to Extole](doc:sending-platform-events), and an inbound integration is finished only when both halves exist.
 
+## Settle Who Shapes the Payload First
+
+Everything on this page assumes the event arrives with a name in `event_name` and its fields readable in `data`. That assumption holds when the sender is built for this integration — an extension, a plugin, or a service written against [Send Platform Events to Extole](doc:sending-platform-events) — because whoever writes it can shape what it sends.
+
+It does not hold when the sender is **the partner's own webhook**. A partner defines its payload for its own purposes: the event type sits in a body field rather than in `event_name`, and the interesting values sit two or three levels down. `POST /v6/events` requires `event_name` as a field of the request body, so such a webhook cannot post to it at all.
+
+Reconcile that inside Extole with a prehandler, which renames the event and flattens the payload before any rule on this page sees it. [Normalize Inbound Events with a Prehandler](doc:integration-prehandlers) covers the decision and the build. Two things on this page change when one is in play: the `input_event` rule lists the **canonical** name the prehandler produces rather than the partner's wire name, and each data component's `valueExpression` reads the flattened field rather than the partner's nesting.
+
+The alternative — instructing the customer to build and host a service that receives the partner's webhook and re-posts it in Extole's shape — is a customer engineering project, and one this guide does not describe. Choose it deliberately or not at all.
+
 ## Add Reusable Business Events
 
 Choose the template by business meaning:
@@ -170,6 +180,8 @@ curl --request POST \
 ```
 
 Keep the duplicated rule under its source name `input_event`. Library components and bundled programs all do, so a reader recognizes the trigger by its position in the business event rather than by a component name that restates the event it listens for. The partner event name belongs in `triggerEventNames`.
+
+When a prehandler renames the event, `triggerEventNames` lists the name the prehandler produces, not the name the partner sent. Prehandlers run before trigger rules, so a rule still listening for the wire name never matches — and it reads as correct in the component tree, which is why this is worth checking rather than assuming.
 
 Add a legacy partner event alias only when a real sender still emits it. Document the preferred spelling and migration plan.
 

@@ -30,7 +30,9 @@ Every row also gets the same three views — a configuration view, a report-runn
 
 An inbound integration turns a platform's own event names into canonical Extole business events. The platform posts to the Events API from a server-side extension, a middleware service, or a file feed, and Extole maps each arriving event to a reusable business-event component. Building the campaign is only half of it: see [Send Platform Events to Extole](doc:sending-platform-events) for the sending half that runs in the platform.
 
-Two vocabularies meet here and must not be conflated. The platform's wire event name belongs on the trigger rule that listens for it. The business event carries the canonical name the rest of the platform already understands — `converted`, `shipped`, `canceled`, `account_opened`, and the other names bundled programs use. Never rename a business event to match a platform's wire name.
+Inbound splits again on a question worth asking early: whether the sending half is something anyone will write. A platform with an extension or plugin can send Extole-shaped events, and the tree below is the whole integration. A platform that only emits its own fixed webhook — a payment processor, most SaaS products with a webhook page and no plugin — sends what it decided to send, and the reconciliation happens inside Extole with a prehandler, described in [Normalize Inbound Events with a Prehandler](doc:integration-prehandlers). The tree is identical either way; what differs is whether it is reachable.
+
+Two vocabularies meet here and must not be conflated. The trigger rule carries the name that reaches it: the platform's wire event name, or the canonical name a prehandler produced from it. The business event carries the canonical name the rest of the platform already understands — `converted`, `shipped`, `canceled`, `account_opened`, and the other names bundled programs use. Never rename a business event to match a platform's wire name.
 
 Data capture is the integration. A business event with an empty `data` socket produces an event with no transaction identifier, no person key, and no value, so nothing downstream can deduplicate, attribute, reward, or report on it.
 
@@ -42,7 +44,7 @@ root
     ├── partner configuration settings
     ├── businessEvents          MULTI_SOCKET → business-event-v10.0
     │   └── canonical event
-    │       ├── triggerRules    → input_event rule carrying the platform's event names
+    │       ├── triggerRules    → input_event rule carrying the event names that reach it
     │       └── data            → one component per captured field
     └── views                   MULTI_SOCKET → view-v10.0
         ├── configuration       config-view-v10.0
