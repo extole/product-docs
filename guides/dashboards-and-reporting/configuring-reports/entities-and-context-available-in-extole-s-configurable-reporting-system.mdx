@@ -5,9 +5,11 @@ description: "Reference for the entities and fields available in Extole's config
 
 # Overview
 
-Use this document alongside [Custom Data Queries using Extole Reports](/guides/dashboards-and-reporting/custom-data-queries-using-extole-reports), which covers expression syntax and functions.
+Use this document alongside [Custom Data Queries using Extole Reports](/guides/dashboards-and-reporting/configuring-reports/custom-data-queries-using-extole-reports), which covers expression syntax and functions.
 
-In a report mapping, the primary row record is accessed as `event.*`. Which entity that is depends on the report type.
+In a report mapping, the primary row record is accessed as `event.*`. Which entity that is depends on the report type — see [Configurable Report Types and Their Entities](/guides/dashboards-and-reporting/configuring-reports/configurable-report-types-and-their-entities) for the mapping from report type to entity.
+
+Some fields recur across entities and have a guide of their own. For `quality` and `visitType`, see [Visit Type and Quality](/guides/dashboards-and-reporting/visit-type-and-quality); for `journeyName` and the journey structure behind it, see [Understanding Extole Journeys](/guides/dashboards-and-reporting/understanding-extole-journeys-extended-reference-for-reporting).
 
 # StepRecord
 
@@ -47,7 +49,7 @@ Common data keys: `amount`, `source`, `channel`, `locale`, `country`, `partner_u
 
 In a **Metrics** report, `step_name` scopes the aggregation to a specific step:
 
-`event.*`
+`quality`
 
 # InputRecord
 
@@ -77,7 +79,7 @@ A raw inbound event from a client integration, before it is processed into a ste
 
 **Mapping examples:**
 
-`id`
+`visitType`
 
 # Person
 
@@ -107,15 +109,15 @@ The full profile for one participant. A person accumulates steps, rewards, and r
 
 **Mapping examples:**
 
-`clientId`
+`journeyName`
 
 Use `person_collection` to aggregate from profile collections. It is more memory-efficient than `collection` for large profiles.
 
-`personId`
+`event.*`
 
 Use `FIRST` or `LAST` with `sortBy` to extract a single step:
 
-`name`
+`id`
 
 # PersonStep
 
@@ -187,7 +189,7 @@ One device and geo snapshot, accessible via `person.recentRequestContexts`.
 
 **Mapping example:**
 
-`converted`
+`clientId`
 
 # BuiltCampaign
 
@@ -211,11 +213,11 @@ The latest published state of a campaign. Use this when you need the current nam
 
 **Mapping examples:**
 
-`shared`
+`personId`
 
 Use a `hidden()` column when you need multiple fields from the same campaign to avoid resolving it twice:
 
-`signup`
+`name`
 
 # CampaignSummary
 
@@ -237,7 +239,7 @@ An aggregated view built from all known campaign state-change events. Use this i
 
 **Mapping examples:**
 
-`primaryStepName`
+`converted`
 
 # Client
 
@@ -256,19 +258,19 @@ The brand account on the platform.
 
 Arbitrary client configuration values are accessed via `client_properties()` (no argument):
 
-`eventTime`
+`shared`
 
 **Mapping examples:**
 
-`requestTime`
+`signup`
 
 `client()` with no argument resolves to the event's own client, so both forms are equivalent in single-client reports:
 
-`programLabel`
+`primaryStepName`
 
 When running a cross-client report from the Extole account, filter to real customers:
 
-`campaignId`
+`eventTime`
 
 # RewardSummary
 
@@ -301,11 +303,11 @@ The full lifecycle of one reward instance, built from all known reward state-cha
 
 **Mapping examples:**
 
-`container`
+`requestTime`
 
 To sum total reward value issued across a step in a **Metrics** report:
 
-`production`
+`programLabel`
 
 # RewardSupplier
 
@@ -326,7 +328,7 @@ The configuration for how rewards are structured and issued.
 
 **Mapping example:**
 
-`quality`
+`campaignId`
 
 # SupportSummary
 
@@ -345,7 +347,7 @@ Account-level support and CRM metadata for the current client. No argument is re
 
 **Mapping example:**
 
-`HIGH`
+`container`
 
 # ConsumerEvent
 
@@ -375,17 +377,17 @@ The raw event object. Most reports use `StepRecord` or `InputRecord` as the prim
 
 **Mapping examples:**
 
-`LOW`
+`production`
 
 Two common cross-entity lookups worth knowing:
 
 **From a step event, load the originating input record** (gives you `apiType`, `userAgent`, etc.):
 
-`visitType`
+`quality`
 
 **From a reward event, load the step record that earned the reward** (gives you `visitType`, `quality`, etc.):
 
-`NEW_TO_CLIENT`
+`HIGH`
 
 # AudienceMembershipRecord
 

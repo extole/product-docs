@@ -1,0 +1,1 @@
+../../.agents/rules/product-docs-style.mdc

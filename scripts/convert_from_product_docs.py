@@ -574,23 +574,45 @@ def _attr(tag: str, name: str):
     return m.group(1) if m else None
 
 
-def convert_readme_image(text: str) -> str:
-    """ReadMe <Image ...> widget -> plain markdown-safe <img .../>."""
-    def repl(m):
-        tag = m.group(0)
-        src = _attr(tag, "src") or ""
-        alt = _attr(tag, "alt")
-        title = _attr(tag, "title") or ""
-        width = _attr(tag, "width")
-        if not alt or alt.strip().isdigit():
-            alt = title
-        alt = (alt or "").replace('"', "'").strip()
-        parts = [f'src="{src}"', f'alt="{alt}"']
-        if width and re.match(r"^[0-9]+%?$", width.strip()):
-            parts.append(f'width="{width.strip()}"')
-        return "<img " + " ".join(parts) + " />"
+def _img_tag(tag: str) -> str:
+    src = _attr(tag, "src") or ""
+    alt = _attr(tag, "alt")
+    title = _attr(tag, "title") or ""
+    width = _attr(tag, "width")
+    if not alt or alt.strip().isdigit():
+        alt = title
+    alt = (alt or "").replace('"', "'").strip()
+    parts = [f'src="{src}"', f'alt="{alt}"']
+    if width and re.match(r"^[0-9]+%?$", width.strip()):
+        parts.append(f'width="{width.strip()}"')
+    return "<img " + " ".join(parts) + " />"
 
-    return re.sub(r"<Image\b[^>]*/?>", repl, text, flags=re.IGNORECASE | re.DOTALL)
+
+def convert_readme_image(text: str) -> str:
+    """ReadMe <Image ...> widget -> <img/>, wrapped in a Frame when captioned.
+
+    Only the opening tag used to be rewritten. That left the caption between it
+    and </Image> as stray prose, and the closing tag survived to have its "<"
+    escaped by sanitize_mdx, so a literal "</Image>" showed on the page. Half
+    the captions carry links or bold, so they stay markdown inside the Frame
+    rather than being flattened into a caption attribute.
+    """
+    def paired(m):
+        img, caption = _img_tag(m.group(1)), m.group(2).strip()
+        if not caption:
+            return img
+        return f"<Frame>\n  {img}\n\n  {caption}\n</Frame>"
+
+    # The inner pattern refuses to cross another Image tag, so one widget can
+    # never swallow the content up to a later widget's closing tag.
+    text = re.sub(
+        r"(<Image\b[^>]*?>)((?:(?!</?Image\b).)*?)</Image>",
+        paired, text, flags=re.IGNORECASE | re.DOTALL,
+    )
+    return re.sub(
+        r"<Image\b[^>]*/?>", lambda m: _img_tag(m.group(0)), text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
 
 
 def convert_html_block(text: str) -> str:
@@ -617,7 +639,19 @@ def convert_readme_anchor(text: str) -> str:
         label = inner or _attr(tag, "label") or href
         return f"[{label}]({href})"
 
-    return re.sub(r"(<Anchor\b[^>]*>)(.*?)</Anchor>", repl, text, flags=re.IGNORECASE | re.DOTALL)
+    def solo(m):
+        tag = m.group(0)
+        href = _attr(tag, "href") or ""
+        return f'[{_attr(tag, "label") or href}]({href})'
+
+    # Self-closing first: it has no </Anchor>, so the paired pattern below used
+    # to run its .*? forward to the *next* widget's closing tag. On braze.md
+    # that swallowed 33 lines, wrapping a heading inside a link label.
+    text = re.sub(r"<Anchor\b[^>]*/>", solo, text, flags=re.IGNORECASE)
+    return re.sub(
+        r"(<Anchor\b[^>]*?>)((?:(?!</?Anchor\b).)*?)</Anchor>",
+        repl, text, flags=re.IGNORECASE | re.DOTALL,
+    )
 
 
 def convert_readme_table(text: str) -> str:
@@ -704,6 +738,39 @@ def sanitize_mdx(text: str) -> str:
     return text
 
 
+CALLOUT_THEMES = {
+    "info": "Info", "warn": "Warning", "warning": "Warning", "danger": "Danger",
+    "error": "Danger", "success": "Check", "okay": "Check", "default": "Note",
+}
+
+# ReadMe-side reusable snippets. The content lives in ReadMe, not in this repo,
+# so there is nothing to convert -- drop the tag rather than print it.
+README_ONLY_WIDGETS = re.compile(r"<(?:ImproveOpenRatesCallout)\b[^>]*/?>\s*", re.IGNORECASE)
+
+
+def convert_callout_components(text: str) -> str:
+    """ReadMe's <Callout icon theme> component -> the Mintlify equivalent.
+
+    convert_callouts covers ReadMe's emoji blockquote syntax, but ReadMe also
+    ships a JSX Callout. Those fell through untouched and sanitize_mdx escaped
+    the leading "<", so the raw tag rendered as text mid-page. The icon decides
+    the component where it is one we already map, since it is more specific
+    than the theme; otherwise the theme does.
+    """
+    def repl(m):
+        tag, inner = m.group(1), m.group(2)
+        icon = _attr(tag, "icon") or ""
+        comp = next((c for e, c in CALLOUT_EMOJI.items() if icon.startswith(e)), None)
+        if not comp:
+            comp = CALLOUT_THEMES.get((_attr(tag, "theme") or "").strip().lower(), "Note")
+        return f"<{comp}>{inner.rstrip()}\n</{comp}>"
+
+    return re.sub(
+        r"(<Callout\b[^>]*?>)((?:(?!</?Callout\b).)*?)</Callout>",
+        repl, text, flags=re.IGNORECASE | re.DOTALL,
+    )
+
+
 def convert_body(body: str, slug_to_path: dict) -> str:
     body = convert_callouts(body)
     fences: list = []
@@ -712,6 +779,8 @@ def convert_body(body: str, slug_to_path: dict) -> str:
     body = _protect(body, INLINE_CODE_RE, inlines)
 
     body = convert_html_block(body)
+    body = convert_callout_components(body)
+    body = README_ONLY_WIDGETS.sub("", body)
     body = convert_readme_image(body)
     body = convert_readme_anchor(body)
     body = convert_readme_table(body)
@@ -989,11 +1058,32 @@ class Converter:
             self.slug_to_path.setdefault(md.parent.name, out_rel)
         return page
 
+    def link_targets(self) -> dict:
+        """Slugs a doc: link can resolve to -- pages, plus category landings.
+
+        A category whose index.md was too thin to publish has no page of its
+        own, so [Configuring Reports](doc:configuring-reports) fell through to
+        a bare /configuring-reports that 404s. Resolve those to the first page
+        inside the group, the same way the ReadMe redirects do.
+        """
+        targets = dict(self.slug_to_path)
+        for slug, prefix in self.group_prefixes.items():
+            if slug in targets:
+                continue
+            first = next(
+                (p.out_path for p in self.pages if p.out_path.startswith(prefix + "/")),
+                None,
+            )
+            if first:
+                targets[slug] = first
+        return targets
+
     def write_pages(self):
+        links = self.link_targets()
         for page in self.pages:
             raw = page.src.read_text(encoding="utf-8", errors="replace")
             _, body = split_frontmatter(raw)
-            body = convert_body(body, self.slug_to_path)
+            body = convert_body(body, links)
             fm_out = [f"title: {yaml_str(page.title)}"]
             if page.description:
                 fm_out.append(f"description: {yaml_str(page.description)}")
@@ -1010,11 +1100,14 @@ class Converter:
 # main
 # ---------------------------------------------------------------------------
 
+# The bundles this site publishes. extole-specification also builds
+# management-expert.json, which ReadMe has never published -- its reference/
+# tree ships only the three below -- so it is deliberately absent here. Adding
+# a bundle to this list is what puts it on the site; nothing else does.
 SPEC_TABS = [
     ("Consumer to Extole API", "integration-consumer-to-extole.json"),
     ("Server to Extole API", "integration-server-to-extole.json"),
     ("Management API", "management.json"),
-    ("Management Expert API", "management-expert.json"),
 ]
 
 OPENAPI_METHODS = frozenset({"get", "post", "put", "delete", "patch", "head", "options", "trace"})
@@ -1414,7 +1507,15 @@ def build_docs_json(tabs, redirects=None):
                 {"label": "My Extole Login", "href": "https://my.extole.com"},
             ],
         },
-        "contextual": {"options": ["copy", "view", "chatgpt", "claude", "mcp"]},
+        # Each page's More actions menu, in Mintlify's own enum order.
+        # "assistant" is the Ask AI entry and needs a Pro plan, which also
+        # gates the separate Ask AI widget beside the search box -- that one
+        # has no docs.json setting at all. "download-spec" appears only on
+        # pages backed by an OpenAPI bundle, so it is inert outside API
+        # Reference.
+        "contextual": {
+            "options": ["copy", "assistant", "download-spec", "chatgpt", "claude", "cursor"]
+        },
         "footer": {"socials": {"github": "https://github.com/extole"}},
     }
 

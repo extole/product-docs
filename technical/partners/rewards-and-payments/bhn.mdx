@@ -17,7 +17,7 @@ With the Extole and BHN integration, you can drive customer acquisition, generat
 | BHN Payment Method                             | The method you will use to fund your BHN program. Options include ACH and Draw Down.                                                                                                                                                                                                                                                                                                                  |
 | BHN FAID Number                                | If you have separate financial accounts within your BHN program, please provide the FAID number where orders should be placed.                                                                                                                                                                                                                                                                        |
 | BHN Pre-Production and Production Certificates | The certificates needed to generate your Client Key ID to connect to your BHN pre-production (if applicable) and production environments. Send the password protected certificates to support\@extole.com, or request through your Extole team.                                                                                                                                                       |
-| Extole Webhook IP Address                      | The IP address that Extole uses to place orders through the Hawk Marketplace API can be found here: [https://docs.extole.com/docs/develop-behind-your-firewall#outbound-file-transfers-and-webhooks](https://docs.extole.com/docs/develop-behind-your-firewall#outbound-file-transfers-and-webhooks "https://docs.extole.com/docs/develop-behind-your-firewall#outbound-file-transfers-and-webhooks") |
+| Extole Webhook IP Address                      | The IP address that Extole uses to place orders through the Hawk Marketplace API is listed under [Develop Behind Your Firewall](/technical/operational-tasks/account-configuration/develop-behind-your-firewall#outbound-file-transfers-and-webhooks). |
 
 ## Available Products
 
@@ -35,7 +35,126 @@ BHN’s virtual closed loop in addition to Tango's Disbursement (Card Transfer, 
 
 ### Compatible with Reward Bank
 
-BHN card products can also be used within Extole's Reward Bank. Reward Bank gives your advocates a single place to collect and redeem multiple referral rewards. [Learn more about Reward Bank.](https://www.extole.com/platform/reward-bank/)
+BHN card products can also be used within Extole's Reward Bank. Reward Bank gives your advocates a single place to collect and redeem multiple referral rewards. [Learn more about Reward Bank](https://www.extole.com/platform/reward-bank/).
+
+## Integration Model
+
+BHN is an outbound reward fulfillment integration: Extole orders cards from BHN when a program participant earns a reward, and BHN's response moves that reward to fulfilled or failed. BHN sends no activity into Extole, so the integration carries no business events.
+
+Each card product is a reward supplier that you install when you create a reward, and you install one per reward you offer. The integration supplies four of them — virtual prepaid cards, physical single-load prepaid cards, physical reloadable prepaid cards, and eGift cards — and each carries its own value, client program number, financial account, and payment type.
+
+Extole calls five Hawk Marketplace endpoints, all on `https://api.blackhawknetwork.com`:
+
+| Purpose                                | Endpoint                                                        |
+| :------------------------------------- | :-------------------------------------------------------------- |
+| Order a virtual prepaid card           | `/rewardsOrderProcessing/v1/submitVirtualIndividual`             |
+| Order a physical single-load card      | `/rewardsOrderProcessing/v1/submitOpenLoopPersonalizedIndividual` |
+| Order a physical reloadable card       | `/rewardsOrderProcessing/v1/submitOpenLoopPersonalizedIndividual` |
+| Order an eGift card                    | `/rewardsOrderProcessing/v1/submitEgiftIndividual`               |
+| Check the status of a submitted order  | `/rewardsOrderProcessing/v1/orderInfo/byKeys`                    |
+
+Order calls are retried over a few hours. The status check runs on a much longer schedule, escalating out to roughly a month, because physical cards are manufactured and mailed rather than delivered instantly.
+
+The first reloadable order uses `submitOpenLoopPersonalizedIndividual` and arrives loaded. A later reward for the same person and client program number is not a second card: the request handler rewrites that call to [`submitFunding`](https://developer.blackhawknetwork.com/hawkmarketplace/reference/dosubmitfunding) and funds the card already issued. That rewrite is part of the packaged integration, not an extra webhook.
+
+### Reward Connection Contract
+
+The integration component is named `bhn`. Its type is the current `integration-v10` revision (`integration-v10.1` on the packaged source). It carries tags `internal:type:integration`, `internal:integration-component-name:bhn`, and `internal:self-managed`. The campaign program label is `bhn`; the support campaign's is `bhn-v10-support`.
+
+Both credentials sit on that component under these setting names — handlers and webhook `client_key_id` expressions read them, so a prefixed name such as `bhnMerchantId` is a different setting and leaves every order unauthenticated or unaddressed:
+
+| Setting | Type | What it holds |
+| :------ | :--- | :------------ |
+| `merchantId` | `STRING` | The Merchant ID BHN assigned this account. |
+| `clientKeyId` | `CLIENT_KEY` | The certificate-based client key Extole generates from the BHN certificates. |
+
+Create five `REWARD` webhooks, one for each endpoint above, attached to the `bhn` component. Each order webhook filters to its matching supplier variant and to `EARNED`, uses `POST`, and has retry intervals `[1800, 3600, 10800]`. The status webhook filters to all four BHN supplier variants and to `FULFILL_FAILED`; its `default_method` is `POST` and the request handler overrides the call to `GET`. Its retry intervals are:
+
+`https://api.blackhawknetwork.com`
+
+The exact supplier tags are `internal:bhn-virtual`, `internal:bhn-physical-single-load`, `internal:bhn-physical-reloadable`, and `internal:bhn-egift-card`. Template names use the same tokens without the `internal:` prefix. Webhook names on the packaged source are `bhn_v10_virtual_prepaid_cards`, `bhn_v10_physical_single_load`, `bhn_v10_physical_reloadable`, `bhn_v10_egift`, and `bhn_v10_check_order_status`.
+
+Every webhook `client_key_id` is `javascript@buildtime:context.getVariableContext().get("clientKeyId")`. Enable the webhooks once that setting and `merchantId` are populated; a default empty request builder is not a finished handler.
+
+#### Order and status handlers
+
+These are the packaged v10 handlers. Write them; do not leave `request` as `createRequestBuilderWithDefaults().build()` or `response_handler` null.
+
+Each order request uses `context.createRequestBuilder()` (not the defaults builder) and these headers:
+
+| Header | Value |
+| :----- | :---- |
+| `merchantId` | `context.getVariable("merchantId")` |
+| `requestId` | `reward.getRewardId()` |
+| `millisecondsToWait` | `15000` |
+
+The JSON body always carries `clientProgramNumber`, `paymentType`, and `orderDetails[0]` with `clientRefId` (the reward id), `recipient`, and `amount` (`reward.getFaceValue()`). `financialAccountId` is included when the supplier data map has one. Recipient `firstName` / `lastName` are whitespace-collapsed and have quotes stripped.
+
+| Webhook | Extra body fields |
+| :------ | :---------------- |
+| Virtual and eGift | `emailContent.subject` `"You earned a reward!"`, `emailContent.unsubscribeData.methodType` `"NONE"`; recipient has `firstName`, `lastName`, `email`. |
+| Physical single-load | Recipient also has `id` (the person id) and `address` from person data `address_line1`, `address_line2`, `address_city`, `address_region`, `address_postal_code`, `address_country`. |
+| Physical reloadable | Recipient `id` is a per-person card key stored as `blackhawk.card.{cardName}.cardId`. If this person already has a non-failed reward for the same `clientProgramNumber`, rewrite the URL to `/rewardsOrderProcessing/v1/submitFunding`. That body still includes `clientProgramNumber`, `paymentType`, and `financialAccountId` when present; the `recipient` object contains only `id` (the stored card key). `amount` stays on the order detail. |
+
+The shared order response handler parses the BHN JSON. On HTTP 4xx or `responseBody.errors`, it sends `createFailedRewardCommandEventBuilder()` unless the first error code is `orderDetails.recipient.id.doesNotExist`, which returns `"RETRY"`. HTTP 5xx returns `"RETRY"`. A 2xx without errors sends `createFulfillRewardCommandEventBuilder().withSuccess(false)` — that marks the reward as processing, not delivered — and returns `"OK"`.
+
+The status request uses `context.createLegacyRequestBuilderWithDefaults()`, sets method `GET`, headers `merchantId` and `requestId` (`"S" + rewardId + "_" + attemptCount`), and URL `{webhookUrl}?requestId={rewardId}&clientProgramNumber={clientProgramNumber}`.
+
+The status response handler treats `orderStatus` values `Complete`, `Funding Posted`, and `Shipped` as completed: `createFulfillRewardCommandEventBuilder().withSuccess(true).withPartnerRewardId(orderNumber)`. `responseBody.errors` fails the reward immediately. Any other `orderStatus` — including `Cancelled`, `Declined`, `Error`, `Failure`, the funding-hold statuses, `In Process`, and `Successfully Sent To Processor` — or HTTP 5xx returns `"RETRY"` until the configured retry count is exhausted, then fails the reward.
+
+#### Map BHN Order Statuses
+
+The status webhook reads `orderStatus` from BHN's [Order Status Reference](https://developer.blackhawknetwork.com/hawkmarketplace/docs/get-order-information). The packaged completed set is `Complete`, `Funding Posted`, and `Shipped`. `Funding Posted` is included because the order webhook already marked the reward as processing with `withSuccess(false)`; the status check is what closes it.
+
+| BHN `orderStatus` | Treat as | Why |
+| :---------------- | :------- | :-- |
+| `Complete` | Fulfilled | BHN's own final status for a successfully delivered order. |
+| `Shipped` | Fulfilled | BHN has been notified the card shipped. Real-time eGift and Virtual products never ship. |
+| `Funding Posted` | Fulfilled | The packaged integration closes the reward here rather than waiting for `Complete`. |
+| `Cancelled`, `Declined`, `Error`, `Failure` | Retry, then fail | The packaged handler does not fail these on first sight. It returns `"RETRY"` until the schedule is exhausted, then fails the reward. |
+| `Funding Hold`, `Settlement Error`, `Not All Records Funded`, `Not All Records Reversed`, `Not All Records Processed` | Retry, then fail | Same: retry until exhausted, then fail. These usually mean the funding account needs attention. |
+| `In Process`, `Successfully Sent To Processor` | Still processing | Keep checking until the retry schedule is exhausted, then fail. |
+
+The views socket accepts `config-view-v10.0`, `report-runner-view-v10.0`, and `event-stream-view-v10.0`, and is tagged `internal:view`. Configuration's `settingsToDisplay` is `merchantId` and `clientKeyId`.
+
+The integration carries four tabs, and all four are part of the shape rather than optional extras:
+
+| Tab | View type | What it shows |
+| :-- | :-------- | :------------ |
+| Configuration | `config-view-v10.0` | The Merchant ID and the BHN client key. |
+| Reward Suppliers | `config-view-v10.0` | The supplier socket, reporting in progress until a product is installed. |
+| Reward Activity | `report-runner-view-v10.0` | A scheduled reward revenue report charting BHN fulfillment. |
+| Reward Events | `event-stream-view-v10.0` | A live feed of BHN reward events, tagged `internal:app_type=bhn`. |
+
+The integration's registered image key is `blackhawkNetwork`, and it is not derived from the partner's name or this page's slug. The image key feeds the partner detail view; the tile on the Integrations page comes from the logo setting instead, and BHN's artwork is already published on the registered `bhn` component for both the integration and its four reward products.
+
+Only the v10 integration is current. Build or install that one; the earlier flavor is not a fallback when something in the v10 shape is inconvenient.
+
+### Reward Activity Report Contract
+
+The Reward Activity tab owns one enabled, scheduled report runner. Its account-local report type is named `Reward Revenue`; find that name through `GET /v6/report-types?display_name=Reward%20Revenue`, and use the returned identifier rather than carrying an identifier from another account. Confirm the selected type declares `locales`, `include_totals`, and a metric-shaped `mappings` parameter. If this account has no type by that name, create a configured type from a parent that accepts metric mappings, with the defaults below, before creating the runner.
+
+| Runner property | Required value |
+| :-------------- | :------------- |
+| Name | `Partner BHN Reward Revenue Report` |
+| Type | `SCHEDULED` |
+| Formats | `JSON`, `CSV` |
+| Frequency | `WEEKLY` |
+| Schedule start | A future timestamp chosen when the runner is created, in ISO-8601 with an offset. A start date in the past leaves the runner enabled and never running. |
+| Scopes | `CLIENT_SUPERUSER` |
+| Tags | `internal:category:Performance & Metrics`, `partner-graph` |
+| Execution policy | `AWAIT_DATA` |
+| Attachment | The Reward Activity view, not the integration component |
+
+Its parameters are part of the product contract:
+
+`/rewardsOrderProcessing/v1/submitVirtualIndividual`
+
+Do not substitute a reward-earned count or reward face value for this mapping: this report charts the conversion revenue and reward relationship that BHN program managers use. The Reward Activity view's `reportColumnsMapping` must use the `date`, `count`, and `revenue` columns this mapping emits.
+
+`/rewardsOrderProcessing/v1/submitOpenLoopPersonalizedIndividual`
+
+For how this category is built in general terms, see [Integration Categories](/technical/integration-overview/integration-categories), [Build a Reward Fulfillment Integration](/technical/integration-overview/integration-build-reward-fulfillment) for the sequence, and [Create the Integration Campaign and Component Model](/technical/integration-overview/integration-component-model) for the campaign, component, and display metadata every path needs.
 
 ## Integration
 
@@ -53,15 +172,15 @@ Your Extole team will help you with this process.
 ### Set up the BHN Reward Supplier from your Rewards page
 
 1. Go to Rewards page in your My Extole account and hit **+ New Reward**.
-2. Select the Reward Type—Virtual Card or Physical Card.
+2. Select the BHN product that matches what you are offering: **BHN Virtual Prepaid Cards**, **BHN Physical Single-Load Prepaid Cards**, **BHN Physical Reloadable Prepaid Cards**, or **BHN eGift Cards**. Virtual and eGift are emailed; physical single-load and physical reloadable are mailed, and only reloadable cards can receive later value on the same card.
 3. Specify the name of the reward, the value of the reward, and the Client Program Number and FAID (optional) supplied by your BHN team. You can also get your program number and FAID from the Hawk Marketplace Portal.
 4. Select the appropriate Payment Type. Confirm your preferred payment method (ACH Debit or Drawdown) and complete the necessary documentation for setup. This step can be confirmed with your BHN team.
-5. Save the configuration and use the newly created reward.
+5. Save the configuration and use the newly created reward. For a reloadable card, the first reward issues the card; later rewards for the same person and Client Program Number fund that card through BHN's `submitFunding` path rather than creating a second card.
 
 Once the integration is complete, you will be able to see rewards flow in real-time in your My Extole account.
 
 
-<img src="/images/extole/327553296d6a1128478e6d66120d0053286548b43849d5a5f8331e3b0d81629b.png" alt="Screenshot showing Once the integration is complete, you will be able to see rewards flow in real-time in your My Extole account." />
+<img src="/images/extole/327553296d6a1128478e6d66120d0053286548b43849d5a5f8331e3b0d81629b.png" alt="The BHN integration in My Extole showing rewards flowing in real time after setup" />
 
 
 ## FAQs
@@ -71,7 +190,7 @@ Once the integration is complete, you will be able to see rewards flow in real-t
 Extole leverages HTTP status codes from BHN API responses to update the status of a card order (aka reward) in the Extole platform. You can use the Extole platform to understand if a reward has been submitted to BHN, if it's been processed and sent to the recipient, or if the reward failed. Refer to the table below for additional information on reward stages in the Extole platform.
 
 
-<img src="/images/extole/a9b22cd42c7003682edf1a40bc547f13443b548dc51169c713c1a2dc85b3c1f4.png" alt="Screenshot showing Extole leverages HTTP status codes from BHN API responses to update the status of a card order (aka reward) in the Extole platform. You can use the Extole..." />
+<img src="/images/extole/a9b22cd42c7003682edf1a40bc547f13443b548dc51169c713c1a2dc85b3c1f4.png" alt="Table of Extole reward states mapped from BHN API responses" />
 
 
 Refer to BHN's Developer Documentation for more detailed information on card ordering and response codes for [physical prepaid cards](https://developer.blackhawknetwork.com/hawkmarketplace/docs/placing-prepaid-card-personalized-individual-orders#submitting-the-order), [re-loadable cards](https://developer.blackhawknetwork.com/hawkmarketplace/docs/reloadable-personalized-prepaid-card-orders#responses), and [digital prepaid cards](https://developer.blackhawknetwork.com/hawkmarketplace/docs/placing-prepaid-card-personalized-individual-orders#submitting-the-order).
@@ -156,7 +275,7 @@ By default rewards that are in an `EARNED`, `TRYING TO FULFILL`, or `SENT/FULFIL
 
 1. Look up the order number for the reward in the Extole platform. The Order number is the `Partner ID` located on the Reward event.
 
-   ![Screenshot showing Look up the order number for the reward in the Extole platform. The Order number is the Partner ID located on the Reward event.](/images/extole/8ecf6e5e63a0c5672d288597847d395026ccf111548fc52939799214ae0465f8.png)
+   ![The Partner ID field on a reward event in My Extole, used as the BHN order number](/images/extole/8ecf6e5e63a0c5672d288597847d395026ccf111548fc52939799214ae0465f8.png)
 
 
 
@@ -164,6 +283,6 @@ By default rewards that are in an `EARNED`, `TRYING TO FULFILL`, or `SENT/FULFIL
 
 3. Once you've reversed the reward, navigate back to the Reward in the Extole system and select`Mark as Revoked`if the reward had already been fulfilled, or `CANCEL` if it was in processing.
 
-![Screenshot showing Once you've reversed the reward, navigate back to the Reward in the Extole system and selectMark as Revokedif the reward had already been fulfilled, or...](/images/extole/d1575b1143786c733292dc63eeaffe562145d60119579a7c99f4532d4dd16b4a.png)
+![The reward actions menu in My Extole with Mark as Revoked and Cancel](/images/extole/d1575b1143786c733292dc63eeaffe562145d60119579a7c99f4532d4dd16b4a.png)
 
 <br />
