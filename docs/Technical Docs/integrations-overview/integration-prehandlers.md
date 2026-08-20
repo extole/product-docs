@@ -37,7 +37,7 @@ https://api.extole.io/v6/events/example_webhook?access_token=$EVENTS_API_ACCESS_
 
 Two properties make it work where `POST /v6/events` does not. The last path segment becomes the event name, so you choose the wire name rather than asking the partner to send one. And the request body becomes the event's data as it arrived, with no required fields, so the partner's own envelope — its event type, its field names, its nesting — is accepted whole and reaches the prehandler intact.
 
-Name the segment after the partner's wire event rather than the canonical one, `example_webhook` rather than `converted`, because producing the canonical name is the prehandler's job. Then match that segment with an `EVENT_NAME_MATCH` condition. It is the one condition guaranteed to hold, because you chose the value.
+Name the segment after the partner rather than after an outcome — `example_webhook`, never `converted`, for the reasons in [Produce a Name This Integration Owns](#produce-a-name-this-integration-owns). Then match that segment with an `EVENT_NAME_MATCH` condition. It is the one condition guaranteed to hold, because you chose the value.
 
 The access token authorizes the delivery. Extole reads it from the `access_token` query parameter, an `Authorization` header, or a cookie, in that order, and a partner that can only set a URL has the query parameter. Create the token in the <Anchor label="Security Center" target="_blank" href="https://my.extole.com/security-center">Security Center</Anchor> as described in [Send Platform Events to Extole](doc:sending-platform-events), and authorize it for event submission only — never a token that can also manage campaigns and components.
 
@@ -82,8 +82,8 @@ curl --request POST "$EXTOLE_API_HOST/v6/prehandlers" \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
-    "name": "example_v10_order_completed_to_converted",
-    "description": "Renames the Example order webhook to the canonical converted event and flattens its payload.",
+    "name": "example_v10_webhook_to_order_completed_event",
+    "description": "Names the Example order webhook for this integration's order-completed rule and flattens its payload.",
     "enabled": true,
     "order": 0,
     "conditions": [
@@ -91,7 +91,7 @@ curl --request POST "$EXTOLE_API_HOST/v6/prehandlers" \
       { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var body = context.getProcessedRawEvent().getData(); return body.get(\"type\") === \"order.completed\"; })();" }
     ],
     "actions": [
-      { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var builder = context.getEventBuilder(); var body = context.getProcessedRawEvent().getData(); var data = body.get(\"data\"); if (!data) { return; } var order = data.get(\"order\"); if (!order) { return; } builder.withEventName(\"converted\"); builder.addData(\"partner_conversion_id\", order.get(\"id\")); builder.addData(\"partner_user_id\", order.get(\"customer_id\")); builder.addData(\"cart_value\", order.get(\"total_amount\")); builder.addData(\"email\", order.get(\"customer_email\")); })();" }
+      { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var builder = context.getEventBuilder(); var body = context.getProcessedRawEvent().getData(); var data = body.get(\"data\"); if (!data) { return; } var order = data.get(\"order\"); if (!order) { return; } builder.withEventName(\"example_order_completed\"); builder.addData(\"partner_conversion_id\", order.get(\"id\")); builder.addData(\"partner_user_id\", order.get(\"customer_id\")); builder.addData(\"cart_value\", order.get(\"total_amount\")); builder.addData(\"email\", order.get(\"customer_email\")); })();" }
     ],
     "component_references": [{ "component_id": "'"$INTEGRATION_COMPONENT_ID"'" }]
   }'
@@ -189,9 +189,27 @@ The failure surfaces only when an event arrives, as a `prehandler_condition_exec
 
 Send a real event and read the result. A prehandler is never finished at the create call.
 
-## Point the Trigger Rule at the Name the Prehandler Produces
+## Produce a Name This Integration Owns
 
-Because prehandlers run first, the `input_event` rule in [Map Inbound Partner Events](doc:integration-inbound-events) should list the **canonical** event name when a prehandler renames the event, not the partner's wire name. Listing the wire name there is a rule that will never match, and it looks correct in the tree.
+Because prehandlers run first, the `input_event` rule in [Map Inbound Partner Events](doc:integration-inbound-events) lists the name the prehandler produced, not the name the partner sent. Which leaves the choice of what to produce, and there are two kinds of name to choose between: one that belongs to this integration, and one the whole account is already listening for. Produce the first.
+
+An `input_event` rule matches an event name by case-insensitive equality and by nothing else. Not the app type, not the component the rule belongs to, not the campaign — and a business event's alternate names are not consulted for an inbound event, only for the step it produces. A packaged business event's rule listens for its own name by default, so an integration that renames its partner's webhook to `converted` at ingest has pointed that webhook at every `converted` event in the account. The partner's raw delivery enters marketing programs as though it were a first-party conversion, the integration built to interpret it is bypassed rather than consulted, and every call that arranged this returned a success.
+
+A partner-owned name is matched by exactly the rule you point at it, and by nothing you did not intend: `example_order_completed`, `stripe_payment_succeeded`, `example_order_refunded`. The canonical vocabulary stays where the rest of this guide puts it — on the business event that rule feeds, whose own name is `converted` and whose reporting nouns describe what the partner did.
+
+The one packaged integration that renames to a canonical name is Shopify, whose prehandler produces `conversion`, and it ships no business events of its own: that name is how a Shopify order reaches a program's conversion event directly. Read it as the design it is — an integration that deliberately owns no rules — rather than as the convention for one that does.
+
+### One Prehandler Per Transformation
+
+Give each of the partner's wire events its own prehandler, which is what the naming convention above describes: a component, a generation, and one transformation. The `order` field exists to sequence them, and a condition that selects a single wire event is one you can read.
+
+The alternative arrives by itself: one action, branching over every event type the partner sends, choosing an outcome with a ternary. That is where a refunded charge and a failed authorization become the same event, because two branches reached one name and nothing downstream can now tell them apart. Separate prehandlers keep outcomes separate as a property of the shape rather than as something the script has to remember.
+
+### A Reshape Adds; It Does Not Replace
+
+Nothing here overwrites the partner's payload. `addData` merges into the event's data and keeps the values already there, `MAP_DATA_ATTRIBUTES` copies a source attribute to a target and leaves the source in place, and `SET_DATA` removes only the keys named in its `delete_data`. So the partner's original fields survive the reshape, and mapping only the fields this integration needs costs nothing that a later investigation might want.
+
+Take that as licence to prefer the mapping action. A flat rename belongs in `MAP_DATA_ATTRIBUTES`, where it is declarative and readable in the built form; write an expression for what the mapping types cannot address — the nested object, the minor-unit amount, the field that is present under two different names — rather than rebuilding the whole event in a script because part of it needed one.
 
 The same applies to data components. Their `valueExpression` reads the event as the prehandler left it, so a mapping written against the partner's raw nesting captures nothing once the prehandler has flattened it. Write the prehandler and the data mappings against one agreed shape, and prefer flattening in the prehandler so the data components stay simple.
 
