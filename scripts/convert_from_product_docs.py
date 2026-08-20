@@ -989,11 +989,32 @@ class Converter:
             self.slug_to_path.setdefault(md.parent.name, out_rel)
         return page
 
+    def link_targets(self) -> dict:
+        """Slugs a doc: link can resolve to -- pages, plus category landings.
+
+        A category whose index.md was too thin to publish has no page of its
+        own, so [Configuring Reports](doc:configuring-reports) fell through to
+        a bare /configuring-reports that 404s. Resolve those to the first page
+        inside the group, the same way the ReadMe redirects do.
+        """
+        targets = dict(self.slug_to_path)
+        for slug, prefix in self.group_prefixes.items():
+            if slug in targets:
+                continue
+            first = next(
+                (p.out_path for p in self.pages if p.out_path.startswith(prefix + "/")),
+                None,
+            )
+            if first:
+                targets[slug] = first
+        return targets
+
     def write_pages(self):
+        links = self.link_targets()
         for page in self.pages:
             raw = page.src.read_text(encoding="utf-8", errors="replace")
             _, body = split_frontmatter(raw)
-            body = convert_body(body, self.slug_to_path)
+            body = convert_body(body, links)
             fm_out = [f"title: {yaml_str(page.title)}"]
             if page.description:
                 fm_out.append(f"description: {yaml_str(page.description)}")

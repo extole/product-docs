@@ -404,6 +404,38 @@ class OrderYamlOmissionTests(unittest.TestCase):
             self.assertNotIn("guides/secret", [p.out_path for p in conv.pages])
 
 
+class CategoryLinkTargetTests(unittest.TestCase):
+    def test_a_link_to_a_category_resolves_to_its_first_page(self):
+        """A folder whose index.md is too thin to publish has no page, so
+        [Report Types](doc:report-types) fell through to a bare /report-types
+        that 404s. Newly fleshed-out upstream indexes started linking to their
+        sibling categories, which is how this surfaced."""
+        with tempfile.TemporaryDirectory() as directory:
+            src, out = Path(directory) / "src", Path(directory) / "out"
+            group = src / "report-types"
+            group.mkdir(parents=True)
+            (group / "index.md").write_text(
+                '---\ntitle: "Report Types"\n---\n\nshell\n', encoding="utf-8"
+            )
+            (group / "audience-reports.md").write_text(
+                '---\ntitle: "Audience Reports"\n---\n\nBody.\n', encoding="utf-8"
+            )
+            conv = converter.Converter(src, out)
+            conv._make_group(group, "guides")
+
+            # the thin index is not published, so the slug has no page of its own
+            self.assertNotIn("report-types", conv.slug_to_path)
+            self.assertEqual(conv.group_prefixes["report-types"], "guides/report-types")
+            targets = conv.link_targets()
+            self.assertEqual(
+                targets["report-types"], "guides/report-types/audience-reports"
+            )
+            self.assertEqual(
+                converter.rewrite_links("See [Report Types](doc:report-types).", targets),
+                "See [Report Types](/guides/report-types/audience-reports).",
+            )
+
+
 class PreservedTabTests(unittest.TestCase):
     def test_a_hand_authored_tab_survives_regeneration(self):
         """News is assembled from the ReadMe changelog and newsletters and has

@@ -1,0 +1,109 @@
+---
+title: "Send Platform Events to Extole"
+description: "Deliver a platform's lifecycle events to the Extole Events API from a server-side extension, with a durable outbox, retries, and verification."
+---
+
+# Overview
+
+An inbound integration has two halves. Inside Extole, an integration campaign maps arriving platform events onto canonical business events — see [Create an Integration with the Management API](/technical/integration-overview/management-api-integration). Outside Extole, something in the platform has to send those events. This page is the sending half, and it applies to any platform that can run server-side code: an ecommerce extension, a plugin, a middleware service, or a scheduled job.
+
+Sending happens server-side. An event carries an access token, and any token placed in storefront templates, theme files, or browser code is published to everyone who visits the site. Platforms whose events can only be produced in the browser belong on the JavaScript SDK instead.
+
+## What the Sender Needs
+
+Hold these as configuration rather than constants in code, so a token rotates and a program label changes without a code release:
+
+| Setting | Purpose |
+| :------ | :------ |
+| Event endpoint | `https://api.extole.io/v6/events` in production. |
+| Access Token | A server-side Extole access token, created in the [Security Center](https://my.extole.com/security-center), that authorizes event submission. Store it encrypted or in protected server configuration. Never send events with a token that can also manage campaigns and components. |
+| Program label | Targets events at the installed integration. Read the current label from the integration's configuration view. |
+| Platform identifier | The store URL, site identifier, or tenant that produced the event. |
+| Status or state mapping | The platform's own status identifiers that mean the event happened. |
+| Request timeout | A short network timeout for the delivery worker. |
+| Retry policy | Backoff and maximum attempts for temporary failures. |
+
+Status identifiers are per-installation configuration on most platforms. Read them from the platform being integrated rather than copying numeric identifiers from another installation, where the same number means something else.
+
+## Do Not Block the Platform's Own Workflow
+
+Send events from a worker, not from the hook that observed them. The hook's job is to persist a sanitized record and return; a separate worker delivers it. An Extole timeout or a network failure must never fail a checkout, block an order-status transition, or slow a page the customer is waiting on.
+
+## Build the Event Payload
+
+An event carries the platform's own event name and a flat `data` object holding the fields the integration maps:
+
+`https://api.extole.io/v6/events`
+
+Two details in that payload are the ones that go wrong. `labels` belongs inside `data`, and it holds the current program label from the integration view rather than a value copied from another account. And every source key is read by name: the integration's data components look for the keys the partner page names, so a renamed key arrives as an event with that field missing rather than as an error.
+
+Send what the integration maps and nothing more. Payment-card data, passwords, session identifiers, and unrelated metadata have no mapped destination and become a liability the moment they are stored.
+
+## Choose the Endpoint
+
+Events go to `https://api.extole.io`, the same host as Extole's other server-side calls — retrieving a person, reading rewards, and the [Management API](/technical/platform-integrations/rest-apis/index).
+
+Use `/v6/events` while building the sender: it responds synchronously, so the worker can verify what Extole did with each event. For sustained high-volume delivery, evaluate `/v6/async-events` and update the worker's verification and retry behavior for asynchronous processing, since acceptance no longer means the event has been processed. Partner pages that document `/v5/events` describe a still-supported path; prefer `/v6/events` for a new sender.
+
+`data`
+
+A sender that receives `204 No Content` with an empty body is not talking to the Events API. The endpoint answers a valid submission with `200` and a JSON body carrying the `person_id`; treat an empty `204` as a misrouted request and check the host before assuming the events were accepted.
+
+## Deliver Through an Outbox
+
+Queue every event locally before sending it. An outbox record holds:
+
+- A local delivery identifier.
+- The platform entity identifier, such as the order or account.
+- The platform event name.
+- The sanitized payload.
+- The attempt count and next-attempt time.
+- The last HTTP status and a redacted error.
+- The delivered time.
+
+Treat `2xx` as accepted. Retry temporary network failures, `429`, and retryable `5xx` responses with bounded exponential backoff. Do not retry authentication or validation failures indefinitely: those fail identically forever and bury the retryable failures that matter.
+
+Use the entity identifier together with the event name as the local idempotency key. Platforms re-fire hooks and record repeated status history, so a sender without that key delivers the same lifecycle event several times. Extole deduplicates too, on the field mapped as the unique partner event key, but a duplicate suppressed locally never becomes an event someone has to explain.
+
+### Treat the Outbox as a Store of Personal Data
+
+The queued payload holds an email address, a customer identifier, and an order identifier, so the outbox is a database of customer personal data that the platform did not have before this integration was installed. Sanitizing a payload means dropping fields the integration does not map — card data, passwords, session identifiers — and that is a different thing from removing personal data, because the fields Extole needs to resolve a person are exactly the personal ones. Plan for the store rather than acquiring it by accident:
+
+- **Encrypt the payload at rest**, using the platform's own encryption facility where it has one, and keep the outbox out of database exports and support bundles.
+- **Restrict read access** to the delivery worker and platform administrators. A queue table readable by every extension on the store is a copy of the customer list.
+- **Delete delivered records on a defined schedule.** Keep them only as long as retries and troubleshooting need — days, not indefinitely — and purge failed records on their own, longer clock once they are beyond retry. An outbox with no deletion policy grows into the oldest unmanaged copy of the customer list on the server.
+- **Log the identifiers, not the payload.** Record the delivery identifier, the entity identifier, the event name, and the HTTP status; keep the email and the rest of `data` out of application and transport logs, where retention is usually longer and access wider than the outbox's own.
+- **Honor the store's erasure requests.** When a customer is deleted in the platform, delete their undelivered outbox records too, or the sender keeps sending events about someone the store has already forgotten.
+
+## Protect the Integration
+
+- Restrict sender configuration to platform administrators.
+- Keep the access token out of templates, browser code, logs, and event data.
+- Redact authorization headers and request bodies in transport logs. A debug log that captures the full request re-creates, in a less protected place, the personal data the outbox is careful with.
+- Validate and normalize emails, identifiers, URLs, and numeric values before sending.
+- Verify HTTPS certificates.
+- Allow token rotation without reinstalling the extension.
+
+## Verify What Arrives
+
+Send one event synchronously and follow it through to the business event it produced. The response returns a `person_id`; read that person's steps for the campaign:
+
+`labels`
+
+Confirm that the step carries the canonical event name rather than the platform's, that the transaction identifier and value match the source record, that the person keys resolve, and that sending the same source identifier twice produces a duplicate outcome rather than a second conversion. Repeat for every event the integration accepts, not only the first one.
+
+## When Extole Accepts the Event but No Business Event Appears
+
+A `2xx` means the event was accepted, not that it matched anything. Check, in this order:
+
+1. The current program label is inside `data.labels`.
+2. The platform event name matches the name on the integration's `input_event` trigger rule exactly.
+3. The integration campaign is published.
+4. The event carries enough identity data to resolve a person.
+5. The source keys match the ones the integration's data components read.
+
+## Related Documentation
+
+- [Integration Categories](/technical/integration-overview/integration-categories)
+- [Create an Integration with the Management API](/technical/integration-overview/management-api-integration)
+- [Integrating with Extole](/technical/integration-overview/integrating-with-extole)

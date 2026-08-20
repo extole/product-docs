@@ -5171,6 +5171,16 @@
           "unique_id": "00000000-0000-0000-0000-000000000000"
         }
       },
+      "report_type_mapping_suggestion_parameter_not_found": {
+        "summary": "report_type_mapping_suggestion_parameter_not_found",
+        "value": {
+          "code": "report_type_mapping_suggestion_parameter_not_found",
+          "http_status_code": 400,
+          "message": "Report type does not have a parameter with the supplied name",
+          "parameters": {},
+          "unique_id": "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "report_type_missing": {
         "summary": "report_type_missing",
         "value": {
@@ -9339,6 +9349,7 @@
               "COMPONENT_ID",
               "COMPONENT_SETTING_LOOKUP",
               "CSS",
+              "DATE_TIME",
               "DELAY",
               "DELAY_LIST",
               "ENUM",
@@ -9361,6 +9372,7 @@
               "STRING",
               "STRING_LIST",
               "STRING_MAP",
+              "TRIGGER_CONFIGURATION",
               "URL",
               "WEBHOOK_ID"
             ],
@@ -9404,6 +9416,7 @@
               "COMPONENT_ID",
               "COMPONENT_SETTING_LOOKUP",
               "CSS",
+              "DATE_TIME",
               "DELAY",
               "DELAY_LIST",
               "ENUM",
@@ -9426,6 +9439,7 @@
               "STRING",
               "STRING_LIST",
               "STRING_MAP",
+              "TRIGGER_CONFIGURATION",
               "URL",
               "WEBHOOK_ID"
             ],
@@ -9857,6 +9871,7 @@
             "COMPONENT_ID": "#/components/schemas/BuiltComponentComponentIdVariableResponse",
             "COMPONENT_SETTING_LOOKUP": "#/components/schemas/BuiltComponentComponentSettingLookupVariableResponse",
             "CSS": "#/components/schemas/BuiltCampaignComponentVariableResponseAsCss",
+            "DATE_TIME": "#/components/schemas/BuiltCampaignComponentVariableResponseAsDateTime",
             "DELAY": "#/components/schemas/BuiltCampaignComponentVariableResponseAsDelay",
             "DELAY_LIST": "#/components/schemas/BuiltCampaignComponentVariableResponseAsDelayList",
             "ENUM": "#/components/schemas/BuiltComponentEnumVariableResponse",
@@ -9879,6 +9894,7 @@
             "STRING": "#/components/schemas/BuiltCampaignComponentVariableResponseAsString",
             "STRING_LIST": "#/components/schemas/BuiltCampaignComponentVariableResponseAsStringList",
             "STRING_MAP": "#/components/schemas/BuiltComponentStringMapVariableResponse",
+            "TRIGGER_CONFIGURATION": "#/components/schemas/BuiltComponentTriggerConfigurationVariableResponse",
             "URL": "#/components/schemas/BuiltCampaignComponentVariableResponseAsUrl",
             "WEBHOOK_ID": "#/components/schemas/BuiltCampaignComponentVariableResponseAsWebhookId"
           },
@@ -9978,6 +9994,14 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/BuiltCampaignComponentVariableResponseAsCss"
+              }
+            ]
+          },
+          {
+            "title": "DATE_TIME",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BuiltCampaignComponentVariableResponseAsDateTime"
               }
             ]
           },
@@ -10158,6 +10182,14 @@
             ]
           },
           {
+            "title": "TRIGGER_CONFIGURATION",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BuiltComponentTriggerConfigurationVariableResponse"
+              }
+            ]
+          },
+          {
             "title": "URL",
             "allOf": [
               {
@@ -10215,6 +10247,7 @@
               "COMPONENT_ID",
               "COMPONENT_SETTING_LOOKUP",
               "CSS",
+              "DATE_TIME",
               "DELAY",
               "DELAY_LIST",
               "ENUM",
@@ -10237,6 +10270,7 @@
               "STRING",
               "STRING_LIST",
               "STRING_MAP",
+              "TRIGGER_CONFIGURATION",
               "URL",
               "WEBHOOK_ID"
             ],
@@ -10298,6 +10332,7 @@
               "COMPONENT_ID",
               "COMPONENT_SETTING_LOOKUP",
               "CSS",
+              "DATE_TIME",
               "DELAY",
               "DELAY_LIST",
               "ENUM",
@@ -10320,6 +10355,7 @@
               "STRING",
               "STRING_LIST",
               "STRING_MAP",
+              "TRIGGER_CONFIGURATION",
               "URL",
               "WEBHOOK_ID"
             ],
@@ -10672,6 +10708,44 @@
         ],
         "type": "object",
         "title": "CSS"
+      },
+      "BuiltCampaignComponentVariableResponseAsDateTime": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BuiltCampaignComponentSettingResponseBase"
+          },
+          {
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "source": {
+                "enum": [
+                  "INHERITED",
+                  "LOCAL",
+                  "PARAMETER"
+                ],
+                "type": "string"
+              },
+              "source_component_id": {
+                "type": "string"
+              },
+              "source_version": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "type": {
+                "enum": [
+                  "DATE_TIME"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "type": "object",
+        "title": "DATE_TIME"
       },
       "BuiltCampaignComponentVariableResponseAsDelay": {
         "allOf": [
@@ -12783,17 +12857,6 @@
             },
             "type": "object"
           }
-        ],
-        "required": [
-          "action_id",
-          "action_type",
-          "component_ids",
-          "component_references",
-          "data",
-          "dynamic_data",
-          "enabled",
-          "quality",
-          "webhook_id"
         ],
         "type": "object",
         "title": "WEBHOOK"
@@ -16621,6 +16684,64 @@
         ],
         "type": "object",
         "title": "STRING_MAP"
+      },
+      "BuiltComponentTriggerConfigurationVariableResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BuiltCampaignComponentSettingResponseBase"
+          },
+          {
+            "properties": {
+              "allowed_keys": {
+                "description": "The keys the trigger configuration map's values are restricted to. Empty allows any key.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "description": {
+                "type": "string"
+              },
+              "source": {
+                "enum": [
+                  "INHERITED",
+                  "LOCAL",
+                  "PARAMETER"
+                ],
+                "type": "string"
+              },
+              "source_component_id": {
+                "type": "string"
+              },
+              "source_version": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "type": {
+                "enum": [
+                  "TRIGGER_CONFIGURATION"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "required": [
+          "allowed_keys",
+          "description",
+          "display_name",
+          "name",
+          "priority",
+          "source",
+          "source_component_id",
+          "source_version",
+          "tags",
+          "type",
+          "values"
+        ],
+        "type": "object",
+        "title": "TRIGGER_CONFIGURATION"
       },
       "BuiltCustomRewardSupplierResponse": {
         "allOf": [
@@ -20668,6 +20789,7 @@
             "COMPONENT_ID": "#/components/schemas/CampaignComponentComponentIdVariableRequest",
             "COMPONENT_SETTING_LOOKUP": "#/components/schemas/CampaignComponentComponentSettingLookupVariableRequest",
             "CSS": "#/components/schemas/CampaignComponentVariableRequestAsCss",
+            "DATE_TIME": "#/components/schemas/CampaignComponentVariableRequestAsDateTime",
             "DELAY": "#/components/schemas/CampaignComponentVariableRequestAsDelay",
             "DELAY_LIST": "#/components/schemas/CampaignComponentVariableRequestAsDelayList",
             "ENUM": "#/components/schemas/CampaignComponentEnumVariableRequest",
@@ -20690,6 +20812,7 @@
             "STRING": "#/components/schemas/CampaignComponentVariableRequestAsString",
             "STRING_LIST": "#/components/schemas/CampaignComponentVariableRequestAsStringList",
             "STRING_MAP": "#/components/schemas/CampaignComponentStringMapVariableRequest",
+            "TRIGGER_CONFIGURATION": "#/components/schemas/CampaignComponentTriggerConfigurationVariableRequest",
             "URL": "#/components/schemas/CampaignComponentVariableRequestAsUrl",
             "WEBHOOK_ID": "#/components/schemas/CampaignComponentVariableRequestAsWebhookId"
           },
@@ -20789,6 +20912,14 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/CampaignComponentVariableRequestAsCss"
+              }
+            ]
+          },
+          {
+            "title": "DATE_TIME",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CampaignComponentVariableRequestAsDateTime"
               }
             ]
           },
@@ -20969,6 +21100,14 @@
             ]
           },
           {
+            "title": "TRIGGER_CONFIGURATION",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CampaignComponentTriggerConfigurationVariableRequest"
+              }
+            ]
+          },
+          {
             "title": "URL",
             "allOf": [
               {
@@ -21022,6 +21161,7 @@
               "COMPONENT_ID",
               "COMPONENT_SETTING_LOOKUP",
               "CSS",
+              "DATE_TIME",
               "DELAY",
               "DELAY_LIST",
               "ENUM",
@@ -21044,6 +21184,7 @@
               "STRING",
               "STRING_LIST",
               "STRING_MAP",
+              "TRIGGER_CONFIGURATION",
               "URL",
               "WEBHOOK_ID"
             ],
@@ -21067,6 +21208,7 @@
             "COMPONENT_ID": "#/components/schemas/CampaignComponentComponentIdVariableResponse",
             "COMPONENT_SETTING_LOOKUP": "#/components/schemas/CampaignComponentComponentSettingLookupVariableResponse",
             "CSS": "#/components/schemas/CampaignComponentVariableResponseAsCss",
+            "DATE_TIME": "#/components/schemas/CampaignComponentVariableResponseAsDateTime",
             "DELAY": "#/components/schemas/CampaignComponentVariableResponseAsDelay",
             "DELAY_LIST": "#/components/schemas/CampaignComponentVariableResponseAsDelayList",
             "ENUM": "#/components/schemas/CampaignComponentEnumVariableResponse",
@@ -21089,6 +21231,7 @@
             "STRING": "#/components/schemas/CampaignComponentVariableResponseAsString",
             "STRING_LIST": "#/components/schemas/CampaignComponentVariableResponseAsStringList",
             "STRING_MAP": "#/components/schemas/CampaignComponentStringMapVariableResponse",
+            "TRIGGER_CONFIGURATION": "#/components/schemas/CampaignComponentTriggerConfigurationVariableResponse",
             "URL": "#/components/schemas/CampaignComponentVariableResponseAsUrl",
             "WEBHOOK_ID": "#/components/schemas/CampaignComponentVariableResponseAsWebhookId"
           },
@@ -21188,6 +21331,14 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/CampaignComponentVariableResponseAsCss"
+              }
+            ]
+          },
+          {
+            "title": "DATE_TIME",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CampaignComponentVariableResponseAsDateTime"
               }
             ]
           },
@@ -21368,6 +21519,14 @@
             ]
           },
           {
+            "title": "TRIGGER_CONFIGURATION",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CampaignComponentTriggerConfigurationVariableResponse"
+              }
+            ]
+          },
+          {
             "title": "URL",
             "allOf": [
               {
@@ -21428,6 +21587,7 @@
               "COMPONENT_ID",
               "COMPONENT_SETTING_LOOKUP",
               "CSS",
+              "DATE_TIME",
               "DELAY",
               "DELAY_LIST",
               "ENUM",
@@ -21450,6 +21610,7 @@
               "STRING",
               "STRING_LIST",
               "STRING_MAP",
+              "TRIGGER_CONFIGURATION",
               "URL",
               "WEBHOOK_ID"
             ],
@@ -21474,6 +21635,7 @@
             "COMPONENT_ID": "#/components/schemas/CampaignComponentComponentIdVariableUpdateRequest",
             "COMPONENT_SETTING_LOOKUP": "#/components/schemas/CampaignComponentComponentSettingLookupVariableUpdateRequest",
             "CSS": "#/components/schemas/CampaignComponentVariableUpdateRequestAsCss",
+            "DATE_TIME": "#/components/schemas/CampaignComponentVariableUpdateRequestAsDateTime",
             "DELAY": "#/components/schemas/CampaignComponentVariableUpdateRequestAsDelay",
             "DELAY_LIST": "#/components/schemas/CampaignComponentVariableUpdateRequestAsDelayList",
             "ENUM": "#/components/schemas/CampaignComponentEnumVariableUpdateRequest",
@@ -21496,6 +21658,7 @@
             "STRING": "#/components/schemas/CampaignComponentVariableUpdateRequestAsString",
             "STRING_LIST": "#/components/schemas/CampaignComponentVariableUpdateRequestAsStringList",
             "STRING_MAP": "#/components/schemas/CampaignComponentStringMapVariableUpdateRequest",
+            "TRIGGER_CONFIGURATION": "#/components/schemas/CampaignComponentTriggerConfigurationVariableUpdateRequest",
             "URL": "#/components/schemas/CampaignComponentVariableUpdateRequestAsUrl",
             "WEBHOOK_ID": "#/components/schemas/CampaignComponentVariableUpdateRequestAsWebhookId"
           },
@@ -21595,6 +21758,14 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/CampaignComponentVariableUpdateRequestAsCss"
+              }
+            ]
+          },
+          {
+            "title": "DATE_TIME",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CampaignComponentVariableUpdateRequestAsDateTime"
               }
             ]
           },
@@ -21775,6 +21946,14 @@
             ]
           },
           {
+            "title": "TRIGGER_CONFIGURATION",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CampaignComponentTriggerConfigurationVariableUpdateRequest"
+              }
+            ]
+          },
+          {
             "title": "URL",
             "allOf": [
               {
@@ -21828,6 +22007,7 @@
               "COMPONENT_ID",
               "COMPONENT_SETTING_LOOKUP",
               "CSS",
+              "DATE_TIME",
               "DELAY",
               "DELAY_LIST",
               "ENUM",
@@ -21850,6 +22030,7 @@
               "STRING",
               "STRING_LIST",
               "STRING_MAP",
+              "TRIGGER_CONFIGURATION",
               "URL",
               "WEBHOOK_ID"
             ],
@@ -22314,6 +22495,159 @@
         "type": "object",
         "title": "STRING_MAP"
       },
+      "CampaignComponentTriggerConfigurationVariableRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CampaignComponentSettingRequestBase"
+          },
+          {
+            "properties": {
+              "allowed_keys": {
+                "description": "The keys the trigger configuration map's values are restricted to. Empty allows any key.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "description": {
+                "$ref": "#/components/schemas/DescriptionInCampaignComponentTriggerConfigurationVariableRequest"
+              },
+              "source": {
+                "enum": [
+                  "INHERITED",
+                  "LOCAL",
+                  "PARAMETER"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "TRIGGER_CONFIGURATION"
+                ],
+                "type": "string"
+              },
+              "values": {
+                "$ref": "#/components/schemas/ComponentSettingVariableValues"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "title": "TRIGGER_CONFIGURATION"
+      },
+      "CampaignComponentTriggerConfigurationVariableResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CampaignComponentSettingResponseBase"
+          },
+          {
+            "properties": {
+              "allowed_keys": {
+                "description": "The keys the trigger configuration map's values are restricted to. Empty allows any key.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "source": {
+                "enum": [
+                  "INHERITED",
+                  "LOCAL",
+                  "PARAMETER"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "TRIGGER_CONFIGURATION"
+                ],
+                "type": "string"
+              },
+              "values": {
+                "additionalProperties": true,
+                "description": "Open map of setting values keyed by value key. There is no fixed or maximum number of keys. Any string key may be present; each value uses the same shape for this setting's `type`. The properties listed here are common examples only and are not required.",
+                "properties": {
+                  "default": {
+                    "$ref": "#/components/schemas/DefaultInComponentSettingVariableValuesOpenApiDocumentation"
+                  },
+                  "en": {
+                    "$ref": "#/components/schemas/EnInComponentSettingVariableValuesOpenApiDocumentation"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Stored campaign component trigger configuration variable definition. Field `description` is unevaluated and appears in buildtime-evaluatable form.",
+        "required": [
+          "allowed_keys",
+          "description",
+          "display_name",
+          "name",
+          "priority",
+          "source",
+          "tags",
+          "type",
+          "values"
+        ],
+        "type": "object",
+        "title": "TRIGGER_CONFIGURATION"
+      },
+      "CampaignComponentTriggerConfigurationVariableUpdateRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CampaignComponentSettingUpdateRequestBase"
+          },
+          {
+            "properties": {
+              "allowed_keys": {
+                "description": "The keys the trigger configuration map's values are restricted to. Empty allows any key.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "description": {
+                "$ref": "#/components/schemas/DescriptionInCampaignComponentTriggerConfigurationVariableUpdateRequest"
+              },
+              "display_name": {
+                "nullable": true,
+                "type": "string"
+              },
+              "source": {
+                "enum": [
+                  "INHERITED",
+                  "LOCAL",
+                  "PARAMETER"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "TRIGGER_CONFIGURATION"
+                ],
+                "type": "string"
+              },
+              "values": {
+                "$ref": "#/components/schemas/ComponentSettingVariableValues"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "title": "TRIGGER_CONFIGURATION"
+      },
       "CampaignComponentVariableRequest": {
         "properties": {
           "description": {
@@ -22358,6 +22692,7 @@
               "COMPONENT_ID",
               "COMPONENT_SETTING_LOOKUP",
               "CSS",
+              "DATE_TIME",
               "DELAY",
               "DELAY_LIST",
               "ENUM",
@@ -22380,6 +22715,7 @@
               "STRING",
               "STRING_LIST",
               "STRING_MAP",
+              "TRIGGER_CONFIGURATION",
               "URL",
               "WEBHOOK_ID"
             ],
@@ -22696,6 +23032,40 @@
         ],
         "type": "object",
         "title": "CSS"
+      },
+      "CampaignComponentVariableRequestAsDateTime": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CampaignComponentSettingRequestBase"
+          },
+          {
+            "properties": {
+              "description": {
+                "$ref": "#/components/schemas/DescriptionInCampaignComponentVariableRequestAsDateTime"
+              },
+              "source": {
+                "enum": [
+                  "INHERITED",
+                  "LOCAL",
+                  "PARAMETER"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "DATE_TIME"
+                ],
+                "type": "string"
+              },
+              "values": {
+                "$ref": "#/components/schemas/ComponentSettingVariableValuesAsDateTime"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "type": "object",
+        "title": "DATE_TIME"
       },
       "CampaignComponentVariableRequestAsDelay": {
         "allOf": [
@@ -23284,6 +23654,7 @@
               "COMPONENT_ID",
               "COMPONENT_SETTING_LOOKUP",
               "CSS",
+              "DATE_TIME",
               "DELAY",
               "DELAY_LIST",
               "ENUM",
@@ -23306,6 +23677,7 @@
               "STRING",
               "STRING_LIST",
               "STRING_MAP",
+              "TRIGGER_CONFIGURATION",
               "URL",
               "WEBHOOK_ID"
             ],
@@ -23685,6 +24057,47 @@
         ],
         "type": "object",
         "title": "CSS"
+      },
+      "CampaignComponentVariableResponseAsDateTime": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CampaignComponentSettingResponseBase"
+          },
+          {
+            "properties": {
+              "source": {
+                "enum": [
+                  "INHERITED",
+                  "LOCAL",
+                  "PARAMETER"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "DATE_TIME"
+                ],
+                "type": "string"
+              },
+              "values": {
+                "additionalProperties": true,
+                "description": "Open map of setting values keyed by value key. There is no fixed or maximum number of keys. Any string key may be present; each value uses the same shape for this setting's `type`. The properties listed here are common examples only and are not required.",
+                "properties": {
+                  "default": {
+                    "$ref": "#/components/schemas/DefaultInComponentSettingVariableValuesOpenApiDocumentation"
+                  },
+                  "en": {
+                    "$ref": "#/components/schemas/EnInComponentSettingVariableValuesOpenApiDocumentation"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "type": "object",
+        "title": "DATE_TIME"
       },
       "CampaignComponentVariableResponseAsDelay": {
         "allOf": [
@@ -24647,6 +25060,40 @@
         ],
         "type": "object",
         "title": "CSS"
+      },
+      "CampaignComponentVariableUpdateRequestAsDateTime": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CampaignComponentSettingUpdateRequestBase"
+          },
+          {
+            "properties": {
+              "description": {
+                "$ref": "#/components/schemas/DescriptionInCampaignComponentVariableUpdateRequestAsDateTime"
+              },
+              "source": {
+                "enum": [
+                  "INHERITED",
+                  "LOCAL",
+                  "PARAMETER"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "DATE_TIME"
+                ],
+                "type": "string"
+              },
+              "values": {
+                "$ref": "#/components/schemas/ComponentSettingVariableValuesAsDateTime"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "type": "object",
+        "title": "DATE_TIME"
       },
       "CampaignComponentVariableUpdateRequestAsDelay": {
         "allOf": [
@@ -31207,6 +31654,12 @@
         },
         "type": "object"
       },
+      "ComponentSettingVariableValuesAsDateTime": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/ValuesInCampaignComponentVariableRequestAsDateTime"
+        },
+        "type": "object"
+      },
       "ComponentSettingVariableValuesAsDelay": {
         "additionalProperties": {
           "$ref": "#/components/schemas/ValuesInCampaignComponentVariableRequestAsDelay"
@@ -34601,6 +35054,72 @@
           }
         ]
       },
+      "DescriptionInCampaignComponentTriggerConfigurationVariableRequest": {
+        "description": "Choose between static or dynamic description",
+        "oneOf": [
+          {
+            "description": "Static description",
+            "nullable": true,
+            "title": "Static Value",
+            "type": "string"
+          },
+          {
+            "description": "Handlebars expression with [VariableDescriptionBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{description}}",
+            "externalDocs": {
+              "description": "VariableDescriptionBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [VariableDescriptionBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('description');}",
+            "externalDocs": {
+              "description": "VariableDescriptionBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
+      "DescriptionInCampaignComponentTriggerConfigurationVariableUpdateRequest": {
+        "description": "Choose between static or dynamic description",
+        "oneOf": [
+          {
+            "description": "Static description",
+            "nullable": true,
+            "title": "Static Value",
+            "type": "string"
+          },
+          {
+            "description": "Handlebars expression with [VariableDescriptionBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{description}}",
+            "externalDocs": {
+              "description": "VariableDescriptionBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [VariableDescriptionBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('description');}",
+            "externalDocs": {
+              "description": "VariableDescriptionBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
       "DescriptionInCampaignComponentVariableRequest": {
         "description": "Choose between static or dynamic description",
         "oneOf": [
@@ -34899,6 +35418,39 @@
         ]
       },
       "DescriptionInCampaignComponentVariableRequestAsCss": {
+        "description": "Choose between static or dynamic description",
+        "oneOf": [
+          {
+            "description": "Static description",
+            "nullable": true,
+            "title": "Static Value",
+            "type": "string"
+          },
+          {
+            "description": "Handlebars expression with [VariableDescriptionBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{description}}",
+            "externalDocs": {
+              "description": "VariableDescriptionBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [VariableDescriptionBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('description');}",
+            "externalDocs": {
+              "description": "VariableDescriptionBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
+      "DescriptionInCampaignComponentVariableRequestAsDateTime": {
         "description": "Choose between static or dynamic description",
         "oneOf": [
           {
@@ -35756,6 +36308,39 @@
         ]
       },
       "DescriptionInCampaignComponentVariableUpdateRequestAsCss": {
+        "description": "Choose between static or dynamic description",
+        "oneOf": [
+          {
+            "description": "Static description",
+            "nullable": true,
+            "title": "Static Value",
+            "type": "string"
+          },
+          {
+            "description": "Handlebars expression with [VariableDescriptionBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{description}}",
+            "externalDocs": {
+              "description": "VariableDescriptionBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [VariableDescriptionBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('description');}",
+            "externalDocs": {
+              "description": "VariableDescriptionBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableDescriptionBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
+      "DescriptionInCampaignComponentVariableUpdateRequestAsDateTime": {
         "description": "Choose between static or dynamic description",
         "oneOf": [
           {
@@ -51545,6 +52130,52 @@
         },
         "type": "object"
       },
+      "MappingSuggestionGroupResponse": {
+        "properties": {
+          "display_name": {
+            "description": "Human-readable group heading suitable for a picker, e.g. `Person Location`.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Stable identifier of this suggestion group, e.g. `event`, `person`, `campaign`.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "suggestions": {
+            "description": "Suggestions in this group, in display order.",
+            "items": {
+              "$ref": "#/components/schemas/MappingSuggestionResponse"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "display_name",
+          "name",
+          "suggestions"
+        ],
+        "type": "object"
+      },
+      "MappingSuggestionResponse": {
+        "properties": {
+          "column_name": {
+            "description": "Default report column name for this suggestion - the left-hand side of the `name=expression` pair appended to the mapping parameter. Rename it freely; the `expression` determines the value.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "expression": {
+            "description": "Complete, ready-to-use column expression. Append `columnName=expression` to the mapping parameter's `;`-separated value as-is - no prefix or wrapping is ever needed.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "column_name",
+          "expression"
+        ],
+        "type": "object"
+      },
       "MatchTypeInFileNameMatchesTriggerRequest": {
         "description": "How the pattern is matched against filenames. A literal value or a buildtime expression resolved from component references when the trigger is saved.",
         "oneOf": [
@@ -55079,6 +55710,94 @@
           }
         ]
       },
+      "ParameterMappingSuggestionsResponse": {
+        "properties": {
+          "groups": {
+            "description": "Suggestion groups for this parameter, in display order.",
+            "items": {
+              "$ref": "#/components/schemas/MappingSuggestionGroupResponse"
+            },
+            "type": "array"
+          },
+          "parameter_name": {
+            "description": "Name of the report type parameter these suggestions apply to, e.g. `mappings`. Matches the `name` of an entry in the report type's `parameters` list.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "parameter_type_name": {
+            "description": "Type of the parameter, e.g. `ROW_MAPPINGS`. Matches the parameter's `type.name` on the report type, so a client can key its editor off the type while binding suggestions to the parameter by name.",
+            "enum": [
+              "AUDIENCE_ID",
+              "AUDIENCE_IDS",
+              "AUDIENCE_MEMBERSHIPS_METRIC_MAPPING",
+              "AUDIENCE_MEMBERSHIPS_ROW_MAPPINGS",
+              "AUDIENCE_MEMBERS_ROW_MAPPINGS",
+              "BOOLEAN",
+              "CAMPAIGN_ID",
+              "CAMPAIGN_IDS",
+              "CHANNEL_MAPPING",
+              "CLIENT_EVENT_METRIC_MAPPINGS",
+              "CLIENT_ID",
+              "CLIENT_IDS",
+              "DATE",
+              "DATE_RANGE",
+              "DECIMAL",
+              "EMAIL_NAMES",
+              "ENUM",
+              "ENUM_LIST",
+              "EQUALITY",
+              "FILTER_MAPPINGS",
+              "FLOWS",
+              "FLOW_FILTER",
+              "GRANULAR_TIME_RANGE",
+              "ID",
+              "IDS",
+              "INPUT_RECORD_METRIC_MAPPING",
+              "INPUT_RECORD_ROW_MAPPINGS",
+              "INTEGER",
+              "LONG",
+              "MESSAGE_SUMMARY_METRIC_MAPPINGS",
+              "METRIC_MAPPINGS",
+              "MODEL_CONFIGURATION_METRIC_MAPPING",
+              "NORMALIZED_EMAIL",
+              "NOT_ARCHIVED_CAMPAIGN_ID",
+              "PERSON_DIMENSION_MAPPINGS",
+              "PERSON_MAPPINGS",
+              "PROGRAM_LABEL",
+              "PROGRAM_LABELS",
+              "REGEX",
+              "REWARD_EVENT_METRIC_MAPPINGS",
+              "REWARD_ROW_MAPPINGS",
+              "REWARD_SUPPLIER_DISPLAY_TYPES",
+              "REWARD_SUPPLIER_IDS",
+              "REWARD_SUPPLIER_TYPES",
+              "ROW_MAPPINGS",
+              "SORT_ORDER_MAPPINGS",
+              "SORT_ORDER_MAPPINGS_ON_STEPS",
+              "STEP",
+              "STEPS",
+              "STEP_COLUMN_LIST",
+              "STRING",
+              "STRING_LIST",
+              "TIERS",
+              "TIME",
+              "TIME_RANGE",
+              "WEBHOOK_DISPATCH_METRIC_MAPPING",
+              "WEBHOOK_DISPATCH_ROW_MAPPINGS",
+              "WEBHOOK_METRIC_MAPPING",
+              "WEBHOOK_ROW_MAPPINGS"
+            ],
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "groups",
+          "parameter_name",
+          "parameter_type_name"
+        ],
+        "type": "object"
+      },
       "ParentJobIdInTaskRequestBase": {
         "description": "Id of the job this task belongs to. A literal job id or a buildtime expression resolved from component references when the task is saved; when omitted the task belongs to the job in the request path.",
         "oneOf": [
@@ -58129,6 +58848,27 @@
         },
         "type": "object"
       },
+      "ReportTypeMappingSuggestionsResponse": {
+        "properties": {
+          "parameters": {
+            "description": "One entry per mapping parameter of the report type that has suggestions, in the report type's parameter order. Empty when the report type has no mapping parameters with suggestions - that is a valid answer, not an error.",
+            "items": {
+              "$ref": "#/components/schemas/ParameterMappingSuggestionsResponse"
+            },
+            "type": "array"
+          },
+          "report_type_id": {
+            "description": "Id of the report type these suggestions belong to.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "parameters",
+          "report_type_id"
+        ],
+        "type": "object"
+      },
       "ReportTypeParameterDetailsRequest": {
         "discriminator": {
           "mapping": {
@@ -60452,22 +61192,22 @@
             "title": "Static Value"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -60568,22 +61308,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -60626,22 +61366,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -60684,22 +61424,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -60742,22 +61482,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -60800,22 +61540,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -60858,22 +61598,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -60916,22 +61656,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -60974,22 +61714,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -61032,22 +61772,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -61090,22 +61830,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -61148,22 +61888,22 @@
             "type": "string"
           },
           {
-            "description": "Handlebars expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Handlebars expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "handlebars@runtime:{{rewardExpiresAt}}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^handlebars@runtime:.*",
             "title": "Runtime - Handlebars",
             "type": "string"
           },
           {
-            "description": "Javascript expression with [RewardFulfillmentEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts).",
+            "description": "Javascript expression with [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts).",
             "example": "javascript@runtime:function() { return context.get('rewardExpiresAt');}",
             "externalDocs": {
-              "description": "RewardFulfillmentEvaluationContext",
-              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/RewardFulfillmentEvaluationContext.d.ts"
+              "description": "EarnedRewardEvaluationContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts"
             },
             "pattern": "^javascript@runtime:.*",
             "title": "Runtime - Javascript",
@@ -68013,6 +68753,52 @@
         ]
       },
       "ValuesInCampaignComponentVariableRequestAsCss": {
+        "description": "Choose between static or dynamic values",
+        "oneOf": [
+          {
+            "description": "Static values",
+            "title": "Static Value",
+            "type": "object"
+          },
+          {
+            "description": "Handlebars expression with [VariableBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableBuildtimeContext.d.ts).",
+            "example": "handlebars@buildtime:{{values}}",
+            "externalDocs": {
+              "description": "VariableBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableBuildtimeContext.d.ts"
+            },
+            "pattern": "^handlebars@buildtime:.*",
+            "title": "Buildtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with [VariableBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableBuildtimeContext.d.ts).",
+            "example": "javascript@buildtime:function() { return context.getVariableContext().get('values');}",
+            "externalDocs": {
+              "description": "VariableBuildtimeContext",
+              "url": "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableBuildtimeContext.d.ts"
+            },
+            "pattern": "^javascript@buildtime:.*",
+            "title": "Buildtime - Javascript",
+            "type": "string"
+          },
+          {
+            "description": "Handlebars expression with one of the contexts: [ApproveActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/approve/ApproveActionContext.d.ts), [AudienceMembershipTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/audience/membership/AudienceMembershipTriggerContext.d.ts), [ClientWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/ClientWebhookRuntimeContext.d.ts), [ConsumerWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/ConsumerWebhookRuntimeContext.d.ts), [CreativeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/creative/CreativeActionContext.d.ts), [DisplayActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/display/DisplayActionContext.d.ts), [DisplayActionResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/display/DisplayActionResponseContext.d.ts), [EmailActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/EmailActionContext.d.ts), [ExpireRewardActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expire/reward/ExpireRewardActionContext.d.ts), [ExpressionActionCommandContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expression/ExpressionActionCommandContext.d.ts), [ExpressionActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expression/ExpressionActionContext.d.ts), [ExpressionTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/expression/ExpressionTriggerContext.d.ts), [FireAsPersonActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/fire/as/person/FireAsPersonActionContext.d.ts), [HasPriorRewardTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/reward/HasPriorRewardTriggerContext.d.ts), [HasPriorStepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/step/HasPriorStepTriggerContext.d.ts), [IncentivizeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/incentivize/IncentivizeActionContext.d.ts), [IncentivizeStatusUpdateActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/incentivize/status/update/IncentivizeStatusUpdateActionContext.d.ts), [JourneyKeyContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/journey/JourneyKeyContext.d.ts), [LegacyQualityRuleTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/legacy/quality/LegacyQualityRuleTriggerContext.d.ts), [PartnerWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/PartnerWebhookRuntimeContext.d.ts), [PrehandlerActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerActionContext.d.ts), [PrehandlerConditionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerConditionContext.d.ts), [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts), [RewardActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/reward/RewardActionContext.d.ts), [RewardHasPriorRewardTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/reward/RewardHasPriorRewardTriggerContext.d.ts), [RewardWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/reward/RewardWebhookRuntimeContext.d.ts), [ScheduleActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/schedule/ScheduleActionContext.d.ts), [SignalActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/signal/SignalActionContext.d.ts), [StepActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/StepActionContext.d.ts), [StepBuilderContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/builder/StepBuilderContext.d.ts), [StepContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/StepContext.d.ts), [StepDataContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/data/StepDataContext.d.ts), [StepHasPriorStepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/step/StepHasPriorStepTriggerContext.d.ts), [StepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/StepTriggerContext.d.ts), [VariableRuntimeCreativeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/runtime/VariableRuntimeCreativeActionContext.d.ts), [WebhookActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/webhook/WebhookActionContext.d.ts), [WebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/WebhookRuntimeContext.d.ts).",
+            "example": "handlebars@runtime:{{values}}",
+            "pattern": "^handlebars@runtime:.*",
+            "title": "Runtime - Handlebars",
+            "type": "string"
+          },
+          {
+            "description": "Javascript expression with one of the contexts: [ApproveActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/approve/ApproveActionContext.d.ts), [AudienceMembershipTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/audience/membership/AudienceMembershipTriggerContext.d.ts), [ClientWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/ClientWebhookRuntimeContext.d.ts), [ConsumerWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/ConsumerWebhookRuntimeContext.d.ts), [CreativeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/creative/CreativeActionContext.d.ts), [DisplayActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/display/DisplayActionContext.d.ts), [DisplayActionResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/display/DisplayActionResponseContext.d.ts), [EmailActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/EmailActionContext.d.ts), [ExpireRewardActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expire/reward/ExpireRewardActionContext.d.ts), [ExpressionActionCommandContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expression/ExpressionActionCommandContext.d.ts), [ExpressionActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expression/ExpressionActionContext.d.ts), [ExpressionTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/expression/ExpressionTriggerContext.d.ts), [FireAsPersonActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/fire/as/person/FireAsPersonActionContext.d.ts), [HasPriorRewardTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/reward/HasPriorRewardTriggerContext.d.ts), [HasPriorStepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/step/HasPriorStepTriggerContext.d.ts), [IncentivizeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/incentivize/IncentivizeActionContext.d.ts), [IncentivizeStatusUpdateActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/incentivize/status/update/IncentivizeStatusUpdateActionContext.d.ts), [JourneyKeyContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/journey/JourneyKeyContext.d.ts), [LegacyQualityRuleTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/legacy/quality/LegacyQualityRuleTriggerContext.d.ts), [PartnerWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/PartnerWebhookRuntimeContext.d.ts), [PrehandlerActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerActionContext.d.ts), [PrehandlerConditionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerConditionContext.d.ts), [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts), [RewardActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/reward/RewardActionContext.d.ts), [RewardHasPriorRewardTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/reward/RewardHasPriorRewardTriggerContext.d.ts), [RewardWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/reward/RewardWebhookRuntimeContext.d.ts), [ScheduleActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/schedule/ScheduleActionContext.d.ts), [SignalActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/signal/SignalActionContext.d.ts), [StepActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/StepActionContext.d.ts), [StepBuilderContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/builder/StepBuilderContext.d.ts), [StepContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/StepContext.d.ts), [StepDataContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/data/StepDataContext.d.ts), [StepHasPriorStepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/step/StepHasPriorStepTriggerContext.d.ts), [StepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/StepTriggerContext.d.ts), [VariableRuntimeCreativeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/runtime/VariableRuntimeCreativeActionContext.d.ts), [WebhookActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/webhook/WebhookActionContext.d.ts), [WebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/WebhookRuntimeContext.d.ts).",
+            "example": "javascript@runtime:function() { return context.get('values');}",
+            "pattern": "^javascript@runtime:.*",
+            "title": "Runtime - Javascript",
+            "type": "string"
+          }
+        ]
+      },
+      "ValuesInCampaignComponentVariableRequestAsDateTime": {
         "description": "Choose between static or dynamic values",
         "oneOf": [
           {
@@ -102923,10 +103709,11 @@
     },
     "/v6/jobs/{jobId}/tasks": {
       "get": {
-        "description": "Returns all tasks for the specified job, sorted by order.",
+        "description": "Returns all tasks for the specified job, sorted by order. Unattached tasks have no order relative to each other.",
         "operationId": "listTasks",
         "parameters": [
           {
+            "description": "The unique identifier of the job that owns the task. Use the reserved value `unattached` to address tasks that are not attached to any job, which happens when a component defines a task whose `parent_job_id` expression evaluates to nothing.",
             "in": "path",
             "name": "jobId",
             "required": true,
@@ -103063,10 +103850,11 @@
         "x-extole-visibility": "visible"
       },
       "post": {
-        "description": "Adds a task to the specified job. Order defaults to max+1 when omitted.",
+        "description": "Adds a task to the specified job. Order defaults to max+1 when omitted. A task added under `unattached` is stored without a job. When order is omitted it defaults to 0; when provided, the requested order is stored until the task is attached to a job.",
         "operationId": "addTask",
         "parameters": [
           {
+            "description": "The unique identifier of the job that owns the task. Use the reserved value `unattached` to address tasks that are not attached to any job, which happens when a component defines a task whose `parent_job_id` expression evaluates to nothing.",
             "in": "path",
             "name": "jobId",
             "required": true,
@@ -103350,6 +104138,7 @@
         "operationId": "getTask",
         "parameters": [
           {
+            "description": "The unique identifier of the job that owns the task. Use the reserved value `unattached` to address tasks that are not attached to any job, which happens when a component defines a task whose `parent_job_id` expression evaluates to nothing.",
             "in": "path",
             "name": "jobId",
             "required": true,
@@ -103501,6 +104290,7 @@
         "operationId": "updateTask",
         "parameters": [
           {
+            "description": "The unique identifier of the job that owns the task. Use the reserved value `unattached` to address tasks that are not attached to any job, which happens when a component defines a task whose `parent_job_id` expression evaluates to nothing.",
             "in": "path",
             "name": "jobId",
             "required": true,
@@ -103789,10 +104579,11 @@
         "x-extole-visibility": "visible"
       },
       "delete": {
-        "description": "Soft-deletes the task and compacts remaining order values.",
+        "description": "Soft-deletes the task and compacts remaining order values. Deleting an unattached task leaves other tasks untouched.",
         "operationId": "deleteTask",
         "parameters": [
           {
+            "description": "The unique identifier of the job that owns the task. Use the reserved value `unattached` to address tasks that are not attached to any job, which happens when a component defines a task whose `parent_job_id` expression evaluates to nothing.",
             "in": "path",
             "name": "jobId",
             "required": true,
@@ -103946,6 +104737,7 @@
         "operationId": "listTriggers",
         "parameters": [
           {
+            "description": "The unique identifier of the job that owns the trigger. Use the reserved value `unattached` to address triggers that are not attached to any job, which happens when a component defines a trigger whose `parent_job_id` expression evaluates to nothing.",
             "in": "path",
             "name": "jobId",
             "required": true,
@@ -104082,10 +104874,11 @@
         "x-extole-visibility": "visible"
       },
       "post": {
-        "description": "Adds a trigger to the specified job.",
+        "description": "Adds a trigger to the specified job. A trigger added under `unattached` is stored without a job and does not fire until it is attached to a job.",
         "operationId": "addTrigger",
         "parameters": [
           {
+            "description": "The unique identifier of the job that owns the trigger. Use the reserved value `unattached` to address triggers that are not attached to any job, which happens when a component defines a trigger whose `parent_job_id` expression evaluates to nothing.",
             "in": "path",
             "name": "jobId",
             "required": true,
@@ -104359,6 +105152,7 @@
         "operationId": "getTrigger",
         "parameters": [
           {
+            "description": "The unique identifier of the job that owns the trigger. Use the reserved value `unattached` to address triggers that are not attached to any job, which happens when a component defines a trigger whose `parent_job_id` expression evaluates to nothing.",
             "in": "path",
             "name": "jobId",
             "required": true,
@@ -104507,6 +105301,7 @@
         "operationId": "updateTrigger",
         "parameters": [
           {
+            "description": "The unique identifier of the job that owns the trigger. Use the reserved value `unattached` to address triggers that are not attached to any job, which happens when a component defines a trigger whose `parent_job_id` expression evaluates to nothing.",
             "in": "path",
             "name": "jobId",
             "required": true,
@@ -104789,6 +105584,7 @@
         "operationId": "deleteTrigger",
         "parameters": [
           {
+            "description": "The unique identifier of the job that owns the trigger. Use the reserved value `unattached` to address triggers that are not attached to any job, which happens when a component defines a trigger whose `parent_job_id` expression evaluates to nothing.",
             "in": "path",
             "name": "jobId",
             "required": true,
@@ -107727,6 +108523,9 @@
                   "report_type_has_dependent_types": {
                     "$ref": "#/components/examples/report_type_has_dependent_types"
                   },
+                  "report_type_mapping_suggestion_parameter_not_found": {
+                    "$ref": "#/components/examples/report_type_mapping_suggestion_parameter_not_found"
+                  },
                   "report_type_missing": {
                     "$ref": "#/components/examples/report_type_missing"
                   },
@@ -108197,6 +108996,160 @@
           }
         },
         "summary": "Delete a report type",
+        "tags": [
+          "Report Types"
+        ],
+        "x-extole-bundle": "management",
+        "x-extole-visibility": "visible"
+      }
+    },
+    "/v6/report-types/{id}/mapping-suggestions": {
+      "get": {
+        "description": "Returns the column expressions this report type's mapping parameters accept, as ordered suggestion groups of `column_name` / `expression` pairs. Where the schema endpoints describe the columns a report produces, this endpoint describes the expressions that can go into its column mapping parameters. Each `expression` is complete and ready to append to the parameter's `;`-separated `name=expression` mapping value. Suggestions are derived from the contracts the report executor resolves expressions against, so every suggestion resolves to a real value when the report runs. A report type whose mapping parameters have no suggestions yet, or which has no mapping parameters at all, returns an empty `parameters` list.",
+        "operationId": "getReportTypeMappingSuggestions",
+        "parameters": [
+          {
+            "description": "The Extole unique report type identifier.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional parameter name to narrow the response to a single mapping parameter. Rejected when the report type has no parameter with this name.",
+            "in": "query",
+            "name": "parameter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportTypeMappingSuggestionsResponse"
+                }
+              }
+            },
+            "description": "Mapping suggestions per mapping parameter of the report type, as ordered groups of complete column expressions."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "report_type_mapping_suggestion_parameter_not_found": {
+                    "$ref": "#/components/examples/report_type_mapping_suggestion_parameter_not_found"
+                  },
+                  "report_type_missing": {
+                    "$ref": "#/components/examples/report_type_missing"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), or the supplied `parameter` query does not name a parameter of this report type (`report_type_mapping_suggestion_parameter_not_found`) - inspect the response `code` field for the specific error."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "payment_required": {
+                    "$ref": "#/components/examples/payment_required"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Payment Required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "report_type_not_found": {
+                    "$ref": "#/components/examples/report_type_not_found"
+                  }
+                }
+              }
+            },
+            "description": "Report type was not found. The supplied id does not match any report type accessible to the calling client."
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unsupported_media_type": {
+                    "$ref": "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Unsupported Media Type"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "too_many_requests": {
+                    "$ref": "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "summary": "Get report type mapping suggestions",
         "tags": [
           "Report Types"
         ],
