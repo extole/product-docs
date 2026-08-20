@@ -404,6 +404,65 @@ class OrderYamlOmissionTests(unittest.TestCase):
             self.assertNotIn("guides/secret", [p.out_path for p in conv.pages])
 
 
+class ReadmeWidgetTests(unittest.TestCase):
+    """ReadMe components that leaked onto the page as literal text.
+
+    sanitize_mdx escapes the "<" of any tag it does not recognise, so a widget
+    the converter missed did not fail loudly -- it rendered as "</Image>" or
+    "<Callout icon=...>" in the middle of the prose.
+    """
+
+    def test_callout_component_maps_to_a_mintlify_callout(self):
+        body = '<Callout icon="\U0001F4D8" theme="info">\n  Read the [docs](doc:x)\n</Callout>'
+        out = converter.convert_body(body, {})
+        self.assertIn("<Info>", out)
+        self.assertIn("</Info>", out)
+        self.assertNotIn("Callout", out)
+
+    def test_callout_theme_decides_when_the_icon_is_unknown(self):
+        body = '<Callout icon="\U0001F3A8" theme="warn">\n  Careful\n</Callout>'
+        self.assertIn("<Warning>", converter.convert_body(body, {}))
+
+    def test_image_caption_and_closing_tag_are_consumed(self):
+        body = '<Image src="https://x/y.png" title="Shot">\n  A **caption** here\n</Image>'
+        out = converter.convert_body(body, {})
+        self.assertIn("<Frame>", out)
+        self.assertIn('<img src="https://x/y.png"', out)
+        self.assertIn("A **caption** here", out)   # markdown survives
+        self.assertNotIn("Image", out)
+
+    def test_an_uncaptioned_image_stays_a_bare_img(self):
+        out = converter.convert_body('<Image src="https://x/y.png" alt="Y" />', {})
+        self.assertIn('<img src="https://x/y.png"', out)
+        self.assertNotIn("<Frame>", out)
+
+    def test_a_self_closing_anchor_does_not_swallow_later_content(self):
+        """It has no </Anchor>, so the paired pattern ran forward to the next
+        widget's closing tag -- on braze.md that wrapped a heading in a link."""
+        body = (
+            '<Anchor label="Learn more" target="_blank" href="https://braze.com/" />\n\n'
+            '## Integration Model\n\nProse.\n\n'
+            'See <Anchor href="https://x/api">the API</Anchor>.\n'
+        )
+        out = converter.convert_body(body, {})
+        self.assertIn("[Learn more](https://braze.com/)", out)
+        self.assertIn("\n## Integration Model\n", out)      # still a heading
+        self.assertNotIn("[## Integration Model", out)
+        self.assertIn("[the API](https://x/api)", out)
+
+    def test_readme_only_widget_is_dropped_not_printed(self):
+        out = converter.convert_body("Before\n\n<ImproveOpenRatesCallout />\n\nAfter\n", {})
+        self.assertNotIn("ImproveOpenRatesCallout", out)
+        self.assertIn("Before", out)
+        self.assertIn("After", out)
+
+    def test_placeholders_still_render_as_literal_text(self):
+        """<REPORT_NAME> and friends are prose placeholders, not components."""
+        out = converter.convert_body('Set **<REPORT_NAME>** and **<FORMAT>**.', {})
+        self.assertIn("&lt;REPORT_NAME>", out)
+        self.assertIn("&lt;FORMAT>", out)
+
+
 class CategoryLinkTargetTests(unittest.TestCase):
     def test_a_link_to_a_category_resolves_to_its_first_page(self):
         """A folder whose index.md is too thin to publish has no page, so
