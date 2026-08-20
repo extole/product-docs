@@ -133,7 +133,11 @@ curl --request POST \
 
 Use the canonical v10 name that matches the business outcome. Examples include `converted`, `shipped`, `canceled`, `returned`, `account_opened`, and `application_approved`. Do not use a transport-specific name such as `partner_order_created` as the business-event component name.
 
-Create one business-event instance per canonical event. Do not create duplicate legacy controllers alongside the reusable component.
+Let the partner's events decide how many you create. Enumerate the wire events in scope, decide which outcome each one represents, and create a business event for every distinct outcome — then give each the canonical name that fits it. Do not create duplicate legacy controllers alongside the reusable component.
+
+Enumerating in the other direction is the mistake that survives: pick the canonical names first and the wire events get fitted into whichever of them is nearest. A failed authorization and a refunded charge are both tempting to call `canceled`, and an integration that calls them both that has no way to distinguish a payment that never completed from money that was taken and given back — not in a report, not in a rule, not in a clawback. `returned` is on the list above for exactly that outcome. Two wire events share one business event only when they are genuinely the same thing happening twice, and the test is whether anyone would ever need them apart.
+
+Count the events you created against the wire events in scope before calling this stage done. Three wire events and two business events is either a deliberate merge you can name, or an outcome that quietly lost its own identity.
 
 Set `sequence` so the events sort in lifecycle order, with the outcome event first and later milestones after it. The value orders steps within the funnel; the exact numbers matter only relative to one another.
 
