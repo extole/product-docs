@@ -1,0 +1,69 @@
+---
+title: "How to Rebrand Your Program"
+description: "Plan and run a rebrand of a live referral program — scoping what changes, updating campaign copy and creative, QA, and the go-live sequence."
+---
+
+# Overview
+
+When you rebrand — through a merger, an acquisition, or a brand refresh — a live referral program needs more than a new domain. The campaign copy, creative, and emails carry the old brand too, and the switch has to happen in an order that keeps existing share links working.
+
+This guide covers the campaign side of a rebrand and the go-live sequence. The domain and DNS mechanics are covered separately in [Program Domain Setup](/guides/platform-overview/implementing-your-referral-program/technical-items/program-domain-setup), [Managing Your Branded URLs](/guides/platform-overview/implementing-your-referral-program/technical-items/managing-your-branded-urls), and [Extole DNS Requirements](/technical/operational-tasks/account-configuration/extole-dns-requirements).
+
+## Step 1: Assess What's Changing
+
+Before you start, clarify the scope of the rebrand:
+
+- **Is the program domain changing?** For example, `share.oldname.com` to `share.newname.com`. This is the most common change.
+- **Are core systems (events, files, SFTP) changing?** If not, no backend data pipeline changes are needed.
+- **Are you using site tags and the JavaScript embed, or a landing page only?** Landing-page-only programs don't need JavaScript embed updates, which simplifies the process.
+- **Is the email sender domain changing?** If Extole sends referral emails from an `@oldname.com` address, the new domain needs SPF and DKIM records. See [Extole DNS Requirements](/technical/operational-tasks/account-configuration/extole-dns-requirements).
+- **How many programs are in scope?** Account for all live programs, for example a standard referral program and an employee referral program.
+- **What is the go-live date?** DNS changes take time to propagate, and IT teams need lead time.
+
+## Step 2: Prepare the New Domain
+
+Set up the new program domain and its email authentication records ahead of the go-live date, and leave the old domain active while you work. Existing share links keep resolving on the old domain until you redirect it, so there is no need to rush the cutover.
+
+<Warning>
+Update your core tag to the new domain before you redirect the old one. A page still loading the tag from a redirected domain cannot set Extole's identity cookies, so visitors stop being recognized between page views.
+</Warning>
+
+## Step 3: Update Campaign Copy and Creative
+
+Update all references to the old brand in the rebrand campaign version:
+
+- Logos, images, and visual assets
+- Copy referencing the old brand name or domain
+- Email templates sent by the program
+- Share destination URLs, if your website domain is also changing
+
+If your website domain is changing, list the new domain under **Production Sites Extole Should Support Requests From**, or share messages pointing to it are blocked.
+
+For landing-page-only programs with no site tags, no JavaScript embed changes are needed.
+
+## Step 4: QA Before Go-Live
+
+Before launching, verify:
+
+- The new domain resolves and its SSL certificate is active.
+- Share links from the rebrand campaign use the new domain.
+- Landing pages load correctly under the new domain.
+- DKIM records are verified.
+- Campaign copy and assets reflect the new brand.
+
+See [How to QA Your Referral Program](/guides/programs-and-campaigns/managing-campaigns/how-to-qa-your-referral-program) for the full QA pass.
+
+## Step 5: Go-Live Sequence
+
+On the agreed go-live date, in this order:
+
+1. Pause the current live campaigns for each affected program. Pausing stops new promotion while conversions from links already shared still complete — see [What Happens When a Campaign Is Paused](/guides/programs-and-campaigns/managing-campaigns/what-happens-when-a-campaign-is-paused).
+2. Launch the rebrand campaigns.
+3. Redirect the old domain to the new one, so existing share links land on the new brand.
+
+## Related Articles
+
+- [Program Domain Setup](/guides/platform-overview/implementing-your-referral-program/technical-items/program-domain-setup)
+- [Managing Your Branded URLs](/guides/platform-overview/implementing-your-referral-program/technical-items/managing-your-branded-urls)
+- [Extole DNS Requirements](/technical/operational-tasks/account-configuration/extole-dns-requirements)
+- [Delivering Share Messages](/guides/platform-overview/implementing-your-referral-program/technical-items/delivering-share-messages)
