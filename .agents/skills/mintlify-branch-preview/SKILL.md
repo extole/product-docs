@@ -1,11 +1,11 @@
 ---
 name: mintlify-branch-preview
-description: Get a rendered preview of an Extole docs change before it merges, and prove the MDX build is clean. Use before opening any branch or PR in extole/product-docs, and whenever someone needs to see how a page will look. Covers the local `npx mint@latest dev` / `validate` loop, the per-PR Mintlify preview deployment, branch naming (there is no prefix requirement here — unlike the ReadMe repo), and what merging does and does not publish.
+description: Prove an Extole docs change builds, and see it rendered, before it merges to the live site. Use before opening any branch or PR in extole/product-docs, and whenever someone needs to see how a page will look. Covers the `npx mint@latest validate` gate and what it does and does not catch, the CI check that enforces it on every PR, local `npx mint@latest dev`, why the per-PR Mintlify preview cannot be relied on, branch naming (no prefix requirement here — unlike the ReadMe repo), and the fact that merging publishes docs.extole.com.
 ---
 
 # Mintlify preview & validation
 
-This repo builds with **Mintlify**. There are two ways to see a change before it is live, and one hard gate that must pass either way.
+This repo builds with **Mintlify** and `main` publishes the live customer site, so a change is reviewed before it is published, not after. There are two ways to see it rendered first, and one hard gate that must pass either way — enforced in CI, so it is not optional.
 
 ## The gate: the MDX build must be clean
 
@@ -43,20 +43,23 @@ The workflow deliberately carries no `paths:` filter. A required check that is s
 
 ## Shared preview: open the PR
 
-Mintlify's GitHub App builds a **preview deployment for every pull request** and comments the link on the PR. That is the shareable, rendered preview to send a reviewer — it is the PR, not the branch, that produces it. (This is the opposite of `extole/product-docs-readme`, where ReadMe mirrors the *branch* and ignores the PR entirely.)
+Mintlify's GitHub App builds a **preview deployment for a pull request** and comments the link on the PR. That is the shareable, rendered preview to send a reviewer — it is the PR, not the branch, that produces it.
 
-So: push the branch, open the PR, and use the preview link from the PR.
+**Do not count on it.** Observed 2026-08-21: of four open PRs on this repo, two had a preview comment and two did not, one of them 20 minutes after the PR was opened; a merged branch's preview host also served an empty index. When no preview appears, `npx mint@latest dev` locally is the reliable rendered check, and `validate` is the gate that actually blocks a bad build.
+
+So: push the branch and open the PR; use the preview link if it appears, and fall back to local `dev` when it does not. Either way the `validate` check has to be green.
 
 ## Branch naming: no constraint here
 
 Name branches however the tech repo's `tech-worktree-workflow` skill says — a bare ticket id (`ENG-12345`) or a short kebab-case slug. Nothing about the name affects the preview.
 
-> **Do not carry the `v4.0.0_` prefix over from `extole/product-docs-readme`.** That prefix exists solely because ReadMe only mirrors branches named `<version>_<slug>`. This repo's default branch is `main`, has no ReadMe versioning, and previews come from the PR — so a `v4.0.0_` prefix here buys nothing and misdescribes the repo.
+> **Do not carry the `v4.0.0_` prefix over from `extole/product-docs-readme`.** That prefix existed solely because ReadMe only mirrored branches named `<version>_<slug>`. This repo's default branch is `main` and has no versioning, so a `v4.0.0_` prefix here buys nothing and misdescribes the repo.
 
 ## What merging does and does not publish
 
 - Merging to `main` triggers the Mintlify GitHub App to deploy the default branch.
-- **It does not change docs.extole.com.** That site is still served by ReadMe out of `extole/product-docs-readme`; this repo is the Mintlify canary from [`ai-tools#346`](https://github.com/extole/ai-tools/pull/346). If a wording fix needs to reach customers today, it has to land in the ReadMe repo — see the "the pages are generated" section of the [`product-docs-authoring`](../product-docs-authoring/SKILL.md) skill.
+- **It publishes docs.extole.com.** This repo now serves the live customer site, so a merge to `main` is a publish — review it as one.
+- **It does not gate the AI assistants.** They can read an unmerged branch already: `extole_docs_search` / `extole_docs_get` with a `docsBranch` read this repository at that branch directly. Pushing is enough; no PR and no preview build are required.
 
 ## Scope
 

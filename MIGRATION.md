@@ -1,12 +1,15 @@
-# ReadMe → Mintlify migration (canary)
+# ReadMe → Mintlify migration
 
-This repo is the **Phase 1 Mintlify bake-off** called for in
+This repo began as the **Phase 1 Mintlify bake-off** called for in
 [`ai-tools#346`](https://github.com/extole/ai-tools/pull/346) — a real, buildable
-port of Extole's documentation onto Mintlify so we can see how it looks and, more
-importantly, **how hard the migration actually is**.
+port of Extole's documentation onto Mintlify to see how it looked and, more
+importantly, **how hard the migration actually was**.
 
-It is generated, not hand-authored: one deterministic script converts the live
-sources and can be re-run at any time.
+**The bake-off is over: docs.extole.com is served by Mintlify from this repo's
+`main`** — verified live (the site returns Mintlify's `llms.txt`, `.md` page forms,
+and a docs MCP endpoint). This document is now the record of how the corpus got
+here, not a description of a pending experiment, and the converter below is
+provenance — do not re-run it over pages that have been hand-edited since.
 
 ## What was migrated
 

@@ -20,12 +20,11 @@ Companion always-on rule: [`product-docs-style.mdc`](../../rules/product-docs-st
 - **Extole Style Guide** and **Extole Content Strategy Outline** — Google Docs owned by the docs team. Source of truth for voice, grammar, capitalization, punctuation, and terminology. [`style-guide.md`](style-guide.md) is the agent-actionable distillation; when it and the Google Doc disagree, the Google Doc wins and the distillation should be updated.
 - **Brand voice:** professional and informative, optimistic and encouraging, confident; client-centric, expert, clear and accessible. Educate the reader; don't oversell.
 
-## Read this before your first edit: the pages are generated
+## Read this before your first edit: this repo is docs.extole.com
 
-Every page in this repo was produced by [`scripts/convert_from_product_docs.py`](../../../scripts/convert_from_product_docs.py) from the ReadMe-flavored sources in `extole/product-docs-readme` plus the OpenAPI bundles in `extole/extole-specification` — see [`MIGRATION.md`](../../../MIGRATION.md). The converter is deterministic and re-runnable, so **a hand edit to a page can be overwritten by the next regeneration.** Before editing a page, decide which you are doing and say which in the PR:
+**This repo is the source of truth for the live customer documentation.** `main` publishes docs.extole.com through Mintlify, so an edit here reaches customers on merge. Edit pages directly and normally.
 
-- **authoring here** — this repo is the source for the change (a Mintlify-native page, a new page, a nav change); or
-- **fixing upstream** — the wording is wrong in the ReadMe corpus too, in which case the durable fix belongs in `extole/product-docs-readme` (which is what still publishes docs.extole.com) and the change here is a preview of it.
+The pages were originally produced by [`scripts/convert_from_product_docs.py`](../../../scripts/convert_from_product_docs.py) from the ReadMe corpus that used to publish the site — see [`MIGRATION.md`](../../../MIGRATION.md). That converter is history, not a pipeline: it is kept for provenance and must not be re-run over hand-edited pages, because it would overwrite them. `extole/product-docs-readme` is the ReadMe-based predecessor; it no longer publishes docs.extole.com.
 
 ## Repo layout & pipeline
 
@@ -41,7 +40,8 @@ Every page in this repo was produced by [`scripts/convert_from_product_docs.py`]
 - **Navigation** lives in [`docs.json`](../../../docs.json) under `navigation.tabs[] → groups[] → pages[]`. A page entry is its path **without** the `.mdx` extension (`guides/audiences-and-segmentation/advocate-tiers`). Groups nest, and a group whose landing page is a page of its own carries `"root": "<path>/index"`. **A new page is invisible until its path is added to `docs.json`** — add it in the right position. Nothing enforces this: a page missing from `docs.json` passes `mint validate` and passes CI, and ships unreachable. It is a review responsibility.
 - **API reference is generated.** Mintlify renders the entire reference from `api-reference/*.json`, and `docs.json` lists endpoints as `METHOD /path` strings. Those specs come from `extole/extole-specification`; leave them and the API Reference tab alone unless that is the task.
 - **Published vs. not:** the content tabs are customer-visible. `.agents/` and `.claude/` are excluded from the build by Mintlify's built-in ignores, and `.cursor/` is excluded by [`.mintignore`](../../../.mintignore); repo-root files like `AGENTS.md`, `MIGRATION.md`, and `README.md` are not published.
-- **Deployment:** Mintlify's GitHub App builds a **preview deployment for every PR** and deploys the default branch (`main`) on merge. Note that **docs.extole.com is still served by ReadMe** from `extole/product-docs-readme` — this repo is the Mintlify canary, so merging here does not change the live customer docs.
+- **Deployment:** merging to `main` deploys **docs.extole.com** — that is the live customer site, so treat a merge as a publish. Mintlify's GitHub App also builds a preview deployment per PR, though previews have been observed missing on some PRs, so do not treat one as guaranteed.
+- **Agent reads:** the AI assistants read this documentation through `extole_docs_search` / `extole_docs_get` — the published site for `main`, and for any other branch the branch's own `docs.json` navigation and `.mdx` sources read straight from this repository. A pushed branch is therefore queryable by an agent immediately, with no preview build; a page missing from `docs.json` navigation is fetchable by exact path but never appears in search.
 
 ## Authoring workflow
 
