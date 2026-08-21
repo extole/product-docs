@@ -38,7 +38,19 @@ Data capture is the integration. A business event with an empty `data` socket pr
 
 An inbound integration contains:
 
-`REWARD`
+```text
+root
+└── integration                 integration-v10.x
+    ├── partner configuration settings
+    ├── businessEvents          MULTI_SOCKET → business-event-v10.0
+    │   └── canonical event
+    │       ├── triggerRules    → input_event rule carrying the event names that reach it
+    │       └── data            → one component per captured field
+    └── views                   MULTI_SOCKET → view-v10.0
+        ├── configuration       config-view-v10.0
+        ├── report-runner-view  report-runner-view-v10.0
+        └── event-streams       event-stream-view-v10.0
+```
 
 Inbound integrations need no reward supplier, webhook, or client key. Creating those resources for completeness leaves credentials and unused resources that someone later has to reconcile.
 
@@ -52,7 +64,13 @@ Most outbound platforms ship as maintained library sources that an account can d
 
 An outbound integration contains:
 
-`converted`
+```text
+root
+└── integration                 integration-v10.x
+    ├── one child per forwarded Extole event
+    ├── data-item template      partner data component type (when marketing campaigns attach partner actions)
+    └── views                   MULTI_SOCKET → configuration, report-runner, event-stream views
+```
 
 The partner page's product description is the specification for that tree. The activity it says the integration forwards is the complete set of children, the endpoints it says Extole calls are the complete set of webhooks, and a statement that program campaigns attach partner data to their events means the integration carries a typed data template. A library source ships the union of what every account might want, so the install usually has more children and fewer webhooks than the finished integration.
 
@@ -73,7 +91,22 @@ That produces two campaigns instead of one:
 
 A reward fulfillment integration contains:
 
-`shipped`
+```text
+integration campaign
+└── integration                 integration-v10.x
+    ├── credential and account settings
+    ├── rewardSuppliers         MULTI_SOCKET → the partner's own supplier type
+    ├── views                   MULTI_SOCKET → config, report-runner, event-stream views
+    │   ├── configuration       credential and account settings
+    │   ├── reward suppliers    surfaces the rewardSuppliers socket
+    │   ├── reward activity     report-runner-view-v10.0
+    │   └── reward events       event-stream-view-v10.0
+    └── one REWARD webhook per order endpoint, plus a status check
+
+support campaign                CONFIGURATION
+└── one supplier template per product variant
+    └── a reward supplier element tagged with its product variant
+```
 
 ### The Supplier Type and Its Templates
 

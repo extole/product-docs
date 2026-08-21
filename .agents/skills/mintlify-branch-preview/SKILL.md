@@ -15,7 +15,7 @@ Mintlify pages are **MDX** — JSX-strict. A bare `<`, an unclosed tag, a stray 
 npx mint@latest validate    # target: 0 errors, 0 warnings
 ```
 
-The migration landed at 0/0 (see [`MIGRATION.md`](../../../MIGRATION.md)), so treat anything else as something you introduced. `validate` fails on **warnings** as well as errors, so there is no "it's only a warning" tier here.
+The migration landed at 0/0, so treat anything else as something you introduced. `validate` fails on **warnings** as well as errors, so there is no "it's only a warning" tier here.
 
 The nav failure it catches is a `docs.json` entry pointing at a file that does not exist — most often a path with the `.mdx` extension left on:
 
@@ -41,22 +41,21 @@ Renders the whole site from the working tree — the fastest way to check headin
 
 The workflow deliberately carries no `paths:` filter. A required check that is skipped never reports a conclusion, so filtering it by path would leave any PR outside those paths pending forever. The run takes about 30 seconds; the cost of running it on every PR is far below the cost of a wedged merge queue.
 
-## Shared preview: trigger it, do not wait for the bot
+## Shared preview: open the PR, or ask the API
 
-Mintlify can serve any branch of this repo at
+Mintlify serves any branch of this repo at
 `https://extole-<branch>.mintlify.site`, and that is the shareable rendered
 preview to send a reviewer.
 
-**Do not rely on the GitHub App to produce it.** Mintlify documents a bot that
-comments a preview link on every pull request, and it is not working here: on
-2026-08-21 a pushed branch and then an opened PR produced neither a GitHub
-deployment record nor a bot comment, and no deployment of any kind had been
-created since 2026-08-20T21:53Z — around the `product-docs-mintlify` →
-`product-docs` rename. Earlier PRs in this repo do have `staging` deployments
-from `mintlify[bot]`, so this is a regression, not a feature that never existed.
-Until it is fixed, treat a missing preview comment as expected.
+**Normal path: open the PR.** The Mintlify GitHub App deploys each branch it
+sees and posts a `Preview deployment for your docs` comment with a **View
+Preview** link on the pull request. Push, open the PR, use that link.
 
-Ask for the preview explicitly instead:
+**When there is no PR, ask for the preview directly.** The bot comments on pull
+requests, so a branch pushed without one gets a deployment but no link handed to
+you anywhere. That is exactly the OpenAPI preview pipeline's situation — it
+pushes `openapi-preview-*` branches here and needs the URL back in order to
+comment it on a *pluribus* PR — so it calls the API instead:
 
 ```bash
 curl -X POST \
@@ -69,9 +68,8 @@ curl -X POST \
 It returns `{"statusId":"…","previewUrl":"https://extole-YOUR_BRANCH.mintlify.site"}`.
 Poll `GET https://api.mintlify.com/v1/project/update-status/{statusId}` until
 `status` is `success` — measured build time for this site is about 90 seconds —
-and only then share the link. The same pair of calls publishes `main`
-(`POST /v1/project/update/{projectId}`), which is how a merge reaches
-docs.extole.com while the app is not firing.
+and only then share the link. `POST /v1/project/update/{projectId}` does the
+same for `main`, forcing a publish of docs.extole.com.
 
 The branch name becomes a DNS label in that host, so it must be lowercase
 `[a-z0-9-]` and the whole `extole-<branch>` subdomain must stay under 63
@@ -79,7 +77,30 @@ characters.
 
 `MINTLIFY_API_KEY` and `MINTLIFY_PROJECT_ID` come from the Mintlify dashboard's
 API keys page; `extole/openapi` holds them as repository secrets for the
-pipeline described below.
+pipeline above.
+
+### A missing preview comment is a signal, not the norm
+
+The App went silent for about 19 hours — no deployment of any kind between
+2026-08-20T21:53:47Z and 2026-08-21T16:54:56Z — which straddles the
+`product-docs-mintlify` → `product-docs` rename. During it, merges to `main` did
+not publish: the functional-review runbooks merged at 15:30Z were still 404 on
+docs.extole.com hours later, until `POST /v1/project/update/{projectId}` was
+called by hand.
+
+It then recovered on its own and backfilled what it had missed, deploying
+branches whose pushes were an hour or more old. Nothing in this repo or in the
+Mintlify settings was changed to bring it back, so **the cause is unproven** —
+the silence coincided with the rename, and it ended roughly 40 minutes after an
+API-triggered preview build, but neither link is established.
+
+The operational point: if you push a branch, open a PR, and no `mintlify[bot]`
+comment arrives within a few minutes, do not assume you did something wrong and
+do not wait it out. Check
+`gh api repos/extole/product-docs/deployments --jq '.[0:3][]|"\(.created_at) \(.ref)"'`
+— if the newest entry is hours old the App is stalled again. Use the API calls
+above to unblock yourself, and say so, because while it is stalled **merging does
+not publish**.
 
 ## Branch naming: no constraint here
 

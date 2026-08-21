@@ -9,7 +9,24 @@ This page is one part of the Management API integration guide. Start at [Create 
 
 A complete inbound custom integration contains:
 
-`input_event`
+```text
+root
+└── partner                     integration-v10.x
+    ├── businessEvents          MULTI_SOCKET → business-event-v10.0
+    │   ├── converted           template_transacted_business_event
+    │   │   ├── triggerRules
+    │   │   │   └── input_event
+    │   │   └── data
+    │   │       ├── partner_conversion_id
+    │   │       ├── cart_value
+    │   │       └── other mapped fields
+    │   ├── shipped             template_tracked_business_event
+    │   └── canceled            template_tracked_business_event
+    └── views                   MULTI_SOCKET → view-v10.0
+        ├── configuration       config-view-v10.0
+        ├── report-runner-view  report-runner-view-v10.0
+        └── event-streams       event-stream-view-v10.0
+```
 
 An inbound build carries the same three views as every other category. The configuration view comes from [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model); the other two, and the report runner and event stream they resolve to, come from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views). Chart and stream the canonical business events this integration produces.
 
@@ -36,7 +53,83 @@ Choose the template by business meaning:
 
 Duplicate the source component into the model component's `businessEvents` socket:
 
-`event_name`
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v1/components/$BUSINESS_EVENT_TEMPLATE_ID/duplicate" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "target_campaign_id": "'"$CAMPAIGN_ID"'",
+    "target_component_absolute_name": "/example",
+    "target_setting_name": "businessEvents",
+    "component_name": "converted",
+    "component_display_name": "Converted",
+    "description": "Records a completed partner transaction.",
+    "variables": [
+      {
+        "name": "eventName",
+        "type": "STRING",
+        "values": {
+          "default": "converted"
+        }
+      },
+      {
+        "name": "aliases",
+        "type": "STRING_LIST",
+        "values": {
+          "default": [
+            "conversion",
+            "customer",
+            "outcome",
+            "transacted"
+          ]
+        }
+      },
+      {
+        "name": "singularNounName",
+        "type": "STRING",
+        "values": {
+          "default": "Conversion"
+        }
+      },
+      {
+        "name": "adminUIIcon",
+        "type": "STRING",
+        "values": {
+          "default": "fa-regular fa-shopping-cart"
+        }
+      },
+      {
+        "name": "pluralNounName",
+        "type": "STRING",
+        "values": {
+          "default": "Conversions"
+        }
+      },
+      {
+        "name": "rateName",
+        "type": "STRING",
+        "values": {
+          "default": "Conversion Rate"
+        }
+      },
+      {
+        "name": "sequence",
+        "type": "STRING",
+        "values": {
+          "default": "103.2"
+        }
+      },
+      {
+        "name": "dataCapturePolicy",
+        "type": "ENUM",
+        "values": {
+          "default": "NO_ADDITIONAL_DATA"
+        }
+      }
+    ]
+  }'
+```
 
 Use the canonical v10 name that matches the business outcome. Examples include `converted`, `shipped`, `canceled`, `returned`, `account_opened`, and `application_approved`. Do not use a transport-specific name such as `partner_order_created` as the business-event component name.
 
@@ -67,7 +160,28 @@ Inspect the duplicated component's evaluated `journeyName` and `roleName` values
 
 Duplicate `input_event` from the `rules` program into each business event's `triggerRules` socket:
 
-`data`
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v1/components/$INPUT_EVENT_TEMPLATE_ID/duplicate" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "target_campaign_id": "'"$CAMPAIGN_ID"'",
+    "target_component_absolute_name": "/example/converted",
+    "target_setting_name": "triggerRules",
+    "variables": [
+      {
+        "name": "triggerEventNames",
+        "type": "STRING_LIST",
+        "values": {
+          "default": [
+            "partner_order_created"
+          ]
+        }
+      }
+    ]
+  }'
+```
 
 Keep the duplicated rule under its source name `input_event`. Library components and bundled programs all do, so a reader recognizes the trigger by its position in the business event rather than by a component name that restates the event it listens for. The partner event name belongs in `triggerEventNames`.
 
@@ -95,7 +209,57 @@ Define a mapping before creating data components:
 
 Duplicate one `business_event_data` component into the business event's `data` socket for each field:
 
-`event_name`
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v1/components/$BUSINESS_EVENT_DATA_TEMPLATE_ID/duplicate" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "target_campaign_id": "'"$CAMPAIGN_ID"'",
+    "target_component_absolute_name": "/example/converted",
+    "target_setting_name": "data",
+    "component_name": "partner_conversion_id",
+    "variables": [
+      {
+        "name": "name",
+        "type": "STRING",
+        "values": {
+          "default": "partner_conversion_id"
+        }
+      },
+      {
+        "name": "valueExpression",
+        "type": "STRING",
+        "values": {
+          "default": "javascript@runtime:context.getCauseEvent().getData()[\"order_id\"]"
+        }
+      },
+      {
+        "name": "scope",
+        "type": "ENUM",
+        "values": {
+          "default": "PRIVATE"
+        }
+      },
+      {
+        "name": "persistTypes",
+        "type": "ENUM_LIST",
+        "values": {
+          "default": [
+            "STEP"
+          ]
+        }
+      },
+      {
+        "name": "keyType",
+        "type": "ENUM",
+        "values": {
+          "default": "UNIQUE_PARTNER_EVENT_KEY"
+        }
+      }
+    ]
+  }'
+```
 
 Set `valueExpression` explicitly when the partner field and Extole field have distinct names. Verify the expression against a real sanitized partner payload. Do not rely on the data component's name-derived default when the source field differs.
 
@@ -117,11 +281,30 @@ Send a synchronous test event through `POST /v6/events`. Event submission uses t
 
 Put the current program label inside `data` to target this campaign during the test. The label is a testing convenience and does not belong in the partner's own payload or setup instructions.
 
-`input_event`
+```bash
+curl --request POST "$EXTOLE_API_HOST/v6/events" \
+  --header "Authorization: Bearer $EVENTS_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "event_name": "partner_order_created",
+    "data": {
+      "email": "test@example.com",
+      "order_id": "test-order-001",
+      "total": 42.50,
+      "customer_id": "test-customer-001",
+      "labels": "'"$PROGRAM_LABEL"'"
+    }
+  }'
+```
 
 Use the returned `person_id` to list the person's resulting events:
 
-`example_order_completed`
+```bash
+curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --data-urlencode "campaign_ids=$CAMPAIGN_ID" \
+  --data-urlencode "names=converted"
+```
 
 Confirm the canonical event name and every mapped value. Use a new unique identifier for each repeat test unless duplicate handling is the behavior under test.
 

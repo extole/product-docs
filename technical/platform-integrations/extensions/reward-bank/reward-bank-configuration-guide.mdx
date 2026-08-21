@@ -189,25 +189,94 @@ You can find your program domain in the [Tech Center](https://my.extole.com/tech
 
 A verified JWT or access token is required to retrieve the bankable reward.
 
-`target=campaign_id:<REWARD_BANK_CAMPAIGN_ID>`
+```curl
+GET <https://client.extole.io/zone/bankable_rewards>
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <VERIFIED CONSUMER ACCESS TOKEN>' \
+```
 
 **Example of Response**
 
-`https://test.extole.io/zone/bankable_rewards_redemption_center?target=campaign_id:<CAMPAIGN_ID>&jwt=<JWT_TOKEN>`
+```json
+[
+  {  
+    "eligible_rewards": [
+      {
+        "reward_id": "a1cb349f29057e12025d7a73",  
+        "reward_supplier_id": "0c50221129ae1d7231637ae0",
+        "face_value": "10.00",  
+        "face_value_type": "POINTS"  
+      },
+      {
+        "reward_id": "f8de452d70123a34019b6c8d",  
+        "reward_supplier_id": "0c50221129ae1d7231637ae0",
+        "face_value": "10.00",  
+        "face_value_type": "POINTS"  
+      },
+    ],  
+    "redemption_suppliers": [  
+      {  
+        "reward_supplier_id": "b6da278e30069f11018e6b96",  
+        "name": "Reward 1",  
+        "type": "ACCOUNT_CREDIT"  
+      },  
+      {  
+        "reward_supplier_id": "b3e4f4bbb7965e08269f9302",  
+        "name": "Reward 2",  
+        "type": "ACCOUNT_CREDIT"  
+      }  
+    ],  
+    "redemption_history": [
+       {
+        "reward_id": "c3d9b56f70481e2301f7a4b2",  
+        "reward_supplier_id": "b6da278e30069f11018e6b96",
+        "face_value": "20.00",  
+        "face_value_type": "USD"  
+      }
+    ],  
+    "reward_parameters": {  
+      "face_value_type": [  
+        "USD"  
+      ],  
+      "max_amount": 1000,  
+      "min_amount": 0,  
+      "ratio_of_value_to_dollars": 1  
+    }  
+  }
+]
+```
 
 ### Redeem Bankable Rewards
 
 A verified JWT or access token is required to retrieve the bankable reward.
 
-`https://<Program_Domain>/zone/redemption_center_microsite?jwt=<JWT_KEY>`
+```curl
+POST <https://client.extole.io/api/v6/events>
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <VERIFIED CONSUMER ACCESS TOKEN>' \
+```
 
 Body:
 
-`client`
+```json
+{
+    "event_name": "redeem_rewards",
+    "data": {
+        "rewards": ["<REWARD ID TO REDEEM>"],
+        "reward_supplier_id": "<REWARD SUPPLIER ID USED FOR REDEMPTION>"
+     }
+}
+```
 
 **Example of Response**
 
-`https://testcompany.extole.io/zone/bankable_rewards`
+```json
+[
+  {  
+		"id":"7436077304245789573" 
+  }
+]
+```
 
 ## Appendix:
 
@@ -233,11 +302,24 @@ To ensure the makegood events compatible with the Reward Bank, use prehandlers t
 
 **Prehandler Condition:**
 
-`reward-bank`
+```json Javascript Function
+context.getProcessedRawEvent().getData().get('sandbox') != null && context.getProcessedRawEvent().getData().get('channel') != null && context.getProcessedRawEvent().getData().get('channel').toLowerCase() == "manual"
+```
 
 **Prehandler JavaScript Action:**
 
-`component:<reward bank name`
+```json Javascript Function
+var sandbox = context.getProcessedRawEvent().getData().get('sandbox');
+
+if (sandbox != null && sandbox.toLowerCase().indexOf('campaign') > -1 && sandbox.toLowerCase().indexOf('production') > -1) {
+    var extractedId = sandbox.match(/\d+/)[0];
+    context.log(" extractedId ----------->" + extractedId);
+    context.getEventBuilder().removeData(sandbox);
+    context.getEventBuilder().addData('sandbox', 'production-production');
+    context.getEventBuilder().addData('target', 'campaign_id:' + extractedId);
+    context.getEventBuilder().addData('journey.campaign_id', extractedId);
+}
+```
 
 ## Notifications
 

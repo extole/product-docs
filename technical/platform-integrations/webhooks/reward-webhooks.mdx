@@ -65,7 +65,17 @@ Security and signature information is available on our [Webhooks](/api-reference
 
 The event payload of a reward webhook post always contains the `reward_id` and the `data` parameters associated with the event that triggered the webhook. See an example payload below.
 
-`reward_id`
+```json
+{
+  "reward_id":"b600f6fdd06c83f8ffdd6309",
+  "data": {
+    "earned_event_value": "100.00",
+    "journey_name": "ADVOCATE",
+    "rewardee_role": "advocate",
+    "custom_key": "custom_value"
+  }
+}
+```
 
 ### Additional Attributes
 
@@ -244,7 +254,30 @@ If you are interested only in reward events from a specific reward supplier (e.g
 
 After you have received a reward and fulfilled it into your account credit system, you should mark the reward as "fulfilled" in Extole. This will cause Extole to stop sending retries for the reward and Extole can send out a reward fulfillment email to the recipient.
 
-`data`
+```json
+POST https://api.extole.io/v2/rewards/custom-reward/{reward_id}/fulfilled
+
+Content-Type: application/json
+Authorization: Bearer XXXXX
+{
+  "partner_reward_id" : "12345600",
+  "cost_code":"AGENT",
+  "message": "fulfilled"
+}
+
+RESPONSE:
+{
+  "reward_id":"3e2b3f73d1031dbd644b2a7a",
+  "reward_supplier_id":"701e681a98389ae26778f3452",
+  "partner_reward_supplier_id":"Advocate-Credit-2020",
+  "person_id":"6831901396728877608",
+  "partner_user_id":"3000500000",
+  "email":"qzrqxuq@gurumail.xyz",
+  "state":"FULFILLED",
+  "partner_reward_id":"12345600",
+  "created_at":"2020-05-28T13:53:02.175-05:00"
+}
+```
 
 ### Input Fields
 

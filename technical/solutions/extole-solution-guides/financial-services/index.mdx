@@ -70,11 +70,28 @@ Extole is happy to create other tags as needed.
 
 For inline CTAs, there is a `span` tag to locate it on the page:
 
-`do-not-reply@mycompany.com`
+```javascript CTA Span Tag
+<span id="extole_zone_global_header"></span>
+```
 
 Which is accompanied by a `script` tag to load in the content from Extole:
 
-`global_header`
+```javascript Global Header CTA Script Tag
+<script type="text/javascript">
+(function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+
+   extole.createZone({
+     name: 'global_header',
+     element_id: 'extole_zone_global_header',
+     data: {
+       "partner_user_id": REPLACE, // RECOMMENDED IF AVAILABLE
+       "email": REPLACE,  // RECOMMENDED IF AVAILABLE
+        "first_name": REPLACE,  // RECOMMENDED IF AVAILABLE
+       "last_name": REPLACE  // RECOMMENDED IF AVAILABLE
+     }     
+  });
+</script>
+```
 
 <Info>
 **Pass in customer-specific information**
@@ -266,7 +283,24 @@ The registration tag passes information about the new customer to allow Extole t
 Make certain that you fire the Extole tag for **all account openings** so Extole will correctly attribute referrals and manage the fraud and business rules. Extole ignores account applications that are not attributed to a referral after processing rules.
 </Warning>
 
-`global_footer`
+```javascript Registration Tag
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'registration',
+     data: {
+       "first_name":"Julio", // RECOMMENDED DYNAMIC VALUE
+       "last_name":"Friend", /// RECOMMENDED DYNAMIC VALUE
+       "email":"julio@friend.com", // REQUIRED DYNAMIC VALUE
+       "partner_user_id":"00O40000004SQbO", // REQUIRED DYNAMIC VALUE
+       "advocate_code":"QA754AZ" // RECOMMENDED IF AVAILABLE
+     }
+  });
+</script>
+```
 
 <table>
   <thead>
@@ -343,7 +377,24 @@ Make certain that you fire the Extole tag for **all account openings** so Extole
 
 When accounts are instantly confirmed after the online application, you can use a **conversion tag** on the page to instantly send the successful account opening to Extole.
 
-`product`
+```javascript Conversion Tag
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'conversion',
+     data: {
+       "first_name":"Julio", // RECOMMENDED DYNAMIC VALUE
+       "last_name":"Friend", // RECOMMENDED DYNAMIC VALUE
+       "email":"julio@friend.com", // REQUIRED DYNAMIC VALUE
+       "partner_user_id":"00O40000004SQbO", // REQUIRED DYNAMIC VALUE
+       "partner_conversion_id":"00O415320037eWy" // REQUIRED DYNAMIC VALUE
+     }
+  });
+</script>
+```
 
 <table>
   <thead>
@@ -422,7 +473,21 @@ When accounts are instantly confirmed after the online application, you can use 
 
 All accounts that are successfully opened should call the Extole Conversion API.  This should happen for all accounts, even ones that were instantly opened and may have fired a conversion tag on the web. Extole handles attributing referrals, removing duplicates, and discarding data that doesn't apply.
 
-`confirmation`
+```json
+POST https://api.extole.io/v5/events
+{
+  "event_name":"conversion",
+  "data":{
+    "email":"julio@friend.com",
+    "first_name":"julio",
+    "last_name":"friend",
+    "partner_user_id":"12294838abs2",
+    "partner_conversion_id":"122948302lala"
+  }
+}
+
+{"polling_id":"6324678551458903928"}
+```
 
 <table>
   <thead>
@@ -520,7 +585,9 @@ The initial approval can be sent for all newly opened accounts meeting to criter
 
 The approval should include a `partner_conversion_id` that matches the identifier provided in the conversion call.
 
-`overlay`
+```json Approval API
+GET https://api.extole.io/v3/events/approve?partner_conversion_id=122948302lala&event_status=approve&note=met+minimum+funding
+```
 
 <table>
   <thead>

@@ -57,11 +57,26 @@ The webhook signs the body of each webhook post with a client-specified secret k
 
 The signature is a hash against the exact string sent in the HTTP request. It does not include the headers and it is not pretty-formatted. It looks like this:
 
-`application/json`
+```text
+{"type":"reward_earned","event_id":"qb3jju459ugjr2aojk5e","event_time":"2020-05-29T14:14:18.548Z","reward_id":"bf67905b4e1b41daf39c30f0","reward_supplier_name":"Advocate Account Credit","reward_supplier_id":"701e681a9e46c8b6778f3452","partner_reward_supplier_id":"Advocate Account Credit","reward_supplier_type":"CUSTOM_REWARD","person_id": "6816411215104951917","partner_user_id":"1036950000","face_value":50,"face_value_type":"USD","message":null,"schema_version":1}
+```
 
 The signature can be calculated against the String of JSON using HMAC256:
 
-`X-Extole-Signature`
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+
+private static final String HMAC_SHA_256 = "HmacSHA256";
+
+public String encode(String message, String secretKey) throws Exception {
+  Mac algorithm = Mac.getInstance(HMAC_SHA_256);
+  SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), HMAC_SHA_256);
+  algorithm.init(secretKeySpec);
+  return DatatypeConverter.printHexBinary(algorithm.doFinal(message.getBytes())).toLowerCase();
+}
+```
 ```ruby
 signature = 'sha1='
   + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'),
