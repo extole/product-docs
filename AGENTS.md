@@ -31,6 +31,7 @@ The canonical human-owned sources are the **Extole Style Guide** and **Content S
 | `images/` | Page assets, referenced root-relative (`/images/…`). `images/extole-manifest.json` inventories the migrated ones. |
 | `url-map.json` | Old-URL → new-path redirects; the converter emits them into `docs.json`. Add an entry whenever you rename or move a page. |
 | `scripts/convert_from_product_docs.py` | The deterministic generator that produced these pages. See [`MIGRATION.md`](MIGRATION.md). |
+| `.github/workflows/validate.yml` | CI: runs `npx --yes mint@latest validate` on every PR and on pushes to `main`. The **`validate`** check is required to merge. |
 | `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`, `.cursor/` | Agent config — **not** published (`.agents`/`.claude` are Mintlify built-in ignores; `.cursor` is in `.mintignore`). |
 
 ## Tooling
@@ -38,6 +39,16 @@ The canonical human-owned sources are the **Extole Style Guide** and **Content S
 - `npx mint@latest dev` — local preview at http://localhost:3000.
 - `npx mint@latest validate` — strict build check; must be **0 errors, 0 warnings** before a PR.
 - Mintlify MCP servers: `https://mcp.mintlify.com` to edit content and settings, `https://www.mintlify.com/docs/mcp` to query how to use Mintlify.
+
+## Merging
+
+`main` is protected. A change lands only through a pull request that has:
+
+1. a green **`validate`** check (CI runs `npx --yes mint@latest validate`; it fails on warnings as well as errors), and
+2. **one approving review**, and
+3. the branch up to date with `main`.
+
+`validate` catches broken MDX and a `docs.json` entry pointing at a missing file. It does **not** catch the reverse — a valid page absent from `docs.json` passes CI and ships unreachable — so nav placement stays a reviewer responsibility.
 
 ## Critical rules
 

@@ -37,7 +37,7 @@ The pages were originally produced by [`scripts/convert_from_product_docs.py`](.
   ---
   ```
   `description` is Mintlify's field (the ReadMe corpus called it `excerpt`); it is what shows in search and social previews.
-- **Navigation** lives in [`docs.json`](../../../docs.json) under `navigation.tabs[] → groups[] → pages[]`. A page entry is its path **without** the `.mdx` extension (`guides/audiences-and-segmentation/advocate-tiers`). Groups nest, and a group whose landing page is a page of its own carries `"root": "<path>/index"`. **A new page is invisible until its path is added to `docs.json`** — add it in the right position.
+- **Navigation** lives in [`docs.json`](../../../docs.json) under `navigation.tabs[] → groups[] → pages[]`. A page entry is its path **without** the `.mdx` extension (`guides/audiences-and-segmentation/advocate-tiers`). Groups nest, and a group whose landing page is a page of its own carries `"root": "<path>/index"`. **A new page is invisible until its path is added to `docs.json`** — add it in the right position. Nothing enforces this: a page missing from `docs.json` passes `mint validate` and passes CI, and ships unreachable. It is a review responsibility.
 - **API reference is generated.** Mintlify renders the entire reference from `api-reference/*.json`, and `docs.json` lists endpoints as `METHOD /path` strings. Those specs come from `extole/extole-specification`; leave them and the API Reference tab alone unless that is the task.
 - **Published vs. not:** the content tabs are customer-visible. `.agents/` and `.claude/` are excluded from the build by Mintlify's built-in ignores, and `.cursor/` is excluded by [`.mintignore`](../../../.mintignore); repo-root files like `AGENTS.md`, `MIGRATION.md`, and `README.md` are not published.
 - **Deployment:** merging to `main` deploys **docs.extole.com** — that is the live customer site, so treat a merge as a publish. Mintlify's GitHub App also builds a preview deployment per PR, though previews have been observed missing on some PRs, so do not treat one as guaranteed.
@@ -52,7 +52,7 @@ The pages were originally produced by [`scripts/convert_from_product_docs.py`](.
 5. **Respect literals.** Event names (`promotion clicked`, `signed up`, `converted`), field names, and API identifiers stay verbatim. Use "click" for UI actions (reserve "tap" for in-app placements and mobile SDK).
 6. **Never fabricate.** Do not invent event names, product behavior, or metrics to make prose flow. Verify against the platform (Extole MCP, existing docs) or mark it as needing confirmation.
 7. **Place in nav.** Add the page path to the right group in `docs.json`.
-8. **Validate.** `npx mint@latest validate` must report **0 errors, 0 warnings** — MDX is JSX-strict and a broken tag fails the build, not just the page. `npx mint@latest dev` renders it locally at http://localhost:3000.
+8. **Validate.** `npx mint@latest validate` must report **0 errors, 0 warnings** — MDX is JSX-strict and a broken tag fails the build, not just the page, and `validate` treats a warning as a failure. `npx mint@latest dev` renders it locally at http://localhost:3000. CI runs the same command on every PR as the required **`validate`** check, so this is a gate you clear before review, not after.
 9. **Self-review** against the checklist below, then open the PR.
 
 ## Self-review checklist (what reviewers consistently catch)

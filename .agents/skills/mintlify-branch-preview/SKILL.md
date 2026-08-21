@@ -15,7 +15,17 @@ Mintlify pages are **MDX** — JSX-strict. A bare `<`, an unclosed tag, a stray 
 npx mint@latest validate    # target: 0 errors, 0 warnings
 ```
 
-The migration landed at 0/0 (see [`MIGRATION.md`](../../../MIGRATION.md)), so treat anything else as something you introduced. Two failures that look like content bugs but are nav bugs: a page added to `docs.json` with the `.mdx` extension left on, and a page created but never added to `docs.json` at all.
+The migration landed at 0/0 (see [`MIGRATION.md`](../../../MIGRATION.md)), so treat anything else as something you introduced. `validate` fails on **warnings** as well as errors, so there is no "it's only a warning" tier here.
+
+The nav failure it catches is a `docs.json` entry pointing at a file that does not exist — most often a path with the `.mdx` extension left on:
+
+```
+warning - "guides/.../understanding-participation-rate.mdx" is referenced in the
+docs.json navigation but the file does not exist.
+error Build validation failed with 1 warning(s).
+```
+
+**The reverse is not caught.** A page file that is valid MDX but appears in no `docs.json` group passes validation with exit 0 — it simply ships unreachable, with no build signal and no CI failure. Measured 2026-08-21 against `mint@latest`. Adding the page to `docs.json` is on you and on the reviewer; the build will not remind you.
 
 ## Local preview
 
@@ -24,6 +34,12 @@ npx mint@latest dev        # http://localhost:3000
 ```
 
 Renders the whole site from the working tree — the fastest way to check heading structure, the on-page TOC, callout components, image paths, and where a page landed in the sidebar.
+
+## CI runs the gate on every PR
+
+[`.github/workflows/validate.yml`](../../../.github/workflows/validate.yml) runs `npx --yes mint@latest validate` on every pull request, on pushes to `main`, and on manual dispatch. The **`validate`** check is a required status check on `main`, alongside one approving review, so a PR that breaks the build cannot merge.
+
+The workflow deliberately carries no `paths:` filter. A required check that is skipped never reports a conclusion, so filtering it by path would leave any PR outside those paths pending forever. The run takes about 30 seconds; the cost of running it on every PR is far below the cost of a wedged merge queue.
 
 ## Shared preview: open the PR
 

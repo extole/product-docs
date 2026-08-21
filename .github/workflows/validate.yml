@@ -1,0 +1,32 @@
+name: validate
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # No `paths:` filter: this job is a required status check, and a required
+      # check that is skipped never reports, leaving every filtered PR pending.
+      - name: Validate Mintlify build
+        run: npx --yes mint@latest validate
