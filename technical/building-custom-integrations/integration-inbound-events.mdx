@@ -3,7 +3,7 @@ title: "Map Inbound Partner Events"
 description: "Add reusable business events, input event rules, and event data to an integration that receives partner events, then verify what arrives."
 ---
 
-This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/integration-overview/management-api-integration) for the build paths and the creation contract.
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/building-custom-integrations/management-api-integration) for the build paths and the creation contract.
 
 ## What the Inbound Custom Workflow Creates
 
@@ -11,19 +11,19 @@ A complete inbound custom integration contains:
 
 `input_event`
 
-An inbound build carries the same three views as every other category. The configuration view comes from [Create the Integration Campaign and Component Model](/technical/integration-overview/integration-component-model); the other two, and the report runner and event stream they resolve to, come from [Add the Activity and Event Views](/technical/integration-overview/integration-activity-views). Chart and stream the canonical business events this integration produces.
+An inbound build carries the same three views as every other category. The configuration view comes from [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-component-model); the other two, and the report runner and event stream they resolve to, come from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-activity-views). Chart and stream the canonical business events this integration produces.
 
 The partner event name belongs in an `input_event` trigger rule. The canonical Extole event name belongs on the reusable business-event component. Do not rename the Extole business event to match the partner wire event.
 
-This tree receives events; it does not produce them. The extension, service, or feed that sends them from the partner platform is built against [Send Platform Events to Extole](/technical/integration-overview/sending-platform-events), and an inbound integration is finished only when both halves exist.
+This tree receives events; it does not produce them. The extension, service, or feed that sends them from the partner platform is built against [Send Platform Events to Extole](/technical/building-custom-integrations/sending-platform-events), and an inbound integration is finished only when both halves exist.
 
 ## Settle Who Shapes the Payload First
 
-Everything on this page assumes the event arrives with a name in `event_name` and its fields readable in `data`. That assumption holds when the sender is built for this integration — an extension, a plugin, or a service written against [Send Platform Events to Extole](/technical/integration-overview/sending-platform-events) — because whoever writes it can shape what it sends.
+Everything on this page assumes the event arrives with a name in `event_name` and its fields readable in `data`. That assumption holds when the sender is built for this integration — an extension, a plugin, or a service written against [Send Platform Events to Extole](/technical/building-custom-integrations/sending-platform-events) — because whoever writes it can shape what it sends.
 
 It does not hold when the sender is **the partner's own webhook**. A partner defines its payload for its own purposes: the event type sits in a body field rather than in `event_name`, and the interesting values sit two or three levels down. Such a webhook still reaches Extole — the named form of the Events API takes the event name from the URL and accepts any body — but what arrives is the partner's shape, not the shape this page assumes.
 
-Reconcile that inside Extole with a prehandler, which renames the event and flattens the payload before any rule on this page sees it. [Normalize Inbound Events with a Prehandler](/technical/integration-overview/integration-prehandlers) covers the endpoint to give the partner, the decision, and the build. Two things on this page change when one is in play: the `input_event` rule lists the name the prehandler produces rather than the partner's wire name — an integration-owned name such as `example_order_completed`, never the canonical outcome name the business event itself carries — and each data component's `valueExpression` reads the flattened field rather than the partner's nesting.
+Reconcile that inside Extole with a prehandler, which renames the event and flattens the payload before any rule on this page sees it. [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-prehandlers) covers the endpoint to give the partner, the decision, and the build. Two things on this page change when one is in play: the `input_event` rule lists the name the prehandler produces rather than the partner's wire name — an integration-owned name such as `example_order_completed`, never the canonical outcome name the business event itself carries — and each data component's `valueExpression` reads the flattened field rather than the partner's nesting.
 
 The alternative — instructing the customer to build and host a service that receives the partner's webhook and re-posts it in Extole's shape — is a customer engineering project, and one this guide does not describe. Choose it deliberately or not at all.
 

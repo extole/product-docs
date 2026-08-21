@@ -3,7 +3,7 @@ title: "Create the Integration Campaign and Component Model"
 description: "Create the campaign, root, and integration component, set the display metadata and logo the admin renders, and add typed sockets and a configuration view."
 ---
 
-This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/integration-overview/management-api-integration) for the build paths and the creation contract.
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/building-custom-integrations/management-api-integration) for the build paths and the creation contract.
 
 ## Create the Integration Campaign
 
@@ -99,7 +99,7 @@ Add partner configuration variables separately, and never tag them `internal:ui-
 
 Setup instructions tell the partner-side installer what to send and where. Give them the event endpoint, the current program label, the event names, the payload fields, the credential rule, and the documentation link.
 
-The program label belongs here because the sender cannot work without it: it is what targets an arriving event at this integration, and [Send Platform Events to Extole](/technical/integration-overview/sending-platform-events) tells implementers to read the current label from this view. Take the value from the campaign you read in the previous step rather than typing a label from another account, and tell the installer to hold it as configuration rather than as a constant in code. Because the value is interpolated when the setting is created, replacing the campaign's `PROGRAM` label later means updating this setting too — otherwise the view keeps advertising a label that no longer targets anything.
+The program label belongs here because the sender cannot work without it: it is what targets an arriving event at this integration, and [Send Platform Events to Extole](/technical/building-custom-integrations/sending-platform-events) tells implementers to read the current label from this view. Take the value from the campaign you read in the previous step rather than typing a label from another account, and tell the installer to hold it as configuration rather than as a constant in code. Because the value is interpolated when the setting is created, replacing the campaign's `PROGRAM` label later means updating this setting too — otherwise the view keeps advertising a label that no longer targets anything.
 
 Compute the instructions at build time so the installer reads the values this campaign actually uses rather than values copied from another account. Substitute the campaign's current program label for `PROGRAM_LABEL` before sending the request:
 
@@ -117,7 +117,7 @@ Add a `views` multi-socket:
 
 `settings`
 
-Socket filters are part of the model contract. Do not create an untyped socket or attach a component that does not satisfy its filter. `view-v10.0` is the parent of every view type the integration uses, so one filter on it accepts the configuration view built below along with the `report-runner-view-v10.0` and `event-stream-view-v10.0` children added in [Add the Activity and Event Views](/technical/integration-overview/integration-activity-views).
+Socket filters are part of the model contract. Do not create an untyped socket or attach a component that does not satisfy its filter. `view-v10.0` is the parent of every view type the integration uses, so one filter on it accepts the configuration view built below along with the `report-runner-view-v10.0` and `event-stream-view-v10.0` children added in [Add the Activity and Event Views](/technical/building-custom-integrations/integration-activity-views).
 
 ## Add a Configuration View
 
@@ -133,4 +133,4 @@ The information setting the installer reads is the `exampleSetupInstructions` bu
 
 Every name in `settingsToDisplay` must be a setting that exists on the parent integration component. A name with no matching parent setting fails validation, and the two names in the example resolve to the two partner settings created above.
 
-The configuration view is one of three. Continue to [Add the Activity and Event Views](/technical/integration-overview/integration-activity-views) for the report-runner view and event-stream view every integration also carries, whichever build path brought you here.
+The configuration view is one of three. Continue to [Add the Activity and Event Views](/technical/building-custom-integrations/integration-activity-views) for the report-runner view and event-stream view every integration also carries, whichever build path brought you here.

@@ -3,11 +3,11 @@ title: "Normalize Inbound Events with a Prehandler"
 description: "Reshape a partner's own webhook at ingest — rename the event, flatten the payload, scope it to one integration — so a partner whose wire format you cannot change can post directly to Extole."
 ---
 
-This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/integration-overview/management-api-integration) for the build paths and the creation contract.
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/building-custom-integrations/management-api-integration) for the build paths and the creation contract.
 
 # Overview
 
-A prehandler is a rule that runs against an inbound event **before** the platform decides what the event is. It sees the untouched HTTP request, and it can rename the event, add and remove data, set the app type, and set the sandbox. Everything downstream — the `input_event` trigger rules in [Map Inbound Partner Events](/technical/integration-overview/integration-inbound-events), the data components, the business events — sees only what the prehandler left behind.
+A prehandler is a rule that runs against an inbound event **before** the platform decides what the event is. It sees the untouched HTTP request, and it can rename the event, add and remove data, set the app type, and set the sandbox. Everything downstream — the `input_event` trigger rules in [Map Inbound Partner Events](/technical/building-custom-integrations/integration-inbound-events), the data components, the business events — sees only what the prehandler left behind.
 
 That ordering is the whole point. An `input_event` rule matches an event name, and a data component reads a field out of the event's data. Both assume the event already arrived with an Extole-shaped name and an Extole-readable payload. A prehandler is how it comes to have them.
 
@@ -37,7 +37,7 @@ Two properties make it work where `POST /v6/events` does not. The last path segm
 
 Name the segment after the partner rather than after an outcome — `example_webhook`, never `converted`, for the reasons in [Produce a Name This Integration Owns](#produce-a-name-this-integration-owns). Then match that segment with an `EVENT_NAME_MATCH` condition. It is the one condition guaranteed to hold, because you chose the value.
 
-The access token authorizes the delivery. Extole reads it from the `access_token` query parameter, an `Authorization` header, or a cookie, in that order, and a partner that can only set a URL has the query parameter. Create the token in the [Security Center](https://my.extole.com/security-center) as described in [Send Platform Events to Extole](/technical/integration-overview/sending-platform-events), and authorize it for event submission only — never a token that can also manage campaigns and components.
+The access token authorizes the delivery. Extole reads it from the `access_token` query parameter, an `Authorization` header, or a cookie, in that order, and a partner that can only set a URL has the query parameter. Create the token in the [Security Center](https://my.extole.com/security-center) as described in [Send Platform Events to Extole](/technical/building-custom-integrations/sending-platform-events), and authorize it for event submission only — never a token that can also manage campaigns and components.
 
 One field in the partner's body is inspected at the API boundary: a top-level `event_time`, which must parse as a date or the delivery is rejected as `invalid_event_time_format`. Nothing else in the body is read until the prehandler runs.
 
@@ -51,14 +51,14 @@ Treat the endpoint URL as the credential it carries. Register it in the partner'
 
 ### The Configuration View Has to Render That URL
 
-Nobody at Extole configures the partner. Somebody opens the integration's configuration tab, reads the setup instructions, and pastes a URL into the partner's console — so the endpoint is only delivered once those instructions render it, computed from the campaign as described in [Create the Integration Campaign and Component Model](/technical/integration-overview/integration-component-model).
+Nobody at Extole configures the partner. Somebody opens the integration's configuration tab, reads the setup instructions, and pastes a URL into the partner's console — so the endpoint is only delivered once those instructions render it, computed from the campaign as described in [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-component-model).
 
 Setup instructions that refer to "the Extole inbound event endpoint" without producing it are not setup instructions. The integration they belong to is published, enabled, and receiving nothing, because the one step left to a person is the one step nobody was given. List the partner events to enable and the endpoint to send them to, in the form above.
 
 ## Prerequisites
 
 - A server-side access token authorized to manage prehandlers. Creating one is an administrative operation, not a campaign edit.
-- A published integration campaign with its model component, built through [Create the Integration Campaign and Component Model](/technical/integration-overview/integration-component-model).
+- A published integration campaign with its model component, built through [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-component-model).
 - The production API host in `EXTOLE_API_HOST`.
 - A real sample of the partner's webhook: the body, and the headers it arrives with. The headers matter as much as the body, and a payload example copied from partner documentation usually omits them.
 
@@ -116,7 +116,7 @@ Use `MAP_DATA_ATTRIBUTES` when the transformation is a flat rename and `EXPRESSI
 
 ### Emit the Whole Identity Set, Including the Email Address
 
-A data component can only read a key the prehandler left behind, so the reshape decides what identity the platform ever sees. Flatten the full set that [Map Inbound Partner Events](/technical/integration-overview/integration-inbound-events) requires on the event — the transaction identifier, the partner's customer identifier, and the email address — on every event, including the lifecycle ones that arrive later.
+A data component can only read a key the prehandler left behind, so the reshape decides what identity the platform ever sees. Flatten the full set that [Map Inbound Partner Events](/technical/building-custom-integrations/integration-inbound-events) requires on the event — the transaction identifier, the partner's customer identifier, and the email address — on every event, including the lifecycle ones that arrive later.
 
 The email address is the one that gets dropped. A partner nests it away from the fields that look important: Stripe carries it as `receipt_email` on the payment intent and as `billing_details.email` on the charge, while the payment intent id and customer id sit at the top of the object and reach the reshape without being looked for.
 
@@ -157,7 +157,7 @@ The builder is where an action does its work:
 
 `component_references` attaches the prehandler to the component it belongs to. This is not bookkeeping: the reference is what gives `context.getVariable(name)` something to read, so a prehandler that consults its integration's settings only works when it is attached to that integration.
 
-An external element carries **at most one** component reference; a second is rejected as `external_elements_cannot_have_multiple_references`. The reference resolves against the **published** campaign, exactly as it does for the report runner and event stream in [Add the Activity and Event Views](/technical/integration-overview/integration-activity-views), so publish the campaign before creating the prehandler and expect `invalid_component_reference` if you do not.
+An external element carries **at most one** component reference; a second is rejected as `external_elements_cannot_have_multiple_references`. The reference resolves against the **published** campaign, exactly as it does for the report runner and event stream in [Add the Activity and Event Views](/technical/building-custom-integrations/integration-activity-views), so publish the campaign before creating the prehandler and expect `invalid_component_reference` if you do not.
 
 `component_ids` is accepted and echoed back alongside `component_references`, but it is deprecated. Send `component_references`.
 
@@ -171,7 +171,7 @@ Send a real event and read the result. A prehandler is never finished at the cre
 
 ## Produce a Name This Integration Owns
 
-Because prehandlers run first, the `input_event` rule in [Map Inbound Partner Events](/technical/integration-overview/integration-inbound-events) lists the name the prehandler produced, not the name the partner sent. Which leaves the choice of what to produce, and there are two kinds of name to choose between: one that belongs to this integration, and one the whole account is already listening for. Produce the first.
+Because prehandlers run first, the `input_event` rule in [Map Inbound Partner Events](/technical/building-custom-integrations/integration-inbound-events) lists the name the prehandler produced, not the name the partner sent. Which leaves the choice of what to produce, and there are two kinds of name to choose between: one that belongs to this integration, and one the whole account is already listening for. Produce the first.
 
 An `input_event` rule matches an event name by case-insensitive equality and by nothing else. Not the app type, not the component the rule belongs to, not the campaign — and a business event's alternate names are not consulted for an inbound event, only for the step it produces. A packaged business event's rule listens for its own name by default, so an integration that renames its partner's webhook to `converted` at ingest has pointed that webhook at every `converted` event in the account. The partner's raw delivery enters marketing programs as though it were a first-party conversion, the integration built to interpret it is bypassed rather than consulted, and every call that arranged this returned a success.
 
