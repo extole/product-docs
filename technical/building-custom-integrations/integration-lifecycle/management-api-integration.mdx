@@ -132,7 +132,9 @@ Only three kinds of value genuinely have no source you can read: a partner-side 
 
 Management calls and event submission share one host. Every example in this guide reads it from this variable:
 
-`views`
+```bash
+EXTOLE_API_HOST=https://api.extole.io
+```
 
 Campaigns, components, webhooks, and reward suppliers are Management API calls; event submission is a Server to Extole call. Both go to `api.extole.io`, as described in [REST APIs](/technical/platform-integrations/rest-apis/index). [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) covers the sending side in full.
 
@@ -144,11 +146,20 @@ Campaign mutations create a new version. A version used by one successful reques
 
 Refresh the version before every version-scoped mutation:
 
-`converted`
+```bash
+CAMPAIGN_VERSION=$(
+  curl --silent --show-error --fail-with-body \
+    "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID" \
+    --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" |
+  jq --raw-output '.version'
+)
+```
 
 Use the singular path segment `/version/{version}`:
 
-`shipped`
+```text
+/v2/campaigns/{campaign_id}/version/{version}/components
+```
 
 Do not use `/versions/`. If the API returns `stale_version` or `concurrent_update`, retrieve the campaign again, reconcile the latest state, and retry only the intended mutation.
 
@@ -156,7 +167,14 @@ Do not use `/versions/`. If the API returns `stale_version` or `concurrent_updat
 
 Find templates at execution time through the duplicatable-components endpoint. This endpoint returns components that the current client can duplicate, including components made available through subscriptions and grants.
 
-`integration-v10.1`
+```bash
+curl --get "$EXTOLE_API_HOST/v1/components/duplicatable" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --data-urlencode "name=template_transacted_business_event" \
+  --data-urlencode "version_state=PUBLISHED" \
+  --data-urlencode "having_any_types=business-event-v10.0" \
+  --data-urlencode "show_all=true"
+```
 
 After the target component and socket exist, add `target_component_id` and `target_setting_name` to return only components compatible with that socket. Do not use the deprecated `target_socket_name` parameter. Narrowing this way is the reliable form of the query, because a widely used source such as `input_event` also appears once for every campaign that already installed a copy of it.
 

@@ -19,7 +19,10 @@ The Extole React Native SDK supports iOS 13.0 or later and Android `minSdkVersio
 
 Add the `@extole/react-native-sdk` dependency
 
-`minSdkVersion 21`
+```javascript kotl
+npm install @extole/react-native-sdk react-native-webview
+
+```
 
 *Please note that Github currently requires that you input your credentials to view public assets.*
 
@@ -27,7 +30,11 @@ Add the `@extole/react-native-sdk` dependency
 
 Initialize Extole as follows.
 
-`@extole/react-native-sdk`
+```javascript
+import {Extole} from '@extole/react-native-sdk';
+
+const extole = new Extole('share.client.com', 'your-app-name');
+```
 
 You’ll need to provide your Extole program domain in place of `‘share.client.com’`. Be sure to also replace `‘your-app-name’` with a descriptive name for your application.
 
@@ -35,7 +42,21 @@ You’ll need to provide your Extole program domain in place of `‘share.client
 
 In your code, pass configure the `view` and callback.
 
-`‘share.client.com’`
+```javascript
+const [extoleView, setExtoleView] = React.useState<Element>(<View />);
+
+extole.configure(extoleView, setExtoleView, () => {
+    navigation.navigate('Promo');
+});
+
+// Use the extole.view
+function ExtoleScreen() {
+  return <View>extole.view</View>;
+}
+
+// The ExtoleScreen() method is used as a Screen
+<Stack.Screen name='Promo' component={ExtoleScreen} />
+```
 
 By default, Extole will use this single view to interact with the customer.
 
@@ -49,7 +70,9 @@ By default, Extole will use this single view to interact with the customer.
 
 Send Extole information about the customer. 
 
-`‘your-app-name’`
+```javascript
+extole.identify("example@test.com", {"partner_user_id": "123"})
+```
 
 You can choose to pass any type of data to describe the customer. Richer data about your customers gives your marketing team the information they need to better segment your program participants and target them with appropriate campaigns.
 
@@ -57,7 +80,9 @@ You can choose to pass any type of data to describe the customer. Richer data ab
 
 If you would like to verify the identity of your customers with JWT instead of their email address, use the following method:
 
-`view`
+```javascript
+extole.identifyJwt(_ jwt: String, _ data: [String: Any?], _ completion: ((Id<Event>?, Error?) -> Void)?)
+```
 
 For more information on generating JWTs, please reference our article on [Verifying Consumers](https://docs.extole.com/docs/verifying-consumers#using-json-web-tokens-jwts).
 
@@ -69,7 +94,9 @@ For more information on generating JWTs, please reference our article on [Verify
 
 Send Extole events, such as registers, signups, conversions, account openings, and so on.
 
-`mobile_cta`
+```kotlin
+extole.sendEvent("cta_viewed", {"key": "value"}))
+```
 
 For each event type, you can send additional data. For example, on a conversion event you may want to pass in order ID or order value and so on.
 
@@ -83,7 +110,40 @@ Populate a CTA with content from Extole.
 
 CTAs such as mobile menu items can be fully customized in the My Extole Campaign Editor. Each CTA has a designated zone. The following code is an example of how to retrieve a CTA by fetching zone content.
 
-`image`
+```javascript
+const [zone, setZone] = React.useState<Zone | null>(null);
+React.useEffect(() => {
+  extole
+    .fetchZone('mobile_cta')
+    .then(([zone, _campaign]) => {
+      setZone(zone);
+    });
+}, []);
+
+React.useEffect(() => {
+  zone?.viewed()
+}, [zone]);
+
+// On CTA tap send the event to Extole
+const onCtaButtonPress = () => {
+  zone?.tap();
+};
+
+. . . 
+
+// Usage example:
+<View style={styles.container}>
+  <Image
+    style={styles.tinyLogo}
+    source={{
+      uri: zone?.getData().image || 'https://your-default-image',
+    }}
+  />
+  <View style={styles.space} />
+  <Button title={zone?.getData().title || ''} onPress={onCtaButtonPress} />
+  <View style={styles.space} />
+</View>
+```
 
 In order to be able to fetch the `mobile_cta` zone, the zone should be configured in My Extole and should return JSON content containing the `image` and `title`.
 
@@ -108,7 +168,28 @@ You can set up a specific action to occur when an event is fired. For example, w
 
 To set up this type of configuration, you will need to work with Extole Support to set up a zone in My Extole that returns JSON configurations with conditions and actions. The SDK executes actions for conditions that are passing for a specific event.
 
-`title`
+```json json
+{
+  "operations": [
+    {
+      "conditions": [
+        {
+          "type": "EVENT",
+          "event_names": [
+            "mobile_cta_tap"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "VIEW_FULLSCREEN",
+          "zone_name": "microsite"
+        }
+      ]
+    }
+  ]
+}
+```
 
 <Info>
 **Adding additional operations**
@@ -131,10 +212,21 @@ The following types of actions are supported by default in our SDK.
 
 If you would like to create custom actions beyond our defaults, use the format exhibited in the example below. Please reach out to our Support Team at [support@extole.com](mailto:support@extole.com) if you have any questions.
 
-`mobile_bootstrap`
+```javascript
+export class CustomReactAction implements Action {
+  type = 'CUSTOM';
+  title = 'REACT_ACTION';
+
+  execute(_event: AppEvent, _extole: Extole) {
+    // code
+  }
+}
+```
 
 #### Register Custom Actions
 
-`PROMPT`
+```javascript
+extole.registerAction("REACT_ACTION", CustomReactAction.prototype)
+```
 
 [//]: ___

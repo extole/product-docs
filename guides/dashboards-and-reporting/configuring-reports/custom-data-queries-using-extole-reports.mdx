@@ -26,57 +26,85 @@ You set these expressions in the Advanced section of a report's configuration sc
 
 ## Column Definition
 
-`ascending()`
+```
+column_name=expression;
+```
 
 Mappings are a semicolon-separated list of `name=expression` pairs. The column name appears as the header in the report output.
 
-`descending()`
+```
+Id=event.id; Campaign Name=campaign(event.campaignId).campaignName; Conversion Count=group_count_distinct(event.personId, step_name:"converted");
+```
 
 ## Hidden Columns
 
 Prefix a column name with `hidden(...)` to compute an intermediate value without including it in the output. Hidden columns can be referenced by name in subsequent expressions.
 
-`name=expression`
+```
+hidden(Reward Id)=event.data.reward_id; Face Value=reward(Reward Id).faceValue;
+```
 
 ## Accessing Event Properties
 
 Direct property access on the primary record:
 
-`hidden(...)`
+```
+event.id
+event.eventTime
+event.personId
+event.campaignId
+event.data.someKey
+event.data."nested.key.with.dots"
+```
 
 For deeply nested keys that contain dots in their name, wrap the key in double quotes:
 
-`==`
+```
+event.data."share.message"
+```
 
 # Filter Syntax
 
 Filters are semicolon-separated boolean expressions. All entries must be satisfied (implicit AND between statements).
 
-`!=`
+```
+expression operator value
+```
 
 **Operators:** `==`, `!=`, `>=`, `<=`, `>`, `<`, `like`, `not like`
 
 **Values** are quoted strings or column references:
 
-`>=`
+```
+event.quality=="HIGH";event.campaignId!="null"
+```
 
 Multiple filters:
 
-`<=`
+```
+event.stepName=="converted";event.quality=="HIGH";event.visitType!="NORMAL"
+```
 
 Null checks:
 
-`>`
+```
+event.data.amount!="null"
+```
 
 Within a `collection(...)` filter parameter, filters use `and`/`or`:
 
-`<`
+```
+collection(person(event.personId).steps, filter:stepName=="converted" and quality=="HIGH")
+```
 
 # Sort Order
 
 Comma-separated sort expressions applied in order:
 
-`like`
+```
+ascending(event.eventTime)
+descending(event.data.amount), ascending(event.personId)
+```
 
 # Functions Reference
 
@@ -86,7 +114,12 @@ Comma-separated sort expressions applied in order:
 
 Returns a raw property from the event record. The `ATTRIBUTE()` wrapper is optional.
 
-`not like`
+```
+event.propertyName
+ATTRIBUTE(event.propertyName)
+event.data.keyName
+ATTRIBUTE(event.data.keyName)
+```
 
 ### PROPERTY
 
@@ -97,7 +130,10 @@ Extracts a named field from a JSON string value.
 
 **Returns:** String
 
-`collection(...)`
+```
+property(step).campaignId
+property(property(main_step).data).reward_id
+```
 
 ### TO_JSON
 
@@ -110,7 +146,10 @@ Converts a column value to its JSON string representation. Useful for text-based
 
 **Limitation:** requires a sub-field; `to_json(event)` is not supported.
 
-`and`
+```
+to_json(event.data)
+to_json(event.selectedCampaignContext)
+```
 
 ## Scalar / Formatting Functions
 
@@ -123,7 +162,12 @@ Evaluates a condition and returns one of two values.
 - `(anonymous, 2nd)` — value when condition is true
 - `(anonymous, 3rd)` — value when condition is false
 
-`or`
+```
+boolean_format(event.firstSiteVisit, "Y", "N")
+boolean_format(event.quality == "HIGH", "PASSING", "SUSPICIOUS")
+boolean_format(EVENT(event.id).name == "converted", "Y", "N")
+boolean_format(event.data.amount > "10", "above_ten", "not_above_ten")
+```
 
 ### NUMBER_FORMAT
 
@@ -132,7 +176,9 @@ Formats a numeric value to decimal with scale 2.
 **Parameters:**
 - `(anonymous)` — column with numeric value
 
-`ATTRIBUTE()`
+```
+number_format(event.data.amount)
+```
 
 ### DATE_FORMAT
 
@@ -143,7 +189,13 @@ Formats a timestamp value.
 - `format` *(optional)* — date/time pattern string; defaults to `ISO_OFFSET_DATE_TIME`; special value `epoch` returns milliseconds since Unix epoch
 - `timezone` *(optional)* — timezone to apply
 
-`(anonymous)`
+```
+date_format(event.eventTime)
+date_format(event.eventTime, format:"yyyy-MM-dd")
+date_format(event.eventTime, format:"yyyy/MM/dd", timezone:"UTC")
+date_format(event.eventTime, format:"epoch")
+date_format(event.eventTime, format:"yyyy-MM-dd'T'HH:mm:ss'['VV']'")
+```
 
 ### DURATION_FORMAT
 
@@ -157,13 +209,19 @@ Returns the base expression if non-null; otherwise returns the fallback.
 - `(anonymous)` — primary expression
 - `value` — fallback if primary is null
 
-`(anonymous)`
+```
+default(event.data.amount, value:"0")
+default(event.data.channel, value:"direct")
+```
 
 ### CONSTANT
 
 Defines a literal constant value.
 
-`to_json(event)`
+```
+"some constant string"
+CONSTANT("some constant string")
+```
 
 ### CONCATENATE
 
@@ -172,7 +230,10 @@ Concatenates up to 256 values in sequence.
 **Parameters:**
 - `(anonymous, 0..255)` — values to join
 
-`(anonymous, 1st)`
+```
+concatenate(event.data.referral_link, CONSTANT("?source=test"))
+concatenate(event.firstName, CONSTANT(" "), event.lastName)
+```
 
 ### CONCATENATE_COLLECTION
 
@@ -183,7 +244,10 @@ Joins all elements of a collection into a single string.
 - `separator` *(optional, default: `,`)* — delimiter
 - `unique` *(optional, default: `false`)* — `"true"` deduplicates values
 
-`(anonymous, 2nd)`
+```
+concatenate_collection(collection(person(event.personId).steps, extracting:stepName), separator:" | ")
+concatenate_collection(collection(person(event.personId).steps, extracting:stepName), unique:"true")
+```
 
 ### REPLACE
 
@@ -194,7 +258,9 @@ Replaces occurrences of a pattern within a string.
 - `search` — pattern to find
 - `replacement` — replacement string
 
-`(anonymous, 3rd)`
+```
+replace(event.data.amount, search:".00", replacement:"")
+```
 
 ### SPLIT
 
@@ -204,7 +270,10 @@ Transforms a delimited string into an array.
 - `(anonymous)` — source string
 - `separator` *(optional, default: `,`)* — delimiter
 
-`(anonymous)`
+```
+split(event.data.tags)
+split(event.data.tags, separator:"|")
+```
 
 ## Date / Period Functions
 
@@ -216,19 +285,28 @@ Maps a timestamp to the start of the period it falls in.
 - `(anonymous)` — timestamp column
 - `period` — one of: `NONE`, `DAY`, `WEEK`, `MONTH`, `QUARTER`, `YEAR`, `TRAILING_WEEK`, `TRAILING_TWO_WEEKS`, `TRAILING_THREE_WEEKS`, `TRAILING_MONTH`
 
-`(anonymous)`
+```
+start_date(event.eventTime, period:"DAY")
+start_date(event.eventTime, period:"WEEK")
+start_date(event.eventTime, period:report_parameters().defaultPeriod)
+```
 
 ### END_DATE
 
 Maps a timestamp to the end of the period it falls in. Same parameters as `START_DATE`.
 
-`format`
+```
+end_date(event.eventTime, period:"DAY")
+end_date(event.eventTime, period:"MONTH")
+```
 
 ### NOW
 
 Returns the current timestamp at report execution time.
 
-`ISO_OFFSET_DATE_TIME`
+```
+now()
+```
 
 ## Entity Lookup Functions
 
@@ -243,7 +321,13 @@ Loads the full person profile.
 
 **Returns:** `api.Person` properties
 
-`epoch`
+```
+person(event.personId).email
+person(event.personId).firstName
+person(event.personId).lastName
+person(event.personId).data.someKey
+PERSON(event.data.related_person_id).normalizedEmail
+```
 
 Key Person properties: `id`, `email`, `normalizedEmail`, `firstName`, `lastName`, `locale`, `data`, `steps`, `rewards`, `friends`, `advocates`, `shareables`, `journeys`, `audienceMemberships`, `recentRequestContexts`.
 
@@ -256,7 +340,11 @@ Loads the latest state of a campaign.
 
 **Returns:** `api.BuiltCampaign` properties
 
-`timezone`
+```
+campaign(event.campaignId).campaignName
+CAMPAIGN(event.campaignId).description
+campaign(event.campaignId).state
+```
 
 Key Campaign properties: `id`, `name`, `campaignName`, `description`, `state`, `version`, `programLabel`, `tags`, `steps`, `rewardRules`.
 
@@ -269,7 +357,9 @@ Builds an aggregated campaign state from all known client change events.
 
 **Returns:** `api.CampaignSummary` properties
 
-`DATE_FORMAT`
+```
+campaign_summary(event.campaignId).campaignName
+```
 
 ### CLIENT
 
@@ -280,7 +370,12 @@ Loads the client model object. The join column is optional; defaults to the even
 
 **Returns:** `api.Client` properties
 
-`(anonymous)`
+```
+client(event.clientId).clientType
+client(event.clientId).shortName
+CLIENT().shortName
+CLIENT().clientType
+```
 
 ### CLIENT_PROPERTIES
 
@@ -288,13 +383,19 @@ Loads the property map associated with the current client. No join column requir
 
 **Returns:** name/value map; access specific properties by name
 
-`value`
+```
+client_properties().vertical
+client_properties().testProperty
+CLIENT_PROPERTIES().client_property_name
+```
 
 ### CLIENT_VERTICAL
 
 Shortcut to extract a vertical attribute from a client.
 
-`(anonymous, 0..255)`
+```
+CLIENT_VERTICAL(event.clientId).ATTRIBUTE
+```
 
 ### EVENT
 
@@ -305,7 +406,11 @@ Loads a specific consumer event by ID.
 
 **Returns:** `api.ConsumerEvent` (or subtype: `StepConsumerEvent`, `RewardConsumerEvent`, `InputConsumerEvent`)
 
-`(anonymous)`
+```
+event(event.rootEventId).name
+EVENT(event.id).person.email
+EVENT(event.id).selectedCampaignContext.triggerResults
+```
 
 Key ConsumerEvent properties: `id`, `rootEventId`, `type`, `eventTime`, `person`, `data`, `sandbox`, `clientContext`.
 
@@ -320,7 +425,11 @@ Combines all known reward events for a given reward ID into a single summary.
 
 **Returns:** `api.RewardSummary` properties
 
-`separator`
+```
+reward(event.data.reward_id).currentState
+REWARD(event.data.reward_id).faceValue
+reward(event.rewardId).supplierId
+```
 
 Key RewardSummary properties: `id`, `currentState`, `faceValue`, `supplierId`, `rewardType`, `partnerRewardId`, `email`, `data`. States: `EARNED`, `FULFILLED`, `SENT`, `REDEEMED`, `FAILED`, `CANCELED`, `REVOKED`.
 
@@ -333,7 +442,11 @@ Loads the reward supplier model.
 
 **Returns:** `api.RewardSupplier` properties
 
-`,`
+```
+reward_supplier(event.rewardSupplierId).displayType
+REWARD_SUPPLIER(event.rewardSupplierId).name
+reward_supplier(event.rewardSupplierId).type
+```
 
 ### STEP_RECORD
 
@@ -346,7 +459,10 @@ Finds the step record for a given step consumer event.
 
 **Returns:** `api.StepRecord` properties
 
-`unique`
+```
+step_record(event.earnedStepEventContext.id, step_name:event.earnedStepEventContext.name, event_time_name:event.earnedStepEventContext.eventTime).visitType
+step_record(event.earnedStepEventContext.id, step_name:event.earnedStepEventContext.name, event_time_name:event.earnedStepEventContext.eventTime).data.amount
+```
 
 Key StepRecord properties: `id`, `clientId`, `eventTime`, `requestTime`, `personId`, `name`, `deviceType`, `attribution`, `visitType`, `quality`, `data`.
 
@@ -361,7 +477,11 @@ Finds the input record corresponding to an input consumer event.
 
 **Returns:** `api.InputRecord` properties
 
-`false`
+```
+input_record(event.rootEventId, event_time_name:event.eventTime).name
+input_record(event.rootEventId, event_name:"conversion", event_time_name:event.eventTime).apiType
+INPUT_RECORD(event.rootEventId, event_time_name:event.eventTime).userAgent
+```
 
 Key InputRecord properties: `id`, `clientId`, `eventTime`, `personId`, `name`, `locale`, `apiType`, `appType`, `deviceType`, `userAgent`, `data`.
 
@@ -379,7 +499,12 @@ Parses a user agent and returns a device/browser/OS classification.
   - `BROWSER_TYPE` — e.g. Safari, Chrome, Edge, DuckDuckGo
   - `OS_TYPE` — e.g. Android, iOS, Linux, Tizen
 
-`"true"`
+```
+device_type(event.rootEventId)
+device_type(event.rootEventId, mode:"OS_TYPE")
+device_type(user_agent:event.userAgent)
+device_type(user_agent:event.userAgent, mode:"BROWSER_TYPE")
+```
 
 ## Collection Functions
 
@@ -392,23 +517,37 @@ Filters and optionally extracts fields from a collection.
 - `filter` *(optional, repeatable)* — filter predicate; use `and`/`or` within one `filter:` parameter, or supply multiple separate `filter:` parameters (all must match)
 - `extracting` *(optional)* — extract a single field from each element
 
-`(anonymous)`
+```
+collection(person(event.personId).steps, filter:stepName=="converted")
+collection(person(event.personId).steps, filter:stepName=="converted" and quality=="HIGH")
+collection(person(event.personId).steps, extracting:stepName)
+collection(event(event.id).selectedCampaignContext.triggerResults, filter:passed=="false")
+COLLECTION(PERSON(event.personId).steps, filter:stepName=="transacted" AND campaignId!="null")
+```
 
 Multiple separate `filter:` arguments (implicit AND between them):
 
-`search`
+```
+COLLECTION(EVENT(event.id).person.steps, filter:stepName=="legacy_incentivized" or stepName=="risk_evaluated", filter:stepName!="transacted")
+```
 
 ### COUNT
 
 Counts all elements in a collection. Used in records reports (not metrics); wraps a `COLLECTION` expression.
 
-`replacement`
+```
+COUNT(COLLECTION(person(event.personId).steps))
+COUNT(COLLECTION(person(event.personId).steps, filter:stepName=="converted"))
+```
 
 ### COUNT_DISTINCT
 
 Counts distinct values of the extracted field across a collection. Used in records reports (not metrics).
 
-`(anonymous)`
+```
+COUNT_DISTINCT(COLLECTION(person(event.personId).steps, filter:stepName=="signup"))
+COUNT_DISTINCT(COLLECTION(person(event.personId).steps, filter:stepName=="invest_core" OR stepName=="signup" OR stepName=="failed", extracting:campaignId))
+```
 
 ### PERSON_COLLECTION
 
@@ -421,7 +560,12 @@ Paginated, memory-efficient collection extraction from a person profile. Preferr
 - `extracting` *(optional)* — field to extract from each element
 - `reduce` *(optional)* — aggregation to apply: `sum`, `count`, `min`, `max`
 
-`separator`
+```
+person_collection(person(event.personId).id, collection:"steps", filter:stepName=="converted", extracting:eventId, reduce:"count")
+person_collection(person(event.personId).id, collection:"steps", filter:aliasName=="false", extracting:eventId, reduce:"count")
+person_collection(person(event.personId).id, collection:"steps", filter:stepName=="converted" and quality=="HIGH", extracting:value, reduce:"sum")
+person_collection(person(event.personId).id, collection:"rewards", filter:currentState=="FULFILLED", reduce:"count")
+```
 
 ### FIRST
 
@@ -432,13 +576,21 @@ Returns the first element of a collection, optionally after sorting.
 - `sortBy` *(optional)* — field to sort by before selecting
 - `(anonymous, 2nd)` — sub-property to extract from the selected element
 
-`,`
+```
+first(collection(person(event.personId).steps, filter:stepName=="converted"), sortBy:eventDate).eventDate
+first(collection(person(event.personId).steps, filter:stepName=="application_started"), sortBy:createdDate).campaignId
+FIRST(EVENT(event.eventId).person.steps, sortBy:eventDate).stepName
+```
 
 ### LAST
 
 Returns the last element of a collection, optionally after sorting. Same parameters as `FIRST`.
 
-`(anonymous)`
+```
+last(collection(person(event.personId).steps, filter:stepName=="converted"), sortBy:eventDate).eventDate
+LAST(EVENT(event.eventId).person.steps, sortBy:eventDate).partnerEventId
+LAST(COLLECTION(PERSON(event.personId).recentRequestContexts), sortBy:createdAt).geoIp.ip_address
+```
 
 ### INDEX
 
@@ -449,7 +601,10 @@ Returns the element at a specific position in a collection.
 - `index` *(required)* — zero-based integer index
 - `sortBy` *(optional)* — field to sort by before indexing
 
-`period`
+```
+index(person(event.personId).steps, sortBy:eventDate, index:"0")
+index(person(event.personId).steps, sortBy:eventDate, index:"2")
+```
 
 ### EXPLODE
 
@@ -458,7 +613,11 @@ Expands an array into multiple rows — one row per element.
 **Parameters:**
 - `(anonymous)` — array expression
 
-`NONE`
+```
+explode(event.arrayPropertyName)
+EXPLODE(PERSON(event.personId).recentRequestContexts).geoIp.zip_code
+EXPLODE(SPLIT(event.data.tags))
+```
 
 ## Aggregation Functions (Metrics Reports Only)
 
@@ -475,11 +634,15 @@ These functions are only valid in metrics report types (e.g. `CONFIGURABLE_EVENT
 
 If you want to measure advocate activity using a **friend-funnel step** (e.g. how many share clicks each advocate generated), group by `event.data.related_person_id`, not `event.personId`:
 
-`DAY`
+```
+Advocate Id=event.data.related_person_id; Share Clicks=GROUP_COUNT_DISTINCT(event.id, step_name:"share_clicked");
+```
 
 If you mix advocate-side and friend-side steps in the same report, use `BOOLEAN_FORMAT` to pick the correct person ID conditionally:
 
-`WEEK`
+```
+Advocate Id=BOOLEAN_FORMAT(event.name=="SHARE_EVENT", event.personId, event.data.related_person_id);
+```
 
 Pulling `GROUP_COUNT_DISTINCT(event.personId, step_name:"shared")` and expecting it to represent advocates is correct — `shared` is an advocate-funnel step, so `event.personId` is the advocate. But pulling `GROUP_COUNT_DISTINCT(event.personId, step_name:"share_clicked")` gives you a count of unique friends, not advocates. Mix the two step names without accounting for this and the person IDs represent different populations in each column.
 
@@ -502,55 +665,88 @@ All aggregation functions share a common set of optional filter parameters in ad
 
 Counts the number of records matching the group.
 
-`MONTH`
+```
+GROUP_COUNT(event.id, step_name:"converted")
+group_count(event.id, step_name:"ALL")
+GROUP_COUNT(event.id, name:"call_to_action")
+GROUP_COUNT(event.id, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
+```
 
 ### GROUP_COUNT_DISTINCT
 
 Counts distinct values of the given expression within the group.
 
-`QUARTER`
+```
+GROUP_COUNT_DISTINCT(event.personId, step_name:"converted")
+GROUP_COUNT_DISTINCT(event.id, step_name:"share_clicked", visit_type:"ALL")
+group_count_distinct(event.id, name:"conversion")
+GROUP_COUNT_DISTINCT(event.id, audience_id:"1")
+GROUP_COUNT_DISTINCT(event.personId, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
+```
 
 ### GROUP_SUM
 
 Sums the values of the expression within the group.
 
-`YEAR`
+```
+GROUP_SUM(event.data.amount, step_name:"converted")
+GROUP_SUM(reward(event.data.reward_id).faceValue, step_name:"advocate_reward_earned")
+GROUP_SUM(event.amount, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
+```
 
 ### GROUP_AVG
 
 Averages the values of the expression within the group.
 
-`TRAILING_WEEK`
+```
+GROUP_AVG(event.data.amount, step_name:"converted")
+```
 
 ### GROUP_MIN
 
 Returns the minimum value within the group.
 
-`TRAILING_TWO_WEEKS`
+```
+GROUP_MIN(event.eventTime, step_name:"converted")
+GROUP_MIN(event.data.amount, step_name:"ALL")
+```
 
 ### GROUP_MAX
 
 Returns the maximum value within the group.
 
-`TRAILING_THREE_WEEKS`
+```
+GROUP_MAX(event.eventTime, step_name:"converted")
+GROUP_MAX(event.data.amount, step_name:"converted", quality:"HIGH")
+```
 
 ### GROUP_FIRST
 
 Returns the first occurrence of the expression within the group, ordered by event time.
 
-`TRAILING_MONTH`
+```
+GROUP_FIRST(PERSON(event.personId).email, step_name:"converted")
+GROUP_FIRST(event.eventTime, step_name:"registered")
+GROUP_FIRST(PERSON(event.personId).email, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
+```
 
 ### GROUP_LAST
 
 Returns the last occurrence of the expression within the group.
 
-`START_DATE`
+```
+GROUP_LAST(event.amount, step_name:"converted")
+GROUP_LAST(event.data.channel, step_name:"converted", attribution:"ALL")
+GROUP_LAST(event.amount, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
+```
 
 ### GROUP_CONCATENATE
 
 Concatenates all values of the expression within the group.
 
-`(anonymous)`
+```
+GROUP_CONCATENATE(event.data.source, step_name:"converted")
+```
 
 ## Arithmetic & Rate Functions
 
@@ -558,31 +754,44 @@ Concatenates all values of the expression within the group.
 
 Adds two expressions.
 
-`api.Person`
+```
+SUM(event.data.amount, event.data.bonus)
+SUM(date_format(event.eventTime, format:"epoch"), date_format("604800000", format:"epoch"))
+```
 
 ### SUBTRACT
 
 Subtracts the second expression from the first.
 
-`id`
+```
+SUBTRACT(event.data.endAmount, event.data.startAmount)
+SUBTRACT(date_format(event.eventTime, format:"epoch"), "3888000000")
+```
 
 ### RATE
 
 Calculates a rate: value / denominator.
 
-`email`
+```
+RATE(Convertors, Share Link Clickers)
+RATE(event.data.amount, "3.333333333333")
+```
 
 ### PERCENTAGE
 
 Calculates a percentage: (value / total) * 100.
 
-`normalizedEmail`
+```
+PERCENTAGE(Convertors, Share Link Clickers)
+```
 
 ### BENCHMARK
 
 Compares a rate to a benchmark threshold.
 
-`firstName`
+```
+BENCHMARK(Convertors, Share Link Clickers, "150")
+```
 
 ## Utility Functions
 
@@ -595,31 +804,44 @@ Maps a value to a dimension definition stored in the platform.
 - `dimension_name` — name of the dimension
 - `program_label` — program label expression
 
-`lastName`
+```
+MAP_DIMENSION(event.data.source, dimension_name:"source", program_label:event.programLabel)
+```
 
 ### REPORT_PARAMETERS
 
 Provides access to dynamic parameters passed at report execution time. Useful for parameterized templates.
 
-`locale`
+```
+report_parameters().defaultPeriod
+report_parameters().defaultStepName
+start_date(event.eventTime, period:report_parameters().defaultPeriod)
+```
 
 ### GEO_IP
 
 Extracts geo-location data from an IP address.
 
-`data`
+```
+geo_ip(event.data.ip).country
+geo_ip(event.data.ip).city
+```
 
 ### SUPPORT
 
 Provides access to support-related metadata for the event's client.
 
-`steps`
+```
+support().salesforceAccountId
+```
 
 ### RISK_VALUE
 
 Extracts a risk signal value.
 
-`rewards`
+```
+risk_value(event.id).score
+```
 
 # Enums Reference
 
@@ -702,43 +924,63 @@ Filters events by conversion quality signal.
 
 ## Count Events by Step (Metrics Report)
 
-`friends`
+```
+step=event.stepName; count=group_count_distinct(event.id, step_name:"ALL"); unique_persons=group_count_distinct(event.personId, step_name:"ALL");
+```
 
 ## Traffic Funnel With Attribution Filters
 
-`advocates`
+```
+Share Link Clickers=GROUP_COUNT_DISTINCT(event.personId, step_name:"share_clicked", visit_type:"ALL"); Signups=GROUP_COUNT_DISTINCT(event.personId, step_name:"signup", visit_type:"NEW_TO_CLIENT"); Convertors=GROUP_COUNT_DISTINCT(event.personId, step_name:"converted", visit_type:"ALL"); Conversion Rate=RATE(Convertors, Share Link Clickers);
+```
 
 ## Count Input Events by Name, App Type, and API Type
 
-`shareables`
+```
+name=event.name; app_type=event.appType; api_type=event.apiType; count=group_count_distinct(event.id, name:"all");
+```
 
 ## Daily Bucketing
 
-`journeys`
+```
+Day=end_date(event.eventTime, period:"DAY"); Count=group_count_distinct(event.id, step_name:"converted");
+```
 
 ## Person Details With Lookup
 
-`audienceMemberships`
+```
+Email=person(event.personId).email; First Name=person(event.personId).firstName; Last Name=person(event.personId).lastName; Campaign Name=campaign(event.campaignId).campaignName;
+```
 
 ## Conditional Column (Boolean Format)
 
-`recentRequestContexts`
+```
+quality_score=boolean_format(event.quality == "HIGH", "PASSING", "SUSPICIOUS"); Has Conversion=boolean_format(EVENT(event.id).name=="converted","Y","N");
+```
 
 ## Add N Days Offset to a Timestamp (e.g. +7 Days)
 
-`(anonymous)`
+```
+offset_date=date_format(replace(concatenate(number_format(SUM(date_format(event.eventTime, format:"epoch"), date_format("604800000", format:"epoch"))), ""), search:".00", replacement:""))
+```
 
 ## Extract Device Type From Input Record
 
-`api.BuiltCampaign`
+```
+Device=device_type(user_agent:event.userAgent); OS=device_type(user_agent:event.userAgent, mode:"OS_TYPE"); Browser=device_type(user_agent:event.userAgent, mode:"BROWSER_TYPE");
+```
 
 ## Count Steps on a Person Profile
 
-`id`
+```
+count_converted=person_collection(person(event.personId).id, collection:"steps", filter:stepName=="converted", extracting:eventId, reduce:"count")
+```
 
 ## Sum Total Rewards Issued
 
-`name`
+```
+reward_value=GROUP_SUM(reward(event.data.reward_id).faceValue, step_name:"advocate_reward_earned")
+```
 
 ## Cross-Client API Type Breakdown (Run From Extole Account)
 
@@ -748,68 +990,98 @@ Report parameters:
 
 `mappings`:
 
-`campaignName`
+```
+API Type=INPUT_RECORD(event.rootEventId, event_time_name:event.eventTime).apiType; Client=CLIENT(event.clientId).shortName; Event Count=GROUP_COUNT_DISTINCT(event.id, step_name:"ALL");
+```
 
 ## Check if a Referral Exists on a Person (With Hidden Intermediate)
 
-`description`
+```
+hidden(step)=FIRST(COLLECTION(PERSON(event.personId).steps, filter:stepName=="application_started" or stepName=="share_clicked" or stepName=="share_email_delivered" and eventDate<=ACH_Event_Date and programLabel=="refer-a-friend"), sortBy:"createdDate"); Campaign Name=campaign(property(step).campaignId).campaignName;
+```
 
 ## Compare a Step Date Against a Rolling 45-Day Window
 
-`state`
+```
+ACH_Event_Date=event.eventTime; hidden(45_Days_Offset)=DATE_FORMAT(replace(concatenate(number_format(SUBTRACT(date_format(ACH_Event_Date, format:"epoch"), "3888000000")), ""), search:".00", replacement:""), format:"YYYY-MM-dd'T'hh:mm:ss", timezone:"Z"); Application Completed Within 45 Days=LAST(COLLECTION(PERSON(event.personId).steps, filter:stepName=="application_completed" and programLabel=="refer-a-friend" and eventDate>=45_Days_Offset and quality=="HIGH"), sortBy:"createdDate").eventDate;
+```
 
 ## Parameterized Period (Using REPORT_PARAMETERS)
 
-`version`
+```
+Period Start=start_date(event.eventTime, period:report_parameters().defaultPeriod); Step Count=group_count_distinct(event.id, step_name:report_parameters().defaultStepName);
+```
 
 ## Client Vertical
 
-`programLabel`
+```
+vertical=CLIENT_PROPERTIES().vertical
+```
 
 ## Null-Safe Data Extraction
 
-`tags`
+```
+Amount=default(event.data.amount, value:"0"); Channel=default(event.data.channel, value:"unknown");
+```
 
 ## Null Check Filter
 
 Column `Has_Share_Click` must not be absent:
 
-`steps`
+```
+Has_Share_Click!="null"
+```
 
 ## Salesforce Account ID
 
-`rewardRules`
+```
+salesforce_account_id=support().salesforceAccountId
+```
 
 ## Count Steps on a Person Profile (Records Report)
 
 Use `COUNT_DISTINCT(COLLECTION(...))` in records reports where `PERSON_COLLECTION` is not available:
 
-`(anonymous)`
+```
+count_signup=COUNT_DISTINCT(COLLECTION(person(event.personId).steps, filter:stepName=="signup"))
+```
 
 ## Count Targeted Campaigns Across Multiple Step Names
 
 Counts distinct campaigns touched by steps matching any of several step names:
 
-`api.CampaignSummary`
+```
+campaign_count=COUNT_DISTINCT(COLLECTION(person(event.personId).steps, filter:stepName=="invest_core" OR stepName=="signup" OR stepName=="failed", extracting:campaignId))
+```
 
 ## Count All Events (Any Step)
 
-`(anonymous, optional)`
+```
+count=GROUP_COUNT(event.id, step_name:"ALL")
+```
 
 ## Rate as a Fraction (e.g. 30%)
 
 Pass `"3.333333333333"` as the denominator to compute 30%:
 
-`api.Client`
+```
+Reward Rate=RATE(event.data.amount, "3.333333333333")
+```
 
 ## Input Record Metrics — Count by Name, App Type, and API Type
 
-`(anonymous)`
+```
+name=event.name; app_type=event.appType; api_type=event.apiType; count=group_count_distinct(event.id, name:"all");
+```
 
 ## Input Record Metrics — Count a Specific Input Event per Person per Day
 
-`api.ConsumerEvent`
+```
+day=END_DATE(event.eventTime, period:"DAY"); person_id=person(event.personId).id; count=group_count_distinct(event.id, name:"terms");
+```
 
 ## Metrics — Shares and Conversions per Person
 
-`StepConsumerEvent`
+```
+person_email=person(event.personId).email; shares=group_count_distinct(event.id, step_name:"shared"); conversions=group_count_distinct(event.id, step_name:"converted");
+```

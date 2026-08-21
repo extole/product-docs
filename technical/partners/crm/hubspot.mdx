@@ -85,7 +85,15 @@ Integrate Extole with HubSpot to automatically update contact records with the c
 8. Reach out to your Extole Customer Success or Launch Manager so that they can add the webhook to the `created_share_link` controller in your Extole campaign.
 9. Once the webhook has been added to your Extole campaign, navigate to the Extole Tech Center > Outbound Webhooks and click on the webhook to make sure that share links and codes are flowing into Hubspot. A typical request body should look something like this with a 201 response.
 
-`crm.objects.contacts.write `
+```json
+  "properties": {
+    "email": "test123@sears.com",
+    "share_code": "test123",
+    "share_link": "share.test123@sears.com",
+    "company": "sears",
+    "extole_app_type": "hubspot"
+  }
+```
 
 You're all set! Make sure you have your Hubspot account configured to capture and populate records with any custom Extole properties (`share_link` and `share_code`.) From there you will be able to dynamically populate a customers share link in your Hubspot Flows and Campaigns.
 
@@ -132,7 +140,21 @@ Create a webhook using Hubspot workflows to notify Extole every time a referred 
 
    The request body should look like this:
 
-   `converted`
+   ```json
+   {
+     "event_name": "signed_up",
+     "data": {
+       "email": "{{email}}",
+       "advocate_code": "{{advocate_code}}",
+       "first_name": "{{first_name}}",
+       "last_name": "{{last_name}}",
+       "event_date": "{{date}}",
+       "partner_conversion_id": "{{id}}",
+       "company": "{{company}}",
+       "extole_app_type": "hubspot"
+     }
+   }
+   ```
 
 ### Send Hubspot data as events to Extole to score and reward referrals
 

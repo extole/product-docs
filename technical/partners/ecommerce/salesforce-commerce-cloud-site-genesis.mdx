@@ -208,7 +208,38 @@ Extole can programmatically manage coupon codes within the Salesforce Commerce C
 
 3. Update your OCAPI settings to include the clients section below (you may need to amend your settings), which will enable Extole to create, read, and update coupons.
 
-`int_extole`
+```text
+{
+    "_v": "18.3",
+    "clients": [
+   	 {
+   		 "allowed_origins": [
+   			 "http://my.extole.com",
+   			 "https://my.extole.com",
+   			 "http://api.extole.com",
+   			 "https://api.extole.com"
+   		 ],
+   		 "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   		 "resources": [
+   			 {
+   				 "resource_id": "/sites/{site_id}/coupons/**",
+   				 "methods": ["get", "post","patch"],
+   				 "read_attributes": "(**)",
+   				 "write_attributes": "(**)",
+   				 "cache_time": 900
+   			 },
+   			 {
+   				 "resource_id": "/sites/{site_id}/coupon_search",
+   				 "methods": ["post"],
+   				 "read_attributes": "(**)",
+   				 "write_attributes": "(**)",
+   				 "cache_time": 900
+   			 }
+   		 ]
+   	 }
+    ]
+}
+```
 
 <Warning>
 **Important Note**
@@ -249,7 +280,10 @@ The Extole Javascript library should preferably be embedded in the `<header>` ta
 
 Paste the following code sample into your `htmlHead.isml`:
 
-`int_extole_controllers`
+```html
+<iscomment>Extole Library</iscomment>
+<isinclude template="extole/core"/>
+```
 
 ### Extole Zone tags
 
@@ -278,7 +312,22 @@ Zone tags can pass additional information such as product, category, or customer
 
 Each tag can be customized, meaning you can specify what information needs to be added to the tag. For example, take a look at the zone tag integration below:
 
-`int_extole_sfra`
+```javascript
+<iscomment>
+    Extole zone tag example
+</iscomment>
+<isinclude url="${URLUtils.url('Extole-Zonetag',
+    'name', 'global_header',
+    'elementId', 'extole_zone_global_header',
+    'predefined_data', 'customer, product',
+    'mapped_data', 'brand: product.brand',
+    'data', 'name_test: value_test',
+    'productId', pdict.product.id,
+    'categoryId', pdict.productSearch.category.id,    
+    'orderId', pdict.CurrentRequest.httpParameterMap.orderID.value,
+    'orderToken', pdict.CurrentRequest.httpParameterMap.orderToken.value
+)}" />
+```
 
 #### Zone Tag Parameters
 
@@ -336,7 +385,42 @@ In the above example, `Extole-Zonetag` is the name of the controller that render
 
 The predefined data configuration includes the name of the SFCC objects like customer, category, product, order, jwt. See the configurations for each of the listed object types below:
 
-`ExtoleOrderStatusUpdate`
+```json
+{
+	"customer": {
+    	"first_name": "customer.profile.firstName",
+    	"last_name": "customer.profile.lastName",
+    	"email": "customer.profile.email",
+    	"partner_user_id": "customer.$customerId"
+	},
+	"category": {
+    	"title": "category.$categoryTitle",
+    	"image_url": "category.$categoryImageURL",
+    	"description": "category.pageDescription",
+    	"content.url": "category.$categoryURL"
+	},
+	"product": {
+    	"title": "product.$productTitle",
+    	"image_url": "product.$productImageURL",
+    	"description": "product.pageDescription",
+    	"url": "product.$productURL",
+    	"partner_content_id": "product.ID"
+	},
+	"order": {
+    	"partner_conversion_id": "order.orderNo",
+    	"cart_value": "order.$cartValue",
+    	"coupon_code": "order.$couponList",
+    	"first_name": "order.billingAddress.firstName",
+    	"last_name": "order.billingAddress.lastName",
+    	"email": "order.customerEmail",
+    	"partner_user_id": "order.$orderCustomerId"
+	},
+	"jwt": {
+    	"email": "customer.profile.email",
+    	"customerId": "customer.profile.customerNo"
+	}
+ }
+```
 
 Each object has an attributes/pathToValues pair defined, where attributes is the name of the attribute for the Extole tag, and pathToValues is the path to the attribute value. 
 
@@ -374,11 +458,34 @@ If the name of the attribute starts with $ like `order.$orderTotal`, this attrib
 
 Tag data example:
 
-`int_extole`
+```javascript
+<isinclude url="${URLUtils.url('Extole-Zonetag',
+    'name', 'example',
+    'elementId', 'extole_id_example',
+    'predefined_data', 'customer',
+    'mapped_data', 'customerAge: customer.profile.custom.age',
+    'data', 'custom: extole_custom_data',
+)}" />
+```
 
 Results in the following create zone object:
 
-`int_extole_controllers`
+```javascript
+{  
+   "example": "extole_id_example",
+"element_id": "element_id_example",
+   // following attributes inserted because of predefined_data: ‘customer’ parameter value
+   "email": "test@example.com", 
+   "partner_user_id": "123",
+   "first_name": "Robin",
+   "last_name": "Hood",
+       // inserted because of ‘mapped_data’, ‘customerAge: customer.profile.custom.age’
+   "customerAge": "25",
+       // inserted because of 'data', 'custom: extole_custom_data'
+   "custom": "extole_custom_data"
+…
+}
+```
 
 ### Salesforce Commerce Cloud Caching
 
@@ -399,11 +506,36 @@ The conversion tag should pass information about the conversion to allow Extole 
 
 A conversion tag needs to be added in your `confirmation.isml` page to track conversion events in Extole.
 
-`int_extole`
+```xml
+<iscomment>
+   Extole conversion complete tag
+</iscomment>
+
+<isinclude url="${URLUtils.url('Extole-Zonetag', 'name', 'conversion', 'orderId', pdict.Order.orderNo, 'orderToken', pdict.Order.orderToken)}" />
+```
 
 Example of conversion tag data into order confirmation page HTML:
 
-`int_extole_controllers`
+```javascript
+<script type="text/javascript">
+/* Start Extole */
+(function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+/* End Extole */
+
+extole.createZone({
+	name: 'conversion',
+	data: {	
+      	"first_name":"Jon",
+      	"last_name":"Adams",
+      	"email":"jadams@gmail.com",
+      	"partner_user_id":" jadams@gmail.com ",
+      	"partner_conversion_id":"00003109",
+      	"cart_value":"23.99",
+      	"coupon_code":"extole-KB6B-OIM9-H5I7-KHYQ"
+	}
+});
+</script>
+```
 
 | Conversion Tag Attribute           | Description                                                                                                                                                                                       |
 | :--------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -424,7 +556,9 @@ In your IDE, update the detail.js script to reflect your product details. This e
 1. Open `<YOU_CORE_CARTRIDGE>/cartridge/templates/default/product/productcontent.isml`
 2. To the function `updateAttribute`, add the following code to line 281:
 
-`int_extole:int_extole_sfra:`
+```text
+<isinclude template="extole/variantAttributes"/>
+```
 
 ![Screenshot showing intextole:intextolesfra](/images/extole/9bf6d2281b1e226c8fbfdbd1f774b907f9dfca43a4a0768a255b2a0c7990b655.png)
 

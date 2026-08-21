@@ -66,9 +66,27 @@ Extole uses outbound webhooks to POST JSON-formatted events to a configured Sale
 
 Event delivery from Extole to Salesforce using an [Apex REST Endpoint](https://www.google.com/url?q=https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest.htm\&sa=D\&source=docs\&ust=1752867437998720\&usg=AOvVaw3jIkZSqFNLJZ4S7NvaYjaM) is customizable. See example Extole webhook bodies below:
 
-`javascript@runtime:context.createRequestBuilderWithDefaults().build();`
+```json
+{
+    "event_name":"reward_earned",
+    "data":{
+        "salesforce_id":"",
+        "email":"",
+        "value":"50"
+    }
+}
+```
 
-`referralId`
+```json
+{
+    "event_name":"referral_registered",
+    "data":{
+        "salesforce_id":"",
+        "email":"",
+        "advocate":""
+    }
+}
+```
 
 ### Salesforce Ingestion
 
@@ -80,7 +98,19 @@ A custom Apex REST endpoint receives and parses the JSON body, performing logic 
 
 Salesforce Apex Endpoint example:
 
-`salesforce_id`
+```
+@RestResource(urlMapping='/contacts/referralExtoleInfo')
+global with sharing class ReferralHandler {
+  @HttpPost
+  global static void doPost() {
+    RestRequest req = RestContext.request;
+    String payload = req.requestBody.toString();
+
+    // Parse JSON and handle event logic
+    // Map to Salesforce fields and insert/update records
+  }
+}
+```
 
 The Apex class should include error handling, JSON parsing, and record matching logic (using fields like `salesforce_id` for idem-potency). Salesforce provides documentation [here](https://dash.readme.com/project/extole-documentation/v2.0/docs/%3Chttps://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_rest_code_samples.htm).
 
@@ -103,7 +133,11 @@ Extole uses outbound webhooks to POST JSON-formatted data to modify existing sOb
 
 Example requests would look like:
 
-`javascript@runtime: function(){   var requestBuilder = context.createRequestBuilderWithDefaults();   var data = context.getData();   var body = context.globalServices.getJsonService().toJsonString(data['body']);    return requestBuilder     .addUrlTemplateParameter('id', data['salesforce_id'])     .withBody(body)     .build(); }();  `
+```json
+{
+    "AdvocateCode__c":"refer1"
+}
+```
 
 ```json
 {

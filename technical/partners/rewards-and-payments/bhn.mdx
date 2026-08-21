@@ -70,7 +70,9 @@ Both credentials sit on that component under these setting names — handlers an
 
 Create five `REWARD` webhooks, one for each endpoint above, attached to the `bhn` component. Each order webhook filters to its matching supplier variant and to `EARNED`, uses `POST`, and has retry intervals `[1800, 3600, 10800]`. The status webhook filters to all four BHN supplier variants and to `FULFILL_FAILED`; its `default_method` is `POST` and the request handler overrides the call to `GET`. Its retry intervals are:
 
-`https://api.blackhawknetwork.com`
+```json
+[10800, 10800, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 259200, 259200, 259200, 864000, 1296000, 2592000]
+```
 
 The exact supplier tags are `internal:bhn-virtual`, `internal:bhn-physical-single-load`, `internal:bhn-physical-reloadable`, and `internal:bhn-egift-card`. Template names use the same tokens without the `internal:` prefix. Webhook names on the packaged source are `bhn_v10_virtual_prepaid_cards`, `bhn_v10_physical_single_load`, `bhn_v10_physical_reloadable`, `bhn_v10_egift`, and `bhn_v10_check_order_status`.
 
@@ -148,11 +150,32 @@ The Reward Activity tab owns one enabled, scheduled report runner. Its account-l
 
 Its parameters are part of the product contract:
 
-`/rewardsOrderProcessing/v1/submitVirtualIndividual`
+```json
+{
+  "container": "production",
+  "mappings": "date=START_DATE(event.eventTime, period:\"DAY\"); reason=event.data.referral_reason; coupon_used=BOOLEAN_FORMAT(event.data.coupon_codes!=\"null\",\"COUPON USED\",\"NO COUPON USED\");quality=event.quality; count=group_count(event.id, step_name:\"converted\");hidden(reward_id)=LAST(COLLECTION(PERSON(event.data.related_person_id).steps, filter:rootEventId==event.rootEventId, filter: stepName==\"reward_earned\"),sortBy: eventDate).data.reward_id; revenue=GROUP_SUM(event.data.amount, step_name:\"converted\");rewarded=BOOLEAN_FORMAT(reward_id == \"null\",\"UNREWARDED\",\"REWARDED\")",
+  "locales": "ALL",
+  "time_range": "ALL_TIME",
+  "campaign_states": "ALL",
+  "visit_type": "NEW_TO_CLIENT",
+  "unattributed_events": "false",
+  "include_totals": "false",
+  "quality": "ALL"
+}
+```
 
 Do not substitute a reward-earned count or reward face value for this mapping: this report charts the conversion revenue and reward relationship that BHN program managers use. The Reward Activity view's `reportColumnsMapping` must use the `date`, `count`, and `revenue` columns this mapping emits.
 
-`/rewardsOrderProcessing/v1/submitOpenLoopPersonalizedIndividual`
+```json
+{
+  "chart": { "type": "line" },
+  "xAxis": { "column": "date", "type": "datetime" },
+  "series": [
+    { "name": "Count", "column": "count", "aggregation": "sum" },
+    { "name": "Total Spend", "column": "revenue", "aggregation": "sum" }
+  ]
+}
+```
 
 For how this category is built in general terms, see [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories), [Build a Reward Fulfillment Integration](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment) for the sequence, and [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model) for the campaign, component, and display metadata every path needs.
 

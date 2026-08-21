@@ -64,8 +64,20 @@ The core tag can be found under your program’s branded domain (refer.brand.com
 
 Find your active referral domain and use that for your core tag. It will look like `brand.extole.io` (unbranded) or `refer.brand.com` (branded).
 
-`do-not-reply@mycompany.com`
-`span`
+```javascript Branded Domain
+<!-- BRANDED -->
+<script type="text/javascript" src="https://refer.brand.com/core.js" fetchpriority="high" async></script>
+
+<!-- UNBRANDED -->
+<script type="text/javascript" src="https://brand.extole.io/core.js" fetchpriority="high" async></script>
+```
+```javascript Injection
+var extoleScript = document.createElement('script');
+extoleScript.setAttribute('type', 'text/javascript');
+extoleScript.setAttribute('async', 'async');
+extoleScript.setAttribute('src', 'https://origin.extole.io/brand/core.js');
+document.getElementsByTagName('body')[0].appendChild(extoleScript);
+```
 
 ### Add Marketing Tags
 
@@ -87,7 +99,9 @@ It's easy to create additional marketing tags if you want to add CTAs to additio
 
 There is a `span` section that goes into your web page where the content will appear.  This is typically done through your CMS or on site. It is required for all tags that put content inline (but not required for `overlay` and `confirmation` tags).
 
-`id`
+```javascript Span ID
+<span id="extole_zone_global_header"></span>
+```
 
 <Warning>
 **Pass in Customer Information**
@@ -100,7 +114,25 @@ Additionally, there is the `script` tag that loads the targeted content from the
 
 **Below is an example of a`global_header` tag**:
 
-`brand.extole.io`
+```javascript Marketing Tag: Global Header CTA
+<span id="extole_zone_global_header"></span>
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'global_header',
+     element_id: 'extole_zone_global_header',
+     data: {
+       "partner_user_id":"00O40000004SA1AA", // RECOMMENDED IF AVAILABLE
+       "email": "april@advocate.com",  // RECOMMENDED IF AVAILABLE
+       "first_name": "April",  // RECOMMENDED IF AVAILABLE
+       "last_name": "Advocate"  // RECOMMENDED IF AVAILABLE
+     }     
+  });
+</script>
+```
 
 <table>
   <thead>
@@ -175,7 +207,24 @@ The registration tag passes information about the lead to allow Extole to connec
 Make certain that you fire the Extole tag for **all registrations** so Extole will correctly attribute referrals and manage the fraud and business rules. Extole ignores leads that are not connected to an advocate when reward and quality rules run.
 </Warning>
 
-`refer.brand.com`
+```javascript Registration Tag
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'registration',
+     data: {
+       "first_name":"Julio", // RECOMMENDED DYNAMIC VALUE
+       "last_name":"Friend", // RECOMMENDED DYNAMIC VALUE
+       "email":"julio@friend.com", // REQUIRED DYNAMIC VALUE
+       "partner_user_id":"00O40000004SQbO", // REQUIRED DYNAMIC VALUE
+       "advocate_code":"QA754AZ" // RECOMMENDED IF AVAILABLE
+     }
+  });
+</script>
+```
 
 <table>
   <thead>
@@ -269,7 +318,16 @@ Create your first key via the "Create New Access Token" button. Extole temporari
 
 Once your API key is created, you can test successful authentication using the Client API method:
 
-`global_header`
+```curl
+curl --user 1-2:0000 https://api.extole.io/v2/me/clients
+
+[
+  {
+    "client_id": "1",
+    "name": "Demo"
+  }
+]
+```
 
 ### Implement Salesforce Sales Cloud Triggers
 
@@ -277,7 +335,36 @@ Extole does not provide an AppExchange app or plugin for Salesforce, but Salesfo
 
 Here is an example trigger to fire an Opportunity Closed/Won event to Extole:
 
-`global_header`
+```text
+trigger ConversionCreatorOnOpportunityClose on Opportunity (after update) {
+  if (trigger.new.size() == 1) {
+    List<Opportunity> oldOpportunities = Trigger.old;
+    List<Opportunity> newOpportunities = Trigger.new;
+
+    if (oldOpportunities.size() == 1 && newOpportunities.size() == 1) {
+      Opportunity oldOpportunity = oldOpportunities[0];
+      Opportunity newOpportunity = newOpportunities[0];
+
+      if (newOpportunity.StageName == 'Closed Won' && newOpportunity.StageName != oldOpportunity.StageName) {
+        Contact[] contactsForOpportunity = [
+           SELECT Id, FirstName, LastName, Email, Extole_Advocate_Code__c
+             FROM Contact
+            WHERE AccountId = :newOpportunity.AccountId
+        ];
+
+        if (contactsForOpportunity.size() == 1) {
+          Contact contactForOpportunity = contactsForOpportunity[0];
+          ConversionCreator.createConversion(contactForOpportunity.Id,
+            contactForOpportunity.Email,
+            contactForOpportunity.FirstName,
+            contactForOpportunity.LastName,
+            contactForOpportunity.Extole_Advocate_Code__c);
+          }
+        }
+      }
+    }    
+}
+```
 
 <table>
   <thead>
@@ -358,8 +445,22 @@ When leads are created in your CRM, you should call the Extole Registration API.
 Make certain that you fire the Extole tag for **all leads** so Extole will correctly detect referrals and manage the fraud and business rules. Extole ignores the signups that are not attributed to a referral after processing rules.
 </Warning>
 
-`global_footer`
-`product`
+```json Registration API Call
+POST https://api.extole.io/v5/events
+{
+  "event_name": "lead_created",
+  "data": {
+    "first_name": REPLACE,
+    "last_name": REPLACE,
+    "email": REPLACE,
+    "lead_id": REPLACE,
+    "advocate_code": REPLACE
+  }
+}
+```
+```json Response
+{"input_event_id":"6324678551458903928"}
+```
 
 <table>
   <thead>
@@ -444,8 +545,24 @@ Make certain that you fire the Extole tag for **all leads** so Extole will corre
 
 All leads that turn into sales inside of your CRM should call the Extole Conversion API.  This should happen for all leads, even if you don't have an advocate code, Extole handles attributing referrals, removing duplicates, and discarding data that doesn't apply.
 
-`confirmation`
-`overlay`
+```json Conversion API Call
+POST https://api.extole.io/v5/events
+{
+  "event_name": "conversion",
+  "data": {
+    "first_name": REPLACE,
+    "last_name": REPLACE,
+    "email": REPLACE,
+    "lead_id": REPLACE,
+    "advocate_code": REPLACE,
+    "conversion_id": REPLACE,
+    "cart_value": REPLACE
+  }
+}
+```
+```json Response
+{"event_id":"6324678551458903931"}
+```
 
 <table>
   <thead>

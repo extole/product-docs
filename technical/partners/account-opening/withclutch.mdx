@@ -19,7 +19,9 @@ To ensure prospects land on the correct page with the necessary tracking data, y
 3. Set the `Destination for Clicks on Share Links` to your specific online account URL.
 4. Append the advocate's referral code to your tracking parameters by updating the `utm_content` variable with the following value:
 
-`utm_content`
+```Text value
+{[ advocateCode ]}
+```
 
 
 <img src="/images/extole/dd39e7a61fbec1bd29f2d1bba3765ebd10af51a84412eabfa75c1975057aa678.png" alt="Screenshot showing utmcontent" />
@@ -41,13 +43,26 @@ Learn more about [Extole's Javascript tags](https://docs.extole.com/docs/javascr
 
 You can find your core tag in the [Extole platform](https://my.extole.com/tech-center/tag-generator) (Tech Center > Tag Generator.) It will look something like this:
 
-`advocate_code`
+```javascript
+<script type="text/javascript" src="https://share.{{your_company}}.org/core.js" async />
+```
 
 ### Add tags to fire events
 
 Fire Extole's `application_submitted` tag when the prospect/member completes their application. Use Clutch's custom event trigger `WC - DAO - App Submission`.
 
-`Share Link Behavior`
+```javascript
+<script type="text/javascript">
+    (function(c,b,f,k,a){c[b]=c[b]||{};for(c[b].q=c[b].q||[];a<k.length;)f(k[a++],c[b])})(window,"extole",function (c,b){b[c]=b[c]||function (){b.q.push([c,arguments])}},["createZone"],0);
+    extole.createZone({
+        name: "application_submitted",
+        data: {
+            "application_id": {{DAO - App ID}},
+            "advocate_code": {{advocate_code}}
+        }
+    });
+</script>
+```
 
 <br />
 

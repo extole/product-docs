@@ -33,7 +33,21 @@ Send events from a worker, not from the hook that observed them. The hook's job 
 
 An event carries the platform's own event name and a flat `data` object holding the fields the integration maps:
 
-`https://api.extole.io/v6/events`
+```json
+{
+  "event_name": "platform_order_created",
+  "data": {
+    "email": "customer@example.com",
+    "first_name": "Alex",
+    "last_name": "Morgan",
+    "order_id": "10042",
+    "total": 42.5,
+    "customer_id": "customer-9001",
+    "store_url": "https://shop.example.com",
+    "labels": "example-integration"
+  }
+}
+```
 
 Two details in that payload are the ones that go wrong. `labels` belongs inside `data`, and it holds the current program label from the integration view rather than a value copied from another account. And every source key is read by name: the integration's data components look for the keys the partner page names, so a renamed key arrives as an event with that field missing rather than as an error.
 
@@ -45,7 +59,12 @@ Events go to `https://api.extole.io`, the same host as Extole's other server-sid
 
 Use `/v6/events` while building the sender: it responds synchronously, so the worker can verify what Extole did with each event. For sustained high-volume delivery, evaluate `/v6/async-events` and update the worker's verification and retry behavior for asynchronous processing, since acceptance no longer means the event has been processed. Partner pages that document `/v5/events` describe a still-supported path; prefer `/v6/events` for a new sender.
 
-`data`
+```bash
+curl --request POST "https://api.extole.io/v6/events" \
+  --header "Authorization: Bearer $EVENTS_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data @event.json
+```
 
 A sender that receives `204 No Content` with an empty body is not talking to the Events API. The endpoint answers a valid submission with `200` and a JSON body carrying the `person_id`; treat an empty `204` as a misrouted request and check the host before assuming the events were accepted.
 
@@ -68,7 +87,12 @@ Expect the same event more than once. Platforms re-fire hooks and replay status 
 
 Send one event synchronously and follow it through to the business event it produced. The response returns a `person_id`; read that person's steps for the campaign:
 
-`labels`
+```bash
+curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --data-urlencode "campaign_ids=$CAMPAIGN_ID" \
+  --data-urlencode "names=converted"
+```
 
 Confirm that the step carries the canonical event name rather than the platform's, that the transaction identifier and value match the source record, that the person keys resolve, and that sending the same source identifier twice produces a duplicate outcome rather than a second conversion. Repeat for every event the integration accepts, not only the first one.
 

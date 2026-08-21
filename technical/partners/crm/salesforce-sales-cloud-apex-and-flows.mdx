@@ -38,7 +38,39 @@ You must be a system administrator in order to complete the following steps.
 2. Go to Setup > Apex Classes > New and create an Apex class with an invocable method by copying and pasting the code below.
 3. Edit the code to query fields on your specific Lead object (line 9), and add those in to be sent to Extole in the request body (line 12)
 
-`<https://api.extole.io`
+```java java
+public with sharing class ExtoleLeadController{
+  @InvocableMethod
+  public static void getLeadIds(List<String>leadIds){
+    makeCallOut(leadIds);
+  }
+  
+  @future(callout=true)
+  public static void makeCallOut(List<String>leadIdList){
+    List<Lead> leadRec = [SELECT Id LastName,FirstName,Email,Company,AdvocateCode FROM Lead WHERE Id IN:leadIdList];
+    
+    for(Lead l:leadRec){
+      String finalBody='{"event_name":"lead_created","data":{'+
+        '"lead_id":"'+l.Id+'",'+
+        '"first_name":"'+l.FirstName+'",'+
+        '"last_name":"'+l.LastName+'",'+
+        '"email":"'+l.Email+'",'+
+        '"company":"'+l.Company+'",'+
+        '"advocate_code":'+l.AdvocateCode+', "app_type":"salesforce_crm"}}';
+    
+      String endPoint = 'https://api.extole.io/v5/events';
+      HttpRequest http = new HttpRequest();
+      http.setEndpoint(endPoint);
+      http.setMethod('POST');
+      http.setBody(finalBody);
+      http.setHeader('Content-Type', 'application/json');
+      http.setHeader('Authorization', 'Bearer <INSERT TOKEN HERE>');
+      Http h = new Http();
+      HttpResponse response = h.send(http);
+    }    
+  }
+}
+```
 
 #### Automate using Flow on Lead Object
 
@@ -82,7 +114,38 @@ You must be a system administrator in order to complete the following steps. The
 2. Go to Setup > Apex Classes > New and create a new Apex class with an invocable method by copying and pasting the code below. 
 3. Edit the code to query fields on your specific Lead object (line 9), and add those in to be sent to Extole in the request body (line 12)
 
-`A record is created`
+```Text java
+public with sharing class ExtoleConvertedLeadController{
+  @InvocableMethod
+  public static void getLeadIds(List<String>leadIds){
+    makeCallOutForConvertedLeads(leadIds);
+  }
+  
+  @future(callout=true)
+  public static void makeCallOutForConvertedLeads(List<String>leadIdList){
+    List<Lead>leadRec = [SELECT Id,LastName,FirstName,Email,AdvocateCode FROM Lead WHERE Id IN:leadIdList];
+  
+    for(Lead l:leadRec){
+      String finalBody='{"event_name":"lead_converted","data":{'+
+        '"lead_id":"'+l.Id+'",'+
+        '"first_name":"'+l.FirstName+'",'+
+        '"last_name":"'+l.LastName+'",'+
+        '"email":"'+l.Email+'",'+
+        '"advocate_code":"'+l.AdvocateCode+',"app_type":"salesforce_crm"}}';
+
+      String endPoint = 'https://api.extole.io/v5/events';
+      HttpRequest http = new HttpRequest();
+      http.setEndpoint(endPoint);
+      http.setMethod('POST');
+      http.setBody(finalBody);
+      http.setHeader('Content-Type', 'application/json');
+      http.setHeader('Authorization', 'Bearer <INSERT TOKEN HERE>');
+      Http h = new Http();
+      HttpResponse response = h.send(http);
+    }    
+  }
+}
+```
 
 <Info>
 **Important Notes**
@@ -140,7 +203,36 @@ You must be a system administrator in order to complete the following steps.
 2. Go to Setup > Apex Classes > New and create a new Apex class with an invocable method by copying and pasting the following code:
 3. Edit the code to query fields on your specific Opportunity object (line 9), and add those in to be sent to Extole in the request body (line 12). You may need to use an identifier in the Opportunity object to query a different Object to get the required data. This should happen inside of the for loop on line 11
 
-`Action`
+```json
+public with sharing class ExtoleOpportunityController{
+  @InvocableMethod
+  public static void getOppoIds(List<String>opportunityId){
+    makeCallOutForWonOpportunity(opportunityId);
+  }
+  
+  @future(callout=true)
+  public static void makeCallOutForWonOpportunity(List<String>opportunityIdList){
+    List<Opportunity>oppRec = [SELECT Id,Name,Email FROM Opportunity WHERE Id IN:opportunityIdList];
+  
+    for(Opportunity op:oppoRec){
+      String finalBody='{"event_name":"opportunity_closedwon","data":{"lead_id":"123LeadId",'+
+        '"opportunity_id":"'+op.Id+'",'+
+        '"first_name":"'+op.Name+'",'+
+        '"email":'+op.Email+',"app_type":"salesforce_crm"}}';
+
+      String endPoint = 'https://api.extole.io/v5/events';
+      HttpRequest http = new HttpRequest();
+      http.setEndpoint(endPoint);
+      http.setMethod('POST');
+      http.setBody(finalBody);
+      http.setHeader('Content-Type', 'application/json');
+      http.setHeader('Authorization', 'Bearer <INSERT TOKEN HERE>');
+      Http h = new Http();
+      HttpResponse response = h.send(http);
+    }    
+  }
+}
+```
 
 <Info>
 **Important Notes**
@@ -234,7 +326,33 @@ You must be a system administrator in order to complete the following steps.
 1. Navigate to Setup > Remote Site Settings > New and add `<https://api.extole.io`>.
 2. Go to Setup > Apex Classes > New and create a new Apex class with an invocable method by copying and pasting the following code:
 
-`leadId`
+```json json
+public with sharing class ExtoleController {
+  @InvocableMethod
+  public static void invokeFromFlow(List<String>recordIds){
+    makeHttpCallToExtole(recordIds);
+  }
+  
+  @future(callout=true)
+  public static void makeHttpCallToExtole(List<String>recordIds){
+    List<Opportunity>records = [SELECT Id,Name FROM <OBJECT NAME> WHERE Id IN: recordIds];
+    
+    for(OBJECT_NAME op: records){
+      String jsonPayload = '{"<param 1>":"<value_1>","<param 2>":"<value 2>","app_type":"salesforce_crm"}';
+      
+      String endPoint = 'https://api.extole.io/v5/events';
+      HttpRequest http = new HttpRequest();
+      http.setEndpoint(endPoint);
+      http.setMethod('POST');
+      http.setBody(finalBody);
+      http.setHeader('Content-Type', 'application/json');
+      http.setHeader('Authorization', 'Bearer <INSERT TOKEN HERE>');
+      Http h = new Http();
+      HttpResponse response = h.send(http);
+    }    
+  }
+}
+```
 
 <Info>
 **Important Notes**

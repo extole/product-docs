@@ -24,7 +24,9 @@ description: "Integrate Extole with ServiceTitan to automatically reward prospec
 
 On the **Overview** tab in your Extole campaign, make sure your default share email message and social share description encourages referred prospects to use their referral link or code when scheduling an estimate.
 
-`UTM_content`
+```Text Sample copy
+Get {{friendReward}} off your first project with {{companyName}} . Make sure to use my referral link or code {{advocateCode}} when scheduling your free estimate so that we can both get rewarded! 
+```
 
 ### Update your friend landing experience
 
@@ -32,7 +34,9 @@ Submit a request to your Extole team to present a copy-able advocate code to ref
 
 If you are able to pre-fill fields onto your lead forms using URL parameters, you can go to the **Share Link Behavior** step in your Extole campaign, and update the `UTM_content` variable with the following value:
 
-`advocate_code`
+```Text UTM_content
+{{advocateCode}}
+```
 
 ![Screenshot showing advocatecode](/images/extole/a183ddb8c86d378cf6097df875b7fe442817404072e646f7e99977b0e176b55d.png)
 
@@ -56,11 +60,24 @@ If a prospect forgets to add the referral code to the lead form, or enters in an
 
 First, add Extole's core tag to all of your pages. You can find your core tag in the [Extole platform](https://my.extole.com/tech-center/tag-generator) (Tech Center > Tag Generator.) It will look something like this:
 
-`jsmith123`
+```javascript
+<script type="text/javascript" src="https://share.{{your_company}}.com/core.js" async />
+```
 
 Then, fire Extole's `online_lead_captured` tag when a user submits a lead form. If the `advocate_code` parameter is null, Extole will match the referral using the`email` that comes in any downstream job events.
 
-`online_lead_captured`
+```javascript
+<script type="text/javascript">
+    (function(c,b,f,k,a){c[b]=c[b]||{};for(c[b].q=c[b].q||[];a<k.length;)f(k[a++],c[b])})(window,"extole",function (c,b){b[c]=b[c]||function (){b.q.push([c,arguments])}},["createZone"],0);
+    extole.createZone({
+        name: "online_lead_captured",
+        data: {
+            "email": test123@example.com,
+            "advocate_code": test123
+        }
+    });
+</script>
+```
 
 <br />
 
@@ -119,7 +136,62 @@ In your zap:
 
 Sample request body
 
-`advocate_code`
+```json
+{
+  "job": {
+    "id": 123456789,
+    "jobNumber": "J-10234",
+    "status": "Scheduled",
+    "priority": "Normal",
+    "summary": "AC not cooling",
+    "scheduledStart": "2026-04-02T09:00:00Z",
+    "scheduledEnd": "2026-04-02T11:00:00Z",
+    "createdOn": "2026-04-01T15:22:10Z",
+    "lastModified": "2026-04-01T16:10:45Z",
+    "customFields": [
+      {
+        "typeId": 894575111,
+        "name": "Advocate Code",
+        "value": "test123"
+      }
+    ]
+  },
+  "customer": {
+    "id": 987654321,
+    "name": "Jane Doe",
+    "type": "Residential",
+    "phone": "+1-555-123-4567",
+    "email": "test123e@example.com"
+  },
+  "location": {
+    "id": 555666777,
+    "address": {
+      "street": "123 Main St",
+      "city": "Minneapolis",
+      "state": "MN",
+      "zip": "55401",
+      "country": "USA"
+    }
+  },
+  "technician": {
+    "id": 222333444,
+    "name": "John Tech",
+    "email": "john.tech@company.com"
+  },
+  "businessUnit": {
+    "id": 1010,
+    "name": "HVAC"
+  },
+  "campaign": {
+    "id": 2020,
+    "name": "Spring Referrals Promo"
+  },
+  "tags": [
+    "maintenance",
+    "priority-customer"
+  ]
+}
+```
 
 <br />
 
@@ -131,7 +203,25 @@ Extole will poll ServiceTitan's [Customer_GetContact List API](https://developer
 
 Sample response body:
 
-`email`
+```json
+{
+    "page": 1,
+    "pageSize": 50,
+    "hasMore": false,
+    "totalCount": null,
+    "data": [
+        {
+            "modifiedOn": "2025-05-23T18:21:30.1577064Z",
+            "phoneSettings": null,
+            "createdOn": "2025-05-23T18:21:30.1399224Z",
+            "id": 896481512,
+            "type": "Email",
+            "value": "promised-country@60t8pz4q.mailosaur.net",
+            "memo": null
+        }
+    ]
+}
+```
 
 ### New vs existing customer look up
 
@@ -139,7 +229,58 @@ Extole will poll ServiceTitan's [Jobs_GetList Endpoint](https://developer.servic
 
 Sample response body:
 
-`Client ID`
+```json
+{
+  "page": 1,
+  "pageSize": 50,
+  "hasMore": false,
+  "totalCount": 2,
+  "data": [
+    {
+      "summary": "Email: sarah.johnson@example.com\nPhone: 6125550198\nAdvocate Code: sarahj\nMarketing Source Info: extole_advocate WEB refer-a-friend",
+      "customFields": [
+        {
+          "typeId": 894575617,
+          "name": "Advocate Code",
+          "value": "sarahj"
+        }
+      ],
+      "externalData": null,
+      "id": 901234567,
+      "jobNumber": "600123",
+      "projectId": null,
+      "customerId": 901200001,
+      "locationId": 901200010,
+      "jobStatus": "Completed",
+      "completedOn": "2026-03-15T16:20:00Z",
+      "businessUnitId": 132958285,
+      "jobTypeId": 9729,
+      "priority": "High",
+      "campaignId": 23982795,
+      "appointmentCount": 1,
+      "firstAppointmentId": 901234568,
+      "lastAppointmentId": 901234568,
+      "recallForId": null,
+      "warrantyId": null,
+      "jobGeneratedLeadSource": {
+        "jobId": null,
+        "employeeId": null
+      },
+      "noCharge": false,
+      "notificationsEnabled": true,
+      "createdOn": "2026-03-15T16:00:12.123Z",
+      "createdById": 42,
+      "modifiedOn": "2026-03-15T16:25:45.456Z",
+      "tagTypeIds": [894606278],
+      "leadCallId": null,
+      "bookingId": 901230000,
+      "soldById": 77,
+      "customerPo": null,
+      "invoiceId": 901234570,
+      "membershipId": null,
+      "total": 245.50
+    }
+```
 
 ### Job status look up
 
@@ -147,4 +288,51 @@ Extole will poll ServiceTitan's [Jobs_Get Endpoint](https://developer.servicetit
 
 Sample response body:
 
-`Client Secret`
+```json
+{
+  "summary": "Email: daniel.roberts@example.com\nPhone: 9525557788\nAdvocate Code: danrob22\nMarketing Source Info: extole_advocate WEB refer-a-friend",
+  "customFields": [
+    {
+      "typeId": 894575617,
+      "name": "Advocate Code",
+      "value": "danrob22"
+    }
+  ],
+  "externalData": null,
+  "id": 902345678,
+  "jobNumber": "600245",
+  "projectId": null,
+  "customerId": 902300111,
+  "locationId": 902300222,
+  "jobStatus": "Completed",
+  "completedOn": "2026-03-28T18:45:00Z",
+  "businessUnitId": 132958285,
+  "jobTypeId": 9731,
+  "priority": "Low",
+  "campaignId": 23982795,
+  "appointmentCount": 1,
+  "firstAppointmentId": 902345679,
+  "lastAppointmentId": 902345679,
+  "recallForId": null,
+  "warrantyId": null,
+  "jobGeneratedLeadSource": {
+    "jobId": null,
+    "employeeId": null
+  },
+  "noCharge": false,
+  "notificationsEnabled": true,
+  "createdOn": "2026-03-28T18:20:14.567Z",
+  "createdById": 31,
+  "modifiedOn": "2026-03-28T18:50:02.891Z",
+  "tagTypeIds": [
+    894606278
+  ],
+  "leadCallId": null,
+  "bookingId": 902340000,
+  "soldById": 58,
+  "customerPo": "PO-99231",
+  "invoiceId": 902345680,
+  "membershipId": null,
+  "total": 189.99
+}
+```

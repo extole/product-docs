@@ -59,7 +59,38 @@ Please see the [prerequisites](https://docs.extole.com/docs/alkami#prerequisites
 1. In your your Staging Admin Alkami account, navigate to **Set-Up > Standard SSO > Create Default SSO**
 2. In the Default SSO configuration, update the `Name` to **ExtoleReferrals** and the `Description` to **Extole Referrals and Rewards SSO**. Then, grab your Bank Identifier and paste it in a separate document or your notes app.
 3. Delete the default SSO configuration and copy and paste the following configuration. Replace the "MY_ID" from Step #3.2 above, and "MY_TOKEN" with the Token from Step #2.2 above.
-   `Alkami SDK License`
+   ```text JSON
+   {
+     "BankIdentifier": "MY_ID",
+     "ProviderName": "ExtoleReferrals",
+     "Description": "Extole Referrals and Rewards SSO",
+     "HttpRequest": {
+       "DisplayLocation": "Inline",
+       "Uri": "{{ Http('http') }}",
+       "Method": "Get"
+     },
+     "Services": [
+       {
+         "Key": "http",
+         "Http": {
+           "Request": {
+             "Uri": "https://api.extole.io/v5/zones/authorize",
+             "Method": "POST",
+             "ContentType": "application/json",
+             "Headers": {
+               "Authorization": "Bearer MY_TOKEN"
+             },
+             "Body": "{\"email\": \"{{ Email }}\", \"first_name\": \"{{ FirstName }}\", \"last_name\": \"{{ LastName }}\", \"member_id\": \"{{ MemberIdentifier }}\"}"
+           },
+           "Response": {
+             "ResponseType": "Json",
+             "OnSuccess": "$.redirectUrl"
+           }
+         }
+       }
+     ]
+   }
+   ```
 
 ### Step 4: Create your navigation menu item and banners in Alkami staging
 
@@ -85,11 +116,30 @@ QA the experience in staging to ensure that everything performs flawlessly for y
 
 When a member logs into online banking and taps on a Refer a Friend CTA, Alkami will send a real-time request to Extole's API to federate the members identity and fetch the promote link.
 
-`Standard SSO`
+```json
+{
+  "method": "POST",
+  "url": "https://api.extole.io/v5/zones/authorize",
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer {access_token}"
+  },
+  "body": {
+    "email": "janedoe@example.com",
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "member_id": "246810"
+  }
+}
+```
 
 In real-time, Extole will then respond with the promote link and a signed JWT to verify the members identify.
 
-`Microsite`
+```json
+{
+    "redirectUrl": "https://alkami-sandbox.extole.io/alkami_embedded?jwt={jwt_key}"
+}
+```
 
 Members will then be able to access the Extole content from the promote link within digital banking. Extole will use the email address from the initial request to automatically generate their referral link. Name and member ID are then stored on the Extole profile for rewarding, reporting, and personalization.
 
