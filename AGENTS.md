@@ -30,7 +30,7 @@ The canonical human-owned sources are the **Extole Style Guide** and **Content S
 | `api-reference/*.json` | OpenAPI bundles synced by CI from [`extole/openapi`](https://github.com/extole/openapi) (`sync-to-mintlify.yml`), which extracts them from pluribus. Mintlify **generates** the whole API Reference tab from them — don't hand-edit, and leave the `openapi-preview-*` branches that pipeline owns alone. |
 | `images/` | Page assets, referenced root-relative (`/images/…`). `images/extole-manifest.json` inventories the migrated ones. |
 | `url-map.json` | Old-URL → new-path redirects; the converter emits them into `docs.json`. Add an entry whenever you rename or move a page. |
-| `scripts/convert_from_product_docs.py` | The deterministic generator that produced these pages. See [`MIGRATION.md`](MIGRATION.md). |
+| `scripts/convert_from_product_docs.py` | The deterministic generator that produced these pages from the ReadMe corpus. Kept for provenance — never re-run it over pages that have been hand-edited since. |
 | `.github/workflows/validate.yml` | CI: runs `npx --yes mint@latest validate` on every PR and on pushes to `main`. The **`validate`** check is required to merge. |
 | `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`, `.cursor/` | Agent config — **not** published (`.agents`/`.claude` are Mintlify built-in ignores; `.cursor` is in `.mintignore`). |
 
