@@ -116,7 +116,9 @@ Use `MAP_DATA_ATTRIBUTES` when the transformation is a flat rename and `EXPRESSI
 
 ### Emit the Whole Identity Set, Including the Email Address
 
-A data component can only read a key the prehandler left behind, so the reshape decides what identity the platform ever sees. Flatten the full set that [Map Inbound Partner Events](/technical/integration-overview/integration-inbound-events) requires on the event — the transaction identifier, the partner's customer identifier, and the email address — on every event, including the lifecycle ones that arrive later.
+A data component can only read a key the prehandler left behind, so the reshape decides what identity the platform ever sees. One contract governs it, and [Validate the Integration](/technical/integration-overview/integration-validation) checks the same one: every event carries an identity the account can reach. Flatten the full set that [Map Inbound Partner Events](/technical/integration-overview/integration-inbound-events) requires — the transaction identifier, the partner's customer identifier, and the email address — on every event, including the lifecycle ones that arrive later.
+
+An email address is what satisfies that contract in practice, so emit it wherever the partner sends one. A partner that genuinely sends none leaves the contract unmet, and that belongs in the build report as an outstanding item: the integration will recognise a returning customer and will not be able to message or reward one.
 
 The email address is the one that gets dropped. A partner nests it away from the fields that look important: Stripe carries it as `receipt_email` on the payment intent and as `billing_details.email` on the charge, while the payment intent id and customer id sit at the top of the object and reach the reshape without being looked for.
 
@@ -189,7 +191,7 @@ The alternative arrives by itself: one action, branching over every event type t
 
 Nothing here overwrites the partner's payload. `addData` merges into the event's data and keeps the values already there, `MAP_DATA_ATTRIBUTES` copies a source attribute to a target and leaves the source in place, and `SET_DATA` removes only the keys named in its `delete_data`. So the partner's original fields survive the reshape, and mapping only the fields this integration needs costs nothing that a later investigation might want.
 
-Take that as licence to prefer the mapping action. A flat rename belongs in `MAP_DATA_ATTRIBUTES`, where it is declarative and readable in the built form; write an expression for what the mapping types cannot address — the nested object, the minor-unit amount, the field that is present under two different names — rather than rebuilding the whole event in a script because part of it needed one.
+Take that as license to prefer the mapping action. A flat rename belongs in `MAP_DATA_ATTRIBUTES`, where it is declarative and readable in the built form; write an expression for what the mapping types cannot address — the nested object, the minor-unit amount, the field that is present under two different names — rather than rebuilding the whole event in a script because part of it needed one.
 
 The same applies to data components. Their `valueExpression` reads the event as the prehandler left it, so a mapping written against the partner's raw nesting captures nothing once the prehandler has flattened it. Write the prehandler and the data mappings against one agreed shape, and prefer flattening in the prehandler so the data components stay simple.
 
