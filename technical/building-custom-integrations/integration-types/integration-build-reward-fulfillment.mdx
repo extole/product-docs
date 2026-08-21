@@ -3,11 +3,11 @@ title: "Build a Reward Fulfillment Integration"
 description: "Create the supplier type, support campaign, supplier templates, and reward webhooks for a partner that fulfills rewards, and give its activity and event views their reward-specific values."
 ---
 
-This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/integration-overview/management-api-integration) for the build paths and the creation contract.
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration) for the build paths and the creation contract.
 
 ## Build a Reward Fulfillment Integration
 
-A reward fulfillment partner needs everything an outbound partner needs plus a supply side: a component type for the partner's own reward suppliers, a support campaign holding one template per product the partner sells, and webhooks typed `REWARD` that fire only for rewards from those suppliers. [Integration Categories](/technical/integration-overview/integration-categories) describes the model; this section is the order to build it in.
+A reward fulfillment partner needs everything an outbound partner needs plus a supply side: a component type for the partner's own reward suppliers, a support campaign holding one template per product the partner sells, and webhooks typed `REWARD` that fire only for rewards from those suppliers. [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) describes the model; this section is the order to build it in.
 
 ### The Finished Shape
 
@@ -32,7 +32,7 @@ The exception is a request to make the partner installable for every client. Tha
 Extole-owned integration component, which a client-local build does not produce. Build and validate the
 shape in the development account when asked — it will appear on that account's own Integrations page
 once its non-root component carries the tags described in
-[Create an Integration with the Management API](/technical/integration-overview/management-api-integration) — then publish or request
+[Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration) — then publish or request
 publication of the reusable component before calling the partner an installable integration.
 
 The dependencies here are real, but they are not one straight chain, and reading them as one puts the thing that was asked for last. Only three orderings are forced: the component type must exist before any template can carry it and before the supplier socket can filter on it; the support campaign and its templates must exist before the integration can subscribe to them; and the integration campaign must have been published once before it can subscribe or attach resources.
@@ -83,7 +83,7 @@ Setting types come from the platform's fixed vocabulary, not from the mathematic
 
 Build exactly the variants the page names. Inventing a variant produces a supplier a client can configure and the partner cannot fulfill; omitting one silently removes a product from the integration.
 
-Give every template its own `rewardSupplierLogo` setting, sourced the way [Give the Integration a Logo That Resolves](/technical/integration-overview/integration-component-model) describes: copy the built URL from the registered supplier template when one exists, or upload the file when you have it. A template without one is a product that appears as a blank tile next to products that show their artwork.
+Give every template its own `rewardSupplierLogo` setting, sourced the way [Give the Integration a Logo That Resolves](/technical/building-custom-integrations/integration-lifecycle/integration-component-model) describes: copy the built URL from the registered supplier template when one exists, or upload the file when you have it. A template without one is a product that appears as a blank tile next to products that show their artwork.
 
 Then attach a reward supplier to each template. A bundled component declares this as an `elements.reward_suppliers` block in its `component.json`, but that block is a build-layer construct: `elements` is not a property of the component create request, and sending it is rejected as an unrecognized property. Through the API a reward supplier is a component-scoped resource of its own, created the same way a webhook is — with `component_ids` naming the template it belongs to:
 
@@ -95,7 +95,7 @@ The publish is one call, and it takes the version you are publishing:
 
 `event-streams`
 
-Read `$SUPPORT_CAMPAIGN_VERSION` from the support campaign immediately before publishing rather than counting your own writes: every component and settings call increments it, so a version computed from memory is usually one behind. That operation is **not carried in the OpenAPI specification**, so a reference lookup for it returns nothing found — which is a gap in the specification and not evidence that publishing is unavailable. This page and [Validate and Publish an Integration](/technical/integration-overview/integration-validation) are its documentation; take the call from here rather than searching for a published operation that does not exist, and note that `POST /v2/campaigns/{campaignId}/publish` is the specification's variant of the same action.
+Read `$SUPPORT_CAMPAIGN_VERSION` from the support campaign immediately before publishing rather than counting your own writes: every component and settings call increments it, so a version computed from memory is usually one behind. That operation is **not carried in the OpenAPI specification**, so a reference lookup for it returns nothing found — which is a gap in the specification and not evidence that publishing is unavailable. This page and [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation) are its documentation; take the call from here rather than searching for a published operation that does not exist, and note that `POST /v2/campaigns/{campaignId}/publish` is the specification's variant of the same action.
 
 The endpoint is the one for the supplier kind you are creating — a partner that fulfills its own products uses the custom-reward endpoint — and `type` there is the custom reward kind, which is separate from the component type the template carries.
 
@@ -118,7 +118,7 @@ Default each template's `enabled` setting to `false`. A template describes a pro
 
 ### Create the Integration and Its Sockets
 
-Create the `INTEGRATION` campaign, root, and model component as described in [Create the Integration Campaign](/technical/integration-overview/integration-component-model) and [Create the Component Model](/technical/integration-overview/integration-component-model). Declare the credential settings under the names the partner page uses — for BHN that is `merchantId` (`STRING`) and `clientKeyId` (`CLIENT_KEY`). A prefixed invention such as `bhnMerchantId` is a different setting, and webhook `client_key_id` expressions plus request handlers that call `context.getVariable("merchantId")` will read null. Then add the supplier socket, filtered to the type created above:
+Create the `INTEGRATION` campaign, root, and model component as described in [Create the Integration Campaign](/technical/building-custom-integrations/integration-lifecycle/integration-component-model) and [Create the Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model). Declare the credential settings under the names the partner page uses — for BHN that is `merchantId` (`STRING`) and `clientKeyId` (`CLIENT_KEY`). A prefixed invention such as `bhnMerchantId` is a different setting, and webhook `client_key_id` expressions plus request handlers that call `context.getVariable("merchantId")` will read null. Then add the supplier socket, filtered to the type created above:
 
 `Example V10 Support`
 
@@ -147,7 +147,7 @@ The last two rows are the same build every integration does, whatever the partne
 
 A reward integration ships four views: a configuration view for the credential and account settings, a configuration view whose `settingsToDisplay` names the supplier socket and whose status reports in progress while no supplier is installed, a report-runner view charting reward activity, and an event-stream view filtered to the reward event types and the partner's app type.
 
-Build the last two from [Add the Activity and Event Views](/technical/integration-overview/integration-activity-views), which carries the view bodies, the settings the view type requires, the ordering, the republish that has to precede an element attaching, and the report-type lookup. Three values on those views are reward-specific.
+Build the last two from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views), which carries the view bodies, the settings the view type requires, the ordering, the republish that has to precede an element attaching, and the report-type lookup. Three values on those views are reward-specific.
 
 The runner's `mappings` expression counts reward activity and the revenue behind it:
 

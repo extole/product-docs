@@ -5,7 +5,7 @@ description: "Place a partner platform in an integration category — inbound, o
 
 # Overview
 
-An integration is a campaign whose component tree connects Extole to an outside system. Every integration belongs to a category, and the category decides the component model, the resources the integration needs, and which build sequence to follow in [Create an Integration with the Management API](/technical/integration-overview/management-api-integration).
+An integration is a campaign whose component tree connects Extole to an outside system. Every integration belongs to a category, and the category decides the component model, the resources the integration needs, and which build sequence to follow in [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
 
 Three questions place any platform:
 
@@ -24,13 +24,13 @@ Answer all three before creating anything. A platform that only receives Extole 
 | Reward fulfillment | Extole to platform | Gift card, prepaid card, points, and payout providers | A typed reward-supplier component type, a support campaign of supplier templates, an integration whose socket accepts them, one `REWARD` webhook per order endpoint plus a status check, and a fourth view exposing the supplier socket |
 | Bidirectional | Both | Commerce and loyalty platforms that also accept rewards or coupons | The inbound model first, then outbound resources gated on an approved use case |
 
-Every row also gets the same three views — a configuration view, a report-runner view, and an event-stream view — so the column above lists only what is specific to the category. The views are described under each category below and built from [Add the Activity and Event Views](/technical/integration-overview/integration-activity-views).
+Every row also gets the same three views — a configuration view, a report-runner view, and an event-stream view — so the column above lists only what is specific to the category. The views are described under each category below and built from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views).
 
 ## Inbound Integrations
 
-An inbound integration turns a platform's own event names into canonical Extole business events. The platform posts to the Events API from a server-side extension, a middleware service, or a file feed, and Extole maps each arriving event to a reusable business-event component. Building the campaign is only half of it: see [Send Platform Events to Extole](/technical/integration-overview/sending-platform-events) for the sending half that runs in the platform.
+An inbound integration turns a platform's own event names into canonical Extole business events. The platform posts to the Events API from a server-side extension, a middleware service, or a file feed, and Extole maps each arriving event to a reusable business-event component. Building the campaign is only half of it: see [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) for the sending half that runs in the platform.
 
-Inbound splits again on a question worth asking early: whether the sending half is something anyone will write. A platform with an extension or plugin can send Extole-shaped events, and the tree below is the whole integration. A platform that only emits its own fixed webhook — a payment processor, most SaaS products with a webhook page and no plugin — sends what it decided to send, and the reconciliation happens inside Extole with a prehandler, described in [Normalize Inbound Events with a Prehandler](/technical/integration-overview/integration-prehandlers). The tree is identical either way; what differs is whether it is reachable.
+Inbound splits again on a question worth asking early: whether the sending half is something anyone will write. A platform with an extension or plugin can send Extole-shaped events, and the tree below is the whole integration. A platform that only emits its own fixed webhook — a payment processor, most SaaS products with a webhook page and no plugin — sends what it decided to send, and the reconciliation happens inside Extole with a prehandler, described in [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers). The tree is identical either way; what differs is whether it is reachable.
 
 Two vocabularies meet here and must not be conflated. The trigger rule carries the name that reaches it: the platform's wire event name, or the integration-owned name a prehandler produced from it. The business event carries the canonical name the rest of the platform already understands — `converted`, `shipped`, `canceled`, `account_opened`, and the other names bundled programs use. Never rename a business event to match a platform's wire name.
 
@@ -122,7 +122,7 @@ Discovery decides the category, not habit. Rebuilding a maintained outbound plat
 
 ## Related Documentation
 
-- [Create an Integration with the Management API](/technical/integration-overview/management-api-integration)
-- [Send Platform Events to Extole](/technical/integration-overview/sending-platform-events)
+- [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration)
+- [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events)
 - [Integrating with Extole](/technical/integration-overview/integrating-with-extole)
 - [Key Concepts](/technical/integration-overview/key-concepts)
