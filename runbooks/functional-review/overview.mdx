@@ -1,0 +1,126 @@
+---
+title: "Functional Review: Overview"
+description: "Run a functional review on one live referral or rewards program — scope, campaign selection, and review map."
+noindex: true
+---
+Use this guide to run a functional review on **one live referral or rewards program**. V10 flow-builder programs are the primary target; legacy (V8) campaigns are reviewed best-effort with a legacy disclaimer (see [Legacy (V8) Campaigns](#legacy-v8-campaigns)).
+
+A functional review compares live campaign configuration and runtime evidence against expected program behavior. Use it before launch, after a material program or integration change, or on a scheduled launch-review cadence.
+
+<Info>
+**Audience**
+
+
+These runbooks are written for both human reviewers and AI agents. Keep report IDs, parameters, mappings, severity thresholds, and fail-closed rules exact.
+</Info>
+
+## Scope
+
+- One live program at a time — V10 flow-builder is the primary target
+- Provide either a program label (for example `refer-a-friend`) or a live campaign id
+- Legacy (V8) controller campaigns are in scope as a **best-effort legacy review** — never a reason to stop
+
+## Campaign selection
+
+A functional review runs against one live program.
+
+Before report execution:
+
+1. If the user provides a program label or live campaign id, use that value — regardless of the campaign's product version.
+2. If the user does not provide a campaign/program, discover the available campaign/program list before running reports.
+3. If only one eligible live campaign exists, run the review against that campaign.
+4. If multiple eligible live campaigns exist and the user cannot clarify, prefer V10 campaigns over V8/legacy campaigns, then run against the most recently updated or most recently launched/live campaign, and state this selection in the review header.
+5. Record the campaign's product version (`productVersion` from the campaign overview) in the review header as `V10 confirmed: Yes/No`.
+6. Do not run one functional review across multiple campaigns unless the user explicitly requested a multi-campaign review.
+
+<Warning>
+****Campaign version never blocks execution.** Do not stop the review, skip the report queue, or withhold a verdict because the selected campaign is V8/legacy. Run the review best-effort under [Legacy (V8) Campaigns](#legacy-v8-campaigns) and disclose the limitations.**
+</Warning>
+
+### Review-header note
+
+When the campaign was selected automatically, include this in the review header:
+
+> Campaign selection: No campaign was specified by the user. Available campaigns were reviewed. The functional review was run against the most recent eligible live campaign: `<campaign/program>`. V10 campaigns were preferred over legacy/V8 campaigns where both existed.
+
+## Legacy (V8) Campaigns
+
+When the selected campaign reports `productVersion: V8` (or V10 flow-builder trigger rules are otherwise unavailable), run the same review **best-effort** instead of stopping:
+
+1. **Disclose up front.** Open the review output with a legacy disclaimer:
+
+   > Legacy review disclaimer: This campaign is V8/legacy, not a V10 flow-builder program. This runbook's primary target is V10; the review below is a best-effort legacy review. Expected trigger events, rules, and side effects were derived from V8 controller/step configuration, which is less authoritative than a V10 flow-builder graph. Treat graph-derived conclusions with lower confidence.
+
+2. **Run the full report queue.** Every report in the queue (Input Events Count, Input Events with Triggered Steps, Input Records, Conversion Audit, Rewards, Promotion Sources, Webhooks, Email Deliverability) runs against the campaign id exactly as documented. None of these reports require V10; do not skip any of them because of campaign version.
+3. **Build the expectation manifest from V8 configuration.** Derive expected behavior from the built campaign's controllers, steps, actions, and data fields instead of V10 flow-builder trigger rules. Where V8 configuration does not expose an equivalent of `triggerEventNames` / `eventNames`, treat the controller/step event names as **candidate** expected names, and use Input Events Count / Input Records output to confirm the actual raw inbound names.
+4. **Never present V8 step names as confirmed raw trigger names.** Label them as configuration-derived candidates until report output corroborates them.
+5. **Mark only what is genuinely unavailable.** A V10-specific source that has no V8 equivalent (for example a flow-builder trigger-rule manifest, or an active V10 Terms component `termsCopy`) becomes a **section-level** evidence gap with its V8 fallback noted — not a reason to skip the section's reports or the rest of the review.
+6. **Give a real verdict.** Conclude with the standard verdict definitions, scoped to what the evidence supports. Do not return a blanket `Needs investigation` solely because the campaign is V8.
+
+## Default review window
+
+Use a 30-day rolling window ending on the day the review starts.
+
+- Record the start and end dates in the review header
+- Use the same window for every report
+- Default report parameter: `time_range=LAST_MONTH` (rolling 30 days, not a calendar month)
+
+## Container handling
+
+Run checklist reports across **all containers**, including production and sandbox/test.
+
+- Production traffic and outcomes are the primary evidence for launch sign-off
+- Flag production-like users or real customer activity in sandbox/test containers (live partner ids, non-test emails, or meaningful step/reward volume outside production)
+- Say which container each finding came from when counts differ
+
+## Review principle
+
+Reports are only half of the review. Campaign graph/configuration is the other half.
+
+For each checklist item:
+
+1. Inspect the campaign graph/configuration to determine expected behavior.
+2. Run the relevant report or source.
+3. Compare observed report output against the expected behavior.
+4. Record findings, flags, evidence gaps, and recommended next steps.
+
+<Warning>
+**Do not judge reports in isolation.**
+</Warning>
+
+## Review map
+
+Follow this order:
+
+1. [Report Execution + Runtime Checks](//runbooks/functional-review/report-execution-runtime-checks) — queue, hard stop, expectation manifest, completion gate, output format
+2. [Input / Runtime Event Validation](//runbooks/functional-review/input-runtime-event-validation) — Input Events Count, Triggered Steps, Input Records
+3. [Event Data Rule Alignment](//runbooks/functional-review/event-data-rule-alignment) — sample `event.data` vs graph rule conditions
+4. [Conversion & Reward Validation](//runbooks/functional-review/conversion-reward-validation) — Conversion Audit, Earned Rewards
+5. [Email / Webhook / Side-Effect Validation](//runbooks/functional-review/email-webhook-side-effect-validation) — Promotion sources, Webhooks, Email Deliverability
+6. [Terms, Rewards, and Configuration Alignment](//runbooks/functional-review/terms-rewards-and-configuration-alignment) — Terms copy vs configured rewards (can run while reports generate)
+
+## Report completion gate
+
+<Warning>
+**Pending is not terminal.**
+
+
+The consolidated review — and any posting of results to a Jira ticket — must wait until every submitted report in the queue has reached a terminal state (completed and downloaded, or failed with a recorded error). A report that is pending, queued, or running is not terminal. Never publish findings, a verdict, or a ticket comment while any queued report is still running; wait for the outstanding reports to complete and incorporate their output first.
+</Warning>
+
+## Report reuse window
+
+Reports are expensive and reviews may be re-run while iterating. Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last **2 days**, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
+
+## Example chat prompt
+
+Follow the report execution queue rules before analysis. Include report view links, evidence gaps, findings by section, and an overall verdict.
+
+## Final verdict definitions
+
+| Verdict | Meaning |
+|---|---|
+| Pass | No material runtime or configuration-alignment flags found |
+| Watch | Non-blocking anomaly or low-confidence concern worth monitoring |
+| Issue | Evidence of a material problem that may affect users, rewards, tracking, or integrations |
+| Needs investigation | Reports are missing, inconclusive, contradictory, or there is not enough traffic to conclude |
