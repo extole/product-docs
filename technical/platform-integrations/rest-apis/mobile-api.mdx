@@ -34,11 +34,25 @@ The purpose of this request is to create a device access token for a user's mobi
 
 JWTs are Extole's preferred type of access tokens because they can return the most information about your users, such as private data like share history, reward history, and so on. This token type can also help personalize the mobile experience for your users by serving in-app stats like how many people have been referred and how many rewards have been earned.
 
-`access_token`
+```json Token API Example: JWT
+POST https://refer.yourcompany.com/api/v5/token
+Content-Type: application/json
+Accept: application/json
+{ "jwt": "000000000000000000"
+}
+```
 
 This request will receive the following response:
 
-`expires_in`
+```json
+{
+  "access_token": "AF796R7TM2P8NFA0AV5M4SAF79",
+  "expires_in": 31536001,
+  "scopes": [
+    "VERIFIED"
+  ]
+}
+```
 
 | Output Field   | Description                                                                                                                                                   |
 | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -56,11 +70,21 @@ Anonymous tokens will allow users to receive public content and to share, but th
 
 An anonymous access token can be requested as shown below:
 
-`scope`
+```json
+{
+  "access_token": "00000000000000000000000000",
+  "expires_in": 157680000,
+  "scopes": [
+    "UPDATE_PROFILE"
+  ]
+}
+```
 
 Once a token has been created for the device, it should be sent to all subsequent API requests in the header: 
 
-`first_name`
+```json
+Authorization: Bearer 00000000000000000000000000
+```
 
 [//]: ___
 
@@ -90,7 +114,25 @@ Extole can create on/off switches, text fields, image fields, blocks, and sub-bl
 
 The code example below is a reasonable default, but remember that Extole can add or remove any piece of JSON content.
 
-`last_name`
+```json Example: Get JSON Content API Call
+POST https://refer.yourcompany.com/api/v6/zones
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer 00000000000000000000000000
+
+{
+  "event_name": "advocate_mobile_experience",
+  "data": {
+     "first_name":INSERT_DYNAMIC_DATA,
+     "last_name":INSERT_DYNAMIC_DATA,
+     "email":INSERT_DYNAMIC_DATA,
+     "partner_user_id":INSERT_DYNAMIC_DATA,
+     "labels":INSERT_DYNAMIC_DATA,
+     "locale":INSERT_DYNAMIC_DATA
+
+  }
+}
+```
 
 <table>
   <thead>
@@ -173,7 +215,58 @@ The code example below is a reasonable default, but remember that Extole can add
 
 This request will receive the following response:
 
-`email`
+```json Example: Get JSON Content API Response
+{
+    "program_label": "refer-new-friend",
+    "campaign_id": "7078714483452798531",
+    "links": {
+        "company_url": "https://www.yourcompany.com",
+        "terms_url": "https://yourcompany.extole.io/zone/terms?journey.campaign_id=7078714483452798531",
+        "how_it_works_url": "https://www.yourcompany.com/howitworks"
+    },
+    "calls_to_action": {
+        "menu": {
+            "message": "Lorem ipsum dolor sit amet"
+        },
+        "account_page": {
+            "message": "Lorem ipsum dolor sit amet"
+        },
+        "product": {
+            "message": "Lorem ipsum dolor sit amet"
+        },
+        "confirmation": {
+            "message": "Lorem ipsum dolor sit amet"
+        }
+    },
+    "sharing": {
+        "email": {
+            "subject": "I thought you'd be interested in this",
+            "message": "I wanted to share one of my favorite brands. Because I referred you, you can get rewarded with $20."
+        },
+        "facebook": {
+            "title": "Get $20 Off",
+            "image": [],
+            "description": "This company is great! Use my link and we both get rewarded."
+        },
+        "twitter": {
+            "message": "This company is great! Use my link and we both get rewarded."
+        },
+        "sms": {
+            "message": "I love this company! Use my link and we both get rewarded"
+        }
+    },
+    "me": {
+        "email": "apriladovcate@extole.com",
+        "first_name": "April",
+        "last_name": "Advocate",
+        "partner_user_id": "2345323",
+        "shareable_link": "https://yourcompany.com/April",
+        "advocate_code": "April",
+        "rewards": [],
+        "friends": []
+    }
+}
+```
 
 | Output Field          | Description                                                                                         |
 | :-------------------- | :-------------------------------------------------------------------------------------------------- |
@@ -212,9 +305,52 @@ When configuring your mobile experience, you will want to consider the unique We
 1. Inside of a WebView, Native Sharing On Device (Share Intent with Share Sheet) is unavailable on many Android devices. In this situation, Extole will automatically not display the native share button.
 2. Android Apps can support native sharing by passing a `JsExtoleShareImpl` object into the webview
 
-`partner_user_id`
+```json
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.webkit.JavascriptInterface
+import org.json.JSONObject
 
-`labels`
+class JsExtoleShareImpl(
+    private val context: Context,
+    private val partnerShareId: String?,
+    private val intentScopeExtender: (intent: Intent, title: String?) -> Intent = { intent, title -> intent },
+    private val afterShare: () -> Unit = {}
+){
+
+    @JavascriptInterface
+    fun share(jsonData: String?) {
+        val jsonObject = JSONObject(jsonData.orEmpty())
+        val shareUri = Uri.parse(jsonObject.getString("url"))
+            .buildUpon()
+            .appendQueryParameter("partner_share_id", partnerShareId)
+            .build()
+
+        val title = jsonObject.getString("title")
+        val shareText = jsonObject.getString("text") + " " + shareUri.toString()
+
+        val share = intentScopeExtender(defaultShareIntentCreator(title, shareText), title)
+        context.startActivity(share)
+        afterShare()
+    }
+
+    private fun defaultShareIntentCreator(title: String?, shareText: String): Intent {
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.type = "text/plain"
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, title)
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareText)
+        return shareIntent
+    }
+}
+```
+
+```
+webView.addJavascriptInterface(
+    JsExtoleShareImpl(context.getAppContext()),
+    "extoleShare"
+)
+```
 
 [//]: ___
 
@@ -246,7 +382,20 @@ To set up tracking for additional impressions and events, talk to your CSM and L
 
 Make sure to include the Extole Access Token that was returned for the user in the header of the request.
 
-`locale`
+```json Example: Events API Call
+POST https://refer.yourcompany.com/api/v6/events
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer 56V6DGKUJNVOQEAMIVG16KEHBK
+
+{
+  "event_name": "mobile_menu_cta",
+  "data": {
+    "source": "zone:zonename",
+    "labels": "program-mobile-app-staging"
+  }
+}
+```
 
 <table>
   <thead>
@@ -322,7 +471,20 @@ When a user taps on a CTA in your mobile app, the event is recorded by calling t
 
 ![374](/images/extole/c6f20a892a4b572b77c6d83e6229904343fad0c1d82622a9e36f9f1f0c2cef40.png "RicardoSF-Share.png")
 
-`bundle_name`
+```json Example: Events API Call
+POST https://refer.yourcompany.com/api/v6/events
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer 56V6DGKUJNVOQEAMIVG16KEHBK
+
+{
+  "event_name": "mobile_cta_clicked",
+  "data": {
+    "source": "zone:zonename",
+    "labels": "program-mobile-app-staging"
+  }
+}
+```
 
 <table>
   <thead>
@@ -424,14 +586,36 @@ Sharing links is done using the native sharing of the operating system. When the
 
 To ensure that your mobile app can perform quickly and have limited calls to Extole, you create your own unique share identifier in the mobile app. We recommend this being a combination of a unique identifier for the device combined with a timestamp to prevent duplicating share IDs.
 
-`calls_to_action`
-`sharing`
+```swift Swift Example: Partner Share ID
+let timestamp = Date().timeIntervalSince1970
+let deviceId = UIDevice.current.identifierForVendor?.uuidString
+let partnerShareId = "\(deviceId)\(timestamp)"
+```
+```kotlin Kotlin Example: Partner Share ID
+String deviceId = Secure.getString(getContext().getContentResolver(),Secure.ANDROID_ID);
+long timestamp = System.currentTimeMillis()
+val partnerShareId = deviceId+timestamp
+```
 
 #### Track the Share Event
 
 The Share Event is tracked in Extole when the user chooses to share. This will track the share in My Extole and provide a unique Share Id that can be appended to the link so when the friend taps through the journey, their actions can be fully described in reporting.
 
-`label`
+```json Example: Events API Call
+POST https://refer.yourcompany.com/api/v6/events
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer 56V6DGKUJNVOQEAMIVG16KEHBK
+
+{
+  "event_name":"share",
+  "data":{
+    "source": "zone:zonename",
+    "share.channel":"mobile",
+    "partner_share_id":"1580408545"
+  }
+}
+```
 
 <table>
   <thead>
@@ -502,7 +686,11 @@ The Share Event is tracked in Extole when the user chooses to share. This will t
   </tbody>
 </table>
 
-`target_url`
+```json Example: Events API Response
+{
+  "event_id":"6517628324612819838"
+}
+```
 
 | Output Field | Description                |
 | :----------- | :------------------------- |
@@ -512,21 +700,56 @@ The Share Event is tracked in Extole when the user chooses to share. This will t
 
 You can now combine the Share Link with the Partner Share Id to create the URL that should be passed into the OS share APIs:
 
-`share.share_message`
+```text
+https://refer.yourcompany.com/april?advocate.partner_share_id=1580408545
+```
 
 Device Code Examples:
 
-`me.email`
-`me.first_name`
+```swift Swift Example (iOS)
+let activityViewController = UIActivityViewController(activityItems: [shareContent 
+as NSString], applicationActivities: nil)
+
+
+present(activityViewController, animated: true, completion: {})
+```
+```java Java Example (Android)
+Intent sendIntent = new Intent();
+sendIntent.setAction(Intent.ACTION_SEND);
+sendIntent.putExtra(Intent.EXTRA_TEXT, shareContent);
+sendIntent.setType("text/plain");
+
+Intent shareIntent = Intent.createChooser(sendIntent, null);
+startActivity(shareIntent);
+```
 
 #### Share via Email
 
 Typically in a mobile app, you can send emails using the native device email client. However, you can instead choose Extole to send emails on behalf of your users.
 
-`me.last_name`
+```json
+POST https://refer.ricardosf.com/api/v6/email/share
+Authorization: Bearer DJ3EDSG4OEPF6DNIVBA
+Content-Type: application/json
+
+{
+  "advocate_code": "april",
+  "recipient_email": "friend@example.com",
+  "message": "These are the best shoes ever!",
+  "subject":"Check these out.",
+  "data": {
+    "item": "fly"
+   }
+}
+```
 
 Result: 
 
-`me.partner_user_id`
+```json
+{ 
+	"polling_id": "6734604121647592634",
+	"recipient_email": "friend@example.com"
+}
+```
 
 [//]: ___

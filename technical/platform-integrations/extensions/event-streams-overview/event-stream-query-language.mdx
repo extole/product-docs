@@ -10,19 +10,33 @@ Once you have an Event Stream created, you may have a high volume of results to 
 
 Using Event Streams, you can address any property of an object from an event like this:
 
-`$`
+```
+property_name.property_name
+```
 
 Then it can be compared using the = sign:
 
-`$.foo.bar`
+```
+property_name.property_name=value
+```
 
 It also supports multiple conditions separated by | (the idea is similar with pipe from linux):
 
-`foo.bar`
+```
+property_name.property_name=value | property_name.property_name_2=another_value
+```
 
 ### Examples
 
-`$[0].status`
+```
+raw_data.coupon_code=RET300
+data.partner_conversion_id=1761917939
+event_time=2024-10-09T18:42:.*
+raw_data.coupon_code=RET300 | event_time=2024-10-09T18.*
+event_context.source_ips[0].address =93.175.44.65
+$.event_context.source_ips[?('93.175.44.65' in @.address)]
+$.person_profile.identity.steps[?(@.id == '123')] | $.type = .*_REWARD
+```
 
 ### Query Language
 
@@ -30,15 +44,21 @@ A JSONPath expression specifies a path to an element (or a set of elements) in a
 
 Paths can use the dot notation:
 
-`[0].status`
+```
+$.store.book[0].title
+```
 
 Or the bracket notation:
 
-`$`
+```
+$['store']['book'][0]['title']
+```
 
 Or a mix of dot and bracket notations:
 
-`.property`
+```
+$['store'].book[0].title
+```
 
 <Info>
 **Important notes**
@@ -224,13 +244,17 @@ Filters are logical expressions used to filter arrays.
 
 An example of a JSONPath expression with a filter is:
 
-`['property']`
+```
+$.store.book[?(@.price < 10)]
+```
 
 Here, the `@` represents the current array item or object being processed. 
 
 Filters can also use `$` to refer to the properties outside of the current object:
 
-`A..Za..z\_`
+```
+$.store.book[?(@.price < $.expensive)]
+```
 
 An expression that specifies just a property name, such as `[?(@.isbn)]`, matches all items that have this property, regardless of the value.
 
@@ -474,7 +498,62 @@ An expression that specifies just a property name, such as `[?(@.isbn)]`, matche
 
 For the following sample, we will use a modified version of JSON from [JSONPath - XPath for JSON](http://goessner.net/articles/JsonPath/index.html#e3).
 
-`[n]`
+```json
+{
+    "type": "STEP",
+    "event_id": "7450517086735879321",
+    "event_time": "2024-12-20T15:31:28.853Z",
+    "request_time": "2024-12-20T15:31:28.866Z",
+    "cause_event_id": "7450517084360984932",
+    "root_event_id": "7450517084360984932",
+    "event_sequence": 1,
+    "schema_version": 25,
+    "sandbox": {
+        "sandbox_id": "production-production",
+        "container": {
+            "name": "production",
+            "is_input_container": true
+        },
+        "sandbox_version": 0
+    },
+    "client_context": {
+        "client_id": "123344",
+        "client_short_name": "demo-client",
+        "client_time_zone": "America/Chicago",
+        "client_version": 76387
+    },
+    "client_domain_context": {
+        "client_domain": "demo-client.extole.io",
+        "client_domain_id": "f81241690d31beba7c250d95"
+    },
+    "event_context": {
+        "input_event_type": "CONSUMER",
+        "api_type": "CONSUMER",
+        "device_id": {
+            "id": "browser:7450512139203301734",
+            "is_device_id_in_request": true
+        },
+        "page_id": {
+            "id": "unspecified:7450517083409168381"
+        },
+        "user_id": null,
+        "uri": "https://demo-client.extole.io/zone/bankable_rewards?email=earn_reward25@mailosaur.net&access_token=HASHED_SHA1(61dd1fe3ffaf9b763dc918b5855b471f01b27d3d)",
+        "app_type": "Web",
+        "app_data": {},
+        "scopes": [
+            "VERIFIED_CONSUMER",
+            "UPDATE_PROFILE"
+        ],
+        "device_type": "Desktop",
+        "device_os": "Unknown"
+    },
+    "data": {
+        "source": "link:direct"
+    },
+    "log_messages": [
+    ]
+}
+```
 
 In all the expressions below, the leading $. is optional and can be omitted.
 

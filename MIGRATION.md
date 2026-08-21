@@ -81,6 +81,33 @@ swapped inline-code spans for component tags); once fixed, ~50 errors cleared at
 once. **Takeaway: the conversion is very automatable, but only with a
 build-validate-fix loop — a naive markdown copy would not compile.**
 
+### The placeholder collision, part two
+
+That fix cleared the collision between inline code and component tags. It left a
+second one alone, and `mint validate` could not see it because the result was
+valid MDX: `convert_body` parked fenced code blocks and inline code spans in two
+stores under the *same* placeholder mark, so the Nth fence and the Nth inline
+span became the same string, and restoring the inline spans first claimed both.
+Every page kept `max(0, fences − inline spans)` of its code blocks. Each block it
+lost was replaced by a stray `code` phrase from elsewhere on the same page —
+which is why the MANTL page told customers to paste `Share Link Behavior` where
+its `core.js` tag belongs.
+
+That cost **490 of 539 code blocks, across 81 pages**, and it went unreported for
+the length of the bake-off because nothing about the pages looked broken.
+
+The marks are now named constants (`FENCE_MARK`, `TAG_MARK`, `INLINE_MARK`),
+`_protect` takes no default mark, and it refuses a mark already present in the
+text — three stores are live at once whenever `escape_braces` runs inside
+`convert_body`, and sharing one is silent data loss rather than a build failure.
+
+Restoring the pages was a splice, not a re-run: each page was converted twice
+from its ReadMe source, once reproducing the collision and once without, and only
+the difference between those two was applied to the committed page. Hand edits
+made since the migration — the image migration, the rewritten
+`building-custom-integrations` tree — are untouched, and no line that was not a
+stand-in was removed from any of the 81 pages.
+
 ## Known gaps (canary scope, not blockers)
 
 - **42 broken internal links.** These point at pages excluded from the canary

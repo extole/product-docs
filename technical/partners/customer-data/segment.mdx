@@ -55,7 +55,15 @@ Identify calls are sent to Extole as an `identify` event. Extole will create a n
 
 An example `identify` call:
 
-`identify`
+```json js
+analytics.identify('userId123', {
+  email: 'john.doe@example.com',
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 25,
+  existingCustomer: true
+});
+```
 
 [//]: ___
 
@@ -69,7 +77,15 @@ This setup should occur as part of the launch process by your Solutions Engineer
 
 The following is an example `track` call for `conversions`:
 
-`userId`
+```json
+analytics.track('conversion', {
+    email: 'john.doe@example.com',
+    first_name: 'John',
+    last_name: 'Doe',
+    partner_conversion_id: 'purchaseId123',
+    cart_value: '99.99'
+})
+```
 
 [//]: ___
 
@@ -108,7 +124,20 @@ Reference Segment's guide on [HTTP Tracking API Source](https://segment.com/docs
 
 Whenever someone is identified in your Extole program, an identify event is fired. This event includes a unique User ID and any profile attributes for that visitor stored in their Extole profile. People are identified when they share, receive a share message, provide an email address via Extole email capture, or make a purchase.
 
-`firstName`
+```json
+POST https://api.segment.io/v1/identify
+
+{
+  "userId":"019mr8mf4r",
+  "traits":{
+    "email":"april@advocate.com",
+    "first_name":"April",
+    "last_name":"Spring"
+  },
+  "anonymousId":"6808606353277739084",
+  "timestamp":"2012-12-02T00:30:12.984Z"
+}
+```
 
 | Field         | Value                                                                                                                |
 | :------------ | :------------------------------------------------------------------------------------------------------------------- |
@@ -144,7 +173,27 @@ The `referred` event is fired when an Advocate shares via an Extole Share Experi
 
 The following code is an example `track` call with `referred` event name:
 
-`lastName`
+```json
+POST https://api.segment.io/v1/track
+
+{
+    "event": "referred",
+    "userId": "019mr8mf4r",
+    "properties": {
+        "email": "april@example.com",
+        "channel": "EMAIL",
+        "funnel": "ADVOCATE",
+        "campaign": "Refer A Friend",
+        "friend_emails": [
+            "summer@example.com",
+            "autumn@example.com",
+            "winter@example.com"
+        ]
+    },
+    "anonymousId": "6808606353277739084",
+    "timestamp": "2012-12-02T00:30:12.984Z"
+}
+```
 
 <table>
   <thead>
@@ -231,7 +280,22 @@ The following code is an example `track` call with `referred` event name:
 
 The `registered` event is fired when a registration happens. The following code is an example `track` call with `registered` event name:
 
-`other`
+```json
+POST https://api.segment.io/v1/track
+
+{
+    "event": "registered",
+    "userId": "056tf9eqw24",
+    "properties": {
+        "email": "summer@example.com",
+        "first_name": "Summer",
+        "last_name": "Doe",
+        "advocate_user_id": "019mr8mf4r"
+    },
+    "anonymousId": "68086063532777498123",
+    "timestamp": "2012-12-02T00:30:12.984Z"
+}
+```
 
 | Field              | Description                                                                                                         |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------ |
@@ -249,7 +313,25 @@ The `purchased` event is fired when a purchase happens.
 
 The following code is an example `track` call with `purchased` event name:
 
-`identify`
+```json
+POST https://api.segment.io/v1/track
+
+{
+    "event": "purchased",
+    "userId": "056tf9eqw24",
+    "properties": {
+        "email": "summer@example.com",
+        "first_name": "Summer",
+        "last_name": "Doe",
+        "cart_value": "99.99",
+        "partner_conversion_id": "991nss7712n317has-128sa1",
+        "coupon_code": "FR1921882NY",
+        "advocate_user_id": "019mr8mf4r"
+    },
+    "anonymousId": "68086063532777498123",
+    "timestamp": "2012-12-02T00:30:12.984Z"
+}
+```
 
 | Field                   | Value                                                                                                               |
 | :---------------------- | :------------------------------------------------------------------------------------------------------------------ |

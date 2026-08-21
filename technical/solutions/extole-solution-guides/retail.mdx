@@ -70,7 +70,13 @@ Extole's JavaScript (JS) library goes on all of your pages. It enables all Extol
 
 **Add Extole's JS Library as follows**: 
 
-`do-not-reply@mycompany.com`
+```javascript
+<!-- BRANDED -->
+<script type="text/javascript" src="https://share.companyname.com/core.js" fetchpriority="high" async></script>
+
+<!-- UNBRANDED until CNAME is complete -->
+<script type="text/javascript" src="https://companyname.extole.io/core.js" fetchpriority="high" async></script>
+```
 
 ### Add Marketing Tags
 
@@ -88,11 +94,28 @@ To create other marketing tags, please contact [support@extole.com](mailto:suppo
 
 For inline call-to-action, there is an HTML snippet to locate it on the page:
 
-`global_header`
+```html
+<span id="extole_zone_global_header"></span>
+```
 
 **An example marketing tag looks like the following**:
 
-`global_footer`
+```html
+<script type="text/javascript">
+(function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+
+   extole.createZone({
+     name: 'global_header',
+     element_id: 'extole_zone_global_header',
+     data: {
+       "partner_user_id": REPLACE, // RECOMMENDED IF AVAILABLE
+       "email": REPLACE,  // RECOMMENDED IF AVAILABLE
+       "first_name": REPLACE,  // RECOMMENDED IF AVAILABLE
+       "last_name": REPLACE  // RECOMMENDED IF AVAILABLE
+     }    
+ });
+</script>
+```
 
 <Warning>
 **Important Note**
@@ -182,7 +205,25 @@ Make certain that you fire the Extole tag for **all purchases** so Extole will c
 
 **An example conversion tag looks like the following**:
 
-`product`
+```html
+<script type="text/javascript">
+(function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+
+   extole.createZone({
+     name: 'conversion',
+     data: {
+       "first_name": REPLACE, // RECOMMENDED DYNAMIC VALUE
+       "last_name": REPLACE, // RECOMMENDED DYNAMIC VALUE
+       "email": REPLACE, // REQUIRED DYNAMIC VALUE
+       "partner_user_id": REPLACE, // REQUIRED DYNAMIC VALUE
+       "order_id": REPLACE, // REQUIRED DYNAMIC VALUE
+       "cart_value": REPLACE, // REQUIRED IF AVAILABLE
+       "products": REPLACE, // RECOMMENDED IF AVAILABLE
+       "coupon_code": REPLACE // REQUIRED IF AVAILABLE
+     }
+  });
+</script>
+```
 
 <Warning>
 **Important Note**
@@ -313,7 +354,16 @@ Create your first key via the "Create New Access Token" button. Our system will 
 
 Once your API key is created, you can test successful authentication using the Admin API method:
 
-`confirmation`
+```curl
+curl -H "Authorization: Bearer XXXX" https://api.extole.io/v2/me/clients
+
+[
+  {
+    "client_id": "1",
+    "name": "<CLIENT_NAME>"
+  }
+]
+```
 
 #### Event API Call
 
@@ -321,11 +371,29 @@ For each purchase that occurs in store, an API request is sent to Extole.  It is
 
 **An example API call looks like the following**:
 
-`overlay`
+```json
+{
+  "event_name": "purchased",
+  "data": {
+    "first_name": REPLACE, // RECOMMENDED DYNAMIC VALUE
+    "last_name": REPLACE, // RECOMMENDED DYNAMIC VALUE
+    "email": REPLACE, // REQUIRED DYNAMIC VALUE
+    "partner_user_id": REPLACE, // REQUIRED DYNAMIC VALUE
+    "order_id": REPLACE, // REQUIRED DYNAMIC VALUE
+    "cart_value": REPLACE, // REQUIRED IF AVAILABLE
+    "products": REPLACE, // RECOMMENDED IF AVAILABLE
+    "coupon_code": REPLACE // REQUIRED IF AVAILABLE
+  }
+}
+```
 
 **The response will be an ID like the following**:
 
-`"email": "april@advocate.com"`
+```json
+{
+  "id":"6747711822563808783"
+}
+```
 
 <table>
   <thead>
@@ -420,7 +488,12 @@ To upload a file, complete the following steps:
 
 **An example file looks like the following**:
 
-`first_name`
+```text
+Event_name,first_name,last_name,email,order_id,partner_user_id,cart_value,coupon_code,product 
+purchased,Julio,Jones,julioj@friend.com,302002754,200728,654.35,RAF507509,“sku01,sku02”
+purchased,Caitlyn,Wong,cwong@friend.com,304002876,201354,498.35,RAF507588,“sku03,sku02”
+purchased,Debbie,Allman,allmandeb@friend.com,302001984,288753,1123.35,RAF988765,“sku03,sku02”
+```
 
 If you would like to upload your file programmatically, you can set up SFTP access. Navigate to the Tech Center main hub and click the + New Server button. You can follow the step-by-step instructions found in the [Extole's SFTP Server](/technical/platform-integrations/files/extoles-sftp-server) guide.
 
@@ -721,7 +794,17 @@ To cancel a reward, provide Extole the order numbers that have been canceled bef
 
 **An example for sending a canceled event to Extole is as follows**:
 
-`last_name`
+```json
+POST https://api.extole.io/v5/events
+
+{
+  "event_name": "canceled",
+  "data": {
+    "order_id": REPLACE, // REQUIRED DYNAMIC VALUE
+    "partner_canceled_id": REPLACE // RECOMMENDED DYNAMIC VALUE
+  }
+}
+```
 
 <table>
   <thead>

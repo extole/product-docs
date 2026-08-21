@@ -45,13 +45,18 @@ There are many popular libraries that can be used to generate your JWT. A JWT co
 
 If you are generating a x509 Key Pair, you will need to upload the public key as DER base64 encoded.  You can use OpenSSL to do this:
 
-`partner_user_id`
+```shell
+$ openssl rsa -in rsa.private -out rsa.public -pubout -outform DER
+$ base64 rsa.public
+```
 
 ### JWT Header
 
 The following is an example JWT header for you to reference.
 
-`alg`
+```json
+{"alg":"HS256","typ":"JWT","kid":"jwt-key-20191122"}
+```
 
 | Key   | Value                                                                                                                                       |
 | :---- | :------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -67,7 +72,14 @@ If the JWT is expired (i.e., the `exp` time is in the past), Extole will still u
 
 The following is an example JWT payload for you to reference.
 
-`HS256`
+```json
+{
+  "email":"april@advocate.com",
+  "exp":"1582826704",
+  "nbf":"1582826344",
+  "iat":"1582826404"
+}
+```
 
 | Key     | Value                                                                                                                                                                                             |
 | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -80,7 +92,17 @@ The following is an example JWT payload for you to reference.
 
 Extole can also accept JWTs in zone requests (i.e., when creative aspects of your program are rendered). Data passed in a JWT takes precedent over what is passed in the data section of a tag.
 
-`typ`
+```javascript
+<script type="text/javascript">
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+
+  extole.createZone({
+    name: 'embedded_stats',
+    element_id: 'extole_zone_embedded_stats',
+    jwt: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpyZWVkQGV4dG9sZS5jb20ifQ.yow8b4bvczz87F3sQKxdJvMSWicPEfV95Zo1iuethwA'
+  });
+</script>
+```
 
 ### Testing Your JWT
 

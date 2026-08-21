@@ -49,7 +49,39 @@ Then, use the Boulevard platform to create webhooks for each of the events.&#x20
 
 Example payload:
 
-`CLIENT_CREATED`
+```json
+POST https://api.extole.io/v5/events/boulevard?access_token={$extole_token}
+
+{
+  "apiApplicationId": "urn:blvd:ApiApplication:239a28183-ccc1a-501a-b88-348707",
+  "businessId": "urn:blvd:Business:304fhc82-65d1-4638-9cbf-6334ob514425",
+  "data": {
+    "node": {
+      "__typename": "Client",
+      "active": true,
+      "appointmentCount": 1,
+      "createdAt": "2024-02-06T12:42:55.577980Z",
+      "dob": null,
+      "email": "me--test@blvd.co",
+      "externalId": 1234,
+      "firstName": "John",
+      "id": "urn:blvd:Client:4e934730-tdcb-4b4e-8641978f1f3971324f9",
+      "lastName": "Doe",
+      "mergedIntoClientId": null,
+      "mobilePhone": "+18888888889",
+      "name": "John Doe",
+      "tags": [],
+      "updatedAt": "2024-02-06T12:42:55.577980Z"
+    }
+  },
+  "event": "client.created",
+  "eventType": "CLIENT_CREATED",
+  "idempotencyKey": "8372487-47asd7a-fdff-83329-505515e5347ffc",
+  "resource": "Client",
+  "timestamp": "2024-02-06T12:42:56.634078Z",
+  "webhookId": "urn:blvd:Webhook:45fd98-2391-41ba-9776-67b5594b15674ae"
+}
+```
 
 Once you’ve configured your webhooks in Boulevard, your Extole implementation team will configure your Refer A Friend or Loyalty campaign to handle the events.
 
@@ -79,7 +111,26 @@ To send out a gift card code (discount), your Extole team will create a webhook 
 
 Example payload:
 
-`APPOINTMENT_CREATED`
+```json
+mutation {
+  CreateGiftCard(
+    input: {
+      clientId: "urn:blvd:Client:015658d44a31-d641-43897-b7364-9873472ee43"
+      code: "bf67905b4e1b435daf39c3433f0"
+      locationId: "urn:blvd:Location:cb3339953458978-2bd3cf-4599-9778-216ca32478ee1"
+      note: "issued 25 USD reward"
+      amount: "2500"
+    }
+  ) {
+    giftCard {
+      id
+      client
+      code
+      currentBalance
+    }
+  }
+}
+```
 
 #### Trigger an account credit
 
@@ -91,7 +142,35 @@ Example payload:
 | `locationId`           | The originating location of the credit.                                                            |
 | `staffId`              | The ID associated with the staff member.                                                           |
 
-`APPOINTMENT_CONFIRMED`
+```Text JSON
+mutation CreateAccountCreditAdjustment {
+  createAccountCreditAdjustment(
+    input: {
+      adjustmentReason: "Loyalty Reward"
+      balanceDelta: 1000
+      clientId: "urn:blvd:Client:015658d44a31-d641-43897-b7364-9873472ee43"
+      locationId: "urn:blvd:Location:8fb555e3-33f0-66c3-9edc-93311788651f"
+      staffId: "urn:blvd:Staff:88035cfd-033b-4e53-adb6-7ddd87f21cb65"
+    }
+  ) {
+    client {
+      active
+      appointmentCount
+      createdAt
+      currentAccountBalance
+      currentAccountUpdatedAt
+      email
+      firstName
+      id
+      lastName
+      mobilePhone
+      name
+      pronoun
+      updatedAt
+    }
+  }
+}
+```
 
 #### Trigger a voucher
 
@@ -102,7 +181,24 @@ Example payload:
 | `serviceIds`           | The array of services the voucher applies to.             |
 | `locationId`           | The originating location of the voucher.                  |
 
-`APPOINTMENT_COMPLETED`
+```Text JSON
+mutation VouchersCreate {
+  vouchersCreate(
+    input: {
+      clientId: "urn:blvd:Client:123a4567-8910-1112-bb3a-255ffe7e881e0"
+      quantity: 1
+      serviceIds: ["urn:blvd:Service:88035cfd-033b-4e53-adb6-7ddd87f21cb65"]
+      locationId: "urn:blvd:Location:8fb555e3-33f0-66c3-9edc-93311788651f"
+    }
+  ) {
+    vouchers {
+      expiresOn
+      id
+      redeemedAt
+    }
+  }
+}
+```
 
 ### Use Case #3: Segment and view referral and loyalty clients within BLVD
 
@@ -125,6 +221,24 @@ Additionally, Extole can update a loyalty users total points balance in BLVD as 
 
 First, create a custom field in your BLVD dashboard and name it `Loyalty Points Balance`. Extole will then query BLVD's API to locate the key for the custom field.<br /><br />From there, Extole will fire a real-time mutation to update the users points balance using [`https://dashboard.boulevard.io/api/2020-01/admin`](https://dashboard.boulevard.io/api/2020-01/admin)
 
-`MEMBERSHIP_CREATED`
+```json
+mutation {
+  updateClient(
+    input: {
+      id: "urn:blvd:Client:11111111-2222-3333-4444-555555555555"
+      customFields: [
+        {
+          key: "dashboardField-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+          textValue: "12345"
+        }
+      ]
+    }
+  ) {
+    client {
+      id
+    }
+  }
+}
+```
 
 <br />

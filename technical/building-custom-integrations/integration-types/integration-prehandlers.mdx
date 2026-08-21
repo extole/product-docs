@@ -75,7 +75,25 @@ Setup instructions that refer to "the Extole inbound event endpoint" without pro
 
 A prehandler is a name, an ordered pair of condition and action lists, and a reference to the component it belongs to:
 
-`input_event`
+```bash
+curl --request POST "$EXTOLE_API_HOST/v6/prehandlers" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "example_v10_order_completed_to_converted",
+    "description": "Renames the Example order webhook to the canonical converted event and flattens its payload.",
+    "enabled": true,
+    "order": 0,
+    "conditions": [
+      { "type": "HTTP_HEADER_MATCH", "http_header_names": ["x-example-signature"] },
+      { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var body = context.getProcessedRawEvent().getData(); return body.get(\"type\") === \"order.completed\"; })();" }
+    ],
+    "actions": [
+      { "type": "EXPRESSION", "expression": "javascript@runtime:(function(){ var builder = context.getEventBuilder(); var body = context.getProcessedRawEvent().getData(); var data = body.get(\"data\"); if (!data) { return; } var order = data.get(\"order\"); if (!order) { return; } builder.withEventName(\"converted\"); builder.addData(\"partner_conversion_id\", order.get(\"id\")); builder.addData(\"partner_user_id\", order.get(\"customer_id\")); builder.addData(\"cart_value\", order.get(\"total_amount\")); builder.addData(\"email\", order.get(\"customer_email\")); })();" }
+    ],
+    "component_references": [{ "component_id": "'"$INTEGRATION_COMPONENT_ID"'" }]
+  }'
+```
 
 Three fields decide whether it does anything at all, and each defaults to the value that does nothing:
 
@@ -231,6 +249,9 @@ The rest of the resource:
 
 Read the built form, which shows `enabled`, `order`, and the evaluated name as the runtime sees them rather than as source expressions:
 
-`event_name`
+```bash
+curl --request GET "$EXTOLE_API_HOST/v6/prehandlers/$PREHANDLER_ID/built" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
+```
 
 Then send a copy of the partner's real webhook, headers included, and confirm three things in order: that a step was created on the canonical business event, that every field the data components map is populated, and that no prehandler failure notification was raised. A step created with empty data means the prehandler matched and its mapping is wrong; no step at all means it did not match, or never ran.
