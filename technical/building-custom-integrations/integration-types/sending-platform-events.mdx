@@ -55,15 +55,11 @@ Extole answers an accepted submission with a `2xx`. Network failures, `429`, and
 
 Expect the same event more than once. Platforms re-fire hooks and replay status history, so one lifecycle event often reaches the sender several times. Extole deduplicates on the field mapped as the unique partner event key, so a replay resolves to the same outcome rather than a second conversion.
 
-## Personal Data in the Send Path
-
-Whatever holds an event between the hook and delivery — a queue, a retry buffer, a log — holds customer personal data. Dropping the fields the integration does not map does not change that: the email address and customer identifier Extole resolves a person from are themselves the personal fields. Erasure requests reach undelivered events for the same reason.
-
 ## Protect the Integration
 
 - Restrict sender configuration to platform administrators.
 - Keep the access token out of templates, browser code, logs, and event data.
-- Redact authorization headers and request bodies in transport logs. A debug log that captures the full request re-creates, in a less protected place, the personal data the send path is careful with.
+- Redact authorization headers and request bodies in transport logs.
 - Validate and normalize emails, identifiers, URLs, and numeric values before sending.
 - Verify HTTPS certificates.
 - Allow token rotation without reinstalling the extension.
