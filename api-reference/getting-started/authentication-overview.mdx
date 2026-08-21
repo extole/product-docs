@@ -10,7 +10,10 @@ For a server-side call:
 1. In My Extole, open the <a href="https://my.extole.com/security-center" target="_blank">Security Center</a> and click **+ New Access Token** in the Access Token section. Copy the value.
 2. Send the token as a bearer credential in the `Authorization` header on every request:
 
-`Authorization`
+```bash
+curl https://api.extole.io/v1/audiences \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
 
 This pattern works for the Management, Management Expert, and Integration: Server to Extole APIs.
 
@@ -47,7 +50,9 @@ Tokens created in the Security Center are client-scoped and long-lived, suitable
 
 Send the token as a bearer credential in the `Authorization` header. This is the recommended pattern.
 
-`Authorization`
+```text
+Authorization: Bearer YOUR_ACCESS_TOKEN
+```
 
 Two alternative methods are supported for compatibility:
 
@@ -86,7 +91,21 @@ Consumer API calls go to the **brand's program domain**, not the shared `api.ext
 
 Find the active program domain in My Extole **Tech Center**.
 
-`?access_token=YOUR_ACCESS_TOKEN`
+```text
+# Extole-hosted Web Friendly endpoints subdomain
+https://acme.extole.io/events
+https://acme.extole.io/zones
+
+# Extole-hosted API Friendly endpoints
+https://acme.extole.io/v6/events
+https://acme.extole.io/v6/zones
+https://acme.extole.io/v4/me
+
+# Brand-hosted subdomain
+https://share.acme.com/events
+https://share.acme.com/v6/zones
+https://share.acme.com/v4/me
+```
 
 ### Cookie lifecycle
 
@@ -126,7 +145,11 @@ Three methods upgrade a consumer access token to `VERIFIED_CONSUMER`. Brands typ
 
 The most common method. The brand signs a JWT carrying the participant's identity and sends it on a consumer call in the `X-Extole-Jwt` header. Extole verifies the signature against a key the brand has registered in My Extole.
 
-`access_token=YOUR_ACCESS_TOKEN`
+```bash
+curl https://acme.extole.io/v6/zones/refer_a_friend \
+  -H "Authorization: Bearer YOUR_CONSUMER_TOKEN" \
+  -H "X-Extole-Jwt: eyJhbGciOiJIUzI1NiIsImtpZCI6ImJyYW5kLWtleS0yMDI2In0..."
+```
 
 **The&#x20;**`kid`**&#x20;header.** Every JWT must include a `kid` (key ID) header that matches the Partner Key ID set on the corresponding key in My Extole. Extole uses `kid` to identify which key to use for verification or decryption.
 

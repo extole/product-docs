@@ -78,7 +78,13 @@ The core tag can be found under your program’s branded domain (refer.brand.com
 
 Find your active referral domain and use that for your core tag. It will look like `brand.extole.io` (unbranded) or `refer.brand.com` (branded).
 
-`do-not-reply@mycompany.com`
+```javascript Extole Core Tag
+<!-- BRANDED -->
+<script type="text/javascript" src="https://refer.brand.com/core.js" fetchpriority="high" async></script>
+
+<!-- UNBRANDED -->
+<script type="text/javascript" src="https://brand.extole.io/core.js" fetchpriority="high" async></script>
+```
 
 ### Add Marketing Tags
 
@@ -102,13 +108,33 @@ You can create additional marketing tags for pages such as your blog or help cen
 
 Add a `span` element to the page where the content should appear. You typically add this element through your CMS or site code. Inline tags require this element; `overlay` and `confirmation` tags do not.
 
-`span`
+```javascript Span ID
+<span id="extole_zone_global_header"></span>
+```
 
 Additionally, there is the `script` tag that loads the targeted content from the program and inserts it onto the page in the `span` tag.
 
 **Below is an example of a `global_header` tag**:
 
-`id`
+```javascript Global Header CTA
+<span id="extole_zone_global_header"></span>
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'global_header',
+     element_id: 'extole_zone_global_header',
+     data: {
+       "partner_user_id":"00O40000004SA1AA", // DYNAMIC VALUE
+       "email": "april@advocate.com",  // DYNAMIC VALUE
+       "first_name": "April",  // DYNAMIC VALUE
+       "last_name": "Advocate"  // DYNAMIC VALUE
+     }     
+  });
+</script>
+```
 
 <Warning>
 **Important Note**
@@ -187,7 +213,24 @@ The registration tag passes information about the new customer so Extole can att
 
 Fire this tag only when the created account is **new**. This keeps rewards focused on new customer memberships. 
 
-`brand.extole.io`
+```javascript Registration Tag
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'registration',
+     data: {
+       "first_name":"Julio",  // DYNAMIC VALUE
+       "last_name":"Friend", // DYNAMIC VALUE
+       "email":"julio@friend.com", // DYNAMIC VALUE
+       "partner_user_id":"00O40000004SQbO", // DYNAMIC VALUE
+       "advocate_code":"ref3lb" // IF USED
+     }
+  });
+</script>
+```
 
 <Warning>
 **Important Note**
@@ -278,7 +321,26 @@ The conversion tag passes information about the purchase to allow Extole to attr
 Make certain that you fire the Extole tag for **all conversions** so that Extole will correctly attribute conversions and manage the fraud and business rules.
 </Warning>
 
-`refer.brand.com`
+```javascript Conversion Tag
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'conversion',
+     data: {
+       "first_name":"Julio", // DYNAMIC VALUE
+       "last_name":"Friend", // DYNAMIC VALUE
+       "email":"julio@friend.com", // DYNAMIC VALUE
+       "partner_user_id":"00O40000004SQbO", // DYNAMIC VALUE
+       "partner_conversion_id":"00O415320037eWy", // DYNAMIC VALUE
+       "cart_value":"20.00", // DYNAMIC VALUE
+       "coupon_code":"QA754AZ" // DYNAMIC VALUE
+     }
+  });
+</script>
+```
 
 <table>
   <thead>
@@ -385,14 +447,42 @@ Create your first key via the "Create New Access Token" button. My Extole will t
 
 Once your API key is created, you can test successful authentication using the Client API method:
 
-`global_header`
+```curl
+curl -H "Authorization: Bearer XXXX" https://api.extole.io/v2/me/clients
+
+[
+  {
+    "client_id": "1",
+    "name": "Demo"
+  }
+]
+```
 
 ##### Event API Call
 
 Send an API request to Extole for each purchase that occurs in store. You can send the same order by tag and API because Extole automatically deduplicates events based on the order ID.
 
-`global_header`
-`global_footer`
+```json Event API Call
+POST https://api.extole.io/v5/events
+Authorization: Bearer XXX
+
+{
+  "event_name": "purchased",
+  "data": {
+    "first_name": "Julio",
+    "last_name": "Friend",
+    "email": "julio@friend.com",
+    "partner_user_id": "00O40000004SQbO",
+    "order_id": "122948302lala",
+    "cart_value": "10000.00"
+  }
+}
+```
+```shell Response
+{
+  "id":"6747711822563808783"
+}
+```
 
 <table>
   <thead>
@@ -530,7 +620,31 @@ When an approved conversion occurs, Extole tracks an issued account credit to th
 
 In My Extole, provide a web service name, URL, and shared secret. After each reward is earned, Extole makes an outbound API call to the service name you provided. Never publish a real shared secret or bearer token in documentation or client-side code.
 
-`product`
+```json Account Credits via Webhook
+POST https://YOURWEBHOOK
+Authorization: Bearer REPLACE_WITH_SHARED_SECRET
+Content-Type: application/json
+
+{
+    "type": "reward_earned",
+    "event_id": "qb3jju459ugjr2aojk5e",
+    "event_time": "2020-05-29T14:14:18.548Z",
+    "reward_id": "bf67905b4e1b41daf39c30f0",
+    "reward_supplier_name": "Advocate Account Credit",
+    "reward_supplier_id": "701e681a9e46c8b6778f3452",
+    "partner_reward_supplier_id": "Advocate Account Credit",
+    "reward_supplier_type": "CUSTOM_REWARD",
+    "person_id": "6816411215104951917",
+    "partner_user_id": "1036950000",
+    "face_value": 50,
+    "face_value_type": "USD",
+    "data": [
+      "recipient_email": "april@advocate.com"
+    ],
+    "message": null,
+    "schema_version": 1
+}
+```
 
 <table>
   <thead>
@@ -690,8 +804,30 @@ In My Extole, provide a web service name, URL, and shared secret. After each rew
 
 Extole can make rewards available through an API. Schedule a process on your side to call the Extole Rewards API regularly, retrieve rewards earned by each consumer, and apply those rewards to each account.
 
-`confirmation`
-`overlay`
+```json Example: Rewards API Call
+POST https://api.extole.io/v2/rewards?state=earned&reward_supplier_type=custom-reward
+Authorization: Bearer XXXX
+Content-Type: application/json
+
+[
+  {
+    "reward_id": "6626084585458921557",
+    "cause_event_id": "6625713485380188505",
+    "reward_supplier_id": "fd6d46833d459fb13071e261",
+    "campaign_id": "6624279975852929111",
+    "person_id": "6620831314790485965",
+    "partner_user_id": "06e2077f-80af-4b67-89cb-2fddd7de0f4f",
+    "email": "buttonjanea@aol.com",
+    "state": "EARNED",
+    "face_value": 9,
+    "face_value_type": "USD",
+    "partner_reward_id": null,
+    "created_at": "2018-11-20T15:12:18.461-08:00"
+  }
+]
+```
+```text Response
+```
 
 <Warning>
 **Important Notes**
@@ -852,8 +988,22 @@ In the call above replace `XXXX` with your access token.
 
 Let Extole know that rewards have been fulfilled via an API. Schedule a process on your side that will call into the Extole Events API on a regular basis to share the rewards that have been fulfilled.
 
-`span`
-`overlay`
+```json Example: Events API Call
+POST https://api.extole.io/v5/events
+{
+  "event_name": "reward_fulfilled",
+  "data": {
+    "reward_id" : "bf67905b4e1b41daf39c30f0",
+    "partner_reward_id" : "RewardId123459",
+    "message": "successful fulfillment"
+  }
+}
+```
+```shell Response
+{
+  "id":"6747711822563808783"
+}
+```
 
 <table>
   <thead>
@@ -1493,6 +1643,40 @@ If you want your implementation to give customers immediate feedback when they a
 
 Implement the code below only if you want to tell the user whether the code is valid before they sign up, similar to a coupon code button on a cart page. 
 
-`confirmation`
+```javascript Advocate Code Capture Tag
+// SCENARIO: A person submitted an advocate code. Verify it is valid, then apply a coupon.
+
+function promptForAdvocateCode() {
+    // TODO - implemented by client
+}
+
+submitAdvocateCode("ADVOCATE_CODE", function (error, response) {
+
+    if (error) {
+        // handle error
+        return;
+    }
+
+    isRewardable(function (error, response) {
+        if (error) {
+            //handle error
+            return
+        }
+        applyReward();
+    });
+});
+
+function isRewardable(callback) {
+    extole.require(["core-root:///shared/person-rewardable-service.js"], function (personRewardableService) {
+        personRewardableService.isRewardable(callback);
+    });
+}
+
+function submitAdvocateCode(advocateCode, callback) {
+    extole.require(["core-root:///shared/person-relationship-service.js"], function (personRelationShipService) {
+        personRelationShipService.createRelationship(advocateCode, callback);
+    });
+}
+```
 
 [//]: ___

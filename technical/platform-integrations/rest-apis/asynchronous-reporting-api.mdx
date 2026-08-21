@@ -36,7 +36,28 @@ For scheduled reports, the Get API Call button on the schedules page will give y
 
 There are 2 endpoints that can be used for getting report information. /`{report_id}` and /`{report_id}`/download. The first of which will return a body similar to:
 
-`{report_id}`
+```json JSON
+{
+"report_id": "660227271228629029",
+"name": "list_of_successful_advocates",
+"executor_type": "spark",
+"format": "JSON",
+"status": "PENDING",
+"user_id": "6458996259994687201",
+"parameters": {
+  "end_date": "2024-09-17",
+  "client_id": "1990234113",
+  "start_date": "2024-9-11"
+  },
+"visible": null,
+"source": null,
+"created_date": "2024-9-17T19:10:05.695Z",
+"started_date": null,
+"completed_Date": null,
+"error_code": null,
+"dounload_url": null
+}
+```
 
 Which contains all of the information about the report.
 
@@ -58,15 +79,28 @@ To run a report via API call, follow the instructions below.
 
 1. Make a POST call to our reports endpoint.
 
-`{report_id}`
+```
+POST <https://api.extole.io/v4/reports>
+```
 
 2. Include these HTTP Headers:
 
-`{report_id}`
+```
+Authorization: <ACCESS_TOKEN>
+Content-Type: application/json
+```
 
 3. Include this body with your values filled in:
 
-`{report_id}`
+```
+{   
+   "name":"<REPORT_NAME>",  
+   "format":"<FORMAT>",  
+   "parameters":{   
+      "date_range":"<DATE_RANGE.START>/<DATE_RANGE.END>"  
+   }  
+}
+```
 
 Options for the parameters above:
 
@@ -132,4 +166,6 @@ To get a report's status, simply make the GET call listed on the report's Get AP
 
 Once the status of a report is `DONE` you will be able to download your report. You can do so by making the following GET call.
 
-`status`
+```
+GET https://api.extole.io/v4/reports/<REPORT_ID>/download
+```

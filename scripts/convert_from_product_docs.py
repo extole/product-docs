@@ -148,6 +148,14 @@ def has_substantive_index_body(body: str) -> bool:
 
 FENCE_RE = re.compile(r"(```.*?```|~~~.*?~~~)", re.DOTALL)
 INLINE_CODE_RE = re.compile(r"(`[^`\n]+`)")
+
+# One control character per _protect store. They must stay distinct from each
+# other because escape_braces protects tag spans inside a body whose fences and
+# inline code are already protected -- three stores live at once.
+FENCE_MARK = "\x01"
+TAG_MARK = "\x02"
+INLINE_MARK = "\x03"
+
 MARKDOWN_IMAGE_RE = re.compile(
     r"!\[[^\]]*\]\(\s*(?P<url>https?://[^\s)]+)(?:\s+(?:\"[^\"]*\"|'[^']*'))?\s*\)"
 )
@@ -180,7 +188,17 @@ IMAGE_EXTENSION_BY_CONTENT_TYPE = {
 }
 
 
-def _protect(text: str, pattern: re.Pattern, store: list, mark: str = "\x00") -> str:
+def _protect(text: str, pattern: re.Pattern, store: list, mark: str) -> str:
+    """Swap every match for a `mark`-delimited index so later passes leave it alone.
+
+    `mark` has no default and must be unused in `text`: two stores sharing one
+    mark produce the same placeholder for their first entries, and whichever is
+    restored first claims both -- which is how every fenced code block on 81
+    pages was overwritten with an inline code span from elsewhere on the page.
+    """
+    if mark in text:
+        raise ValueError(f"placeholder mark {mark!r} is already in use in this text")
+
     def repl(m):
         store.append(m.group(0))
         return f"{mark}{len(store) - 1}{mark}"
@@ -188,7 +206,7 @@ def _protect(text: str, pattern: re.Pattern, store: list, mark: str = "\x00") ->
     return pattern.sub(repl, text)
 
 
-def _restore(text: str, store: list, mark: str = "\x00") -> str:
+def _restore(text: str, store: list, mark: str) -> str:
     for i, chunk in enumerate(store):
         text = text.replace(f"{mark}{i}{mark}", chunk)
     return text
@@ -197,9 +215,9 @@ def _restore(text: str, store: list, mark: str = "\x00") -> str:
 def remote_image_urls(text: str) -> set[str]:
     """Return remote URLs used as rendered images, excluding code examples."""
     fences: list = []
-    text = _protect(text, FENCE_RE, fences, mark="\x01")
+    text = _protect(text, FENCE_RE, fences, mark=FENCE_MARK)
     inlines: list = []
-    text = _protect(text, INLINE_CODE_RE, inlines, mark="\x02")
+    text = _protect(text, INLINE_CODE_RE, inlines, mark=INLINE_MARK)
     return {
         m.group("url")
         for pattern in (MARKDOWN_IMAGE_RE, HTML_IMAGE_RE)
@@ -210,9 +228,9 @@ def remote_image_urls(text: str) -> set[str]:
 def rewrite_remote_images(text: str, local_paths: dict[str, str]) -> str:
     """Replace only rendered remote image URLs with mapped local asset paths."""
     fences: list = []
-    text = _protect(text, FENCE_RE, fences, mark="\x01")
+    text = _protect(text, FENCE_RE, fences, mark=FENCE_MARK)
     inlines: list = []
-    text = _protect(text, INLINE_CODE_RE, inlines, mark="\x02")
+    text = _protect(text, INLINE_CODE_RE, inlines, mark=INLINE_MARK)
 
     def repl(match):
         url = match.group("url")
@@ -221,8 +239,8 @@ def rewrite_remote_images(text: str, local_paths: dict[str, str]) -> str:
 
     text = MARKDOWN_IMAGE_RE.sub(repl, text)
     text = HTML_IMAGE_RE.sub(repl, text)
-    text = _restore(text, inlines, mark="\x02")
-    return _restore(text, fences, mark="\x01")
+    text = _restore(text, inlines, mark=INLINE_MARK)
+    return _restore(text, fences, mark=FENCE_MARK)
 
 
 def _plain_image_context(text: str) -> str:
@@ -669,10 +687,10 @@ def escape_braces(text: str) -> str:
     """Escape literal braces in prose so MDX doesn't read them as expressions,
     but leave braces inside HTML/JSX tags alone (valid style={{...}} etc.)."""
     tags: list = []
-    text = _protect(text, TAG_SPAN_RE, tags, mark="\x02")
+    text = _protect(text, TAG_SPAN_RE, tags, mark=TAG_MARK)
     text = re.sub(r"(?<!\\)\{", r"\\{", text)
     text = re.sub(r"(?<!\\)\}", r"\\}", text)
-    text = _restore(text, tags, mark="\x02")
+    text = _restore(text, tags, mark=TAG_MARK)
     return text
 
 
@@ -774,9 +792,9 @@ def convert_callout_components(text: str) -> str:
 def convert_body(body: str, slug_to_path: dict) -> str:
     body = convert_callouts(body)
     fences: list = []
-    body = _protect(body, FENCE_RE, fences)
+    body = _protect(body, FENCE_RE, fences, mark=FENCE_MARK)
     inlines: list = []
-    body = _protect(body, INLINE_CODE_RE, inlines)
+    body = _protect(body, INLINE_CODE_RE, inlines, mark=INLINE_MARK)
 
     body = convert_html_block(body)
     body = convert_callout_components(body)
@@ -787,8 +805,8 @@ def convert_body(body: str, slug_to_path: dict) -> str:
     body = rewrite_links(body, slug_to_path)
     body = sanitize_mdx(body)
 
-    body = _restore(body, inlines)
-    body = _restore(body, fences)
+    body = _restore(body, inlines, mark=INLINE_MARK)
+    body = _restore(body, fences, mark=FENCE_MARK)
     return body
 
 

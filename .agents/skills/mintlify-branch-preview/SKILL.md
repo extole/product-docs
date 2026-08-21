@@ -15,7 +15,7 @@ Mintlify pages are **MDX** — JSX-strict. A bare `<`, an unclosed tag, a stray 
 npx mint@latest validate    # target: 0 errors, 0 warnings
 ```
 
-The migration landed at 0/0 (see [`MIGRATION.md`](../../../MIGRATION.md)), so treat anything else as something you introduced. `validate` fails on **warnings** as well as errors, so there is no "it's only a warning" tier here.
+The migration landed at 0/0, so treat anything else as something you introduced. `validate` fails on **warnings** as well as errors, so there is no "it's only a warning" tier here.
 
 The nav failure it catches is a `docs.json` entry pointing at a file that does not exist — most often a path with the `.mdx` extension left on:
 

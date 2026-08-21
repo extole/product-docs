@@ -45,11 +45,26 @@ Common data keys: `amount`, `source`, `channel`, `locale`, `country`, `partner_u
 
 **Mapping examples:**
 
-`event.*`
+```
+# Basic fields
+Id=event.id; Person=event.personId; Step=event.name; Amount=event.data.amount;
+
+# Keys that contain dots must be quoted
+Share Message=event.data."share.message";
+
+# Null-safe data field
+Amount=default(event.data.amount, value:"0");
+
+# Filter to high-quality referred conversions
+# (in Filters parameter)
+event.quality=="HIGH";event.visitType=="NEW_TO_CLIENT"
+```
 
 In a **Metrics** report, `step_name` scopes the aggregation to a specific step:
 
-`quality`
+```
+Unique Converters=group_count_distinct(event.personId, step_name:"converted"); Total Revenue=group_sum(event.data.amount, step_name:"converted", quality:"HIGH");
+```
 
 # InputRecord
 
@@ -79,7 +94,16 @@ A raw inbound event from a client integration, before it is processed into a ste
 
 **Mapping examples:**
 
-`visitType`
+```
+# Basic fields
+Event Name=event.name; API Type=event.apiType; Device=device_type(user_agent:event.userAgent); OS=device_type(user_agent:event.userAgent, mode:"OS_TYPE");
+
+# Count all input events by name in an Input Record Metrics report
+name=event.name; api_type=event.apiType; count=group_count_distinct(event.id, name:"all");
+
+# Count a specific event per person per day
+day=end_date(event.eventTime, period:"DAY"); person_id=person(event.personId).id; count=group_count_distinct(event.id, name:"purchase");
+```
 
 # Person
 
@@ -109,15 +133,33 @@ The full profile for one participant. A person accumulates steps, rewards, and r
 
 **Mapping examples:**
 
-`journeyName`
+```
+# Basic person fields
+Email=person(event.personId).email; First Name=person(event.personId).firstName; Last Name=person(event.personId).lastName; Partner ID=person(event.personId).partnerUserId;
+
+# Custom person data
+Tier=person(event.personId).data.tier;
+```
 
 Use `person_collection` to aggregate from profile collections. It is more memory-efficient than `collection` for large profiles.
 
-`event.*`
+```
+# Count converted steps on the profile
+Conversions=person_collection(person(event.personId).id, collection:"steps", filter:stepName=="converted", extracting:eventId, reduce:"count");
+
+# Sum high-quality conversion values
+Total Value=person_collection(person(event.personId).id, collection:"steps", filter:stepName=="converted" and quality=="HIGH", extracting:value, reduce:"sum");
+
+# Count primary (non-alias) steps only
+Primary Steps=person_collection(person(event.personId).id, collection:"steps", filter:aliasName=="false", extracting:eventId, reduce:"count");
+```
 
 Use `FIRST` or `LAST` with `sortBy` to extract a single step:
 
-`id`
+```
+# Campaign of the person's first application step
+hidden(first_app)=FIRST(COLLECTION(PERSON(event.personId).steps, filter:stepName=="application_started"), sortBy:"createdDate"); First App Campaign=campaign(property(first_app).campaignId).campaignName;
+```
 
 # PersonStep
 
@@ -189,7 +231,10 @@ One device and geo snapshot, accessible via `person.recentRequestContexts`.
 
 **Mapping example:**
 
-`clientId`
+```
+# Last known zip code and city for the person
+Zip=LAST(COLLECTION(PERSON(event.personId).recentRequestContexts), sortBy:createdAt).geoIp.zip_code; City=LAST(COLLECTION(PERSON(event.personId).recentRequestContexts), sortBy:createdAt).geoIp.city.name;
+```
 
 # BuiltCampaign
 
@@ -213,11 +258,15 @@ The latest published state of a campaign. Use this when you need the current nam
 
 **Mapping examples:**
 
-`personId`
+```
+Campaign Name=campaign(event.campaignId).campaignName; Program=campaign(event.campaignId).programLabel; State=campaign(event.campaignId).currentState;
+```
 
 Use a `hidden()` column when you need multiple fields from the same campaign to avoid resolving it twice:
 
-`name`
+```
+hidden(camp)=campaign(event.campaignId); Campaign Name=camp.campaignName; Campaign State=camp.currentState;
+```
 
 # CampaignSummary
 
@@ -239,7 +288,10 @@ An aggregated view built from all known campaign state-change events. Use this i
 
 **Mapping examples:**
 
-`converted`
+```
+# When you need when a campaign first launched, not just its current state
+First Launch=campaign_summary(event.campaignId).firstLaunchDate; Last Stopped=campaign_summary(event.campaignId).lastStoppedDate;
+```
 
 # Client
 
@@ -258,19 +310,28 @@ The brand account on the platform.
 
 Arbitrary client configuration values are accessed via `client_properties()` (no argument):
 
-`shared`
+```
+client_properties().vertical
+```
 
 **Mapping examples:**
 
-`signup`
+```
+Client=client(event.clientId).shortName; Timezone=client(event.clientId).timezone; Vertical=client_properties().vertical;
+```
 
 `client()` with no argument resolves to the event's own client, so both forms are equivalent in single-client reports:
 
-`primaryStepName`
+```
+Type=client().clientType;
+```
 
 When running a cross-client report from the Extole account, filter to real customers:
 
-`eventTime`
+```
+# Filters parameter
+client(event.clientId).clientType=="CUSTOMER"
+```
 
 # RewardSummary
 
@@ -303,11 +364,16 @@ The full lifecycle of one reward instance, built from all known reward state-cha
 
 **Mapping examples:**
 
-`requestTime`
+```
+# From a Rewards report — reward_id is on the event data
+State=reward(event.data.reward_id).currentState; Face Value=reward(event.data.reward_id).faceValue; Value Type=reward(event.data.reward_id).faceValueType; Earned On=reward(event.data.reward_id).rewardEarnedDate; Earning Step=reward(event.data.reward_id).earnedStepEventContext.name;
+```
 
 To sum total reward value issued across a step in a **Metrics** report:
 
-`programLabel`
+```
+Total Reward Value=group_sum(reward(event.data.reward_id).faceValue, step_name:"advocate_reward_earned");
+```
 
 # RewardSupplier
 
@@ -328,7 +394,9 @@ The configuration for how rewards are structured and issued.
 
 **Mapping example:**
 
-`campaignId`
+```
+Supplier Name=reward_supplier(event.rewardSupplierId).name; Supplier Type=reward_supplier(event.rewardSupplierId).type; Display Type=reward_supplier(event.rewardSupplierId).displayType;
+```
 
 # SupportSummary
 
@@ -347,7 +415,9 @@ Account-level support and CRM metadata for the current client. No argument is re
 
 **Mapping example:**
 
-`container`
+```
+Salesforce ID=support().salesforceAccountId; CSM=concatenate(support().csmFirstName, " ", support().csmLastName);
+```
 
 # ConsumerEvent
 
@@ -377,17 +447,27 @@ The raw event object. Most reports use `StepRecord` or `InputRecord` as the prim
 
 **Mapping examples:**
 
-`production`
+```
+# Load the root event to get its type or name
+Root Event Type=event(event.rootEventId).type; Root Event Name=event(event.rootEventId).name;
+
+# Access the person sub-object via the raw event
+Person Email=event(event.id).person.email;
+```
 
 Two common cross-entity lookups worth knowing:
 
 **From a step event, load the originating input record** (gives you `apiType`, `userAgent`, etc.):
 
-`quality`
+```
+API Type=input_record(event.rootEventId, event_time_name:event.eventTime).apiType; User Agent=input_record(event.rootEventId, event_time_name:event.eventTime).userAgent;
+```
 
 **From a reward event, load the step record that earned the reward** (gives you `visitType`, `quality`, etc.):
 
-`HIGH`
+```
+Visit Type=step_record(event.earnedStepEventContext.id, step_name:event.earnedStepEventContext.name, event_time_name:event.earnedStepEventContext.eventTime).visitType;
+```
 
 # AudienceMembershipRecord
 

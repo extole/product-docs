@@ -463,6 +463,46 @@ class ReadmeWidgetTests(unittest.TestCase):
         self.assertIn("&lt;FORMAT>", out)
 
 
+class CodeBlockSurvivalTests(unittest.TestCase):
+    """Fenced code blocks vanished from 81 pages during the ReadMe migration.
+
+    convert_body parks fenced blocks and inline code spans in two stores while
+    the widget passes run. Both stores used the same placeholder mark, so the
+    Nth fence and the Nth inline span became the same string and the first
+    restore claimed both -- the sample JSON on a page was replaced by whatever
+    short phrase happened to be the Nth `code` span in its prose.
+    """
+
+    def test_a_code_block_survives_an_earlier_inline_span(self):
+        body = "Set the `utm_term` value.\n\n```json\n{\"a\": 1}\n```\n"
+        out = converter.convert_body(body, {})
+
+        self.assertIn('```json\n{"a": 1}\n```', out)
+        self.assertIn("`utm_term`", out)
+
+    def test_every_block_survives_however_many_inline_spans_precede_it(self):
+        body = (
+            "One `alpha` two `beta` three `gamma`.\n\n"
+            "```js\nfirst();\n```\n\n"
+            "```js\nsecond();\n```\n"
+        )
+        out = converter.convert_body(body, {})
+
+        self.assertIn("first();", out)
+        self.assertIn("second();", out)
+        for span in ("`alpha`", "`beta`", "`gamma`"):
+            self.assertIn(span, out)
+
+    def test_a_body_carrying_a_placeholder_mark_is_refused(self):
+        with self.assertRaises(ValueError):
+            converter._protect(f"a{converter.FENCE_MARK}b", converter.FENCE_RE, [],
+                               mark=converter.FENCE_MARK)
+
+    def test_the_three_placeholder_marks_are_distinct(self):
+        marks = (converter.FENCE_MARK, converter.TAG_MARK, converter.INLINE_MARK)
+        self.assertEqual(len(set(marks)), 3)
+
+
 class CategoryLinkTargetTests(unittest.TestCase):
     def test_a_link_to_a_category_resolves_to_its_first_page(self):
         """A folder whose index.md is too thin to publish has no page, so
