@@ -103,3 +103,5 @@ build-validate-fix loop — a naive markdown copy would not compile.**
 | Can an agent land a doc change via PR end-to-end? | **Yes** — this repo *is* that PR; Mintlify builds a preview deployment per PR |
 | Is there a real `llms-full.txt`? | Mintlify generates it natively (confirm on deploy) |
 | Migration cost from ReadMe | **~1 script + a validate loop.** Structure and specs port cleanly; the widget/MDX cleanup is the real work and is fully scriptable |
+
+<!-- mintlify preview probe -->
