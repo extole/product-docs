@@ -102,6 +102,29 @@ do not wait it out. Check
 above to unblock yourself, and say so, because while it is stalled **merging does
 not publish**.
 
+### A preview can 404 on the one page the branch changed
+
+Measured on [#43](https://github.com/extole/product-docs/pull/43) (2026-08-24): the
+bot reported the build 🟢 Ready and the **View Preview** link it posted — the
+changed page — answered `404` for the next half hour, across two builds. Nothing
+was wrong with the page:
+
+| On the same preview host | Status |
+|---|---|
+| the changed page, HTML | **404** |
+| the same path with `.md` appended | 200, serving the new copy |
+| `/llms.txt` | lists the page |
+| every unchanged sibling page, and the group index | 200 |
+| another open PR's **changed** page, on its own preview host | 200 |
+
+So this is not "changed pages cannot be previewed", and the cause is unproven. An
+empty commit produced no new deployment, so retrying is not the move.
+
+What to do: prove the page a different way and say the link is lying rather than
+letting a reviewer read the 404 as a broken page. `npx mint@latest dev` renders
+the branch locally, and appending `.md` to the preview URL returns the built copy
+of that page — enough to confirm the deployment really contains your edit.
+
 ## Branch naming: no constraint here
 
 Name branches however the tech repo's `tech-worktree-workflow` skill says — a bare ticket id (`ENG-12345`) or a short kebab-case slug. Nothing about the name affects the preview.
