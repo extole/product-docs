@@ -80731,7 +80731,7 @@
                 }
               }
             },
-            "description" : "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), or the report type exists but its output shape - neither `columns` nor `sample_rows` - can be determined without running the report (`report_type_schema_not_supported`) - inspect the response `code` field for the specific error."
+            "description" : "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), or the report type does not describe its output shape at all, in `columns` or in `sample_rows` (`report_type_schema_not_supported`) - inspect the response `code` field for the specific error."
           },
           "401" : {
             "content" : {
@@ -80833,7 +80833,7 @@
         "x-extole-visibility" : "visible"
       },
       "post" : {
-        "description" : "Returns the schema a report type produces for the supplied report parameter values - the ordered `columns` or representative `sample_rows` in its output. Persists nothing. The response describes the output the report emits when run with those same values, so a client can learn its output shape before running it. Only parameters the report type contextualizes its schema on are accepted, and supplying any other is rejected. The response echoes the effective parameter values used to resolve the schema. Parameters left out resolve to the report type's own defaults rather than making the answer partial.",
+        "description" : "Returns the schema a report type produces for the supplied report parameter values - the ordered `columns` or representative `sample_rows` in its output. Persists nothing. The response describes the output the report emits when run with those same values, so a client can learn its output shape before running it. Only parameters the report type contextualizes its schema on are accepted, and supplying any other is rejected. The response echoes the effective parameter values used to resolve the schema. Parameters left out resolve to the report type's own defaults rather than making the answer partial. When the supplied values select nothing the report would summarize, the report emits no rows, so `sample_rows` is empty while `context_parameters` still echoes what the schema resolved against.",
         "operationId" : "getReportTypeSchemaForContext",
         "parameters" : [ {
           "description" : "The Extole unique report type identifier.",
@@ -80894,7 +80894,7 @@
                 }
               }
             },
-            "description" : "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), the report type exists but its output shape - neither `columns` nor `sample_rows` - can be determined without running the report (`report_type_schema_not_supported`), a supplied parameter is not one this report type contextualizes its schema on (`report_type_schema_context_parameter_not_supported`), or a supplied parameter value does not match anything this client can access (`report_type_schema_context_parameter_value_not_found`), or a supplied parameter value is invalid (`report_type_schema_context_parameter_invalid`) - inspect the response `code` field for the specific error."
+            "description" : "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), the report type does not describe its output shape at all, in `columns` or in `sample_rows` (`report_type_schema_not_supported`), a supplied parameter is not one this report type contextualizes its schema on (`report_type_schema_context_parameter_not_supported`), or a supplied parameter value does not match anything this client can access (`report_type_schema_context_parameter_value_not_found`), or a supplied parameter value is invalid (`report_type_schema_context_parameter_invalid`) - inspect the response `code` field for the specific error."
           },
           "401" : {
             "content" : {
