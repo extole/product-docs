@@ -31,7 +31,7 @@ distillation and defers to them.
 
 ## How agent config is wired (all tools)
 
-- **Codex / Cursor** auto-read this `AGENTS.md`. Cursor also attaches `.cursor/rules/*` and `.cursor/skills/*`, which are symlinks to `.agents/rules` and `.agents/skills`.
+- **Codex / Cursor** auto-read this `AGENTS.md`, and both read `.agents/skills/` natively (it is the Agent Skills standard location). Cursor also attaches `.cursor/rules/*`, a symlink to `.agents/rules` — measured on Cursor 3.16.29, whose bundle reads `.agents/skills` but not `.agents/rules`, so the rules symlink is the load-bearing one.
 - **Claude Code** reads [`.claude/CLAUDE.md`](.claude/CLAUDE.md), which `@`-imports this file and the always-on rule.
 - **Mintlify's agent** reads only `.mintlify/AGENTS.md` — see above.
 - Always-on rules live in `.agents/rules/*.mdc` (`alwaysApply: true`); repeatable workflows live in `.agents/skills/<name>/SKILL.md`. Neither restates a writing standard; both point at `.mintlify/AGENTS.md`.
