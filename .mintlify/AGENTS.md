@@ -13,6 +13,29 @@ Strategy Outline** (Google Docs, owned by the docs team). This file is the agent
 distillation of those documents plus conventions measured in the live corpus. Where this
 file and the Google Docs disagree, the Google Docs win and this file should be updated.
 
+## Provenance — this file is a fork
+
+The prose here did not start in this repository. It was ported on 2026-08-20 (commit
+`83cdb285`) from **`extole/product-docs-readme`**, the ReadMe-based predecessor that used to
+publish docs.extole.com, where the same content still lives split across
+`.agents/skills/product-docs-authoring/style-guide.md` and `glossary.md`. Terminology, brand
+voice, the de-hedge list and the accuracy guardrails came across unchanged; everything
+platform-specific was rewritten for Mintlify.
+
+**Which copy wins.** For anything published from this repository, this file does — it is
+newer. Upstream's style guide has not changed since 2026-07-28, and its last editorial change
+was 2026-07-10, both before the port. Do not defer to it by default; you would be reading an
+older draft.
+
+**If you can reach `extole/product-docs-readme`**, it is still worth a look in two cases:
+when you need the pre-Mintlify rationale for a rule that looks arbitrary here, or when
+upstream has commits on those files dated after 2026-07-28 — which would mean the two copies
+have genuinely diverged and a human needs to reconcile them. Flag that rather than merging it
+yourself.
+
+**Above both** sit the **Extole Style Guide** and **Content Strategy Outline** (Google Docs,
+docs-team owned). They are the real authority; both repo copies are distillations of them.
+
 Process and tooling — validation, previews, branches, pull requests, reviewer comments —
 are **not** in this file. They live in the skills under `.agents/skills/`.
 
