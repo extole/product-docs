@@ -1,25 +1,28 @@
 @AGENTS.md
-@.mintlify/AGENTS.md
 @.claude/rules/product-docs-style.md
+
+<!--
+Maintainer notes. Block-level HTML comments are stripped before this file is injected
+into Claude's context, so everything below costs zero startup tokens and stays readable
+in the repo. Keep rationale here, not above the fold.
 
 ## Why this file exists alongside AGENTS.md
 
-Claude Code reads `CLAUDE.md`. It does not read `AGENTS.md`, and it has no equivalent of Cursor's
-glob-scoped auto-attach for rule files. Without this file a Claude Code session in this repo starts
-with none of the repo's standards loaded.
+Claude Code reads `CLAUDE.md`; it does not read `AGENTS.md`. Without this file a Claude Code
+session in this repo starts with none of the repo's standards loaded. Importing `AGENTS.md` from a
+`CLAUDE.md` is what Anthropic documents for a repo that already has one.
 
-## Why `.mintlify/AGENTS.md` is imported directly
+Claude Code *does* have an equivalent of Cursor's glob-scoped auto-attach -- `paths:` frontmatter on
+a file in `.claude/rules/`, which this file used to say did not exist. We deliberately do not use it
+for the style rule: path-scoped rules trigger when Claude **reads** a matching file, and authoring a
+new page writes one without ever reading it, so the standards would go unloaded in exactly the
+workflow that needs them most.
 
-That file holds the writing standards, and it is canonical because Mintlify's agent reads it and
-cannot follow links (see `AGENTS.md`). The always-on rule only *points* at it, which is enough for
-a tool that can chase a pointer -- but nearly every session in this repo is a docs edit, so lazy
-loading buys little and risks the standards simply not being read. Importing it costs about 230
-lines per session and makes the guarantee complete.
-
-The import path ends in `.md`, so it resolves. Confirm it actually landed by asking the session to
-"state the standards marker": the file's canary section defines the expected reply. The same trick
-works on any other surface -- it is how to tell whether Mintlify's web editor loads the file on its
-inline "Edit with AI" path, which is documented for agent sessions but unverified for selections.
+The writing standards in `.mintlify/AGENTS.md` are therefore **not** imported here. They are ~230
+lines against a documented target of under 200 per CLAUDE.md, and imports count against startup
+context in full. The always-on rule below is 38 lines and instructs Claude to read that file, which
+is enough for a tool that can follow a pointer -- unlike Mintlify's agent, which is why the file is
+written flat in the first place.
 
 ## Why the rule imports point at `.claude/rules/`
 
@@ -41,3 +44,4 @@ ln -s ../../.agents/rules/<name>.mdc .claude/rules/<name>.md
 
 An import naming a file that no longer exists is skipped silently and does not break the imports
 after it, so this file fails by quietly missing a rule rather than by erroring.
+-->
