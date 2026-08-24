@@ -1,5 +1,5 @@
-@AGENTS.md
-@.claude/rules/product-docs-style.md
+@../AGENTS.md
+@rules/product-docs-style.md
 
 <!--
 Maintainer notes. Block-level HTML comments are stripped before this file is injected
@@ -7,6 +7,11 @@ into Claude's context, so everything below costs zero startup tokens and stays r
 in the repo. Keep rationale here, not above the fold.
 
 ## Why this file exists alongside AGENTS.md
+
+It lives at .claude/CLAUDE.md rather than the repo root -- both are documented project-
+instruction locations, and .claude/ is a Mintlify built-in ignore, so nothing here can leak
+onto docs.extole.com the way the root AGENTS.md once did. Imports resolve relative to this
+file, hence @../AGENTS.md.
 
 Claude Code reads `CLAUDE.md`; it does not read `AGENTS.md`. Without this file a Claude Code
 session in this repo starts with none of the repo's standards loaded. Importing `AGENTS.md` from a

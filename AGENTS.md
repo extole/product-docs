@@ -32,7 +32,7 @@ distillation and defers to them.
 ## How agent config is wired (all tools)
 
 - **Codex / Cursor** auto-read this `AGENTS.md`. Cursor also attaches `.cursor/rules/*` and `.cursor/skills/*`, which are symlinks to `.agents/rules` and `.agents/skills`.
-- **Claude Code** reads [`CLAUDE.md`](CLAUDE.md), which `@`-imports this file and the always-on rule.
+- **Claude Code** reads [`.claude/CLAUDE.md`](.claude/CLAUDE.md), which `@`-imports this file and the always-on rule.
 - **Mintlify's agent** reads only `.mintlify/AGENTS.md` — see above.
 - Always-on rules live in `.agents/rules/*.mdc` (`alwaysApply: true`); repeatable workflows live in `.agents/skills/<name>/SKILL.md`. Neither restates a writing standard; both point at `.mintlify/AGENTS.md`.
 - These standards came over from [`extole/product-docs-readme`](https://github.com/extole/product-docs-readme), the ReadMe-based predecessor that used to publish docs.extole.com. Terminology, voice, and guardrails are unchanged; the platform mechanics (nav, links, callouts, images, frontmatter, branch naming, preview) are Mintlify's, not ReadMe's.
@@ -49,7 +49,7 @@ distillation and defers to them.
 | `scripts/convert_from_product_docs.py` | The deterministic generator that produced these pages from the ReadMe corpus. Kept for provenance — never re-run it over pages that have been hand-edited since. |
 | `.github/workflows/validate.yml` | CI: runs `npx --yes mint@latest validate` on every PR and on pushes to `main`. The **`validate`** check is required to merge. |
 | `.mintlify/AGENTS.md` | The writing standards. Never served publicly — Mintlify does not expose `.mintlify/`. |
-| `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`, `.cursor/` | Agent config — not published. `.agents`/`.claude` are Mintlify built-in ignores; `.cursor/`, `AGENTS.md` and `CLAUDE.md` are in `.mintignore`. The built-ins do **not** cover repo-root Markdown, so an un-ignored root `AGENTS.md` is served at `/agents.md`. |
+| `AGENTS.md`, `.agents/`, `.claude/`, `.cursor/` | Agent config — not published. `.agents`/`.claude` are Mintlify built-in ignores (Claude Code's `CLAUDE.md` lives in `.claude/`); `.cursor/` and `AGENTS.md` are in `.mintignore`. The built-ins do **not** cover repo-root Markdown, so an un-ignored root `AGENTS.md` is served at `/agents.md`. |
 
 ## Tooling
 
