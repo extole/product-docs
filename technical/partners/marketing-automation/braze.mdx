@@ -13,7 +13,7 @@ Integrating Extole and Braze allows you to pull valuable customer insights from 
 
 ## Integration Model
 
-Braze is an outbound integration: Extole forwards program activity to Braze, and Braze sends nothing back. It installs from a maintained library source and is then configured for your Braze account.
+Braze is primarily an outbound integration: Extole forwards program activity to Braze. It installs from a maintained library source and is then configured for your Braze account. Braze can also send audience membership back to Extole, which the maintained source does not include and which is added on top of the install — see [Send Audience Membership from Braze](#send-audience-membership-from-braze).
 
 | Extole call | Braze endpoint | Purpose |
 | :---------- | :------------- | :------ |
@@ -439,6 +439,27 @@ By default, Extole will send reward events in the `FULFILLED` state to Braze so 
     </tr>
   </tbody>
 </table>
+
+## Send Audience Membership from Braze
+
+Braze can decide who is eligible for an offer and maintain that group as an Extole audience. This direction is the reverse of the rest of this page: Braze calls Extole, so it authenticates with an Extole credential rather than a Braze one. The maintained library source does not include this path, so it is added to the integration after the install.
+
+Setting it up takes three pieces:
+
+1. **An audience for the integration to work against.** Create it in Extole, tag it to the Braze integration, and record its identifier — the membership calls all name it.
+2. **A credential for Braze.** In your My Extole account, go to the **Security Center** and create a named, long-lived server access token with the scope audience membership writes require. Store it in Braze's server-side secret storage. Keep it out of integration settings, client-side code, and logs.
+3. **The calls Braze makes.** Braze resolves the Extole person first, then adds or removes membership.
+
+| Purpose | Call |
+| :------ | :--- |
+| Resolve a person by email | `GET /v5/persons?identity_key_value={email}` |
+| Resolve a person by Braze external ID | `GET /v5/persons?person_keys=partner_user_id:{external_id}` |
+| Add one eligible participant | `POST /v5/persons/{person_id}/memberships` with the audience identifier in the body |
+| Remove one eligible participant | `DELETE /v5/persons/{person_id}/memberships/{audience_id}` |
+| Send a batch list | `POST /v1/audiences/{audience_id}/operations` with a `type` of `ADD`, `REMOVE`, or `REPLACE` |
+| Read current members | `GET /v1/audiences/{audience_id}/members/view/details` |
+
+Use `REPLACE` when Braze sends a complete eligible-participant list and `ADD` or `REMOVE` for incremental batches. Send every request server-side.
 
 ## Customization
 

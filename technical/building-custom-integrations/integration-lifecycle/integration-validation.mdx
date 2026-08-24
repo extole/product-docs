@@ -72,6 +72,7 @@ Inspect the latest campaign and built components. Confirm:
 - Read from `/v1/components/built`, `reportRunnerId` on the report-runner view and `eventStreamId` on the event-stream view each resolve to an identifier rather than null. A null value means the element was never created, or was attached to the integration component instead of the view that reads it. Neither shows up as a failed call.
 - Every column named in `reportColumnsMapping` is one the report runner's `mappings` expression produces, and the event stream carries its filters. A view with a chart mapping and a null runner, or a stream with no filters, renders a tab that exists and says nothing. [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views) covers both.
 - No unrequested reward supplier, webhook, client key, or socket exists.
+- Read from `/v1/components/built`, every webhook's `enabled` resolves to the integration's own toggle rather than to a literal `false`. A webhook wired to the toggle starts when the installer enables the integration; one holding a literal never starts, and no call fails to say so. Two webhooks on the same integration resolving differently is the signature. Then account for each use case the integration promises against the webhook that carries it, because a use case whose only transport can never turn on is not built.
 
 Publish the explicit version that was validated:
 
