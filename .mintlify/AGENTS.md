@@ -1,8 +1,9 @@
 # Extole product-docs — writing standards
 
-Instructions for any agent writing or editing pages in this repository. This file is the
-**single source of truth for how Extole documentation is written**: voice, terminology,
-structure, formatting, and accuracy.
+Instructions for any agent writing or editing pages in this repository. Every writing
+standard this repo enforces is **defined here and nowhere else**: voice, terminology,
+structure, formatting, and accuracy. Where the standards themselves come from, and which
+copy wins when two disagree, is in **Provenance** below.
 
 It is deliberately self-contained. Several of the surfaces that read it cannot follow links
 or open other files, so every rule that matters is stated here in full rather than
