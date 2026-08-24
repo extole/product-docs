@@ -4,35 +4,52 @@ This repo holds **Extole's customer-facing documentation**, built on **[Mintlify
 
 ## Read first
 
-Before you write or edit a doc, load the **product-docs-authoring** skill and the **product-docs-style** rule:
+**Writing standards:** [`.mintlify/AGENTS.md`](.mintlify/AGENTS.md) — voice, terminology,
+structure, formatting, links, images, frontmatter, accuracy. One self-contained file, and
+the only place a writing standard is defined.
 
-- Skill: [`.agents/skills/product-docs-authoring/SKILL.md`](.agents/skills/product-docs-authoring/SKILL.md) — the authoring workflow, page structure, `docs.json` nav, PR flow, and reviewer self-check.
+**Process:**
+
+- Skill: [`.agents/skills/product-docs-authoring/SKILL.md`](.agents/skills/product-docs-authoring/SKILL.md) — the authoring workflow, `docs.json` nav placement, PR flow, and pre-PR self-review.
 - Skill: [`.agents/skills/mintlify-branch-preview/SKILL.md`](.agents/skills/mintlify-branch-preview/SKILL.md) — **load before creating any branch/PR**: how to get a rendered preview, and the `npx mint@latest validate` gate every change owes.
-- Rule (always-on): [`.agents/rules/product-docs-style.mdc`](.agents/rules/product-docs-style.mdc) — the terminology and style fixes to apply automatically, in the same edit, before human review.
-- Terms: [`.agents/skills/product-docs-authoring/glossary.md`](.agents/skills/product-docs-authoring/glossary.md) — preferred terms + open decisions.
-- Style: [`.agents/skills/product-docs-authoring/style-guide.md`](.agents/skills/product-docs-authoring/style-guide.md) — voice, capitalization, formatting, links.
+- Rule (always-on): [`.agents/rules/product-docs-style.mdc`](.agents/rules/product-docs-style.mdc) — a short pointer to the standards file, plus three guardrails.
 
-The canonical human-owned sources are the **Extole Style Guide** and **Content Strategy Outline** (Google Docs, docs-team owned); the files above are the agent-actionable distillation and defer to them.
+### Why the standards live in `.mintlify/`
+
+Not every editing surface can follow a link. Mintlify's agent — the one behind the web
+editor, the Slack bot, and the dashboard — reads `.mintlify/AGENTS.md` and **nothing else**:
+not `CLAUDE.md`, not `.cursorrules`, not a file this one references. Claude Code, Cursor,
+and Codex can chase pointers; it cannot.
+
+So the standards are written for the most constrained reader — flat, inlined, no outbound
+links — and every other consumer points at that same file. A rule stated anywhere else is a
+rule some surface silently ignores. When a standard changes, change it there.
+
+The canonical human-owned sources remain the **Extole Style Guide** and **Content Strategy
+Outline** (Google Docs, docs-team owned); `.mintlify/AGENTS.md` is the agent-actionable
+distillation and defers to them.
 
 ## How agent config is wired (all tools)
 
 - **Codex / Cursor** auto-read this `AGENTS.md`. Cursor also attaches `.cursor/rules/*` and `.cursor/skills/*`, which are symlinks to `.agents/rules` and `.agents/skills`.
 - **Claude Code** reads [`CLAUDE.md`](CLAUDE.md), which `@`-imports this file and the always-on rule.
-- Always-on standards live in `.agents/rules/*.mdc` (`alwaysApply: true`); repeatable workflows live in `.agents/skills/<name>/SKILL.md`.
+- **Mintlify's agent** reads only `.mintlify/AGENTS.md` — see above.
+- Always-on rules live in `.agents/rules/*.mdc` (`alwaysApply: true`); repeatable workflows live in `.agents/skills/<name>/SKILL.md`. Neither restates a writing standard; both point at `.mintlify/AGENTS.md`.
 - These standards came over from [`extole/product-docs-readme`](https://github.com/extole/product-docs-readme), the ReadMe-based predecessor that used to publish docs.extole.com. Terminology, voice, and guardrails are unchanged; the platform mechanics (nav, links, callouts, images, frontmatter, branch naming, preview) are Mintlify's, not ReadMe's.
 
 ## Repo layout
 
 | Path | Purpose |
 |------|---------|
-| `guides/`, `product/`, `technical/`, `news/` | Customer-visible pages — `.mdx` with YAML frontmatter (`title`, `description`). These are the four content tabs. |
+| `guides/`, `product/`, `technical/`, `news/`, `runbooks/` | Customer-visible pages — `.mdx` with YAML frontmatter (`title`, `description`). |
 | `docs.json` | Site config **and** the entire navigation (`navigation.tabs[] → groups[] → pages[]`). A page is unreachable until its path (no `.mdx`) is listed here. |
 | `api-reference/*.json` | OpenAPI bundles synced by CI from [`extole/openapi`](https://github.com/extole/openapi) (`sync-to-mintlify.yml`), which extracts them from pluribus. Mintlify **generates** the whole API Reference tab from them — don't hand-edit, and leave the `openapi-preview-*` branches that pipeline owns alone. |
 | `images/` | Page assets, referenced root-relative (`/images/…`). `images/extole-manifest.json` inventories the migrated ones. |
 | `url-map.json` | Old-URL → new-path redirects; the converter emits them into `docs.json`. Add an entry whenever you rename or move a page. |
 | `scripts/convert_from_product_docs.py` | The deterministic generator that produced these pages from the ReadMe corpus. Kept for provenance — never re-run it over pages that have been hand-edited since. |
 | `.github/workflows/validate.yml` | CI: runs `npx --yes mint@latest validate` on every PR and on pushes to `main`. The **`validate`** check is required to merge. |
-| `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`, `.cursor/` | Agent config — **not** published (`.agents`/`.claude` are Mintlify built-in ignores; `.cursor` is in `.mintignore`). |
+| `.mintlify/AGENTS.md` | The writing standards. Never served publicly — Mintlify does not expose `.mintlify/`. |
+| `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`, `.cursor/` | Agent config — not published. `.agents`/`.claude` are Mintlify built-in ignores; `.cursor/`, `AGENTS.md` and `CLAUDE.md` are in `.mintignore`. The built-ins do **not** cover repo-root Markdown, so an un-ignored root `AGENTS.md` is served at `/agents.md`. |
 
 ## Tooling
 
@@ -52,7 +69,7 @@ The canonical human-owned sources are the **Extole Style Guide** and **Content S
 
 ## Critical rules
 
-1. **Follow the standards above for every doc change.** Apply the unambiguous terminology/style fixes automatically; don't leave them for the reviewer.
+1. **Write to [`.mintlify/AGENTS.md`](.mintlify/AGENTS.md) for every doc change.** Apply the unambiguous terminology/style fixes automatically; don't leave them for the reviewer. When a standard changes, change it there and nowhere else.
 2. **Never invent product behavior, event names, or metrics.** Match the actual system; verify or flag when unsure.
 3. **Keep literals verbatim** — event names (`promotion clicked`, `converted`), schema fields (`step_name`), and API identifiers are not style targets.
 4. **This repo is docs.extole.com.** Merging to `main` publishes to the live customer site, so treat a merge as a publish. The converter under `scripts/` is provenance for the original migration, not a pipeline — never re-run it over hand-edited pages.
@@ -62,4 +79,4 @@ The canonical human-owned sources are the **Extole Style Guide** and **Content S
 
 ## Open decisions
 
-Several house-style choices are still split across the corpus and awaiting docs-team ratification — see the end of [`glossary.md`](.agents/skills/product-docs-authoring/glossary.md) (client vs. customer, report-name formatting, "Refer A Friend" casing, "step" scope, Title vs. sentence case). Until decided, match the surrounding page and flag the inconsistency — don't pick a side.
+Several house-style choices are still split across the corpus and awaiting docs-team ratification — see **Open decisions** at the end of [`.mintlify/AGENTS.md`](.mintlify/AGENTS.md) (client vs. customer, report-name formatting, "Refer A Friend" casing, "step" scope, callout severity). Until decided, match the surrounding page and flag the inconsistency — don't pick a side.

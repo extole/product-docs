@@ -1,36 +1,38 @@
 ---
-description: House style for this repo's customer-facing docs (product-docs → Mintlify) — apply the unambiguous terminology and style fixes automatically when authoring or editing pages; follow the product-docs-authoring skill for structure and PR
+description: Customer-facing docs in this repo are written to a single standard. Read .mintlify/AGENTS.md before editing any page under guides/, product/, technical/, news/, or runbooks/
 alwaysApply: true
 ---
 
 # Product-docs house style
 
-This repo holds Extole's customer-facing documentation, built on **Mintlify**. When you author or edit a page here (`guides/**`, `product/**`, `technical/**`, `news/**` — `.mdx`), apply Extole's documentation house style. The unambiguous fixes below are **not** optional polish to raise later: make them in the same edit, before human review, so reviewers spend their time on substance, not the same wording corrections every time.
+This repo holds Extole's customer-facing documentation, built on Mintlify. Merging to
+`main` publishes docs.extole.com, so a merge is a publish.
 
-Full term map, style reference, and authoring workflow: the **product-docs-authoring** skill ([`.agents/skills/product-docs-authoring/SKILL.md`](../skills/product-docs-authoring/SKILL.md)), its [`glossary.md`](../skills/product-docs-authoring/glossary.md), and [`style-guide.md`](../skills/product-docs-authoring/style-guide.md). The canonical human-owned sources are the **Extole Style Guide** and **Extole Content Strategy Outline** (Google Docs, docs-team owned); this rule is the agent-actionable distillation, not a replacement.
+**Before you write or edit any page under `guides/`, `product/`, `technical/`, `news/`, or
+`runbooks/`, read [`.mintlify/AGENTS.md`](../../.mintlify/AGENTS.md).** That file is the
+single source of truth for voice, terminology, structure, formatting, links, images, and
+frontmatter. It is deliberately self-contained — everything is stated there in full, so
+there is nothing further to chase. Apply it in the same edit, before human review;
+reviewers should be spending their time on substance, not on the same wording corrections
+every time.
 
-## Apply automatically (do not wait to be asked)
+It is the canonical copy for a reason: Mintlify's own agent reads it directly, and it
+cannot follow links. Any standard that lives somewhere else is a standard that some
+editing surface silently ignores. So when a rule changes, change it there — not here, and
+not in a skill.
 
-- **Terminology:** use the preferred term from the glossary. Most load-bearing for reporting/journey docs: in prose, a person completes an **event**, not a "step" (corpus favors "event" ~3.8:1) — but only in loose prose; keep "step" where it is a schema field (`step_name`, `stepName`) or the deliberate journey-structure unit. Other standing swaps: "landing page" (not "microsite"), "pop-up" (not "lightbox"), "outbound" (not "off-site"), "quality engine/rules" (not "fraud engine/rules"), "advocate"/"friend" for the two sides of a referral, and "distinct" (not "different") when separating two concepts.
-- **Voice:** address the reader as "you"; use the **imperative mood** for how-to steps ("Select **Reports**", not "You would then select…"). Match the brand voice — professional, clear, client-centric — and avoid jargon where a plain-English label exists.
-- **Cut hedging and filler.** Delete redundancy and padding: `just`, `simply`, `very`, `note that`, `please note`, `in order to` → `to`. "related but different concepts and should not be confused" → "related but distinct concepts". Prefer one precise word over a prepositional phrase.
-- **Title Case** for page titles and section headings (observed corpus convention — 395/461 titles — and what reviewers use; it differs from the 2014 Google style-guide draft, so treat this as the current house rule). Body text uses normal sentence capitalization. American English spelling; imperial units unless the doc is for an international audience.
-- **Navigation:** bold each element in a path — `Navigate to **Reports** > **Metrics**`. Bold UI elements the reader acts on rather than quoting them.
-- **Internal links** use the page's site path, rooted at the tab — `[Advocate Tiers](/guides/audiences-and-segmentation/advocate-tiers)`. Never a relative `.mdx` path, and never ReadMe's `doc:slug` form (this repo is not on ReadMe; a `doc:` link renders as literal text).
-- **Callouts** use Mintlify components — `<Info>`, `<Tip>`, `<Warning>`, `<Danger>`, `<Note>` — not `>` blockquotes and not an emoji-prefixed quote.
-- **Images** live in the repo under `images/` and are referenced by root-relative path, either Markdown `![alt](/images/…)` or `<img src="/images/…" />`. Do not add a remote image URL, and never one carrying an `expires=` query parameter.
-- **Numbers:** spell out ten and under, numerals for 11 and up (exceptions: ranges, dates, times, measurements, percentages, currencies). One space after a period. No trailing period when a sentence ends in a URL.
-- **Keep the page valid MDX.** MDX is JSX-strict: a bare `<`, an unclosed tag, or a stray `{` breaks the build. Run `npx mint@latest validate` before opening the PR.
+## Three guardrails that apply even if you read nothing else
 
-## Do NOT auto-change (these are not style violations)
+- **Never invent product behavior, event names, metrics, or numbers** to make prose flow.
+  Verify against the platform, or say you are unsure. Plausible-sounding fiction is the
+  most expensive error possible in customer docs.
+- **Never rewrite a literal.** Event names (`promotion clicked`, `converted`), schema
+  fields (`step_name`), API identifiers, and code samples are real values, not style
+  targets.
+- **Never add a remote image URL**, and never one carrying an `expires=` parameter. Images
+  are repo assets under `images/`, referenced root-relative.
 
-- **Literal event and field names, API identifiers, and code:** event names like `promotion clicked`, `share clicked`, `signed up`, `converted`, `shared`, `referred` are real values — keep them verbatim and lowercase. For **UI action instructions**, use "click" ("click the button") in customer-facing web docs; reserve "tap" for in-app placements and mobile SDK. Either way, this UI-verb choice never applies to event names or API fields.
-- **Product and report names:** keep the established casing/format for named reports (Events, Metrics, Top Promotion Sources, Incomplete Journey) — check the glossary rather than guessing.
-- **`api-reference/*.json`** — the OpenAPI bundles are generated from `extole/extole-specification`; Mintlify renders the whole API reference from them. Don't hand-edit a spec to fix wording.
-- Anything the glossary marks as an **open decision / needs a human call** — write it the way the surrounding page already does and surface the inconsistency; do not silently pick a side.
+## Process is elsewhere
 
-## Guardrails
-
-- **Never invent product behavior, event names, or numbers** to make prose flow. Match the actual system; if unsure, say so and verify (Extole MCP, existing docs).
-- A reviewer's suggestion that contains an obvious typo (e.g. "will product" for "will produce") is applied with the typo corrected; a suggestion that is genuinely ambiguous is surfaced to the user, not guessed.
-- After content edits, follow the **product-docs-authoring** skill for page structure, `docs.json` nav placement, and the pre-PR self-review checklist.
+Validation, previews, branches, pull requests, and reviewer comments are not style. See the
+`product-docs-authoring` and `mintlify-branch-preview` skills in `.agents/skills/`.
