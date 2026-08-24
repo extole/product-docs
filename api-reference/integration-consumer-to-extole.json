@@ -2855,6 +2855,1700 @@
   },
   "openapi" : "3.0.1",
   "paths" : {
+    "/api/v5/token" : {
+      "get" : {
+        "description" : "Returns the metadata for the access token supplied in the `access_token` query parameter or bearer header. If no token is supplied, the server attempts to resolve a token from the HTTP authorization header. Returns the token's expiry, scopes, and the identity it represents.",
+        "operationId" : "getConsumerToken",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "expired_access_token" : {
+                    "$ref" : "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token" : {
+                    "$ref" : "#/components/examples/invalid_access_token"
+                  },
+                  "jwt_authentication_error" : {
+                    "$ref" : "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Get consumer token details",
+        "tags" : [ "Authentication" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      },
+      "post" : {
+        "description" : "Issues a new access token for the identity supplied in the request. Pass an `email` to identify a consumer when the client identity key is `email`. Pass a `jwt` to assert a trusted identity via JWT verification. Omit both to issue an anonymous token. The optional `duration_seconds` field caps the token lifetime.",
+        "operationId" : "createConsumerToken",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "duration_seconds" : 1,
+                "email" : "email",
+                "jwt" : "jwt"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateTokenRequest"
+              }
+            },
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateTokenRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description" : "Created consumer access token."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "email_not_applicable" : {
+                    "$ref" : "#/components/examples/email_not_applicable"
+                  },
+                  "invalid_access_token_duration" : {
+                    "$ref" : "#/components/examples/invalid_access_token_duration"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "The token-creation request is invalid: `email` is not applicable for the client's identity key (`email_not_applicable`), or the requested token duration is outside the permitted range (`invalid_access_token_duration`)."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "email_mismatch" : {
+                    "$ref" : "#/components/examples/email_mismatch"
+                  },
+                  "invalid_email" : {
+                    "$ref" : "#/components/examples/invalid_email"
+                  },
+                  "jwt_error" : {
+                    "$ref" : "#/components/examples/jwt_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Create a consumer access token",
+        "tags" : [ "Authentication" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      },
+      "delete" : {
+        "description" : "Revokes the access token supplied in the `access_token` query parameter or bearer header. If no token is supplied, the server attempts to resolve a token from the HTTP authorization header and revokes that one. After revocation the token is immediately invalidated.",
+        "operationId" : "deleteConsumerToken",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SuccessResponse"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "expired_access_token" : {
+                    "$ref" : "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token" : {
+                    "$ref" : "#/components/examples/invalid_access_token"
+                  },
+                  "jwt_authentication_error" : {
+                    "$ref" : "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Delete a consumer access token",
+        "tags" : [ "Authentication" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/api/v6/zones" : {
+      "post" : {
+        "description" : "API-friendly zone rendering at `POST /api/v6/zones`. Intended for backend rendering where the caller supplies a bearer access token directly. Renders the zone identified by `event_name` in the JSON request body and returns the structured zone content as JSON. Returns an error when no content backs the zone. For browser or in-app rendering use `POST /zones` instead.",
+        "operationId" : "renderZone",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "data" : {
+                  "data_key" : { }
+                },
+                "event_name" : "event_name",
+                "id_token" : "id_token",
+                "jwt" : "jwt"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/RenderZoneRequest"
+              }
+            },
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RenderZoneRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ZoneResponse"
+                }
+              }
+            },
+            "description" : "Zone content."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "invalid_creative_result" : {
+                    "$ref" : "#/components/examples/invalid_creative_result"
+                  },
+                  "invalid_zone_name" : {
+                    "$ref" : "#/components/examples/invalid_zone_name"
+                  },
+                  "missing_zone_name" : {
+                    "$ref" : "#/components/examples/missing_zone_name"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Zone rendering failed: `missing_zone_name` if no zone name was supplied in the request body, `invalid_zone_name` if the name is not recognised by the client's campaign configuration, or `invalid_creative_result` if the configured creative did not return valid JSON."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "expired_access_token" : {
+                    "$ref" : "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token" : {
+                    "$ref" : "#/components/examples/invalid_access_token"
+                  },
+                  "jwt_authentication_error" : {
+                    "$ref" : "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Render a zone",
+        "tags" : [ "Content" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/api/v6/zones/{event_name}" : {
+      "post" : {
+        "description" : "API-friendly zone rendering at `POST /api/v6/zones/{event_name}`. Intended for backend rendering where the caller supplies a bearer access token directly. Renders the zone identified by the `event_name` path parameter and returns the structured zone content as JSON. Pass zone input data in the request body. Returns an error when no content backs the zone. For browser or in-app rendering use `POST /zones/{zone_name}` instead.",
+        "operationId" : "renderZoneByEventName",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "event_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "value" : { }
+              },
+              "schema" : {
+                "additionalProperties" : {
+                  "type" : "object"
+                },
+                "type" : "object"
+              }
+            },
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "additionalProperties" : {
+                  "type" : "object"
+                },
+                "type" : "object"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ZoneResponse"
+                }
+              }
+            },
+            "description" : "Zone content."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "invalid_creative_result" : {
+                    "$ref" : "#/components/examples/invalid_creative_result"
+                  },
+                  "invalid_zone_name" : {
+                    "$ref" : "#/components/examples/invalid_zone_name"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Zone rendering failed: `invalid_zone_name` if the zone name from the URL path is not recognised by the client's campaign configuration, or `invalid_creative_result` if the configured creative did not return valid JSON."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "expired_access_token" : {
+                    "$ref" : "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token" : {
+                    "$ref" : "#/components/examples/invalid_access_token"
+                  },
+                  "jwt_authentication_error" : {
+                    "$ref" : "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Render a named zone",
+        "tags" : [ "Content" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/zones" : {
+      "post" : {
+        "description" : "Web-friendly zone rendering at `POST /zones`. Intended for direct use from a browser page or web SDK embed — accepts form-encoded, plain-text, and multipart bodies in addition to JSON, and handles cookie-based identity automatically. Renders the zone identified by `event_name` in the request body, applies any other body fields as targeting data passed to the creative, and returns the rendered creative content (HTML, JavaScript, JSON, or plain text). If `event_name` is omitted, returns an empty 200 with `Extole-Log: target zone=unknown`; the access token is still allocated and written as a cookie. For backend zone rendering use `POST /api/v6/zones` instead.",
+        "operationId" : "renderZoneWeb",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "data" : {
+                  "data_key" : { }
+                },
+                "event_name" : "event_name",
+                "id_token" : "id_token",
+                "jwt" : "jwt"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/RenderZoneRequest"
+              }
+            },
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RenderZoneRequest"
+              }
+            },
+            "multipart/form-data" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RenderZoneRequest"
+              }
+            },
+            "text/plain" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RenderZoneRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "Rendered zone content. The response body shape varies by the zone's creative configuration: HTML, JavaScript, JSON, or plain text."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "expired_access_token" : {
+                    "$ref" : "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token" : {
+                    "$ref" : "#/components/examples/invalid_access_token"
+                  },
+                  "jwt_authentication_error" : {
+                    "$ref" : "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Render a zone with the name in the body",
+        "tags" : [ "Content" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/zones/{zone_name}" : {
+      "post" : {
+        "description" : "Web-friendly zone rendering at `POST /zones/{zone_name}`. Intended for direct use from a browser page or web SDK embed — accepts form-encoded and multipart bodies in addition to JSON, and handles cookie-based identity automatically. Renders the zone identified by `zone_name` and returns its content (HTML, JavaScript, JSON, or plain text). For backend zone rendering use `POST /api/v6/zones/{event_name}` instead.",
+        "operationId" : "renderZoneByNameWeb",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "zone_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "value" : { }
+              },
+              "schema" : {
+                "additionalProperties" : {
+                  "type" : "object"
+                },
+                "type" : "object"
+              }
+            },
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "additionalProperties" : {
+                  "type" : "object"
+                },
+                "type" : "object"
+              }
+            },
+            "multipart/form-data" : {
+              "schema" : {
+                "additionalProperties" : {
+                  "type" : "object"
+                },
+                "type" : "object"
+              }
+            },
+            "text/plain" : {
+              "schema" : {
+                "additionalProperties" : {
+                  "type" : "object"
+                },
+                "type" : "object"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "Rendered zone content. The response body shape varies by the zone's creative configuration: HTML, JavaScript, JSON, or plain text."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "expired_access_token" : {
+                    "$ref" : "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token" : {
+                    "$ref" : "#/components/examples/invalid_access_token"
+                  },
+                  "jwt_authentication_error" : {
+                    "$ref" : "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Render a named zone for web-page embedding",
+        "tags" : [ "Content" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/api/v4/me/email/status/{polling_id}" : {
+      "get" : {
+        "deprecated" : true,
+        "description" : "Deprecated. Returns the processing status for a prior `POST /api/v4/me/email` call identified by `polling_id`. Poll until the send reaches a terminal state.",
+        "operationId" : "getSendEmailStatus",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "polling_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SendEmailPollingResponse"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "expired_access_token" : {
+                    "$ref" : "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token" : {
+                    "$ref" : "#/components/examples/invalid_access_token"
+                  },
+                  "jwt_authentication_error" : {
+                    "$ref" : "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Get email send status",
+        "tags" : [ "Email" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/api/v4/me/email" : {
+      "post" : {
+        "deprecated" : true,
+        "description" : "Deprecated. Sends an email on behalf of the authenticated consumer and returns a `polling_id` for status polling. Prefer event-based email flows where available.",
+        "operationId" : "sendEmail",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "data" : {
+                  "data_key" : "data_key"
+                },
+                "zone_name" : "zone_name"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/SendEmailRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SendEmailResponse"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "expired_access_token" : {
+                    "$ref" : "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token" : {
+                    "$ref" : "#/components/examples/invalid_access_token"
+                  },
+                  "invalid_zone_name" : {
+                    "$ref" : "#/components/examples/invalid_zone_name"
+                  },
+                  "jwt_authentication_error" : {
+                    "$ref" : "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  },
+                  "missing_campaign_id" : {
+                    "$ref" : "#/components/examples/missing_campaign_id"
+                  },
+                  "missing_zone_name" : {
+                    "$ref" : "#/components/examples/missing_zone_name"
+                  },
+                  "profile_not_set" : {
+                    "$ref" : "#/components/examples/profile_not_set"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Send an email as the authenticated consumer",
+        "tags" : [ "Email" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/events/{event_name}" : {
+      "get" : {
+        "description" : "Fires the named consumer event using data from the query string and optional JWT claim. Always returns HTTP 200 regardless of outcome — check for an `X-Extole-Error-Message` response header to detect processing errors. A new `access_token` cookie may be set on the response when the event establishes or upgrades a consumer identity.",
+        "operationId" : "fetchConsumerEventByName",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "event_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SubmitEventResponse"
+                }
+              }
+            },
+            "description" : "Always return 200. Strongly typed response body, see SubmitEventResponse. ",
+            "headers" : {
+              "X-Extole-Cookie-Consent" : {
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              },
+              "X-Extole-Token" : {
+                "schema" : {
+                  "type" : "string"
+                },
+                "style" : "simple"
+              }
+            }
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Submit a consumer event by URL",
+        "tags" : [ "Events" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/api/v4/person/profile-picture-url/{personId}" : {
+      "get" : {
+        "deprecated" : true,
+        "description" : "Deprecated. Use `GET /api/v4/persons/{personId}/profile-picture-url` instead. Returns the profile picture URL for the person identified by `personId` as plain text.",
+        "operationId" : "getPersonProfilePictureUrlV4",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "personId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "text/plain" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_person_id" : {
+                    "$ref" : "#/components/examples/invalid_person_id"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "expired_access_token" : {
+                    "$ref" : "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token" : {
+                    "$ref" : "#/components/examples/invalid_access_token"
+                  },
+                  "invalid_length_first_name" : {
+                    "$ref" : "#/components/examples/invalid_length_first_name"
+                  },
+                  "invalid_length_last_name" : {
+                    "$ref" : "#/components/examples/invalid_length_last_name"
+                  },
+                  "invalid_person_email" : {
+                    "$ref" : "#/components/examples/invalid_person_email"
+                  },
+                  "invalid_profile_picture_url" : {
+                    "$ref" : "#/components/examples/invalid_profile_picture_url"
+                  },
+                  "jwt_authentication_error" : {
+                    "$ref" : "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  },
+                  "partner_user_id_already_defined" : {
+                    "$ref" : "#/components/examples/partner_user_id_already_defined"
+                  },
+                  "partner_user_id_invalid_length" : {
+                    "$ref" : "#/components/examples/partner_user_id_invalid_length"
+                  },
+                  "person_email_already_defined" : {
+                    "$ref" : "#/components/examples/person_email_already_defined"
+                  },
+                  "person_not_found" : {
+                    "$ref" : "#/components/examples/person_not_found"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Get a person's profile picture URL (legacy)",
+        "tags" : [ "Persons" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/api/v4/person/{personId}" : {
+      "get" : {
+        "deprecated" : true,
+        "description" : "Deprecated. Use `GET /api/v4/persons/{personId}` instead. Returns the public profile for the person identified by `personId`.",
+        "operationId" : "getPublicPersonV4",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "personId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicPersonV4Response"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_person_id" : {
+                    "$ref" : "#/components/examples/invalid_person_id"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "expired_access_token" : {
+                    "$ref" : "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token" : {
+                    "$ref" : "#/components/examples/invalid_access_token"
+                  },
+                  "invalid_length_first_name" : {
+                    "$ref" : "#/components/examples/invalid_length_first_name"
+                  },
+                  "invalid_length_last_name" : {
+                    "$ref" : "#/components/examples/invalid_length_last_name"
+                  },
+                  "invalid_person_email" : {
+                    "$ref" : "#/components/examples/invalid_person_email"
+                  },
+                  "invalid_profile_picture_url" : {
+                    "$ref" : "#/components/examples/invalid_profile_picture_url"
+                  },
+                  "jwt_authentication_error" : {
+                    "$ref" : "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  },
+                  "partner_user_id_already_defined" : {
+                    "$ref" : "#/components/examples/partner_user_id_already_defined"
+                  },
+                  "partner_user_id_invalid_length" : {
+                    "$ref" : "#/components/examples/partner_user_id_invalid_length"
+                  },
+                  "person_email_already_defined" : {
+                    "$ref" : "#/components/examples/person_email_already_defined"
+                  },
+                  "person_not_found" : {
+                    "$ref" : "#/components/examples/person_not_found"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Get a public person profile (legacy)",
+        "tags" : [ "Persons" ],
+        "x-extole-bundle" : "integration-consumer-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
     "/api/v4/events/share/status/{pollingId}" : {
       "get" : {
         "deprecated" : true,
@@ -4455,136 +6149,6 @@
         },
         "summary" : "List audience memberships",
         "tags" : [ "Profiles" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      }
-    },
-    "/api/v4/me/email/status/{polling_id}" : {
-      "get" : {
-        "deprecated" : true,
-        "description" : "Deprecated. Returns the processing status for a prior `POST /api/v4/me/email` call identified by `polling_id`. Poll until the send reaches a terminal state.",
-        "operationId" : "getSendEmailStatus",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "polling_id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SendEmailPollingResponse"
-                }
-              }
-            },
-            "description" : "Successful response"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "binding_error" : {
-                    "$ref" : "#/components/examples/binding_error"
-                  },
-                  "invalid_json" : {
-                    "$ref" : "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter" : {
-                    "$ref" : "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body" : {
-                    "$ref" : "#/components/examples/missing_request_body"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "access_denied" : {
-                    "$ref" : "#/components/examples/access_denied"
-                  },
-                  "expired_access_token" : {
-                    "$ref" : "#/components/examples/expired_access_token"
-                  },
-                  "invalid_access_token" : {
-                    "$ref" : "#/components/examples/invalid_access_token"
-                  },
-                  "jwt_authentication_error" : {
-                    "$ref" : "#/components/examples/jwt_authentication_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token" : {
-                    "$ref" : "#/components/examples/missing_access_token"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Get email send status",
-        "tags" : [ "Email" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "visible"
       }
@@ -6933,320 +8497,6 @@
         "x-extole-visibility" : "visible"
       }
     },
-    "/api/v4/person/profile-picture-url/{personId}" : {
-      "get" : {
-        "deprecated" : true,
-        "description" : "Deprecated. Use `GET /api/v4/persons/{personId}/profile-picture-url` instead. Returns the profile picture URL for the person identified by `personId` as plain text.",
-        "operationId" : "getPersonProfilePictureUrlV4",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "personId",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "text/plain" : {
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "description" : "Successful response"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "binding_error" : {
-                    "$ref" : "#/components/examples/binding_error"
-                  },
-                  "invalid_json" : {
-                    "$ref" : "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter" : {
-                    "$ref" : "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_person_id" : {
-                    "$ref" : "#/components/examples/invalid_person_id"
-                  },
-                  "missing_request_body" : {
-                    "$ref" : "#/components/examples/missing_request_body"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "access_denied" : {
-                    "$ref" : "#/components/examples/access_denied"
-                  },
-                  "expired_access_token" : {
-                    "$ref" : "#/components/examples/expired_access_token"
-                  },
-                  "invalid_access_token" : {
-                    "$ref" : "#/components/examples/invalid_access_token"
-                  },
-                  "invalid_length_first_name" : {
-                    "$ref" : "#/components/examples/invalid_length_first_name"
-                  },
-                  "invalid_length_last_name" : {
-                    "$ref" : "#/components/examples/invalid_length_last_name"
-                  },
-                  "invalid_person_email" : {
-                    "$ref" : "#/components/examples/invalid_person_email"
-                  },
-                  "invalid_profile_picture_url" : {
-                    "$ref" : "#/components/examples/invalid_profile_picture_url"
-                  },
-                  "jwt_authentication_error" : {
-                    "$ref" : "#/components/examples/jwt_authentication_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token" : {
-                    "$ref" : "#/components/examples/missing_access_token"
-                  },
-                  "partner_user_id_already_defined" : {
-                    "$ref" : "#/components/examples/partner_user_id_already_defined"
-                  },
-                  "partner_user_id_invalid_length" : {
-                    "$ref" : "#/components/examples/partner_user_id_invalid_length"
-                  },
-                  "person_email_already_defined" : {
-                    "$ref" : "#/components/examples/person_email_already_defined"
-                  },
-                  "person_not_found" : {
-                    "$ref" : "#/components/examples/person_not_found"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Get a person's profile picture URL (legacy)",
-        "tags" : [ "Persons" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      }
-    },
-    "/api/v4/person/{personId}" : {
-      "get" : {
-        "deprecated" : true,
-        "description" : "Deprecated. Use `GET /api/v4/persons/{personId}` instead. Returns the public profile for the person identified by `personId`.",
-        "operationId" : "getPublicPersonV4",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "personId",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PublicPersonV4Response"
-                }
-              }
-            },
-            "description" : "Successful response"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "binding_error" : {
-                    "$ref" : "#/components/examples/binding_error"
-                  },
-                  "invalid_json" : {
-                    "$ref" : "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter" : {
-                    "$ref" : "#/components/examples/invalid_parameter"
-                  },
-                  "invalid_person_id" : {
-                    "$ref" : "#/components/examples/invalid_person_id"
-                  },
-                  "missing_request_body" : {
-                    "$ref" : "#/components/examples/missing_request_body"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "access_denied" : {
-                    "$ref" : "#/components/examples/access_denied"
-                  },
-                  "expired_access_token" : {
-                    "$ref" : "#/components/examples/expired_access_token"
-                  },
-                  "invalid_access_token" : {
-                    "$ref" : "#/components/examples/invalid_access_token"
-                  },
-                  "invalid_length_first_name" : {
-                    "$ref" : "#/components/examples/invalid_length_first_name"
-                  },
-                  "invalid_length_last_name" : {
-                    "$ref" : "#/components/examples/invalid_length_last_name"
-                  },
-                  "invalid_person_email" : {
-                    "$ref" : "#/components/examples/invalid_person_email"
-                  },
-                  "invalid_profile_picture_url" : {
-                    "$ref" : "#/components/examples/invalid_profile_picture_url"
-                  },
-                  "jwt_authentication_error" : {
-                    "$ref" : "#/components/examples/jwt_authentication_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token" : {
-                    "$ref" : "#/components/examples/missing_access_token"
-                  },
-                  "partner_user_id_already_defined" : {
-                    "$ref" : "#/components/examples/partner_user_id_already_defined"
-                  },
-                  "partner_user_id_invalid_length" : {
-                    "$ref" : "#/components/examples/partner_user_id_invalid_length"
-                  },
-                  "person_email_already_defined" : {
-                    "$ref" : "#/components/examples/person_email_already_defined"
-                  },
-                  "person_not_found" : {
-                    "$ref" : "#/components/examples/person_not_found"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Get a public person profile (legacy)",
-        "tags" : [ "Persons" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      }
-    },
     "/api/v4/persons/{personId}/assets" : {
       "get" : {
         "description" : "Returns all assets attached to the person profile identified by `personId`. Assets are binary or text files associated with a program participant — for example, wallet passes, QR codes, or uploaded images. Use `getPersonAsset` to fetch a single asset's metadata, or `downloadPersonAsset` to retrieve its content.",
@@ -8800,372 +10050,6 @@
         "x-extole-visibility" : "visible"
       }
     },
-    "/api/v5/token" : {
-      "get" : {
-        "description" : "Returns the metadata for the access token supplied in the `access_token` query parameter or bearer header. If no token is supplied, the server attempts to resolve a token from the HTTP authorization header. Returns the token's expiry, scopes, and the identity it represents.",
-        "operationId" : "getConsumerToken",
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TokenResponse"
-                }
-              }
-            },
-            "description" : "Successful response"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "binding_error" : {
-                    "$ref" : "#/components/examples/binding_error"
-                  },
-                  "invalid_json" : {
-                    "$ref" : "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter" : {
-                    "$ref" : "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body" : {
-                    "$ref" : "#/components/examples/missing_request_body"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "access_denied" : {
-                    "$ref" : "#/components/examples/access_denied"
-                  },
-                  "expired_access_token" : {
-                    "$ref" : "#/components/examples/expired_access_token"
-                  },
-                  "invalid_access_token" : {
-                    "$ref" : "#/components/examples/invalid_access_token"
-                  },
-                  "jwt_authentication_error" : {
-                    "$ref" : "#/components/examples/jwt_authentication_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token" : {
-                    "$ref" : "#/components/examples/missing_access_token"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Get consumer token details",
-        "tags" : [ "Authentication" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      },
-      "post" : {
-        "description" : "Issues a new access token for the identity supplied in the request. Pass an `email` to identify a consumer when the client identity key is `email`. Pass a `jwt` to assert a trusted identity via JWT verification. Omit both to issue an anonymous token. The optional `duration_seconds` field caps the token lifetime.",
-        "operationId" : "createConsumerToken",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "example" : {
-                "duration_seconds" : 1,
-                "email" : "email",
-                "jwt" : "jwt"
-              },
-              "schema" : {
-                "$ref" : "#/components/schemas/CreateTokenRequest"
-              }
-            },
-            "application/x-www-form-urlencoded" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CreateTokenRequest"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TokenResponse"
-                }
-              }
-            },
-            "description" : "Created consumer access token."
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "email_not_applicable" : {
-                    "$ref" : "#/components/examples/email_not_applicable"
-                  },
-                  "invalid_access_token_duration" : {
-                    "$ref" : "#/components/examples/invalid_access_token_duration"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "The token-creation request is invalid: `email` is not applicable for the client's identity key (`email_not_applicable`), or the requested token duration is outside the permitted range (`invalid_access_token_duration`)."
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "email_mismatch" : {
-                    "$ref" : "#/components/examples/email_mismatch"
-                  },
-                  "invalid_email" : {
-                    "$ref" : "#/components/examples/invalid_email"
-                  },
-                  "jwt_error" : {
-                    "$ref" : "#/components/examples/jwt_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Create a consumer access token",
-        "tags" : [ "Authentication" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      },
-      "delete" : {
-        "description" : "Revokes the access token supplied in the `access_token` query parameter or bearer header. If no token is supplied, the server attempts to resolve a token from the HTTP authorization header and revokes that one. After revocation the token is immediately invalidated.",
-        "operationId" : "deleteConsumerToken",
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SuccessResponse"
-                }
-              }
-            },
-            "description" : "Successful response"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "binding_error" : {
-                    "$ref" : "#/components/examples/binding_error"
-                  },
-                  "invalid_json" : {
-                    "$ref" : "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter" : {
-                    "$ref" : "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body" : {
-                    "$ref" : "#/components/examples/missing_request_body"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "access_denied" : {
-                    "$ref" : "#/components/examples/access_denied"
-                  },
-                  "expired_access_token" : {
-                    "$ref" : "#/components/examples/expired_access_token"
-                  },
-                  "invalid_access_token" : {
-                    "$ref" : "#/components/examples/invalid_access_token"
-                  },
-                  "jwt_authentication_error" : {
-                    "$ref" : "#/components/examples/jwt_authentication_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token" : {
-                    "$ref" : "#/components/examples/missing_access_token"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Delete a consumer access token",
-        "tags" : [ "Authentication" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      }
-    },
     "/api/v6/me/shareables" : {
       "get" : {
         "description" : "Returns shareables owned by the consumer identified by the access token. Filter by `key` or `label` to narrow the result set.",
@@ -9611,134 +10495,6 @@
         "x-extole-visibility" : "visible"
       }
     },
-    "/events/{event_name}" : {
-      "get" : {
-        "description" : "Fires the named consumer event using data from the query string and optional JWT claim. Always returns HTTP 200 regardless of outcome — check for an `X-Extole-Error-Message` response header to detect processing errors. A new `access_token` cookie may be set on the response when the event establishes or upgrades a consumer identity.",
-        "operationId" : "fetchConsumerEventByName",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "event_name",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SubmitEventResponse"
-                }
-              }
-            },
-            "description" : "Always return 200. Strongly typed response body, see SubmitEventResponse. ",
-            "headers" : {
-              "X-Extole-Cookie-Consent" : {
-                "schema" : {
-                  "type" : "string"
-                },
-                "style" : "simple"
-              },
-              "X-Extole-Token" : {
-                "schema" : {
-                  "type" : "string"
-                },
-                "style" : "simple"
-              }
-            }
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "binding_error" : {
-                    "$ref" : "#/components/examples/binding_error"
-                  },
-                  "invalid_json" : {
-                    "$ref" : "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter" : {
-                    "$ref" : "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body" : {
-                    "$ref" : "#/components/examples/missing_request_body"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Submit a consumer event by URL",
-        "tags" : [ "Events" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      }
-    },
     "/api/v4/events/share" : {
       "post" : {
         "deprecated" : true,
@@ -9926,155 +10682,6 @@
         },
         "summary" : "Submit a share event",
         "tags" : [ "Profiles" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      }
-    },
-    "/api/v4/me/email" : {
-      "post" : {
-        "deprecated" : true,
-        "description" : "Deprecated. Sends an email on behalf of the authenticated consumer and returns a `polling_id` for status polling. Prefer event-based email flows where available.",
-        "operationId" : "sendEmail",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "example" : {
-                "data" : {
-                  "data_key" : "data_key"
-                },
-                "zone_name" : "zone_name"
-              },
-              "schema" : {
-                "$ref" : "#/components/schemas/SendEmailRequest"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SendEmailResponse"
-                }
-              }
-            },
-            "description" : "Successful response"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "binding_error" : {
-                    "$ref" : "#/components/examples/binding_error"
-                  },
-                  "invalid_json" : {
-                    "$ref" : "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter" : {
-                    "$ref" : "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body" : {
-                    "$ref" : "#/components/examples/missing_request_body"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "access_denied" : {
-                    "$ref" : "#/components/examples/access_denied"
-                  },
-                  "expired_access_token" : {
-                    "$ref" : "#/components/examples/expired_access_token"
-                  },
-                  "invalid_access_token" : {
-                    "$ref" : "#/components/examples/invalid_access_token"
-                  },
-                  "invalid_zone_name" : {
-                    "$ref" : "#/components/examples/invalid_zone_name"
-                  },
-                  "jwt_authentication_error" : {
-                    "$ref" : "#/components/examples/jwt_authentication_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token" : {
-                    "$ref" : "#/components/examples/missing_access_token"
-                  },
-                  "missing_campaign_id" : {
-                    "$ref" : "#/components/examples/missing_campaign_id"
-                  },
-                  "missing_zone_name" : {
-                    "$ref" : "#/components/examples/missing_zone_name"
-                  },
-                  "profile_not_set" : {
-                    "$ref" : "#/components/examples/profile_not_set"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Send an email as the authenticated consumer",
-        "tags" : [ "Email" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "visible"
       }
@@ -10913,613 +11520,6 @@
         },
         "summary" : "Get or create a shareable",
         "tags" : [ "Profiles" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      }
-    },
-    "/api/v6/zones" : {
-      "post" : {
-        "description" : "API-friendly zone rendering at `POST /api/v6/zones`. Intended for backend rendering where the caller supplies a bearer access token directly. Renders the zone identified by `event_name` in the JSON request body and returns the structured zone content as JSON. Returns an error when no content backs the zone. For browser or in-app rendering use `POST /zones` instead.",
-        "operationId" : "renderZone",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "example" : {
-                "data" : {
-                  "data_key" : { }
-                },
-                "event_name" : "event_name",
-                "id_token" : "id_token",
-                "jwt" : "jwt"
-              },
-              "schema" : {
-                "$ref" : "#/components/schemas/RenderZoneRequest"
-              }
-            },
-            "application/x-www-form-urlencoded" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/RenderZoneRequest"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ZoneResponse"
-                }
-              }
-            },
-            "description" : "Zone content."
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "invalid_creative_result" : {
-                    "$ref" : "#/components/examples/invalid_creative_result"
-                  },
-                  "invalid_zone_name" : {
-                    "$ref" : "#/components/examples/invalid_zone_name"
-                  },
-                  "missing_zone_name" : {
-                    "$ref" : "#/components/examples/missing_zone_name"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Zone rendering failed: `missing_zone_name` if no zone name was supplied in the request body, `invalid_zone_name` if the name is not recognised by the client's campaign configuration, or `invalid_creative_result` if the configured creative did not return valid JSON."
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "access_denied" : {
-                    "$ref" : "#/components/examples/access_denied"
-                  },
-                  "expired_access_token" : {
-                    "$ref" : "#/components/examples/expired_access_token"
-                  },
-                  "invalid_access_token" : {
-                    "$ref" : "#/components/examples/invalid_access_token"
-                  },
-                  "jwt_authentication_error" : {
-                    "$ref" : "#/components/examples/jwt_authentication_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token" : {
-                    "$ref" : "#/components/examples/missing_access_token"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Render a zone",
-        "tags" : [ "Content" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      }
-    },
-    "/api/v6/zones/{event_name}" : {
-      "post" : {
-        "description" : "API-friendly zone rendering at `POST /api/v6/zones/{event_name}`. Intended for backend rendering where the caller supplies a bearer access token directly. Renders the zone identified by the `event_name` path parameter and returns the structured zone content as JSON. Pass zone input data in the request body. Returns an error when no content backs the zone. For browser or in-app rendering use `POST /zones/{zone_name}` instead.",
-        "operationId" : "renderZoneByEventName",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "event_name",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "example" : {
-                "value" : { }
-              },
-              "schema" : {
-                "additionalProperties" : {
-                  "type" : "object"
-                },
-                "type" : "object"
-              }
-            },
-            "application/x-www-form-urlencoded" : {
-              "schema" : {
-                "additionalProperties" : {
-                  "type" : "object"
-                },
-                "type" : "object"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ZoneResponse"
-                }
-              }
-            },
-            "description" : "Zone content."
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "invalid_creative_result" : {
-                    "$ref" : "#/components/examples/invalid_creative_result"
-                  },
-                  "invalid_zone_name" : {
-                    "$ref" : "#/components/examples/invalid_zone_name"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Zone rendering failed: `invalid_zone_name` if the zone name from the URL path is not recognised by the client's campaign configuration, or `invalid_creative_result` if the configured creative did not return valid JSON."
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "access_denied" : {
-                    "$ref" : "#/components/examples/access_denied"
-                  },
-                  "expired_access_token" : {
-                    "$ref" : "#/components/examples/expired_access_token"
-                  },
-                  "invalid_access_token" : {
-                    "$ref" : "#/components/examples/invalid_access_token"
-                  },
-                  "jwt_authentication_error" : {
-                    "$ref" : "#/components/examples/jwt_authentication_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token" : {
-                    "$ref" : "#/components/examples/missing_access_token"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Render a named zone",
-        "tags" : [ "Content" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      }
-    },
-    "/zones" : {
-      "post" : {
-        "description" : "Web-friendly zone rendering at `POST /zones`. Intended for direct use from a browser page or web SDK embed — accepts form-encoded, plain-text, and multipart bodies in addition to JSON, and handles cookie-based identity automatically. Renders the zone identified by `event_name` in the request body, applies any other body fields as targeting data passed to the creative, and returns the rendered creative content (HTML, JavaScript, JSON, or plain text). If `event_name` is omitted, returns an empty 200 with `Extole-Log: target zone=unknown`; the access token is still allocated and written as a cookie. For backend zone rendering use `POST /api/v6/zones` instead.",
-        "operationId" : "renderZoneWeb",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "example" : {
-                "data" : {
-                  "data_key" : { }
-                },
-                "event_name" : "event_name",
-                "id_token" : "id_token",
-                "jwt" : "jwt"
-              },
-              "schema" : {
-                "$ref" : "#/components/schemas/RenderZoneRequest"
-              }
-            },
-            "application/x-www-form-urlencoded" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/RenderZoneRequest"
-              }
-            },
-            "multipart/form-data" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/RenderZoneRequest"
-              }
-            },
-            "text/plain" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/RenderZoneRequest"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "description" : "Rendered zone content. The response body shape varies by the zone's creative configuration: HTML, JavaScript, JSON, or plain text."
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "binding_error" : {
-                    "$ref" : "#/components/examples/binding_error"
-                  },
-                  "invalid_json" : {
-                    "$ref" : "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter" : {
-                    "$ref" : "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body" : {
-                    "$ref" : "#/components/examples/missing_request_body"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "access_denied" : {
-                    "$ref" : "#/components/examples/access_denied"
-                  },
-                  "expired_access_token" : {
-                    "$ref" : "#/components/examples/expired_access_token"
-                  },
-                  "invalid_access_token" : {
-                    "$ref" : "#/components/examples/invalid_access_token"
-                  },
-                  "jwt_authentication_error" : {
-                    "$ref" : "#/components/examples/jwt_authentication_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token" : {
-                    "$ref" : "#/components/examples/missing_access_token"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Render a zone with the name in the body",
-        "tags" : [ "Content" ],
-        "x-extole-bundle" : "integration-consumer-to-extole",
-        "x-extole-visibility" : "visible"
-      }
-    },
-    "/zones/{zone_name}" : {
-      "post" : {
-        "description" : "Web-friendly zone rendering at `POST /zones/{zone_name}`. Intended for direct use from a browser page or web SDK embed — accepts form-encoded and multipart bodies in addition to JSON, and handles cookie-based identity automatically. Renders the zone identified by `zone_name` and returns its content (HTML, JavaScript, JSON, or plain text). For backend zone rendering use `POST /api/v6/zones/{event_name}` instead.",
-        "operationId" : "renderZoneByNameWeb",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "zone_name",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "example" : {
-                "value" : { }
-              },
-              "schema" : {
-                "additionalProperties" : {
-                  "type" : "object"
-                },
-                "type" : "object"
-              }
-            },
-            "application/x-www-form-urlencoded" : {
-              "schema" : {
-                "additionalProperties" : {
-                  "type" : "object"
-                },
-                "type" : "object"
-              }
-            },
-            "multipart/form-data" : {
-              "schema" : {
-                "additionalProperties" : {
-                  "type" : "object"
-                },
-                "type" : "object"
-              }
-            },
-            "text/plain" : {
-              "schema" : {
-                "additionalProperties" : {
-                  "type" : "object"
-                },
-                "type" : "object"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "description" : "Rendered zone content. The response body shape varies by the zone's creative configuration: HTML, JavaScript, JSON, or plain text."
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "binding_error" : {
-                    "$ref" : "#/components/examples/binding_error"
-                  },
-                  "invalid_json" : {
-                    "$ref" : "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter" : {
-                    "$ref" : "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body" : {
-                    "$ref" : "#/components/examples/missing_request_body"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "401" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "access_denied" : {
-                    "$ref" : "#/components/examples/access_denied"
-                  },
-                  "expired_access_token" : {
-                    "$ref" : "#/components/examples/expired_access_token"
-                  },
-                  "invalid_access_token" : {
-                    "$ref" : "#/components/examples/invalid_access_token"
-                  },
-                  "jwt_authentication_error" : {
-                    "$ref" : "#/components/examples/jwt_authentication_error"
-                  },
-                  "method_unauthorized" : {
-                    "$ref" : "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token" : {
-                    "$ref" : "#/components/examples/missing_access_token"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "415" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "unsupported_media_type" : {
-                    "$ref" : "#/components/examples/unsupported_media_type"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Unsupported Media Type"
-          },
-          "429" : {
-            "content" : {
-              "application/json" : {
-                "examples" : {
-                  "too_many_requests" : {
-                    "$ref" : "#/components/examples/too_many_requests"
-                  }
-                },
-                "schema" : {
-                  "$ref" : "#/components/schemas/RestExceptionResponse"
-                }
-              }
-            },
-            "description" : "Too Many Requests"
-          }
-        },
-        "summary" : "Render a named zone for web-page embedding",
-        "tags" : [ "Content" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "visible"
       }
