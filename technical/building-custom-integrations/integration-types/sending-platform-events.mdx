@@ -1,37 +1,46 @@
 ---
 title: "Send Platform Events to Extole"
-description: "Deliver a platform's lifecycle events to the Extole Events API from a server-side extension, with retries, deduplication, and verification."
+description: "Deliver a platform's lifecycle events to the Extole Events API, with retries, deduplication, and verification."
 ---
 
 # Overview
 
-An inbound integration has two halves. Inside Extole, an integration campaign maps arriving platform events onto canonical business events — see [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration). Outside Extole, something in the platform has to send those events. This page is the sending half, and it applies to any platform that can run server-side code: an ecommerce extension, a plugin, a middleware service, or a scheduled job.
+An inbound integration has two halves: an integration campaign inside Extole maps arriving events onto canonical business events (see [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration)), and server-side code in the platform sends those events to the Events API.
 
-Sending happens server-side. An event carries an access token, and any token placed in storefront templates, theme files, or browser code is published to everyone who visits the site. Platforms whose events can only be produced in the browser belong on the JavaScript SDK instead.
+<Warning>
+Send events server-side. A token in storefront templates, theme files, or browser code is published to every site visitor. Platforms whose events can only be produced in the browser use the [JavaScript SDK](/technical/platform-integrations/javascript-sdk/index) instead.
+</Warning>
+
+## When You Would Send Events
+
+| Situation | The sender |
+| :-------- | :--------- |
+| A commerce platform reports purchases, shipments, or cancellations | An extension or plugin |
+| A platform with no plugin surface reports account or subscription activity | A middleware service |
+| Records arrive in batches | A scheduled job or file feed |
+| A partner emits only its own fixed webhook | No sender — a [prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers) reshapes it in Extole |
 
 ## What the Sender Needs
 
-Hold these as configuration rather than constants in code, so a token rotates and a program label changes without a code release:
+Hold these as configuration, not constants, so a token or label changes without a code release:
 
 | Setting | Purpose |
 | :------ | :------ |
 | Event endpoint | `https://api.extole.io/v6/events` in production. |
-| Access Token | A server-side Extole access token, created in the [Security Center](https://my.extole.com/security-center), that authorizes event submission. Store it encrypted or in protected server configuration. Never send events with a token that can also manage campaigns and components. |
-| Program label | Targets events at the installed integration. Read the current label from the integration's configuration view. |
+| Access Token | A server-side token from the [Security Center](https://my.extole.com/security-center), authorized to submit events. Store it encrypted. |
+| Program label | The installed integration's current label, from its configuration view. |
 | Platform identifier | The store URL, site identifier, or tenant that produced the event. |
-| Status or state mapping | The platform's own status identifiers that mean the event happened. |
+| Status or state mapping | The platform's own status identifiers that mean the event happened, read per installation rather than copied from another. |
 | Request timeout | A short network timeout for the delivery worker. |
 | Retry policy | Backoff and maximum attempts for temporary failures. |
 
-Status identifiers are per-installation configuration on most platforms. Read them from the platform being integrated rather than copying numeric identifiers from another installation, where the same number means something else.
+## How to Send
 
-## Do Not Block the Platform's Own Workflow
+Send events from a worker, not the hook that observed them: the hook persists a sanitized record and returns, the worker delivers it. An Extole timeout or network failure must never fail a checkout, block an order-status transition, or slow a page the customer waits on.
 
-Send events from a worker, not from the hook that observed them. The hook's job is to persist a sanitized record and return; a separate worker delivers it. An Extole timeout or a network failure must never fail a checkout, block an order-status transition, or slow a page the customer is waiting on.
+### Build the Payload
 
-## Build the Event Payload
-
-An event carries the platform's own event name and a flat `data` object holding the fields the integration maps:
+The event carries the platform's event name and a flat `data` object of the mapped fields:
 
 ```json
 {
@@ -49,15 +58,13 @@ An event carries the platform's own event name and a flat `data` object holding 
 }
 ```
 
-Two details in that payload are the ones that go wrong. `labels` belongs inside `data`, and it holds the current program label from the integration view rather than a value copied from another account. And every source key is read by name: the integration's data components look for the keys the partner page names, so a renamed key arrives as an event with that field missing rather than as an error.
+- `labels` goes inside `data` and holds the integration's current program label, not one copied from another account.
+- Name every source key exactly as the partner page does; data components read keys by name, so a renamed key arrives with that field missing rather than an error.
+- Send what the integration maps and nothing more. Payment-card data, passwords, session identifiers, and unrelated metadata have no mapped destination.
 
-Send what the integration maps and nothing more. Payment-card data, passwords, session identifiers, and unrelated metadata have no mapped destination and become a liability the moment they are stored.
+### Choose the Endpoint
 
-## Choose the Endpoint
-
-Events go to `https://api.extole.io`, the same host as Extole's other server-side calls — retrieving a person, reading rewards, and the [Management API](/technical/platform-integrations/rest-apis/index).
-
-Use `/v6/events` while building the sender: it responds synchronously, so the worker can verify what Extole did with each event. For sustained high-volume delivery, evaluate `/v6/async-events` and update the worker's verification and retry behavior for asynchronous processing, since acceptance no longer means the event has been processed. Partner pages that document `/v5/events` describe a still-supported path; prefer `/v6/events` for a new sender.
+Use `/v6/events` for a new sender: it responds synchronously, so the worker can verify what Extole did with each event. For sustained high-volume delivery, evaluate `/v6/async-events`, where acceptance no longer means the event has been processed — update the worker's verification and retry behavior. Some partner pages document `/v5/events`, a still-supported path.
 
 ```bash
 curl --request POST "https://api.extole.io/v6/events" \
@@ -66,26 +73,24 @@ curl --request POST "https://api.extole.io/v6/events" \
   --data @event.json
 ```
 
-A sender that receives `204 No Content` with an empty body is not talking to the Events API. The endpoint answers a valid submission with `200` and a JSON body carrying the `person_id`; treat an empty `204` as a misrouted request and check the host before assuming the events were accepted.
+<Warning>
+A valid submission returns `200` with a JSON body carrying the `person_id`. An empty `204 No Content` means the request is not reaching the Events API — check the host.
+</Warning>
 
-## Retries and Duplicates
+### Retry and Deduplicate
 
-Extole answers an accepted submission with a `2xx`. Network failures, `429`, and retryable `5xx` responses are worth another attempt; authentication and validation failures are not, because they fail identically on every attempt.
+Extole answers an accepted submission with a `2xx`. Retry network failures, `429`, and retryable `5xx` responses; authentication and validation failures fail identically on every attempt. Expect the same event more than once, because platforms re-fire hooks and replay status history — Extole deduplicates on the field mapped as the unique partner event key, so a replay resolves to the same outcome rather than a second conversion.
 
-Expect the same event more than once. Platforms re-fire hooks and replay status history, so one lifecycle event often reaches the sender several times. Extole deduplicates on the field mapped as the unique partner event key, so a replay resolves to the same outcome rather than a second conversion.
-
-## Protect the Integration
+### Protect the Integration
 
 - Restrict sender configuration to platform administrators.
-- Keep the access token out of templates, browser code, logs, and event data.
-- Redact authorization headers and request bodies in transport logs.
 - Validate and normalize emails, identifiers, URLs, and numeric values before sending.
 - Verify HTTPS certificates.
 - Allow token rotation without reinstalling the extension.
 
-## Verify What Arrives
+## How to Test
 
-Send one event synchronously and follow it through to the business event it produced. The response returns a `person_id`; read that person's steps for the campaign:
+Send one event synchronously. The response returns a `person_id`; read that person's steps:
 
 ```bash
 curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
@@ -94,11 +99,11 @@ curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
   --data-urlencode "names=converted"
 ```
 
-Confirm that the step carries the canonical event name rather than the platform's, that the transaction identifier and value match the source record, that the person keys resolve, and that sending the same source identifier twice produces a duplicate outcome rather than a second conversion. Repeat for every event the integration accepts, not only the first one.
+Confirm the step carries the canonical event name, not the platform's; the transaction identifier and value match the source record; person keys resolve; and resending the same source identifier produces a duplicate outcome, not a second conversion. Repeat for every event.
 
-## When Extole Accepts the Event but No Business Event Appears
+### No Business Event Appears
 
-A `2xx` means the event was accepted, not that it matched anything. Check, in this order:
+A `2xx` means accepted, not matched. Check in order:
 
 1. The current program label is inside `data.labels`.
 2. The platform event name matches the name on the integration's `input_event` trigger rule exactly.
@@ -110,4 +115,3 @@ A `2xx` means the event was accepted, not that it matched anything. Check, in th
 
 - [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories)
 - [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration)
-- [Integrating with Extole](/technical/integration-overview/integrating-with-extole)

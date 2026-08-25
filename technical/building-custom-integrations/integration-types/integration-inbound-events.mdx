@@ -1,13 +1,13 @@
 ---
 title: "Map Inbound Partner Events"
-description: "Add reusable business events, input event rules, and event data to an integration that receives partner events, then verify what arrives."
+description: "Add business events, input event rules, and event data to an integration that receives partner events, then verify what arrives."
 ---
 
 This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration) for the build paths and the creation contract.
 
-## What the Inbound Custom Workflow Creates
+# Overview
 
-A complete inbound custom integration contains:
+An inbound integration receives events from a partner platform and turns each one into a canonical Extole business event:
 
 ```text
 root
@@ -28,30 +28,20 @@ root
         └── event-streams       event-stream-view-v10.0
 ```
 
-An inbound build carries the same three views as every other category. The configuration view comes from [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model); the other two, and the report runner and event stream they resolve to, come from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views). Chart and stream the canonical business events this integration produces.
+Never rename an Extole business event to match a partner wire event: the partner name belongs in an `input_event` trigger rule, the canonical name on the business-event component.
 
-The partner event name belongs in an `input_event` trigger rule. The canonical Extole event name belongs on the reusable business-event component. Do not rename the Extole business event to match the partner wire event.
+The three views are the same for every category — see [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories). Chart and stream this integration's canonical business events, and build the sender against [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events).
 
-This tree receives events; it does not produce them. The extension, service, or feed that sends them from the partner platform is built against [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events), and an inbound integration is finished only when both halves exist.
-
-## Settle Who Shapes the Payload First
-
-Everything on this page assumes the event arrives with a name in `event_name` and its fields readable in `data`. That assumption holds when the sender is built for this integration — an extension, a plugin, or a service written against [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) — because whoever writes it can shape what it sends.
-
-It does not hold when the sender is **the partner's own webhook**. A partner defines its payload for its own purposes: the event type sits in a body field rather than in `event_name`, and the interesting values sit two or three levels down. Such a webhook still reaches Extole — the named form of the Events API takes the event name from the URL and accepts any body — but what arrives is the partner's shape, not the shape this page assumes.
-
-Reconcile that inside Extole with a prehandler, which renames the event and flattens the payload before any rule on this page sees it. [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers) covers the endpoint to give the partner, the decision, and the build. Two things on this page change when one is in play: the `input_event` rule lists the name the prehandler produces rather than the partner's wire name — an integration-owned name such as `example_order_completed`, never the canonical outcome name the business event itself carries — and each data component's `valueExpression` reads the flattened field rather than the partner's nesting.
-
-The alternative — instructing the customer to build and host a service that receives the partner's webhook and re-posts it in Extole's shape — is a customer engineering project, and one this guide does not describe. Choose it deliberately or not at all.
+This page assumes the event arrives with a name in `event_name` and its fields readable in `data`. When the partner's own webhook defines the payload instead, a prehandler renames and flattens it first — see [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers).
 
 ## Add Reusable Business Events
 
-Choose the template by business meaning:
+Choose the template by meaning:
 
-- Use `template_transacted_business_event` when the event carries transaction value or represents the program outcome.
-- Use `template_tracked_business_event` for lifecycle milestones without transaction value.
+- `template_transacted_business_event` — the event carries transaction value or represents the program outcome.
+- `template_tracked_business_event` — a lifecycle milestone without transaction value.
 
-Duplicate the source component into the model component's `businessEvents` socket:
+Duplicate the source into the `businessEvents` socket:
 
 ```bash
 curl --request POST \
@@ -131,34 +121,44 @@ curl --request POST \
   }'
 ```
 
-Use the canonical v10 name that matches the business outcome. Examples include `converted`, `shipped`, `canceled`, `returned`, `account_opened`, and `application_approved`. Do not use a transport-specific name such as `partner_order_created` as the business-event component name.
+### Name Each Event for Its Outcome
 
-Let the partner's events decide how many you create. Enumerate the wire events in scope, decide which outcome each one represents, and create a business event for every distinct outcome — then give each the canonical name that fits it. Do not create duplicate legacy controllers alongside the reusable component.
+Use the canonical v10 name for the business outcome: `converted`, `shipped`, `canceled`, `returned`, `account_opened`, `application_approved`. Do not use a transport-specific name such as `partner_order_created`, and do not create duplicate legacy controllers alongside the reusable component.
 
-Enumerating in the other direction is the mistake that survives: pick the canonical names first and the wire events get fitted into whichever of them is nearest. A failed authorization and a refunded charge are both tempting to call `canceled`, and an integration that calls them both that has no way to distinguish a payment that never completed from money that was taken and given back — not in a report, not in a rule, not in a clawback. `returned` is on the list above for exactly that outcome. Two wire events share one business event only when they are genuinely the same thing happening twice, and the test is whether anyone would ever need them apart.
+Create one business event per distinct outcome. Two wire events share one only when nobody would need them apart in a report, a rule, or a clawback: a refunded charge is `returned`, not `canceled`.
 
-Count the events you created against the wire events in scope before calling this stage done. Three wire events and two business events is either a deliberate merge you can name, or an outcome that quietly lost its own identity.
+### Set the Reporting and Ordering Variables
 
-Set `sequence` so the events sort in lifecycle order, with the outcome event first and later milestones after it. The value orders steps within the funnel; the exact numbers matter only relative to one another.
+Set these on every duplicate:
 
-Set the reporting names on every duplicate. `singularNounName`, `pluralNounName`, and `rateName` are what reports and the admin funnel display. The templates ship with generic values — a tracked template calls everything "Tracked Events" with a "Tracked Event Rate", and `singularNounName` defaults to an expression that echoes the display name — so two events duplicated from the same template report under identical labels until you override them. Give each canonical event its own noun and rate names, and give each an `adminUIIcon` that reads as its outcome. No two events in one integration should share an icon.
+| Variable | Set it to |
+| :--- | :--- |
+| `sequence` | A value sorting the events in lifecycle order, outcome first. The numbers matter only relative to one another. |
+| `singularNounName`, `pluralNounName`, `rateName` | The nouns and rate name reports and the admin funnel display. |
+| `adminUIIcon` | An icon that reads as this event's outcome. No two events in one integration share an icon. |
 
-Set `aliases` to the alias set the platform already uses for that canonical event. Aliases are additional names that this business event matches, and platform consumers subscribe to them: an extension or downstream integration listening for `outcome` sees a `converted` event only because `converted` carries that alias. Read the alias set from an existing program's business event of the same name rather than inventing one. Bundled programs use these:
+Two events from the same template report under identical labels until you override these: a tracked template calls everything "Tracked Events" with a "Tracked Event Rate", and `singularNounName` defaults to an expression echoing the display name.
+
+### Set the Alias Set the Platform Already Uses
+
+Set `aliases` to the set the platform already uses, read from an existing program's business event of the same name. They are additional names the business event matches, and platform consumers subscribe to them: an extension listening for `outcome` sees a `converted` event only because `converted` carries that alias.
 
 | Canonical event | Aliases |
-| :-------------- | :------ |
+| :--- | :--- |
 | `converted` | `conversion`, `customer`, `outcome`, `transacted` |
 | `account_qualified` | `customer`, `outcome` |
 | `account_opened` | `customer` |
 | `shipped`, `canceled` | none |
 
-Do not add partner-flavored aliases, and do not clear an alias set the template or canonical event provides. The same alias must never appear on two business events in one campaign: the match becomes ambiguous, and the event that wins is not something the configuration expresses.
+Do not invent partner-flavored aliases or clear a set the template provides. One alias must never appear on two business events in one campaign, which makes the match ambiguous.
 
-Inspect the duplicated component's evaluated `journeyName` and `roleName` values. Do not hardcode one pair for every integration: these values depend on whether the event is associated with a campaign journey and on the surrounding role and journey hierarchy. Preserve the reusable template's defaults unless the integration contract requires different values, and record the published values during verification.
+### Preserve the Journey and Role Defaults
+
+Inspect the duplicated component's evaluated `journeyName` and `roleName`. Both depend on the surrounding role and journey hierarchy, so keep the template's defaults unless the contract requires otherwise, and record the published values during verification.
 
 ## Configure Input Event Rules
 
-Duplicate `input_event` from the `rules` program into each business event's `triggerRules` socket:
+Duplicate `input_event` from the `rules` program into each `triggerRules` socket:
 
 ```bash
 curl --request POST \
@@ -183,22 +183,18 @@ curl --request POST \
   }'
 ```
 
-Keep the duplicated rule under its source name `input_event`. Library components and bundled programs all do, so a reader recognizes the trigger by its position in the business event rather than by a component name that restates the event it listens for. The partner event name belongs in `triggerEventNames`.
-
-When a prehandler renames the event, `triggerEventNames` lists the name the prehandler produces, not the name the partner sent. Prehandlers run before trigger rules, so a rule still listening for the wire name never matches — and it reads as correct in the component tree, which is why this is worth checking rather than assuming.
-
-Add a legacy partner event alias only when a real sender still emits it. Document the preferred spelling and migration plan.
+Keep the duplicated rule under its source name `input_event`, and put the partner event name in `triggerEventNames`. When a prehandler renames the event, list the name the prehandler produces — an integration-owned name such as `example_order_completed`, never the canonical name the business event carries. A rule still listening for the wire name never matches, and reads as correct in the component tree. Add a legacy alias only when a real sender still emits it.
 
 ## Configure Event Data
 
-Data capture is the part of the integration that carries meaning. Without it an inbound event produces a step with no transaction identifier, no person key, and no value, so nothing downstream can deduplicate, attribute, reward, or report on it. Create the data components in the same run as the business events they belong to. An integration whose `data` sockets are empty is not built, however complete its tree looks.
+Create the data components in the same run as their business events. A business event with an empty `data` socket produces a step with no transaction identifier, no person key, and no value, so nothing downstream can deduplicate, attribute, reward, or report on it.
 
-Take the field names from the partner's documented payload. When a partner-specific page exists in this documentation set, its payload example is the contract; otherwise use the partner's own developer documentation. Where neither source defines a field, capture a sample payload from the platform itself. Map the identity and deduplication fields that are defined rather than deferring the whole mapping over one unknown field.
+Take the field names from the partner's documented payload — a partner page in this documentation set, the partner's developer documentation, or a captured sample. One unknown field does not defer the rest.
 
-Define a mapping before creating data components:
+Define the mapping first:
 
 | Extole field | Partner field | Required | Key type | Persist type |
-| :----------- | :------------ | :------- | :------- | :----------- |
+| :--- | :--- | :--- | :--- | :--- |
 | `partner_conversion_id` | Transaction identifier | Yes for transaction events | `UNIQUE_PARTNER_EVENT_KEY` | `STEP` |
 | `partner_user_id` | Customer identifier | Recommended | `PARTNER_PROFILE_KEY` | `STEP` |
 | `cart_value` | Transaction amount | Recommended for revenue events | `VALUE` | `STEP` |
@@ -207,7 +203,7 @@ Define a mapping before creating data components:
 | `last_name` | Last name | Optional | `NONE` | `STEP` |
 | `coupon_code` | Applied coupon | Optional | `NONE` | `STEP` |
 
-Duplicate one `business_event_data` component into the business event's `data` socket for each field:
+Duplicate one `business_event_data` component into the `data` socket for each field:
 
 ```bash
 curl --request POST \
@@ -261,25 +257,23 @@ curl --request POST \
   }'
 ```
 
-Set `valueExpression` explicitly when the partner field and Extole field have distinct names. Verify the expression against a real sanitized partner payload. Do not rely on the data component's name-derived default when the source field differs.
+Set `valueExpression` explicitly when the partner field and Extole field have distinct names — do not rely on the name-derived default — and verify it against a real sanitized partner payload. Use `NO_ADDITIONAL_DATA` when the event must store only declared fields, and capture no more than identity, deduplication, attribution, rules, and reporting need.
 
+<Warning>
 Quote the key with escaped double quotes, as above. A single-quoted `--data` payload cannot contain single quotes: the shell closes the string at the first one, so `getData()['order_id']` reaches the API as `getData()[order_id]`, which reads an undefined variable instead of the partner field and silently captures nothing.
+</Warning>
 
-Use `NO_ADDITIONAL_DATA` when the event must store only declared fields. Capture the minimum data needed for identity, deduplication, attribution, rules, and reporting.
+Give every business event its own data components; a field captured on one is not visible on another:
 
-Every business event needs its own data components — a field captured on one event is not visible on another. What each event must capture follows the table above rather than one fixed set:
-
-- **Enough identity to resolve a person**, on every event. Capture the partner customer identifier as `PARTNER_PROFILE_KEY` whenever the partner sends a stable one, and `email` when it is the only identity available.
-- **The transaction identifier as `UNIQUE_PARTNER_EVENT_KEY`, on transaction events.** An event tied to an order, a purchase, or another partner-side record needs it to deduplicate. A standalone lifecycle event such as `account_opened` has no transaction to key on, and requiring one there invents a field the partner does not send.
+- **Identity**, on every event: the partner customer identifier as `PARTNER_PROFILE_KEY` when the partner sends a stable one, `email` when it is the only identity available.
+- **The transaction identifier as `UNIQUE_PARTNER_EVENT_KEY`**, on transaction events, so an event tied to a partner-side record can deduplicate. A standalone event such as `account_opened` has none.
 - **The amount as `VALUE`**, on revenue events.
 
-Repeat the identity set on lifecycle events such as `shipped` and `canceled`: they arrive independently and must resolve to the same person and, through the transaction identifier they carry, the same original transaction.
+Lifecycle events such as `shipped` and `canceled` arrive independently, so repeat the identity set on each: they must resolve to the same person and, through the transaction identifier, the same original transaction.
 
-## Verify Inbound Events
+## How to Test
 
-Send a synchronous test event through `POST /v6/events`. Event submission uses the same host as the management calls above but a distinct access token, so the token that created the campaign cannot necessarily submit events. Without an event-submission token the integration is built but unverified — get one, or pass the request below and the values the resulting step should contain to someone who has one.
-
-Put the current program label inside `data` to target this campaign during the test. The label is a testing convenience and does not belong in the partner's own payload or setup instructions.
+Send a synchronous test event through `POST /v6/events` with an event-submission token, not the one that created the campaign. Put the current program label in `data` to target this campaign; it is a testing convenience and does not belong in the partner's payload.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/events" \
@@ -297,7 +291,7 @@ curl --request POST "$EXTOLE_API_HOST/v6/events" \
   }'
 ```
 
-Use the returned `person_id` to list the person's resulting events:
+Use the returned `person_id` to list the resulting events:
 
 ```bash
 curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
@@ -306,9 +300,7 @@ curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
   --data-urlencode "names=converted"
 ```
 
-Confirm the canonical event name and every mapped value. Use a new unique identifier for each repeat test unless duplicate handling is the behavior under test.
-
-Test:
+Confirm the canonical event name and every mapped value, using a new unique identifier per repeat unless duplicate handling is under test. Cover:
 
 - Every preferred partner input event.
 - Every supported legacy alias.
