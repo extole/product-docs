@@ -18938,6 +18938,50 @@
         "required" : [ "assets", "campaign_id", "campaign_state", "component_ids", "component_references", "created_date", "description", "display_name", "facets", "id", "install", "installed_into_socket", "name", "origin", "owner", "source_client_id", "tags", "type", "types", "updated_date", "upload_version", "variables", "version" ],
         "type" : "object"
       },
+      "ComponentSelectableByReferenceResponse" : {
+        "properties" : {
+          "campaign_id" : {
+            "description" : "The campaign the selectable-by reference belongs to.",
+            "type" : "string"
+          },
+          "campaign_name" : {
+            "description" : "The name of that campaign, so a list can be grouped without a second request.",
+            "type" : "string"
+          },
+          "component_id" : {
+            "description" : "The component that declares the selectable-by reference setting.",
+            "type" : "string"
+          },
+          "component_name" : {
+            "description" : "The name of that component.",
+            "type" : "string"
+          },
+          "selection" : {
+            "description" : "`SELECTED` when the reference already points at the component in this variant, `SELECTABLE` when it does not but would accept it. A `SELECTED` row is reported whether or not the reference would still accept the component today, so a reference whose boundary or filters have since moved away from it is still listed.",
+            "enum" : [ "SELECTABLE", "SELECTED" ],
+            "type" : "string"
+          },
+          "setting_name" : {
+            "description" : "The name of the selectable-by reference setting, or of the socket parameter that declares it.",
+            "type" : "string"
+          },
+          "setting_type" : {
+            "description" : "Whether the selectable-by reference holds one component or many.",
+            "enum" : [ "ADMIN_ICON", "AUDIENCE_ID", "AUDIENCE_ID_LIST", "BOOLEAN", "BROWSER_SIDE_JAVASCRIPT", "CLIENT_DOMAIN_ID_LIST", "CLIENT_KEY", "CLIENT_KEY_FLOW", "COLOR", "COMPONENT_ID", "COMPONENT_REFERENCE", "COMPONENT_REFERENCE_LIST", "COMPONENT_SETTING_LOOKUP", "CSS", "DATE_TIME", "DELAY", "DELAY_LIST", "ENUM", "ENUM_LIST", "EXTOLE_CLIENT_KEY", "FONT", "GLOB_COMPONENT_PATH", "HTML", "IMAGE", "INTEGER", "INTEGER_LIST", "JSON", "MULTI_SOCKET", "PARTNER_ENUM", "PARTNER_ENUM_LIST", "PERSON_KEY_NAME", "REWARD_SUPPLIER_ID", "REWARD_SUPPLIER_ID_LIST", "SOCKET", "STRING", "STRING_LIST", "STRING_MAP", "TRIGGER_CONFIGURATION", "URL", "WEBHOOK_ID" ],
+            "type" : "string"
+          },
+          "socket_name" : {
+            "description" : "The socket whose parameter declares the selectable-by reference, absent when the reference is a setting on the component itself. Two sockets on one component can declare parameters of the same name, so this is part of the reference's identity.",
+            "type" : "string"
+          },
+          "variant" : {
+            "description" : "The setting value variant this row is about.",
+            "type" : "string"
+          }
+        },
+        "required" : [ "campaign_id", "campaign_name", "component_id", "component_name", "selection", "setting_name", "setting_type", "socket_name", "variant" ],
+        "type" : "object"
+      },
       "ComponentSettingBatchUpdateRequest" : {
         "description" : "Body of a `PUT /v1/components/{component_id}/settings` request.",
         "properties" : {
@@ -50227,6 +50271,183 @@
           }
         },
         "summary" : "Diff two components",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v1/components/{component_id}/selectable-by-references" : {
+      "get" : {
+        "description" : "Returns the `COMPONENT_REFERENCE` and `COMPONENT_REFERENCE_LIST` settings across the client that can select the specified component — the reverse of `GET /v1/components/{component_id}/settings/component-reference/{setting_name}/selectable-components`. A reference is listed when it already points at the component (`SELECTED`), or when the component is eligible for it: the component carries the reference's declared component type, sits inside the reference's boundary, and is not excluded by one of its selectable filters. Matching runs entirely on the server, so callers never reproduce match rules. One row per component, setting and variant. The result is computed per request and never persisted.\n\nThe search covers every non-archived campaign of the client at its latest version, so the row count is driven by how those references declare their boundary: campaign-scoped references match only within their own campaign, while an account-scoped reference can match a component anywhere in the client.",
+        "operationId" : "listSelectableByReferencesForComponent",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ComponentSelectableByReferenceResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "The selectable-by references, each marked `SELECTED` or `SELECTABLE`."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_build_failed" : {
+                    "$ref" : "#/components/examples/campaign_build_failed"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_path_malformed" : {
+                    "$ref" : "#/components/examples/component_operation_path_malformed"
+                  },
+                  "component_operation_path_missing" : {
+                    "$ref" : "#/components/examples/component_operation_path_missing"
+                  },
+                  "component_operation_schema_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_schema_invalid"
+                  },
+                  "component_operation_schema_too_large" : {
+                    "$ref" : "#/components/examples/component_operation_schema_too_large"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "controller_state_misconfiguration" : {
+                    "$ref" : "#/components/examples/controller_state_misconfiguration"
+                  },
+                  "expression_invalid_syntax" : {
+                    "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "rebuild_campaigns_build_failed" : {
+                    "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "`component_not_found` when the specified component does not exist or is not accessible to the client."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "List the references a component can be selected by",
         "tags" : [ "Components" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
