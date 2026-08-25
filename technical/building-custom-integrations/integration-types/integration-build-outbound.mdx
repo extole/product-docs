@@ -22,7 +22,7 @@ This page is one part of the Management API integration guide. Start at [Create 
 | `SOURCE_COMPONENT_ID` | Identifier of the Extole-owned library source chosen from the duplicatable listing. |
 | `INTEGRATION_COMPONENT_ID` | Identifier of the installed integration component, used when attaching component-scoped webhooks. |
 
-The partner's API secret is required only to attach the credential. Finish the tree, webhooks, and settings without it, leave the credential setting null, and report the value as outstanding.
+The partner's API secret is required only to attach the credential. Finish the tree, webhooks, and settings without it, leaving the credential setting null until the secret arrives.
 
 ## Build an Outbound Library Integration
 
@@ -40,7 +40,7 @@ Read the partner page before the first mutation. It describes the finished integ
 | That the integration exposes its outbound connections as settings | One `WEBHOOK_ID` setting per webhook, resolved by tag |
 | The account URL and credential the partner requires | The matching settings on the integration component |
 
-Run that comparison against an integration that already exists in the account, not only against a fresh install. Reading a live integration back and reporting it as already in the requested state, without checking it line by line against the page's description, is what makes an unfinished install permanent — the integration exists, so nobody looks again.
+Run that comparison against an integration that already exists in the account, not only against a fresh install. An existing integration is easy to accept as finished because it is there and it works, so check it line by line against the page's description. An unfinished install that nobody re-reads is the one that stays unfinished.
 
 Read that list as exhaustive rather than as a minimum. A library source ships the union of what every account might want, so it commonly installs children the page does not list and only one of the webhooks the page names. Deleting the extra children and creating the missing webhooks is the reshape; an install left in its raw shape forwards activity the partner page never claimed and omits endpoints it did.
 
@@ -143,9 +143,9 @@ if (targetSteps.length) {
 
 A webhook whose name or URL expression calls `context.getComponent()` must be created with `component_ids` naming the integration component, and that reference resolves only after the campaign has been published at least once. Until then, `POST /v6/webhooks` returns `invalid_component_reference`, and creating the same webhook without `component_ids` fails because the expressions have no component to read.
 
-Treat that publish as part of the create path rather than a separate decision raised on its own. Publish the campaign, create the webhook, and return the campaign to draft afterwards only when the requester asked for a draft. When your own rules require approval before anything goes live, ask for it once, in the same message as the plan, rather than stopping earlier and reporting the shape as unfinishable.
+That publish is part of the create path rather than a separate decision. Publish the campaign, then create the webhook. Where your own release process requires approval before anything goes live, get it before you start the reshape, because the reshape cannot complete without a publish.
 
-A published integration campaign has no supported route back to a draft — it has no stop or unpublish action. Do not archive the campaign to approximate one: archiving takes the integration out of use entirely, which is not what a draft request asked for. Say that the campaign is published, and that finishing the shape required it.
+A published integration campaign has no supported route back to a draft — it has no stop or unpublish action. Archiving is not an approximation of one: it takes the integration out of use entirely. Plan on the campaign staying published once the reshape is done.
 
 Publishing validates every webhook the campaign already owns, so a setting that feeds an existing webhook URL must resolve to something valid first. An account-URL setting left empty produces an invalid destination, campaign validation rejects the publish, and the second webhook can never be attached. Keep a valid placeholder host in that setting — the library's own default is one — until the real host arrives.
 
@@ -174,9 +174,9 @@ When the account URL setting may be stored without a scheme, build the URL expre
 
 ### Attach the Credential
 
-Create a webhook client key only when the requester has supplied the partner's API secret, then set the credential setting on the integration component. Missing credentials do not block the reshape: finish the tree, webhooks, and settings, leave the credential setting null, and report which values remain outstanding.
+Create the webhook client key once you have the partner's API secret, then set the credential setting on the integration component. A secret you do not have yet does not block the reshape: finish the tree, webhooks, and settings, and leave the credential setting null until the secret arrives.
 
-The account URL is different from the secret. Blanking it to signal "not yet configured" breaks the publish that the rest of the reshape depends on, so leave a valid placeholder host in place and report it as a value the requester still has to replace.
+The account URL is a distinct case from the secret. Blanking it to signal "not yet configured" breaks the publish that the rest of the reshape depends on, so leave a valid placeholder host in place and track it as a value still to be replaced.
 
 ## Error Handling
 
@@ -196,4 +196,6 @@ A `2xx` on the duplicate call means the library tree was copied, not that the in
 
 Read the campaign and its `/v6/webhooks` entries back before calling the build done. Confirm the tree matches the partner page, every typed child carries its type, each webhook exists with its tags and resolved URL, and each `WEBHOOK_ID` setting resolves to a webhook identifier.
 
-Do not add inbound business-event scaffolding to an outbound install. An outbound integration reports program activity rather than producing it, so it never supersedes a marketing program's `converted` or `shipped` events, and offering to swap them after an install misrepresents what was built. Report which credentials and partner-side permissions remain and which Extole events the integration already forwards.
+Do not add inbound business-event scaffolding to an outbound install. An outbound integration reports program activity rather than producing it, so it never supersedes a marketing program's `converted` or `shipped` events. Swapping a program's business events after an outbound install changes what the program measures without changing what the integration does.
+
+Finish by writing down which Extole events the integration forwards and which credentials and partner-side permissions are still outstanding. Those are what the next person needs to put the outbound path into service.

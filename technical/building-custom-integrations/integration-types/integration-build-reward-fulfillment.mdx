@@ -40,7 +40,7 @@ Resources attached by component_ids
 
 Install the maintained source when the duplicatable listing has one: the install carries the whole shape, including the support campaign it subscribes to, and the sequence below then serves as the checklist for confirming the install matches the partner page.
 
-Confirm the source's type before installing it. A partner that once shipped a legacy integration still exposes that older source under the same partner name, and a name match alone will install the wrong generation. A source typed `integration-v1` or any other pre-v10 type is not the maintained v10 integration; when it is the only source available, build the v10 shape below and say that the only source on offer was legacy.
+Confirm the source's type before installing it. A partner that once shipped a legacy integration still exposes that older source under the same partner name, and a name match alone will install the wrong generation. A source typed `integration-v1` or any other pre-v10 type is not the maintained v10 integration. When it is the only source available, build the v10 shape below instead of installing it.
 
 **A missing library source is a normal starting condition for a client-local build, not a blocker.**
 Most accounts can duplicate only the sources they are subscribed to, so a partner the documentation
@@ -186,7 +186,9 @@ curl --request POST \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
 ```
 
-Read `$SUPPORT_CAMPAIGN_VERSION` from the support campaign immediately before publishing rather than counting your own writes: every component and settings call increments it, so a version computed from memory is usually one behind. That operation is **not carried in the OpenAPI specification**, so a reference lookup for it returns nothing found — which is a gap in the specification and not evidence that publishing is unavailable. This page and [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation) are its documentation; take the call from here rather than searching for a published operation that does not exist, and note that `POST /v2/campaigns/{campaignId}/publish` is the specification's variant of the same action.
+Read `$SUPPORT_CAMPAIGN_VERSION` from the support campaign immediately before publishing rather than tracking your own writes: every component and settings call increments it, so a version you calculated is usually one behind.
+
+This version-scoped publish is **missing from the OpenAPI specification**, so you will not find it in the API reference. That is a gap in the specification rather than a sign the operation is unavailable — this page and [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation) are its documentation. The specification does carry `POST /v2/campaigns/{campaignId}/publish`, which is the unversioned variant of the same action.
 
 The endpoint is the one for the supplier kind you are creating — a partner that fulfills its own products uses the custom-reward endpoint — and `type` there is the custom reward kind, which is separate from the component type the template carries.
 
@@ -381,13 +383,13 @@ The runtime those handlers run in is:
 
 Order webhooks commonly fulfill with `withSuccess(false)` so the status-check webhook can close the reward later. A handler that always fulfills with `withSuccess(true)` hides partner rejections behind rewards that were never delivered.
 
-Leave the webhook **disabled** only while a required credential or the partner page's payload contract is still missing. Once both are present, `PUT` the handlers and set `enabled` to true. Do not report that the runtime methods above are unpublished, and do not wait for a packaged script from engineering when the partner page already names the body.
+Leave the webhook **disabled** only while a required credential or the partner page's payload contract is still missing. Once both are present, `PUT` the handlers and set `enabled` to true. The runtime methods in the table above are the documented handler surface, and the partner page names the request body — between them you have everything the handlers need, without waiting on a packaged script.
 
 The status-check webhook covers products that do not complete synchronously. It filters on every variant's suppliers and on the fulfillment-failed state, and its retry schedule escalates from hours to days out to about a month, because a physical fulfillment can take weeks. Order webhooks keep the short schedule above; a status check on that schedule exhausts its retries long before the partner finishes.
 
 ### Attach the Credential and Verify
 
-Create the client key only once the partner's secret exists — for a partner that authenticates with certificates, that means the certificate material, not a placeholder — then set the credential setting on the integration component. Leave the setting null and report it outstanding when the secret has not arrived; the rest of the shape does not depend on it.
+Create the client key only once the partner's secret exists — for a partner that authenticates with certificates, that means the certificate material, not a placeholder — then set the credential setting on the integration component. Until the secret arrives, leave the setting null and track it as outstanding; the rest of the shape does not depend on it.
 
 Before calling the build done, read back and confirm:
 

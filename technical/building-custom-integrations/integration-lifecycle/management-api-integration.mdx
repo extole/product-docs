@@ -1,13 +1,13 @@
 ---
 title: "Create an Integration with the Management API"
-description: "Choose the build path for an integration, follow the creation contract, and resolve every input a build needs from the partner's name."
+description: "Build an integration campaign and its component tree through the Management API: choose the build path, gather what the build needs, and follow the rules every path shares."
 ---
 
 # Overview
 
-Use the [Management API](/technical/platform-integrations/rest-apis/index) to create an integration campaign and its component hierarchy directly in Extole. This workflow is for installers, solution engineers, and the operational services that build an integration for a client account rather than shipping it as a packaged bundle in Extole's integration library.
+Use the [Management API](/technical/platform-integrations/rest-apis/index) to create an integration campaign and its component hierarchy directly in Extole. Take this path when you are building an integration for one client account rather than shipping it as a packaged bundle in Extole's integration library.
 
-An API-created integration is still a component-based integration, so it must follow the same rules as a packaged one:
+An API-created integration is still a component-based integration, so it follows the same rules as a packaged one:
 
 - **Reusable component types**, rather than one-off controllers written for a single partner.
 - **Typed sockets** — the named attachment points on a component that accept only components of a declared type, such as a `views` socket that holds view components. [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model) describes each socket this build uses.
@@ -15,17 +15,21 @@ An API-created integration is still a component-based integration, so it must fo
 - **v10 component types**, the current generation of the integration component model. Type names carry the generation as a suffix, as in `integration-v10.1` and `config-view-v10.0`.
 - The same **naming conventions and validation rules** a packaged integration passes before it is published.
 
-## Decide Whether This Is an Install or a Client-Local Build
+Examples in this guide use a generic partner named `example`. Substitute the real partner name, event names, and field names from that partner's own documentation.
 
-Creating an integration-shaped campaign and installing a registered integration are different outcomes.
-The distinction matters whenever the requester expects the result on the My Extole
+When this documentation set has a page for your partner, read it first. The partner page carries the wire contract for that platform — event names, payload fields, and status mapping — while this guide carries the build sequence that applies to every platform. Partner pages use the partner's name as the page slug, so you can open one directly instead of searching for it.
+
+## Decide Whether You Are Installing or Building
+
+Creating an integration-shaped campaign and installing a registered integration are distinct outcomes. The
+distinction matters as soon as you expect the result to appear on the My Extole
 [Integrations page](https://my.extole.com/integrations).
 
-| Requested outcome | Correct action | What makes it appear |
-| :---------------- | :------------- | :------------------- |
+| Outcome you want | What to do | What makes it appear |
+| :--------------- | :--------- | :------------------- |
 | A registered integration every client can find and install | Publish the partner's integration component to the Extole-owned library. | An Extole-owned component tagged `internal:type:integration` and `internal:self-managed`. |
-| An installed instance for this client | Duplicate the library source, or build the campaign and component tree below. | A non-root component owned by this client, tagged `internal:type:integration` and `internal:self-managed`. |
-| A development-account build to inspect, configure, or test through campaign and component APIs | Create the campaign and component tree directly. | The same client-owned component; it is visible to this client only. |
+| An installed instance for this client | Duplicate the library source, or build the campaign and component tree yourself. | A non-root component owned by this client, tagged `internal:type:integration` and `internal:self-managed`. |
+| A development-account build to inspect, configure, or test through the campaign and component APIs | Create the campaign and component tree directly. | The same client-owned component; it is visible to this client only. |
 
 The Integrations page selects built components by the tag `internal:type:integration`. Among those, it
 treats a component as this client's installed integration when the component's source client is this
@@ -37,23 +41,19 @@ decide whether a client-owned component shows up at all:
 - **Without `internal:self-managed` the entry renders as unavailable** rather than installed.
 
 The tags that decide visibility therefore sit on the non-root integration component. A build that
-follows the component model below is visible; one that puts the integration tags only on the campaign,
-or only on the root component, is not.
+follows the component model in these guides is visible; one that puts the integration tags only on the
+campaign, or only on the root component, is not.
 
 `internal:integration-component-name:<component-name>` is a separate, older convention. Library bundles
 carry it on the integration campaign so an installed copy can be traced back to the component it came
 from, and this guide keeps it for parity with those bundles. The Integrations page does not read it, so
-setting it does not make a build appear and omitting it does not hide one. Do not reach for it to fix a
-build that is missing from the page — check the component's tags, its owner, and whether it is the root.
+setting it does not make a build appear and omitting it does not hide one. It is not the fix for a build
+that is missing from the page — check the component's tags, its owner, and whether it is the root.
 
-Building the tree in one account does not register a new partner for anyone else. When the request is
-for a new installable partner that every client can see, build and validate the shape in the
-development account first, then publish the reusable component to the Extole-owned library, and say
-plainly that the account-local build is not yet an installable integration.
-
-Examples in this guide use a generic partner named `example`. Substitute the real partner name, event names, and field names from that partner's own documentation.
-
-Where a partner-specific page exists in this documentation set, read it first: it carries the wire contract for that platform — event names, payload fields, and status mapping — while this guide carries the build sequence that applies to every platform. Partner pages are published under the partner's name as the page slug, so retrieve the page directly by that slug rather than relying on a keyword search to surface it.
+Building the tree in one account does not register a new partner for anyone else. When you need a new
+installable partner that every client can see, build and validate the shape in a development account
+first, then publish the reusable component to the Extole-owned library. Until that publish happens, the
+account-local build is not an installable integration.
 
 ## Choose the Integration Category First
 
@@ -61,18 +61,17 @@ Place the platform in a category before creating anything. [Integration Categori
 
 | Category | When it applies | Build path |
 | :------- | :-------------- | :--------- |
-| Outbound library install | The duplicatable listing already has an integration component whose name matches the partner. | Duplicate that library component with no target campaign, reshape it to the finished shape on the partner page, then attach webhooks and credentials. Follow [Build an Outbound Library Integration](/technical/building-custom-integrations/integration-types/integration-build-outbound) below. |
-| Reward fulfillment | The partner supplies gift cards, prepaid cards, points, or payouts that Extole orders when a reward is earned. | Install the maintained source when one exists; otherwise build the supplier type, the support campaign of supplier templates, and the integration with its `REWARD` webhooks. Follow [Build a Reward Fulfillment Integration](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment) below. |
-| Inbound custom build | No maintained source exists for the partner, or the request is an inbound platform that maps wire events onto canonical business events. | Create an `INTEGRATION` campaign from the custom integration template, then add business events, trigger rules, data capture, and views. This is a client-local build unless a registered integration component is published separately. |
+| Outbound library install | The duplicatable listing already has an integration component whose name matches the partner. | Duplicate that library component with no target campaign, reshape it to the finished shape on the partner page, then attach webhooks and credentials. See [Build an Outbound Library Integration](/technical/building-custom-integrations/integration-types/integration-build-outbound). |
+| Reward fulfillment | The partner supplies gift cards, prepaid cards, points, or payouts that Extole orders when a reward is earned. | Install the maintained source when one exists; otherwise build the supplier type, the support campaign of supplier templates, and the integration with its `REWARD` webhooks. See [Build a Reward Fulfillment Integration](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment). |
+| Inbound custom build | No maintained source exists for the partner, or the platform maps wire events onto canonical business events. | Create an `INTEGRATION` campaign from the custom integration template, then add business events, trigger rules, data capture, and views. This is a client-local build unless a registered integration component is published separately. |
 
 Before creating anything, query the duplicatable listing for integration components and look for one whose name matches the partner. Match on the component name, not on a fixed type version: the integration type is revised over time, so a source may be typed `integration-v10.0`, `integration-v10.1`, or a later revision, and a query pinned to one revision reports a maintained partner as missing. Prefer that name match over building from `custom_integration`. Rebuilding a maintained partner from the custom template produces a campaign that looks related and does none of the partner's webhook or credential work.
 
 A request that adds inbound scope to a maintained outbound partner uses both paths: install the library source first, then add business events to the installed campaign using the inbound sequence.
 
-## Where the Rest of This Guide Lives
+## How These Guides Fit Together
 
-This page carries what every build path shares. The sequences themselves are separate pages, each short
-enough to be retrieved whole:
+This page carries what every build path shares. Each build sequence is a page of its own:
 
 | Page | Use it for |
 | :--- | :--------- |
@@ -81,36 +80,63 @@ enough to be retrieved whole:
 | [Build an Outbound Library Integration](/technical/building-custom-integrations/integration-types/integration-build-outbound) | Installing a maintained partner source and reshaping it, then attaching its outbound webhooks and credential. |
 | [Build a Reward Fulfillment Integration](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment) | A partner that fulfills rewards: supplier type, support campaign, supplier templates, and reward webhooks. |
 | [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) | Business events, input event rules, and event data for an integration that receives partner events. |
-| [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers) | Reshaping a partner's own webhook at ingest, when the partner rather than the customer decides the payload shape. |
+| [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers) | Reshaping a partner's own webhook at ingest, when the partner rather than the client decides the payload shape. |
 | [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation) | Gating outbound resources, the validation checklist, and connecting the integration to a program. |
 
-Read the page for the path you are on rather than working from this one alone. A build that stops after
-the campaign and the integration component has created the container and none of the integration.
+Read the page for the path you are on rather than working from this one alone. Stopping after the
+campaign and the integration component leaves you with the container and none of the integration.
 
-## Creation Contract
+## Rules Every Build Follows
 
-Follow these rules whenever you create or change an integration through the API, whether you are working by hand or driving the calls from a service:
+These hold on every path, whether you make the calls by hand, from a script, or from a tool acting on your behalf.
 
-1. Confirm the client, environment, partner platform and version, inbound and outbound scope, event contract, credential owner, and publication approval before making changes.
-2. Read the partner's current documentation and verify version-specific event hooks. Do not infer hook names or payload shapes from another platform.
-3. Inspect the target client before creating resources. Reuse an active integration when its campaign and component identity match the request, extend it, and report that. Archived campaigns are not candidates for reuse: they receive no events and hold no program label against a new campaign, so their presence is not a reason to restore one, to pick a different label, or to ask the requester which path to take instead of building what they asked for.
-4. Discover first whether a maintained integration source already exists for the partner, matching on component name across every current `integration-v10.x` type rather than on one pinned revision. When it does, install that source by duplicating it into a new campaign, then reshape it to the partner page's finished tree and webhook set before configuring credentials. Build from the custom integration template only when no maintained partner integration exists. Do not record library component identifiers in documentation or stored instructions.
-5. Treat the calls that complete a reshape — creating a component type, deleting an unused library child, publishing, and creating a webhook — as part of the create instruction rather than as follow-up work for someone else. When one is refused because it requires a higher permission level, raise it and continue; a permission that is available but not currently in effect is not a missing authorization. Stopping after a raw library install leaves the requester with an integration the partner page does not describe.
-6. Use campaign-version-scoped mutation endpoints. Refresh the latest campaign version after every mutation.
-7. Use reusable business-event, rule, and data components. Do not create a custom controller when a reusable template implements the behavior.
-8. Keep partner input event names distinct from canonical Extole business event names.
-9. Settle who shapes the inbound payload before writing setup instructions. An extension or service built for this integration can send Extole-shaped events; a partner's own webhook sends whatever the partner defined, and reconciling it needs a prehandler as described in [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers). Instructions that ask the customer to build a translation service in front of Extole are a design decision, not a default — take that path only when asked, and say so in the closing report.
-10. Map every persisted field explicitly, in the same run that creates the business events. Assign key types based on field semantics, not field spelling. A business event with an empty `data` socket captures nothing and is not a finished event.
-11. Add a `views` socket and the three baseline views every category carries: a configuration view exposing the settings that complete partner setup, a report-runner view charting what the integration processes, and an event-stream view carrying its live feed. What the partner does decides what the report counts and what the feed filters to, never whether the tabs exist. A category may add to that baseline — a reward fulfillment partner carries a fourth view, a second configuration view named `reward-suppliers` that exposes the supplier socket — but never subtracts from it.
-12. Create reward suppliers, client keys, or webhooks only when an approved outbound flow uses them. A reward fulfillment partner is such a flow: its suppliers, `REWARD` webhooks, and credential setting are the integration, not extras added to an inbound build.
-13. Build and inspect the complete campaign before publishing. Test every inbound event and every configured outbound path.
-14. Keep a resource ledger containing campaign, component, external resource, and test identifiers. Use it for verification and cleanup.
-15. Never put access tokens, secrets, or private client values in documentation, component descriptions, logs, or example payloads.
-16. Report partial results as incomplete. Do not describe a draft, disabled webhook, placeholder URL, or unverified event as production-ready.
+### Settle the Scope Before the First Write
 
-## Resolve the Inputs
+Know the client and environment you are building in, the partner platform and its version, whether the integration is inbound, outbound, or both, which events it carries, and who owns the partner credential. Each of these decides part of the component model, so discovering one late means rebuilding rather than extending.
 
-An integration build needs the values below, but almost none of them are things to request from whoever asked for the integration. The partner's name is the input that must be supplied, because it selects the partner page; from there the category, the wire contract, and the finished shape are all readable. Work down this table resolving each value from its source, and treat a question to the requester as the last resort it is:
+Read the partner's current documentation and confirm the event hooks for the version you are integrating. Hook names and payload shapes change between versions of the same platform, and they do not carry across platforms.
+
+Inspect the target client before creating resources. An active integration whose campaign and component identity already match what you need is the one to extend. Archived campaigns are not candidates for reuse: they receive no events, and an archived campaign holds no program label against a new campaign, so its label is free for the campaign you are about to build.
+
+### Start From a Maintained Source When One Exists
+
+A library install is the beginning of the reshape, not the end. The source ships the union of what every account might want, so finishing it means creating the partner's component type, deleting the library children this account does not use, publishing, and creating the webhooks. A campaign left at the raw install carries more children and fewer webhooks than the partner page describes.
+
+Resolve library components by name at build time rather than storing their identifiers as fixed values in scripts or notes. The library revises those components, and a hardcoded identifier goes stale without failing loudly.
+
+### Mutate Through Campaign Versions
+
+Every campaign mutation creates a new version, and a version-scoped endpoint rejects a stale one. Refresh the version before each mutation, as [Use Roll-Forward Campaign Versions](#use-roll-forward-campaign-versions) describes.
+
+### Build From Components, Not Controllers
+
+Use the reusable business-event, rule, and data components. A custom controller written where a template already implements the behavior is code that Extole cannot upgrade or validate on your behalf.
+
+Every integration carries a `views` socket and the same three baseline views: a configuration view exposing the settings that complete partner setup, a report-runner view charting what the integration processes, and an event-stream view carrying its live feed. What the partner does decides what the report counts and what the feed filters to, never whether the tabs exist. A category can add to that baseline — a reward fulfillment partner carries a fourth view, a second configuration view named `reward-suppliers` that exposes the supplier socket — but never subtracts from it.
+
+Create reward suppliers, client keys, and webhooks only for an outbound flow the integration actually has. An inbound integration needs none of them, and creating them for completeness leaves credentials and unused resources for someone to reconcile later. A reward fulfillment partner is the opposite case: its suppliers, `REWARD` webhooks, and credential setting are the integration rather than extras on top of it.
+
+### Keep the Two Event Vocabularies Apart
+
+Partner input event names and canonical Extole business event names are separate namespaces. The trigger rule carries the name that arrives on the wire; the business event carries the Extole name the rest of the platform understands, such as `converted` or `shipped`. Renaming a business event to match a partner's wire name breaks every program and report that reads the canonical name.
+
+Decide who shapes the inbound payload before you write the partner-side setup instructions. An extension or service written for this integration can send Extole-shaped events. A partner's own webhook sends whatever the partner defined, and reconciling that shape happens inside Extole with a prehandler — see [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers). Asking the client to build a translation service in front of Extole is a deliberate design decision, not the default.
+
+### Map Every Field You Persist
+
+Map fields explicitly, in the same pass that creates the business events. A business event with an empty `data` socket produces an event with no transaction identifier, no person key, and no value, so nothing downstream can deduplicate, attribute, reward, or report on it.
+
+Assign key types from what a field means, not from how it is spelled. A partner field named `customer_id` can hold the partner's own account identifier rather than a value that should resolve an Extole person.
+
+### Test Before You Publish
+
+Build and inspect the complete campaign, then test every inbound event and every configured outbound path. Keep the identifiers as you go — campaign, components, external resources, and test events — so you can verify the build and clean up its test data afterwards.
+
+Keep secrets out of the campaign itself. Access tokens, partner secrets, and private client values do not belong in component descriptions, logs, or example payloads; a webhook client key or a protected setting is where they go.
+
+## Gather What the Build Needs
+
+Most of what a build needs is readable before you start, and the partner's name is what unlocks it: the name selects the partner page, and the partner page gives you the category, the wire contract, and the finished shape.
 
 | Value | Where it comes from |
 | :---- | :------------------ |
@@ -118,17 +144,19 @@ An integration build needs the values below, but almost none of them are things 
 | Integration category | [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories), which fixes the shape the rest of the build takes. |
 | Access Token | A server-side access token, created in the [Security Center](https://my.extole.com/security-center), authorized to manage campaigns and components and to read people during verification. |
 | Extole API host | The production host for campaign, component, and event calls, held in `EXTOLE_API_HOST`. |
-| Target client | The client the session is already authenticated to. Never ask which client to build in: an identifier supplied from memory builds a live integration in the wrong account. |
+| Target client | The account your access token authenticates to. Confirm it before the first write — a token pointed at the wrong account builds a live integration there. |
 | Integration name and component name | Derived from the partner name — a human-readable campaign name and a stable lowercase component name. |
 | Program label | Derived from the integration name, unique and stable, used to target events to the integration. |
 | Inbound event contract | The partner page, then the partner's developer documentation: event names, identity fields, unique identifiers, and values. |
 | Canonical business events | Extole names such as `converted`, `shipped`, or `canceled`, chosen to match the outcome each partner event describes. |
 | Field mapping | The documented partner contract, mapped source-to-destination for every captured field. |
-| Partner configuration | The partner page names which settings the integration exposes, such as store URL, account identifier, endpoint, or status mapping. Their values are configured by the operator afterward and do not block the build. |
+| Partner configuration | The partner page names which settings the integration exposes, such as store URL, account identifier, endpoint, or status mapping. Their values are configured afterward and do not block the build. |
 | Outbound requirements | The partner page, when the category calls for outbound behavior: destination, trigger, authentication, retry contract, and owning program. |
-| Publication approval | The request itself. Where it is absent, build to a draft and say what remains rather than stopping to ask before anything is built. |
+| Publication approval | Your own release process. Where approval is outstanding, build the campaign to a draft and finish it when approval arrives. |
 
-Only three kinds of value genuinely have no source you can read: a partner-side secret, an account identifier issued by the partner, and an artwork file. Build everything that does not depend on them, then name exactly those in your closing report. A build that stops at the start to collect the whole table has produced nothing, and the answers would have been the same ones the pages already give.
+Three values have no source you can read: a partner-side secret, an account identifier the partner issues, and the logo artwork. Build everything that does not depend on them and track those three as outstanding, rather than waiting on the whole table before you start.
+
+## One Host, Two Access Tokens
 
 Management calls and event submission share one host. Every example in this guide reads it from this variable:
 
@@ -190,22 +218,28 @@ Use these reusable sources:
 
 Validate each candidate's type before duplicating it, and prefer the v10 type when a legacy version of the same name is also returned.
 
-Several results with the same name and the same v10 type are copies of one maintained source, one per campaign that installed it, not a choice between different behaviors. Narrow by the target socket and duplicate the maintained source; that is not the ambiguity worth stopping for. Stop when discovery returns no published match of the required type, or when two genuinely different components could satisfy the request and choosing wrongly would change behavior.
+Several results carrying the same name and the same v10 type are copies of one maintained source — one per campaign that already installed it — rather than a choice between behaviors. Narrow by the target socket and duplicate the maintained source. Two cases are worth stopping on: discovery returns no published match of the required type, or two genuinely distinct components could satisfy the request and the choice would change behavior.
 
-## Record the Result
+## Confirm the Build Is Finished
 
-The creation response must include:
+By the end of a build you can name each of these, and a gap in the list is an unfinished integration:
 
-- Environment and client.
-- Campaign identifier, current version, state, and program label.
-- Root and model component identifiers.
-- Canonical business events and partner trigger names.
-- Field mappings and key types.
-- View components and displayed settings, including the report runner behind the activity view and the event stream behind the event view, each named with the identifier its view resolves to.
-- External resources created, or an explicit statement that none were required.
-- Programs whose business events were replaced or added to, or an explicit statement that the integration is not yet connected to a program.
-- Test event identifiers and verification results.
-- Documentation URL.
-- Remaining manual partner steps.
+- The environment and client you built in.
+- The campaign identifier, current version, state, and program label.
+- The root and integration component identifiers.
+- The canonical business events and the partner trigger names that reach them.
+- The field mappings and key types.
+- The view components and the settings they display, including the report runner behind the activity view and the event stream behind the event view, each with the identifier its view resolves to.
+- The external resources created, or confirmation that the category needed none.
+- The programs whose business events the integration replaced or added to, or confirmation that it is not yet connected to a program.
+- The test event identifiers and what verification showed.
+- The partner page this build implements.
+- The partner-side steps that remain.
 
-Do not claim the integration is complete while partner-side installation, credentials, status mapping, or end-to-end tests remain outstanding.
+A campaign still in draft, a disabled webhook, a placeholder URL, or an event that has not been tested end to end each mean the integration is not yet live. [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation) covers that gate.
+
+## Related Documentation
+
+- [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories)
+- [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events)
+- [Integrating with Extole](/technical/integration-overview/integrating-with-extole)

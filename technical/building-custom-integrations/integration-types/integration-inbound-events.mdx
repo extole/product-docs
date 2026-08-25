@@ -193,7 +193,7 @@ Add a legacy partner event alias only when a real sender still emits it. Documen
 
 Data capture is the part of the integration that carries meaning. Without it an inbound event produces a step with no transaction identifier, no person key, and no value, so nothing downstream can deduplicate, attribute, reward, or report on it. Create the data components in the same run as the business events they belong to. An integration whose `data` sockets are empty is not built, however complete its tree looks.
 
-Take the field names from the partner's documented payload. When a partner-specific page exists in this documentation set, its payload example is the contract; otherwise use the partner's own developer documentation. Ask the requester for a sample payload only when neither source defines the field, and create the identity and deduplication fields that are defined rather than deferring the whole mapping.
+Take the field names from the partner's documented payload. When a partner-specific page exists in this documentation set, its payload example is the contract; otherwise use the partner's own developer documentation. Where neither source defines a field, capture a sample payload from the platform itself. Map the identity and deduplication fields that are defined rather than deferring the whole mapping over one unknown field.
 
 Define a mapping before creating data components:
 
@@ -277,7 +277,7 @@ Repeat the identity set on lifecycle events such as `shipped` and `canceled`: th
 
 ## Verify Inbound Events
 
-Send a synchronous test event through `POST /v6/events`. Event submission uses the same host as the management calls above but a different access token, so a caller that can create campaigns is not necessarily able to submit events. When the calling context has no event-submission token, hand the request below to whoever does, together with the values the resulting step must contain, and report the integration as built but unverified.
+Send a synchronous test event through `POST /v6/events`. Event submission uses the same host as the management calls above but a distinct access token, so the token that created the campaign cannot necessarily submit events. Without an event-submission token the integration is built but unverified — get one, or pass the request below and the values the resulting step should contain to someone who has one.
 
 Put the current program label inside `data` to target this campaign during the test. The label is a testing convenience and does not belong in the partner's own payload or setup instructions.
 
