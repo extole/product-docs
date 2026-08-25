@@ -1791,6 +1791,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "component_id_missing" : {
+        "summary" : "component_id_missing",
+        "value" : {
+          "code" : "component_id_missing",
+          "http_status_code" : 400,
+          "message" : "A component id is required and must not be blank",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "component_id_not_accessible" : {
         "summary" : "component_id_not_accessible",
         "value" : {
@@ -1811,6 +1821,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "component_ids_missing" : {
+        "summary" : "component_ids_missing",
+        "value" : {
+          "code" : "component_ids_missing",
+          "http_status_code" : 400,
+          "message" : "component_ids is required, send an empty list to clear the selection",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "component_install_failed" : {
         "summary" : "component_install_failed",
         "value" : {
@@ -1827,6 +1847,16 @@
           "code" : "component_not_found",
           "http_status_code" : 400,
           "message" : "Component not found",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "component_not_selectable" : {
+        "summary" : "component_not_selectable",
+        "value" : {
+          "code" : "component_not_selectable",
+          "http_status_code" : 400,
+          "message" : "Component is not selectable for the component reference setting",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -6351,6 +6381,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "unexpected_setting_type" : {
+        "summary" : "unexpected_setting_type",
+        "value" : {
+          "code" : "unexpected_setting_type",
+          "http_status_code" : 400,
+          "message" : "Setting is not of the expected type",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "unknown_client_domain" : {
         "summary" : "unknown_client_domain",
         "value" : {
@@ -10836,7 +10876,6 @@
             "type" : "string"
           },
           "id" : {
-            "readOnly" : true,
             "type" : "string"
           },
           "name" : {
@@ -10850,7 +10889,6 @@
             "uniqueItems" : true
           }
         },
-        "required" : [ "description", "filename", "id", "name", "tags" ],
         "type" : "object"
       },
       "BuiltComponentClientKeyFlowVariableResponse" : {
@@ -18584,6 +18622,42 @@
         },
         "type" : "object"
       },
+      "ComponentReferenceListSelectRequest" : {
+        "properties" : {
+          "component_ids" : {
+            "description" : "The complete set of components to end up selected. Every id must be eligible for this reference: inside the setting's boundary, carrying the required component types, and not excluded by a selectable filter. Send an empty list to clear the selection.",
+            "items" : {
+              "description" : "The complete set of components to end up selected. Every id must be eligible for this reference: inside the setting's boundary, carrying the required component types, and not excluded by a selectable filter. Send an empty list to clear the selection.",
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "variant" : {
+            "description" : "The setting value variant the selection is captured in. Defaults to `default`.",
+            "type" : "string"
+          }
+        },
+        "required" : [ "component_ids" ],
+        "type" : "object"
+      },
+      "ComponentReferenceListUnselectRequest" : {
+        "properties" : {
+          "component_ids" : {
+            "description" : "The components to clear from this reference. Every other selected component stays selected, and naming a component that is not selected changes nothing.",
+            "items" : {
+              "description" : "The components to clear from this reference. Every other selected component stays selected, and naming a component that is not selected changes nothing.",
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "variant" : {
+            "description" : "The setting value variant the selection is cleared in. Defaults to `default`.",
+            "type" : "string"
+          }
+        },
+        "required" : [ "component_ids" ],
+        "type" : "object"
+      },
       "ComponentReferenceLookupKeyRequest" : {
         "description" : "Declares a component attribute, evaluated per candidate component, used to match selectable components. component.id is a reserved name and cannot be declared as a key.",
         "properties" : {
@@ -18733,6 +18807,34 @@
             "type" : "array"
           }
         },
+        "type" : "object"
+      },
+      "ComponentReferenceSelectRequest" : {
+        "properties" : {
+          "component_id" : {
+            "description" : "The id of the component to select. It must be eligible for this reference: inside the setting's boundary, carrying the required component types, and not excluded by a selectable filter.",
+            "type" : "string"
+          },
+          "variant" : {
+            "description" : "The setting value variant the selection is captured in. Defaults to `default`.",
+            "type" : "string"
+          }
+        },
+        "required" : [ "component_id" ],
+        "type" : "object"
+      },
+      "ComponentReferenceUnselectRequest" : {
+        "properties" : {
+          "component_id" : {
+            "description" : "The id of the selected component to clear. A reference pointing at a different component is left alone.",
+            "type" : "string"
+          },
+          "variant" : {
+            "description" : "The setting value variant the selection is cleared in. Defaults to `default`.",
+            "type" : "string"
+          }
+        },
+        "required" : [ "component_id" ],
         "type" : "object"
       },
       "ComponentResponse" : {
@@ -46237,11 +46339,20 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_owner_not_supported" : {
                     "$ref" : "#/components/examples/component_owner_not_supported"
@@ -46335,6 +46446,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -46595,11 +46709,20 @@
                   "component_facets_not_found" : {
                     "$ref" : "#/components/examples/component_facets_not_found"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -46873,6 +46996,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_webhook_type" : {
                     "$ref" : "#/components/examples/unknown_webhook_type"
@@ -47191,11 +47317,20 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_owner_not_supported" : {
                     "$ref" : "#/components/examples/component_owner_not_supported"
@@ -47289,6 +47424,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -47553,11 +47691,20 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_owner_not_supported" : {
                     "$ref" : "#/components/examples/component_owner_not_supported"
@@ -47651,6 +47798,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -47915,11 +48065,20 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_owner_not_supported" : {
                     "$ref" : "#/components/examples/component_owner_not_supported"
@@ -48013,6 +48172,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -48463,14 +48625,23 @@
                   "component_facets_not_found" : {
                     "$ref" : "#/components/examples/component_facets_not_found"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -48757,6 +48928,9 @@
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
                   },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
                   },
@@ -48989,11 +49163,20 @@
                   "client_key_missing_name" : {
                     "$ref" : "#/components/examples/client_key_missing_name"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -49219,6 +49402,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -53880,11 +54066,20 @@
                   "component_asset_name_missing" : {
                     "$ref" : "#/components/examples/component_asset_name_missing"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -54008,6 +54203,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -54236,11 +54434,20 @@
                   "component_asset_name_missing" : {
                     "$ref" : "#/components/examples/component_asset_name_missing"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -54370,6 +54577,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -54680,6 +54890,1306 @@
         "x-extole-visibility" : "visible"
       }
     },
+    "/v1/components/{component_id}/settings/component-reference-list/{setting_name}/selectable-components" : {
+      "get" : {
+        "description" : "Returns the components eligible to be selected for the named `COMPONENT_REFERENCE_LIST` setting. Eligibility is evaluated on the server from the setting's component type, its selectable filters, its boundary, and whether the setting's lookup can capture key values for the candidate, so a picker never reproduces those rules.",
+        "operationId" : "listSelectableComponentsForComponentReferenceList",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "setting_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "variant",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/BuiltComponentResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "The components eligible for selection."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_build_failed" : {
+                    "$ref" : "#/components/examples/campaign_build_failed"
+                  },
+                  "campaign_component_not_found" : {
+                    "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
+                  "component_id_not_accessible" : {
+                    "$ref" : "#/components/examples/component_id_not_accessible"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_path_malformed" : {
+                    "$ref" : "#/components/examples/component_operation_path_malformed"
+                  },
+                  "component_operation_path_missing" : {
+                    "$ref" : "#/components/examples/component_operation_path_missing"
+                  },
+                  "component_operation_schema_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_schema_invalid"
+                  },
+                  "component_operation_schema_too_large" : {
+                    "$ref" : "#/components/examples/component_operation_schema_too_large"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "controller_state_misconfiguration" : {
+                    "$ref" : "#/components/examples/controller_state_misconfiguration"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "default_key_not_allowed" : {
+                    "$ref" : "#/components/examples/default_key_not_allowed"
+                  },
+                  "display_name_has_illegal_character" : {
+                    "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "expression_invalid_syntax" : {
+                    "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "invalid_translatable_value" : {
+                    "$ref" : "#/components/examples/invalid_translatable_value"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "multiple_components_installed_into_single_socket" : {
+                    "$ref" : "#/components/examples/multiple_components_installed_into_single_socket"
+                  },
+                  "non_translatable_variable_can_not_be_updated" : {
+                    "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "rebuild_campaigns_build_failed" : {
+                    "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
+                  },
+                  "reward_supplier_id_list_invalid_configuration" : {
+                    "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
+                  },
+                  "setting_batch_update_missing_request" : {
+                    "$ref" : "#/components/examples/setting_batch_update_missing_request"
+                  },
+                  "setting_display_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_display_name_length_out_of_range"
+                  },
+                  "setting_filter_component_facet_name_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_name_missing"
+                  },
+                  "setting_filter_component_facet_value_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_value_missing"
+                  },
+                  "setting_filter_component_type_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_type_missing"
+                  },
+                  "setting_filter_expression_evaluation_failed" : {
+                    "$ref" : "#/components/examples/setting_filter_expression_evaluation_failed"
+                  },
+                  "setting_filter_invalid_component_facet" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_facet"
+                  },
+                  "setting_filter_invalid_component_type" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_type"
+                  },
+                  "setting_name_duplicated" : {
+                    "$ref" : "#/components/examples/setting_name_duplicated"
+                  },
+                  "setting_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_name_length_out_of_range"
+                  },
+                  "setting_name_missing" : {
+                    "$ref" : "#/components/examples/setting_name_missing"
+                  },
+                  "setting_name_reserved" : {
+                    "$ref" : "#/components/examples/setting_name_reserved"
+                  },
+                  "setting_not_found" : {
+                    "$ref" : "#/components/examples/setting_not_found"
+                  },
+                  "setting_validation_exception" : {
+                    "$ref" : "#/components/examples/setting_validation_exception"
+                  },
+                  "settings_build_failed" : {
+                    "$ref" : "#/components/examples/settings_build_failed"
+                  },
+                  "socket_missing_required_parameter" : {
+                    "$ref" : "#/components/examples/socket_missing_required_parameter"
+                  },
+                  "socket_not_found" : {
+                    "$ref" : "#/components/examples/socket_not_found"
+                  },
+                  "tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/tag_length_out_of_range"
+                  },
+                  "unavailable_referenced_variable" : {
+                    "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  },
+                  "variable_batch_update_has_duplicated_variable_name" : {
+                    "$ref" : "#/components/examples/variable_batch_update_has_duplicated_variable_name"
+                  },
+                  "variable_batch_update_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_invalid_type"
+                  },
+                  "variable_batch_update_missing_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_missing_type"
+                  },
+                  "variable_circular_reference" : {
+                    "$ref" : "#/components/examples/variable_circular_reference"
+                  },
+                  "variable_description_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_description_length_out_of_range"
+                  },
+                  "variable_value_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_value_invalid_type"
+                  },
+                  "variable_value_key_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_value_key_length_out_of_range"
+                  },
+                  "variable_value_missing" : {
+                    "$ref" : "#/components/examples/variable_value_missing"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "`unexpected_setting_type` when the named setting is not a `COMPONENT_REFERENCE_LIST` setting; a single-valued reference is addressed under `component-reference`."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "List selectable components for a component reference list",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v1/components/{component_id}/settings/component-reference-list/{setting_name}/selected-components" : {
+      "get" : {
+        "description" : "Returns the components the named `COMPONENT_REFERENCE_LIST` setting points at, hydrated from the component ids it stores. The result is computed per request and is never persisted or written into the built setting. A component whose campaign has been archived is omitted, and a reference that points at nothing returns an empty list.",
+        "operationId" : "listSelectedComponentsForComponentReferenceList",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "setting_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "variant",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/BuiltComponentResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "The components the reference points at, or nothing when it is unresolved."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_component_not_found" : {
+                    "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
+                  "component_id_not_accessible" : {
+                    "$ref" : "#/components/examples/component_id_not_accessible"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "default_key_not_allowed" : {
+                    "$ref" : "#/components/examples/default_key_not_allowed"
+                  },
+                  "display_name_has_illegal_character" : {
+                    "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "invalid_translatable_value" : {
+                    "$ref" : "#/components/examples/invalid_translatable_value"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "multiple_components_installed_into_single_socket" : {
+                    "$ref" : "#/components/examples/multiple_components_installed_into_single_socket"
+                  },
+                  "non_translatable_variable_can_not_be_updated" : {
+                    "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "reward_supplier_id_list_invalid_configuration" : {
+                    "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
+                  },
+                  "setting_batch_update_missing_request" : {
+                    "$ref" : "#/components/examples/setting_batch_update_missing_request"
+                  },
+                  "setting_display_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_display_name_length_out_of_range"
+                  },
+                  "setting_filter_component_facet_name_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_name_missing"
+                  },
+                  "setting_filter_component_facet_value_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_value_missing"
+                  },
+                  "setting_filter_component_type_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_type_missing"
+                  },
+                  "setting_filter_expression_evaluation_failed" : {
+                    "$ref" : "#/components/examples/setting_filter_expression_evaluation_failed"
+                  },
+                  "setting_filter_invalid_component_facet" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_facet"
+                  },
+                  "setting_filter_invalid_component_type" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_type"
+                  },
+                  "setting_name_duplicated" : {
+                    "$ref" : "#/components/examples/setting_name_duplicated"
+                  },
+                  "setting_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_name_length_out_of_range"
+                  },
+                  "setting_name_missing" : {
+                    "$ref" : "#/components/examples/setting_name_missing"
+                  },
+                  "setting_name_reserved" : {
+                    "$ref" : "#/components/examples/setting_name_reserved"
+                  },
+                  "setting_not_found" : {
+                    "$ref" : "#/components/examples/setting_not_found"
+                  },
+                  "setting_validation_exception" : {
+                    "$ref" : "#/components/examples/setting_validation_exception"
+                  },
+                  "settings_build_failed" : {
+                    "$ref" : "#/components/examples/settings_build_failed"
+                  },
+                  "socket_missing_required_parameter" : {
+                    "$ref" : "#/components/examples/socket_missing_required_parameter"
+                  },
+                  "socket_not_found" : {
+                    "$ref" : "#/components/examples/socket_not_found"
+                  },
+                  "tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/tag_length_out_of_range"
+                  },
+                  "unavailable_referenced_variable" : {
+                    "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  },
+                  "variable_batch_update_has_duplicated_variable_name" : {
+                    "$ref" : "#/components/examples/variable_batch_update_has_duplicated_variable_name"
+                  },
+                  "variable_batch_update_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_invalid_type"
+                  },
+                  "variable_batch_update_missing_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_missing_type"
+                  },
+                  "variable_circular_reference" : {
+                    "$ref" : "#/components/examples/variable_circular_reference"
+                  },
+                  "variable_description_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_description_length_out_of_range"
+                  },
+                  "variable_value_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_value_invalid_type"
+                  },
+                  "variable_value_key_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_value_key_length_out_of_range"
+                  },
+                  "variable_value_missing" : {
+                    "$ref" : "#/components/examples/variable_value_missing"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "`unexpected_setting_type` when the named setting is not a `COMPONENT_REFERENCE_LIST` setting; a single-valued reference is addressed under `component-reference`."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "List selected components for a component reference list",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v1/components/{component_id}/settings/component-reference/{setting_name}/selectable-components" : {
+      "get" : {
+        "description" : "Returns the components eligible to be selected for the named `COMPONENT_REFERENCE` setting. Eligibility is evaluated on the server from the setting's component type, its selectable filters, its boundary, and whether the setting's lookup can capture key values for the candidate, so a picker never reproduces those rules.",
+        "operationId" : "listSelectableComponentsForComponentReference",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "setting_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "variant",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/BuiltComponentResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "The components eligible for selection."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_build_failed" : {
+                    "$ref" : "#/components/examples/campaign_build_failed"
+                  },
+                  "campaign_component_not_found" : {
+                    "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
+                  "component_id_not_accessible" : {
+                    "$ref" : "#/components/examples/component_id_not_accessible"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_path_malformed" : {
+                    "$ref" : "#/components/examples/component_operation_path_malformed"
+                  },
+                  "component_operation_path_missing" : {
+                    "$ref" : "#/components/examples/component_operation_path_missing"
+                  },
+                  "component_operation_schema_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_schema_invalid"
+                  },
+                  "component_operation_schema_too_large" : {
+                    "$ref" : "#/components/examples/component_operation_schema_too_large"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "controller_state_misconfiguration" : {
+                    "$ref" : "#/components/examples/controller_state_misconfiguration"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "default_key_not_allowed" : {
+                    "$ref" : "#/components/examples/default_key_not_allowed"
+                  },
+                  "display_name_has_illegal_character" : {
+                    "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "expression_invalid_syntax" : {
+                    "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "invalid_translatable_value" : {
+                    "$ref" : "#/components/examples/invalid_translatable_value"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "multiple_components_installed_into_single_socket" : {
+                    "$ref" : "#/components/examples/multiple_components_installed_into_single_socket"
+                  },
+                  "non_translatable_variable_can_not_be_updated" : {
+                    "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "rebuild_campaigns_build_failed" : {
+                    "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
+                  },
+                  "reward_supplier_id_list_invalid_configuration" : {
+                    "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
+                  },
+                  "setting_batch_update_missing_request" : {
+                    "$ref" : "#/components/examples/setting_batch_update_missing_request"
+                  },
+                  "setting_display_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_display_name_length_out_of_range"
+                  },
+                  "setting_filter_component_facet_name_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_name_missing"
+                  },
+                  "setting_filter_component_facet_value_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_value_missing"
+                  },
+                  "setting_filter_component_type_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_type_missing"
+                  },
+                  "setting_filter_expression_evaluation_failed" : {
+                    "$ref" : "#/components/examples/setting_filter_expression_evaluation_failed"
+                  },
+                  "setting_filter_invalid_component_facet" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_facet"
+                  },
+                  "setting_filter_invalid_component_type" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_type"
+                  },
+                  "setting_name_duplicated" : {
+                    "$ref" : "#/components/examples/setting_name_duplicated"
+                  },
+                  "setting_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_name_length_out_of_range"
+                  },
+                  "setting_name_missing" : {
+                    "$ref" : "#/components/examples/setting_name_missing"
+                  },
+                  "setting_name_reserved" : {
+                    "$ref" : "#/components/examples/setting_name_reserved"
+                  },
+                  "setting_not_found" : {
+                    "$ref" : "#/components/examples/setting_not_found"
+                  },
+                  "setting_validation_exception" : {
+                    "$ref" : "#/components/examples/setting_validation_exception"
+                  },
+                  "settings_build_failed" : {
+                    "$ref" : "#/components/examples/settings_build_failed"
+                  },
+                  "socket_missing_required_parameter" : {
+                    "$ref" : "#/components/examples/socket_missing_required_parameter"
+                  },
+                  "socket_not_found" : {
+                    "$ref" : "#/components/examples/socket_not_found"
+                  },
+                  "tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/tag_length_out_of_range"
+                  },
+                  "unavailable_referenced_variable" : {
+                    "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  },
+                  "variable_batch_update_has_duplicated_variable_name" : {
+                    "$ref" : "#/components/examples/variable_batch_update_has_duplicated_variable_name"
+                  },
+                  "variable_batch_update_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_invalid_type"
+                  },
+                  "variable_batch_update_missing_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_missing_type"
+                  },
+                  "variable_circular_reference" : {
+                    "$ref" : "#/components/examples/variable_circular_reference"
+                  },
+                  "variable_description_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_description_length_out_of_range"
+                  },
+                  "variable_value_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_value_invalid_type"
+                  },
+                  "variable_value_key_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_value_key_length_out_of_range"
+                  },
+                  "variable_value_missing" : {
+                    "$ref" : "#/components/examples/variable_value_missing"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "`unexpected_setting_type` when the named setting is not a `COMPONENT_REFERENCE` setting; a list-valued reference is addressed under `component-reference-list`."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "List selectable components for a component reference",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v1/components/{component_id}/settings/component-reference/{setting_name}/selected-components" : {
+      "get" : {
+        "description" : "Returns the component the named `COMPONENT_REFERENCE` setting points at, hydrated from the component id it stores. The result is computed per request and is never persisted or written into the built setting. A reference that points at nothing, or at a component whose campaign has been archived, returns an empty list.",
+        "operationId" : "listSelectedComponentsForComponentReference",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "setting_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "variant",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/BuiltComponentResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "The component the reference points at, or nothing when it is unresolved."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_component_not_found" : {
+                    "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
+                  "component_id_not_accessible" : {
+                    "$ref" : "#/components/examples/component_id_not_accessible"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "default_key_not_allowed" : {
+                    "$ref" : "#/components/examples/default_key_not_allowed"
+                  },
+                  "display_name_has_illegal_character" : {
+                    "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "invalid_translatable_value" : {
+                    "$ref" : "#/components/examples/invalid_translatable_value"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "multiple_components_installed_into_single_socket" : {
+                    "$ref" : "#/components/examples/multiple_components_installed_into_single_socket"
+                  },
+                  "non_translatable_variable_can_not_be_updated" : {
+                    "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "reward_supplier_id_list_invalid_configuration" : {
+                    "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
+                  },
+                  "setting_batch_update_missing_request" : {
+                    "$ref" : "#/components/examples/setting_batch_update_missing_request"
+                  },
+                  "setting_display_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_display_name_length_out_of_range"
+                  },
+                  "setting_filter_component_facet_name_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_name_missing"
+                  },
+                  "setting_filter_component_facet_value_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_value_missing"
+                  },
+                  "setting_filter_component_type_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_type_missing"
+                  },
+                  "setting_filter_expression_evaluation_failed" : {
+                    "$ref" : "#/components/examples/setting_filter_expression_evaluation_failed"
+                  },
+                  "setting_filter_invalid_component_facet" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_facet"
+                  },
+                  "setting_filter_invalid_component_type" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_type"
+                  },
+                  "setting_name_duplicated" : {
+                    "$ref" : "#/components/examples/setting_name_duplicated"
+                  },
+                  "setting_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_name_length_out_of_range"
+                  },
+                  "setting_name_missing" : {
+                    "$ref" : "#/components/examples/setting_name_missing"
+                  },
+                  "setting_name_reserved" : {
+                    "$ref" : "#/components/examples/setting_name_reserved"
+                  },
+                  "setting_not_found" : {
+                    "$ref" : "#/components/examples/setting_not_found"
+                  },
+                  "setting_validation_exception" : {
+                    "$ref" : "#/components/examples/setting_validation_exception"
+                  },
+                  "settings_build_failed" : {
+                    "$ref" : "#/components/examples/settings_build_failed"
+                  },
+                  "socket_missing_required_parameter" : {
+                    "$ref" : "#/components/examples/socket_missing_required_parameter"
+                  },
+                  "socket_not_found" : {
+                    "$ref" : "#/components/examples/socket_not_found"
+                  },
+                  "tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/tag_length_out_of_range"
+                  },
+                  "unavailable_referenced_variable" : {
+                    "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  },
+                  "variable_batch_update_has_duplicated_variable_name" : {
+                    "$ref" : "#/components/examples/variable_batch_update_has_duplicated_variable_name"
+                  },
+                  "variable_batch_update_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_invalid_type"
+                  },
+                  "variable_batch_update_missing_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_missing_type"
+                  },
+                  "variable_circular_reference" : {
+                    "$ref" : "#/components/examples/variable_circular_reference"
+                  },
+                  "variable_description_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_description_length_out_of_range"
+                  },
+                  "variable_value_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_value_invalid_type"
+                  },
+                  "variable_value_key_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_value_key_length_out_of_range"
+                  },
+                  "variable_value_missing" : {
+                    "$ref" : "#/components/examples/variable_value_missing"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "`unexpected_setting_type` when the named setting is not a `COMPONENT_REFERENCE` setting; a list-valued reference is addressed under `component-reference-list`."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "List selected components for a component reference",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
     "/v1/components/{component_id}/settings/{setting_name}" : {
       "get" : {
         "description" : "Returns the component setting for the specified name.",
@@ -54968,11 +56478,20 @@
                   "component_asset_name_missing" : {
                     "$ref" : "#/components/examples/component_asset_name_missing"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -55102,6 +56621,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -55354,14 +56876,23 @@
                   "component_facets_not_found" : {
                     "$ref" : "#/components/examples/component_facets_not_found"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -55545,6 +57076,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -87083,17 +88617,26 @@
                   "component_facets_not_found" : {
                     "$ref" : "#/components/examples/component_facets_not_found"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_install_failed" : {
                     "$ref" : "#/components/examples/component_install_failed"
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -87485,6 +89028,9 @@
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
                   },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
                   },
@@ -87845,6 +89391,1382 @@
         "x-extole-visibility" : "visible"
       }
     },
+    "/v1/components/{component_id}/settings/component-reference-list/{setting_name}/select" : {
+      "post" : {
+        "description" : "Replaces the components selected for the named `COMPONENT_REFERENCE_LIST` setting with the components in `component_ids`, and captures them in the setting value. The request carries the complete set to end up selected, so a picker sends what the user chose without working out which components to add and which to remove; an empty list clears the selection. Returns the setting in the same shape as `GET` and `PUT` on the setting itself. A component whose lookup captures no key values is still selectable even though selectable-components omits it: the stored `component.id` is the reference, and the captured values only exist to recover it.",
+        "operationId" : "selectComponentsForComponentReferenceList",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "setting_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "component_ids" : [ "component_id" ],
+                "variant" : "variant"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentReferenceListSelectRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CampaignComponentComponentReferenceVariableResponse"
+                }
+              }
+            },
+            "description" : "The setting after the selection, in the same shape `GET` and `PUT` return."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_build_failed" : {
+                    "$ref" : "#/components/examples/campaign_build_failed"
+                  },
+                  "campaign_component_not_found" : {
+                    "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_stale_version" : {
+                    "$ref" : "#/components/examples/campaign_stale_version"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
+                  "component_id_not_accessible" : {
+                    "$ref" : "#/components/examples/component_id_not_accessible"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_path_malformed" : {
+                    "$ref" : "#/components/examples/component_operation_path_malformed"
+                  },
+                  "component_operation_path_missing" : {
+                    "$ref" : "#/components/examples/component_operation_path_missing"
+                  },
+                  "component_operation_schema_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_schema_invalid"
+                  },
+                  "component_operation_schema_too_large" : {
+                    "$ref" : "#/components/examples/component_operation_schema_too_large"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "controller_state_misconfiguration" : {
+                    "$ref" : "#/components/examples/controller_state_misconfiguration"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "default_key_not_allowed" : {
+                    "$ref" : "#/components/examples/default_key_not_allowed"
+                  },
+                  "display_name_has_illegal_character" : {
+                    "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "expression_invalid_syntax" : {
+                    "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "invalid_translatable_value" : {
+                    "$ref" : "#/components/examples/invalid_translatable_value"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "multiple_components_installed_into_single_socket" : {
+                    "$ref" : "#/components/examples/multiple_components_installed_into_single_socket"
+                  },
+                  "non_translatable_variable_can_not_be_updated" : {
+                    "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "rebuild_campaigns_build_failed" : {
+                    "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
+                  },
+                  "reward_supplier_id_list_invalid_configuration" : {
+                    "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
+                  },
+                  "setting_batch_update_missing_request" : {
+                    "$ref" : "#/components/examples/setting_batch_update_missing_request"
+                  },
+                  "setting_display_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_display_name_length_out_of_range"
+                  },
+                  "setting_filter_component_facet_name_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_name_missing"
+                  },
+                  "setting_filter_component_facet_value_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_value_missing"
+                  },
+                  "setting_filter_component_type_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_type_missing"
+                  },
+                  "setting_filter_expression_evaluation_failed" : {
+                    "$ref" : "#/components/examples/setting_filter_expression_evaluation_failed"
+                  },
+                  "setting_filter_invalid_component_facet" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_facet"
+                  },
+                  "setting_filter_invalid_component_type" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_type"
+                  },
+                  "setting_name_duplicated" : {
+                    "$ref" : "#/components/examples/setting_name_duplicated"
+                  },
+                  "setting_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_name_length_out_of_range"
+                  },
+                  "setting_name_missing" : {
+                    "$ref" : "#/components/examples/setting_name_missing"
+                  },
+                  "setting_name_reserved" : {
+                    "$ref" : "#/components/examples/setting_name_reserved"
+                  },
+                  "setting_not_found" : {
+                    "$ref" : "#/components/examples/setting_not_found"
+                  },
+                  "setting_validation_exception" : {
+                    "$ref" : "#/components/examples/setting_validation_exception"
+                  },
+                  "settings_build_failed" : {
+                    "$ref" : "#/components/examples/settings_build_failed"
+                  },
+                  "socket_missing_required_parameter" : {
+                    "$ref" : "#/components/examples/socket_missing_required_parameter"
+                  },
+                  "socket_not_found" : {
+                    "$ref" : "#/components/examples/socket_not_found"
+                  },
+                  "tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/tag_length_out_of_range"
+                  },
+                  "unavailable_referenced_variable" : {
+                    "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  },
+                  "variable_batch_update_has_duplicated_variable_name" : {
+                    "$ref" : "#/components/examples/variable_batch_update_has_duplicated_variable_name"
+                  },
+                  "variable_batch_update_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_invalid_type"
+                  },
+                  "variable_batch_update_missing_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_missing_type"
+                  },
+                  "variable_circular_reference" : {
+                    "$ref" : "#/components/examples/variable_circular_reference"
+                  },
+                  "variable_description_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_description_length_out_of_range"
+                  },
+                  "variable_value_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_value_invalid_type"
+                  },
+                  "variable_value_key_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_value_key_length_out_of_range"
+                  },
+                  "variable_value_missing" : {
+                    "$ref" : "#/components/examples/variable_value_missing"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "`component_ids_missing` when `component_ids` is omitted, `component_id_missing` when one of its entries is blank. `component_not_selectable` when a named component is outside the setting's boundary, does not carry the required component types, or is excluded by one of the setting's selectable filters - call selectable-components to see what is eligible. `unexpected_setting_type` when the named setting is not a `COMPONENT_REFERENCE_LIST` setting."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Select components for a component reference list",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v1/components/{component_id}/settings/component-reference-list/{setting_name}/unselect" : {
+      "post" : {
+        "description" : "Clears the components in `component_ids` from the named `COMPONENT_REFERENCE_LIST` setting, along with the values captured with them, and leaves every other selected component in place. Naming a component that is not selected leaves the stored value unchanged, though the setting is still saved and a campaign version is still written. Returns the setting in the same shape as `GET` and `PUT` on the setting itself. A reference left pointing at nothing warns at build rather than failing it.",
+        "operationId" : "unselectComponentsForComponentReferenceList",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "setting_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "component_ids" : [ "component_id" ],
+                "variant" : "variant"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentReferenceListUnselectRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CampaignComponentComponentReferenceVariableResponse"
+                }
+              }
+            },
+            "description" : "The setting after the selection was cleared, in the same shape `GET` and `PUT` return."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_build_failed" : {
+                    "$ref" : "#/components/examples/campaign_build_failed"
+                  },
+                  "campaign_component_not_found" : {
+                    "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_stale_version" : {
+                    "$ref" : "#/components/examples/campaign_stale_version"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
+                  "component_id_not_accessible" : {
+                    "$ref" : "#/components/examples/component_id_not_accessible"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_path_malformed" : {
+                    "$ref" : "#/components/examples/component_operation_path_malformed"
+                  },
+                  "component_operation_path_missing" : {
+                    "$ref" : "#/components/examples/component_operation_path_missing"
+                  },
+                  "component_operation_schema_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_schema_invalid"
+                  },
+                  "component_operation_schema_too_large" : {
+                    "$ref" : "#/components/examples/component_operation_schema_too_large"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "controller_state_misconfiguration" : {
+                    "$ref" : "#/components/examples/controller_state_misconfiguration"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "default_key_not_allowed" : {
+                    "$ref" : "#/components/examples/default_key_not_allowed"
+                  },
+                  "display_name_has_illegal_character" : {
+                    "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "expression_invalid_syntax" : {
+                    "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "invalid_translatable_value" : {
+                    "$ref" : "#/components/examples/invalid_translatable_value"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "multiple_components_installed_into_single_socket" : {
+                    "$ref" : "#/components/examples/multiple_components_installed_into_single_socket"
+                  },
+                  "non_translatable_variable_can_not_be_updated" : {
+                    "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "rebuild_campaigns_build_failed" : {
+                    "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
+                  },
+                  "reward_supplier_id_list_invalid_configuration" : {
+                    "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
+                  },
+                  "setting_batch_update_missing_request" : {
+                    "$ref" : "#/components/examples/setting_batch_update_missing_request"
+                  },
+                  "setting_display_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_display_name_length_out_of_range"
+                  },
+                  "setting_filter_component_facet_name_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_name_missing"
+                  },
+                  "setting_filter_component_facet_value_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_value_missing"
+                  },
+                  "setting_filter_component_type_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_type_missing"
+                  },
+                  "setting_filter_expression_evaluation_failed" : {
+                    "$ref" : "#/components/examples/setting_filter_expression_evaluation_failed"
+                  },
+                  "setting_filter_invalid_component_facet" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_facet"
+                  },
+                  "setting_filter_invalid_component_type" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_type"
+                  },
+                  "setting_name_duplicated" : {
+                    "$ref" : "#/components/examples/setting_name_duplicated"
+                  },
+                  "setting_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_name_length_out_of_range"
+                  },
+                  "setting_name_missing" : {
+                    "$ref" : "#/components/examples/setting_name_missing"
+                  },
+                  "setting_name_reserved" : {
+                    "$ref" : "#/components/examples/setting_name_reserved"
+                  },
+                  "setting_not_found" : {
+                    "$ref" : "#/components/examples/setting_not_found"
+                  },
+                  "setting_validation_exception" : {
+                    "$ref" : "#/components/examples/setting_validation_exception"
+                  },
+                  "settings_build_failed" : {
+                    "$ref" : "#/components/examples/settings_build_failed"
+                  },
+                  "socket_missing_required_parameter" : {
+                    "$ref" : "#/components/examples/socket_missing_required_parameter"
+                  },
+                  "socket_not_found" : {
+                    "$ref" : "#/components/examples/socket_not_found"
+                  },
+                  "tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/tag_length_out_of_range"
+                  },
+                  "unavailable_referenced_variable" : {
+                    "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  },
+                  "variable_batch_update_has_duplicated_variable_name" : {
+                    "$ref" : "#/components/examples/variable_batch_update_has_duplicated_variable_name"
+                  },
+                  "variable_batch_update_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_invalid_type"
+                  },
+                  "variable_batch_update_missing_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_missing_type"
+                  },
+                  "variable_circular_reference" : {
+                    "$ref" : "#/components/examples/variable_circular_reference"
+                  },
+                  "variable_description_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_description_length_out_of_range"
+                  },
+                  "variable_value_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_value_invalid_type"
+                  },
+                  "variable_value_key_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_value_key_length_out_of_range"
+                  },
+                  "variable_value_missing" : {
+                    "$ref" : "#/components/examples/variable_value_missing"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "`component_ids_missing` when `component_ids` is omitted, `component_id_missing` when one of its entries is blank. `unexpected_setting_type` when the named setting is not a `COMPONENT_REFERENCE_LIST` setting."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Unselect components for a component reference list",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v1/components/{component_id}/settings/component-reference/{setting_name}/select" : {
+      "post" : {
+        "description" : "Selects `component_id` for the named `COMPONENT_REFERENCE` setting, replacing whatever it pointed at, and captures it in the setting value. Returns the setting in the same shape as `GET` and `PUT` on the setting itself. A component whose lookup captures no key values is still selectable even though selectable-components omits it: the stored `component.id` is the reference, and the captured values only exist to recover it.",
+        "operationId" : "selectComponentForComponentReference",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "setting_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "component_id" : "component_id",
+                "variant" : "variant"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentReferenceSelectRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CampaignComponentComponentReferenceVariableResponse"
+                }
+              }
+            },
+            "description" : "The setting after the selection, in the same shape `GET` and `PUT` return."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_build_failed" : {
+                    "$ref" : "#/components/examples/campaign_build_failed"
+                  },
+                  "campaign_component_not_found" : {
+                    "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_stale_version" : {
+                    "$ref" : "#/components/examples/campaign_stale_version"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
+                  "component_id_not_accessible" : {
+                    "$ref" : "#/components/examples/component_id_not_accessible"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_path_malformed" : {
+                    "$ref" : "#/components/examples/component_operation_path_malformed"
+                  },
+                  "component_operation_path_missing" : {
+                    "$ref" : "#/components/examples/component_operation_path_missing"
+                  },
+                  "component_operation_schema_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_schema_invalid"
+                  },
+                  "component_operation_schema_too_large" : {
+                    "$ref" : "#/components/examples/component_operation_schema_too_large"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "controller_state_misconfiguration" : {
+                    "$ref" : "#/components/examples/controller_state_misconfiguration"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "default_key_not_allowed" : {
+                    "$ref" : "#/components/examples/default_key_not_allowed"
+                  },
+                  "display_name_has_illegal_character" : {
+                    "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "expression_invalid_syntax" : {
+                    "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "invalid_translatable_value" : {
+                    "$ref" : "#/components/examples/invalid_translatable_value"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "multiple_components_installed_into_single_socket" : {
+                    "$ref" : "#/components/examples/multiple_components_installed_into_single_socket"
+                  },
+                  "non_translatable_variable_can_not_be_updated" : {
+                    "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "rebuild_campaigns_build_failed" : {
+                    "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
+                  },
+                  "reward_supplier_id_list_invalid_configuration" : {
+                    "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
+                  },
+                  "setting_batch_update_missing_request" : {
+                    "$ref" : "#/components/examples/setting_batch_update_missing_request"
+                  },
+                  "setting_display_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_display_name_length_out_of_range"
+                  },
+                  "setting_filter_component_facet_name_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_name_missing"
+                  },
+                  "setting_filter_component_facet_value_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_value_missing"
+                  },
+                  "setting_filter_component_type_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_type_missing"
+                  },
+                  "setting_filter_expression_evaluation_failed" : {
+                    "$ref" : "#/components/examples/setting_filter_expression_evaluation_failed"
+                  },
+                  "setting_filter_invalid_component_facet" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_facet"
+                  },
+                  "setting_filter_invalid_component_type" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_type"
+                  },
+                  "setting_name_duplicated" : {
+                    "$ref" : "#/components/examples/setting_name_duplicated"
+                  },
+                  "setting_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_name_length_out_of_range"
+                  },
+                  "setting_name_missing" : {
+                    "$ref" : "#/components/examples/setting_name_missing"
+                  },
+                  "setting_name_reserved" : {
+                    "$ref" : "#/components/examples/setting_name_reserved"
+                  },
+                  "setting_not_found" : {
+                    "$ref" : "#/components/examples/setting_not_found"
+                  },
+                  "setting_validation_exception" : {
+                    "$ref" : "#/components/examples/setting_validation_exception"
+                  },
+                  "settings_build_failed" : {
+                    "$ref" : "#/components/examples/settings_build_failed"
+                  },
+                  "socket_missing_required_parameter" : {
+                    "$ref" : "#/components/examples/socket_missing_required_parameter"
+                  },
+                  "socket_not_found" : {
+                    "$ref" : "#/components/examples/socket_not_found"
+                  },
+                  "tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/tag_length_out_of_range"
+                  },
+                  "unavailable_referenced_variable" : {
+                    "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  },
+                  "variable_batch_update_has_duplicated_variable_name" : {
+                    "$ref" : "#/components/examples/variable_batch_update_has_duplicated_variable_name"
+                  },
+                  "variable_batch_update_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_invalid_type"
+                  },
+                  "variable_batch_update_missing_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_missing_type"
+                  },
+                  "variable_circular_reference" : {
+                    "$ref" : "#/components/examples/variable_circular_reference"
+                  },
+                  "variable_description_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_description_length_out_of_range"
+                  },
+                  "variable_value_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_value_invalid_type"
+                  },
+                  "variable_value_key_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_value_key_length_out_of_range"
+                  },
+                  "variable_value_missing" : {
+                    "$ref" : "#/components/examples/variable_value_missing"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "`component_id_missing` when `component_id` is omitted or blank. `component_not_selectable` when the component is outside the setting's boundary, does not carry the required component types, or is excluded by one of the setting's selectable filters - call selectable-components to see what is eligible. `unexpected_setting_type` when the named setting is not a `COMPONENT_REFERENCE` setting."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Select a component for a component reference",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v1/components/{component_id}/settings/component-reference/{setting_name}/unselect" : {
+      "post" : {
+        "description" : "Clears `component_id` from the named `COMPONENT_REFERENCE` setting, along with the values captured with it. A reference pointing at a different component is left untouched, though the setting is still saved and a campaign version is still written. Returns the setting in the same shape as `GET` and `PUT` on the setting itself. A reference left pointing at nothing warns at build rather than failing it.",
+        "operationId" : "unselectComponentForComponentReference",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "setting_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "component_id" : "component_id",
+                "variant" : "variant"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentReferenceUnselectRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CampaignComponentComponentReferenceVariableResponse"
+                }
+              }
+            },
+            "description" : "The setting after the selection was cleared, in the same shape `GET` and `PUT` return."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_build_failed" : {
+                    "$ref" : "#/components/examples/campaign_build_failed"
+                  },
+                  "campaign_component_not_found" : {
+                    "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_stale_version" : {
+                    "$ref" : "#/components/examples/campaign_stale_version"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
+                  "component_id_not_accessible" : {
+                    "$ref" : "#/components/examples/component_id_not_accessible"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_path_malformed" : {
+                    "$ref" : "#/components/examples/component_operation_path_malformed"
+                  },
+                  "component_operation_path_missing" : {
+                    "$ref" : "#/components/examples/component_operation_path_missing"
+                  },
+                  "component_operation_schema_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_schema_invalid"
+                  },
+                  "component_operation_schema_too_large" : {
+                    "$ref" : "#/components/examples/component_operation_schema_too_large"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "controller_state_misconfiguration" : {
+                    "$ref" : "#/components/examples/controller_state_misconfiguration"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "default_key_not_allowed" : {
+                    "$ref" : "#/components/examples/default_key_not_allowed"
+                  },
+                  "display_name_has_illegal_character" : {
+                    "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "expression_invalid_syntax" : {
+                    "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "invalid_translatable_value" : {
+                    "$ref" : "#/components/examples/invalid_translatable_value"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "multiple_components_installed_into_single_socket" : {
+                    "$ref" : "#/components/examples/multiple_components_installed_into_single_socket"
+                  },
+                  "non_translatable_variable_can_not_be_updated" : {
+                    "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "rebuild_campaigns_build_failed" : {
+                    "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
+                  },
+                  "reward_supplier_id_list_invalid_configuration" : {
+                    "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
+                  },
+                  "setting_batch_update_missing_request" : {
+                    "$ref" : "#/components/examples/setting_batch_update_missing_request"
+                  },
+                  "setting_display_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_display_name_length_out_of_range"
+                  },
+                  "setting_filter_component_facet_name_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_name_missing"
+                  },
+                  "setting_filter_component_facet_value_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_value_missing"
+                  },
+                  "setting_filter_component_type_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_type_missing"
+                  },
+                  "setting_filter_expression_evaluation_failed" : {
+                    "$ref" : "#/components/examples/setting_filter_expression_evaluation_failed"
+                  },
+                  "setting_filter_invalid_component_facet" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_facet"
+                  },
+                  "setting_filter_invalid_component_type" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_type"
+                  },
+                  "setting_name_duplicated" : {
+                    "$ref" : "#/components/examples/setting_name_duplicated"
+                  },
+                  "setting_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_name_length_out_of_range"
+                  },
+                  "setting_name_missing" : {
+                    "$ref" : "#/components/examples/setting_name_missing"
+                  },
+                  "setting_name_reserved" : {
+                    "$ref" : "#/components/examples/setting_name_reserved"
+                  },
+                  "setting_not_found" : {
+                    "$ref" : "#/components/examples/setting_not_found"
+                  },
+                  "setting_validation_exception" : {
+                    "$ref" : "#/components/examples/setting_validation_exception"
+                  },
+                  "settings_build_failed" : {
+                    "$ref" : "#/components/examples/settings_build_failed"
+                  },
+                  "socket_missing_required_parameter" : {
+                    "$ref" : "#/components/examples/socket_missing_required_parameter"
+                  },
+                  "socket_not_found" : {
+                    "$ref" : "#/components/examples/socket_not_found"
+                  },
+                  "tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/tag_length_out_of_range"
+                  },
+                  "unavailable_referenced_variable" : {
+                    "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  },
+                  "variable_batch_update_has_duplicated_variable_name" : {
+                    "$ref" : "#/components/examples/variable_batch_update_has_duplicated_variable_name"
+                  },
+                  "variable_batch_update_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_invalid_type"
+                  },
+                  "variable_batch_update_missing_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_missing_type"
+                  },
+                  "variable_circular_reference" : {
+                    "$ref" : "#/components/examples/variable_circular_reference"
+                  },
+                  "variable_description_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_description_length_out_of_range"
+                  },
+                  "variable_value_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_value_invalid_type"
+                  },
+                  "variable_value_key_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_value_key_length_out_of_range"
+                  },
+                  "variable_value_missing" : {
+                    "$ref" : "#/components/examples/variable_value_missing"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "`component_id_missing` when `component_id` is omitted or blank. `unexpected_setting_type` when the named setting is not a `COMPONENT_REFERENCE` setting."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Unselect a component for a component reference",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
     "/v1/components/{component_id}/settings/{setting_name}/add-component" : {
       "post" : {
         "description" : "Creates a distinct duplicate of the component identified by `source_component_id` and installs it into the specified `SOCKET` or `MULTI_SOCKET` setting. The source component is not referenced or modified. Optional `settings` entries override settings on the duplicate.",
@@ -87977,17 +90899,26 @@
                   "component_facets_not_found" : {
                     "$ref" : "#/components/examples/component_facets_not_found"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_install_failed" : {
                     "$ref" : "#/components/examples/component_install_failed"
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -88255,6 +91186,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -89330,11 +92264,20 @@
                   "component_facets_not_found" : {
                     "$ref" : "#/components/examples/component_facets_not_found"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -89713,6 +92656,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unlock_missing_lock_types" : {
                     "$ref" : "#/components/examples/unlock_missing_lock_types"
@@ -90452,11 +93398,20 @@
                   "component_facets_not_found" : {
                     "$ref" : "#/components/examples/component_facets_not_found"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -90655,6 +93610,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unlock_missing_lock_types" : {
                     "$ref" : "#/components/examples/unlock_missing_lock_types"
@@ -98208,11 +101166,20 @@
                   "client_key_missing_name" : {
                     "$ref" : "#/components/examples/client_key_missing_name"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -98435,6 +101402,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -99145,11 +102115,20 @@
                   "component_facets_not_found" : {
                     "$ref" : "#/components/examples/component_facets_not_found"
                   },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -99528,6 +102507,9 @@
                   },
                   "unavailable_referenced_variable" : {
                     "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
                   },
                   "unlock_missing_lock_types" : {
                     "$ref" : "#/components/examples/unlock_missing_lock_types"
