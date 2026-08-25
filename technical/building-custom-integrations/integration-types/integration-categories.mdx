@@ -14,10 +14,13 @@ Read the platform's developer documentation and its partner page, when one exist
 | Signal | Category |
 | :----- | :------- |
 | The platform documents webhooks, plugins, or extensions that post order or account activity, or the request describes a lifecycle to track — purchases, shipments, cancellations, account openings | Inbound |
-| The platform documents an ingestion API for customer events, attributes, or subscriptions, or the request describes triggering messages, syncing audiences, or enriching profiles from Extole activity | Outbound |
+| The platform documents an ingestion API for customer events, attributes, or subscriptions, or the request describes triggering messages, building audiences, or enriching profiles from Extole activity | Outbound |
+| The request describes the platform deciding who is eligible and sending that membership to Extole | Inbound, as audience membership rather than events |
 | The platform sells gift cards, prepaid cards, points, or payouts that Extole orders when a reward is earned, or the request names card products, denominations, program numbers, or funding terms | Reward fulfillment |
 | The platform both sends activity and receives rewards or coupons | Bidirectional |
 | A maintained integration component already exists for the platform in the duplicatable listing | Library install of that source's category, unless the request adds inbound scope |
+
+A request can match more than one row. A maintained library source covers only what it was built for; when the request includes something the source does not — inbound membership on an otherwise outbound partner, for example — install the source and build the rest on top of it.
 
 ## Category Summary
 
@@ -28,7 +31,7 @@ Read the platform's developer documentation and its partner page, when one exist
 | Reward fulfillment | Extole to platform | Gift card, prepaid card, points, and payout providers | A supplier type, a support campaign of supplier templates, `REWARD` webhooks, and a fourth view |
 | Bidirectional | Both | Commerce and loyalty platforms that also accept rewards or coupons | The inbound model first, then outbound resources gated on an approved use case |
 
-Inbound needs no reward supplier, webhook, or client key. Outbound needs no business events.
+Inbound needs no reward supplier, webhook, or client key, unless it receives audience membership from the partner. Outbound needs no business events.
 
 Every category carries the same three views — configuration, report-runner, and event-stream — built from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views). The category decides what the report counts and what the feed filters to; reward fulfillment adds a fourth.
 
@@ -58,6 +61,12 @@ root
 Keep the two event vocabularies separate. The trigger rule carries the name that reaches it: the platform's wire event name, or the integration-owned name a prehandler produced. The business event carries the canonical name bundled programs already use — `converted`, `shipped`, `canceled`, `account_opened`. Never rename a business event to match a platform's wire name.
 
 Map every field you persist into the `data` socket. [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) covers the mapping.
+
+### Audience Membership from a Partner
+
+A partner platform that decides which customers are eligible can sync that group to an Extole audience over the API. This is inbound, but it carries no business events and is the one inbound shape that needs a credential. It is distinct from an audience Extole builds out of program activity.
+
+The integration adds an audience it owns, a server access token the partner authenticates with, and setup instructions naming the endpoints. See [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership).
 
 ## Outbound Integrations
 
