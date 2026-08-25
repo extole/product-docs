@@ -1,0 +1,161 @@
+---
+title: "Receive Audience Membership from a Partner"
+description: "Add the audience, credential, and setup instructions an integration needs when the partner decides who is eligible and sends that membership to Extole."
+---
+
+This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration) for the build paths and the creation contract.
+
+## When This Path Applies
+
+Some platforms send Extole something other than events. A platform that already knows which customers are eligible for an offer — because it holds the segment, the subscription state, or the loyalty tier that decides it — can keep that group in sync as an Extole audience, adding and removing members over the API as its own segment changes.
+
+This is inbound, because the platform calls Extole. It is not the same as [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events): no event arrives, no business event fires, and nothing enters a person's step history. The partner is asserting who belongs to a group, and the integration gives it a stable group to write to.
+
+Keep it distinct from an audience Extole builds out of program activity. There, a rule decides membership from what people do; here, the partner decides, and Extole stores the answer.
+
+## What This Path Adds
+
+An integration on this path carries the same tree as any other, and adds three things to it:
+
+- **An audience the integration owns.** Create it once, tag it to the integration, and store its identifier as a setting on the integration component so a rebuild does not orphan it.
+- **A credential the partner authenticates with.** This is the one inbound shape that needs one, because the platform makes authenticated server-side calls into Extole rather than posting to a tokenized event URL.
+- **Setup instructions naming the endpoints.** The installer configures the partner platform, not Extole, so the instructions have to carry the audience identifier and the calls themselves.
+
+A maintained library source for an outbound partner does not include any of this. When a request asks for membership on a partner that already has a source, install the source and add this path on top of it.
+
+## Create the Audience
+
+Create the audience the integration works against, and tag it so it is recognizable as belonging to the integration rather than to a marketer's own segmentation:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v1/audiences" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "Example Eligible Offer Participants",
+    "tags": ["example"]
+  }'
+```
+
+Audiences are client-scoped and are created in whichever client is currently selected, which is not necessarily the client that owns the campaign. Confirm the client before this call; a successful response does not tell you where the audience landed.
+
+Store the returned identifier on the integration component as a setting, so the installer and later builds read it from the integration rather than searching the account by name.
+
+## Create the Credential
+
+The partner sends server-side requests with a bearer token. Have the installer create it in **Security Center** in their My Extole account, with permission to write audience membership, and store it in the partner platform's own secret storage.
+
+Do not mint this token during the build and write it into a component setting. A token created for a build session carries that session's lifetime and scope, so it expires while the integration keeps reporting itself as configured — and a setting is the wrong place for a secret regardless. Treat the credential as an item the installer supplies, and say so in the setup instructions.
+
+## Resolve the Person
+
+Single-member calls take an Extole person ID, so the partner resolves the customer first. By email address:
+
+```bash
+curl "$EXTOLE_API_HOST/v5/persons?identity_key_value=customer@example.com" \
+  --header "Authorization: Bearer $PARTNER_ACCESS_TOKEN"
+```
+
+Or by the partner's own customer identifier, when the integration maps it to `partner_user_id`:
+
+```bash
+curl "$EXTOLE_API_HOST/v5/persons?person_keys=partner_user_id:$PARTNER_USER_ID" \
+  --header "Authorization: Bearer $PARTNER_ACCESS_TOKEN"
+```
+
+Both return an array. An empty array means Extole has no person for that identity yet, and the single-member calls below have nothing to act on. Send those customers as a batch instead, which creates the people it does not find.
+
+## Add or Remove One Member
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/memberships" \
+  --header "Authorization: Bearer $PARTNER_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{"audience_id": "'"$AUDIENCE_ID"'"}'
+```
+
+A successful call returns the membership:
+
+```json
+{
+  "audience_id": "abc123def456",
+  "audience_name": "Example Eligible Offer Participants",
+  "created_date": "2026-08-25T05:33:48.198-07:00",
+  "updated_date": "2026-08-25T05:33:48.198-07:00"
+}
+```
+
+To remove the customer, name the audience in the path:
+
+```bash
+curl --request DELETE \
+  "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/memberships/$AUDIENCE_ID" \
+  --header "Authorization: Bearer $PARTNER_ACCESS_TOKEN"
+```
+
+## Send a Batch
+
+To send a list rather than one customer at a time, create an audience operation. Use `ADD` and `REMOVE` for incremental changes, and `REPLACE` when the partner sends a complete list and the audience should end up matching it exactly.
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v1/audiences/$AUDIENCE_ID/operations" \
+  --header "Authorization: Bearer $PARTNER_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "type": "ADD",
+    "data_source": {
+      "type": "PERSON_LIST",
+      "audience_members": [
+        {"identity_key_value": "first@example.com"},
+        {"identity_key_value": "second@example.com"}
+      ]
+    }
+  }'
+```
+
+A `PERSON_LIST` batch creates a person for any identity Extole does not already know, which is what makes it the right call for a partner syncing a segment it owns. Expect the audience to gain people who have no program activity yet.
+
+`data_source` is required. Omitting it currently returns a 500 rather than a validation error, so read a 500 on this endpoint as a malformed body before treating it as an outage.
+
+Extole returns the operation immediately and applies the change in the background, so read its state to confirm it finished:
+
+```bash
+curl "$EXTOLE_API_HOST/v1/audiences/$AUDIENCE_ID/operations/$OPERATION_ID/state" \
+  --header "Authorization: Bearer $PARTNER_ACCESS_TOKEN"
+```
+
+The operation reaches `READY` once the change has been applied. A `FAILED` operation carries an `error_code` describing what went wrong. A `REPLACE` that is reported as successful but never polled is the usual reason an audience is found holding the previous list.
+
+## Check Who Is in the Audience
+
+```bash
+curl "$EXTOLE_API_HOST/v1/audiences/$AUDIENCE_ID/members/view/details" \
+  --header "Authorization: Bearer $PARTNER_ACCESS_TOKEN"
+```
+
+## Report on What Arrives
+
+The activity view from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views) charts audience membership on this path rather than webhook traffic, and the report runner is scoped to this integration's own audience. Unscoped, the chart counts every audience in the account and tells the installer nothing about the partner.
+
+Chart only columns the chosen report type returns. A `reportColumnsMapping` naming a column the report does not produce renders an empty tab and reports no error.
+
+## Write the Setup Instructions
+
+The installer's work happens in the partner platform, so the configuration view has to carry enough to do it there:
+
+- The audience identifier.
+- That the credential is a server access token the installer creates in Security Center, with the permission it needs, and that it belongs in the partner's secret storage.
+- The endpoints above, with the request bodies. A link to the audience API reference is not enough; the installer needs the specific calls this integration expects.
+- That every call is server-side. The token authorizes membership changes across the account and does not belong in a browser or a mobile app.
+
+## Verify
+
+Beyond the checks in [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation):
+
+- The audience exists in the client that owns the campaign, and the integration setting holds its identifier.
+- A batch `ADD` reaches `READY` and the members appear in the audience.
+- A `REMOVE` takes them out again.
+- The report runner is scoped to this audience and its charted columns exist in the report type.
+- The configuration view names the endpoints and the credential rather than linking to the API reference.

@@ -58,28 +58,11 @@ These three views are the baseline, not an inbound-specific set. Every integrati
 
 ### Audience Membership from a Partner
 
-Some platforms send Extole something other than events. A marketing automation or customer engagement platform that already knows which customers are eligible for an offer can keep that group in sync as an Extole audience, adding and removing members over the API as its own segment changes.
+Some platforms send Extole something other than events. A platform that already knows which customers are eligible for an offer can keep that group in sync as an Extole audience, adding and removing members over the API as its own segment changes.
 
-This is still inbound, since the platform calls Extole, but it is the one inbound shape that needs a credential, because the platform has to authenticate. Keep it distinct from an audience Extole builds out of program activity: here the partner decides who belongs, and the integration gives it a stable audience to write to.
+This is still inbound, since the platform calls Extole, but it is the one inbound shape that needs a credential, because the platform has to authenticate. It also carries no business events: nothing enters a person's step history, and the partner is asserting who belongs to a group rather than reporting that something happened. Keep it distinct from an audience Extole builds out of program activity, where a rule decides membership from what people do.
 
-An integration that receives membership needs three things beyond the tree above:
-
-- **An audience for the integration.** Create it once, tag it to the integration, and store its identifier as a setting on the integration component so it survives a rebuild.
-- **A credential for the partner.** The platform sends server-side requests with a bearer token the installer creates and keeps in the platform's own secret storage. Never store the token in an integration setting or anywhere client-side.
-- **Setup instructions with the endpoints in them.** Give the installer the audience identifier and the calls below rather than a link to the audience API.
-
-| Purpose | Call |
-| :------ | :--- |
-| Resolve a person by email | `GET /v5/persons?identity_key_value={email}` |
-| Resolve a person by partner user ID | `GET /v5/persons?person_keys=partner_user_id:{external_id}` |
-| Add one member | `POST /v5/persons/{person_id}/memberships` with the audience identifier in the body |
-| Remove one member | `DELETE /v5/persons/{person_id}/memberships/{audience_id}` |
-| Add, remove, or replace a list | `POST /v1/audiences/{audience_id}/operations` with a `type` of `ADD`, `REMOVE`, or `REPLACE` |
-| Read current members | `GET /v1/audiences/{audience_id}/members/view/details` |
-
-[Braze](/technical/partners/marketing-automation/braze) works this way and has a full example, including the batch request body and how to poll a long-running operation.
-
-Point the report runner at audience membership rather than webhook traffic, and scope it to this integration's own audience so the chart shows this partner instead of every audience in the account.
+An integration on this path adds an audience it owns, a credential for the partner, and setup instructions naming the endpoints. [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership) carries the calls and the build.
 
 ## Outbound Integrations
 
