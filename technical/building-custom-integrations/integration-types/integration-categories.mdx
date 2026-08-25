@@ -52,17 +52,15 @@ root
         └── event-streams       event-stream-view-v10.0
 ```
 
-An inbound integration that carries only events needs no reward supplier, webhook, or client key. Creating those resources for completeness leaves credentials and unused resources that someone later has to reconcile. An integration that also receives audience membership is the exception, and the next section covers what it adds.
+An inbound integration that carries only events needs no reward supplier, webhook, or client key. Creating those resources for completeness leaves credentials and unused resources that someone later has to reconcile. An integration that also receives audience membership is the exception; see the next section.
 
 These three views are the baseline, not an inbound-specific set. Every integration carries a configuration view, an activity chart, and a live event feed; the category decides what the chart counts and what the feed filters to, and a reward fulfillment partner adds a fourth view on top of them.
 
 ### Audience Membership from a Partner
 
-Some platforms send Extole something other than events. A platform that already knows which customers are eligible for an offer can keep that group in sync as an Extole audience, adding and removing members over the API as its own segment changes.
+A partner platform that decides which customers are eligible can sync that group to an Extole audience over the API. This is inbound, but it carries no business events and is the one inbound shape that needs a credential. It is distinct from an audience Extole builds out of program activity.
 
-This is still inbound, since the platform calls Extole, but it is the one inbound shape that needs a credential, because the platform has to authenticate. It also carries no business events: nothing enters a person's step history, and the partner is asserting who belongs to a group rather than reporting that something happened. Keep it distinct from an audience Extole builds out of program activity, where a rule decides membership from what people do.
-
-An integration on this path adds an audience it owns, a credential for the partner, and setup instructions naming the endpoints. [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership) carries the calls and the build.
+The integration adds an audience it owns, a server access token the partner authenticates with, and setup instructions naming the endpoints. See [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership).
 
 ## Outbound Integrations
 
@@ -162,7 +160,7 @@ Read the platform's own developer documentation and the partner page in this doc
 
 Discovery decides the category, not habit. Rebuilding a maintained outbound platform from the custom integration template produces a campaign that looks related and performs none of the platform's webhook or credential work.
 
-A request can match more than one row. A maintained library source covers only what it was built for, so when a request asks for something the source does not include — inbound membership on an otherwise outbound partner, for example — install the source and build the rest on top of it. Check the finished integration against every row the request matched.
+A request can match more than one row. A maintained library source covers only what it was built for; when the request includes something the source does not — inbound membership on an otherwise outbound partner, for example — install the source and build the rest on top of it.
 
 ## Related Documentation
 

@@ -13,7 +13,7 @@ Integrating Extole and Braze allows you to pull valuable customer insights from 
 
 ## Integration Model
 
-Braze is mainly an outbound integration: Extole forwards program activity to Braze. It installs from a maintained library source and is then configured for your Braze account. Braze can also send audience membership the other way, into Extole. That path is not part of the library source, so you add it after installing — see [Send Audience Membership from Braze](#send-audience-membership-from-braze).
+Braze is mainly an outbound integration: Extole forwards program activity to Braze. It installs from a maintained library source and is then configured for your Braze account. Braze can also send audience membership into Extole — see [Send Audience Membership from Braze](#send-audience-membership-from-braze).
 
 | Extole call | Braze endpoint | Purpose |
 | :---------- | :------------- | :------ |
@@ -442,27 +442,27 @@ By default, Extole will send reward events in the `FULFILLED` state to Braze so 
 
 ## Send Audience Membership from Braze
 
-Braze can decide which customers are eligible for an offer and keep that group in sync as an Extole audience. This runs in the opposite direction to the rest of this page: Braze calls Extole, so it authenticates with an Extole token rather than with your Braze REST API key, and nothing here uses your Braze REST endpoint. The maintained library source does not include this path, so you add it to the integration after installing.
+Braze can sync a group of eligible customers to an Extole audience. These calls run in the opposite direction to the rest of this page: Braze calls Extole and authenticates with an Extole token, not your Braze REST API key. The maintained library source does not include this path; add it to the integration after installing.
 
-The calls, the batch request body, and how to poll a long-running operation are the same for any platform that works this way, and they are covered in [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership). Three things are specific to Braze.
+[Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership) covers the calls, the batch request body, and operation polling. Three things are specific to Braze:
 
-**Identify the customer.** Braze can send the email address it holds, which Extole resolves directly:
+**Identity.** Resolve the person by the email address Braze holds:
 
 ```bash
 curl "$EXTOLE_API_HOST/v5/persons?identity_key_value=customer@example.com" \
   --header "Authorization: Bearer $EXTOLE_ACCESS_TOKEN"
 ```
 
-To use the Braze external ID instead, map it to `partner_user_id` on the integration and resolve on that key:
+Or map the Braze external ID to `partner_user_id` on the integration and resolve on that key:
 
 ```bash
 curl "$EXTOLE_API_HOST/v5/persons?person_keys=partner_user_id:$BRAZE_EXTERNAL_ID" \
   --header "Authorization: Bearer $EXTOLE_ACCESS_TOKEN"
 ```
 
-**Choose the operation type from how Braze sends the segment.** A Braze segment exported in full each time should use `REPLACE`, so the Extole audience ends up matching it exactly. Braze webhooks firing on segment entry and exit should use the single-member add and remove calls, or `ADD` and `REMOVE` batches.
+**Operation type.** Use `REPLACE` for a Braze segment exported in full each time. Use the single-member calls, or `ADD` and `REMOVE` batches, for Braze webhooks firing on segment entry and exit.
 
-**Store the Extole token in Braze.** Create it in **Security Center** in your My Extole account with permission to write audience membership, then hold it in Braze's own secret storage and reference it from the webhook or Currents configuration that calls Extole. It does not belong in an Extole integration setting.
+**Token storage.** Create the server access token in **Security Center** in My Extole with permission to write audience membership. Store it in Braze's secret storage and reference it from the webhook or Currents configuration that calls Extole. Do not put it in an Extole integration setting.
 
 ## Customization
 
