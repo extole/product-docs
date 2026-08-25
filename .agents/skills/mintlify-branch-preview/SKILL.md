@@ -79,6 +79,42 @@ characters.
 API keys page; `extole/openapi` holds them as repository secrets for the
 pipeline above.
 
+### What the comment costs you in time, and where its link actually points
+
+Measured over the 25 pull requests #20 and #24–#50 (2026-08-20 → 2026-08-25), by
+comparing each PR's `created_at` against its `mintlify[bot]` comment's
+`created_at` and `updated_at`:
+
+| | |
+|---|---|
+| Comment appears after the PR opens | **2–7 seconds**, on all 20 PRs outside the outage window below |
+| Same comment is then **edited in place** to 🟢 Ready | 1m42s–4m02s later, median **2m19s** |
+| Inside the 19-hour App outage (#24, #25, #26, #27, #31) | 1h23m–3h10m |
+| Build ended 🔴 Failed, `Preview` cell `–`, no link at all | 5 of 25 (#26, #31, #40, #48, #49) |
+
+Two consequences. The comment's arrival is not the signal you want — it is there
+almost instantly, carrying a status that is stale within a minute; the second
+timestamp is the one that means the link works, so re-read the comment rather
+than trusting the notification email. And a 🔴 Failed build still posts a
+comment, so "the bot commented" is not "there is a preview". Paul Davidson's
+rule of thumb on the #dreams thread — "the Mintlify build process runs and adds a
+preview link to the comments after about 15 minutes" — is the safe way to wait,
+and the numbers above say the usual cost is nearer two and a half minutes with
+the outage window as the long tail.
+
+**The View Preview link deep-links the first changed page in path order, which
+is usually not the page the PR is for.** On
+[#34](https://github.com/extole/product-docs/pull/34) — a new 117-line page plus
+four small cross-link edits — the bot linked
+`.../technical-items/managing-your-branded-urls` (4 added lines) rather than
+`.../technical-items/migrating-to-a-new-program-domain`, the page the PR exists
+for; #46 and #50 pick their alphabetically-first changed page the same way, and
+#42 and #45, which change only `docs.json` and the API bundles, link the site
+root with no path at all. When you are sending someone a page to read, build the
+URL yourself — the host is `extole-` plus the branch with slashes as hyphens, the
+path is the page's path with `.mdx` dropped — and check it returns 200 before you
+send it.
+
 ### A missing preview comment is a signal, not the norm
 
 The App went silent for about 19 hours — no deployment of any kind between
