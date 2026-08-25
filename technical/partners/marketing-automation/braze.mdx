@@ -13,7 +13,7 @@ Integrating Extole and Braze allows you to pull valuable customer insights from 
 
 ## Integration Model
 
-Braze is primarily an outbound integration: Extole forwards program activity to Braze. It installs from a maintained library source and is then configured for your Braze account. Braze can also send audience membership back to Extole, which the maintained source does not include and which is added on top of the install — see [Send Audience Membership from Braze](#send-audience-membership-from-braze).
+Braze is mainly an outbound integration: Extole forwards program activity to Braze. It installs from a maintained library source and is then configured for your Braze account. Braze can also send audience membership the other way, into Extole. That path is not part of the library source, so you add it after installing — see [Send Audience Membership from Braze](#send-audience-membership-from-braze).
 
 | Extole call | Braze endpoint | Purpose |
 | :---------- | :------------- | :------ |
@@ -442,24 +442,101 @@ By default, Extole will send reward events in the `FULFILLED` state to Braze so 
 
 ## Send Audience Membership from Braze
 
-Braze can decide who is eligible for an offer and maintain that group as an Extole audience. This direction is the reverse of the rest of this page: Braze calls Extole, so it authenticates with an Extole credential rather than a Braze one. The maintained library source does not include this path, so it is added to the integration after the install.
+Braze can decide which customers are eligible for an offer and keep that group in sync as an Extole audience. This runs in the opposite direction to the rest of this page: Braze calls Extole, so it authenticates with an Extole token rather than with your Braze REST API key. The maintained library source does not include this path, so you add it to the integration after installing.
 
-Setting it up takes three pieces:
+### Create the Audience and the Token
 
-1. **An audience for the integration to work against.** Create it in Extole, tag it to the Braze integration, and record its identifier — the membership calls all name it.
-2. **A credential for Braze.** In your My Extole account, go to the **Security Center** and create a named, long-lived server access token with the scope audience membership writes require. Store it in Braze's server-side secret storage. Keep it out of integration settings, client-side code, and logs.
-3. **The calls Braze makes.** Braze resolves the Extole person first, then adds or removes membership.
+Create the audience the integration works against and note its identifier — every call below names it.
 
-| Purpose | Call |
-| :------ | :--- |
-| Resolve a person by email | `GET /v5/persons?identity_key_value={email}` |
-| Resolve a person by Braze external ID | `GET /v5/persons?person_keys=partner_user_id:{external_id}` |
-| Add one eligible participant | `POST /v5/persons/{person_id}/memberships` with the audience identifier in the body |
-| Remove one eligible participant | `DELETE /v5/persons/{person_id}/memberships/{audience_id}` |
-| Send a batch list | `POST /v1/audiences/{audience_id}/operations` with a `type` of `ADD`, `REMOVE`, or `REPLACE` |
-| Read current members | `GET /v1/audiences/{audience_id}/members/view/details` |
+Then create the credential Braze authenticates with. In your My Extole account, go to the **Security Center** and create a server access token with permission to write audience membership. Store it in Braze's secret storage, and keep it out of integration settings, client-side code, and logs.
 
-Use `REPLACE` when Braze sends a complete eligible-participant list and `ADD` or `REMOVE` for incremental batches. Send every request server-side.
+The examples below use `$EXTOLE_API_HOST` for your Extole API host, `$EXTOLE_ACCESS_TOKEN` for that token, and `$AUDIENCE_ID` for the audience.
+
+### Resolve the Person
+
+Membership calls for a single customer take an Extole person ID, so look it up first. Braze can identify the customer by email address:
+
+```bash
+curl "$EXTOLE_API_HOST/v5/persons?identity_key_value=customer@example.com" \
+  --header "Authorization: Bearer $EXTOLE_ACCESS_TOKEN"
+```
+
+Or by the Braze external ID, when you have mapped it to `partner_user_id`:
+
+```bash
+curl "$EXTOLE_API_HOST/v5/persons?person_keys=partner_user_id:$BRAZE_EXTERNAL_ID" \
+  --header "Authorization: Bearer $EXTOLE_ACCESS_TOKEN"
+```
+
+Both return an array. An empty array means Extole has no person for that identity yet, and the single-member calls below will reject it — use a batch instead, which creates the people it does not find.
+
+### Add or Remove One Customer
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/memberships" \
+  --header "Authorization: Bearer $EXTOLE_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{"audience_id": "'"$AUDIENCE_ID"'"}'
+```
+
+A successful call returns the membership:
+
+```json
+{
+  "audience_id": "abc123def456",
+  "audience_name": "Braze Eligible Offer Participants",
+  "created_date": "2026-08-25T05:33:48.198-07:00",
+  "updated_date": "2026-08-25T05:33:48.198-07:00"
+}
+```
+
+To remove the customer, name the audience in the path:
+
+```bash
+curl --request DELETE \
+  "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/memberships/$AUDIENCE_ID" \
+  --header "Authorization: Bearer $EXTOLE_ACCESS_TOKEN"
+```
+
+### Send a Batch
+
+To send a list rather than one customer at a time, create an audience operation. Use `ADD` and `REMOVE` for incremental changes, and `REPLACE` when Braze sends a complete eligible-participant list and the audience should end up matching it exactly.
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v1/audiences/$AUDIENCE_ID/operations" \
+  --header "Authorization: Bearer $EXTOLE_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "type": "ADD",
+    "data_source": {
+      "type": "PERSON_LIST",
+      "audience_members": [
+        {"identity_key_value": "first@example.com"},
+        {"identity_key_value": "second@example.com"}
+      ]
+    }
+  }'
+```
+
+Extole returns the operation immediately and applies the membership change in the background, so read the operation's state to confirm it finished:
+
+```bash
+curl "$EXTOLE_API_HOST/v1/audiences/$AUDIENCE_ID/operations/$OPERATION_ID/state" \
+  --header "Authorization: Bearer $EXTOLE_ACCESS_TOKEN"
+```
+
+The operation reaches `READY` once the change has been applied. A `FAILED` operation carries an `error_code` describing what went wrong.
+
+### Check Who Is in the Audience
+
+```bash
+curl "$EXTOLE_API_HOST/v1/audiences/$AUDIENCE_ID/members/view/details" \
+  --header "Authorization: Bearer $EXTOLE_ACCESS_TOKEN"
+```
+
+Send every one of these requests from your servers. The token authorizes membership changes across your account, so it does not belong in a browser or a mobile app.
 
 ## Customization
 
