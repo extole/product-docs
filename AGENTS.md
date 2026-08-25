@@ -5,8 +5,9 @@ This repo holds **Extole's customer-facing documentation**, built on **[Mintlify
 ## Read first
 
 **Writing standards:** [`.mintlify/AGENTS.md`](.mintlify/AGENTS.md) — voice, terminology,
-structure, formatting, links, images, frontmatter, accuracy. One self-contained file, and
-the only place a writing standard is defined.
+structure, formatting, links, images, frontmatter, accuracy. Every standard this repo
+enforces is defined there, each stated in full, so writing to it needs no other file. Its
+**Provenance** section covers where the standards come from and which copy wins.
 
 **Process:**
 
