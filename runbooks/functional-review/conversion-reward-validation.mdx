@@ -3,10 +3,10 @@ title: "Functional Review: Conversion & Reward Validation"
 description: "Validate Conversion Audit outcomes and earned rewards against graph-derived earning steps."
 noindex: true
 ---
-Validate processed conversion/outcome evidence and earned rewards for one live program. V10 flow-builder is the primary target; V8/legacy campaigns run these reports best-effort with enabled purchase-incentivize steps derived from V8 controller configuration (see [Overview](//runbooks/functional-review/overview)).
+Validate processed conversion/outcome evidence and earned rewards for one live program. V10 flow-builder is the primary target; V8/legacy campaigns run these reports best-effort with enabled purchase-incentivize steps derived from V8 controller configuration (see [Overview](/runbooks/functional-review/overview)).
 
 <Warning>
-****Execution rules apply.** Follow the queue, hard stop, expectation manifest, and completion gate in [Report Execution + Runtime Checks](//runbooks/functional-review/report-execution-runtime-checks) before recording any finding.**
+****Execution rules apply.** Follow the queue, hard stop, expectation manifest, and completion gate in [Report Execution + Runtime Checks](/runbooks/functional-review/report-execution-runtime-checks) before recording any finding.**
 
 
 After submitting each report below, proceed with the next queued report without asking or stopping, even if this report fails or remains pending.
@@ -31,7 +31,13 @@ After submitting each report below, proceed with the next queued report without 
 
 ### Required parameters
 
-`Conversion Audit`
+```text
+campaign_id=<campaign>
+program_label=<program_label>
+time_range=LAST_MONTH
+container=all
+step_names=<step_names>
+```
 
 ### Expect from graph — `step_names`
 
@@ -85,7 +91,29 @@ Derive `step_names` **only** from the per-step V8 / V10 action test above. Do **
 
 Examples:
 
-`CONFIGURABLE_EVENTS`
+```text
+# Good (V10) — every step owns an enabled earn-reward or qualify action, including a rewarded share step (alphabetical)
+step_names="converted,share_clicked,signed_up"
+
+# Bad (V10, Porch-style) — `shared` and `share_clicked` own incentivize but no earn-reward / qualify.
+# Bare incentivize is not enough on V10; do not treat "owns incentivize" as the inclusion test.
+step_names="conversion,purchase,share_clicked,shared"
+# Correct for that graph when only conversion and purchase own earn-reward / qualify:
+step_names="conversion,purchase"
+
+# Bad — full funnel dump (HostGator-style). `canceled` and `shared` almost never pass the V8 / V10 test.
+# Do not copy every business-event step into Event Names / step_names.
+step_names="canceled,converted,share_clicked,shared,signed_up"
+
+# Bad — `advocate_created` and `shared` fail the test; a later step grants the reward, not these
+step_names="advocate_created,converted,share_clicked,shared,signed_up"
+
+# Bad — `signed_up` owns a qualifying reward action that is disabled; do not put it in step_names
+# (list `signed_up` + disabled reward in the review output instead)
+step_names="converted,share_clicked,signed_up"   # invalid when signed_up's reward is disabled
+# Correct for that graph:
+step_names="converted,share_clicked"
+```
 
 The good/bad split turns on the graph and the campaign version, not the name: `share_clicked` belongs **only** when this campaign's version-specific test passes for that step. Drop the step when it fails the test, or when every qualifying reward action on it is disabled. Names like `canceled` or `shared` are **not** shortcuts for inclusion, and on V10 neither is "has an incentivize action."
 
@@ -154,7 +182,11 @@ Do not say the client sent a Conversion Audit Event Name unless that same event 
 
 ### Required parameters
 
-`CONFIGURABLE_EVENTS`
+```text
+campaign_id=<campaign>
+time_range=LAST_MONTH
+container=all
+```
 
 ### Flag if
 

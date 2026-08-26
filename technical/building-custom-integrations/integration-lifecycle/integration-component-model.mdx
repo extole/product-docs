@@ -1,16 +1,29 @@
 ---
 title: "Create the Integration Campaign and Component Model"
-description: "Create the campaign, root, and integration component, set the display metadata and logo the admin renders, and add typed sockets and a configuration view."
+description: "Create the campaign, root, and model component with its display metadata, logo, typed sockets, and configuration view."
 ---
 
-This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration) for the build paths and the creation contract.
+Part of the [Management API integration guide](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
 
-## Create the Integration Campaign
+# Overview
 
-Create an `INTEGRATION` campaign with the `integration` program type. The campaign tag below names the
-integration component this campaign carries, matching what library bundles do so an installed copy can
-be traced back to its source. It is not what puts the integration on the Integrations page; the
-component tags created two sections down are.
+This page builds the container every integration needs before any business event, webhook, or view attaches.
+
+## When You Would Build One
+
+Every build path starts here; [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) describes what each adds.
+
+| You want | This page gives you |
+|---|---|
+| A partner integration | Campaign, root, model component |
+| A tile on the [Integrations page](https://my.extole.com/integrations) | Eight display settings and a resolving `logo` |
+| A configuration tab | The `config-view-v10.0` child |
+
+## How to Build
+
+### Create the Integration Campaign
+
+Create an `INTEGRATION` campaign with the `integration` program type. Its tag names the integration component this campaign carries, as library bundles do; the component tags added next are what list it on the Integrations page.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
@@ -25,9 +38,7 @@ curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
   }'
 ```
 
-Record the returned campaign identifier and version. Campaign creation also creates a default `PROGRAM` label equal to the campaign identifier.
-
-Replace the default with a unique, readable program label when the integration contract defines one:
+Record the identifier and version. Creation adds a default `PROGRAM` label equal to the campaign identifier; replace it when the contract defines one:
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/labels" \
@@ -39,13 +50,11 @@ curl --request POST "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/labels" \
   }'
 ```
 
-A campaign has one active `PROGRAM` label. Creating a new one replaces the previous program label. Always read the current campaign response and pass that value in test and partner event payloads.
+One active `PROGRAM` label per campaign; creating one replaces the previous.
 
-## Create the Component Model
+### Create the Component Model
 
-Create a root component following the Custom Integration Template conventions. Leave
-`internal:type:integration` off the root: the Integrations page excludes root components, so the tag
-does nothing there and the integration component created in the next step is what carries it.
+Create a root component following the Custom Integration Template conventions. Leave `internal:type:integration` off it; the Integrations page excludes roots.
 
 ```bash
 curl --request POST \
@@ -59,7 +68,7 @@ curl --request POST \
   }'
 ```
 
-Record `ROOT_COMPONENT_ID`, refresh the campaign version, and create the model component:
+Record `ROOT_COMPONENT_ID`, [refresh the campaign version](/technical/building-custom-integrations/integration-lifecycle/management-api-integration#refresh-the-campaign-version-between-mutations), and create the model component with all eight display settings in one request:
 
 ```bash
 curl --request POST \
@@ -165,36 +174,24 @@ curl --request POST \
   }'
 ```
 
-All eight display settings are in that one create request. The integration type requires every one of them, so a create that sends only a readable subset — a description and a documentation link, say — is rejected rather than partially accepted, and there is no later mutation that makes the component valid without them. Replace `PARTNER_PRODUCT_SITE`, `PARTNER_MARKETPLACE_LISTING`, and `ASSET_HOST_LOGO_URL` with the absolute URLs the next section describes. The next section covers what each value should say.
+Use `variables`; `CampaignComponentCreateRequest` has no `settings` property. Replace `PARTNER_PRODUCT_SITE`, `PARTNER_MARKETPLACE_LISTING`, and `ASSET_HOST_LOGO_URL` with absolute URLs. `integration-v10.0` is the long-standing revision, later ones such as `integration-v10.1` exist, so keep an installed source's own type.
 
-Use `variables` when creating a component. Do not send a `settings` property in `CampaignComponentCreateRequest`.
+### Set Integration Display Metadata
 
-Type the model component with the current integration type. `integration-v10.0` is the long-standing revision, and later revisions such as `integration-v10.1` exist; when extending an installed source, keep the type it already carries rather than downgrading it to match this example.
+The type checks only that all eight are present, not that their values are usable. Tag every one `internal:ui-display`, exactly that string — the tag marks tile metadata and hides the setting from the settings list.
 
-## Set Integration Display Metadata
+- `short.description` — one tile sentence.
+- `about` — what the integration receives and sends.
+- `documentation.url` — the partner-facing page for this integration, not this guide.
+- `external.url` — the partner's product site.
+- `external.integration.url` — the partner's marketplace or extension listing, or an empty string.
+- `categories` — one `STRING` category other integrations already use, such as `eCommerce Platform`; the admin groups by exact value, so copy it from a working integration.
+- `logo` — the `IMAGE` the Integrations page renders, covered below.
+- `imageKey` — the key the platform resolves to its own stored partner image, read by the older partner detail view rather than the tile; take it from the partner page.
 
-The integration type requires eight settings: `short.description`, `about`, `documentation.url`, `external.url`, `external.integration.url`, `categories`, `logo`, and `imageKey`. The type checks that they are present, not that their values are usable, so a component that passes validation can still render as an unnamed tile with a broken image.
+### Set a Logo That Resolves
 
-| Setting | Value convention |
-| :------ | :--------------- |
-| `short.description` | One sentence for the integration tile. |
-| `about` | A short paragraph describing what the integration receives and sends. |
-| `documentation.url` | The partner-facing documentation page for this integration. Not this build guide. |
-| `external.url` | The partner's own product site, as an absolute URL. |
-| `external.integration.url` | The partner's marketplace or extension listing as an absolute URL, or an empty string when the partner has none. |
-| `categories` | A single category string already used by other integrations, such as `eCommerce Platform`. The admin groups integrations by exact value, so a new spelling or a list-shaped value creates an orphan category. |
-| `logo` | Type `IMAGE`. **This is the image the Integrations page renders.** Either an absolute image URL or a buildtime expression resolving an asset this component owns, such as `spel@buildtime:context.getAsset('example').getUrl()`. The admin binds the built value straight to an image source, so anything that is not a working URL after the build shows the grey Extole placeholder. |
-| `imageKey` | The stable key the platform resolves to its own stored partner image, used by the older partner detail view. The partner page names it; it is not the partner's name lowercased or the page's slug. It does not render the integration tile, so it is never a substitute for `logo`. |
-
-Tag all eight with `internal:ui-display`, exactly that string. That tag means the setting describes the integration tile, and the admin hides tagged settings from the settings list. A tag invented to mean the same thing — `internal:tile-metadata` and the like — leaves every display setting showing in the configuration list beside the partner's real settings.
-
-Use the types the platform expects, not the ones the value suggests. `categories` is a `STRING` holding one category, and a `STRING_LIST` holding one category is a different value that groups the integration nowhere. Read a working integration's own settings before inventing either the type or the vocabulary.
-
-### Give the Integration a Logo That Resolves
-
-An integration with everything else in place and no working `logo` is the most common way a finished build looks broken: every other tile shows artwork and this one shows a grey placeholder. Treat the logo as part of the build, not as an optional flourish.
-
-The Integrations page reads the **built** value of `logo`. Confirm what a component actually renders by reading the built listing rather than the source component:
+The Integrations page renders the **built** value of `logo`:
 
 ```bash
 curl --request GET \
@@ -202,7 +199,7 @@ curl --request GET \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
 ```
 
-A resolved logo looks like an absolute URL on Extole's asset host, for example an `originAssetId` path under that host:
+A resolved logo is an absolute URL on Extole's asset host, such as an `originAssetId` path:
 
 ```json
 {
@@ -212,15 +209,12 @@ A resolved logo looks like an absolute URL on Extole's asset host, for example a
 }
 ```
 
-When a registered component for this partner already exists, that built URL is the artwork to use: copy it verbatim into your component's `logo`. It is served from Extole's own asset host and is already what every client sees on the available-to-install tile for that partner, so it needs no upload and no file. Copy `rewardSupplierLogo` the same way for a reward integration.
+- **A registered component for this partner exists** — copy its built `logo` URL from `/v1/components/built`, never `/v1/components`, whose source listing returns an unresolved expression naming an asset your component does not own.
+- **No registered component has it** — take an absolute URL from the partner's site: the `og:image` meta tag, the header logo `<img>`, or a brand-assets download link. Prefer PNG or SVG over a sprite or background image.
+- **You have the file** — upload it as an asset, then set `logo` to `spel@buildtime:context.getAsset('example').getUrl()`.
+- **The partner has neither** — track `logo` as outstanding until the real file arrives.
 
-Copy from `/v1/components/built`, never from `/v1/components`. The source listing returns the unresolved expression `spel@buildtime:context.getAsset('example').getUrl()`, and that expression names an asset your component does not own, so pasting it produces a setting that looks configured and resolves to nothing.
-
-When no registered component carries the artwork, the partner's own website does. Read the partner's home page or brand page and take the logo address out of the markup — the `og:image` meta tag, the logo `<img>` in the header, or the download link on a press or brand-assets page — and use that absolute URL. Prefer a file the partner publishes for reuse over one lifted from a page layout, and prefer PNG or SVG over a sprite or a background image that no single URL addresses.
-
-Then fetch the address you intend to store and confirm it answers with the image before you set the setting. A URL that 404s, redirects to a landing page, or returns an HTML error body where an image should be passes the `IMAGE` type check and renders the same grey placeholder as an empty value — so the tile looks broken in exactly the way the setting was supposed to prevent. That failure has a common shape: an image address copied out of Extole's own documentation, which serves a "Image Not Found" page once the doc it belonged to is edited. Documentation images are screenshots and diagrams of the product rather than partner artwork, and a favicon is a browser-tab icon rather than a logo; neither belongs in this setting.
-
-When you have the image file itself, upload it as multipart form data with the metadata in an `asset` part and the bytes in a `file` part:
+Confirm an address answers with the image before storing it. To upload, send multipart form data with the metadata in an `asset` part and the bytes in a `file` part:
 
 ```bash
 curl --request POST \
@@ -230,9 +224,9 @@ curl --request POST \
   --form "file=@example.png;type=image/png"
 ```
 
-Then give the setting the buildtime expression that resolves it, `spel@buildtime:context.getAsset('example').getUrl()`, which builds into a hosted URL on the account's own asset domain. A reward integration carries a second asset the same way — `reward-supplier-logo`, exposed as a `rewardSupplierLogo` setting — and repeats that asset and setting on every supplier template, so a product shows its own artwork wherever a marketer meets it rather than only on the integration tile.
+The expression builds into a hosted URL on the account's asset domain. A reward integration repeats this with `reward-supplier-logo`, exposed as `rewardSupplierLogo`, on every supplier template.
 
-An empty value is not an option the platform offers. `logo` is typed `IMAGE`, and creating the component with `"default": ""` is rejected outright:
+`logo` is `IMAGE` and required, so `"default": ""` is rejected:
 
 ```json
 {
@@ -245,19 +239,15 @@ An empty value is not an option the platform offers. `logo` is typed `IMAGE`, an
 }
 ```
 
-Since the type also requires the setting to be present, there is no valid component without a real logo value. When that rejection arrives, go and find the registered component's built URL. Do not reach instead for the first image URL on the partner's documentation page — a screenshot or a favicon hotlinked from someone else's host is not the partner's logo, and it satisfies the API while still rendering wrong.
+### Add the Partner Settings
 
-For a partner with no registered component anywhere and no supplied file, say plainly that the artwork is the one piece you cannot source, name the setting it belongs in, and let the requester supply the file rather than filling the gap with something that merely passes validation.
+Add partner configuration settings separately, each with a display name, description, type, default, `importance:basic`, and a priority, prefixed with the integration component name — `exampleAccountUrl`, `exampleSetupInstructions`.
 
-After setting it, read the component back from `/v1/components/built` and confirm `logo` holds an absolute URL on Extole's asset host. A value that is still an expression, or one pointing at a partner or documentation host, is a tile that renders wrong or not at all.
+<Warning>
+Never tag a partner configuration setting `internal:ui-display`, and never place a credential value in a setting the configuration view displays.
+</Warning>
 
-Add partner configuration variables separately, and never tag them `internal:ui-display` — a partner setting carrying that tag disappears from the configuration view even when `settingsToDisplay` names it, which is the most common reason a freshly built integration looks empty on its configuration tab. Give each one a display name, description, type, default, `importance:basic`, and a priority that orders it in the view. Prefix partner-specific configuration settings with the integration component name — `exampleAccountUrl`, `exampleSetupInstructions` — so they stay unambiguous when read from the parent component.
-
-Setup instructions tell the partner-side installer what to send and where. Give them the event endpoint, the current program label, the event names, the payload fields, the credential rule, and the documentation link.
-
-The program label belongs here because the sender cannot work without it: it is what targets an arriving event at this integration, and [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) tells implementers to read the current label from this view. Take the value from the campaign you read in the previous step rather than typing a label from another account, and tell the installer to hold it as configuration rather than as a constant in code. Because the value is interpolated when the setting is created, replacing the campaign's `PROGRAM` label later means updating this setting too — otherwise the view keeps advertising a label that no longer targets anything.
-
-Compute the instructions at build time so the installer reads the values this campaign actually uses rather than values copied from another account. Substitute the campaign's current program label for `PROGRAM_LABEL` before sending the request:
+Setup instructions carry the event endpoint, the current program label, the event names, the payload fields, the credential rule, and the documentation link, which [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) tells implementers to read from this view. Compute them at build time, substituting the campaign's program label for `PROGRAM_LABEL`:
 
 ```json
 {
@@ -273,11 +263,13 @@ Compute the instructions at build time so the installer reads the values this ca
 }
 ```
 
-Never place a credential value in a setting that the configuration view displays.
+<Note>
+The value is interpolated at creation, so replacing the campaign's `PROGRAM` label means updating this setting too.
+</Note>
 
-## Add Typed Sockets
+### Add Typed Sockets
 
-Add a `businessEvents` multi-socket to the integration component:
+Add a `businessEvents` multi-socket:
 
 ```bash
 curl --request POST \
@@ -319,11 +311,11 @@ curl --request POST \
   }'
 ```
 
-Socket filters are part of the model contract. Do not create an untyped socket or attach a component that does not satisfy its filter. `view-v10.0` is the parent of every view type the integration uses, so one filter on it accepts the configuration view built below along with the `report-runner-view-v10.0` and `event-stream-view-v10.0` children added in [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views).
+Declare a type on every socket and attach only components that satisfy it. `view-v10.0` is the parent of every view type, so one filter accepts the configuration view below plus the `report-runner-view-v10.0` and `event-stream-view-v10.0` children from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views).
 
-## Add a Configuration View
+### Add a Configuration View
 
-Create a `config-view-v10.0` child and attach it to the integration model component:
+Create a `config-view-v10.0` child attached to the integration model component:
 
 ```bash
 curl --request POST \
@@ -377,12 +369,22 @@ curl --request POST \
   }'
 ```
 
-`component_ids` must identify the parent model component. Without it, the platform may try to install the view into the root component, which does not own the `views` socket.
+`component_ids` takes the parent model component, which owns the `views` socket, and `settingsToDisplay` names parent settings only, including `exampleSetupInstructions`. Set `status` from a buildtime expression so the tab reports `READY` only once the settings Extole can verify are complete.
 
-The `settingsToDisplay` values are names of settings on the parent integration model component. Naming a setting here is necessary but not sufficient: the setting itself must be visible in the settings list, which means it must not carry `internal:ui-display`. Read the built integration back and confirm each named setting appears with its display name before calling the configuration surface done. A hardcoded `status` leaves the tab permanently marked in progress; the buildtime expression above returns `READY` only once the settings Extole can verify are complete. Explain any partner-side checks that the status cannot verify.
+## How to Test
 
-The information setting the installer reads is the `exampleSetupInstructions` built above, not a further one to invent: it already carries the endpoint, the current program label, the partner event names, the documentation URL, and the credential rule. Name it in `settingsToDisplay`, as the example does — a configuration view that omits it renders a tab with an account URL and nothing telling the installer what to send or where. Do not put a credential value in it.
+Read the built component with `GET /v1/components/built?having_all_tags=internal:type:integration` and confirm `logo` resolved to an absolute URL on Extole's asset host, every `settingsToDisplay` name appears with its display name, and the component sits under the root with `internal:self-managed` and both sockets filled.
 
-Every name in `settingsToDisplay` must be a setting that exists on the parent integration component. A name with no matching parent setting fails validation, and the two names in the example resolve to the two partner settings created above.
+### Troubleshooting
 
-The configuration view is one of three. Continue to [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views) for the report-runner view and event-stream view every integration also carries, whichever build path brought you here.
+| Symptom | Cause | Fix |
+|---|---|---|
+| `settings_build_failed`, `variable_value_invalid_type`, `expected_types: ["IMAGE"]` | `logo` sent empty | A resolvable URL or buildtime asset expression |
+| Create rejected | Only some of the eight display settings sent; no later mutation adds them | Send all eight in one create |
+| Grey Extole placeholder | Built `logo` is an expression, or its URL 404s, redirects, or returns HTML — as Extole documentation images and favicons do | Read `/v1/components/built` and replace it |
+| Display settings show beside the partner's | A tag other than `internal:ui-display` | Retag all eight |
+| A `settingsToDisplay` name never appears | That setting carries `internal:ui-display` | Remove the tag |
+| A `settingsToDisplay` name fails validation | No parent setting has it | Create it or drop the name |
+| The integration groups nowhere, or alone | `categories` sent as `STRING_LIST`, or a new spelling | One existing category, typed `STRING` |
+| The view installs into the root, which lacks `views` | `component_ids` omitted | Recreate with the parent component |
+| Configuration tab stuck in progress | `status` hardcoded | Use a buildtime expression |

@@ -3,16 +3,16 @@ title: "Functional Review: Input / Runtime Event Validation"
 description: "Validate inbound input events, event-to-step mapping, and Input Records payloads against the campaign graph."
 noindex: true
 ---
-Validate raw inbound events and payloads for one live program. V10 flow-builder is the primary target; V8/legacy campaigns run these reports best-effort with configuration-derived candidate event names (see [Overview](//runbooks/functional-review/overview)).
+Validate raw inbound events and payloads for one live program. V10 flow-builder is the primary target; V8/legacy campaigns run these reports best-effort with configuration-derived candidate event names (see [Overview](/runbooks/functional-review/overview)).
 
 <Warning>
-****Execution rules apply.** Follow the queue, hard stop, expectation manifest, and completion gate in [Report Execution + Runtime Checks](//runbooks/functional-review/report-execution-runtime-checks) before recording any finding.**
+****Execution rules apply.** Follow the queue, hard stop, expectation manifest, and completion gate in [Report Execution + Runtime Checks](/runbooks/functional-review/report-execution-runtime-checks) before recording any finding.**
 
 
 After submitting each report below, proceed with the next queued report without asking or stopping, even if this report fails or remains pending.
 </Warning>
 
-After Input Records completes, continue with [Event Data Rule Alignment](//runbooks/functional-review/event-data-rule-alignment).
+After Input Records completes, continue with [Event Data Rule Alignment](/runbooks/functional-review/event-data-rule-alignment).
 
 ---
 
@@ -33,7 +33,14 @@ After Input Records completes, continue with [Event Data Rule Alignment](//runbo
 
 ### Required parameters
 
-`t1owor6ia18bia3ur7zg`
+```text
+time_range=LAST_MONTH
+container=all
+period=NONE
+event_names=All
+campaign_id=<campaign_id>
+dimensions=EVENT_NAME
+```
 
 ### Expect from graph
 
@@ -49,13 +56,20 @@ For each business-event / targetable-step component:
 4. Use those values as expected raw inbound event names.
 5. Record the mapping:
 
-`INPUT_EVENTS_COUNT`
+```text
+business_event_component_name -> triggerEventNames/eventNames -> required data fields -> rules/actions
+```
 
 **V8/legacy fallback:** when the built campaign exposes no V10 `triggerRules`, derive candidate expected names from the built V8 controller/step configuration instead, label them as configuration-derived candidates, and let the Count output confirm the actual raw inbound names. Do not skip this report because trigger rules are unavailable.
 
 ### Compare
 
-`report_type`
+```text
+expected_trigger_events = triggerEventNames/eventNames from the graph
+actual_input_events = event_name values returned by Input Events Count
+missing_expected_trigger_events = expected_trigger_events - actual_input_events
+unexpected_input_events = actual_input_events - expected_trigger_events
+```
 
 `event_names=All` often returns site-wide or unrelated event names on a campaign-scoped Count. Treat names **outside** `expected_trigger_events` as **out of scope** for FR findings (context only) unless the graph shows they feed this program’s triggers, rewards, attribution, or UX. Do not raise Watch/Issue solely because high-volume global names (for example site `conversion` or `new_customer`) appear in the report.
 
@@ -111,7 +125,14 @@ If this check was submitted with `report_type` `t1owor6ia18bia3ur7zg` (or any ty
 
 ### Required parameters
 
-`triggerEventNames`
+```text
+time_range=LAST_MONTH
+container=all
+period=DAY
+event_names=All
+campaign_id=<campaign_id>
+dimensions=EVENT_NAME
+```
 
 ### Expect from graph
 
@@ -162,7 +183,11 @@ For each expected `triggerEventName`:
 
 ### Required parameters
 
-`eventNames`
+```text
+time_range=LAST_MONTH
+container=all
+event_names=<graph-derived triggerEventNames / eventNames as a string>
+```
 
 <Warning>
 **For `event_names`, use only graph-derived raw input trigger names from `triggerEventNames` / `eventNames`. Do **not** use journey names, business-event component names, content component names, action names, or display names unless the trigger rule explicitly configures the same value as a raw input event name.**
@@ -175,7 +200,9 @@ For each expected `triggerEventName`:
 
 Use this exact mapping:
 
-`triggerRules`
+```text
+Id=event.id;Client Id=event.clientId;Event Time=event.eventTime;Person Id=person(event.personId).id;Container=event.container;Name=event.name;Api Type=event.apiType;data=event.data;
+```
 
 <Warning>
 **`data=event.data;` is mandatory.**
@@ -190,7 +217,7 @@ If additional convenience columns are needed, add them only **in addition to** `
 
 Input Records validates the raw event payload sent by the client. Confirm that data fields required by the flow are present and compatible with flow-builder rules.
 
-Input Records takes no `campaign_id`, so it returns **client-wide** rows across every program the client runs. Apply the [Campaign scope boundary](//runbooks/functional-review/report-execution-runtime-checks) before drawing conclusions: only events in the graph-configured trigger set are in scope for this campaign, and another program's rows are context only — never a finding about this campaign — even when they share an event name.
+Input Records takes no `campaign_id`, so it returns **client-wide** rows across every program the client runs. Apply the [Campaign scope boundary](/runbooks/functional-review/report-execution-runtime-checks) before drawing conclusions: only events in the graph-configured trigger set are in scope for this campaign, and another program's rows are context only — never a finding about this campaign — even when they share an event name.
 
 ### Flag if
 
@@ -232,7 +259,7 @@ For each sampled event type, report:
 A sample is not a fixed number of rows off the top of the report. Cover the events that matter:
 
 - Include **every** graph-derived earning/reward-path event type, not only the highest-volume names that happen to fill the first rows.
-- When one event type feeds more than one reward or qualification path, cover **each** path. The graph distinguishes those paths by a data-field condition; derive that field and its values from the rules, never assume them (see [Event Data Rule Alignment](//runbooks/functional-review/event-data-rule-alignment) for the per-variant sampling floor).
+- When one event type feeds more than one reward or qualification path, cover **each** path. The graph distinguishes those paths by a data-field condition; derive that field and its values from the rules, never assume them (see [Event Data Rule Alignment](/runbooks/functional-review/event-data-rule-alignment) for the per-variant sampling floor).
 - If a required event type or reward-path variant is absent from the first chunk, page further or resubmit filtered by `event_names` before concluding it carries no data.
 
 <Warning>
@@ -248,4 +275,4 @@ If report metadata `totalRows` (or equivalent) is much larger than the rows actu
 
 ### Next step
 
-After Input Records is downloaded, run [Event Data Rule Alignment](//runbooks/functional-review/event-data-rule-alignment) to compare sampled `event.data` against trigger/quality/reward rule conditions.
+After Input Records is downloaded, run [Event Data Rule Alignment](/runbooks/functional-review/event-data-rule-alignment) to compare sampled `event.data` against trigger/quality/reward rule conditions.
