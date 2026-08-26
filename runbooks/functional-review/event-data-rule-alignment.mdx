@@ -6,7 +6,7 @@ noindex: true
 Use this guide during **Input / Runtime Event Validation** after Input Records has been run with the correct mapping.
 
 <Warning>
-****Execution rules apply.** Follow the queue, hard stop, expectation manifest, and completion gate in [Report Execution + Runtime Checks](//runbooks/functional-review/report-execution-runtime-checks) before recording any finding.**
+****Execution rules apply.** Follow the queue, hard stop, expectation manifest, and completion gate in [Report Execution + Runtime Checks](/runbooks/functional-review/report-execution-runtime-checks) before recording any finding.**
 </Warning>
 
 This section closes the gap between:
@@ -25,14 +25,16 @@ Before running this check:
 
    `Id=event.id;Client Id=event.clientId;Event Time=event.eventTime;Person Id=person(event.personId).id;Container=event.container;Name=event.name;Api Type=event.apiType;data=event.data;`
 
-3. Input Records used graph-derived `event_names` from `triggerEventNames` / `eventNames` — not business-event component names. On a V8/legacy campaign, use the legacy fallback names from [Input / Runtime Event Validation](//runbooks/functional-review/input-runtime-event-validation).
-4. A graph-derived expectation manifest exists (see [Input / Runtime Event Validation](//runbooks/functional-review/input-runtime-event-validation)). On a V8/legacy campaign, the manifest is built from controller/step configuration and its rules are labeled configuration-derived candidates.
+3. Input Records used graph-derived `event_names` from `triggerEventNames` / `eventNames` — not business-event component names. On a V8/legacy campaign, use the legacy fallback names from [Input / Runtime Event Validation](/runbooks/functional-review/input-runtime-event-validation).
+4. A graph-derived expectation manifest exists (see [Input / Runtime Event Validation](/runbooks/functional-review/input-runtime-event-validation)). On a V8/legacy campaign, the manifest is built from controller/step configuration and its rules are labeled configuration-derived candidates.
 
 ## Core principle
 
 For every inbound input event type that can reach a configured business-event step:
 
-`event.data`
+```text
+graph rule condition  ↔  sampled event.data from Input Records
+```
 
 Rules are authoritative. Input Records is evidence.
 
@@ -121,7 +123,17 @@ If a rule condition cannot be parsed into testable predicates, record **Needs in
 
 ### Required output
 
-`Id=event.id;Client Id=event.clientId;Event Time=event.eventTime;Person Id=person(event.personId).id;Container=event.container;Name=event.name;Api Type=event.apiType;data=event.data;`
+```text
+Partner event keys (config only):
+  Key: <configured key field/expression>
+    Events: <component names>
+  Key: <configured key field/expression>
+    Events: <component names>
+  Distinct key count: <n>
+  Events with no key (where dedup expected): <component names or none>
+
+Verdict: Pass | Issue | Needs investigation
+```
 
 ## Step 2 — Pull evidence from Input Records
 
@@ -204,7 +216,23 @@ Triggered-step gaps alone are not sufficient. Always attempt direct `event.data`
 
 For each reviewed input event name, include the block below. When the event branches into more than one reward-path variant, report one block per variant and name the branch.
 
-`event_names`
+```text
+Event: <raw input event name>
+Reward-path variant: <graph-derived branch, or "single path">
+Business event: <component name>
+Samples reviewed: <n> (confidence: high/medium/low)
+
+Rule: <rule name> (<phase>, Event Data Comparison)
+  Parameter: <field>
+  Expected: <comparison> <value>
+  Results: <pass_count>/<sample_count> pass
+  Failures:
+    - wrong value: <observed> (expected <expected>) — <count> samples
+    - missing: <count> samples
+    - blank/null: <count> samples
+
+Verdict: Pass | Watch | Issue | Needs investigation
+```
 
 Do not paste raw customer payloads or PII. Summarize field-level results only.
 
@@ -232,7 +260,7 @@ Record an evidence gap when:
 
 ## Relationship to other runbooks
 
-- Run **after** Input Records is downloaded ([Input / Runtime Event Validation](//runbooks/functional-review/input-runtime-event-validation)); **before** [Conversion & Reward Validation](//runbooks/functional-review/conversion-reward-validation) conclusions.
+- Run **after** Input Records is downloaded ([Input / Runtime Event Validation](/runbooks/functional-review/input-runtime-event-validation)); **before** [Conversion & Reward Validation](/runbooks/functional-review/conversion-reward-validation) conclusions.
 - Findings here inform Conversion Audit interpretation (missing outcomes may be caused by trigger-rule data mismatch, not missing integrations).
 - Do not replace Terms alignment or email/webhook checks.
 
