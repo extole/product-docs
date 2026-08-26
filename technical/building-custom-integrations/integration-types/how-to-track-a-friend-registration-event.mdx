@@ -1,0 +1,55 @@
+---
+title: "How to Track a Friend Registration Event"
+description: "How to track a friend's registration as a distinct event before conversion, connect it to the later conversion with partner_conversion_id, and report on registrations."
+---
+
+# Overview
+
+Extole can track a registration event before a conversion. For example, your referral flow might let a friend sign up for a free 30-day trial before deciding to convert into a paying customer. This guide explains how to track friend registrations as a distinct event from the conversion itself.
+
+## Track a Friend Registration
+
+When a friend completes a registration form, Extole receives the information needed to track the registration. The registration transitions the friend between their first event in the online channel and later events that may occur on any channel.
+
+- Include the type `register` in the conversion tag.
+- Pass Extole the `partner_conversion_id`. This is your unique identifier for the referral transaction and is required to connect the registration with the later conversion. Pass the same `partner_conversion_id` for both the registration and conversion events to connect the referral flow. The `partner_conversion_id` has a maximum length of 38 characters.
+
+### Example Conversion Tag Tracking a Registration
+
+```html
+<script type="extole/conversion">
+{
+  "type": "register",
+  "params": {
+    "tag:product_type": "softwaretrial",
+    "partner_conversion_id": "00O415320037eWy",
+    "partner_user_id": "EXT000010",
+    "f": "John",
+    "l": "Smith",
+    "e": "john@smith.com"
+  }
+}
+</script>
+```
+
+Some older tags used `"type": "REGISTER"`. Use `register` in new implementations.
+
+## Connect the Registration to the Conversion
+
+When the friend converts into a customer, trigger a conversion using the same `partner_user_id` and the same `partner_conversion_id` you passed in the registration.
+
+You can send that later conversion through all three integration options:
+
+- Conversion tag on your website
+- Create Conversion endpoint
+- Conversion batch file — see [SFTP and Batch File Conventions](/guides/dashboards-and-reporting/integrating-reports/sftp-and-batch-file-conventions)
+
+## How to Report on Friend Registrations
+
+To list people who registered, run an [Events report](/guides/dashboards-and-reporting/report-types/recommended-reports/events-report) filtered to the `registered` event. For program- or campaign-level totals, configure a [Metrics report](/guides/dashboards-and-reporting/report-types/recommended-reports/metrics-report) with `registered` and `converted` (or your program's outcome event).
+
+## Frequently Asked Questions
+
+<Accordion title="Is there a register API or file format?">
+There is no separate register-only API. Send the registration as a conversion tag (or equivalent zone request) with type `register` so Extole can use cookies, local storage, and other browser signals. Send the later conversion with the conversion tag, the Create Conversion endpoint, or a batch file, using the same `partner_conversion_id`.
+</Accordion>
