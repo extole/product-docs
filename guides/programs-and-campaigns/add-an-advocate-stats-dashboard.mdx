@@ -52,11 +52,38 @@ The cumulative value of rewards earned (e.g., total credits or coupons).
 
 ## **Embedding Stats Behind Login**
 
-1. Reach out to Extole support team to enabled the advocate_stats_embedded zone with a JWT
-2. Configure the JWT key in My.Extole. Guide -> [https://docs.extole.com/docs/verifying-consumers#using-json-web-tokens-jwts](https://docs.extole.com/docs/verifying-consumers#using-json-web-tokens-jwts)
-3. Navigate to Tech Center → Tag Generator.
-4. Copy the JavaScript tag for the advocate_stats_embedded zone.
+Use this path when the advocate is already logged in on your site. You verify identity and pass a JWT.
+
+1. Reach out to Extole support to enable the `advocate_stats_embedded` zone with a JWT
+2. Configure the JWT key in My Extole. See [Verifying Consumers](/technical/operational-tasks/security-and-compliance/verifying-consumers#using-json-web-tokens-jwts)
+3. Navigate to **Tech Center** > **Tag Generator**.
+4. Copy the JavaScript tag for the `advocate_stats_embedded` zone.
 5. Add this tag to your desired page behind your login to ensure user security and enable the JWT.
+
+## Embed Stats With Email Verification
+
+Use this path when you want Extole's authentication flow instead of a login-backed JWT. An advocate clicks to view their stats, receives an email with a verification link, clicks to verify, and then sees their stats.
+
+Place the embedded stats zone inline — exactly where you want the creative to appear on the page, such as a My Account page:
+
+```html
+<span id="extole_zone_advocate_stats_embedded"></span>
+<script type="text/javascript">
+  (function(c,b,f,k,a){c[b]=c[b]||{};for(c[b].q=c[b].q||[];a<k.length;)f(k[a++],c[b])})(window,"extole",function (c,b){b[c]=b[c]||function (){b.q.push([c,arguments])}},["createZone"],0);
+  extole.createZone({
+    name: "advocate_stats_embedded",
+    element_id: "extole_zone_advocate_stats_embedded",
+    data: {
+      "email": REPLACE_WITH_DATA_BEFORE_ADDING_TAG_TO_PAGE,
+      "first_name": REPLACE_WITH_DATA_BEFORE_ADDING_TAG_TO_PAGE,
+      "last_name": REPLACE_WITH_DATA_BEFORE_ADDING_TAG_TO_PAGE,
+      "partner_user_id": REPLACE_WITH_DATA_BEFORE_ADDING_TAG_TO_PAGE
+    }
+  });
+</script>
+```
+
+Replace the `REPLACE_WITH_DATA_BEFORE_ADDING_TAG_TO_PAGE` values with the advocate's identity. The rest of the stats experience is controlled in My Extole. For JWT verification instead of this email flow, see [Verifying Consumers](/technical/operational-tasks/security-and-compliance/verifying-consumers).
 
 ## **Extole API**
 

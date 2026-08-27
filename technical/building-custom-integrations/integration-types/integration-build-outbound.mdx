@@ -1,54 +1,58 @@
 ---
 title: "Build an Outbound Library Integration"
-description: "Install a maintained partner source, reshape it to the documented tree, and attach its outbound webhooks and credential."
+description: "Install a maintained partner source, reshape it to the shape the partner page defines, and attach its outbound webhooks and credential."
 ---
 
-This page is one part of the Management API integration guide. Start at [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration) for the build paths and the creation contract.
+# Overview
 
-## Prerequisites
+An outbound integration forwards Extole program activity to a partner platform. Extole maintains a library source for most outbound partners, so the build is an install and a reshape rather than a construction.
 
-- A server-side access token authorized to manage campaigns, components, and webhooks.
-- The partner page for this integration, which names the finished tree, endpoints, and tag namespace.
-- The production API host in `EXTOLE_API_HOST`.
-- Confirmation that the duplicatable listing already has a maintained integration component whose name matches the partner. If it does not, this is not an outbound library install — use [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model) instead.
+Substitute the component name, endpoints, and tag namespace from the partner page throughout. [Create an Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration) covers the constraints and shared mechanics every build follows.
 
-## Required Parameters
+## When You Would Build One
 
-| Parameter | Purpose |
-| :-------- | :------ |
-| `TOKEN` | Bearer token on every call. |
-| `EXTOLE_API_HOST` | Production host for campaign, component, and webhook calls. |
-| `PARTNER_COMPONENT_NAME` | The library component name from the partner page. |
-| `SOURCE_COMPONENT_ID` | Identifier of the Extole-owned library source chosen from the duplicatable listing. |
-| `INTEGRATION_COMPONENT_ID` | Identifier of the installed integration component, used when attaching component-scoped webhooks. |
+| You want | Partner platform | The install adds |
+| :------- | :--------------- | :--------------- |
+| Extole activity to trigger a partner message | Marketing automation, messaging | A message-trigger webhook and its `WEBHOOK_ID` setting |
+| Extole activity to keep partner profiles or audiences current | Customer data platform | An ingestion webhook and its `WEBHOOK_ID` setting |
+| Extole program activity in a partner's reporting | Analytics | An ingestion webhook and its `WEBHOOK_ID` setting |
+| A marketing campaign to attach partner actions to its own events | Any outbound partner | A typed data-item child of the integration component |
 
-The partner's API secret is required only to attach the credential. Finish the tree, webhooks, and settings without it, leave the credential setting null, and report the value as outstanding.
+Do not add inbound business-event scaffolding to an outbound install. A partner that orders gift cards, prepaid cards, points, or payouts uses the distinct [reward fulfillment model](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment).
 
-## Build an Outbound Library Integration
+## Before You Start
 
-An outbound partner starts from its maintained library source. Installing is one call; the finished shape is what the partner page defines. Every step below runs against a partner-agnostic contract, so substitute the component name, endpoints, and tag namespace from the partner page.
+| Parameter | Value |
+| :-------- | :---- |
+| `TOKEN` | Server-side access token authorized to manage campaigns, components, and webhooks. |
+| `EXTOLE_API_HOST` | Production host for those calls. |
+| `PARTNER_COMPONENT_NAME` | Library component name from the partner page. |
+| `SOURCE_COMPONENT_ID` | The Extole-owned library source from the duplicatable listing. |
+| `INTEGRATION_COMPONENT_ID` | The installed integration component, for component-scoped webhooks. |
+
+Read the partner page first — it names the finished tree, the endpoints, and the tag namespace — and confirm the duplicatable listing holds a maintained integration component whose name matches the partner. Without one, build from [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model) instead.
+
+## How to Build
 
 ### Confirm the Finished Shape
 
-Read the partner page before the first mutation. It describes the finished integration in product terms, and each statement maps to something the install must contain:
+The partner page's product description specifies the finished tree. Each statement it makes maps to something the install must carry:
 
-| What the partner page states | What the finished install contains |
-| :--------------------------- | :--------------------------------- |
-| The activity the integration forwards | One child per listed activity, and no child forwarding activity the page does not list |
+| What the partner page states | What the install must carry |
+| :--------------------------- | :-------------------------- |
+| The activity the integration forwards | One child per listed activity, and none forwarding activity the page omits |
 | The partner endpoints Extole calls | One webhook per endpoint, each tagged by purpose |
 | That program campaigns attach partner data to their own events | A typed data-item child of the integration component |
 | That the integration exposes its outbound connections as settings | One `WEBHOOK_ID` setting per webhook, resolved by tag |
 | The account URL and credential the partner requires | The matching settings on the integration component |
 
-Run that comparison against an integration that already exists in the account, not only against a fresh install. Reading a live integration back and reporting it as already in the requested state, without checking it line by line against the page's description, is what makes an unfinished install permanent — the integration exists, so nobody looks again.
+Read that mapping as exhaustive rather than as a minimum, and apply it to an integration already in the account as much as to a fresh install. A library source ships the union of what every account might want, so it commonly installs children the page does not list and only one of the webhooks it names.
 
-Read that list as exhaustive rather than as a minimum. A library source ships the union of what every account might want, so it commonly installs children the page does not list and only one of the webhooks the page names. Deleting the extra children and creating the missing webhooks is the reshape; an install left in its raw shape forwards activity the partner page never claimed and omits endpoints it did.
-
-One part of the finished shape is not on the partner page: the report-runner view and event-stream view every integration carries. A library source may or may not ship them, so read the installed `views` socket and add whichever is missing from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views), charting and streaming the activity this integration forwards.
+A library source may not ship the report-runner and event-stream views every integration carries. Read the installed `views` socket and add whichever is missing from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views).
 
 ### Create Missing Component Types
 
-A partner page can require a component type the account has never used, and a typed child cannot be created before its type exists. Check the type, and create it when it is missing:
+A typed child needs its component type first, and a partner page can require a type the account has never used:
 
 ```bash
 curl -s -H "Authorization: Bearer ${TOKEN}" \
@@ -60,13 +64,13 @@ curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
   "${EXTOLE_API_HOST}/v1/component-types"
 ```
 
-Omit `parent`. Creating the child with an empty `types` array instead is not the finished shape: an untyped component satisfies no socket filter and no template lookup.
+Omit `parent`. An empty `types` array leaves an untyped component, which satisfies no socket filter and no template lookup.
 
 ### Install the Library Source
 
-A library install is the same action the Partners page Install button performs: `POST /v1/components/{SOURCE_COMPONENT_ID}/duplicate` without `target_campaign_id`. Omitting the target campaign creates a new root integration campaign that copies the library tree, including its webhooks and child controllers.
+A library install is `POST /v1/components/{SOURCE_COMPONENT_ID}/duplicate` without `target_campaign_id`: omitting the target campaign creates a new root integration campaign that copies the library tree, including its webhooks and child controllers. Send a body carrying at least one property, such as `component_display_name`.
 
-Send a body carrying at least one property — a request with no body is rejected as `missing_request_body`. Use `component_display_name` for a display override; `display_name` is not a property of this request and is rejected as an unrecognized property. Omit `target_campaign_id` rather than sending it as null, which is rejected as `invalid_null`: the attribute may be omitted but not nullified.
+List the candidates before duplicating anything:
 
 ```bash
 CANDIDATES=$(curl -s -H "Authorization: Bearer ${TOKEN}" --get \
@@ -80,9 +84,7 @@ CANDIDATES=$(curl -s -H "Authorization: Bearer ${TOKEN}" --get \
 jq -r '.[] | "\(.id)\t\(.types | join(","))"' <<< "${CANDIDATES}"
 ```
 
-Read that list before duplicating anything. The query returns the maintained library source *and* one copy for every account that already installed it, so the first result is not reliably the one to install — `head -n 1` picks whichever the API happened to order first, and installing a client's copy carries that client's configuration into the new campaign. Choose the Extole-owned source, and when the list has more than one entry and you cannot tell them apart, stop and ask rather than guessing.
-
-Match on the component name across every current `integration-v10.x` revision rather than pinning `having_any_types` to a fixed pair. The integration type is revised over time, so a query pinned to `integration-v10.0,integration-v10.1` reports a maintained partner as missing once its source moves to a later revision. When a partner the partner page describes as maintained still does not appear, re-run with no type filter before concluding that no source exists.
+Choose the Extole-owned source.
 
 ```bash
 curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
@@ -93,7 +95,7 @@ curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
 
 ### Reshape the Install
 
-The reshape uses these calls. Refresh the campaign version before each version-scoped call:
+The reshape uses these calls, each needing a campaign version read immediately beforehand:
 
 | Action | Call |
 | :----- | :--- |
@@ -105,18 +107,18 @@ The reshape uses these calls. Refresh the campaign version before each version-s
 
 Bring the installed tree to the partner page's shape in one pass:
 
-- Delete the library children the partner page does not keep. Refresh the campaign version between deletes.
+- Delete the library children the partner page does not keep.
 - Create the children it adds, including any typed data template.
-- Remove parent settings that belonged to a deleted child. A trigger-event-name setting left behind after its controller is gone describes behavior the integration no longer has.
+- Remove parent settings that belonged to a deleted child, such as a trigger-event-name setting whose controller is gone.
 - Set one `WEBHOOK_ID` setting per partner endpoint, resolved by webhook tag rather than by identifier, so the setting survives a rebuild:
 
 ```javascript
 javascript@buildtime: (function() { var filteredElements = Java.from(context.getComponent().createElementsQuery().withType('WEBHOOK').withTag('internal:partner:message-trigger').list()); return filteredElements && filteredElements.length > 0 ? filteredElements[0].getId() : null; })();
 ```
 
-The tag in the expression must be the purpose tag carried by exactly one webhook — here `internal:partner:message-trigger`, matching the example below. Two mistakes make this fail quietly. A tag no webhook carries resolves the setting to `null`, and the integration sends nothing. A tag several webhooks share makes `[0]` arbitrary, so two settings can bind to the same endpoint. Give each webhook its own purpose tag and reference that tag, rather than a shared one such as `internal:partner`.
+Filter on the purpose tag exactly one webhook carries — here `internal:partner:message-trigger`, matching the webhook below. Never use a shared tag such as `internal:partner`, which matches every webhook the integration owns.
 
-A partner data template is a typed child of the integration component, created through `component_ids` with no socket. Its install expression is what lets a marketing campaign attach partner actions from the template, by anchoring the source component's unanchored step data onto the target event:
+A partner data template is a typed child of the integration component, created through `component_ids` with no socket. Its install expression anchors the source component's unanchored step data onto the target event:
 
 ```javascript
 javascript@installtime:const sourceData = Java.from(context.getSourceComponent().getUnanchoredStepData());
@@ -139,17 +141,15 @@ if (targetSteps.length) {
 }
 ```
 
-### Publish Before Attaching Component-Scoped Webhooks
+### Publish, Then Attach Component-Scoped Webhooks
 
-A webhook whose name or URL expression calls `context.getComponent()` must be created with `component_ids` naming the integration component, and that reference resolves only after the campaign has been published at least once. Until then, `POST /v6/webhooks` returns `invalid_component_reference`, and creating the same webhook without `component_ids` fails because the expressions have no component to read.
+Publish the campaign once before creating any webhook whose name or URL expression calls `context.getComponent()`, and create those webhooks with `component_ids` naming the integration component. The reshape cannot complete without that publish, so get any release approval first.
 
-Treat that publish as part of the create path rather than a separate decision raised on its own. Publish the campaign, create the webhook, and return the campaign to draft afterwards only when the requester asked for a draft. When your own rules require approval before anything goes live, ask for it once, in the same message as the plan, rather than stopping earlier and reporting the shape as unfinishable.
+<Warning>
+A published integration campaign has no supported route back to a draft: there is no stop or unpublish action, and archiving takes the integration out of use entirely.
+</Warning>
 
-A published integration campaign has no supported route back to a draft — it has no stop or unpublish action. Do not archive the campaign to approximate one: archiving takes the integration out of use entirely, which is not what a draft request asked for. Say that the campaign is published, and that finishing the shape required it.
-
-Publishing validates every webhook the campaign already owns, so a setting that feeds an existing webhook URL must resolve to something valid first. An account-URL setting left empty produces an invalid destination, campaign validation rejects the publish, and the second webhook can never be attached. Keep a valid placeholder host in that setting — the library's own default is one — until the real host arrives.
-
-Leave the webhook disabled while it points at that placeholder. A placeholder satisfies validation but is not the partner, so an enabled webhook resolving to it dispatches live program data to a host that should never receive it, and a missing client key means those requests also go out unsigned. Set `enabled` to `false` until both the real URL and the credential are configured, then enable it as the step that puts the outbound path into service.
+Publishing validates every webhook the campaign already owns, so keep a valid placeholder host in any account-URL setting that feeds a webhook URL. The library's own default is one. Set `enabled` to `false` while a webhook points at that placeholder — enabled, it sends live program data to a host that should never receive it, unsigned when the client key is also missing. Enabling it is the step that puts the outbound path into service.
 
 `POST /v6/webhooks`:
 
@@ -168,32 +168,38 @@ Leave the webhook disabled while it points at that placeholder. A placeholder sa
 }
 ```
 
-Name each webhook for the endpoint it calls — an ingestion endpoint and a message-trigger endpoint are separate webhooks with separate tags. Tag every webhook by purpose, because the tags are what the `WEBHOOK_ID` settings resolve: an untagged webhook produces a setting that evaluates to null and an integration that silently sends nothing. Keep the broad `internal:partner` tag for listing every webhook the integration owns, but never resolve a setting through it, since it matches all of them.
-
-When the account URL setting may be stored without a scheme, build the URL expression to add `https://` rather than assuming the stored value carries it.
+Name each webhook for the endpoint it calls: an ingestion endpoint and a message-trigger endpoint are separate webhooks with separate tags. Keep the broad `internal:partner` tag for listing every webhook the integration owns. Where the account URL setting may lack a scheme, build the URL expression to add `https://`.
 
 ### Attach the Credential
 
-Create a webhook client key only when the requester has supplied the partner's API secret, then set the credential setting on the integration component. Missing credentials do not block the reshape: finish the tree, webhooks, and settings, leave the credential setting null, and report which values remain outstanding.
-
-The account URL is different from the secret. Blanking it to signal "not yet configured" breaks the publish that the rest of the reshape depends on, so leave a valid placeholder host in place and report it as a value the requester still has to replace.
+Create the webhook client key once you have the partner's API secret, then set the credential setting on the integration component. A missing credential does not block the build: leave the setting null and track it as outstanding.
 
 ## Error Handling
 
 | Response | Cause | What to do |
 | :------- | :---- | :--------- |
 | `missing_request_body` | The duplicate request had no body. | Send a JSON object with at least one property, such as `component_display_name`. |
-| Unrecognized property | The body used `display_name`. | Use `component_display_name`. `display_name` is not a property of this request. |
+| Unrecognized property | The body used `display_name`. | Use `component_display_name`. |
 | `invalid_null` | `target_campaign_id` was sent as null. | Omit the attribute. A library install creates a new campaign by leaving it off. |
-| `invalid_component_reference` | A webhook whose expressions call `context.getComponent()` was created before the campaign had been published. | Publish the campaign once, then create the webhook with `component_ids`. |
-| Campaign validation rejects the publish | An account-URL setting that feeds a webhook URL is empty or not a valid host. | Keep a valid placeholder host in that setting until the real host arrives. |
-| Webhook setting evaluates to `null` | The `WEBHOOK_ID` expression filters on a tag no webhook carries, or several webhooks share the tag and `[0]` is arbitrary. | Give each webhook its own purpose tag and resolve the setting through that tag. |
-| The first duplicatable result is the wrong source | The listing returns the library source and one copy per account that already installed it. | Choose the Extole-owned source. Stop and ask when the list has more than one entry you cannot tell apart. |
+| `invalid_component_reference` | A webhook calling `context.getComponent()` was created before the campaign was published. | Publish once, then create the webhook with `component_ids`. |
+| Campaign validation rejects the publish | An account-URL setting that feeds a webhook URL is empty or not a valid host. | Keep a valid placeholder host there. |
+| Webhook setting evaluates to `null` | The `WEBHOOK_ID` expression filters on a tag no webhook carries, or several webhooks share the tag and `[0]` is arbitrary. | Give each webhook its own purpose tag. |
+| The first duplicatable result is the wrong source | The listing returns the library source plus one copy per account that installed it, in no reliable order, so `head -n 1` can install a client's own configuration. | Choose the Extole-owned source. Stop and ask when two entries are indistinguishable. |
+| A typed child is rejected | Its component type does not exist in the account. | Create the component type first; do not fall back to an empty `types` array. |
 
-A `2xx` on the duplicate call means the library tree was copied, not that the install matches the partner page. Reshape, attach webhooks, and read the campaign back before calling the build done.
+## How to Test
 
-### Verify the Install
+A `2xx` on the duplicate call means the library tree was copied, not that the install matches the partner page. Read the campaign and its `/v6/webhooks` entries back, then confirm:
 
-Read the campaign and its `/v6/webhooks` entries back before calling the build done. Confirm the tree matches the partner page, every typed child carries its type, each webhook exists with its tags and resolved URL, and each `WEBHOOK_ID` setting resolves to a webhook identifier.
+- The tree matches the partner page: one child per activity the page lists, and no child forwarding activity it does not.
+- Every typed child carries its type.
+- Each webhook exists with its tags and its resolved URL.
+- Each `WEBHOOK_ID` setting resolves to a webhook identifier rather than `null`.
+- `enabled` is `true` on every webhook whose real URL and credential are both configured, and `false` on the rest.
 
-Do not add inbound business-event scaffolding to an outbound install. An outbound integration reports program activity rather than producing it, so it never supersedes a marketing program's `converted` or `shipped` events, and offering to swap them after an install misrepresents what was built. Report which credentials and partner-side permissions remain and which Extole events the integration already forwards.
+Then trigger the Extole event the integration forwards and confirm the webhook fired against the partner endpoint. Record the events it forwards and any credential or partner-side permission still outstanding.
+
+## Related Documentation
+
+- [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories)
+- [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation)

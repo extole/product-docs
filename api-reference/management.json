@@ -28574,7 +28574,6 @@
         } ]
       },
       "JsonNode" : {
-        "description" : "JSON Schema document describing the operation's response payload. Must be a valid [JSON Schema draft 2020-12](https://json-schema.org/draft/2020-12/schema) document.",
         "type" : "object"
       },
       "KeyTypeInStepDataResponse" : {
@@ -34889,11 +34888,11 @@
           },
           "context_parameters" : {
             "additionalProperties" : {
-              "description" : "Report parameters this schema was resolved against, keyed by parameter name. Each one changes the `columns`; supply report parameter values in the POST request body to resolve the schema against a different context. A value is what the caller supplied, otherwise the report type's declared default; parameters with neither are absent, and leaving one out resolves the schema against the report type's own default behavior rather than making the answer partial. Run the report with these same parameter values to get these same columns. Empty for report types whose columns do not depend on context.",
+              "description" : "Report parameters this schema was resolved against, keyed by parameter name. Each one can change the schema; supply report parameter values in the POST request body to resolve the schema against a different context. A value is what the caller supplied, otherwise the report type's declared default; parameters with neither are absent, and leaving one out resolves the schema against the report type's own default behavior rather than making the answer partial. Run the report with these same parameter values to get these same columns and representative rows. Empty for report types whose schema does not depend on context.",
               "readOnly" : true,
               "type" : "string"
             },
-            "description" : "Report parameters this schema was resolved against, keyed by parameter name. Each one changes the `columns`; supply report parameter values in the POST request body to resolve the schema against a different context. A value is what the caller supplied, otherwise the report type's declared default; parameters with neither are absent, and leaving one out resolves the schema against the report type's own default behavior rather than making the answer partial. Run the report with these same parameter values to get these same columns. Empty for report types whose columns do not depend on context.",
+            "description" : "Report parameters this schema was resolved against, keyed by parameter name. Each one can change the schema; supply report parameter values in the POST request body to resolve the schema against a different context. A value is what the caller supplied, otherwise the report type's declared default; parameters with neither are absent, and leaving one out resolves the schema against the report type's own default behavior rather than making the answer partial. Run the report with these same parameter values to get these same columns and representative rows. Empty for report types whose schema does not depend on context.",
             "readOnly" : true,
             "type" : "object"
           },
@@ -34901,9 +34900,16 @@
             "description" : "Id of the report type this schema belongs to. Pass it to `GET /v6/report-types/{id}/schema` to fetch this schema on its own.",
             "readOnly" : true,
             "type" : "string"
+          },
+          "sample_rows" : {
+            "description" : "Representative nested JSON output rows, one per row shape the report emits in this context. These are mock shapes, not report data and not a JSON Schema.",
+            "items" : {
+              "$ref" : "#/components/schemas/JsonNode"
+            },
+            "type" : "array"
           }
         },
-        "required" : [ "columns", "context_parameters", "report_type_id" ],
+        "required" : [ "columns", "context_parameters", "report_type_id", "sample_rows" ],
         "type" : "object"
       },
       "ReportTypeTagRequest" : {
@@ -81673,7 +81679,7 @@
     },
     "/v6/report-types/schemas" : {
       "get" : {
-        "description" : "Returns the schema for every report type visible to the calling client whose columns are known ahead of a run. Each entry pairs a `report_type_id` with the ordered `columns` that report type produces. Report types that do not support a schema are omitted from the list. Each entry echoes the `context_parameters` it was resolved against, always the report type's own defaults - post parameter values to a single report type's schema to resolve it against your own context. Use this to discover output shapes across report types in one call instead of requesting each schema by id.",
+        "description" : "Returns the schema for every report type visible to the calling client whose output shape is known ahead of a run. Each entry pairs a `report_type_id` with ordered `columns` or representative nested `sample_rows`. Report types that do not support a schema are omitted from the list. Each entry echoes the `context_parameters` it was resolved against, always the report type's own defaults - post parameter values to a single report type's schema to resolve it against your own context. Use this to discover output shapes across report types in one call instead of requesting each schema by id.",
         "operationId" : "listReportTypeSchemas",
         "responses" : {
           "200" : {
@@ -81687,7 +81693,7 @@
                 }
               }
             },
-            "description" : "Schemas of the visible report types that produce columns, one entry per report type."
+            "description" : "Schemas of the visible report types with a known output shape, one entry per report type."
           },
           "400" : {
             "content" : {
@@ -82445,7 +82451,7 @@
     },
     "/v6/report-types/{id}/schema" : {
       "get" : {
-        "description" : "Returns the schema a report type produces - the ordered `columns` that appear in its output. For report types with fixed columns, these are the report type's preview columns. For configurable report types, they are the client-named columns defined by the report type's column mapping parameters. Report types whose columns depend on the client's own configuration resolve them against the report type's declared parameter defaults, which the response echoes as `context_parameters`. To resolve the columns against your own parameter values instead, post them to this same path. Use this to discover a report type's output shape without running the report.",
+        "description" : "Returns the schema a report type produces - ordered `columns` for flat output, or representative `sample_rows` for nested JSON output, one per row shape the report emits. For report types with fixed columns, these are the report type's preview columns. For configurable report types, they are the client-named columns defined by the report type's column mapping parameters. Report types whose schema depends on the client's own configuration resolve it against the report type's declared parameter defaults, which the response echoes as `context_parameters`. To resolve the schema against your own parameter values instead, post them to this same path. Use this to discover a report type's output shape without running the report.",
         "operationId" : "getReportTypeSchema",
         "parameters" : [ {
           "description" : "The Extole unique report type identifier.",
@@ -82465,7 +82471,7 @@
                 }
               }
             },
-            "description" : "Schema the report type produces, as an ordered, non-empty list of output columns, alongside the parameter values it was resolved against."
+            "description" : "Schema the report type produces, with output columns or a representative nested JSON row, alongside the parameter values it was resolved against."
           },
           "400" : {
             "content" : {
@@ -82483,7 +82489,7 @@
                 }
               }
             },
-            "description" : "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), or the report type exists but none of its columns can be determined without running the report (`report_type_schema_not_supported`) - inspect the response `code` field for the specific error."
+            "description" : "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), or the report type does not describe its output shape at all, in `columns` or in `sample_rows` (`report_type_schema_not_supported`) - inspect the response `code` field for the specific error."
           },
           "401" : {
             "content" : {
@@ -82585,7 +82591,7 @@
         "x-extole-visibility" : "visible"
       },
       "post" : {
-        "description" : "Returns the schema a report type produces for the supplied report parameter values - the ordered `columns` that appear in its output. Persists nothing. The columns returned are the columns the report emits when run with those same values, so a client can learn its output shape before running it. Only parameters the report type contextualizes its schema on are accepted, and supplying any other is rejected. The response echoes the effective parameter values used to resolve the schema. Parameters left out resolve to the report type's own defaults rather than making the answer partial.",
+        "description" : "Returns the schema a report type produces for the supplied report parameter values - the ordered `columns` or representative `sample_rows` in its output. Persists nothing. The response describes the output the report emits when run with those same values, so a client can learn its output shape before running it. Only parameters the report type contextualizes its schema on are accepted, and supplying any other is rejected. The response echoes the effective parameter values used to resolve the schema. Parameters left out resolve to the report type's own defaults rather than making the answer partial. When the supplied values select nothing the report would summarize, the report emits no rows, so `sample_rows` is empty while `context_parameters` still echoes what the schema resolved against.",
         "operationId" : "getReportTypeSchemaForContext",
         "parameters" : [ {
           "description" : "The Extole unique report type identifier.",
@@ -82619,7 +82625,7 @@
                 }
               }
             },
-            "description" : "Schema the report type produces for the supplied context, as an ordered, non-empty list of output columns, alongside the parameter values it was resolved against."
+            "description" : "Schema the report type produces for the supplied context, with output columns or representative nested JSON rows, alongside the parameter values it was resolved against."
           },
           "400" : {
             "content" : {
@@ -82646,7 +82652,7 @@
                 }
               }
             },
-            "description" : "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), the report type exists but none of its columns can be determined without running the report (`report_type_schema_not_supported`), a supplied parameter is not one this report type contextualizes its schema on (`report_type_schema_context_parameter_not_supported`), or a supplied parameter value does not match anything this client can access (`report_type_schema_context_parameter_value_not_found`), or a supplied parameter value is invalid (`report_type_schema_context_parameter_invalid`) - inspect the response `code` field for the specific error."
+            "description" : "The request cannot be fulfilled. Either the report type id is missing from the request (`report_type_missing`), the report type does not describe its output shape at all, in `columns` or in `sample_rows` (`report_type_schema_not_supported`), a supplied parameter is not one this report type contextualizes its schema on (`report_type_schema_context_parameter_not_supported`), or a supplied parameter value does not match anything this client can access (`report_type_schema_context_parameter_value_not_found`), or a supplied parameter value is invalid (`report_type_schema_context_parameter_invalid`) - inspect the response `code` field for the specific error."
           },
           "401" : {
             "content" : {
