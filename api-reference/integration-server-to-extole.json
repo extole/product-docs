@@ -1158,7 +1158,7 @@
             "uniqueItems" : true
           }
         },
-        "required" : [ "client_id", "duration_seconds", "email", "password", "scopes" ],
+        "required" : [ "client_id" ],
         "type" : "object"
       },
       "AccessTokenResponse" : {
@@ -1212,7 +1212,6 @@
             "type" : "string"
           }
         },
-        "required" : [ "message" ],
         "type" : "object"
       },
       "CanceledRewardStateResponse" : {
@@ -1299,7 +1298,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "data", "event_name", "event_time" ],
+        "required" : [ "event_name" ],
         "type" : "object"
       },
       "EventDispatcherResponse" : {
@@ -1360,7 +1359,6 @@
             "type" : "string"
           }
         },
-        "required" : [ "message" ],
         "type" : "object"
       },
       "ExpiredRewardStateResponse" : {
@@ -1482,7 +1480,6 @@
             "type" : "string"
           }
         },
-        "required" : [ "message" ],
         "type" : "object"
       },
       "FailedRewardStateResponse" : {
@@ -1537,7 +1534,7 @@
             "$ref" : "#/components/schemas/FileInputStreamRequest"
           }
         },
-        "required" : [ "fileAssetMetadata", "fileInputStreamRequest" ],
+        "required" : [ "fileInputStreamRequest" ],
         "type" : "object"
       },
       "FileAssetUpdateRequest" : {
@@ -1613,7 +1610,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "cost_code", "email", "face_value", "face_value_type", "message", "partner_reward_id", "partner_reward_sent_id" ],
+        "required" : [ "email", "partner_reward_id" ],
         "type" : "object"
       },
       "FulfilledRewardRequest" : {
@@ -1644,7 +1641,6 @@
             "type" : "boolean"
           }
         },
-        "required" : [ "cost_code", "face_value", "face_value_type", "message", "partner_reward_id", "success" ],
         "type" : "object"
       },
       "FulfilledRewardStateResponse" : {
@@ -1929,7 +1925,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "reason", "type" ],
+        "required" : [ "type" ],
         "type" : "object"
       },
       "PersonBlockResponse" : {
@@ -2783,7 +2779,6 @@
             "type" : "string"
           }
         },
-        "required" : [ "message", "partner_reward_redeem_id" ],
         "type" : "object"
       },
       "RedeemedRewardStateResponse" : {
@@ -2868,7 +2863,6 @@
             "type" : "string"
           }
         },
-        "required" : [ "message" ],
         "type" : "object"
       },
       "RevokedRewardStateResponse" : {
@@ -3100,7 +3094,6 @@
             "type" : "boolean"
           }
         },
-        "required" : [ "message", "partner_reward_sent_id", "success" ],
         "type" : "object"
       },
       "SentRewardStateResponse" : {
@@ -3313,7 +3306,7 @@
     }
   },
   "info" : {
-    "description" : "Server-to-Extole integration endpoints: event submission, person lookup, zone rendering, token management, and reward retrieval for backend services authenticating with client credentials.",
+    "description" : "Server-to-Extole integration endpoints: event submission, person lookup, zone rendering, token management, and reward retrieval for backend services authenticating with client credentials.\n\n## Updating a resource\n\n`PUT` merges. A field you omit from the body is left at its stored value, so you do not need to read a resource and send it back whole in order to change one field. This is a deliberate departure from the HTTP convention that `PUT` replaces, and it holds across this API.\n\nTwo qualifications, both visible on each operation's own request schema:\n\n- Some operations mark fields `required` in their request schema. Those must be sent on every request, whether or not you are changing them.\n- A field that holds a list or a map is replaced, not merged, when you supply it. Sending one entry of a collection stores that entry and drops the rest, so to change one member of a collection you must send the collection's other members alongside it.",
     "title" : "Integration API - Server to Extole",
     "version" : "1.0"
   },
@@ -3933,7 +3926,7 @@
         "x-extole-visibility" : "visible"
       },
       "put" : {
-        "description" : "Updates attributes on the specified reward record. Returns the updated reward.",
+        "description" : "Updates attributes on the specified reward record. Returns the updated reward.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
         "operationId" : "updateReward",
         "parameters" : [ {
           "description" : "Extole-assigned unique identifier for the reward.",
@@ -6732,7 +6725,7 @@
         "x-extole-visibility" : "visible"
       },
       "put" : {
-        "description" : "Updates the identity key value on the specified person profile. Returns `400 person_not_found` if the person does not exist or is not accessible.",
+        "description" : "Updates the identity key value on the specified person profile. Returns `400 person_not_found` if the person does not exist or is not accessible.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
         "operationId" : "updatePerson_2",
         "parameters" : [ {
           "description" : "Id for person to be updated",
@@ -7037,7 +7030,7 @@
         "x-extole-visibility" : "visible"
       },
       "put" : {
-        "description" : "Updates the block record for the specified person. Set `type` to `EVENTS` to block event participation, `REWARDS` to block reward fulfilment, or `NONE` to remove any block. Supply an optional `reason` string for audit purposes. Returns the updated block record.",
+        "description" : "Updates the block record for the specified person. Set `type` to `EVENTS` to block event participation, `REWARDS` to block reward fulfilment, or `NONE` to remove any block. Supply an optional `reason` string for audit purposes. Returns the updated block record.\n\nFields omitted from the body are left unchanged, except `type`, which the request schema marks required and which every request must send.",
         "operationId" : "updatePersonBlock",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
@@ -7659,7 +7652,7 @@
         "x-extole-visibility" : "visible"
       },
       "put" : {
-        "description" : "Updates the value of the named data parameter for the specified person. Returns `400 data_not_found` if the parameter does not exist, or `400 read_only_name` if the parameter name is read-only. Returns `400 person_not_found` if the person is not accessible.",
+        "description" : "Updates the value of the named data parameter for the specified person. Returns `400 data_not_found` if the parameter does not exist, or `400 read_only_name` if the parameter name is read-only. Returns `400 person_not_found` if the person is not accessible.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
         "operationId" : "updatePersonData",
         "parameters" : [ {
           "description" : "Extole person id.",
@@ -10180,7 +10173,7 @@
         "x-extole-visibility" : "visible"
       },
       "put" : {
-        "description" : "Updates the content of an existing shareable identified by its share code for the specified person.",
+        "description" : "Updates the content of an existing shareable identified by its share code for the specified person.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
         "operationId" : "updatePersonShareable",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
@@ -11795,7 +11788,7 @@
         "x-extole-visibility" : "visible"
       },
       "put" : {
-        "description" : "Updates the mutable metadata of an existing file asset: `name` and `tags`. File content is immutable after upload. The file asset must be in `AVAILABLE` status; expired file assets cannot be updated.",
+        "description" : "Updates the mutable metadata of an existing file asset: `name` and `tags`. File content is immutable after upload. The file asset must be in `AVAILABLE` status; expired file assets cannot be updated.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
         "operationId" : "updateFile",
         "parameters" : [ {
           "description" : "File asset ID.",
