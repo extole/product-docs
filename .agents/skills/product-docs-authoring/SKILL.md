@@ -116,7 +116,7 @@ To read and resolve inline PR comments — the common "apply the reviewer's sugg
 - Reply on each thread with the commit and what changed, then **leave it open for the
   reviewer to resolve**. Whether a reply addresses a comment is the commenter's judgement, and
   resolving hides the thread before they have read the answer. `tech`'s
-  [`pr-comment-merge-policy`](https://github.com/extole/tech/blob/master/.agents/skills/pr-comment-merge-policy/SKILL.md)
+  [`pr-comment-merge-policy`](../../../../../.agents/skills/pr-comment-merge-policy/SKILL.md)
   is canonical here and applies to every repository.
 
 ## PR workflow
