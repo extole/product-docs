@@ -113,8 +113,11 @@ To read and resolve inline PR comments — the common "apply the reviewer's sugg
 - List them: `gh api repos/extole/product-docs/pulls/<n>/comments --jq '.[] | {path,line:(.line//.original_line),body,id}'`.
 - Apply straightforward suggestions directly, correcting obvious typos in the suggestion
   text; **surface genuinely ambiguous ones to the user** instead of guessing.
-- Resolve threads with the GraphQL `resolveReviewThread` mutation (REST cannot): fetch
-  thread ids via `pullRequest.reviewThreads`, then mutate each.
+- Reply on each thread with the commit and what changed, then **leave it open for the
+  reviewer to resolve**. Whether a reply addresses a comment is the commenter's judgement, and
+  resolving hides the thread before they have read the answer. `tech`'s
+  [`pr-comment-merge-policy`](../../../../../.agents/skills/pr-comment-merge-policy/SKILL.md)
+  is canonical here and applies to every repository.
 
 ## PR workflow
 
