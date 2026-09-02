@@ -1,0 +1,104 @@
+---
+title: "Set Person Profile Data from an Event"
+description: "Prefix an event data key with me.public. or me.private. and Extole writes the value onto the person's profile, where campaign rules, audiences, and reports read it."
+---
+
+# Overview
+
+Every event carries a `data` object of keys and values. Those keys describe the event and stay
+with it. To put a value on the **person** instead — a country for a regional reward rule, a
+membership tier, a loyalty identifier — prefix the key with `me.` or `person.`. Extole strips
+the prefix and writes what remains onto the person's profile.
+
+This is a platform convention rather than campaign configuration, so it needs no campaign edit
+and no publish. It applies to every event, whatever sends it: the
+[JavaScript SDK](/technical/platform-integrations/javascript-sdk/index), the
+[mobile SDKs](/technical/platform-integrations/mobile-sdks/index), `POST /v6/events`, and the
+**Create Event** form in My Extole.
+
+## Key Prefixes
+
+| Event data key | Profile attribute | Scope |
+| --- | --- | --- |
+| `me.public.country` | `country` | Public |
+| `person.public.country` | `country` | Public |
+| `me.parameters.country` | `country` | Public |
+| `person.parameters.country` | `country` | Public |
+| `me.private.country` | `country` | Private |
+| `person.private.country` | `country` | Private |
+| `me.country` | `country` | Public |
+| `person.country` | `country` | Public |
+
+`me.` and `person.` are interchangeable. Use `me.public.` or `me.private.`, which state the
+scope you intend; the shorter `me.country` form writes to Public scope.
+
+Name the attribute exactly as your rules, audiences, and reports read it. The prefix is removed
+and the rest of the key becomes the attribute name, so `me.public.loyalty_tier` writes an
+attribute named `loyalty_tier`.
+
+## Who Reads Each Scope
+
+Scope decides who can read the value, not whether rules can. The scopes are the ones described
+in [Key Concepts](/technical/integration-overview/key-concepts).
+
+| Scope | Read by | Use for |
+| --- | --- | --- |
+| Public | The person, and any participant who has their Extole person id, through `GET /api/v4/person/{personId}` | Values you are willing to show in creative or to another participant, such as a display label |
+| Private | The person themselves, through `GET /api/v4/me`, and your team through `GET /v5/persons/{person_id}/data` | Everything else |
+
+<Warning>
+Neither scope is a place for secrets. Both are returned to the person's own browser session, so
+send only data you would let that person read.
+</Warning>
+
+Campaign rules read a profile attribute by name whichever scope holds it — a reward rule written
+as `context.getPerson().getData().get('country')` matches a value written through
+`me.public.country` or `me.private.country`.
+
+## Example: Add a Country to a Manual Event
+
+The **Create Event** form writes profile data the same way an API event does.
+
+1. Open **User Support** > [Create Event](https://my.extole.com/create-event) and fill out the
+   form as described in
+   [How to Manually Create a Referral or other Event](/guides/rewards-management/reward-fulfillment/how-to-manually-create-a-referral-or-other-event).
+2. Under **Additional Event Data**, add the key `me.public.country` with the value `US`.
+3. Submit the event.
+4. Open that person's **View Person** page from **User Support** > **Search For People**, and
+   read `country` under **Public Data**.
+
+An unprefixed `country` key does not reach the profile. It is recorded as data on the event, and
+a reward rule that reads the person's profile finds nothing there.
+
+## What Is Not Written to the Profile
+
+| Case | Result |
+| --- | --- |
+| A key with no `me.` or `person.` prefix | Recorded as event data. It reaches the profile only when the campaign's data schema for that event persists it to the profile. |
+| An empty value, or the literal string `null` or `undefined` | Ignored. Sending an empty value does not clear an attribute — delete it with `DELETE /v5/persons/{person_id}/data/{name}`. |
+| A value identical to the one already on the profile | No write. The profile is left as it is. |
+| A value longer than 4,000 characters | Written truncated to 4,000 characters. |
+
+Four `person.` keys update the profile's own fields instead of creating an attribute of that
+name: `person.email`, `person.first_name`, `person.last_name`, and `person.partner_user_id`. So
+do `person.cookie_consent`, `person.processing_consent`, and their `_type` variants.
+
+<Tip>
+To set a person's email, name, or partner user id, send the plain `email`, `first_name`,
+`last_name`, and `partner_user_id` keys in event data. Extole applies those to the profile
+fields directly, with no prefix needed. An email already on a profile is not replaced.
+</Tip>
+
+## How to Confirm the Value Landed
+
+- **My Extole:** open the person's **View Person** page from **User Support** >
+  **Search For People**. Profile attributes are grouped under **Public Data**, **Private Data**,
+  and **Client Data**.
+- **API:** call `GET /v5/persons/{person_id}/data`. A synchronous `POST /v6/events` returns the
+  `person_id` it resolved, so a sender can verify its own event.
+
+## Related Documentation
+
+- [Key Concepts](/technical/integration-overview/key-concepts) — profile and event data scopes
+- [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events)
+- [How to Manually Create a Referral or other Event](/guides/rewards-management/reward-fulfillment/how-to-manually-create-a-referral-or-other-event)
