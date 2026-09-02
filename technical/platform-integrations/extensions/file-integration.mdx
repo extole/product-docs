@@ -1,22 +1,22 @@
 ---
 title: "File Integration"
-description: "Install the File Integration extension to detect inbound event files, validate their headers, and create one event per row."
+description: "Install the File Integration extension so files delivered to your Extole directory become jobs that validate headers and create one event per row."
 ---
 
 ## Overview
 
-File Integration is an event-source extension. It watches a connection for incoming files, validates them, and turns each row into an event.
+File Integration is an extension that turns files delivered to your Extole directory into jobs that run on their own. Each job pairs the triggers that decide when a run starts with an ordered list of tasks to perform against every delivered file.
 
-Use it when you want a recurring inbound CSV or SFTP feed — not a one-off upload, and not a custom inbound partner campaign.
+Use it for a recurring inbound CSV or SFTP feed — not a one-off [Batch Jobs](/technical/platform-integrations/files/general-file-uploads) upload, and not a custom inbound partner campaign.
 
 | Goal | Use |
 | :--- | :--- |
 | Recurring inbound event files | This extension |
-| A one-off CSV, PSV, or JSON upload | [General File Uploads](/technical/platform-integrations/files/general-file-uploads) (Batch Jobs) |
-| Stand up or connect the SFTP server the feed uses | [Extole SFTP Server](/technical/platform-integrations/files/extoles-sftp-server) or [External SFTP Servers](/technical/platform-integrations/files/external-sftp-servers) |
+| A one-off CSV, PSV, or JSON upload | [General File Uploads](/technical/platform-integrations/files/general-file-uploads) |
+| Create the Extole SFTP directory the files land in | [Extole SFTP Server](/technical/platform-integrations/files/extoles-sftp-server) |
 | Connect an outside platform that posts events or webhooks | [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) |
 
-The file's column layout is documented on [File-based Events](/technical/platform-integrations/files/file-based-events). This page covers installing the extension and pointing a job at those files.
+The column layout for event files is on [File-based Events](/technical/platform-integrations/files/file-based-events). This page covers installing the extension and configuring the job that already ships with it.
 
 <Info>
 File Integration lives on **Partners** > **Extensions**. The campaign that wraps the install is the container; open the extension itself, not the campaign URL.
@@ -28,54 +28,45 @@ File Integration lives on **Partners** > **Extensions**. The campaign that wraps
 2. Select the **Extensions** tab, then click **+ New Extension**.
 3. Select **File Integration** and install it.
 
-The installed extension has three tabs: **Overview**, **Configuration**, and **Job history**.
+The installed extension has three tabs: **Overview**, **Configuration**, and **Job History**.
+
+The install already includes an **Event File** job. Open **Configuration** and configure that job. Add another job only when you need a second pipeline.
 
 If the account already has a live File Integration, configure that copy rather than installing a second one.
 
-## Choose a Source Connection
+## Configure the Event File Job
 
-On **Configuration**, **Source connection** is the system every job in this extension reads files from. Create the SFTP server in the Tech Center first, then select it here. The extension does not create the server.
+On **Configuration**, the **Jobs** list shows **Event File**. That job processes every row of a matching file as a discrete event. It is enabled when the extension is installed.
 
-See [Extole SFTP Server](/technical/platform-integrations/files/extoles-sftp-server) to add an Extole-hosted server, or [External SFTP Servers](/technical/platform-integrations/files/external-sftp-servers) to send files from a server you host.
-
-You can install the extension before the server exists. Select the connection when the server is ready; jobs will not see files until they have one.
-
-## Add an Event File Job
-
-On **Configuration**, under **Jobs**, click **+ New Job** and choose **Event file**.
-
-The Event file job processes each matching file as a set of discrete events. Set:
-
-- **Name**: the label that appears in the UI and in **Job history**
-- **Expected frequency**, **Expected time**, **Timezone**, and **Grace window**: when the file should arrive. If no file arrives within the grace window, a missed-window alert fires
-- **Enabled**: turn the job on when the triggers and tasks match the files you will send
-
-Click **Save**.
+Deliver files over [Extole SFTP](/technical/platform-integrations/files/extoles-sftp-server) into the directory you want processed. There is no source-connection picker on the extension — the job watches files that have already landed in your Extole directory.
 
 ### Triggers
 
-An Event file job ships with two triggers. Both must match for a file to run.
+**Event File** ships with one trigger:
 
-- **Lands in directory**: the directory path on the source connection. Set this to the folder where files are delivered. Do not assume `/events` unless that is the folder you actually use.
-- **File name matches**: **Match Type** is **Regex** or **Exact**, plus a **Pattern**. Regex uses JavaScript regular expression syntax (`.*\.csv$` matches any CSV file). Glob syntax such as `*.csv` is not a regex. Leave the library pattern in place unless you have a naming convention to enforce. A guessed prefix silently drops every other CSV the job would have processed.
+- **File Name Matches**, setting **Filename Match Pattern**. The library default is `.*\.csv$` (any CSV filename, JavaScript regular expression syntax — not glob syntax such as `*.csv`). Leave that pattern unless you have a naming convention to enforce. A guessed prefix silently drops every other CSV the job would have processed.
 
-Add another trigger with **+ New Trigger** only when the two defaults are not enough.
+**Lands In Directory** is available to add. Its **Watch Directory** setting is the path prefix to watch (library default `/incoming`). Add it when you need the job to ignore CSVs that land anywhere else. Both triggers must match for a file to run.
 
 ### Tasks
 
-An Event file job ships with two tasks, in order:
+**Event File** ships with two tasks, in order:
 
-1. **Validate column headers**: the header row the file must carry.
-   - **Expected Headers**: one column name per line, matching the file's header row.
-   - **Match Mode**: **Exact set — same headers, any order**, **Ordered — same headers, same order**, or **Subset — file may include extra headers**.
-   - **On Mismatch**: **Fail**, or **Warn and continue**.
-2. **Create events**: one event per row. Include an `event_name` column when rows represent more than one event type, as described in [File-based Events](/technical/platform-integrations/files/file-based-events).
+1. **Validate Column Headers**
+   - **Expected File Headers**: the column names a file must contain. The library default is `email`. Replace that list with the header row you actually send.
+   - **On Mismatch**: **FAIL** stops the run; **WARN** records a warning and continues. The library default is **FAIL**. Headers must match as the same set in any order.
+2. **Create Events**: one event per row of the validated file.
+   - **Event Name**: the event that fires for every row. Leave it empty to take the event name from the file itself (the `event_name` column on [File-based Events](/technical/platform-integrations/files/file-based-events)).
 
-A sample header row is the contract for **Expected Headers**. Do not invent columns the file does not contain.
+A sample header row is the contract for **Expected File Headers**. Do not invent columns the file does not contain.
+
+**Update Audience** is a separate task you can add. It adds, removes, or replaces audience members from the delivered file. It is not on the default **Event File** job.
 
 ## Watch Job History
 
-Open **Job history** to see each run: the file name, time, duration, row count, and success or failure. Expand a run for the trigger and task breakdown, readable errors, and the file itself.
+Open **Job History** to see each run. A run shows the job name, time, file name, how many triggers and tasks ran, and status. Expand a run for the step-by-step trigger and task breakdown, including error text. Download the file from the run when you need the original.
+
+Until a matching file has landed, the tab reads **No job history yet**.
 
 ## Related Articles
 
