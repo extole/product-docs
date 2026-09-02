@@ -1,0 +1,86 @@
+---
+title: "File Integration"
+description: "Install the File Integration extension to detect inbound event files, validate their headers, and create one event per row."
+---
+
+## Overview
+
+File Integration is an event-source extension. It watches a connection for incoming files, validates them, and turns each row into an event.
+
+Use it when you want a recurring inbound CSV or SFTP feed — not a one-off upload, and not a custom inbound partner campaign.
+
+| Goal | Use |
+| :--- | :--- |
+| Recurring inbound event files | This extension |
+| A one-off CSV, PSV, or JSON upload | [General File Uploads](/technical/platform-integrations/files/general-file-uploads) (Batch Jobs) |
+| Stand up or connect the SFTP server the feed uses | [Extole SFTP Server](/technical/platform-integrations/files/extoles-sftp-server) or [External SFTP Servers](/technical/platform-integrations/files/external-sftp-servers) |
+| Connect an outside platform that posts events or webhooks | [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) |
+
+The file's column layout is documented on [File-based Events](/technical/platform-integrations/files/file-based-events). This page covers installing the extension and pointing a job at those files.
+
+<Info>
+File Integration lives on **Partners** > **Extensions**. The campaign that wraps the install is the container; open the extension itself, not the campaign URL.
+</Info>
+
+## Install File Integration
+
+1. Open [Partners](https://my.extole.com/integrations) in My Extole.
+2. Select the **Extensions** tab, then click **+ New Extension**.
+3. Select **File Integration** and install it.
+
+The installed extension has three tabs: **Overview**, **Configuration**, and **Job history**.
+
+If the account already has a live File Integration, configure that copy rather than installing a second one.
+
+## Choose a Source Connection
+
+On **Configuration**, **Source connection** is the system every job in this extension reads files from. Create the SFTP server in the Tech Center first, then select it here. The extension does not create the server.
+
+See [Extole SFTP Server](/technical/platform-integrations/files/extoles-sftp-server) to add an Extole-hosted server, or [External SFTP Servers](/technical/platform-integrations/files/external-sftp-servers) to send files from a server you host.
+
+You can install the extension before the server exists. Select the connection when the server is ready; jobs will not see files until they have one.
+
+## Add an Event File Job
+
+On **Configuration**, under **Jobs**, click **+ New Job** and choose **Event file**.
+
+The Event file job processes each matching file as a set of discrete events. Set:
+
+- **Name**: the label that appears in the UI and in **Job history**
+- **Expected frequency**, **Expected time**, **Timezone**, and **Grace window**: when the file should arrive. If no file arrives within the grace window, a missed-window alert fires
+- **Enabled**: turn the job on when the triggers and tasks match the files you will send
+
+Click **Save**.
+
+### Triggers
+
+An Event file job ships with two triggers. Both must match for a file to run.
+
+- **Lands in directory**: the directory path on the source connection. Set this to the folder where files are delivered. Do not assume `/events` unless that is the folder you actually use.
+- **File name matches**: **Match Type** is **Regex** or **Exact**, plus a **Pattern**. Regex uses JavaScript regular expression syntax (`.*\.csv$` matches any CSV file). Glob syntax such as `*.csv` is not a regex. Leave the library pattern in place unless you have a naming convention to enforce. A guessed prefix silently drops every other CSV the job would have processed.
+
+Add another trigger with **+ New Trigger** only when the two defaults are not enough.
+
+### Tasks
+
+An Event file job ships with two tasks, in order:
+
+1. **Validate column headers**: the header row the file must carry.
+   - **Expected Headers**: one column name per line, matching the file's header row.
+   - **Match Mode**: **Exact set — same headers, any order**, **Ordered — same headers, same order**, or **Subset — file may include extra headers**.
+   - **On Mismatch**: **Fail**, or **Warn and continue**.
+2. **Create events**: one event per row. Include an `event_name` column when rows represent more than one event type, as described in [File-based Events](/technical/platform-integrations/files/file-based-events).
+
+A sample header row is the contract for **Expected Headers**. Do not invent columns the file does not contain.
+
+## Watch Job History
+
+Open **Job history** to see each run: the file name, time, duration, row count, and success or failure. Expand a run for the trigger and task breakdown, readable errors, and the file itself.
+
+## Related Articles
+
+- [Files](/technical/platform-integrations/files)
+- [File-based Events](/technical/platform-integrations/files/file-based-events)
+- [General File Uploads](/technical/platform-integrations/files/general-file-uploads)
+- [Extole SFTP Server](/technical/platform-integrations/files/extoles-sftp-server)
+- [Extensions](/technical/platform-integrations/extensions)
