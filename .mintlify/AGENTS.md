@@ -49,6 +49,33 @@ Does **not** apply to `api-reference/*.json`. Mintlify generates the entire API 
 tab from those OpenAPI bundles, which are written by CI from `extole/openapi`. Never
 hand-edit a spec to fix wording.
 
+## Where a page lives
+
+Choose the tab by **who performs the work**, not by the topic or by whether the title
+starts with "How to". **Guides is the largest tab and the wrong default.**
+
+- **Guides** (`guides/`): a marketer or operator finishes the work in My Extole —
+  campaign setup, creative, audiences, rewards, reporting, QA, strategy.
+- **Technical Docs** (`technical/`): an integration owner diagnoses or implements —
+  site tags, SDKs, APIs, zone requests, targeting parameters, domains, SSL, webhooks,
+  partner integrations, and symptom-to-cause troubleshooting. A page that explains a
+  platform mechanism belongs here even when the symptom showed up on a campaign.
+- **Product Docs** (`product/`): what a capability is — overviews, program types,
+  concepts. Not the My Extole click-path and not the implementation.
+- **News** (`news/`): announcements. Not evergreen pages.
+- **Runbooks** (`runbooks/`): hidden operational checklists for Extole's own review
+  work. Not customer pages.
+
+If the topic has both a My Extole click-path and a platform mechanism, put the
+mechanism in Technical Docs. A Guides page, if one is needed, is short and links
+to it — do not bury zone selection, journey pinning, targeting hints, certificates,
+or tag behavior under Programs & Campaigns.
+
+The live corpus is mixed. Guides still contains a Technical Items group and some
+targeting and webhook pages from the migration. Do not copy those placements for
+new pages. Match neighbouring pages for structure and house style after the tab
+is chosen, not in order to choose it.
+
 ## Brand voice
 
 Professional and informative, optimistic and encouraging, confident. Client-centric,
@@ -105,9 +132,11 @@ field (the old ReadMe corpus called it `excerpt`) and it is what appears in sear
 social previews. Optional Mintlify fields include `sidebarTitle`, `icon`, `noindex`, `mode`.
 
 Navigation placement is **not** frontmatter. Add the page's path, without the `.mdx`
-extension, to the correct group in `docs.json` under `navigation.tabs[] → groups[] →
-pages[]`. **A page that is not listed in `docs.json` ships unreachable** — it passes the
-build with no error and no warning, so nothing will catch it for you.
+extension, to the group that matches **Where a page lives** above, in `docs.json`
+under `navigation.tabs[] → groups[] → pages[]`. **A page that is not listed in
+`docs.json` ships unreachable** — it passes the build with no error and no warning,
+so nothing will catch it for you. Do not add a technical page to a Guides group
+because a similar title is already there.
 
 ## Formatting
 

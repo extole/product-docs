@@ -11,7 +11,8 @@ enforces is defined there, each stated in full, so writing to it needs no other 
 
 **Process:**
 
-- Skill: [`.agents/skills/product-docs-authoring/SKILL.md`](.agents/skills/product-docs-authoring/SKILL.md) — the authoring workflow, `docs.json` nav placement, PR flow, and pre-PR self-review.
+- Skill: [`.agents/skills/product-docs-placement/SKILL.md`](.agents/skills/product-docs-placement/SKILL.md) — **load before writing a new page**: which tab and group the page belongs in. Guides is not the default.
+- Skill: [`.agents/skills/product-docs-authoring/SKILL.md`](.agents/skills/product-docs-authoring/SKILL.md) — the authoring workflow, PR flow, and pre-PR self-review.
 - Skill: [`.agents/skills/mintlify-branch-preview/SKILL.md`](.agents/skills/mintlify-branch-preview/SKILL.md) — **load before creating any branch/PR**: how to get a rendered preview, and the `npx mint@latest validate` gate every change owes.
 - Rule (always-on): [`.agents/rules/product-docs-style.mdc`](.agents/rules/product-docs-style.mdc) — a short pointer to the standards file, plus three guardrails.
 
@@ -42,14 +43,18 @@ distillation and defers to them.
 
 | Path | Purpose |
 |------|---------|
-| `guides/`, `product/`, `technical/`, `news/`, `runbooks/` | Customer-visible pages — `.mdx` with YAML frontmatter (`title`, `description`). |
+| `guides/` | Customer-visible marketer/operator how-tos in My Extole. Not the default for new pages. |
+| `product/` | Customer-visible product and program overviews — what a capability is. |
+| `technical/` | Customer-visible integration, diagnosis, and implementation pages. |
+| `news/` | Announcements. Not evergreen pages. |
+| `runbooks/` | Hidden operational checklists for Extole's own review work. |
 | `docs.json` | Site config **and** the entire navigation (`navigation.tabs[] → groups[] → pages[]`). A page is unreachable until its path (no `.mdx`) is listed here. |
 | `api-reference/*.json` | OpenAPI bundles synced by CI from [`extole/openapi`](https://github.com/extole/openapi) (`sync-to-mintlify.yml`), which extracts them from pluribus. Mintlify **generates** the whole API Reference tab from them — don't hand-edit, and leave the `openapi-preview-*` branches that pipeline owns alone. |
 | `images/` | Page assets, referenced root-relative (`/images/…`). `images/extole-manifest.json` inventories the migrated ones. |
 | `url-map.json` | Old-URL → new-path redirects; the converter emits them into `docs.json`. Add an entry whenever you rename or move a page. |
 | `scripts/convert_from_product_docs.py` | The deterministic generator that produced these pages from the ReadMe corpus. Kept for provenance — never re-run it over pages that have been hand-edited since. |
 | `.github/workflows/validate.yml` | CI: runs `npx --yes mint@latest validate` on every PR and on pushes to `main`. The **`validate`** check is required to merge. |
-| `.mintlify/AGENTS.md` | The writing standards. Never served publicly — Mintlify does not expose `.mintlify/`. |
+| `.mintlify/AGENTS.md` | The writing standards, including where a page lives. Never served publicly — Mintlify does not expose `.mintlify/`. |
 | `AGENTS.md`, `.agents/`, `.claude/`, `.cursor/` | Agent config — not published. `.agents`/`.claude` are Mintlify built-in ignores (Claude Code's `CLAUDE.md` lives in `.claude/`); `.cursor/` and `AGENTS.md` are in `.mintignore`. The built-ins do **not** cover repo-root Markdown, so an un-ignored root `AGENTS.md` is served at `/agents.md`. |
 
 ## Tooling
@@ -77,6 +82,7 @@ distillation and defers to them.
 5. **Default branch is `main`, with no branch-name requirement.** Do not carry over the `v4.0.0_<slug>` prefix the ReadMe repo needed. A rendered preview comes from the **PR** (and is not always produced — see the [`mintlify-branch-preview`](.agents/skills/mintlify-branch-preview/SKILL.md) skill), while the AI assistants can read any **pushed branch** directly through `docsBranch`.
 6. **MDX is JSX-strict.** A broken tag fails the whole build. Run `npx mint@latest validate` before opening the PR.
 7. **Scope PRs to docs.** Don't touch `api-reference/` specs, `scripts/`, or `url-map.json` unless that's the task.
+8. **Place a new page by who acts**, not by neighbouring titles in Guides. Load [`product-docs-placement`](.agents/skills/product-docs-placement/SKILL.md) before writing; Guides is not the default tab.
 
 ## Open decisions
 
