@@ -13092,7 +13092,7 @@
     },
     "/v6/sftp-destinations/{sftpDestinationId}/entries" : {
       "get" : {
-        "description" : "Lists files and directories under a path in a local SFTP destination home. Paths are relative to the destination root; `..` segments that leave that root are rejected. Already-processed marker files are omitted. Use `offset_token` from a previous response to page through large directories.",
+        "description" : "Lists files and directories under a path in a local SFTP destination home. Paths are relative to the destination root. Any `..` segment is rejected, including paths that would stay inside the destination after normalization. Already-processed marker files are omitted. `type` filters the listing to `ALL` (default), `DIRECTORY`, or `FILE`. `limit` is the page size, default `100`, accepted range 1-1000 inclusive. Use `offset_token` from a previous response to page through large directories.",
         "operationId" : "listSftpDestinationEntries",
         "parameters" : [ {
           "in" : "path",
@@ -13136,41 +13136,8 @@
             "content" : {
               "application/json" : {
                 "examples" : {
-                  "binding_error" : {
-                    "$ref" : "#/components/examples/binding_error"
-                  },
-                  "invalid_json" : {
-                    "$ref" : "#/components/examples/invalid_json"
-                  },
                   "invalid_limit" : {
                     "$ref" : "#/components/examples/invalid_limit"
-                  },
-                  "invalid_offset" : {
-                    "$ref" : "#/components/examples/invalid_offset"
-                  },
-                  "invalid_parameter" : {
-                    "$ref" : "#/components/examples/invalid_parameter"
-                  },
-                  "max_fetch_size_1000" : {
-                    "$ref" : "#/components/examples/max_fetch_size_1000"
-                  },
-                  "missing_request_body" : {
-                    "$ref" : "#/components/examples/missing_request_body"
-                  },
-                  "sftp_destination_not_found" : {
-                    "$ref" : "#/components/examples/sftp_destination_not_found"
-                  },
-                  "sftp_path_invalid" : {
-                    "$ref" : "#/components/examples/sftp_path_invalid"
-                  },
-                  "sftp_path_not_found" : {
-                    "$ref" : "#/components/examples/sftp_path_not_found"
-                  },
-                  "unsupported_operation" : {
-                    "$ref" : "#/components/examples/unsupported_operation"
-                  },
-                  "username_exists_on_sftp_server" : {
-                    "$ref" : "#/components/examples/username_exists_on_sftp_server"
                   }
                 },
                 "schema" : {
@@ -13178,7 +13145,7 @@
                 }
               }
             },
-            "description" : "Bad Request"
+            "description" : "Bad request. `limit` must be an integer from 1 to 1000. Other 400 causes include an invalid or missing path and malformed query parameters — inspect the response `code` field."
           },
           "401" : {
             "content" : {
