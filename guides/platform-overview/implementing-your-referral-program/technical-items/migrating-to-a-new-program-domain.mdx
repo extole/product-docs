@@ -1,0 +1,117 @@
+---
+title: "Migrating to a New Program Domain"
+description: "Move your program onto a new branded domain so new share links carry your new brand, while every link already shared keeps working."
+---
+
+# Overview
+
+Your share links and promotion links are built on a program domain — a branded host such as `share.mycompany.com`. When you rebrand, consolidate two brands, or move to a new company domain, you move your program onto a new branded domain.
+
+You never replace or delete the old domain. You add the new one and then redirect the old one to it. Extole keeps the old domain alive and forwards it, so links your advocates shared years ago still work and still earn credit.
+
+The migration has four steps, in this order:
+
+1. Create a CNAME for the new domain.
+2. Add the new domain in Extole.
+3. Update your core tag to the new domain.
+4. Redirect the old domain to the new one.
+
+<Note>
+Both domains can run side by side for as long as you need. Prepare the new domain, update your site, and switch over when everything is ready. No downtime is required.
+</Note>
+
+## Before You Begin
+
+* **Keep the old domain forever.** Don't delete it in Extole, and don't remove its DNS record. Extole serves the forward from that host, so if it stops pointing at Extole, every link already in the wild stops working.
+* **Pick the new host.** Use a subdomain of your brand domain — `share.mycompany.com` or `refer.mycompany.com`. It must point at Extole directly; it can't be a path such as `www.mycompany.com/share`.
+* **Plan your email records.** If your program emails send from the old brand, you also need SPF and DKIM records for the new domain. See [Extole DNS Requirements](/technical/operational-tasks/account-configuration/extole-dns-requirements).
+* **Tell your CSM.** Program copy, promotion links, and email sending addresses that name the old brand are updated separately from the domain itself.
+
+## Step 1: Create a CNAME for the New Domain
+
+Point the new branded host at your Extole program domain — the unbranded `mycompany.extole.io` host shown in [Tech Center](https://my.extole.com/tech-center) under **Program Domains**. If more than one is listed and you aren't sure which to use, ask your CSM.
+
+**Example DNS update**:
+
+```text
+share.newbrand.com. 86400 IN	CNAME	mycompany.extole.io.
+```
+
+Leave the CNAME for the old domain exactly as it is. You now have two hosts pointing at Extole, which is what lets the forward work later.
+
+For registrar instructions, corporate DNS, and certificate details, see [Extole DNS Requirements](/technical/operational-tasks/account-configuration/extole-dns-requirements).
+
+## Step 2: Add the New Domain in Extole
+
+Navigate to [Tech Center](https://my.extole.com/tech-center) > **Program Domains** and click **+ New Domain**. Complete the form:
+
+* **Name**: an internal label, such as New Branded Referral Domain.
+* **Referral Domain**: the new host, such as `share.newbrand.com`.
+* **Production Sites Extole Should Support Requests From**: the sites your program runs on, including the new brand's site.
+* **Testing Sites Extole Should Support Requests From**: your staging and test sites.
+
+Save the domain. Extole generates a certificate for it from Let's Encrypt and renews it automatically.
+
+Watch the **CNAME Status** column on the **Program Domains** list. It reads **Checking** while Extole verifies your DNS and **Pass** once the record resolves. Wait for **Pass** before moving on. If it reads **Not configured**, the CNAME hasn't propagated or was created as a different record type.
+
+Both domains now show as **Active**, which is expected at this stage.
+
+## Step 3: Update Your Core Tag
+
+Replace the core tag on your site so it loads from the new domain:
+
+```html
+<!-- BEFORE -->
+<script type="text/javascript" src="https://share.oldbrand.com/core.js" fetchpriority="high" async></script>
+
+<!-- AFTER -->
+<script type="text/javascript" src="https://share.newbrand.com/core.js" fetchpriority="high" async></script>
+```
+
+Copy the exact tag from [Tech Center](https://my.extole.com/tech-center) > **Tag Generator**. Update every place the tag is set, including your tag manager container.
+
+<Warning>
+**Update your tag before you redirect**
+
+Once the old domain is redirecting, the responses it returns set Extole's identity cookies for the new domain. A browser won't accept a cookie for a domain it isn't talking to, so a visitor whose page still loads the tag from the redirected domain stops being recognized from one page view to the next.
+</Warning>
+
+## Step 4: Redirect the Old Domain
+
+Edit the **old** domain — not the new one — in [Tech Center](https://my.extole.com/tech-center) > **Program Domains**:
+
+1. Click the pencil icon on the old domain's row.
+2. Select **Disable program domain and redirect all traffic to:**.
+3. Choose the new domain from the list.
+4. Click **Save**.
+
+The old domain's status changes from **Active** to **Redirecting**, and the new domain is the only **Active** one. That is the whole switch — there is no program URL field to edit anywhere else.
+
+## What Happens When You Redirect a Domain
+
+* **Links already shared keep working.** A visit to `share.oldbrand.com/ABC123` is forwarded to `share.newbrand.com/ABC123` — the same share code, with the path and any query parameters preserved. The advocate still gets credit for the referral.
+* **New links are created on the new domain.** Every place Extole builds a link follows the redirect: share links, promotion links, and links inside your program and reward emails.
+* **Your site lists move to the new domain.** The production and testing sites you had listed on the old domain are archived there and copied onto the new domain, so the new domain covers everything the old one did.
+* **One active domain serves your program.** While two active domains both list the same site, which one serves a visitor isn't something you set. Redirecting the old domain leaves exactly one, which is what makes the switch take effect.
+* **Redirects follow a chain.** If you migrate again later, a link on your oldest domain still lands on your current one.
+* **The old domain stays in your account.** Extole doesn't delete program domains, because there are always links in the wild that depend on them.
+
+## Reversing the Change
+
+Edit the redirecting domain, clear **Disable program domain and redirect all traffic to:**, and click **Save**. It returns to **Active**.
+
+Because your production and testing site lists moved to the new domain in step 4, add them back to the old domain after reversing. Switch your core tag back at the same time.
+
+## Program Domain Statuses
+
+| Status | Meaning |
+| --- | --- |
+| Active | The domain serves your program, and new links are created on it. |
+| Redirecting | The domain forwards all traffic to another program domain. Existing links still work. |
+
+| CNAME Status | Meaning |
+| --- | --- |
+| Checking | Extole is verifying your DNS record. |
+| Pass | The CNAME resolves to Extole. |
+| Not configured | No CNAME was found, or it was created as a different record type. |
+| Unavailable | Extole has no validation result for this domain yet. |
