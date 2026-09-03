@@ -1,0 +1,138 @@
+---
+title: "Why a CTA Opens a Different Program's Share Experience"
+description: "Why a CTA can open a different program's share experience when several programs are live at once, and how to give each program its own share experience."
+---
+
+# Overview
+
+When you run more than one referral program on the same site, each program has its own
+call-to-action, but they can end up opening the **same** share experience. A customer clicks the
+CTA for one program and the share experience that opens belongs to another one.
+
+This is not a broken CTA and it is not a mis-targeted campaign. It happens because the programs
+share a **zone name** for the share experience, and Extole keeps each person in one program at a
+time. This page explains the behavior and the setting that fixes it.
+
+## How Extole Picks Which Program Answers a Zone
+
+A zone is a named place on your site where Extole serves content. When a zone request arrives,
+Extole gathers every live campaign that publishes that zone name — the **candidates** — and then
+decides between them in a fixed order:
+
+1. **Journey check.** If the person is already in a journey that one of the candidates owns, that
+   candidate answers. The person stays in the program they are already in.
+2. **Journey entry.** Only if no candidate matches an existing journey does Extole start a new
+   journey and pick a candidate for it.
+
+That order is what keeps a returning advocate's experience consistent: someone part-way through
+one program does not get pulled into another one because they landed on a different page.
+
+It also produces the behavior on this page. **When only one campaign publishes a zone name, there
+is only ever one candidate, so the zone always serves that program.** When several campaigns
+publish the same zone name, the journey check runs first — and once the person holds a journey,
+that journey decides, whichever CTA they clicked.
+
+<Info>
+Your program-specific CTA zones normally behave correctly for exactly this reason: each CTA zone
+name is published by one campaign, so it has a single candidate and always serves its own program.
+</Info>
+
+## Why the Share Experience Is the Zone That Collides
+
+Every CTA has a **CTA Popup Zone Name** setting, which names the zone the CTA opens. On the
+call-to-action component it defaults to `share_experience`, so programs built from the same theme
+inherit the same value. (Some themes set a different default — the welcome offer themes use
+`welcome_experience` — but sibling programs built the same way still share whichever one they
+inherit.)
+
+So two programs built from the same theme both publish that zone, both point their CTAs at it, and
+neither team has done anything wrong. The collision is the default rather than a misconfiguration,
+and it appears as soon as the second program goes live.
+
+The result for a customer with more than one program available to them:
+
+- Their first CTA click creates a journey and serves that program's share experience. This is
+  correct.
+- Every later CTA click, for any of the programs, matches that first journey and serves the **same**
+  share experience — even though they clicked a different program's CTA.
+
+Which program a person is pinned to therefore depends on which CTA they happened to click first,
+which is why the symptom looks intermittent and customer-specific.
+
+## What Does Not Fix It
+
+Two things that look like the fix are not:
+
+- **The program label on the share experience request.** The label sets which program is preferred
+  when a new journey is started. A visitor who already holds a journey never reaches that step, so
+  the label leaves them where they are.
+- **Adjusting the program-label rules** on the campaigns. The person is not being excluded by a
+  rule — they are being matched by an existing journey, which happens first.
+
+## How to Fix It
+
+There are two remedies, and they trade a campaign change against a site change.
+
+### Option 1: Give Each Program Its Own Share Experience Zone
+
+Recommended when you can change the campaigns. Each zone then has a single candidate, so the click
+decides again:
+
+1. For each program, choose a distinct zone name — for example `share_experience_poa`,
+   `share_experience_will`.
+2. In each campaign, open the CTA component's **basic settings** and set **CTA Popup Zone Name** to
+   that program's name.
+3. Build and publish every campaign you changed.
+4. Update any place that requests the old shared zone name directly — site tags, app integrations,
+   email links, and promotion links — so they ask for the program's new name.
+
+Once each share experience zone name is published by one campaign, the CTA click is what selects
+the program again, because the single candidate is reached through journey entry rather than
+journey check.
+
+<Warning>
+Changing a zone name changes what your site tags must request. Inventory every surface that asks
+for the old name before you publish, or those surfaces will request a zone no campaign publishes.
+</Warning>
+
+### Option 2: Send an Explicit Journey Hint
+
+Recommended when changing the campaigns is not practical. `journey.campaign_id` is a high-priority
+targeting hint that is considered ahead of the visitor's existing journey, so a share experience
+request carrying the intended campaign's id is served by that campaign even when the visitor is
+already in a sibling program's journey. See
+[Targeting](/guides/platform-overview/targeting) for how explicit hints rank against normal
+selection.
+
+This keeps one shared zone name and moves the work to whatever makes the share experience request —
+each CTA has to send the hint for its own program. Test it on one program before rolling it out; the
+hint has to reach the request that opens the share experience, not only an earlier page view.
+
+## How to Confirm the Behavior
+
+Test with a fresh browser session per program, and test the collision deliberately:
+
+1. In a clean session, click one program's CTA and confirm the share experience that opens belongs
+   to that program.
+2. In the **same** session, click a different program's CTA. Before the fix, the first program's
+   share experience opens again. After the fix, the second program's own share experience opens.
+3. Repeat in a new clean session starting with the other program, to confirm the result follows the
+   fix and not the order of clicks.
+
+Testing each program only in its own clean session hides the problem entirely, because a fresh
+visitor holds no journey and the journey check has nothing to match.
+
+## Measuring How Many Customers Were Affected
+
+To size the impact, compare the program a person's CTA views belong to against the program that
+served their share experience, per person.
+
+Two things will give you a wrong answer:
+
+- **The share experience step's own source column** reports the zone name as read back from the
+  campaign that rendered it, so it always agrees with itself and reports no mismatches.
+- **Pairing a CTA view to the next share experience by time** over-counts, because promotion view
+  events are recorded once per person per zone rather than once per click.
+
+The reliable comparison is at the person level: people whose CTA views name only one program, who
+also have a share experience recorded under a different one.
