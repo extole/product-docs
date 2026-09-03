@@ -291,6 +291,42 @@ curl --request POST "$EXTOLE_API_HOST/v6/events" \
   }'
 ```
 
+A `2xx` means Extole accepted the event, not that it matched a business event. Watch the integration Event Stream before you read person events.
+
+Open the integration in **Integrations**, open its Event Stream tab, and start the stream if it is stopped. The stream must include application type `API` as well as the partner type; [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views) shows that filter. Search with [Event Stream Query Language](/technical/platform-integrations/extensions/event-streams-overview/event-stream-query-language):
+
+1. `event_id=` followed by the identifier the send returned. That row is the Input.
+2. `root_event_id=` followed by the same identifier. Downstream events have their own `event_id`; they share the Input's identifier as `root_event_id`.
+
+Open the JSON on each matching row. That payload is the log. The table columns are a summary; the verdict comes from the fields below.
+
+On the Input (`type` `INPUT`, `event_id` equal to the send):
+
+- `name` is the wire name you submitted.
+- `raw_data` is the partner payload as received.
+- `log_messages` records processing notes.
+
+On each descendant (`root_event_id` equal to the send):
+
+- A `type` `STEP` with the canonical `name` is the mapped business event.
+- Attribution is `campaign_context.quality`. `HIGH` and `LOW` mean a campaign selected this event. `NONE`, or a missing `campaign_context`, means the business event was recorded but not attributed.
+- `duplicate` `true` means this was not a new unique event.
+- `data` holds the mapped values.
+- `person_profile` must match the Input.
+- When a campaign did not select the event, `step_matching_campaign_contexts` lists each candidate. Each candidate's `trigger_results` `passed` flag and `log_messages` say why.
+
+Record a verdict from that JSON:
+
+| Verdict | When |
+| :--- | :--- |
+| PASS | The Input is present with the wire name, and a STEP follows it on `root_event_id` with the canonical name, the same person, the mapped values, and `campaign_context.quality` of `HIGH` or `LOW`. Name `LOW` in the reason when quality rules did not pass. |
+| FAIL | The Input is present and a STEP is missing, has the wrong canonical name, belongs to a different person, is missing mapped values, has no `campaign_context` or `quality` `NONE`, or is `duplicate` when a new unique identifier was sent. |
+| INCONCLUSIVE | The stream is stopped, filtered without `API`, or still empty after a bounded wait. Name the stream identifier and the filter that blocked the read. |
+
+A stream filtered to a partner application type only, or to reward events only, will not show this submit. That is a misconfigured integration stream, not a reason to call the test done from **Tech Center** > **Event Streams** > **Input Events**. Use that Tech Center stream only to diagnose the missing `API` filter, then fix the integration stream and re-run the test there.
+
+From **My Extole**, you can ask the assistant on the integration Event Stream tab or in global chat to send this test event and report PASS, FAIL, or INCONCLUSIVE with the event identifiers. That is the same loop, not a distinct product.
+
 Use the returned `person_id` to list the resulting events:
 
 ```bash
@@ -300,7 +336,7 @@ curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
   --data-urlencode "names=converted"
 ```
 
-Confirm the canonical event name and every mapped value, using a new unique identifier per repeat unless duplicate handling is under test. Cover:
+Confirm the canonical event name and every mapped value match what the stream already showed, using a new unique identifier per repeat unless duplicate handling is under test. Cover:
 
 - Every preferred partner input event.
 - Every supported legacy alias.
