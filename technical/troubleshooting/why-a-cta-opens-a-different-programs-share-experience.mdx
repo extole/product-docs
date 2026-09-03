@@ -61,13 +61,17 @@ which is why the symptom looks intermittent and customer-specific.
 
 ## What Does Not Fix It
 
-Two things that look like the fix are not:
+Three things that look like the fix are not:
 
 - **The program label on the share experience request.** The label sets which program is preferred
   when a new journey is started. A visitor who already holds a journey never reaches that step, so
   the label leaves them where they are.
 - **Adjusting the program-label rules** on the campaigns. The person is not being excluded by a
   rule — they are being matched by an existing journey, which happens first.
+- **A `campaign_id` request parameter.** This is not the journey hint, and it changes nothing here.
+  It leaves every candidate in the running, so the journey check still matches the journey the
+  person already holds. The hint has its own form, shown in
+  [Option 2](#option-2-send-an-explicit-journey-hint).
 
 ## How to Fix It
 
@@ -103,6 +107,20 @@ request carrying the intended campaign's id is served by that campaign even when
 already in a sibling program's journey. See
 [Targeting](/guides/platform-overview/targeting) for how explicit hints rank against normal
 selection.
+
+On a zone request, send the hint as a `target` parameter naming the campaign, alongside the
+program's own label:
+
+```
+GET /zone/share_experience?labels=<program label>&target=campaign_id:<campaign id>
+```
+
+<Warning>
+Send the hint **with** the program label, not instead of it. The hint narrows the candidates to the
+campaign you named, and journey entry then still needs the label to start the journey. A request
+carrying the hint and no label matches nothing and comes back empty, so the share experience does
+not open at all.
+</Warning>
 
 This keeps one shared zone name and moves the work to whatever makes the share experience request —
 each CTA has to send the hint for its own program. Test it on one program before rolling it out; the
