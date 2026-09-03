@@ -127,13 +127,14 @@ The goal is to determine why the reward was not issued.
 
 **Use Case**
 
-You have mapped a partner wire event onto a canonical Extole business event and need to prove a sanitized test event is received. Send the test through `POST /v6/events` as [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) describes, then watch Event Streams.
+You have mapped a partner wire event onto a canonical Extole business event and need to prove a sanitized test event is received. Send the test through `POST /v6/events` as [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) describes, then watch the integration's Event Stream tab.
 
 **What to Confirm**
 
-* The Input event appears for the returned event identifier.
-* The mapped business event follows it.
+* The Input event appears when you search `event_id=` followed by the identifier the send returned.
+* The mapped business event appears when you search `root_event_id=` followed by that same identifier. Downstream events have their own `event_id`.
+* The Input carries the wire name, the STEP carries the canonical name and mapped values, and both belong to the same person. Call that PASS. Call FAIL when the Input is present and the STEP is missing or wrong. Call INCONCLUSIVE when the stream is stopped or filtered without `API`.
 
 **Which Stream to Open**
 
-Open the integration's Event Stream tab when it is unfiltered enough to show an API submit. A stream filtered by partner application type, or to reward events only, will not show that submit — use **Tech Center** > **Event Streams** and the **Input Events** stream instead.
+Open the integration's Event Stream tab. That stream must include application type `API` as well as the partner type. A stream filtered by partner application type only, or to reward events only, will not show an API submit; treat that as a misconfigured integration stream, not as a reason to finish the test in **Tech Center** > **Event Streams** > **Input Events**.

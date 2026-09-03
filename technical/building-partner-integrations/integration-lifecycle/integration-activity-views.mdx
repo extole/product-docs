@@ -236,10 +236,10 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
-  --data '{"type": "APPLICATION_TYPE", "app_types": ["example"]}'
+  --data '{"type": "APPLICATION_TYPE", "app_types": ["example", "API"]}'
 ```
 
-Filter the feed to this integration's activity: `APPLICATION_TYPE` narrows it to the partner's app type and belongs on every stream. Add an `EVENT_TYPE` filter when the integration produces one recognizable class of event, as reward fulfillment does with `{"type": "EVENT_TYPE", "event_types": ["REWARD", "SEND_REWARD"]}`.
+Filter the feed to this integration's activity. `APPLICATION_TYPE` belongs on every stream. For an inbound integration, include both the partner's app type and `API`: a test submitted through `POST /v6/events` arrives with application type `API`, and a filter that lists only the partner type excludes it from the integration tab. Add an `EVENT_TYPE` filter when the integration produces one recognizable class of event, as reward fulfillment does with `{"type": "EVENT_TYPE", "event_types": ["REWARD", "SEND_REWARD"]}`. Do not add an `EVENT_TYPE` filter of `REWARD` on an inbound receive stream; that tab will never show the Input you are testing.
 
 
 ### Republish Again So the Views Resolve Their Elements
@@ -275,7 +275,7 @@ Read the **built** campaign — a component's own definition holds the buildtime
 
 - `reportRunnerId` and `eventStreamId` are non-null.
 - Each element's `component_ids` names its own view.
-- The stream carries `APPLICATION_TYPE`, plus any `EVENT_TYPE` filter needed.
+- The stream carries `APPLICATION_TYPE`. An inbound stream lists both the partner app type and `API`.
 - Every column `reportColumnsMapping` names is one the runner's `mappings` produces.
 - `schedule_start_date` is in the future.
 
