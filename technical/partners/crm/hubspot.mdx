@@ -1,161 +1,158 @@
 ---
-title: "Hubspot"
-description: "HubSpot is an AI-powered customer platform with all the software, integrations, and resources you need to connect your marketing, sales, and customer service."
+title: "HubSpot"
+description: "Sync advocate share links into HubSpot contact records, and send HubSpot form completions and deal outcomes to Extole for referral tracking and reward scoring."
 ---
+
+Extole connects to HubSpot in two directions: syncing advocate identity and share links into HubSpot contact records, and pulling HubSpot activity (form completions, deal outcomes) into Extole to track and reward referrals.
 
 ## Prerequisites
 
-<table>
-  <thead>
-    <tr>
-      <th style={{ textAlign: "left" }}>
-        Requirement
-      </th>
+| Requirement | Description |
+| --- | --- |
+| HubSpot account | An active HubSpot account. |
+| Extole account | An Extole account with access to the **Partners** section. |
+| Operations Hub Professional or higher | Required only if using the Extole HubSpot App — its serverless functions depend on this tier. |
 
-      <th style={{ textAlign: "left" }}>
-        Description
-      </th>
-    </tr>
-  </thead>
+<Tip>
+The [Extole CLI](/technical/extole-ai-tools/extole-cli/index) ([GitHub](https://github.com/extole/extole-cli)) and the [HubSpot CLI](https://developers.hubspot.com/docs/developer-tooling/local-development/hubspot-cli/install-the-cli) ([GitHub](https://github.com/HubSpot/hubspot-cli)) aren't required, but they make a couple of steps below faster: the Extole CLI to duplicate the `hubspot_share_controller` trigger onto a campaign, and the HubSpot CLI to create and deploy a custom serverless function.
+</Tip>
 
-  <tbody>
-    <tr>
-      <td style={{ textAlign: "left" }}>
-        Hubspot Bearer Token
-      </td>
+## Recommended Integration
 
-      <td style={{ textAlign: "left" }}>
-        A server-side API key to make requests to Hubspot's Contacts API.  
+The Extole HubSpot App and `hubspot_integration` — an integration you configure in your Extole account — work together to provide advocate sync, referral tracking, and deal scoring.
 
-        You can generate your Bearer Token in your Hubspot Developer account by creating a [private app](https://developers.hubspot.com/docs/guides/apps/private-apps/overview) with a `crm.objects.contacts.write `scope enabled.
-      </td>
-    </tr>
+### Extole HubSpot App
 
-    <tr>
-      <td style={{ textAlign: "left" }}>
-        Extole Account
-      </td>
+<Info>
+Currently distributed as a private app. This section will be updated once it's listed on the HubSpot Marketplace.
+</Info>
 
-      <td style={{ textAlign: "left" }}>
-        An Extole account is required in order to leverage this integration.
-      </td>
-    </tr>
-  </tbody>
-</table>
+The app is a HubSpot UI Extension with three features:
 
-## Hubspot and Extole Integration Use Cases
+**Configure Events** — Defines record-triggered events that fire to Extole when HubSpot records change. Admins create a workflow trigger in HubSpot's workflow builder; the app provides the action step that calls Extole with a configured event name and mapped properties. Supports Contact, Deal, Company, Ticket, and custom objects, with trigger types Record Created, Field Changed, and Field Value.
 
-1. Add personalized share links and codes to customer contact records.
-2. Automatically track referrals when referred prospects complete a Hubspot form. 
-3. Send Hubspot data as events to Extole to score and reward referrals.
+A common use case is deal-based referral rewards: a workflow on the Deal object triggers on `dealstage = closedwon`, with **Include associated contact data** enabled so the event carries both the deal's own properties (such as `amount`) and the contact's identity and advocate code in one payload.
 
-## Integration
+**Manage Advocate Codes** — Generates a JavaScript snippet for the client's site. When a friend arrives via an advocate's share link, the snippet reads the shareable code from the URL, persists it, and injects it as a URL query param on any page with a HubSpot form so the form's hidden `advocate_code` field is pre-populated at submission. Requires HubSpot-native forms; doesn't work with third-party form tools.
 
-## Add personalized share links and codes to customer contact records
+**Manage Share Links** — Automatically generates Extole share links for contacts and writes them to a configurable contact property, with auto-generation on contact create and bulk backfill for existing contacts. Includes **Anonymous Advocate Sync**: the reverse-direction webhook endpoint that Advocate Sync (below) sends requests to.
 
-Integrate Extole with HubSpot to automatically update contact records with the customers personalized share link and code. You can then pull the customers share link and code into your HubSpot marketing campaigns so that they can easily share it with friends.
+### Advocate Sync
 
-### Enable the Create Share Link Extension to Automatically Generate Share Links for New Customers
+Two pieces work together to push advocate data into HubSpot:
 
-1. In your Extole account, navigate to the **Partners** section, and select **Extensions** from the Partner dashboard.
-2. Enable the **Create Share Link on any Event** Extension.
-3. Choose the event name trigger you want to use for automatically generating a share link. For instance, if you want to create a share link for a customer when they convert for the first time, enter `converted`.
+- **`hubspot_integration`** — an integration in your Extole account that holds your HubSpot connection settings: the webhook URL and shared secret.
+- **`hubspot_share_controller`** — a trigger you attach to each campaign, so it fires whenever that campaign's advocate journey creates a share link.
 
-### Create a New API Key
+Together they dispatch the advocate's identity and share link to a HubSpot endpoint, which upserts the advocate's HubSpot contact: updating the share link and code on the existing contact if the advocate is already a HubSpot customer, or creating a new contact for them if not.
 
-1. In your Extole account, navigate to [Tech Center > Outbound Webhooks](https://my.extole.com/tech-center/outbound-webhooks).
-2. Hit the + New Integration button.
-3. Enter a name for the Key (this is how the key will be referenced within Extole).
-4. Select Webhook as the Key Type.
-5. Set the Algorithm to Password.
-6. Paste your Hubspot Bearer Token key into the key field (see [prerequisites](https://docs.extole.com/docs/hubspot#prerequisites).)
-7. Click Create Key.
+| Field | Source |
+| --- | --- |
+| `email` | Advocate's email |
+| `first_name` | Advocate's first name |
+| `last_name` | Advocate's last name |
+| `share_link` | Advocate's share link |
+| `shared_secret` | The Client Key value configured on the integration |
 
-<img src="/images/extole/8ee1014538310518dd9a1dbc8f0329e699d3744416140f788b7d89a680daad94.png" alt="Screenshot showing Click Create Key." width="60%" />
+Set it up:
 
-### Create a Webhook
+1. In **Security Center** > **Keys**, create a Client Key (Type: `Webhook`, Algorithm: `Password`) holding the shared secret from the app's Anonymous Advocate Sync section.
+2. In the integration's **Configuration** tab, set **Webhook URL** to the app's Anonymous Advocate Sync endpoint, and **Shared Secret** to reference that Client Key.
+3. Duplicate the `hubspot_share_controller` trigger into each marketing campaign that should sync advocates:
 
-1. In your Extole account, navigate to [Tech Center > Outbound Webhooks](https://my.extole.com/tech-center/outbound-webhooks).
-2. Hit the + New Webhook button.
-3. Enter a name and description for the webhook.
-4. Select Generic as the webhook **Type**
-5. Select the API key that you created as the Client Key
-6. Paste `api.hubapi.com/crm/v3/objects/contacts` as the API URL
-7. Select **POST** as the default method
-8. Reach out to your Extole Customer Success or Launch Manager so that they can add the webhook to the `created_share_link` controller in your Extole campaign.
-9. Once the webhook has been added to your Extole campaign, navigate to the Extole Tech Center > Outbound Webhooks and click on the webhook to make sure that share links and codes are flowing into Hubspot. A typical request body should look something like this with a 201 response.
+   ```bash
+   extole components duplicate <hubspot_share_controller-component-id> --target-campaign <target-campaign-id>
+   ```
+4. On the duplicated copy, set **Journey Names** to the campaign's real advocate journey (for example, `ADVOCATE`) and **HubSpot Webhook** to the integration's Dispatch Webhook setting. Publish the campaign.
+
+## Legacy and Custom Setups
+
+These are the setups Extole used for this integration before the HubSpot App existed. They're kept here for accounts that already built things this way, or that need finer control over the HubSpot side than the App provides.
+
+### Advocate Sync — Custom Endpoint
+
+Use the same `hubspot_share_controller` trigger from Recommended Integration above, but pair it with a HubSpot endpoint you build yourself instead of the App's Anonymous Advocate Sync endpoint.
+
+1. Create the function:
+
+   ```bash
+   hs cms function create <name> --functions-folder api.functions --filename advocate-sync.js --endpoint-method POST --endpoint-path api/<path>
+   ```
+2. Implement the handler to verify `shared_secret` and upsert the contact via the HubSpot CRM API, using a Private App access token or Service Key (contacts read/write scope) added as a function secret.
+3. Upload it:
+
+   ```bash
+   hs cms upload api.functions api.functions
+   ```
+4. The resulting URL is `https://<account-id>.hs-sites-<region>.com/_hcms/api/<path>`. Use this as the integration's **Webhook URL**, as in the section above.
+
+### Advocate Sync — Direct API Calls
+
+Extole calls HubSpot's Contacts API directly, with no integration or trigger involved.
+
+1. In your HubSpot developer account, create a private app with a `crm.objects.contacts.write` scope and generate a Bearer Token.
+2. In Extole's **Tech Center** > **Outbound Webhooks**, create a Client Key: select **Webhook** as the Key Type, **Password** as the Algorithm, and paste the Bearer Token as the key value.
+3. Create a webhook: Type **Generic**, Client Key set to the key from step 2, API URL `api.hubapi.com/crm/v3/objects/contacts`, method **POST**.
+4. Attach the webhook to the point in your Extole campaign that fires when a share link is created — the advocate journey's SHAREABLE event.
+
+A successful dispatch returns a `201` with a body resembling:
 
 ```json
+{
   "properties": {
-    "email": "test123@sears.com",
+    "email": "test123@example.com",
     "share_code": "test123",
-    "share_link": "share.test123@sears.com",
-    "company": "sears",
+    "share_link": "share.test123@example.com",
     "extole_app_type": "hubspot"
   }
+}
 ```
 
-You're all set! Make sure you have your Hubspot account configured to capture and populate records with any custom Extole properties (`share_link` and `share_code`.) From there you will be able to dynamically populate a customers share link in your Hubspot Flows and Campaigns.
+Configure HubSpot to capture and populate contact records with the custom `share_link` and `share_code` properties.
 
-### Create Share Links for Existing Customers via a One-Time File Upload
+### Referral Tracking on Form Completion
 
-To ensure that all of your customers have a share link on their Hubspot contact record, you can export a list of customer emails from Hubspot and securely upload them to Extole’s Batch Jobs center.  From there, you'll be able to generate share links and codes and export them using the Extole platform. Learn more about [Extole's file formatting standards](https://docs.extole.com/docs/file-based-events) and [uploading files](https://docs.extole.com/docs/general-file-uploads) to Extole. 
+<Info>
+If you're using the Extole HubSpot App, **Manage Advocate Codes** already pre-fills `advocate_code` on your forms, and **Configure Events** can fire the resulting event to Extole without a custom workflow webhook — see Extole HubSpot App above. The steps below build both by hand.
+</Info>
 
-## Automatically track referrals when referred prospects complete a Hubspot form or provide their referral code over the phone
+Track friends who complete a HubSpot form.
 
-Integrate your referral program seamlessly into your existing HubSpot lead capture process. When a referred prospect submits a lead form with their share link, code, or provides it to a sales rep over the phone, Extole automatically tracks and scores the referral in real-time. This automation eliminates the need for manual tracking, saving you time while ensuring a consistent, smooth experience for your customers across all channels.
+1. Add a custom field to the HubSpot contact record and lead form, with internal name `advocate_code`.
+2. Add Extole's Core and Event [JavaScript tags](/technical/platform-integrations/javascript-sdk/index) to the lead form to track referral attribution even when the friend doesn't manually enter a code.
+3. In HubSpot, create a workflow that triggers a webhook every time a form is completed with `advocate_code` populated, or the field is populated on a contact record.
+4. Configure the workflow webhook: method **POST**, URL `api.extole.io/v5/events`, authentication **API Key** (an Extole access token), with a customized request body:
 
-### Add Extole's Core and Event Tag onto your Hubspot Forms
+```json
+{
+  "event_name": "signed_up",
+  "data": {
+    "email": "{{email}}",
+    "advocate_code": "{{advocate_code}}",
+    "first_name": "{{first_name}}",
+    "last_name": "{{last_name}}",
+    "event_date": "{{date}}",
+    "partner_conversion_id": "{{id}}",
+    "extole_app_type": "hubspot"
+  }
+}
+```
 
-We suggest adding Extole's Core and Event Tags to your lead forms to automatically track referred leads when a prospect clicks on a share link. By adding Extole Javascript tags, you'll still be able to automatically track and attribute the referral even if the prospect doesn't provide their referral code. For details, refer to[ Extole's JavaScript SDK documentation](https://docs.extole.com/docs/javascript-sdk#add-event-tags).
+### Deal or Conversion Scoring
 
-### Add a Custom Field to your Hubspot Forms to Capture Share Codes
+<Info>
+If you're using the Extole HubSpot App, **Configure Events** already covers this — see the deal-based referral rewards example under Extole HubSpot App above. The steps below build the workflow webhook by hand.
+</Info>
 
-1. You can also add a custom field to your Hubspot contact record and lead forms to capture a customers share code. Set the internal value of this custom field as `advocate_code`. This field can be manually populated by the referred prospect on your lead form, or can be added to the customer contact record through Hubspot admin by an internal sales or customer service representative. Refer to [Hubspot's documentation](https://knowledge.hubspot.com/forms/edit-your-form-fields) for additional information on how to set up custom fields. 
-2. To automatically pre-fill the form field for any customers who explicitly click on a share link, Extole can pass the users `advocate_code` in the query string so that Hubspot can auto-populate. Refer to [Hubspot's documentation](https://knowledge.hubspot.com/forms/can-i-auto-populate-form-fields-through-a-query-string) for additional information on how to auto-populate form fields using query string parameters.
+Repeat the workflow webhook setup above with the event name changed to `converted`, adding keys for `product` and `amount` to pass deal details. Configure a matching rule in the Extole campaign to reward the advocate once the criteria are met.
 
-### Create a Webhook using Hubspot Workflows
+## FAQs
 
-Create a webhook using Hubspot workflows to notify Extole every time a referred prospect completes a Hubspot form with an `advocate_code`, or the `advocate_code` is populated on a customer record.  Refer to [Hubspot's documentation](https://knowledge.hubspot.com/workflows/how-do-i-use-webhooks-with-hubspot-workflows) for additional information on how to set up Webhooks.
+**Does the advocate need to already exist as a contact in HubSpot?**
+No. The Anonymous Advocate Sync endpoint upserts the contact by email, creating a new contact if one doesn't exist.
 
-1. First, in your Hubspot account, create a workflow that triggers a webhook notification every time a user completes a Hubspot form and the `advocate_code` field has been filled out OR the `advocate_code` field has been populated on a customer record.
-2. Create a webhook in your workflow, and select the webhook method as **POST**.
-3. Enter `api.extole.io/v5/events` as the Webhook URL.
-4. Select **API Key** as the Authentication method.
-5. Log into the Extole platform and navigate to the Security Center. Select **Create a new Access Token**, name the token **Hubspot**, and select **Create**.
-6. Paste your Token as the API Key in your Hubspot webhook.
-7. In your Hubspot Webhook, select the option to **Customize the Request Body** and enter the following Key-property value pairs.
+**What happens if Advocate Sync's Webhook URL or Shared Secret is invalid?**
+The dispatch fails and retries per the webhook's retry schedule. After retries are exhausted, the dispatch is marked failed.
 
-   | Key               | Property                | Description                                                                                                      |
-   | :---------------- | :---------------------- | :--------------------------------------------------------------------------------------------------------------- |
-   | email             | email                   | A dynamic property that sends the email address of the user who completed the workflow.                          |
-   | advocate\_code    | advocate\_code          | A dynamic property that sends the advocate code associated with the user who completed the workflow.             |
-   | first\_name       | first\_name             | A dynamic property that sends the first name of the user who completed the workflow.                             |
-   | last\_name        | last\_name              | A dynamic property that sends the last name of the user who completed the workflow.                              |
-   | date              | event\_date             | A dynamic property that sends the date that the user (in **ISO 8601** format) entered the workflow.              |
-   | id                | partner\_conversion\_id | A dynamic property that sends a unique identifier each time a user enters the workflow. Used for de-duplication. |
-   | company           | company                 | A dynamic property that sends the company name associated with the contact who completed the workflow.           |
-   | event\_name       | signed\_up              | A **static** value of the event or action the user took to enter the workflow.                                   |
-   | extole\_app\_type | hubspot                 | A **static** value. Used for reporting.                                                                          |
-
-   The request body should look like this:
-
-   ```json
-   {
-     "event_name": "signed_up",
-     "data": {
-       "email": "{{email}}",
-       "advocate_code": "{{advocate_code}}",
-       "first_name": "{{first_name}}",
-       "last_name": "{{last_name}}",
-       "event_date": "{{date}}",
-       "partner_conversion_id": "{{id}}",
-       "company": "{{company}}",
-       "extole_app_type": "hubspot"
-     }
-   }
-   ```
-
-### Send Hubspot data as events to Extole to score and reward referrals
-
-You can use **Hubspot Workflows: Webhooks** to send additional events to Extole for scoring and rewarding referrals. For example, let's say you'd like to reward advocates when their referred friends sign a deal for a specific product. As long as the deal was more than $10,000 in revenue, the advocate should receive a reward. You can simply repeat the steps in [Create a webhook using Hubspot Workflows](https://docs.extole.com/docs/hubspot#create-a-webhook-using-hubspot-workflows) and change the event name to `converted`and add an additional key for `product`and `amount` to pass the product name and deal amount. From there a rule can be created in your Extole campaign to automatically reward the advocate once those criteria have been met.
+**Can I use the app and a legacy or custom setup together?**
+Each capability (advocate sync, referral tracking, deal scoring) is independent — an account can use the app for some and a legacy or custom setup for others.
