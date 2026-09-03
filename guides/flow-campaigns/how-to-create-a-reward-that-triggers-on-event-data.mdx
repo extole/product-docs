@@ -94,24 +94,33 @@ downstream reward, email, or reporting step happens for it.
 ## Option C — Route to a specific reward with the reward's Trigger Rules
 
 Use this when a single outcome/business event can produce **more than one reward** and you want
-_this_ reward to fire only when the data matches. For example, two rewards on the same conversion<br />step where the product decides which reward is issued.
+_this_ reward to fire only when the data matches. For example, two rewards on the same conversion
+event where the product decides which reward is issued.
 
 This rule lives on the **Reward's Trigger Rules** and uses **Event Data Comparison**.
 
-1. **Programs** → **Manage Flow** → select the **Reward** in the flow.
-2. Under the reward's **Trigger Rules**, click **+ New Reward Rule**.
-3. Select **Event Data Comparison** and give it a descriptive name (e.g. `Trigger only for SKU-123`).
-4. Configure:
+1. Add the second reward from the business event so it stays attached. Follow
+   [How to Add a New Reward](/guides/flow-campaigns/how-to-add-a-new-reward). Confirm the
+   new reward appears on that event before you add a data comparison. A data comparison
+   filters events that already reach the reward; it is not the connection to the event.
+2. **Programs** → **Manage Flow** → select the **Reward** in the flow.
+3. Under the reward's **Trigger Rules**, click **+ New Reward Rule**.
+4. Select **Event Data Comparison** and give it a descriptive name (e.g. `Trigger only for SKU-123`).
+5. Configure:
    - **Event Parameter** — the business-event data name, using **underscores instead of spaces**
      (e.g. a `Product ID` is referenced as `product_id`).
    - **Comparison** — Equals, Does not equal, Contains, Matches Regex, etc.
    - **Value** — the value to match, e.g. `SKU-123`.
-5. Click **Apply**.
+6. Click **Apply**.
 
 If the reward's trigger rule fails, **this reward does not fire** (other rewards on the same business event,<br />each with their own trigger rule, still can). This is how you route different data values to<br />different rewards on one event.
 
-> **The parameter must exist as business-event data on the outcome step.** If it isn't there yet,
-> add it first: click into the outcome step → **+ New Data** → **Business Event Data**, and name it<br />to match the field you send. Then reference it in the reward's trigger rule as the **Event Parameter** (spaces → underscores).
+<Info>
+  The parameter must exist as business-event data on the **outcome event**. If it isn't
+  there yet, add it first: click into the outcome event → **+ New Data** → **Business Event
+  Data**, and name it to match the field you send. Then reference it in the reward's trigger
+  rule as the **Event Parameter** (spaces → underscores).
+</Info>
 
 ### Example: two rewards on one event, routed by product
 
