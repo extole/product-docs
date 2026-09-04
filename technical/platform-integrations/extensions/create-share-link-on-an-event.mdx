@@ -106,10 +106,35 @@ curl -X POST "https://api.extole.io/v3/persons/{person_id}/shareables" \
 | :------------ | :------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `person_id`   | Yes      | Extole's unique identifier for the customer                                                                                                                          |
 | `label`       | Yes      | The program label configured in Extole (e.g., `refer-a-friend`)                                                                                                      |
-| `code`        | No       | A custom code for the share link                                                                                                                                     |
+| `code`        | No       | A custom code for the share link. Omit it and Extole generates one. See [Share Link Codes](#share-link-codes) for the rules a requested code must satisfy            |
 | `key`         | No       | A shareable key. This is useful when requesting a share link. If the customer makes a request for a key, where they already have a link, the same link is returned.  |
 | `content`     | No       | Content to embed in the link (e.g., `partner_content_id`, `title`, `image_url`)                                                                                      |
 | `program-url` | No       | Your Extole program domain (branded or unbranded)                                                                                                                    |
+
+## Share Link Codes
+
+Every share link ends in a code — the part after your program domain, as in `share.yourbrand.com/alex01`. Extole generates one for you, and you can also request a specific one.
+
+### How Extole Chooses a Code
+
+When no code is requested, Extole builds one from the person's first name, falling back to the local part of their email address. If that value is already in use, Extole appends a random number and tries again, and finally falls back to a generated code. This path always produces a share link.
+
+### Rules for a Requested Code
+
+| Rule | Detail |
+| :--- | :--- |
+| Length | 4 to 50 characters |
+| Characters | Letters, digits, period, underscore, and hyphen only |
+| Uniqueness | Unique across your entire account — two people cannot hold the same code, even in different programs |
+| Reserved and blocked words | The code cannot contain a reserved or blocked word *anywhere inside it*, not only as a whole word. `cass.dani12` is rejected because it contains `ass` |
+
+<Warning>
+  A requested code that breaks any of these rules is refused and **no share link is created**. Through the API you get an error such as `code_taken`, along with a list of available alternatives in `code_suggestions`. Through an extension or a campaign action there is nothing to catch the error: that person ends up with no share link, and because no share link was created, no webhook fires for them.
+</Warning>
+
+<Tip>
+  Codes derived from customer data collide more often than they look like they will. Two people with the same email local part at different providers — `alex@gmail.com` and `alex@yahoo.com` — produce the same code, and the second one is refused. Let Extole generate the code unless you have a specific reason to request one.
+</Tip>
 
 ## Backfilling existing customers
 
@@ -118,6 +143,8 @@ Before launch, you should generate share links for your existing customer base �
 1. Provide Extole with your existing customer list (email and/or partner_user_id).
 2. Your Extole team will help create share links for all customers in bulk.
 3. Extole delivers the links back to you via a file or webhook for import into your system.
+
+Let Extole generate the codes for a backfill. Requesting codes derived from customer data means every collision is a customer with no share link, and the collision rate climbs as coverage grows — on a list of millions, most duplicated names arrive after the first person has already taken the code. Confirm the code strategy with your Solutions Architect before the run, and ask for a count of customers who did not receive a link so you can reconcile it against your own list.
 
 Once the backfill is complete and your Extension + Webhook is live, new customers will have share links created automatically as they convert, keeping your system of record continuously up to date.
 
