@@ -1,0 +1,38 @@
+---
+title: "No Program Domain Is Configured for Hostname"
+description: "This error names your domain settings, but when those settings are correct the cause is a second Extole snippet on the page — often one belonging to a different account."
+---
+
+# Overview
+
+A page reports `No program domain is configured for hostname` and the Extole API becomes unusable on it, yet your program domain and CNAME records are correct. This page explains why the error names the wrong layer, and where the real problem is.
+
+## Read Past the Error Wording
+
+Each Extole snippet — `core.js` — resolves a program domain by matching the page hostname against the program domain configured for the account that snippet belongs to.
+
+If a page loads **more than one** Extole snippet, and one of them belongs to a **different Extole account**, that second snippet has no program domain matching this hostname and raises the error. It does so even though your own snippet is present and working, because the error comes from the foreign snippet's failed lookup, not from your settings.
+
+<Info>
+The message is accurate from the second snippet's point of view: there genuinely is no program domain configured for this hostname *in that other account*. It is misleading only because it reads as a statement about your account.
+</Info>
+
+## The Common Trigger: A Brand or Account Merge
+
+The usual cause is a brand or account merge. The page ends up carrying two legacy tags, one per pre-merge account, and the stale one was never removed. Everything in the surviving account is configured correctly, which is what makes the error confusing.
+
+## Evidence That Settles It
+
+- Your program domain and CNAME records are correct. This rules out the settings explanation.
+- The page loads more than one Extole snippet. Count them in the page source or in your tag manager, and check which account each belongs to.
+- A merge or rename happened before the error appeared.
+
+## What to Do
+
+Remove the extra snippet from the page so exactly one — the one belonging to the account whose program domain matches this hostname — loads. This is a change to your own page or tag manager, made by your web team.
+
+Do not change or re-create the program domain. It was never the problem, and editing it while a foreign snippet is still on the page changes nothing the visitor sees.
+
+## Related
+
+- [Quick Troubleshooting Guide](/guides/notifications-and-troubleshooting/troubleshooting/quick-troubleshooting-guide)
