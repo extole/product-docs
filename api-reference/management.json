@@ -6916,6 +6916,83 @@
         },
         "type" : "object"
       },
+      "AccumulatingReportRunnerReportResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseReportRunnerReportResponseBase"
+        }, {
+          "properties" : {
+            "completed_date" : {
+              "$ref" : "#/components/schemas/ZonedDateTime"
+            },
+            "created_date" : {
+              "$ref" : "#/components/schemas/ZonedDateTime"
+            },
+            "download_uri" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "error_code" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "executor_type" : {
+              "enum" : [ "DASHBOARD", "SPARK", "SQL" ],
+              "type" : "string"
+            },
+            "format" : {
+              "enum" : [ "CSV", "HEADLESS_CSV", "HEADLESS_PSV", "JSON", "JSONL", "PSV", "XLSX" ],
+              "type" : "string"
+            },
+            "formats" : {
+              "items" : {
+                "enum" : [ "CSV", "HEADLESS_CSV", "HEADLESS_PSV", "JSON", "JSONL", "PSV", "XLSX" ],
+                "type" : "string"
+              },
+              "type" : "array"
+            },
+            "report_id" : {
+              "type" : "string"
+            },
+            "scopes" : {
+              "items" : {
+                "enum" : [ "CLIENT_ADMIN", "CLIENT_SUPERUSER", "CONSUMER_PUBLIC", "USER_SUPPORT" ],
+                "type" : "string"
+              },
+              "nullable" : true,
+              "type" : "array",
+              "uniqueItems" : true
+            },
+            "sftp_report_name" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "sftp_server_id" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "started_date" : {
+              "$ref" : "#/components/schemas/ZonedDateTime"
+            },
+            "status" : {
+              "enum" : [ "CANCELED", "DONE", "EXPIRED", "FAILED", "IN_PROGRESS", "PENDING", "PENDING_DATA", "SFTP_DELIVERY_FAILED" ],
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "ROLLING" ],
+              "type" : "string"
+            },
+            "user_id" : {
+              "type" : "string"
+            },
+            "visible" : {
+              "type" : "boolean"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "completed_date", "created_date", "display_name", "download_uri", "error_code", "executor_type", "format", "formats", "name", "parameters", "report_id", "report_type", "scopes", "sftp_report_name", "sftp_server_id", "slot", "started_date", "status", "tags", "type", "user_id", "visible" ],
+        "type" : "object"
+      },
       "ActionAudienceOperationDataSourceRequest" : {
         "allOf" : [ {
           "$ref" : "#/components/schemas/AudienceOperationDataSourceRequestBase"
@@ -8014,6 +8091,60 @@
           "title" : "Buildtime - Javascript",
           "type" : "string"
         } ]
+      },
+      "BaseReportRunnerReportResponse" : {
+        "discriminator" : {
+          "mapping" : {
+            "EXECUTED" : "#/components/schemas/IndividualReportRunnerReportResponse",
+            "NEW_ENTRIES" : "#/components/schemas/NewEntriesOnlyReportRunnerReportResponse",
+            "NOT_EXECUTED" : "#/components/schemas/NotExecutedReportRunnerReportResponse",
+            "ROLLING" : "#/components/schemas/AccumulatingReportRunnerReportResponse"
+          },
+          "propertyName" : "type"
+        },
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/IndividualReportRunnerReportResponse"
+        }, {
+          "$ref" : "#/components/schemas/NewEntriesOnlyReportRunnerReportResponse"
+        }, {
+          "$ref" : "#/components/schemas/NotExecutedReportRunnerReportResponse"
+        }, {
+          "$ref" : "#/components/schemas/AccumulatingReportRunnerReportResponse"
+        } ],
+        "required" : [ "display_name", "name", "parameters", "report_type", "slot", "tags", "type" ]
+      },
+      "BaseReportRunnerReportResponseBase" : {
+        "properties" : {
+          "display_name" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "parameters" : {
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/ReportParameterResponse"
+            },
+            "type" : "object"
+          },
+          "report_type" : {
+            "type" : "string"
+          },
+          "slot" : {
+            "type" : "string"
+          },
+          "tags" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
       },
       "BatchComponentVariableUpdateResponse" : {
         "properties" : {
@@ -28117,6 +28248,83 @@
           "type" : "string"
         } ]
       },
+      "IndividualReportRunnerReportResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseReportRunnerReportResponseBase"
+        }, {
+          "properties" : {
+            "completed_date" : {
+              "$ref" : "#/components/schemas/ZonedDateTime"
+            },
+            "created_date" : {
+              "$ref" : "#/components/schemas/ZonedDateTime"
+            },
+            "download_uri" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "error_code" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "executor_type" : {
+              "enum" : [ "DASHBOARD", "SPARK", "SQL" ],
+              "type" : "string"
+            },
+            "format" : {
+              "enum" : [ "CSV", "HEADLESS_CSV", "HEADLESS_PSV", "JSON", "JSONL", "PSV", "XLSX" ],
+              "type" : "string"
+            },
+            "formats" : {
+              "items" : {
+                "enum" : [ "CSV", "HEADLESS_CSV", "HEADLESS_PSV", "JSON", "JSONL", "PSV", "XLSX" ],
+                "type" : "string"
+              },
+              "type" : "array"
+            },
+            "report_id" : {
+              "type" : "string"
+            },
+            "scopes" : {
+              "items" : {
+                "enum" : [ "CLIENT_ADMIN", "CLIENT_SUPERUSER", "CONSUMER_PUBLIC", "USER_SUPPORT" ],
+                "type" : "string"
+              },
+              "nullable" : true,
+              "type" : "array",
+              "uniqueItems" : true
+            },
+            "sftp_report_name" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "sftp_server_id" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "started_date" : {
+              "$ref" : "#/components/schemas/ZonedDateTime"
+            },
+            "status" : {
+              "enum" : [ "CANCELED", "DONE", "EXPIRED", "FAILED", "IN_PROGRESS", "PENDING", "PENDING_DATA", "SFTP_DELIVERY_FAILED" ],
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "EXECUTED" ],
+              "type" : "string"
+            },
+            "user_id" : {
+              "type" : "string"
+            },
+            "visible" : {
+              "type" : "boolean"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "completed_date", "created_date", "display_name", "download_uri", "error_code", "executor_type", "format", "formats", "name", "parameters", "report_id", "report_type", "scopes", "sftp_report_name", "sftp_server_id", "slot", "started_date", "status", "tags", "type", "user_id", "visible" ],
+        "type" : "object"
+      },
       "InstallInBuiltCampaignComponentResponse" : {
         "description" : "The install as configured: a literal value, or an expression (type:string) when defined dynamically. Installtime expressions use [ComponentInstalltimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/component/install/ComponentInstalltimeContext.d.ts).",
         "externalDocs" : {
@@ -31017,6 +31225,97 @@
           "title" : "Buildtime - Javascript",
           "type" : "string"
         } ]
+      },
+      "NewEntriesOnlyReportRunnerReportResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseReportRunnerReportResponseBase"
+        }, {
+          "properties" : {
+            "completed_date" : {
+              "$ref" : "#/components/schemas/ZonedDateTime"
+            },
+            "created_date" : {
+              "$ref" : "#/components/schemas/ZonedDateTime"
+            },
+            "download_uri" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "error_code" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "executor_type" : {
+              "enum" : [ "DASHBOARD", "SPARK", "SQL" ],
+              "type" : "string"
+            },
+            "format" : {
+              "enum" : [ "CSV", "HEADLESS_CSV", "HEADLESS_PSV", "JSON", "JSONL", "PSV", "XLSX" ],
+              "type" : "string"
+            },
+            "formats" : {
+              "items" : {
+                "enum" : [ "CSV", "HEADLESS_CSV", "HEADLESS_PSV", "JSON", "JSONL", "PSV", "XLSX" ],
+                "type" : "string"
+              },
+              "type" : "array"
+            },
+            "report_id" : {
+              "type" : "string"
+            },
+            "scopes" : {
+              "items" : {
+                "enum" : [ "CLIENT_ADMIN", "CLIENT_SUPERUSER", "CONSUMER_PUBLIC", "USER_SUPPORT" ],
+                "type" : "string"
+              },
+              "nullable" : true,
+              "type" : "array",
+              "uniqueItems" : true
+            },
+            "sftp_report_name" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "sftp_server_id" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "started_date" : {
+              "$ref" : "#/components/schemas/ZonedDateTime"
+            },
+            "status" : {
+              "enum" : [ "CANCELED", "DONE", "EXPIRED", "FAILED", "IN_PROGRESS", "PENDING", "PENDING_DATA", "SFTP_DELIVERY_FAILED" ],
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "NEW_ENTRIES" ],
+              "type" : "string"
+            },
+            "user_id" : {
+              "type" : "string"
+            },
+            "visible" : {
+              "type" : "boolean"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "completed_date", "created_date", "display_name", "download_uri", "error_code", "executor_type", "format", "formats", "name", "parameters", "report_id", "report_type", "scopes", "sftp_report_name", "sftp_server_id", "slot", "started_date", "status", "tags", "type", "user_id", "visible" ],
+        "type" : "object"
+      },
+      "NotExecutedReportRunnerReportResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseReportRunnerReportResponseBase"
+        }, {
+          "properties" : {
+            "type" : {
+              "enum" : [ "NOT_EXECUTED" ],
+              "type" : "string"
+            }
+          }
+        } ],
+        "required" : [ "display_name", "name", "parameters", "report_type", "slot", "tags", "type" ],
+        "type" : "object"
       },
       "NotificationCursorRequest" : {
         "properties" : {
@@ -101607,6 +101906,13 @@
         },
         "responses" : {
           "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseReportRunnerReportResponse"
+                }
+              }
+            },
             "description" : "The report this call started, or the report already running for the same period."
           },
           "400" : {
