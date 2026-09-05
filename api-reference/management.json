@@ -5211,12 +5211,32 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "report_runner_invalid_parameter" : {
+        "summary" : "report_runner_invalid_parameter",
+        "value" : {
+          "code" : "report_runner_invalid_parameter",
+          "http_status_code" : 400,
+          "message" : "Report runner parameter(s) of invalid format",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "report_runner_invalid_pause_status" : {
         "summary" : "report_runner_invalid_pause_status",
         "value" : {
           "code" : "report_runner_invalid_pause_status",
           "http_status_code" : 400,
           "message" : "Report runner pause status is invalid",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "report_runner_invalid_slot" : {
+        "summary" : "report_runner_invalid_slot",
+        "value" : {
+          "code" : "report_runner_invalid_slot",
+          "http_status_code" : 400,
+          "message" : "Report runner slot of invalid format",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -5291,12 +5311,42 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "report_runner_no_execution_time_range" : {
+        "summary" : "report_runner_no_execution_time_range",
+        "value" : {
+          "code" : "report_runner_no_execution_time_range",
+          "http_status_code" : 400,
+          "message" : "Report runner has no valid execution time ranges to run",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "report_runner_not_found" : {
         "summary" : "report_runner_not_found",
         "value" : {
           "code" : "report_runner_not_found",
           "http_status_code" : 404,
           "message" : "Report Runner not found",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "report_runner_paused" : {
+        "summary" : "report_runner_paused",
+        "value" : {
+          "code" : "report_runner_paused",
+          "http_status_code" : 400,
+          "message" : "Report runner is paused",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "report_runner_slots_not_supported" : {
+        "summary" : "report_runner_slots_not_supported",
+        "value" : {
+          "code" : "report_runner_slots_not_supported",
+          "http_status_code" : 400,
+          "message" : "Report runner slots is not supported",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -34524,6 +34574,17 @@
             "type" : "string"
           }
         },
+        "type" : "object"
+      },
+      "ReportRunnerSlotsRequest" : {
+        "properties" : {
+          "slot" : {
+            "description" : "The schedule period to run, as a date-time range. The schedule's own period covering that range is run, so a range overlapping the period is enough. Report runs carry the period they belong to in the same form. Omit to run the period ending now instead.",
+            "example" : "2026-08-01T00:00:00Z/2026-09-01T00:00:00Z",
+            "type" : "string"
+          }
+        },
+        "required" : [ "slot" ],
         "type" : "object"
       },
       "ReportRunnerUpdateRequest" : {
@@ -101515,6 +101576,201 @@
         },
         "summary" : "Unarchive an event stream",
         "tags" : [ "Event Streams" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v6/report-runners/{reportRunnerId}/run" : {
+      "post" : {
+        "description" : "Runs a report runner immediately and returns the report it started, using the runner's own report type, parameters, formats and delivery destination. When a report for the same period is already pending or in progress, that report is returned instead of a second one being started.\n\nWith no request body the report covers the period ending at the time of the call, one schedule frequency long. Those boundaries come from the call rather than from the schedule's own periods, so the report is an extra one alongside the schedule's series and does not fill a period the schedule skipped - that period still reads as never run.\n\nSend `slot` to run one of the schedule's own periods instead. The period covering that range is run even when it already has a report, and the new run becomes the report that period holds. To fill every period a schedule skipped rather than one, use `POST /v6/report-runners/scheduled/{reportRunnerId}/generate-missing-reports`.\n\nThe report runs asynchronously; poll `GET /v4/reports/{reportId}` with the returned `report_id` for its status.",
+        "operationId" : "runReportRunner",
+        "parameters" : [ {
+          "description" : "The Extole unique report runner identifier.",
+          "in" : "path",
+          "name" : "reportRunnerId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "slot" : "2026-08-01T00:00:00Z/2026-09-01T00:00:00Z"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ReportRunnerSlotsRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "The report this call started, or the report already running for the same period."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "report_display_name_empty" : {
+                    "$ref" : "#/components/examples/report_display_name_empty"
+                  },
+                  "report_display_name_too_long" : {
+                    "$ref" : "#/components/examples/report_display_name_too_long"
+                  },
+                  "report_invalid_formats" : {
+                    "$ref" : "#/components/examples/report_invalid_formats"
+                  },
+                  "report_invalid_operation" : {
+                    "$ref" : "#/components/examples/report_invalid_operation"
+                  },
+                  "report_invalid_parameter" : {
+                    "$ref" : "#/components/examples/report_invalid_parameter"
+                  },
+                  "report_invalid_scopes" : {
+                    "$ref" : "#/components/examples/report_invalid_scopes"
+                  },
+                  "report_invalid_sftp_server" : {
+                    "$ref" : "#/components/examples/report_invalid_sftp_server"
+                  },
+                  "report_missing_aggregation_parameter" : {
+                    "$ref" : "#/components/examples/report_missing_aggregation_parameter"
+                  },
+                  "report_missing_parameters" : {
+                    "$ref" : "#/components/examples/report_missing_parameters"
+                  },
+                  "report_name_illegal_character" : {
+                    "$ref" : "#/components/examples/report_name_illegal_character"
+                  },
+                  "report_runner_invalid_parameter" : {
+                    "$ref" : "#/components/examples/report_runner_invalid_parameter"
+                  },
+                  "report_runner_invalid_slot" : {
+                    "$ref" : "#/components/examples/report_runner_invalid_slot"
+                  },
+                  "report_runner_no_execution_time_range" : {
+                    "$ref" : "#/components/examples/report_runner_no_execution_time_range"
+                  },
+                  "report_runner_paused" : {
+                    "$ref" : "#/components/examples/report_runner_paused"
+                  },
+                  "report_runner_slots_not_supported" : {
+                    "$ref" : "#/components/examples/report_runner_slots_not_supported"
+                  },
+                  "report_tags_too_long" : {
+                    "$ref" : "#/components/examples/report_tags_too_long"
+                  },
+                  "report_type_missing" : {
+                    "$ref" : "#/components/examples/report_type_missing"
+                  },
+                  "report_update_invalid" : {
+                    "$ref" : "#/components/examples/report_update_invalid"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Run a report schedule now",
+        "tags" : [ "Report Schedules" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
       }
