@@ -3,7 +3,7 @@
   "info": {
     "title": "Content",
     "version": "1.0.0",
-    "description": "Every independently addressable piece of content Extole's v10 component library ships \u2014 the `content-v10.0` component type. Each is a **View**: rendering one reads program state without changing it.\n\nContent is addressed by the same kind of name as a business event \u2014 the component's `event_names` \u2014 and rendered against your own program domain. Grouped by what the content is, the way business events are grouped by journey kind.\n\n**Preview for the ENG-30863 design review, not a merge candidate.** Generated from the component inventory; no component declares `operations[]` yet."
+    "description": "The `content-v10.0` component type. Each component below is one addressable piece of content, and its operations are what you can do with it. Rendered against your own program domain.\n\n**Preview for the ENG-30863 design review, not a merge candidate.** Generated from the component inventory; no component declares `operations[]` yet."
   },
   "servers": [
     {
@@ -18,14 +18,14 @@
     }
   ],
   "paths": {
-    "/zones/global_header": {
+    "/zones/advocate_mobile_experience": {
       "post": {
-        "operationId": "global_header",
-        "summary": "Global Header",
-        "description": "Renders the `global_header` zone. Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "operationId": "advocate_mobile_experience_render",
+        "summary": "Render",
+        "description": "Defined by the `advocate-mobile-experience` component.\n\nResponds with `application/json`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
-          "Onsite Promotions"
+          "Experiences"
         ],
         "requestBody": {
           "required": false,
@@ -36,14 +36,94 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "description": "Rendered content.",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/application_experience": {
+      "post": {
+        "operationId": "application_experience_render",
+        "summary": "Render",
+        "description": "Defined by the `application-experience` component.\n\nAlso addressable as: `application_experienced`, `widget`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Experiences"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
             "content": {
               "*/*": {
                 "schema": {}
@@ -98,14 +178,14 @@
         }
       }
     },
-    "/zones/global_footer": {
+    "/zones/embedded_experience": {
       "post": {
-        "operationId": "global_footer",
-        "summary": "Global Footer",
-        "description": "Renders the `global_footer` zone. Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "operationId": "embedded_experience_render",
+        "summary": "Render",
+        "description": "Defined by the `embedded-experience` component.\n\nAlso addressable as: `advocate_experienced`, `advocate_viewed`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
-          "Onsite Promotions"
+          "Experiences"
         ],
         "requestBody": {
           "required": false,
@@ -116,14 +196,14 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
             "content": {
               "*/*": {
                 "schema": {}
@@ -178,14 +258,14 @@
         }
       }
     },
-    "/zones/mobile_header": {
+    "/zones/friend_landing_experience": {
       "post": {
-        "operationId": "mobile_header",
-        "summary": "Mobile Header",
-        "description": "Renders the `mobile_header` zone. Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "operationId": "friend_landing_experience_render",
+        "summary": "Render",
+        "description": "Defined by the `friend-landing-experience` component.\n\nAlso addressable as: `friend_experienced`, `friend_viewed`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
-          "Onsite Promotions"
+          "Experiences"
         ],
         "requestBody": {
           "required": false,
@@ -196,14 +276,14 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
             "content": {
               "*/*": {
                 "schema": {}
@@ -258,14 +338,14 @@
         }
       }
     },
-    "/zones/mobile_footer": {
+    "/zones/in_branch_portal_template": {
       "post": {
-        "operationId": "mobile_footer",
-        "summary": "Mobile Footer",
-        "description": "Renders the `mobile_footer` zone. Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "operationId": "in_branch_portal_template_render",
+        "summary": "Render",
+        "description": "Defined by the `in-branch-portal-template` component.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
-          "Onsite Promotions"
+          "Experiences"
         ],
         "requestBody": {
           "required": false,
@@ -276,14 +356,14 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
             "content": {
               "*/*": {
                 "schema": {}
@@ -338,14 +418,14 @@
         }
       }
     },
-    "/zones/mobile_menu": {
+    "/zones/stats_embedded": {
       "post": {
-        "operationId": "mobile_menu",
-        "summary": "Mobile Menu",
-        "description": "Renders the `mobile_menu` zone. Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "operationId": "stats_embedded_render",
+        "summary": "Render",
+        "description": "Defined by the `stats-embedded` component.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
-          "Onsite Promotions"
+          "Experiences"
         ],
         "requestBody": {
           "required": false,
@@ -356,14 +436,14 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
             "content": {
               "*/*": {
                 "schema": {}
@@ -418,14 +498,14 @@
         }
       }
     },
-    "/zones/product_page": {
+    "/zones/friend_landing_experience_microsite_v2": {
       "post": {
-        "operationId": "product_page",
-        "summary": "Product Page",
-        "description": "Renders the `product_page` zone. Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "operationId": "friend_landing_experience_microsite_v2_render",
+        "summary": "Render",
+        "description": "Defined by the `template_single_column_page` component.\n\nResponds with `text/html`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
-          "Onsite Promotions"
+          "Microsites"
         ],
         "requestBody": {
           "required": false,
@@ -436,496 +516,16 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "description": "Rendered content.",
             "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/mobile_product_page": {
-      "post": {
-        "operationId": "mobile_product_page",
-        "summary": "Mobile Product Page",
-        "description": "Renders the `mobile_product_page` zone. Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Onsite Promotions"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/banner": {
-      "post": {
-        "operationId": "banner",
-        "summary": "Banner",
-        "description": "Renders the `banner` zone. Defined by the `promotions-onsite` component.\n\nAlso addressable as: `promotion_viewed`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Onsite Promotions"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/confirmation": {
-      "post": {
-        "operationId": "confirmation",
-        "summary": "Confirmation",
-        "description": "Renders the `confirmation` zone. Defined by the `promotions-onsite` component.\n\nAlso addressable as: `promotion_viewed`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Onsite Promotions"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/overlay": {
-      "post": {
-        "operationId": "overlay",
-        "summary": "Overlay",
-        "description": "Renders the `overlay` zone. Defined by the `promotions-onsite` component.\n\nAlso addressable as: `promotion_viewed`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Onsite Promotions"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/show_reward_banner": {
-      "post": {
-        "operationId": "show_reward_banner",
-        "summary": "Show Reward Banner",
-        "description": "Renders the `show_reward_banner` zone. Defined by the `promotions-onsite` component.\n\nAlso addressable as: `promotion_viewed`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Onsite Promotions"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/show_reward_overlay": {
-      "post": {
-        "operationId": "show_reward_overlay",
-        "summary": "Show Reward Overlay",
-        "description": "Renders the `show_reward_overlay` zone. Defined by the `promotions-onsite` component.\n\nAlso addressable as: `promotion_viewed`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Onsite Promotions"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
+              "text/html": {
                 "schema": {}
               }
             }
@@ -980,9 +580,9 @@
     },
     "/zones/microsite_v2": {
       "post": {
-        "operationId": "microsite_v2",
-        "summary": "Microsite V2",
-        "description": "Renders the `microsite_v2` zone. Defined by the `template_two_column_page` component.\n\nResponds with `text/html`.",
+        "operationId": "microsite_v2_render",
+        "summary": "Render",
+        "description": "Defined by the `template_two_column_page` component.\n\nResponds with `text/html`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "Microsites"
@@ -996,7 +596,7 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
@@ -1060,9 +660,9 @@
     },
     "/zones/microsite_v2_with_authentication": {
       "post": {
-        "operationId": "microsite_v2_with_authentication",
-        "summary": "Microsite V2 With Authentication",
-        "description": "Renders the `microsite_v2_with_authentication` zone. Defined by the `template_not_authenticated` component.\n\nResponds with `text/html`.",
+        "operationId": "microsite_v2_with_authentication_render",
+        "summary": "Render",
+        "description": "Defined by the `template_not_authenticated` component.\n\nResponds with `text/html`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "Microsites"
@@ -1076,7 +676,7 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
@@ -1140,9 +740,9 @@
     },
     "/zones/microsite_v2_with_authentication_and_enrollment": {
       "post": {
-        "operationId": "microsite_v2_with_authentication_and_enrollment",
-        "summary": "Microsite V2 With Authentication And Enrollment",
-        "description": "Renders the `microsite_v2_with_authentication_and_enrollment` zone. Defined by the `template_authenticated` component.\n\nResponds with `text/html`.",
+        "operationId": "microsite_v2_with_authentication_and_enrollment_render",
+        "summary": "Render",
+        "description": "Defined by the `template_authenticated` component.\n\nResponds with `text/html`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "Microsites"
@@ -1156,7 +756,7 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
@@ -1166,886 +766,6 @@
             "description": "Rendered content.",
             "content": {
               "text/html": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/friend_landing_experience_microsite_v2": {
-      "post": {
-        "operationId": "friend_landing_experience_microsite_v2",
-        "summary": "Friend Landing Experience Microsite V2",
-        "description": "Renders the `friend_landing_experience_microsite_v2` zone. Defined by the `template_single_column_page` component.\n\nResponds with `text/html`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Microsites"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content.",
-            "content": {
-              "text/html": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/share_experience": {
-      "post": {
-        "operationId": "share_experience",
-        "summary": "Share Experience",
-        "description": "Renders the `share_experience` zone. Defined by the `share-experience` component.\n\nAlso addressable as: `advocate_experienced`, `advocate_viewed`, `share_experienced`, `widget`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Share"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/share_link_creation": {
-      "post": {
-        "operationId": "share_link_creation",
-        "summary": "Share Link Creation",
-        "description": "Renders the `share_link_creation` zone. Defined by the `share-experience` component.\n\nResponds with `application/json`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Share"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content.",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/share_destination": {
-      "post": {
-        "operationId": "share_destination",
-        "summary": "Share Destination",
-        "description": "Renders the `share_destination` zone. Defined by the `share-destination` component.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Share"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/promote_destination": {
-      "post": {
-        "operationId": "promote_destination",
-        "summary": "Promote Destination",
-        "description": "Renders the `promote_destination` zone. Defined by the `promotion` component.\n\nAlso addressable as: `promotion_clicked`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Share"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/application_experience": {
-      "post": {
-        "operationId": "application_experience",
-        "summary": "Application Experience",
-        "description": "Renders the `application_experience` zone. Defined by the `application-experience` component.\n\nAlso addressable as: `application_experienced`, `widget`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Experiences"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/embedded_experience": {
-      "post": {
-        "operationId": "embedded_experience",
-        "summary": "Embedded Experience",
-        "description": "Renders the `embedded_experience` zone. Defined by the `embedded-experience` component.\n\nAlso addressable as: `advocate_experienced`, `advocate_viewed`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Experiences"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/friend_landing_experience": {
-      "post": {
-        "operationId": "friend_landing_experience",
-        "summary": "Friend Landing Experience",
-        "description": "Renders the `friend_landing_experience` zone. Defined by the `friend-landing-experience` component.\n\nAlso addressable as: `friend_experienced`, `friend_viewed`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Experiences"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/advocate_mobile_experience": {
-      "post": {
-        "operationId": "advocate_mobile_experience",
-        "summary": "Advocate Mobile Experience",
-        "description": "Renders the `advocate_mobile_experience` zone. Defined by the `advocate-mobile-experience` component.\n\nResponds with `application/json`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Experiences"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content.",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/stats_embedded": {
-      "post": {
-        "operationId": "stats_embedded",
-        "summary": "Stats Embedded",
-        "description": "Renders the `stats_embedded` zone. Defined by the `stats-embedded` component.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Experiences"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/in_branch_portal_template": {
-      "post": {
-        "operationId": "in_branch_portal_template",
-        "summary": "In Branch Portal Template",
-        "description": "Renders the `in_branch_portal_template` zone. Defined by the `in-branch-portal-template` component.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Experiences"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
                 "schema": {}
               }
             }
@@ -2100,9 +820,9 @@
     },
     "/zones/mobile_bootstrap": {
       "post": {
-        "operationId": "mobile_bootstrap",
-        "summary": "Mobile Bootstrap",
-        "description": "Renders the `mobile_bootstrap` zone. Defined by the `mobile` component.\n\nResponds with `application/json`.",
+        "operationId": "mobile_bootstrap_render",
+        "summary": "Render",
+        "description": "Defined by the `mobile` component.\n\nResponds with `application/json`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "Mobile"
@@ -2116,7 +836,7 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
@@ -2180,9 +900,9 @@
     },
     "/zones/mobile_cta": {
       "post": {
-        "operationId": "mobile_cta",
-        "summary": "Mobile Cta",
-        "description": "Renders the `mobile_cta` zone. Defined by the `mobile` component.\n\nResponds with `application/json`.",
+        "operationId": "mobile_cta_render",
+        "summary": "Render",
+        "description": "Defined by the `mobile` component.\n\nResponds with `application/json`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "Mobile"
@@ -2196,7 +916,7 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
@@ -2258,11 +978,971 @@
         }
       }
     },
+    "/zones/banner": {
+      "post": {
+        "operationId": "banner_render",
+        "summary": "Render",
+        "description": "Defined by the `promotions-onsite` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/confirmation": {
+      "post": {
+        "operationId": "confirmation_render",
+        "summary": "Render",
+        "description": "Defined by the `promotions-onsite` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/global_footer": {
+      "post": {
+        "operationId": "global_footer_render",
+        "summary": "Render",
+        "description": "Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/global_header": {
+      "post": {
+        "operationId": "global_header_render",
+        "summary": "Render",
+        "description": "Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/mobile_footer": {
+      "post": {
+        "operationId": "mobile_footer_render",
+        "summary": "Render",
+        "description": "Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/mobile_header": {
+      "post": {
+        "operationId": "mobile_header_render",
+        "summary": "Render",
+        "description": "Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/mobile_menu": {
+      "post": {
+        "operationId": "mobile_menu_render",
+        "summary": "Render",
+        "description": "Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/mobile_product_page": {
+      "post": {
+        "operationId": "mobile_product_page_render",
+        "summary": "Render",
+        "description": "Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/overlay": {
+      "post": {
+        "operationId": "overlay_render",
+        "summary": "Render",
+        "description": "Defined by the `promotions-onsite` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/product_page": {
+      "post": {
+        "operationId": "product_page_render",
+        "summary": "Render",
+        "description": "Defined by the `call_to_action` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/show_reward_banner": {
+      "post": {
+        "operationId": "show_reward_banner_render",
+        "summary": "Render",
+        "description": "Defined by the `promotions-onsite` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/show_reward_overlay": {
+      "post": {
+        "operationId": "show_reward_overlay_render",
+        "summary": "Render",
+        "description": "Defined by the `promotions-onsite` component.\n\nAlso addressable as: `promotion_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Onsite Promotions"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/zones/close": {
       "post": {
-        "operationId": "close",
-        "summary": "Close",
-        "description": "Renders the `close` zone. Defined by the `application-experience` component.\n\nResponds with `text/html`.",
+        "operationId": "close_render",
+        "summary": "Render",
+        "description": "Defined by the `application-experience` component.\n\nResponds with `text/html`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "Pages"
@@ -2276,7 +1956,7 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
@@ -2340,9 +2020,9 @@
     },
     "/zones/optout": {
       "post": {
-        "operationId": "optout",
-        "summary": "Optout",
-        "description": "Renders the `optout` zone. Defined by the `optout` component.",
+        "operationId": "optout_render",
+        "summary": "Render",
+        "description": "Defined by the `optout` component.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "Pages"
@@ -2356,94 +2036,14 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
-            "content": {
-              "*/*": {
-                "schema": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  },
-                  "missing_request_body": {
-                    "$ref": "#/components/examples/missing_request_body"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/terms": {
-      "post": {
-        "operationId": "terms",
-        "summary": "Terms",
-        "description": "Renders the `terms` zone. Defined by the `terms` component.\n\nAlso addressable as: `content_viewed`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
-        "tags": [
-          "Pages"
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                },
-                "description": "Targeting and input data passed to the zone's creative."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rendered content. The body shape is set by the zone's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
             "content": {
               "*/*": {
                 "schema": {}
@@ -2500,9 +2100,9 @@
     },
     "/zones/printable_form": {
       "post": {
-        "operationId": "printable_form",
-        "summary": "Printable Form",
-        "description": "Renders the `printable_form` zone. Defined by the `printable-form` component.\n\nResponds with `text/html`.",
+        "operationId": "printable_form_render",
+        "summary": "Render",
+        "description": "Defined by the `printable-form` component.\n\nResponds with `text/html`.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "Pages"
@@ -2516,7 +2116,7 @@
                 "additionalProperties": {
                   "type": "object"
                 },
-                "description": "Targeting and input data passed to the zone's creative."
+                "description": "Targeting and input data passed to the creative."
               }
             }
           }
@@ -2526,6 +2126,406 @@
             "description": "Rendered content.",
             "content": {
               "text/html": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/terms": {
+      "post": {
+        "operationId": "terms_render",
+        "summary": "Render",
+        "description": "Defined by the `terms` component.\n\nAlso addressable as: `content_viewed`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Pages"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/promote_destination": {
+      "post": {
+        "operationId": "promote_destination_render",
+        "summary": "Render",
+        "description": "Defined by the `promotion` component.\n\nAlso addressable as: `promotion_clicked`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Share"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/share_destination": {
+      "post": {
+        "operationId": "share_destination_render",
+        "summary": "Render",
+        "description": "Defined by the `share-destination` component.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Share"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/share_experience": {
+      "post": {
+        "operationId": "share_experience_render",
+        "summary": "Render",
+        "description": "Defined by the `share-experience` component.\n\nAlso addressable as: `advocate_experienced`, `advocate_viewed`, `share_experienced`, `widget`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Share"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content. The body shape is set by the component's creative \u2014 HTML, JavaScript, JSON or plain text.",
+            "content": {
+              "*/*": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/share_link_creation": {
+      "post": {
+        "operationId": "share_link_creation_render",
+        "summary": "Render",
+        "description": "Defined by the `share-experience` component.\n\nResponds with `application/json`.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "Share"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "description": "Targeting and input data passed to the creative."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered content.",
+            "content": {
+              "application/json": {
                 "schema": {}
               }
             }
