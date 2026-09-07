@@ -236,10 +236,28 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
   --header "Content-Type: application/json" \
-  --data '{"type": "APPLICATION_TYPE", "app_types": ["example", "API"]}'
+  --data '{"type": "APPLICATION_TYPE", "app_types": ["example", "Event Dispatcher"]}'
 ```
 
-Filter the feed to this integration's activity. `APPLICATION_TYPE` belongs on every stream. For an inbound integration, include both the partner's app type and `API`: a test submitted through `POST /v6/events` arrives with application type `API`, and a filter that lists only the partner type excludes it from the integration tab. Add an `EVENT_TYPE` filter when the integration produces one recognizable class of event, as reward fulfillment does with `{"type": "EVENT_TYPE", "event_types": ["REWARD", "SEND_REWARD"]}`. Do not add an `EVENT_TYPE` filter of `REWARD` on an inbound receive stream; that tab will never show the Input you are testing.
+Filter the feed to this integration's activity. `APPLICATION_TYPE` belongs on every stream. For an inbound integration, include both the partner's app type and `Event Dispatcher`.
+
+`app_types` matches `event_context.app_type` exactly, and the platform sets that value from the API the event arrived on:
+
+| Arrival path | `app_type` |
+| :--- | :--- |
+| `POST /v6/events`, `POST /v6/async-events` | `Event Dispatcher` |
+| Consumer API, off a zone URL | `API` |
+| Consumer API, on a zone URL | `Web` |
+| Client API | `Client API` |
+| Client zone API | `Client Zone API` |
+| Reward fulfillment | `Rewards` |
+| Webhook dispatcher | `Webhook Dispatcher` |
+
+So a stream that lists `API` does not capture a `POST /v6/events` submit — `API` is the consumer API, a distinct path. List `Event Dispatcher`, or leave `app_types` empty to capture every application type. A sender that sets `app_type` in the event data overrides the arrival value, so list whatever it sends instead.
+
+Descendant events inherit the Input's `event_context`, so one value captures the Input and the events it causes.
+
+Add an `EVENT_TYPE` filter when the integration produces one recognizable class of event, as reward fulfillment does with `{"type": "EVENT_TYPE", "event_types": ["REWARD", "SEND_REWARD"]}`. Do not add an `EVENT_TYPE` filter of `REWARD` on an inbound receive stream; that tab will never show the Input you are testing.
 
 
 ### Republish Again So the Views Resolve Their Elements
@@ -275,7 +293,7 @@ Read the **built** campaign — a component's own definition holds the buildtime
 
 - `reportRunnerId` and `eventStreamId` are non-null.
 - Each element's `component_ids` names its own view.
-- The stream carries `APPLICATION_TYPE`. An inbound stream lists both the partner app type and `API`.
+- The stream carries `APPLICATION_TYPE`. An inbound stream lists both the partner app type and `Event Dispatcher`, or leaves `app_types` empty.
 - Every column `reportColumnsMapping` names is one the runner's `mappings` produces.
 - `schedule_start_date` is in the future.
 
