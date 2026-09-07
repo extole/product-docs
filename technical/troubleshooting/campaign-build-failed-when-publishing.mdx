@@ -1,0 +1,40 @@
+---
+title: "Campaign Build Failed When Publishing"
+description: "An opaque 400 naming a frontend controller means two controllers resolve to the same name in one journey, usually because a component was nested inside a copy of itself."
+---
+
+# Overview
+
+Publishing a component or campaign fails with a generic `campaign build failed` 400 whose payload names a frontend controller and its name expression, and nothing else. This page explains what that combination means and why the entities you were creating are probably still there.
+
+## The Distinction That Matters
+
+A build failure whose payload names a **frontend controller** together with its **name** field means two controllers resolve to the **same name within the same journey** in the campaign being built.
+
+The name expression itself is not the problem. It appears in the payload because it is how the colliding name was produced, not because it is malformed. Rewriting it does not help.
+
+## The Usual Configuration Behind It
+
+The common cause is a component nested inside another copy of itself — a wrapper with a slightly different name but identical subcomponents. That produces two controllers resolving to one name and one journey, which the build rejects.
+
+Look for self-nesting first, then for any two controllers in the campaign that resolve to the same name.
+
+## The Failed Build Still Created the Entities
+
+Despite the 400, the component and its subcomponents are usually created and simply left unpublished. So once you have removed the duplication you can publish what is already there, rather than building it again from scratch.
+
+<Tip>
+Check the component list before re-creating anything. Building a second copy of a component that already exists is how one duplicate becomes two.
+</Tip>
+
+## What to Do
+
+1. Find the two controllers that resolve to the same name in the same journey, most often a component nested inside a copy of itself.
+2. Remove the duplication so one controller resolves to each name.
+3. Publish the component that the failed build already created.
+
+If you cannot find the collision, contact Extole Support with the failed request and the campaign name. The 400 does not carry the underlying error, but Extole can retrieve it.
+
+## Related
+
+- [Quick Troubleshooting Guide](/guides/notifications-and-troubleshooting/troubleshooting/quick-troubleshooting-guide)
