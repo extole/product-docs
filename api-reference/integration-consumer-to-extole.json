@@ -2874,7 +2874,7 @@
     "/api/v4/events/share/status/{pollingId}" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns the processing status for a prior `POST /api/v4/events/share` call identified by `pollingId`.",
+        "description" : "Deprecated. For new integrations, use `POST /api/v6/email/share` with `GET /api/v6/email/share/status/{pollingId}` instead; polling ids from this operation are not valid on the v6 status endpoint. Returns the processing status for a prior `POST /api/v4/events/share` call identified by `pollingId`.",
         "operationId" : "shareEventStatus",
         "parameters" : [ {
           "in" : "path",
@@ -3293,7 +3293,7 @@
     "/api/v4/me/advocates" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns advocates who referred the authenticated consumer.",
+        "description" : "Deprecated. Use `GET /api/v4/me/associated-advocates` instead, which returns the same relationship records. Returns advocates who referred the authenticated consumer.",
         "operationId" : "getAdvocateRelationships",
         "responses" : {
           "200" : {
@@ -4478,7 +4478,7 @@
     "/api/v4/me/email/status/{polling_id}" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns the processing status for a prior `POST /api/v4/me/email` call identified by `polling_id`. Poll until the send reaches a terminal state.",
+        "description" : "Deprecated with no direct replacement yet. Returns the processing status for a prior `POST /api/v4/me/email` call identified by `polling_id`. Poll until the send reaches a terminal state.",
         "operationId" : "getSendEmailStatus",
         "parameters" : [ {
           "in" : "path",
@@ -4608,7 +4608,7 @@
     "/api/v4/me/friends" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns friend profiles linked to the authenticated consumer through referral relationships.",
+        "description" : "Deprecated. Use `GET /api/v4/me/associated-friends` instead; note it returns relationship records without friend email address or step data. Returns friend profiles linked to the authenticated consumer through referral relationships.",
         "operationId" : "getFriends",
         "responses" : {
           "200" : {
@@ -5538,7 +5538,7 @@
     "/api/v4/me/send-verification-email/status/{pollingId}" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns the processing status for a prior verification email send identified by `pollingId`.",
+        "description" : "Deprecated with no direct replacement yet. Returns the processing status for a prior `POST /api/v4/me/send-verification-email` call identified by `pollingId`. Poll until the send reaches a terminal state.",
         "operationId" : "verificationEmailStatus",
         "parameters" : [ {
           "in" : "path",
@@ -6016,7 +6016,7 @@
     "/api/v4/me/shareables/status/{polling_id}" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns the processing status for an asynchronous shareable creation identified by `polling_id`.",
+        "description" : "Deprecated. No replacement is needed because `POST /api/v6/me/shareables` creates the shareable synchronously and returns it in the response. Returns the processing status for an asynchronous shareable creation identified by `polling_id`.",
         "operationId" : "getMeShareableStatusV4",
         "parameters" : [ {
           "in" : "path",
@@ -6283,7 +6283,7 @@
       },
       "put" : {
         "deprecated" : true,
-        "description" : "Deprecated. Updates the shareable identified by `shareable_id` on the authenticated consumer's profile.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
+        "description" : "Deprecated. Use `POST /api/v6/me/shareables/get-create-or-update` instead. Updates the shareable identified by `shareable_id` on the authenticated consumer's profile. The replacement matches on the request data rather than on a shareable id.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
         "operationId" : "edit",
         "parameters" : [ {
           "in" : "path",
@@ -7805,7 +7805,7 @@
     "/api/v4/shareable" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns shareables matching the `code` query parameter.",
+        "description" : "Deprecated. Use `GET /api/v6/me/shareables/{code}` instead, which looks a shareable up by code and is scoped to the authenticated consumer's own shareables. Returns shareables matching the `code` query parameter, looked up across the whole client.",
         "operationId" : "getShareablesV4",
         "parameters" : [ {
           "in" : "query",
@@ -7935,7 +7935,7 @@
       },
       "post" : {
         "deprecated" : true,
-        "description" : "Deprecated. Use `POST /api/v6/me/shareables` instead. Creates a shareable for the authenticated consumer.",
+        "description" : "Deprecated. Use `POST /api/v6/me/shareables/get-create-or-update` instead. Creates a shareable for the authenticated consumer, or updates the existing shareable that already has the same key.",
         "operationId" : "createShareable",
         "requestBody" : {
           "content" : {
@@ -8158,7 +8158,7 @@
     "/api/v4/shareable/status/{polling_id}" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns the processing status for an asynchronous shareable creation identified by `polling_id`.",
+        "description" : "Deprecated. No replacement is needed because `POST /api/v6/me/shareables` creates the shareable synchronously and returns it in the response. Returns the processing status for an asynchronous shareable creation identified by `polling_id`.",
         "operationId" : "getStatus_3",
         "parameters" : [ {
           "in" : "path",
@@ -8288,7 +8288,7 @@
     "/api/v4/shareable/{shareable_id}" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns the shareable identified by `shareable_id`.",
+        "description" : "Deprecated. Use `GET /api/v6/me/shareables/{code}` instead. Returns the shareable identified by `shareable_id`. The replacement looks the shareable up by code and is scoped to the authenticated consumer's own shareables.",
         "operationId" : "getShareableV4",
         "parameters" : [ {
           "in" : "path",
@@ -8421,7 +8421,7 @@
     "/api/v4/shares" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns shares matching optional `partner_share_id` or `partner_id` filters. For the authenticated consumer's shares use `GET /api/v4/me/shares` instead.",
+        "description" : "Deprecated. For the authenticated consumer's shares, use `GET /api/v4/me/shares` instead. Returns public shares across the whole client matching a required `partner_share_id` or `partner_id` filter; there is no published replacement for looking up another consumer's public shares.",
         "operationId" : "getPublicShares",
         "parameters" : [ {
           "in" : "query",
@@ -8565,7 +8565,7 @@
     "/api/v4/shares/{share_id}" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns the share identified by `share_id`. For the authenticated consumer's shares use `GET /api/v4/me/shares/{shareId}` instead.",
+        "description" : "Deprecated. For the authenticated consumer's own shares, use `GET /api/v4/me/shares/{shareId}` instead. Returns any public share in the client identified by `share_id`; there is no published replacement for looking up another consumer's public share.",
         "operationId" : "getPublicShare",
         "parameters" : [ {
           "in" : "path",
@@ -8698,7 +8698,7 @@
     "/api/v5/custom/share/status/{pollingId}" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Deprecated. Returns the processing status for a prior `POST /api/v5/custom/share` call identified by `pollingId`.",
+        "description" : "Deprecated. No replacement is needed because `POST /api/events` responds synchronously. Returns the processing status for a prior `POST /api/v5/custom/share` call identified by `pollingId`.",
         "operationId" : "customShareStatus",
         "parameters" : [ {
           "in" : "path",
@@ -9961,7 +9961,7 @@
     "/api/v4/me/email" : {
       "post" : {
         "deprecated" : true,
-        "description" : "Deprecated. Sends an email on behalf of the authenticated consumer and returns a `polling_id` for status polling. Prefer event-based email flows where available.",
+        "description" : "Deprecated with no direct replacement yet. Renders `zone_name` as an email on behalf of the authenticated consumer and returns a `polling_id` for status polling. New integrations should send email from a campaign step triggered by a consumer event rather than from this operation.",
         "operationId" : "sendEmail",
         "requestBody" : {
           "content" : {
@@ -10110,7 +10110,7 @@
     "/api/v4/me/send-verification-email" : {
       "post" : {
         "deprecated" : true,
-        "description" : "Deprecated. Sends a verification email to confirm the authenticated consumer's email address. Returns a `polling_id` for status polling.",
+        "description" : "Deprecated with no direct replacement yet. Sends a verification email to confirm the authenticated consumer's email address and returns a `polling_id` for status polling. Existing integrations keep working; do not build new ones on this operation.",
         "operationId" : "sendVerificationEmail",
         "requestBody" : {
           "content" : {
@@ -10249,7 +10249,7 @@
     "/api/v5/custom/share" : {
       "post" : {
         "deprecated" : true,
-        "description" : "Deprecated. Use event-based sharing instead. Records a custom share on behalf of the authenticated advocate and returns a `polling_id` for status polling.",
+        "description" : "Deprecated. Fire the `share` consumer event with `POST /api/events` or the Extole SDK instead, carrying `advocate_code`, `channel`, `recipient_email` and `message` as event data. Records a custom share on behalf of the authenticated advocate: it looks the shareable up by `advocate_code`, fires the `share` event with the given channel, recipient and message, and returns a `polling_id` for status polling.",
         "operationId" : "customShare",
         "requestBody" : {
           "content" : {
