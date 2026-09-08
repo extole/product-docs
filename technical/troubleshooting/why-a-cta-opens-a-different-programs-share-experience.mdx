@@ -108,19 +108,28 @@ already in a sibling program's journey. See
 [Targeting](/guides/platform-overview/targeting) for how explicit hints rank against normal
 selection.
 
-On a zone request, send the hint as a `target` parameter naming the campaign, alongside the
-program's own label:
+On a zone request, the hint is a `journey.campaign_id` parameter naming the campaign:
 
 ```
-GET /zone/share_experience?labels=<program label>&target=campaign_id:<campaign id>
+GET /zone/share_experience?journey.campaign_id=<campaign id>
 ```
 
-<Warning>
-Send the hint **with** the program label, not instead of it. The hint narrows the candidates to the
-campaign you named, and journey entry then still needs the label to start the journey. A request
-carrying the hint and no label matches nothing and comes back empty, so the share experience does
-not open at all.
-</Warning>
+In a page URL that Extole's library reads, the same hint is `extole_journey.campaign_id`.
+
+Extole's own promotion links already send it. A click on a promotion is redirected by the
+**Promotion Link Behavior** component, which stamps `extole_journey.campaign_id` with the campaign
+that promotion belongs to, and a CTA popup carries its own campaign the same way. What carries
+nothing is a request your own site makes — a share experience opened from an account page, an order
+confirmation, or a hardcoded referral link — so those are the surfaces to add the hint to.
+
+<Info>
+`target=campaign_id:<campaign id>` also serves the campaign you name, by a different route: it
+removes every other candidate before targeting runs, instead of hinting a journey. It has one sharp
+edge that `journey.campaign_id` does not. It needs the program's label on the same request —
+`labels=<program label>&target=campaign_id:<campaign id>` — because journey entry has nothing left
+to match on, and sent without a label it comes back empty and the share experience does not open at
+all. Prefer `journey.campaign_id`, which works with or without the label.
+</Info>
 
 This keeps one shared zone name and moves the work to whatever makes the share experience request —
 each CTA has to send the hint for its own program. Test it on one program before rolling it out; the
