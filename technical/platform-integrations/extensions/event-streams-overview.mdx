@@ -133,8 +133,14 @@ You have mapped a partner wire event onto a canonical Extole business event and 
 
 * The Input event appears when you search `event_id=` followed by the identifier the send returned.
 * The mapped business event appears when you search `root_event_id=` followed by that same identifier. Downstream events have their own `event_id`.
-* Open the JSON on each matching row. Call PASS when the Input carries the wire name and a STEP on that `root_event_id` carries the canonical name, the same person, the mapped values, and `campaign_context.quality` of `HIGH` or `LOW`. Call FAIL when the Input is present and the STEP is missing, unattributed (`quality` `NONE` or no `campaign_context`), or wrong. Call INCONCLUSIVE when the stream is stopped, filtered without `Event Dispatcher`, or filtered without `INPUT` or `STEP` in its event type list.
+* Open the JSON on each matching row. Call PASS when the Input carries the wire name and a STEP on that `root_event_id` carries the canonical name, the same person, the mapped values, and `campaign_context.quality` of `HIGH` or `LOW`. Call FAIL when the Input is present and the STEP is missing, unattributed (`quality` `NONE` or no `campaign_context`), or wrong. Call INCONCLUSIVE until the stream preflight below is complete, or when the configured stream remains empty after a bounded wait.
 
 **Which Stream to Open**
 
-Open the integration's Event Stream tab. That stream must include application type `Event Dispatcher` as well as the partner type, because that is the value `POST /v6/events` arrives with; `API` is the consumer API and does not capture it. It must also carry one `EVENT_TYPE` filter listing `INPUT`, `STEP`, `IDENTIFIED`, `INCENTIVIZED`, `REWARD`, `SEND_REWARD`, `INTERNAL`, `MESSAGE`, and `MESSAGE_NOT_DELIVERED`. A stream filtered by partner application type only, by `API`, or to `REWARD` and `SEND_REWARD` only, will not show this submit; treat that as a misconfigured integration stream, not as a reason to finish the test in **Tech Center** > **Event Streams** > **Input Events**.
+Open the integration's Event Stream tab and establish this preflight before sending:
+
+- The stream is running.
+- Its `APPLICATION_TYPE` filter includes the partner type and `Event Dispatcher`.
+- One `EVENT_TYPE` filter includes `INPUT`, `STEP`, `IDENTIFIED`, `INCENTIVIZED`, `REWARD`, `SEND_REWARD`, `INTERNAL`, `MESSAGE`, and `MESSAGE_NOT_DELIVERED`.
+
+Use this integration stream for the verdict. When the preflight requires a change, report INCONCLUSIVE and name the exact value to add.
