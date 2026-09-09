@@ -1,0 +1,281 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Transactions",
+    "version": "1.0.0",
+    "description": "Events that record a purchase or other activity carrying a monetary value.\n\n**Preview for review. Not a merge candidate.**"
+  },
+  "servers": [
+    {
+      "description": "Production",
+      "url": "https://events.extole.io"
+    }
+  ],
+  "paths": {
+    "/v6/events/{event_name}": {
+      "post": {
+        "operationId": "trigger_event",
+        "summary": "Trigger Event",
+        "description": "Report that a person completed a purchase or other activity carrying a monetary value. Put the event's name in the path - the name is the one configured on the event in your program. Revenue reporting is driven by these events, so include the transaction's value.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "Transacted Business Event"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "description": "Open map of fields submitted with an event. May include keys beyond those listed here. `email` is the primary identity key and the only field that enables profile merging. `partner_user_id` is a secondary lookup key and is not guaranteed unique.",
+                "example": {
+                  "email": "user@example.com",
+                  "event_time": "2024-01-15T12:00:00Z",
+                  "partner_user_id": "usr_8392047156",
+                  "person_id": 7465313346145957284
+                },
+                "nullable": true,
+                "properties": {
+                  "email": {
+                    "description": "Primary identity key. The only data-map field that enables profile merging when submitted.",
+                    "example": "user@example.com",
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "event_time": {
+                    "description": "ISO 8601 timestamp of when the event occurred. Optional; defaults to the time the request is received. Use for backdated events. On wrapped request bodies this is an alternative to the top-level `event_time` field.",
+                    "example": "2024-01-15T12:00:00Z",
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "partner_user_id": {
+                    "description": "Secondary lookup key for an existing profile. Not guaranteed unique across your program.",
+                    "example": "usr_8392047156",
+                    "type": "string"
+                  },
+                  "person_id": {
+                    "description": "Extole person identifier. Numeric. Submit to target an existing profile instead of resolving by email or partner user id.",
+                    "example": 7465313346145957284,
+                    "format": "int64",
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "event_id": {
+                      "description": "Unique identifier for the submitted event.",
+                      "type": "string"
+                    },
+                    "person_id": {
+                      "description": "Extole person ID resolved from the event data.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "event_id",
+                    "person_id"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RestExceptionResponse": {
+        "type": "object",
+        "description": "Represents the API error response",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Specific error code for this error type, documented per endpoint"
+          },
+          "http_status_code": {
+            "type": "integer",
+            "description": "HTTP status code that was returned with this error, useful if client get response code"
+          },
+          "message": {
+            "type": "string",
+            "description": "User readable English description of the error"
+          },
+          "parameters": {
+            "type": "object",
+            "description": "Attributes related to the error, varies be error code, documented per endpoint",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Attributes related to the error, varies be error code, documented per endpoint"
+            }
+          },
+          "unique_id": {
+            "type": "string",
+            "description": "Unique id associated with this error, useful for discussions with Extole"
+          }
+        },
+        "required": [
+          "code",
+          "http_status_code",
+          "message",
+          "parameters",
+          "unique_id"
+        ]
+      }
+    },
+    "examples": {
+      "binding_error": {
+        "summary": "binding_error",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "binding_error",
+          "message": "Argument is not of the expected type",
+          "parameters": {}
+        }
+      },
+      "invalid_json": {
+        "summary": "invalid_json",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "invalid_json",
+          "message": "JSON is invalid",
+          "parameters": {}
+        }
+      },
+      "invalid_parameter": {
+        "summary": "invalid_parameter",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "invalid_parameter",
+          "message": "Parameter is invalid.",
+          "parameters": {}
+        }
+      },
+      "missing_request_body": {
+        "summary": "missing_request_body",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "missing_request_body",
+          "message": "Missing request body",
+          "parameters": {}
+        }
+      },
+      "access_denied": {
+        "summary": "access_denied",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "access_denied",
+          "message": "The access_token provided is not permitted to access the specified resource.",
+          "parameters": {}
+        }
+      },
+      "method_unauthorized": {
+        "summary": "method_unauthorized",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "method_unauthorized",
+          "message": "Access forbidden to this endpoint",
+          "parameters": {}
+        }
+      },
+      "missing_access_token": {
+        "summary": "missing_access_token",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "missing_access_token",
+          "message": "No access_token was provided with this request.",
+          "parameters": {}
+        }
+      }
+    },
+    "securitySchemes": {
+      "HEADER": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "x-bearer-format": "bearer"
+      },
+      "QUERY": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "access_token"
+      }
+    }
+  },
+  "security": [
+    {
+      "HEADER": []
+    },
+    {
+      "QUERY": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Transacted Business Event"
+    }
+  ]
+}
