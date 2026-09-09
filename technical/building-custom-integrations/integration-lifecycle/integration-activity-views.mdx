@@ -117,7 +117,7 @@ curl --request POST \
 
 ### Republish Before Attaching Elements
 
-A bundled component declares `elements` inline; the API creates each as its own resource attached by `component_ids` — `report_runners` becomes `POST /v7/report-runners`, `event_streams` becomes `POST /v6/event-streams` with filters added afterward. Attach each to the **view** that displays it: the runner to `$REPORT_VIEW_COMPONENT_ID`, the stream to `$EVENT_STREAM_VIEW_COMPONENT_ID`.
+A bundled component declares `elements` inline; the API creates each as its own resource attached by `component_ids` — `report_runners` becomes `POST /v7/report-runners`, and `event_streams` becomes `POST /v6/event-streams`. Attach each to the **view** that displays it: the runner to `$REPORT_VIEW_COMPONENT_ID`, the stream to `$EVENT_STREAM_VIEW_COMPONENT_ID`.
 
 Publish now, after creating the views and before creating their elements: a `component_ids` reference resolves against the published campaign, the same rule that governs webhooks and reward suppliers.
 
@@ -220,7 +220,7 @@ Give `schedule_start_date` an ISO-8601 timestamp with an offset, dated in the fu
 
 ### Build the Event Stream Behind the Events Tab
 
-Create the stream after the republish above, then add each filter. Filters are created under the stream with a `type` discriminator in the body rather than a path segment, the opposite of reward webhook filters. The create returns the `EVENT_STREAM_ID` filters need.
+Create the stream after the republish above. Keep its `filters` collection empty so the view records the complete processing chain across Input, STEP, reward, and delivery events.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
@@ -232,37 +232,9 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
     "tags": ["internal:app_type=example"],
     "component_ids": ["'"$EVENT_STREAM_VIEW_COMPONENT_ID"'"]
   }'
-
-curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{"type": "APPLICATION_TYPE", "app_types": ["example", "Event Dispatcher"]}'
-
-curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{"type": "EVENT_TYPE", "event_types": ["INPUT", "STEP", "IDENTIFIED", "INCENTIVIZED", "REWARD", "SEND_REWARD", "INTERNAL", "MESSAGE", "MESSAGE_NOT_DELIVERED"]}'
 ```
 
-Configure an inbound integration stream with both filters shown above. The `APPLICATION_TYPE` filter selects the partner's own activity and events submitted through the Event Dispatcher. The single `EVENT_TYPE` filter selects the complete debugging chain.
-
-`app_types` matches `event_context.app_type` exactly, and the platform sets that value from the API the event arrived on:
-
-| Arrival path | `app_type` |
-| :--- | :--- |
-| `POST /v6/events`, `POST /v6/async-events` | `Event Dispatcher` |
-| Consumer API, off a zone URL | `API` |
-| Consumer API, on a zone URL | `Web` |
-| Client API | `Client API` |
-| Client zone API | `Client Zone API` |
-| Reward fulfillment | `Rewards` |
-| Webhook dispatcher | `Webhook Dispatcher` |
-
-For `POST /v6/events` and `POST /v6/async-events`, list `Event Dispatcher`. `API` identifies a Consumer API request instead. To capture every application type, omit the `APPLICATION_TYPE` filter; the API requires at least one value when the filter is present. A sender that sets `app_type` in the event data overrides the arrival value, so include that value.
-
-A STEP inherits the Input's `event_context`, so `Event Dispatcher` captures both. Reward, send-reward, incentivized, identified, and message events are created with an empty `event_context` and pass the `APPLICATION_TYPE` filter. The `EVENT_TYPE` filter selects the useful integration-debugging chain consistently across both context shapes.
-
-Put every inbound type in **one** `EVENT_TYPE` filter. Values inside a filter combine with OR, while filters on a stream combine with AND. The inbound list is `INPUT`, `STEP`, `IDENTIFIED`, `INCENTIVIZED`, `REWARD`, `SEND_REWARD`, `INTERNAL`, `MESSAGE`, and `MESSAGE_NOT_DELIVERED`. Use `REWARD` for redemption state changes.
+Narrow the events you inspect at read time. After a synchronous test send, search the stream for the returned `event_id`, then search for descendants carrying the same `root_event_id`. This preserves events whose application context or downstream type differs from the Input while keeping each test trace precise.
 
 
 ### Republish Again So the Views Resolve Their Elements
@@ -298,7 +270,7 @@ Read the **built** campaign — a component's own definition holds the buildtime
 
 - `reportRunnerId` and `eventStreamId` are non-null.
 - Each element's `component_ids` names its own view.
-- The stream carries `APPLICATION_TYPE` listing both the partner app type and `Event Dispatcher`, and one `EVENT_TYPE` filter listing `INPUT`, `STEP`, `IDENTIFIED`, `INCENTIVIZED`, `REWARD`, `SEND_REWARD`, `INTERNAL`, `MESSAGE`, and `MESSAGE_NOT_DELIVERED`.
+- The stream is running with an empty `filters` collection.
 - Every column `reportColumnsMapping` names is one the runner's `mappings` produces.
 - `schedule_start_date` is in the future.
 

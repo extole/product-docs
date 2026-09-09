@@ -75,7 +75,7 @@ curl --request POST "https://api.extole.io/v6/events" \
 ```
 
 <Warning>
-A valid submission returns `200` with a JSON body carrying the `person_id`. An empty `204 No Content` means the request is not reaching the Events API — check the host.
+A valid submission returns `200` with a JSON body carrying both `event_id` and `person_id`. Capture `event_id`; it is the correlation key for proving how the event was processed. An empty `204 No Content` means the request is not reaching the Events API — check the host.
 </Warning>
 
 ### Retry and Deduplicate
@@ -91,7 +91,7 @@ Extole answers an accepted submission with a `2xx`. Retry network failures, `429
 
 ## How to Test
 
-Send one event synchronously. The response returns a `person_id`; read that person's steps:
+Send one event synchronously. The response returns `event_id` and `person_id`. First find the Input in the integration's running unfiltered Event Stream by `event_id`, then find the processing chain by searching for the same value as `root_event_id`. Read the person's steps after the stream establishes the correlated result:
 
 ```bash
 curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
