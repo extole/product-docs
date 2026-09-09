@@ -1,52 +1,92 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Single Column Page",
+    "title": "Promotion Viewed",
     "version": "1.0.0",
-    "description": "Composable-page template behind `friend_landing_experience_microsite_v2`.\n\n**Preview for the ENG-30863 design review, not a merge candidate.**"
+    "description": "A promotion has been viewed.\n\n**Preview for the ENG-30863 design review, not a merge candidate.**"
   },
   "servers": [
     {
       "description": "Production",
-      "url": "https://{program_domain}",
-      "variables": {
-        "program_domain": {
-          "default": "refer.example.com",
-          "description": "Your program domain, as shown in My Extole."
-        }
-      }
+      "url": "https://events.extole.io"
     }
   ],
   "paths": {
-    "/zones/{zone_name}": {
+    "/v6/events/promotion_viewed": {
       "post": {
-        "operationId": "render",
-        "summary": "Render",
-        "description": "Composable-page template behind `friend_landing_experience_microsite_v2`.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "operationId": "fire_event",
+        "summary": "Fire Event",
+        "description": "A promotion has been viewed.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
-          "Single Column Page"
+          "Promotion Viewed"
         ],
         "requestBody": {
-          "required": false,
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
+                "additionalProperties": true,
+                "description": "Open map of fields submitted with an event. May include keys beyond those listed here. `email` is the primary identity key and the only field that enables profile merging. `partner_user_id` is a secondary lookup key and is not guaranteed unique.",
+                "example": {
+                  "email": "user@example.com",
+                  "event_time": "2024-01-15T12:00:00Z",
+                  "partner_user_id": "usr_8392047156",
+                  "person_id": 7465313346145957284
                 },
-                "description": "Targeting and input data passed to the creative."
+                "nullable": true,
+                "properties": {
+                  "email": {
+                    "description": "Primary identity key. The only data-map field that enables profile merging when submitted.",
+                    "example": "user@example.com",
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "event_time": {
+                    "description": "ISO 8601 timestamp of when the event occurred. Optional; defaults to the time the request is received. Use for backdated events. On wrapped request bodies this is an alternative to the top-level `event_time` field.",
+                    "example": "2024-01-15T12:00:00Z",
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "partner_user_id": {
+                    "description": "Secondary lookup key for an existing profile. Not guaranteed unique across your program.",
+                    "example": "usr_8392047156",
+                    "type": "string"
+                  },
+                  "person_id": {
+                    "description": "Extole person identifier. Numeric. Submit to target an existing profile instead of resolving by email or partner user id.",
+                    "example": 7465313346145957284,
+                    "format": "int64",
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Rendered content. The body shape is set by the component's creative - HTML, JavaScript, JSON or plain text.",
+            "description": "Success",
             "content": {
-              "*/*": {
-                "schema": {}
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "event_id": {
+                      "description": "Unique identifier for the submitted event.",
+                      "type": "string"
+                    },
+                    "person_id": {
+                      "description": "Extole person ID resolved from the event data.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "event_id",
+                    "person_id"
+                  ],
+                  "type": "object"
+                }
               }
             }
           },
@@ -209,36 +249,6 @@
           "message": "No access_token was provided with this request.",
           "parameters": {}
         }
-      },
-      "expired_access_token": {
-        "summary": "expired_access_token",
-        "value": {
-          "unique_id": "00000000-0000-0000-0000-000000000000",
-          "http_status_code": 403,
-          "code": "expired_access_token",
-          "message": "The access_token provided with this request has expired.",
-          "parameters": {}
-        }
-      },
-      "invalid_access_token": {
-        "summary": "invalid_access_token",
-        "value": {
-          "unique_id": "00000000-0000-0000-0000-000000000000",
-          "http_status_code": 403,
-          "code": "invalid_access_token",
-          "message": "The access_token provided with this request is invalid.",
-          "parameters": {}
-        }
-      },
-      "jwt_authentication_error": {
-        "summary": "jwt_authentication_error",
-        "value": {
-          "unique_id": "00000000-0000-0000-0000-000000000000",
-          "http_status_code": 403,
-          "code": "jwt_authentication_error",
-          "message": "The jwt authentication failed.",
-          "parameters": {}
-        }
       }
     },
     "securitySchemes": {
@@ -252,11 +262,6 @@
         "type": "apiKey",
         "in": "query",
         "name": "access_token"
-      },
-      "COOKIE": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "extole_token"
       }
     }
   },
@@ -266,14 +271,11 @@
     },
     {
       "QUERY": []
-    },
-    {
-      "COOKIE": []
     }
   ],
   "tags": [
     {
-      "name": "Single Column Page"
+      "name": "Promotion Viewed"
     }
   ]
 }
