@@ -244,7 +244,7 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters"
   --data '{"type": "EVENT_TYPE", "event_types": ["INPUT", "STEP", "IDENTIFIED", "INCENTIVIZED", "REWARD", "SEND_REWARD", "INTERNAL", "MESSAGE", "MESSAGE_NOT_DELIVERED"]}'
 ```
 
-Filter the feed to this integration's activity. `APPLICATION_TYPE` belongs on every stream. For an inbound integration, include both the partner's app type and `Event Dispatcher`, then add one `EVENT_TYPE` filter with the inbound chain.
+Configure an inbound integration stream with both filters shown above. The `APPLICATION_TYPE` filter selects the partner's own activity and events submitted through the Event Dispatcher. The single `EVENT_TYPE` filter selects the complete debugging chain.
 
 `app_types` matches `event_context.app_type` exactly, and the platform sets that value from the API the event arrived on:
 
@@ -258,11 +258,11 @@ Filter the feed to this integration's activity. `APPLICATION_TYPE` belongs on ev
 | Reward fulfillment | `Rewards` |
 | Webhook dispatcher | `Webhook Dispatcher` |
 
-So a stream that lists `API` does not capture a `POST /v6/events` submit — `API` is the consumer API, a distinct path. List `Event Dispatcher`. The API rejects an empty `app_types` list; omit the `APPLICATION_TYPE` filter entirely if you need every application type. A sender that sets `app_type` in the event data overrides the arrival value, so list whatever it sends instead.
+For `POST /v6/events` and `POST /v6/async-events`, list `Event Dispatcher`. `API` identifies a Consumer API request instead. To capture every application type, omit the `APPLICATION_TYPE` filter; the API requires at least one value when the filter is present. A sender that sets `app_type` in the event data overrides the arrival value, so include that value.
 
-A STEP inherits the Input's `event_context`, so `Event Dispatcher` captures both. Reward, send-reward, incentivized, identified, and message events are created with an empty `event_context`, so they pass an `APPLICATION_TYPE` filter even when they did not arrive through that application. That is why an inbound stream also carries an `EVENT_TYPE` filter: without it, the tab fills with every empty-`app_type` event in the client, and with it, any type not on the list is hidden.
+A STEP inherits the Input's `event_context`, so `Event Dispatcher` captures both. Reward, send-reward, incentivized, identified, and message events are created with an empty `event_context` and pass the `APPLICATION_TYPE` filter. The `EVENT_TYPE` filter selects the useful integration-debugging chain consistently across both context shapes.
 
-Put every inbound type in **one** `EVENT_TYPE` filter. Values inside a filter combine with OR; filters on a stream combine with AND, so two `EVENT_TYPE` filters match nothing. The inbound list is `INPUT`, `STEP`, `IDENTIFIED`, `INCENTIVIZED`, `REWARD`, `SEND_REWARD`, `INTERNAL`, `MESSAGE`, and `MESSAGE_NOT_DELIVERED`. A list of `REWARD` and `SEND_REWARD` only is the reward-fulfillment filter; it hides the Input you are testing. `REDEEMED` is not on the list: redemptions emit `REWARD`.
+Put every inbound type in **one** `EVENT_TYPE` filter. Values inside a filter combine with OR, while filters on a stream combine with AND. The inbound list is `INPUT`, `STEP`, `IDENTIFIED`, `INCENTIVIZED`, `REWARD`, `SEND_REWARD`, `INTERNAL`, `MESSAGE`, and `MESSAGE_NOT_DELIVERED`. Use `REWARD` for redemption state changes.
 
 
 ### Republish Again So the Views Resolve Their Elements
