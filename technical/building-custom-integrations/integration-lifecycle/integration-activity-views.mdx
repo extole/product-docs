@@ -7,7 +7,7 @@ Part of the [Management API integration guide](/technical/building-custom-integr
 
 # Overview
 
-This page builds two of an integration's three baseline views: a **report-runner view** charting what the integration processed, and an **event-stream view** carrying a live feed of the events it produces. [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) covers what each category charts and streams.
+This page builds two of an integration's three baseline views: a **report-runner view** charting what the integration processed, and an **event-stream view** carrying a live feed of the events it produces. It also defines the test-event view an inbound integration adds to its `views` socket. [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) covers what each category charts and streams.
 
 ## When You Would Build These
 
@@ -42,7 +42,7 @@ curl --request POST \
     "installed_into_socket": "views",
     "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"],
     "variables": [
-      { "name": "order", "type": "INTEGER", "values": { "default": 2 } },
+      { "name": "order", "type": "INTEGER", "values": { "default": 3 } },
       { "name": "title", "type": "STRING", "values": { "default": "Example Activity" } },
       { "name": "status", "type": "STRING", "values": { "default": "READY" } },
       { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": [] } },
@@ -74,7 +74,7 @@ curl --request POST \
     "installed_into_socket": "views",
     "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"],
     "variables": [
-      { "name": "order", "type": "INTEGER", "values": { "default": 3 } },
+      { "name": "order", "type": "INTEGER", "values": { "default": 4 } },
       { "name": "title", "type": "STRING", "values": { "default": "Example Events" } },
       { "name": "status", "type": "STRING", "values": { "default": "READY" } },
       { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": [] } },
@@ -94,6 +94,35 @@ curl --request POST \
 - **Type the element setting `STRING`** — `reportRunnerId` on the report view, `eventStreamId` on the event-stream view; there is no `REPORT_RUNNER_ID` or `EVENT_STREAM_ID` type. Each holds a buildtime query for the element its own component owns, so the view survives the element being recreated.
 - **Wrap every Java collection in `Java.from`**, as both expressions do; settings are evaluated as part of the create.
 - **Give every view an `order`** typed `INTEGER`, lowest first, configuration at the front.
+
+### Add the Test Event View to an Inbound Integration
+
+My Extole renders the test-event sender when the integration component has a `test-event-view-v10.0` child in its `views` socket. The integration definition is the source of the tab, like it is for configuration and event-stream views.
+
+Create the view after the integration's business events and input rules are configured:
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "test-events",
+    "display_name": "Test Event",
+    "description": "Send a configured inbound event with an editable test payload.",
+    "types": ["view-v10.0", "test-event-view-v10.0"],
+    "installed_into_socket": "views",
+    "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"],
+    "variables": [
+      { "name": "order", "type": "INTEGER", "values": { "default": 2 } },
+      { "name": "title", "type": "STRING", "values": { "default": "Test Event" } },
+      { "name": "status", "type": "STRING", "values": { "default": "READY" } },
+      { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": [] } }
+    ]
+  }'
+```
+
+The view has no report runner or event stream of its own. It uses the integration's built business events, enabled input rules, and program label to prepare the payload. Add one test-event view for the integration, regardless of how many wire events its rules accept.
 
 ### Map the Report's Columns to a Chart
 
