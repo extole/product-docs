@@ -133,14 +133,13 @@ You have mapped a partner wire event onto a canonical Extole business event and 
 
 * The Input event appears when you search `event_id=` followed by the identifier the send returned.
 * The mapped business event appears when you search `root_event_id=` followed by that same identifier. Downstream events have their own `event_id`.
-* Open the JSON on each matching row. Call PASS when the Input carries the wire name and a STEP on that `root_event_id` carries the canonical name, the same person, the mapped values, and `campaign_context.quality` of `HIGH` or `LOW`. Call FAIL when the Input is present and the STEP is missing, unattributed (`quality` `NONE` or no `campaign_context`), or wrong. Call INCONCLUSIVE until the stream preflight below is complete, or when the configured stream remains empty after a bounded wait.
+* Open the JSON on each matching row. Call PASS when the Input carries the wire name and a STEP on that `root_event_id` carries the canonical name, the same person, the mapped values, and `campaign_context.quality` of `HIGH` or `LOW`. Call FAIL when the Input is present and the STEP is missing, unattributed (`quality` `NONE` or no `campaign_context`), or wrong. Call INCONCLUSIVE when the stream is unavailable, stopped, or filtered, or when the running unfiltered stream remains empty after a bounded wait.
 
 **Which Stream to Open**
 
 Open the integration's Event Stream tab and establish this preflight before sending:
 
 - The stream is running.
-- Its `APPLICATION_TYPE` filter includes the partner type and `Event Dispatcher`.
-- One `EVENT_TYPE` filter includes `INPUT`, `STEP`, `IDENTIFIED`, `INCENTIVIZED`, `REWARD`, `SEND_REWARD`, `INTERNAL`, `MESSAGE`, and `MESSAGE_NOT_DELIVERED`.
+- Its `filters` collection is empty, so it records the complete processing chain.
 
-Use this integration stream for the verdict. When the preflight requires a change, report INCONCLUSIVE and name the exact value to add.
+Use this integration stream for the verdict and narrow each read with the returned `event_id` and the corresponding `root_event_id`.
