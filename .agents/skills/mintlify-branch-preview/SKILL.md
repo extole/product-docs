@@ -138,7 +138,7 @@ do not wait it out. Check
 above to unblock yourself, and say so, because while it is stalled **merging does
 not publish**.
 
-### A preview can 404 on the one page the branch changed
+### A preview can 404 on the one page the branch changed — or on the whole host
 
 Measured on [#43](https://github.com/extole/product-docs/pull/43) (2026-08-24): the
 bot reported the build 🟢 Ready and the **View Preview** link it posted — the
@@ -156,10 +156,35 @@ was wrong with the page:
 So this is not "changed pages cannot be previewed", and the cause is unproven. An
 empty commit produced no new deployment, so retrying is not the move.
 
+It also happens to the **entire host**, not just the changed page, so a 404 at
+`/` is not evidence that the branch failed to deploy. Measured on
+[#88](https://github.com/extole/product-docs/pull/88) (2026-09-09), 40 minutes
+after a 🟢 Ready comment and a passing `Mintlify Deployment` check, and still
+404 on six probes over two minutes:
+
+| On `extole-newsletters-june-august-2026.mintlify.site` | Status |
+|---|---|
+| `/` | **404** |
+| the changed page, HTML | **404** |
+| the same path with `.md` appended | 200, carrying the new entries |
+| `/llms.txt` | 200 |
+| `extole-sup-68406-prefer-journey-campaign-id`, another branch, same paths | 200 |
+
+`gh api repos/extole/product-docs/deployments` listed the branch as the newest
+deployment, at the timestamp the bot reported. So the deployment is real, the
+build contains the edit, and only the HTML route is dead — the cause is still
+unproven and there is nothing to retry.
+
 What to do: prove the page a different way and say the link is lying rather than
 letting a reviewer read the 404 as a broken page. `npx mint@latest dev` renders
 the branch locally, and appending `.md` to the preview URL returns the built copy
-of that page — enough to confirm the deployment really contains your edit.
+of that page — enough to confirm the deployment really contains your edit. When a
+reviewer needs to *see* it, screenshot the local render and put the picture in the
+pull request: `nix-shell -p chromium` supplies a browser, `liberation_ttf` plus a
+`fonts.conf` under `FONTCONFIG_FILE` supplies the fonts the pod does not have, and
+`npx mint@latest dev` must be driven with puppeteer rather than chromium's own
+`--screenshot --virtual-time-budget`, which never settles against the dev server's
+live-reload socket.
 
 ## Branch naming: no constraint here
 
