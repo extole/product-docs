@@ -2041,6 +2041,42 @@
         },
         "type" : "object"
       },
+      "PersonDeviceResponse" : {
+        "properties" : {
+          "claimed_at" : {
+            "$ref" : "#/components/schemas/ZonedDateTime"
+          },
+          "person_id" : {
+            "description" : "The Extole person id of the device profile that claimed this identity.",
+            "type" : "string"
+          },
+          "status" : {
+            "description" : "`CURRENT` when the device still points at this identity, `MOVED` when it has since been re-identified to another identity, `DELETED` when the device profile no longer exists.",
+            "enum" : [ "CURRENT", "DELETED", "MOVED" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "claimed_at", "person_id", "status" ],
+        "type" : "object"
+      },
+      "PersonDevicesResponse" : {
+        "properties" : {
+          "devices" : {
+            "description" : "The devices that claimed this identity, most recent claim first. Bounded: the earliest claims and the latest claims are kept, so a flood of claims evicts the ones in between.",
+            "items" : {
+              "$ref" : "#/components/schemas/PersonDeviceResponse"
+            },
+            "type" : "array"
+          },
+          "evicted_device_count" : {
+            "description" : "How many device claims have been evicted from the list because it reached its cap. Zero when the list is complete.",
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "devices", "evicted_device_count" ],
+        "type" : "object"
+      },
       "PersonForwardRequest" : {
         "properties" : {
           "forward_to_profile_id" : {
@@ -7902,6 +7938,145 @@
           }
         },
         "summary" : "Delete a person data parameter",
+        "tags" : [ "Persons" ],
+        "x-extole-bundle" : "integration-server-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v5/persons/{person_id}/devices" : {
+      "get" : {
+        "description" : "Returns the devices that claimed the specified person's identity, with the time of each claim and whether the device still points at this identity. A device that claims an identity without verifying it keeps its own activity, so this list is how to find that activity from the identity. The list is bounded; `evicted_device_count` says how many claims it no longer holds.",
+        "operationId" : "listPersonDevices",
+        "parameters" : [ {
+          "description" : "The Extole unique profile identifier of this user at Extole.",
+          "in" : "path",
+          "name" : "person_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PersonDevicesResponse"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  },
+                  "person_not_found" : {
+                    "$ref" : "#/components/examples/person_not_found"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "List the devices that claimed a person's identity",
         "tags" : [ "Persons" ],
         "x-extole-bundle" : "integration-server-to-extole",
         "x-extole-visibility" : "visible"
