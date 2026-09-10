@@ -2068,13 +2068,12 @@
             },
             "type" : "array"
           },
-          "evicted_device_count" : {
-            "description" : "How many device claims have been evicted from the list because it reached its cap. Zero when the list is complete.",
-            "format" : "int32",
-            "type" : "integer"
+          "truncated" : {
+            "description" : "True when the list has reached its cap, so claims between the earliest and the latest may have been dropped from it.",
+            "type" : "boolean"
           }
         },
-        "required" : [ "devices", "evicted_device_count" ],
+        "required" : [ "devices", "truncated" ],
         "type" : "object"
       },
       "PersonForwardRequest" : {
@@ -7945,7 +7944,7 @@
     },
     "/v5/persons/{person_id}/devices" : {
       "get" : {
-        "description" : "Returns the devices that claimed the specified person's identity, with the time of each claim and whether the device still points at this identity. A device that claims an identity without verifying it keeps its own activity, so this list is how to find that activity from the identity. The list is bounded; `evicted_device_count` says how many claims it no longer holds.",
+        "description" : "Returns the devices that claimed the specified person's identity, with the time of each claim and whether the device still points at this identity. A device that claims an identity without verifying it keeps its own activity, so this list is how to find that activity from the identity. The list is bounded; `truncated` says it has reached its cap.",
         "operationId" : "listPersonDevices",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
