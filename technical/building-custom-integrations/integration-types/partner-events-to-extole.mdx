@@ -1,0 +1,63 @@
+---
+title: "Sending Partner Events to Extole"
+description: "The Partner to Extole direction: how a partner platform's activity reaches Extole, gets normalized, and becomes a canonical business event."
+---
+
+Part of the [packaged integration guide](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
+
+# Overview
+
+A **Partner to Extole** integration carries activity from an outside platform into Extole: purchases, shipments, cancellations, account openings, or the eligibility of a group of customers. It is one of the categories in [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories), and the one with the most moving parts, because the work is split between the partner platform and the Extole campaign.
+
+The pages below follow one arriving event from the partner's system to the moment it becomes something Extole can attribute, reward, and report on. Read them in that order — each stage assumes the one before it.
+
+```text
+partner platform                    Extole
+      │
+      │  1. delivery         POST /v6/events
+      ├──────────────────────────────►
+      │                       2. prehandler        renames and flattens the payload
+      │                              │             (only when the partner defines it)
+      │                              ▼
+      │                       3. input event rule  matches the arriving name
+      │                              │
+      │                              ▼
+      │                       4. business event    converted, shipped, canceled
+      │                              │             with its mapped data
+      │                              ▼
+      │                          step, attribution, rewards, reports
+```
+
+## The Stages
+
+| Stage | Page | When it applies |
+| :---- | :--- | :-------------- |
+| Delivery | [Send Events from the Partner Platform](/technical/building-custom-integrations/integration-types/partner-events-send-from-platform) | Whenever you control the sending code — an extension, plugin, or middleware service |
+| Normalization | [Normalize Partner Events with a Prehandler](/technical/building-custom-integrations/integration-types/partner-events-prehandlers) | Only when the partner defines the payload and you cannot shape it |
+| Mapping | [Map Partner Events to Business Events](/technical/building-custom-integrations/integration-types/partner-events-map-to-business-events) | Always — this is the integration's core |
+| Membership instead of events | [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/partner-events-audience-membership) | When the partner sends who is eligible rather than what happened |
+
+Delivery and normalization are alternatives more often than they are companions. A platform whose sending code you write sends Extole-shaped events and needs no prehandler; a platform that emits only its own fixed webhook needs a prehandler and has no sender to build. Mapping is required either way.
+
+Audience membership is the outlier. It travels the same direction but carries no business events at all, so it skips delivery, normalization, and mapping entirely and is the one Partner to Extole shape that needs a credential.
+
+## Two Event Vocabularies
+
+Every stage above depends on keeping two sets of names apart, and confusing them is the most common way a build fails silently:
+
+- The **partner's wire name** — whatever the platform calls the event, such as `partner_order_created`. It belongs on the `input_event` trigger rule, or is the name a prehandler rewrites.
+- The **canonical Extole name** — `converted`, `shipped`, `canceled`, `account_opened`. It belongs on the business event, because programs and reports read it.
+
+Never rename a business event to match a partner. A rule that still listens for a name nothing produces never matches, and reads as correct in the component tree.
+
+## What This Direction Does Not Need
+
+A Partner to Extole integration creates no reward supplier, webhook, or client key. Those belong to the Extole to Partner direction — see [Build an Extole to Partner Library Integration](/technical/building-custom-integrations/integration-types/integration-build-extole-to-partner). Audience membership is the single exception, needing a credential the partner authenticates with.
+
+Incoming CSV or SFTP files are not this tree either. Install the [File Integration](/technical/platform-integrations/extensions/file-integration) extension instead.
+
+## Related Documentation
+
+- [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories)
+- [Build a Packaged Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration)
+- [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation)

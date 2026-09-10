@@ -1,21 +1,21 @@
 ---
 title: "Validate and Publish an Integration"
-description: "Gate outbound resources, validate the finished shape, publish the validated version, and connect the integration to a program."
+description: "Gate Extole to Partner resources, validate the finished shape, publish the validated version, and connect the integration to a program."
 ---
 
 Part of the [packaged integration guide](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
 
 # Overview
 
-Validation is the last gate before an integration goes live: decide whether it should own outbound resources, check the built shape against the model, then publish the version you checked. Connecting its business events to a marketing program is a separate, approved step.
+Validation is the last gate before an integration goes live: decide whether it should own Extole to Partner resources, check the built shape against the model, then publish the version you checked. Connecting its business events to a marketing program is a separate, approved step.
 
-## Gate Outbound Resources
+## Gate Extole to Partner Resources
 
-This applies to an inbound custom build someone proposes to extend outbound; the webhooks and credential an outbound library install ships with are part of its finished shape, not gated here.
+This applies to a Partner to Extole build someone proposes to extend in the other direction; the webhooks and credential a maintained Extole to Partner install ships with are part of its finished shape, not gated here.
 
-Create outbound resources only when all of these hold:
+Create Extole to Partner resources only when all of these hold:
 
-- The requested scope includes a defined outbound use case.
+- The requested scope includes a defined Extole to Partner use case.
 - A program action or reward rule produces the event or reward.
 - The destination endpoint and authentication contract exist.
 - Retry, idempotency, error handling, and ownership are defined.
@@ -24,7 +24,7 @@ Create outbound resources only when all of these hold:
 
 A reward supplier models fulfillment inventory and a webhook is the HTTP transport, so a reward-supplier socket alone does not connect a partner; either without the rest of the program wiring leaves unused external resources.
 
-When outbound scope is later removed, archive resources in dependency order:
+When Extole to Partner scope is later removed, archive resources in dependency order:
 
 1. Disable the webhook.
 2. Remove its filters and component references, then archive it.
@@ -57,7 +57,7 @@ Read the latest campaign and its built components, then confirm:
 
 ### Reachability
 
-- Whoever sends the inbound event can send the shape the rules expect. Where the sender is the partner's own webhook, a prehandler exists, is `enabled`, carries at least one condition, and is referenced to the integration component — a disabled prehandler, or one with no conditions, passes every structural check here and leaves the integration inert. Read the evaluated `order` where more than one participates ([Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers)).
+- Whoever sends the partner event can send the shape the rules expect. Where the sender is the partner's own webhook, a prehandler exists, is `enabled`, carries at least one condition, and is referenced to the integration component — a disabled prehandler, or one with no conditions, passes every structural check here and leaves the integration inert. Read the evaluated `order` where more than one participates ([Normalize Partner Events with a Prehandler](/technical/building-custom-integrations/integration-types/partner-events-prehandlers)).
 - Whoever configures the partner is given the endpoint: the configuration view's setup instructions render the URL the partner posts to, computed from the campaign, rather than naming the event endpoint without producing it.
 
 ### Views
@@ -95,7 +95,7 @@ A finished integration turns partner events into business events inside its own 
 
 Close the build by proposing two things, and do neither without an answer:
 
-1. Publish the integration campaign, which makes the inbound endpoint accept events.
+1. Publish the integration campaign, which makes the event endpoint accept events.
 2. Install the integration's business events into a marketing campaign.
 
 For the second, name the campaign candidates and list the partner events by canonical name, saying whether each supersedes an event the program has or adds one it lacks. A partner `converted` supersedes the theme's `converted` on the same journey; `shipped` and `canceled` are usually additions.
@@ -119,7 +119,7 @@ Most commerce platforms map onto the same three canonical events; adjust this sh
 | `shipped` | `template_tracked_business_event` | Shipment |
 | `canceled` | `template_tracked_business_event` | Cancellation, plus any legacy spelling a live sender still emits |
 
-[Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) names the fields each event captures. A complete integration of this shape carries the model component, three business events, one `input_event` rule per event, one data component per captured field, and the three baseline views. It is inbound-only: no reward-supplier socket, reward webhook, or client key.
+[Map Partner Events to Business Events](/technical/building-custom-integrations/integration-types/partner-events-map-to-business-events) names the fields each event captures. A complete integration of this shape carries the model component, three business events, one `input_event` rule per event, one data component per captured field, and the three baseline views. It is Partner to Extole only: no reward-supplier socket, reward webhook, or client key.
 
 Platforms with a different lifecycle keep the same construction and change the event set: a lending or account platform maps to `account_opened`, `application_approved`, and `funded`; a subscription platform to `converted`, `renewed`, and `canceled`. The canonical name describes the business outcome, never the partner's transport name.
 

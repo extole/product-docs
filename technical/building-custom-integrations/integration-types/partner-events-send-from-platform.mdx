@@ -1,11 +1,15 @@
 ---
-title: "Send Platform Events to Extole"
-description: "Deliver a platform's lifecycle events to the Extole Events API, with retries, deduplication, and verification."
+title: "Send Events from the Partner Platform"
+description: "Deliver a partner platform's lifecycle events to the Extole Events API, with retries, deduplication, and verification."
 ---
+
+Stage one of [Sending Partner Events to Extole](/technical/building-custom-integrations/integration-types/partner-events-to-extole).
 
 # Overview
 
-An inbound integration has two halves: an integration campaign inside Extole maps arriving events onto canonical business events (see [Build a Packaged Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration)), and server-side code in the platform sends those events to the Events API.
+This is the delivery half of a Partner to Extole integration: server-side code in the partner platform posts the platform's own events to the Events API. The other half lives in Extole, where [Map Partner Events to Business Events](/technical/building-custom-integrations/integration-types/partner-events-map-to-business-events) turns each arriving event into a canonical business event.
+
+Build a sender only when you control the sending code. A platform that emits nothing but its own fixed webhook has no sender to write — a [prehandler](/technical/building-custom-integrations/integration-types/partner-events-prehandlers) reshapes what it sends instead.
 
 <Warning>
 Send events server-side. A token in storefront templates, theme files, or browser code is published to every site visitor. Platforms whose events can only be produced in the browser use the [JavaScript SDK](/technical/platform-integrations/javascript-sdk/index) instead.
@@ -19,7 +23,7 @@ Send events server-side. A token in storefront templates, theme files, or browse
 | A platform with no plugin surface reports account or subscription activity | A middleware service |
 | Records arrive as files (CSV over SFTP or upload) | The [File Integration](/technical/platform-integrations/extensions/file-integration) extension — not this Events API sender |
 | Records arrive in batches from a scheduled job you host | A middleware service |
-| A partner emits only its own fixed webhook | No sender — a [prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers) reshapes it in Extole |
+| A partner emits only its own fixed webhook | No sender — a [prehandler](/technical/building-custom-integrations/integration-types/partner-events-prehandlers) reshapes it in Extole |
 
 ## What the Sender Needs
 
@@ -114,5 +118,6 @@ A `2xx` means accepted, not matched. Check in order:
 
 ## Related Documentation
 
+- [Sending Partner Events to Extole](/technical/building-custom-integrations/integration-types/partner-events-to-extole)
+- [Map Partner Events to Business Events](/technical/building-custom-integrations/integration-types/partner-events-map-to-business-events)
 - [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories)
-- [Build a Packaged Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration)

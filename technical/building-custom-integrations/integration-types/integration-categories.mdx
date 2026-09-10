@@ -1,11 +1,16 @@
 ---
 title: "Integration Categories"
-description: "Choose the category for a packaged partner integration — inbound, outbound, reward fulfillment, or bidirectional — and see what each one builds."
+description: "Choose the category for a packaged partner integration — Partner to Extole, Extole to Partner, reward fulfillment, or bidirectional — and see what each one builds."
 ---
 
 # Overview
 
 A packaged integration is a campaign whose component tree connects Extole to an outside system. Extole supports four categories, and the category decides the component model, the resources the integration needs, and which build sequence to follow in [Build a Packaged Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
+
+Categories are named for the direction data travels, because that is what decides the model:
+
+- **Partner to Extole** — the platform reports activity, or eligibility, into Extole.
+- **Extole to Partner** — Extole forwards program activity out to the platform.
 
 <Info>
 This page is for packaging a partner platform as a reusable integration. Launching a program does not require it — see [Who Packages an Integration](/technical/building-custom-integrations/integration-lifecycle/management-api-integration#who-packages-an-integration) for the paths that connect your own systems, and [Build with Extole AI Tools](/technical/building-custom-integrations/integration-lifecycle/management-api-integration#build-with-extole-ai-tools) for the recommended way to run a build.
@@ -17,38 +22,34 @@ Read the platform's developer documentation and its partner page, when one exist
 
 | Signal | Category |
 | :----- | :------- |
-| The platform documents webhooks, plugins, or extensions that post order or account activity, or the request describes a lifecycle to track — purchases, shipments, cancellations, account openings | Inbound |
-| The platform documents an ingestion API for customer events, attributes, or subscriptions, or the request describes triggering messages, building audiences, or enriching profiles from Extole activity | Outbound |
-| The request describes the platform deciding who is eligible and sending that membership to Extole | Inbound, as audience membership rather than events |
+| The platform documents webhooks, plugins, or extensions that post order or account activity, or the request describes a lifecycle to track — purchases, shipments, cancellations, account openings | Partner to Extole |
+| The platform documents an ingestion API for customer events, attributes, or subscriptions, or the request describes triggering messages, building audiences, or enriching profiles from Extole activity | Extole to Partner |
+| The request describes the platform deciding who is eligible and sending that membership to Extole | Partner to Extole, as audience membership rather than events |
 | The platform sells gift cards, prepaid cards, points, or payouts that Extole orders when a reward is earned, or the request names card products, denominations, program numbers, or funding terms | Reward fulfillment |
 | The platform both sends activity and receives rewards or coupons | Bidirectional |
-| A maintained integration component already exists for the platform in the duplicatable listing | Library install of that source's category, unless the request adds inbound scope |
-| The request is a CSV, SFTP, or inbound event-file feed, or to create a file integration | Not this guide — install the [File Integration](/technical/platform-integrations/extensions/file-integration) extension |
+| A maintained integration component already exists for the platform in the duplicatable listing | Library install of that source's category, unless the request adds Partner to Extole scope |
+| The request is a CSV, SFTP, or arriving event-file feed, or to create a file integration | Not this guide — install the [File Integration](/technical/platform-integrations/extensions/file-integration) extension |
 
-A request can match more than one row. A maintained library source covers only what it was built for; when the request includes something the source does not — inbound membership on an otherwise outbound partner, for example — install the source and build the rest on top of it.
+A request can match more than one row. A maintained library source covers only what it was built for; when the request includes something the source does not — audience membership on an otherwise Extole to Partner platform, for example — install the source and build the rest on top of it.
 
 ## Category Summary
 
-| Category | Direction | Platform types | What you create |
-| :------- | :-------- | :------------- | :-------------- |
-| Inbound | Platform to Extole | Commerce, core banking, account opening, subscription, point of sale | Business events, trigger rules, and data capture, in a campaign built from the custom integration template |
-| Outbound | Extole to platform | Marketing automation, messaging, customer data platforms, analytics | A reshaped duplicate of the maintained library source, with webhooks and a credential |
-| Reward fulfillment | Extole to platform | Gift card, prepaid card, points, and payout providers | A supplier type, a support campaign of supplier templates, `REWARD` webhooks, and a fourth view |
-| Bidirectional | Both | Commerce and loyalty platforms that also accept rewards or coupons | The inbound model first, then outbound resources gated on an approved use case |
+| Category | Platform types | What you create |
+| :------- | :------------- | :-------------- |
+| Partner to Extole | Commerce, core banking, account opening, subscription, point of sale | Business events, trigger rules, and data capture, in a campaign built from the `custom_integration` template |
+| Extole to Partner | Marketing automation, messaging, customer data platforms, analytics | A reshaped duplicate of the maintained library source, with webhooks and a credential |
+| Reward fulfillment | Gift card, prepaid card, points, and payout providers | A supplier type, a support campaign of supplier templates, `REWARD` webhooks, and a fourth view |
+| Bidirectional | Commerce and loyalty platforms that also accept rewards or coupons | The Partner to Extole model first, then Extole to Partner resources gated on an approved use case |
 
-Inbound needs no reward supplier, webhook, or client key, unless it receives audience membership from the partner. Outbound needs no business events.
+Partner to Extole needs no reward supplier, webhook, or client key, unless it receives audience membership from the partner. Extole to Partner needs no business events.
 
 Every category carries the same three views — configuration, report-runner, and event-stream — built from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views). The category decides what the report counts and what the feed filters to; reward fulfillment adds a fourth.
 
-## Inbound Integrations
+## Partner to Extole Integrations
 
-An inbound integration turns a platform's own event names into canonical Extole business events, mapping each arriving event to a reusable business-event component. [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) covers the sending half that runs in the platform.
+A Partner to Extole integration turns a platform's own event names into canonical Extole business events, mapping each arriving event to a reusable business-event component.
 
 The component tree is the same whichever way events reach it:
-
-- A platform with an extension or plugin you can write sends Extole-shaped events directly.
-- A platform that emits only its own fixed webhook — a payment processor, or a SaaS product with a webhook page and no plugin — needs a [prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers) to reshape the payload inside Extole.
-- Incoming CSV or SFTP event files are not this tree. Install [File Integration](/technical/platform-integrations/extensions/file-integration).
 
 ```text
 root
@@ -64,19 +65,19 @@ root
         └── event-streams       event-stream-view-v10.0
 ```
 
-Keep the two event vocabularies separate. The trigger rule carries the name that reaches it: the platform's wire event name, or the integration-owned name a prehandler produced. The business event carries the canonical name bundled programs already use — `converted`, `shipped`, `canceled`, `account_opened`. Never rename a business event to match a platform's wire name.
+What differs is how the event reaches that tree, and that is the whole of [Sending Partner Events to Extole](/technical/building-custom-integrations/integration-types/partner-events-to-extole) — the delivery code, the prehandler that reshapes a payload you do not control, the mapping onto canonical business events, and the rule that keeps the partner's wire names and Extole's canonical names apart. Start there for the build order.
 
-Map every field you persist into the `data` socket. [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) covers the mapping.
+Incoming CSV or SFTP event files are not this tree. Install [File Integration](/technical/platform-integrations/extensions/file-integration).
 
 ### Audience Membership from a Partner
 
-A partner platform that decides which customers are eligible can sync that group to an Extole audience over the API. This is inbound, but it carries no business events and is the one inbound shape that needs a credential. It is distinct from an audience Extole builds out of program activity.
+A partner platform that decides which customers are eligible can sync that group to an Extole audience over the API. This travels Partner to Extole, but it carries no business events and is the one shape in this direction that needs a credential. It is distinct from an audience Extole builds out of program activity.
 
-The integration adds an audience it owns, a server access token the partner authenticates with, and setup instructions naming the endpoints. See [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership).
+The integration adds an audience it owns, a server access token the partner authenticates with, and setup instructions naming the endpoints. See [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/partner-events-audience-membership).
 
-## Outbound Integrations
+## Extole to Partner Integrations
 
-An outbound integration forwards Extole program activity to the platform. Child controllers listen for Extole events and call the platform's endpoints through webhooks, authenticated with a webhook client key that holds the platform's API credential.
+An Extole to Partner integration forwards Extole program activity to the platform. Child controllers listen for Extole events and call the platform's endpoints through webhooks, authenticated with a webhook client key that holds the platform's API credential.
 
 ```text
 root
@@ -86,15 +87,15 @@ root
     └── views                   MULTI_SOCKET → configuration, report-runner, event-stream views
 ```
 
-Most outbound platforms ship as maintained library sources an account can duplicate — the same action the **Install** button performs on the Partners page. Reshape the install against the partner page's product description, which specifies the children, the webhooks, and any typed data template. The integration component holds a `WEBHOOK_ID` setting per webhook, resolved by the webhook's purpose tag, and marketing campaigns attach partner actions through those settings. [Build an Outbound Library Integration](/technical/building-custom-integrations/integration-types/integration-build-outbound) covers the reshape.
+Most of these platforms ship as maintained library sources an account can duplicate — the same action the **Install** button performs on the Partners page. Reshape the install against the partner page's product description, which specifies the children, the webhooks, and any typed data template. The integration component holds a `WEBHOOK_ID` setting per webhook, resolved by the webhook's purpose tag, and marketing campaigns attach partner actions through those settings. [Build an Extole to Partner Library Integration](/technical/building-custom-integrations/integration-types/integration-build-extole-to-partner) covers the reshape.
 
-An outbound integration reports program activity rather than producing it, so installing one never supersedes a marketing program's own `converted` or `shipped` business event.
+An Extole to Partner integration reports program activity rather than producing it, so installing one never supersedes a marketing program's own `converted` or `shipped` business event.
 
 ## Reward Fulfillment Integrations
 
 A reward fulfillment integration orders something of value from the platform when a participant earns a reward: a gift card, a prepaid card, points, or a payout. Extole calls the platform's order endpoint, the platform returns an order result, and the reward moves to fulfilled or fails and is retried.
 
-The direction is outbound, and the model is distinct because the platform sells products. Each product a client can offer becomes a **reward supplier** — a configured source of rewards carrying its own value, program identifiers, and payment terms. A client offering two card types has two reward suppliers drawn from the same integration. That takes two campaigns:
+It travels Extole to Partner, and the model is distinct because the platform sells products. Each product a client can offer becomes a **reward supplier** — a configured source of rewards carrying its own value, program identifiers, and payment terms. A client offering two card types has two reward suppliers drawn from the same integration. That takes two campaigns:
 
 ```text
 integration campaign
@@ -117,11 +118,11 @@ Supplier templates live in the support campaign, of type `CONFIGURATION`, becaus
 
 ## Bidirectional Integrations
 
-A platform that both sends outcomes and receives rewards or coupons combines both models. Build the inbound half first and prove it, then add outbound resources once the destination endpoint, authentication contract, retry and idempotency behavior, configuration surface, and a program action that produces the outbound event all exist.
+A platform that both sends outcomes and receives rewards or coupons combines both models. Build the Partner to Extole half first and prove it, then add the Extole to Partner resources once the destination endpoint, authentication contract, retry and idempotency behavior, configuration surface, and a program action that produces the outgoing event all exist.
 
 ## Related Documentation
 
 - [Build a Packaged Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration)
-- [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events)
+- [Sending Partner Events to Extole](/technical/building-custom-integrations/integration-types/partner-events-to-extole)
 - [Integrating with Extole](/technical/integration-overview/integrating-with-extole)
 - [Key Concepts](/technical/integration-overview/key-concepts)

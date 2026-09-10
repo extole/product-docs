@@ -1,13 +1,13 @@
 ---
-title: "Build an Outbound Library Integration"
-description: "Install a maintained partner source, reshape it to the shape the partner page defines, and attach its outbound webhooks and credential."
+title: "Build an Extole to Partner Library Integration"
+description: "Install a maintained partner source, reshape it to the shape the partner page defines, and attach its webhooks and credential."
 ---
 
 Part of the [packaged integration guide](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
 
 # Overview
 
-An outbound integration forwards Extole program activity to a partner platform. Extole maintains a library source for most outbound partners, so the build is an install and a reshape rather than a construction.
+An Extole to Partner integration forwards Extole program activity out to a partner platform. Extole maintains a library source for most partners in this direction, so the build is an install and a reshape rather than a construction.
 
 Substitute the component name, endpoints, and tag namespace from the partner page throughout. [Build a Packaged Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration) covers the constraints and shared mechanics every build follows.
 
@@ -18,9 +18,9 @@ Substitute the component name, endpoints, and tag namespace from the partner pag
 | Extole activity to trigger a partner message | Marketing automation, messaging | A message-trigger webhook and its `WEBHOOK_ID` setting |
 | Extole activity to keep partner profiles or audiences current | Customer data platform | An ingestion webhook and its `WEBHOOK_ID` setting |
 | Extole program activity in a partner's reporting | Analytics | An ingestion webhook and its `WEBHOOK_ID` setting |
-| A marketing campaign to attach partner actions to its own events | Any outbound partner | A typed data-item child of the integration component |
+| A marketing campaign to attach partner actions to its own events | Any partner in this direction | A typed data-item child of the integration component |
 
-Do not add inbound business-event scaffolding to an outbound install. A partner that orders gift cards, prepaid cards, points, or payouts uses the distinct [reward fulfillment model](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment).
+Do not add Partner to Extole business-event scaffolding to this install. A partner that orders gift cards, prepaid cards, points, or payouts uses the distinct [reward fulfillment model](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment).
 
 ## Before You Start
 
@@ -45,7 +45,7 @@ The partner page's product description specifies the finished tree. Each stateme
 | The activity the integration forwards | One child per listed activity, and none forwarding activity the page omits |
 | The partner endpoints Extole calls | One webhook per endpoint, each tagged by purpose |
 | That program campaigns attach partner data to their own events | A typed data-item child of the integration component |
-| That the integration exposes its outbound connections as settings | One `WEBHOOK_ID` setting per webhook, resolved by tag |
+| That the integration exposes its partner connections as settings | One `WEBHOOK_ID` setting per webhook, resolved by tag |
 | The account URL and credential the partner requires | The matching settings on the integration component |
 
 Read that mapping as exhaustive rather than as a minimum, and apply it to an integration already in the account as much as to a fresh install. A library source ships the union of what every account might want, so it commonly installs children the page does not list and only one of the webhooks it names.
@@ -151,7 +151,7 @@ Publish the campaign once before creating any webhook whose name or URL expressi
 A published integration campaign has no supported route back to a draft: there is no stop or unpublish action, and archiving takes the integration out of use entirely.
 </Warning>
 
-Publishing validates every webhook the campaign already owns, so keep a valid placeholder host in any account-URL setting that feeds a webhook URL. The library's own default is one. Set `enabled` to `false` while a webhook points at that placeholder — enabled, it sends live program data to a host that should never receive it, unsigned when the client key is also missing. Enabling it is the step that puts the outbound path into service.
+Publishing validates every webhook the campaign already owns, so keep a valid placeholder host in any account-URL setting that feeds a webhook URL. The library's own default is one. Set `enabled` to `false` while a webhook points at that placeholder — enabled, it sends live program data to a host that should never receive it, unsigned when the client key is also missing. Enabling it is the step that puts the partner connection into service.
 
 `POST /v6/webhooks`:
 
