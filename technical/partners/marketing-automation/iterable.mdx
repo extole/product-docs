@@ -90,7 +90,7 @@ An integration between Extole and [Iterable](https://iterable.com/) offers you s
 
 ### Setting Up an Extole Integration
 
-Extole supports sending webhooks on any event in a customer Journey to connect with third-party products. To do so, you will first need to generate an JavaScript API key within Iterable:
+Extole supports sending webhooks on events in a customer journey. First, store your Iterable REST API key as a webhook client key in Extole:
 
 1. Log in to your Extole account and navigate to [Tech Center > Outbound Webhooks](https://my.extole.com/tech-center/outbound-webhooks).
 2. Hit the + New Integration button.
@@ -167,8 +167,24 @@ Additionally, when marketing your referral and engagement programs to customers 
 **Complete the following steps to send Extole event data into your Iterable account**:
 
 1. Make sure you have [event handling](https://support.iterable.com/hc/en-us/articles/115002065083-Managing-Custom-Events-#adding-events-to-the-custom-events-list) enabled in your Iterable account.
-2. Work with your Extole team to decide which custom events you’d like to send into Iterable, or choose from our standard table below. Your Extole team will then set up a webhook that points to Iterable’s [Events API](https://api.iterable.com/api/docs#events_track) and events will automatically start flowing into Iterable.  
+2. Work with your Extole team to decide which custom events you’d like to send into Iterable, or choose from our standard table below. Your Extole team will then set up a webhook that points to Iterable’s [Events API](https://api.iterable.com/api/docs#events_track) and events will automatically start flowing into Iterable.
    Note that if you are using Iterable's EU Data Center, use [https://api.eu.iterable.com/api/docs#events_track](https://api.eu.iterable.com/api/docs#events_track).
+
+#### How the Outbound Event Path Works
+
+The Iterable integration owns the controllers that listen for Extole activity. You don't add the delivery controller to one referral campaign.
+
+Use the event class that matches the activity:
+
+- **Share-link created**: listen for the `advocate_code_created` `SHAREABLE` event and read the generated share link from the shareable.
+- **Friend converted**: listen for the `converted` `STEP` event and use its selected-campaign context and event data.
+- **Reward fulfilled**: listen for a reward event whose state is `FULFILLED` and read the reward recipient, value, currency, and partner reward identifier from the reward context.
+
+Each controller invokes the Iterable webhook with a complete Events API payload containing `email` or `userId`, `eventName`, `createdAt`, and `dataFields`. The webhook request handler serializes that payload and adds Iterable's `Api-Key` header. A Password webhook key uses `Authorization: Bearer` by default, so the Iterable request handler must add the partner-specific header explicitly.
+
+The response handler should return `OK` for accepted events, `RETRY` for rate limits and server errors, and log terminal client errors without including the API key or full participant payload. Keep the controller action and webhook disabled until the key, request handler, payload mapping, and response handling are complete.
+
+See [Build an Outbound Integration](/technical/building-custom-integrations/integration-types/integration-build-outbound) for the controller, trigger, webhook action, request handler, and response handler contracts.
 
 <table>
   <thead>
@@ -274,10 +290,9 @@ A typical request body will look something like the following:
   "dataFields": {
     "first_name":"test",
     "last_name":"user",
-    "coupon_code":"RAF12345"
+    "coupon_code":"RAF12345",
     "reward_face_value":"30",
-    "reward_face_value_type":"USD",
-    
+    "reward_face_value_type":"USD"
   }
 }
 ```
