@@ -280,6 +280,8 @@ Lifecycle events such as `shipped` and `canceled` arrive independently, so repea
 
 ## How to Test
 
+In the integration's **Test Event** view, choose a business event to generate an editable payload. The payload includes the enabled data fields configured on that business event. When a mapped data item reads a differently named partner field, the payload uses that source field name. Replace the generated values with representative test data before sending.
+
 Send a synchronous test event through `POST /v6/events` with an event-submission token, not the one that created the campaign. Put the current program label in `data` to target this campaign; it is a testing convenience and does not belong in the partner's payload.
 
 ```bash
@@ -339,7 +341,7 @@ Use the integration stream for the verdict. When the preflight requires a change
 
 For a newly built integration, PASS is the completion gate. Use a first FAIL as diagnostic evidence: read the Input `log_messages`, each candidate in `step_matching_campaign_contexts`, its `trigger_results`, and the mapped STEP `data`; correct the mapping, republish when required, and send a fresh unique event. Repeat until the correlated chain passes or a concrete platform or partner dependency blocks the next correction.
 
-From **My Extole**, you can ask the assistant on the integration Event Stream tab or in global chat to send this test event and report PASS, FAIL, or INCONCLUSIVE with the event identifiers. That is the same loop, not a distinct product.
+From **My Extole**, you can ask the assistant on the integration Event Stream tab or in global chat to send this test event. The assistant reads the correlated Input and STEP JSON, including matching and trigger log messages, and reports the observed evidence behind a PASS, FAIL, or INCONCLUSIVE verdict. That is the same loop, not a distinct product.
 
 Use the returned `person_id` to list the resulting events:
 
