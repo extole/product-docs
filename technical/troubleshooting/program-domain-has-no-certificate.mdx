@@ -1,0 +1,41 @@
+---
+title: "Program Domain Has No Certificate"
+description: "Promote and share links return 404 because the automated certificate job only issues certificates for accounts whose type is customer."
+---
+
+# Overview
+
+Your program domain has no SSL certificate, and your promote and share links return 404 or fail to load over HTTPS, even though the account is otherwise set up and should be serving. This page explains the setting that decides whether a certificate is issued at all.
+
+## The Distinction That Matters
+
+Program-domain certificates are issued automatically by a scheduled job. That job only issues certificates for accounts whose **type is customer**. An account of any other type is skipped, without an error and without a notification, so the program domain never receives a certificate and every link on it 404s.
+
+So the first thing to check is the account type, not the domain and not the certificate itself. A non-customer type on an account that should be live is the finding.
+
+<Warning>
+Account type is usually set from an upstream system of record rather than in My Extole. Correcting it in one place and not the other means it reverts, and the certificate goes with it.
+</Warning>
+
+## The Common Trigger: A Brand Merge or Rename
+
+The most frequent way an account ends up with the wrong type is a brand merge or rename. The new merged entity was never modeled upstream, so it defaults to a non-customer type — even though the accounts it replaced were customers and had working certificates. Links that used to resolve stop resolving, and nothing in the account's own settings looks wrong.
+
+## Evidence That Settles It
+
+- The program domain has no certificate, and its links return 404 rather than an Extole application error.
+- The account type is something other than customer, on an account that should be live.
+- A merge or rename happened shortly before the links stopped resolving.
+
+## What to Do
+
+1. Ask Extole Support to set the account type to customer. The next scheduled certificate run issues and deploys the certificate, usually within minutes.
+2. Correct the record upstream as well, so the type is not reset on the next sync. Without this the certificate is reissued and then lost again.
+
+<Tip>
+If a merge or rename is planned, model the new entity upstream before the change rather than after. That keeps the certificate in place instead of losing and restoring it.
+</Tip>
+
+## Related
+
+- [Managing Your SSL Certificates](/guides/notifications-and-troubleshooting/managing-your-ssl-certificates)
