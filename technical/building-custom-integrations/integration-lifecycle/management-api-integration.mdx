@@ -1,21 +1,49 @@
 ---
-title: "Create an Integration with the Management API"
-description: "Build an inbound, outbound, or reward fulfillment integration for a client account through the Management API."
+title: "Build a Packaged Integration with the Management API"
+description: "Package a partner platform as a reusable Extole integration through the Management API, with the Extole AI tools as the recommended build path."
 ---
 
 # Overview
 
-An integration is a campaign whose component tree connects Extole to an outside platform. The [Management API](/technical/platform-integrations/rest-apis/index) builds that campaign and its components directly in a client account, without packaging the integration as a bundle in Extole's integration library.
+A packaged integration is a campaign whose component tree connects Extole to an outside platform, assembled from reusable component types so the same build can be installed and configured in any account. The [Management API](/technical/platform-integrations/rest-apis/index) builds that campaign and its components directly in a client account.
 
-An API-built integration uses the same model as a packaged one:
+The model is the same whether or not the finished build is published to Extole's integration library:
 
 - **Reusable component types**, not one-off controllers.
 - **Typed sockets** — attachment points that accept only components of a declared type, such as a `views` socket holding view components.
 - **Business-event templates** — maintained components that produce a canonical Extole event such as `converted` or `shipped`.
 - **v10 component types**, named with the generation as a suffix: `integration-v10.1`, `config-view-v10.0`.
-- The naming conventions and validation rules a packaged integration passes before publication.
+- The naming conventions and validation rules the integration passes before publication.
 
 Examples use a generic partner named `example`. Substitute the real partner name, event names, and field names.
+
+## Who Packages an Integration
+
+Packaging is platform engineering on a reusable artifact — a partner connector meant to be installed repeatedly and maintained over time. It is not a step in launching a program, and most clients never do it. Extole solutions engineers, partner engineering teams, and clients building a connector for a platform Extole does not yet maintain are the audience for this guide.
+
+If you are connecting your own systems to Extole, one of these is your path instead:
+
+| You want | Go to |
+| :------- | :---- |
+| To connect your site, app, or servers and launch a program | [Integrating with Extole](/technical/integration-overview/integrating-with-extole) — the JavaScript SDK, REST APIs, and mobile SDKs |
+| To connect a platform Extole already maintains | Install it from the My Extole [Integrations page](https://my.extole.com/integrations); there is nothing to build |
+| To send your own platform's events server-side | [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) |
+| To send records as CSV or SFTP files | The [File Integration](/technical/platform-integrations/extensions/file-integration) extension |
+
+Even when packaging is your job, confirm Extole does not already maintain a source for the partner before you build anything — [When You Would Build One](#when-you-would-build-one) starts there.
+
+## Build with Extole AI Tools
+
+The recommended path is to run the build through the [Extole MCP server](/technical/extole-ai-tools/extole-mcp-server/index) from an agentic coding tool — [Claude Code](/technical/extole-ai-tools/extole-mcp-server/setup-claude-code), [Cursor](/technical/extole-ai-tools/extole-mcp-server/setup-cursor), or [Codex](/technical/extole-ai-tools/extole-mcp-server/setup-codex) — with the [Extole CLI](/technical/extole-ai-tools/extole-cli/index) alongside it. Point the tool at this guide and the partner's page, and describe the integration you need.
+
+The build suits an agent better than it suits a person:
+
+- It is dozens of component duplications in a required order, each needing a fresh campaign version, and one stale value rejects the call.
+- Library components resolve **by name** at build time, so every duplication starts with a lookup whose result is used once and never stored.
+- Verification uses the same tool surface as the build: read the component tree back, send a test event, read the resulting steps.
+- Changes execute under your own Extole permissions and are attributed to you in the change log, exactly as they are through My Extole or the API.
+
+The `curl` examples throughout this guide are the underlying contract. Read them to understand what a tool did, to check a finished build, or to work through the sequence by hand.
 
 ## When You Would Build One
 
