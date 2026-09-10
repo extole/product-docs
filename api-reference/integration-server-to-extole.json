@@ -3586,7 +3586,7 @@
     "/v2/rewards/state_summary" : {
       "get" : {
         "description" : "Returns aggregate state counts for rewards on this client (e.g. earned, fulfilled, cancelled).",
-        "operationId" : "getRewardStateSummary",
+        "operationId" : "stateSummary",
         "parameters" : [ {
           "description" : "Time period for grouping (e.g. `DAY`, `WEEK`, `MONTH`).",
           "in" : "query",
@@ -5640,7 +5640,7 @@
     "/v4/tokens" : {
       "get" : {
         "description" : "Returns the metadata for the access token used to authenticate the request (`type`, `client_id`, `identity_id`, `expires_in`, `scopes`). Equivalent to `GET /v4/tokens/{token}` but without having to repeat the token in the URL path.",
-        "operationId" : "getCurrentClientAccessToken",
+        "operationId" : "listTokens",
         "responses" : {
           "200" : {
             "content" : {
@@ -5765,7 +5765,7 @@
       },
       "post" : {
         "description" : "Mints a bearer token for server-to-Extole calls by a client. The body is optional: when omitted, the new token mirrors the calling identity's scopes; when supplied, the body can narrow the scope set (subset of the caller's scopes), bind the token to a specific `client_id`, supply email/password credentials in lieu of a calling token, or override the default lifetime via `duration_seconds`. Returns the new token, its `expires_in` (seconds), the resolved `client_id`, the `identity_id` of the user the token represents, and the granted `scopes`.",
-        "operationId" : "createClientAccessToken",
+        "operationId" : "createToken",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -5902,7 +5902,7 @@
     "/v4/tokens/{token}" : {
       "get" : {
         "description" : "Returns the metadata for the supplied token value (`type`, `client_id`, `identity_id`, `expires_in`, `scopes`). Use this when the caller has the token string and needs to introspect it; for the calling identity's own active token use `GET /v4/tokens` instead.",
-        "operationId" : "getClientAccessTokenByValue",
+        "operationId" : "getToken_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "token",
@@ -6035,7 +6035,7 @@
       },
       "delete" : {
         "description" : "Invalidates the supplied access token immediately. Subsequent requests using the same token return `401 invalid_access_token`. Returns `200` with an empty body on success.",
-        "operationId" : "deleteClientAccessToken",
+        "operationId" : "deleteToken",
         "parameters" : [ {
           "in" : "path",
           "name" : "token",
@@ -6163,7 +6163,7 @@
     "/v5/persons" : {
       "get" : {
         "description" : "Searches for persons by identity key value or client-defined person keys (supply in `name:value` format, e.g. `partner_conversion_id:abc123`). Returns an array because the same key may resolve to multiple Extole profiles. Supply at least one search criterion via query parameters.",
-        "operationId" : "searchPersons",
+        "operationId" : "search",
         "parameters" : [ {
           "in" : "query",
           "name" : "identity_key_value",
@@ -6906,7 +6906,7 @@
     "/v5/persons/{person_id}/block" : {
       "get" : {
         "description" : "Returns the block record for the specified person, indicating whether they are blocked from participating in referral campaigns and the reason for the block.",
-        "operationId" : "getPersonBlock",
+        "operationId" : "listPersonBlock",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -9762,7 +9762,7 @@
       },
       "post" : {
         "description" : "Creates a new shareable for the specified person. A shareable is a unique referral link or code associated with a campaign that the person can share to invite friends.",
-        "operationId" : "createPersonShareable",
+        "operationId" : "createPersonShareable_3",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -9995,7 +9995,7 @@
     "/v5/persons/{person_id}/shareables/{code}" : {
       "get" : {
         "description" : "Returns the shareable for the specified person identified by its share code. A shareable is a unique share link or code that allows a person to invite friends to participate in a referral campaign.",
-        "operationId" : "getPersonShareable",
+        "operationId" : "getPersonShareable_3",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -10144,7 +10144,7 @@
       },
       "put" : {
         "description" : "Updates the content of an existing shareable identified by its share code for the specified person.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
-        "operationId" : "updatePersonShareable",
+        "operationId" : "updatePersonShareable_3",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -10745,7 +10745,7 @@
     "/v5/persons/{person_id}/steps" : {
       "get" : {
         "description" : "Returns campaign flow steps for the specified person, sorted by event date in descending order. Steps represent discrete tracked actions (e.g. conversion, share, reward earned) within the person's journey.",
-        "operationId" : "listPersonSteps",
+        "operationId" : "getSteps_5",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -11015,7 +11015,7 @@
     "/v5/zones/{zone_name}" : {
       "get" : {
         "description" : "Renders the named zone with no targeting data and returns its configured content. Useful for fetching static or anonymous zones from a server-rendered page or backend service. Identity (`email`, `partner_user_id`, `person_id`) and additional targeting fields are not accepted on this GET form - use `POST /v5/zones/{zone_name}` to pass them. Authenticated with a USER_SUPPORT scope access token.",
-        "operationId" : "fetchZone",
+        "operationId" : "fetch_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "zone_name",
@@ -11135,7 +11135,7 @@
       },
       "post" : {
         "description" : "Renders the named zone, merging the request body's open data map into the targeting context. Recognised identity fields are `email`, `partner_user_id`, `person_id`, and `event_time` (ISO 8601). Additional keys are forwarded to the zone's targeting evaluator and creative renderer. Returns the zone's configured content (HTML, JavaScript, JSON, or plain text) plus `X-Extole-*` headers describing the matched campaign, frontend controller, creative, and input event. If no identity is provided the zone renders against an anonymous profile - prefer supplying at least one identity field for known visitors. Authenticated with a USER_SUPPORT scope access token.",
-        "operationId" : "renderZoneV5",
+        "operationId" : "createZone_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "zone_name",
@@ -12064,7 +12064,7 @@
     "/v6/files/{fileId}/download" : {
       "get" : {
         "description" : "Downloads the raw content of a file asset. The response body contains the file content in its original format (CSV, PSV, or JSON). Use the `limit` and `offset` parameters to paginate large files. Returns a 404 if the file asset has expired.",
-        "operationId" : "downloadFile",
+        "operationId" : "download_3",
         "parameters" : [ {
           "description" : "File asset ID.",
           "in" : "path",
@@ -13093,7 +13093,7 @@
     "/v6/sftp-destinations/{sftpDestinationId}/entries" : {
       "get" : {
         "description" : "Lists files and directories under a path in a local SFTP destination home. Paths are relative to the destination root. Any `..` segment is rejected, including paths that would stay inside the destination after normalization. Already-processed marker files are omitted. `type` filters the listing to `ALL` (default), `DIRECTORY`, or `FILE`. `limit` is the page size, default `100`, accepted range 1-1000 inclusive. Use `offset_token` from a previous response to page through large directories.",
-        "operationId" : "listSftpDestinationEntries",
+        "operationId" : "listEntries",
         "parameters" : [ {
           "in" : "path",
           "name" : "sftpDestinationId",
@@ -13271,7 +13271,7 @@
     "/v2/rewards/custom-reward/{reward_id}/failed" : {
       "post" : {
         "description" : "Marks the custom reward as failed, recording a fulfilment failure.",
-        "operationId" : "failCustomReward",
+        "operationId" : "failed",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_id",
@@ -13466,7 +13466,7 @@
     "/v2/rewards/custom-reward/{reward_id}/fulfilled" : {
       "post" : {
         "description" : "Marks the custom reward as fulfilled, signalling that the client system has completed fulfilment.",
-        "operationId" : "fulfillCustomReward",
+        "operationId" : "fulfilled",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_id",
@@ -13666,7 +13666,7 @@
     "/v2/rewards/custom-reward/{reward_id}/fulfilled_and_sent" : {
       "post" : {
         "description" : "Marks the custom reward as fulfilled and sent to the participant.",
-        "operationId" : "fulfillAndSendCustomReward",
+        "operationId" : "fulfilledAndSent",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_id",
@@ -13867,7 +13867,7 @@
     "/v2/rewards/custom-reward/{reward_id}/redeemed" : {
       "post" : {
         "description" : "Marks the custom reward as redeemed by the participant.",
-        "operationId" : "redeemCustomReward",
+        "operationId" : "redeemed",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_id",
@@ -14063,7 +14063,7 @@
     "/v2/rewards/custom-reward/{reward_id}/sent" : {
       "post" : {
         "description" : "Marks the custom reward as sent to the participant.",
-        "operationId" : "sendCustomReward",
+        "operationId" : "sent",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_id",
@@ -14260,7 +14260,7 @@
     "/v2/rewards/{reward_id}/cancel" : {
       "post" : {
         "description" : "Cancels the specified reward, preventing fulfilment. Returns the updated reward record.",
-        "operationId" : "cancelReward",
+        "operationId" : "cancel",
         "parameters" : [ {
           "description" : "Extole-assigned unique identifier for the reward.",
           "in" : "path",
@@ -14456,7 +14456,7 @@
     "/v2/rewards/{reward_id}/expire" : {
       "post" : {
         "description" : "Marks the specified reward as expired. Returns the updated reward.",
-        "operationId" : "expireReward",
+        "operationId" : "expire",
         "parameters" : [ {
           "description" : "Extole-assigned unique identifier for the reward.",
           "in" : "path",
@@ -14836,7 +14836,7 @@
     "/v2/rewards/{reward_id}/revoke" : {
       "post" : {
         "description" : "Revokes the specified reward, marking it as invalid. Returns the updated reward.",
-        "operationId" : "revokeReward",
+        "operationId" : "revoke_2",
         "parameters" : [ {
           "description" : "Extole-assigned unique identifier for the reward.",
           "in" : "path",
@@ -15200,7 +15200,7 @@
     "/v5/zones" : {
       "post" : {
         "description" : "Renders a zone using a request body that carries both the zone name and the targeting data. Functionally equivalent to `POST /v5/zones/{zone_name}`; the path-based form is the recommended primary entry point. Use this form when the calling code constructs the full request payload upstream and prefers a single body shape. Returns the zone's configured content (HTML, JavaScript, JSON, or plain text) plus `X-Extole-*` headers describing the matched campaign and creative. Authenticated with a USER_SUPPORT scope access token.",
-        "operationId" : "renderZoneFromRequest",
+        "operationId" : "createZone",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -15347,7 +15347,7 @@
     "/v6/async-events" : {
       "post" : {
         "description" : "Submits a consumer event asynchronously. No per-request rate limit - use for high-volume or bulk integrations. May return 429 only if the downstream ingestion queue is saturated. Only `event_id` is returned; person identification occurs asynchronously after the request returns.",
-        "operationId" : "submitEventAsync",
+        "operationId" : "submit_3",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -15494,7 +15494,7 @@
     "/v6/async-events/{event_name}" : {
       "post" : {
         "description" : "Submits a specific named consumer event asynchronously. The event name is supplied in the URL path and the body is an open data map. No per-request rate limit. Returns `event_id` only; person identification occurs asynchronously.",
-        "operationId" : "submitNamedEventAsync",
+        "operationId" : "submit_4",
         "parameters" : [ {
           "in" : "path",
           "name" : "event_name",
@@ -15645,7 +15645,7 @@
     "/v6/events" : {
       "post" : {
         "description" : "Submits a consumer event synchronously. Returns both `event_id` and `person_id`. Use when you need immediate confirmation that the event was processed and identity resolution has completed. For high-volume ingestion use `POST /v6/async-events` instead.",
-        "operationId" : "submitEvent",
+        "operationId" : "submit_5",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -15792,7 +15792,7 @@
     "/v6/events/{event_name}" : {
       "post" : {
         "description" : "Submits a specific named consumer event synchronously. The event name is supplied in the URL path rather than in the request body, and the body is an open data map.",
-        "operationId" : "submitNamedEvent",
+        "operationId" : "submit_6",
         "parameters" : [ {
           "in" : "path",
           "name" : "event_name",
@@ -15943,7 +15943,7 @@
     "/v6/files/{fileId}/expire" : {
       "post" : {
         "description" : "Marks a file asset as expired, releasing the stored file content. Expired file assets remain queryable but cannot be used as a batch job data source. Any batch jobs already referencing this file asset are not affected if they have already started processing.",
-        "operationId" : "expireFile",
+        "operationId" : "expire_2",
         "parameters" : [ {
           "description" : "File asset ID.",
           "in" : "path",
@@ -16078,7 +16078,7 @@
     "/v6/sftp-destinations/{sftpDestinationId}/sync" : {
       "post" : {
         "description" : "Triggers an immediate synchronisation of the SFTP destination with its external server. Returns the updated destination after sync.",
-        "operationId" : "syncSftpDestination",
+        "operationId" : "sync",
         "parameters" : [ {
           "in" : "path",
           "name" : "sftpDestinationId",
@@ -16228,7 +16228,7 @@
     "/v6/sftp-destinations/{sftpDestinationId}/validate" : {
       "post" : {
         "description" : "Validates the SFTP destination connection profile without persisting any changes. Returns any connectivity or configuration errors.",
-        "operationId" : "validateSftpDestination",
+        "operationId" : "validate_5",
         "parameters" : [ {
           "in" : "path",
           "name" : "sftpDestinationId",
@@ -16378,7 +16378,7 @@
     "/v4/tokens/exchange/{token}" : {
       "put" : {
         "description" : "Exchanges the supplied access token for a fresh one with the same scopes and a renewed expiry. The original token is invalidated immediately on success. Use this to rotate long-lived integration tokens without re-authenticating.",
-        "operationId" : "exchangeClientAccessToken",
+        "operationId" : "exchange",
         "parameters" : [ {
           "in" : "path",
           "name" : "token",

@@ -3770,7 +3770,7 @@
     "/api/v4/me/rewards/status" : {
       "get" : {
         "description" : "Returns the current state of a pending or completed reward redemption for the authenticated consumer. Supply exactly one of `polling_id` (returned by a prior reward claim call), `reward_name` (the configured reward name), or `partner_event_id` (the originating partner event identifier). Poll this endpoint until the reward reaches a terminal state.",
-        "operationId" : "getMyRewardStatus",
+        "operationId" : "getRewardStatus",
         "parameters" : [ {
           "description" : "Polling identifier returned by the reward claim call.",
           "in" : "query",
@@ -4347,7 +4347,7 @@
     "/api/v4/persons/{personId}/assets" : {
       "get" : {
         "description" : "Returns all assets attached to the person profile identified by `personId`. Assets are binary or text files associated with a program participant — for example, wallet passes, QR codes, or uploaded images. Use `getPersonAsset` to fetch a single asset's metadata, or `downloadPersonAsset` to retrieve its content.",
-        "operationId" : "listPersonAssets",
+        "operationId" : "listAssets_2",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -4474,7 +4474,7 @@
     "/api/v4/persons/{personId}/assets/download" : {
       "get" : {
         "description" : "Streams the binary or text content of the asset matching the `name` query parameter for the person identified by `personId`. Returns HTTP 302 if the content is hosted at a remote URL; returns HTTP 200 with the raw content otherwise. Use the id variant (`downloadPersonAsset`) when you have the asset id. The access token is optional on this operation: omit it and Extole serves only the person's `PUBLIC` assets, resolving the client from the request domain. Supply a token belonging to the person to reach their `PRIVATE` assets. Omitting the token is the recommended way to render another person's avatar, so no token has to be embedded in an image URL. ",
-        "operationId" : "downloadPersonAssetByName",
+        "operationId" : "downloadAssetByName_2",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -4609,7 +4609,7 @@
     "/api/v4/persons/{personId}/assets/{assetId}" : {
       "get" : {
         "description" : "Returns full metadata for the asset identified by `assetId` and owned by the person identified by `personId`. Metadata includes the asset type, name, content URL, MIME type, and creation timestamp. Use `downloadPersonAsset` to stream the asset content.",
-        "operationId" : "getPersonAsset",
+        "operationId" : "readAsset_2",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -4744,7 +4744,7 @@
     "/api/v4/persons/{personId}/assets/{assetId}/download" : {
       "get" : {
         "description" : "Streams the binary or text content of the asset identified by `assetId`. Returns HTTP 302 if the content is hosted at a remote URL; returns HTTP 200 with the raw content otherwise. Use the `name` variant (`downloadPersonAssetByName`) when you have the asset name but not the id. The access token is optional on this operation: omit it and Extole serves only the person's `PUBLIC` assets, resolving the client from the request domain. Supply a token belonging to the person to reach their `PRIVATE` assets. Omitting the token is the recommended way to render another person's avatar, so no token has to be embedded in an image URL. ",
-        "operationId" : "downloadPersonAsset",
+        "operationId" : "downloadAssetById_2",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -4880,7 +4880,7 @@
     "/api/v5/token" : {
       "get" : {
         "description" : "Returns the metadata for the access token supplied in the `access_token` query parameter or bearer header. If no token is supplied, the server attempts to resolve a token from the HTTP authorization header. Returns the token's expiry, scopes, and the identity it represents.",
-        "operationId" : "getConsumerToken",
+        "operationId" : "getTokenDetails_2",
         "responses" : {
           "200" : {
             "content" : {
@@ -4999,7 +4999,7 @@
       },
       "post" : {
         "description" : "Issues a new access token for the identity supplied in the request. Pass an `email` to identify a consumer when the client identity key is `email`. Pass a `jwt` to assert a trusted identity via JWT verification. Omit both to issue an anonymous token. The optional `duration_seconds` field caps the token lifetime.",
-        "operationId" : "createConsumerToken",
+        "operationId" : "createToken_2",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -5125,7 +5125,7 @@
       },
       "delete" : {
         "description" : "Revokes the access token supplied in the `access_token` query parameter or bearer header. If no token is supplied, the server attempts to resolve a token from the HTTP authorization header and revokes that one. After revocation the token is immediately invalidated.",
-        "operationId" : "deleteConsumerToken",
+        "operationId" : "deleteToken_3",
         "responses" : {
           "200" : {
             "content" : {
@@ -5246,7 +5246,7 @@
     "/api/v6/me/shareables" : {
       "get" : {
         "description" : "Returns shareables owned by the consumer identified by the access token. Filter by `key` or `label` to narrow the result set.",
-        "operationId" : "getShareables_2",
+        "operationId" : "getShareables_3",
         "parameters" : [ {
           "in" : "query",
           "name" : "key",
@@ -5383,7 +5383,7 @@
       },
       "post" : {
         "description" : "Creates a new shareable link for the authenticated consumer. Returns the shareable with its assigned code and share URL.",
-        "operationId" : "createMeShareable_2",
+        "operationId" : "createMeShareable_3",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -5561,7 +5561,7 @@
     "/api/v6/me/shareables/{code}" : {
       "get" : {
         "description" : "Returns the shareable identified by `code` when it belongs to the authenticated consumer.",
-        "operationId" : "getShareable_3",
+        "operationId" : "getShareable_4",
         "parameters" : [ {
           "in" : "path",
           "name" : "code",
@@ -5694,7 +5694,7 @@
     "/events/{event_name}" : {
       "get" : {
         "description" : "Fires the named consumer event using data from the query string and optional JWT claim. Always returns HTTP 200 regardless of outcome — check for an `X-Extole-Error-Message` response header to detect processing errors. A new `access_token` cookie may be set on the response when the event establishes or upgrades a consumer identity.",
-        "operationId" : "fetchConsumerEventByName",
+        "operationId" : "fetch_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "event_name",
@@ -6178,7 +6178,7 @@
     "/api/v6/zones" : {
       "post" : {
         "description" : "API-friendly zone rendering at `POST /api/v6/zones`. Intended for backend rendering where the caller supplies a bearer access token directly. Renders the zone identified by `event_name` in the JSON request body and returns the structured zone content as JSON. Returns an error when no content backs the zone. For browser or in-app rendering use `POST /zones` instead.",
-        "operationId" : "renderZone",
+        "operationId" : "render",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -6318,7 +6318,7 @@
     "/api/v6/zones/{event_name}" : {
       "post" : {
         "description" : "API-friendly zone rendering at `POST /api/v6/zones/{event_name}`. Intended for backend rendering where the caller supplies a bearer access token directly. Renders the zone identified by the `event_name` path parameter and returns the structured zone content as JSON. Pass zone input data in the request body. Returns an error when no content backs the zone. For browser or in-app rendering use `POST /zones/{zone_name}` instead.",
-        "operationId" : "renderZoneByEventName",
+        "operationId" : "render_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "event_name",
@@ -6464,7 +6464,7 @@
     "/zones" : {
       "post" : {
         "description" : "Web-friendly zone rendering at `POST /zones`. Intended for direct use from a browser page or web SDK embed — accepts form-encoded, plain-text, and multipart bodies in addition to JSON, and handles cookie-based identity automatically. Renders the zone identified by `event_name` in the request body, applies any other body fields as targeting data passed to the creative, and returns the rendered creative content (HTML, JavaScript, JSON, or plain text). If `event_name` is omitted, returns an empty 200 with `Extole-Log: target zone=unknown`; the access token is still allocated and written as a cookie. For backend zone rendering use `POST /api/v6/zones` instead.",
-        "operationId" : "renderZoneWeb",
+        "operationId" : "createZone",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -6617,7 +6617,7 @@
     "/zones/{zone_name}" : {
       "post" : {
         "description" : "Web-friendly zone rendering at `POST /zones/{zone_name}`. Intended for direct use from a browser page or web SDK embed — accepts form-encoded and multipart bodies in addition to JSON, and handles cookie-based identity automatically. Renders the zone identified by `zone_name` and returns its content (HTML, JavaScript, JSON, or plain text). For backend zone rendering use `POST /api/v6/zones/{event_name}` instead.",
-        "operationId" : "renderZoneByNameWeb",
+        "operationId" : "createZone_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "zone_name",
