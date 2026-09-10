@@ -7,7 +7,7 @@ Part of the [packaged integration guide](/technical/building-custom-integrations
 
 # Overview
 
-This page builds two of an integration's three baseline views: a **report-runner view** charting what the integration processed, and an **event-stream view** carrying a live feed of the events it produces. [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) covers what each category charts and streams.
+This page builds two of an integration's three baseline views: a **report-runner view** charting what the integration processed, and an **event-stream view** carrying a live feed of the events it produces. It also defines the test-event view an inbound integration adds to its `views` socket. [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) covers what each category charts and streams.
 
 ## When You Would Build These
 
@@ -42,7 +42,7 @@ curl --request POST \
     "installed_into_socket": "views",
     "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"],
     "variables": [
-      { "name": "order", "type": "INTEGER", "values": { "default": 2 } },
+      { "name": "order", "type": "INTEGER", "values": { "default": 3 } },
       { "name": "title", "type": "STRING", "values": { "default": "Example Activity" } },
       { "name": "status", "type": "STRING", "values": { "default": "READY" } },
       { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": [] } },
@@ -74,7 +74,7 @@ curl --request POST \
     "installed_into_socket": "views",
     "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"],
     "variables": [
-      { "name": "order", "type": "INTEGER", "values": { "default": 3 } },
+      { "name": "order", "type": "INTEGER", "values": { "default": 4 } },
       { "name": "title", "type": "STRING", "values": { "default": "Example Events" } },
       { "name": "status", "type": "STRING", "values": { "default": "READY" } },
       { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": [] } },
@@ -94,6 +94,35 @@ curl --request POST \
 - **Type the element setting `STRING`** — `reportRunnerId` on the report view, `eventStreamId` on the event-stream view; there is no `REPORT_RUNNER_ID` or `EVENT_STREAM_ID` type. Each holds a buildtime query for the element its own component owns, so the view survives the element being recreated.
 - **Wrap every Java collection in `Java.from`**, as both expressions do; settings are evaluated as part of the create.
 - **Give every view an `order`** typed `INTEGER`, lowest first, configuration at the front.
+
+### Add the Test Event View to an Inbound Integration
+
+My Extole renders the test-event sender when the integration component has a `test-event-view-v10.0` child in its `views` socket. The integration definition is the source of the tab, like it is for configuration and event-stream views.
+
+Create the view after the integration's business events and input rules are configured:
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "test-events",
+    "display_name": "Test Event",
+    "description": "Send a configured inbound event with an editable test payload.",
+    "types": ["view-v10.0", "test-event-view-v10.0"],
+    "installed_into_socket": "views",
+    "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"],
+    "variables": [
+      { "name": "order", "type": "INTEGER", "values": { "default": 2 } },
+      { "name": "title", "type": "STRING", "values": { "default": "Test Event" } },
+      { "name": "status", "type": "STRING", "values": { "default": "READY" } },
+      { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": [] } }
+    ]
+  }'
+```
+
+The view has no report runner or event stream of its own. It uses the integration's built business events, enabled input rules, and program label to prepare the payload. Add one test-event view for the integration, regardless of how many wire events its rules accept.
 
 ### Map the Report's Columns to a Chart
 
@@ -117,7 +146,7 @@ curl --request POST \
 
 ### Republish Before Attaching Elements
 
-A bundled component declares `elements` inline; the API creates each as its own resource attached by `component_ids` — `report_runners` becomes `POST /v7/report-runners`, `event_streams` becomes `POST /v6/event-streams` with filters added afterward. Attach each to the **view** that displays it: the runner to `$REPORT_VIEW_COMPONENT_ID`, the stream to `$EVENT_STREAM_VIEW_COMPONENT_ID`.
+A bundled component declares `elements` inline; the API creates each as its own resource attached by `component_ids` — `report_runners` becomes `POST /v7/report-runners`, and `event_streams` becomes `POST /v6/event-streams`. Attach each to the **view** that displays it: the runner to `$REPORT_VIEW_COMPONENT_ID`, the stream to `$EVENT_STREAM_VIEW_COMPONENT_ID`.
 
 Publish now, after creating the views and before creating their elements: a `component_ids` reference resolves against the published campaign, the same rule that governs webhooks and reward suppliers.
 
@@ -220,7 +249,7 @@ Give `schedule_start_date` an ISO-8601 timestamp with an offset, dated in the fu
 
 ### Build the Event Stream Behind the Events Tab
 
-Create the stream after the republish above, then add each filter. Filters are created under the stream with a `type` discriminator in the body rather than a path segment, the opposite of reward webhook filters. The create returns the `EVENT_STREAM_ID` filters need.
+Create the stream after the republish above. Keep its `filters` collection empty so the view records the complete processing chain across Input, STEP, reward, and delivery events.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
@@ -232,14 +261,9 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
     "tags": ["internal:app_type=example"],
     "component_ids": ["'"$EVENT_STREAM_VIEW_COMPONENT_ID"'"]
   }'
-
-curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{"type": "APPLICATION_TYPE", "app_types": ["example"]}'
 ```
 
-Filter the feed to this integration's activity: `APPLICATION_TYPE` narrows it to the partner's app type and belongs on every stream. Add an `EVENT_TYPE` filter when the integration produces one recognizable class of event, as reward fulfillment does with `{"type": "EVENT_TYPE", "event_types": ["REWARD", "SEND_REWARD"]}`.
+Narrow the events you inspect at read time. After a synchronous test send, search the stream for the returned `event_id`, then search for descendants carrying the same `root_event_id`. This preserves events whose application context or downstream type differs from the Input while keeping each test trace precise.
 
 
 ### Republish Again So the Views Resolve Their Elements
@@ -275,7 +299,7 @@ Read the **built** campaign — a component's own definition holds the buildtime
 
 - `reportRunnerId` and `eventStreamId` are non-null.
 - Each element's `component_ids` names its own view.
-- The stream carries `APPLICATION_TYPE`, plus any `EVENT_TYPE` filter needed.
+- The stream is running with an empty `filters` collection.
 - Every column `reportColumnsMapping` names is one the runner's `mappings` produces.
 - `schedule_start_date` is in the future.
 

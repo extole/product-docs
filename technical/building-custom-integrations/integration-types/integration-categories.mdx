@@ -32,13 +32,13 @@ A request can match more than one row. A maintained library source covers only w
 | Category | Direction | Platform types | What you create |
 | :------- | :-------- | :------------- | :-------------- |
 | Inbound | Platform to Extole | Commerce, core banking, account opening, subscription, point of sale | Business events, trigger rules, and data capture, in a campaign built from the custom integration template |
-| Outbound | Extole to platform | Marketing automation, messaging, customer data platforms, analytics | A reshaped duplicate of the maintained library source, with webhooks and a credential |
+| Outbound | Extole to platform | Marketing automation, messaging, customer data platforms, analytics | A complete maintained source, or integration-owned controllers and webhook actions when the partner source contains only metadata |
 | Reward fulfillment | Extole to platform | Gift card, prepaid card, points, and payout providers | A supplier type, a support campaign of supplier templates, `REWARD` webhooks, and a fourth view |
 | Bidirectional | Both | Commerce and loyalty platforms that also accept rewards or coupons | The inbound model first, then outbound resources gated on an approved use case |
 
 Inbound needs no reward supplier, webhook, or client key, unless it receives audience membership from the partner. Outbound needs no business events.
 
-Every category carries the same three views — configuration, report-runner, and event-stream — built from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views). The category decides what the report counts and what the feed filters to; reward fulfillment adds a fourth.
+Every category carries the same three views — configuration, report-runner, and event-stream — built from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views). The category decides what the report counts, while the event stream records a complete unfiltered processing chain. Inbound integrations add a test-event view; reward fulfillment adds a reward-suppliers view.
 
 ## Inbound Integrations
 
@@ -60,6 +60,7 @@ root
     │       └── data            → one component per captured field
     └── views                   MULTI_SOCKET → view-v10.0
         ├── configuration       config-view-v10.0
+        ├── test-events         test-event-view-v10.0
         ├── report-runner-view  report-runner-view-v10.0
         └── event-streams       event-stream-view-v10.0
 ```
@@ -86,7 +87,9 @@ root
     └── views                   MULTI_SOCKET → configuration, report-runner, event-stream views
 ```
 
-Most outbound platforms ship as maintained library sources an account can duplicate — the same action the **Install** button performs on the Partners page. Reshape the install against the partner page's product description, which specifies the children, the webhooks, and any typed data template. The integration component holds a `WEBHOOK_ID` setting per webhook, resolved by the webhook's purpose tag, and marketing campaigns attach partner actions through those settings. [Build an Outbound Library Integration](/technical/building-custom-integrations/integration-types/integration-build-outbound) covers the reshape.
+Most outbound platforms ship as maintained library sources an account can duplicate — the same action the **Install** button performs on the Partners page. Confirm that the source contains its child controllers and webhooks before installing it. A current integration type can also belong to a metadata-only partner entry that has no outbound behavior.
+
+Reshape a complete install against the partner page's product description, which specifies the children, webhooks, and any typed data template. When the source is metadata-only, create integration-owned controllers with the correct event class, map each controller's webhook action payload, and complete the webhook request and response handlers. [Build an Outbound Integration](/technical/building-custom-integrations/integration-types/integration-build-outbound) covers both paths.
 
 An outbound integration reports program activity rather than producing it, so installing one never supersedes a marketing program's own `converted` or `shipped` business event.
 

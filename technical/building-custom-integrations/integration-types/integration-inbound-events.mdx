@@ -30,13 +30,14 @@ root
     │   └── canceled            template_tracked_business_event
     └── views                   MULTI_SOCKET → view-v10.0
         ├── configuration       config-view-v10.0
+        ├── test-events         test-event-view-v10.0
         ├── report-runner-view  report-runner-view-v10.0
         └── event-streams       event-stream-view-v10.0
 ```
 
 Never rename an Extole business event to match a partner wire event: the partner name belongs in an `input_event` trigger rule, the canonical name on the business-event component.
 
-The three views are the same for every category — see [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories). Chart and stream this integration's canonical business events, and build the sender against [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events).
+The configuration, report-runner, and event-stream views are the same for every category — see [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories). Add the test-event view to an inbound integration so My Extole can derive its configured wire events and present the editable send surface. Build the sender against [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events).
 
 This page assumes the event arrives with a name in `event_name` and its fields readable in `data`. When the partner's own webhook defines the payload instead, a prehandler renames and flattens it first — see [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers).
 
@@ -279,6 +280,8 @@ Lifecycle events such as `shipped` and `canceled` arrive independently, so repea
 
 ## How to Test
 
+In the integration's **Test Event** view, choose a business event to generate an editable payload. The payload includes the enabled data fields configured on that business event. When a mapped data item reads a differently named partner field, the payload uses that source field name. Replace the generated values with representative test data before sending.
+
 Send a synchronous test event through `POST /v6/events` with an event-submission token, not the one that created the campaign. Put the current program label in `data` to target this campaign; it is a testing convenience and does not belong in the partner's payload.
 
 ```bash
@@ -297,6 +300,49 @@ curl --request POST "$EXTOLE_API_HOST/v6/events" \
   }'
 ```
 
+A `2xx` means Extole accepted the event, not that it matched a business event. Watch the integration Event Stream before you read person events.
+
+Open the integration in **Integrations**, open its Event Stream tab, and establish this preflight before sending:
+
+- The stream is running.
+- Its `filters` collection is empty, so it records the complete processing chain.
+
+[Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views) shows how to create the unfiltered stream. Capture `event_id` from the synchronous send response, then search with [Event Stream Query Language](/technical/platform-integrations/extensions/event-streams-overview/event-stream-query-language):
+
+1. `event_id=` followed by the identifier the send returned. That row is the Input.
+2. `root_event_id=` followed by the same identifier. Downstream events have their own `event_id`; they share the Input's identifier as `root_event_id`.
+
+Open the JSON on each matching row. That payload is the log. The table columns are a summary; the verdict comes from the fields below.
+
+On the Input (`type` `INPUT`, `event_id` equal to the send):
+
+- `name` is the wire name you submitted.
+- `raw_data` is the partner payload as received.
+- `log_messages` records processing notes.
+
+On each descendant (`root_event_id` equal to the send):
+
+- A `type` `STEP` with the canonical `name` is the mapped business event.
+- Attribution is `campaign_context.quality`. `HIGH` and `LOW` mean a campaign selected this event. `NONE`, or a missing `campaign_context`, means the business event was recorded but not attributed.
+- `duplicate` `true` means this was not a new unique event.
+- `data` holds the mapped values.
+- `person_profile` must match the Input.
+- When a campaign did not select the event, `step_matching_campaign_contexts` lists each candidate. Each candidate's `trigger_results` `passed` flag and `log_messages` say why.
+
+Record a verdict from that JSON:
+
+| Verdict | When |
+| :--- | :--- |
+| PASS | The Input is present with the wire name, and a STEP follows it on `root_event_id` with the canonical name, the same person, the mapped values, and `campaign_context.quality` of `HIGH` or `LOW`. Name `LOW` in the reason when quality rules did not pass. |
+| FAIL | The Input is present and a STEP is missing, has the wrong canonical name, belongs to a different person, is missing mapped values, has no `campaign_context` or `quality` `NONE`, or is `duplicate` when a new unique identifier was sent. |
+| INCONCLUSIVE | The stream is unavailable, stopped, or filtered, or the running unfiltered stream remains empty after a bounded wait. Name the stream identifier and its current state. |
+
+Use the integration stream for the verdict. When the preflight requires a change, restore the running unfiltered stream, then send a fresh event with a new unique partner identifier.
+
+For a newly built integration, PASS is the completion gate. Use a first FAIL as diagnostic evidence: read the Input `log_messages`, each candidate in `step_matching_campaign_contexts`, its `trigger_results`, and the mapped STEP `data`; correct the mapping, republish when required, and send a fresh unique event. Repeat until the correlated chain passes or a concrete platform or partner dependency blocks the next correction.
+
+From **My Extole**, you can ask the assistant on the integration Event Stream tab or in global chat to send this test event. The assistant reads the correlated Input and STEP JSON, including matching and trigger log messages, and reports the observed evidence behind a PASS, FAIL, or INCONCLUSIVE verdict. That is the same loop, not a distinct product.
+
 Use the returned `person_id` to list the resulting events:
 
 ```bash
@@ -306,7 +352,7 @@ curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
   --data-urlencode "names=converted"
 ```
 
-Confirm the canonical event name and every mapped value, using a new unique identifier per repeat unless duplicate handling is under test. Cover:
+Confirm the canonical event name and every mapped value match what the stream already showed, using a new unique identifier per repeat unless duplicate handling is under test. Cover:
 
 - Every preferred partner input event.
 - Every supported legacy alias.

@@ -63,9 +63,9 @@ Read the latest campaign and its built components, then confirm:
 ### Views
 
 - `views` accepts `view-v10.0`, and the configuration view is attached to the model component with `settingsToDisplay` referencing existing parent settings.
-- The socket holds the three baseline views, plus the `reward-suppliers` configuration view on a reward fulfillment build.
+- The socket holds the three baseline views, a `test-event-view-v10.0` child on an inbound build, and the `reward-suppliers` configuration view on a reward fulfillment build.
 - Read from `/v1/components/built`, `reportRunnerId` on the report-runner view and `eventStreamId` on the event-stream view each resolve to an identifier rather than null — a null means the element was never created, or was attached to the integration component instead of the view that reads it, and neither fails loudly.
-- Every column named in `reportColumnsMapping` is one the report runner's `mappings` expression produces, and the event stream carries its filters.
+- Every column named in `reportColumnsMapping` is one the report runner's `mappings` expression produces, and the event stream is running with an empty `filters` collection.
 
 ### Display Settings
 
@@ -88,6 +88,8 @@ curl --request POST \
 <Warning>
 A successful publish is model validation, not end-to-end verification. Nothing above proves an event reaches a step, and two pieces this guide creates — a prehandler script and a data component's `valueExpression` — are stored without ever being executed. Send a real payload and read the resulting step before you call the integration working.
 </Warning>
+
+For each inbound wire name, record the `event_id` returned by the send and confirm the Input event and the correlated STEP are visible on the integration Event Stream tab before you call the integration working. A FAIL starts a correction loop: use the matching logs and mapped data to fix the integration, republish when required, and send a fresh unique event until the chain passes. Connecting the integration to a program is the next section; it does not replace this gate. [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) covers how to send the event, how to query by `event_id` and `root_event_id`, and when to call PASS, FAIL, or INCONCLUSIVE.
 
 ## Connect the Integration to a Program
 
@@ -119,7 +121,7 @@ Most commerce platforms map onto the same three canonical events; adjust this sh
 | `shipped` | `template_tracked_business_event` | Shipment |
 | `canceled` | `template_tracked_business_event` | Cancellation, plus any legacy spelling a live sender still emits |
 
-[Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) names the fields each event captures. A complete integration of this shape carries the model component, three business events, one `input_event` rule per event, one data component per captured field, and the three baseline views. It is inbound-only: no reward-supplier socket, reward webhook, or client key.
+[Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) names the fields each event captures. A complete integration of this shape carries the model component, three business events, one `input_event` rule per event, one data component per captured field, the three baseline views, and the test-event view. It is inbound-only: no reward-supplier socket, reward webhook, or client key.
 
 Platforms with a different lifecycle keep the same construction and change the event set: a lending or account platform maps to `account_opened`, `application_approved`, and `funded`; a subscription platform to `converted`, `renewed`, and `canceled`. The canonical name describes the business outcome, never the partner's transport name.
 

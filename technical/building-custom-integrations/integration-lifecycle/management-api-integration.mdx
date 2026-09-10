@@ -111,7 +111,7 @@ Work through the pages in order. Each build sequence is a page of its own:
 | :--- | :----- | :--------- |
 | [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model) | The campaign, root, and integration component; display metadata and logo; typed sockets and the configuration view | Every path |
 | [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views) | The report-runner and event-stream views, the report runner and event stream behind them, and the republish each attachment needs | Every path |
-| [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) | Business events, input event rules, and event data | Inbound |
+| [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) | Business events, input event rules, event data, and the test that proves each inbound event appears in Event Streams | Inbound |
 | [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers) | Reshaping a partner's own webhook at ingest | Inbound, when the partner defines the payload |
 | [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership) | The audience, the credential the partner authenticates with, and the setup instructions naming the membership endpoints | Inbound, when the partner sends eligibility rather than events |
 | [Build an Outbound Library Integration](/technical/building-custom-integrations/integration-types/integration-build-outbound) | Installing a maintained source, reshaping it, and attaching webhooks and a credential | Outbound |
@@ -172,7 +172,7 @@ These hold on every path:
 
 - **Resolve library components by name at build time.** Stored identifiers go stale without failing loudly.
 - **Use the reusable business-event, rule, and data components.** Write a custom controller only where no template implements the behavior.
-- **Carry all three baseline views** — configuration, report-runner, and event-stream. The category decides what the report counts and what the feed filters to, not whether the tabs exist. Reward fulfillment adds a fourth, a `reward-suppliers` configuration view.
+- **Carry all three baseline views** — configuration, report-runner, and event-stream. The category decides what the report counts, while the event stream keeps a complete unfiltered processing chain. An inbound integration adds a `test-event-view-v10.0` child; reward fulfillment adds a `reward-suppliers` configuration view.
 - **Create reward suppliers, client keys, and webhooks only for an outbound flow the integration has.** An inbound integration needs none.
 - **Keep partner event names and canonical Extole names separate.** The trigger rule carries the wire name; the business event carries `converted`, `shipped`, or another canonical name. Renaming a business event to match a partner breaks every program and report reading the canonical name.
 - **Map every field you persist**, in the same pass that creates the business events. A business event with an empty `data` socket cannot deduplicate, attribute, reward, or report.
@@ -185,7 +185,7 @@ Reusing an active integration whose campaign and component identity already matc
 
 Test every inbound event and every configured outbound path before you call the integration live.
 
-**Inbound.** Send a synchronous event to `POST /v6/events` with the current program label in `data.labels`, then read the step it produced:
+**Inbound.** Send a synchronous event to `POST /v6/events` with the current program label in `data.labels`, confirm the Input and the correlated STEP on the integration Event Stream tab, then read the event it produced:
 
 ```bash
 curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
@@ -194,7 +194,7 @@ curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
   --data-urlencode "names=converted"
 ```
 
-Confirm the step carries the canonical event name, that the transaction identifier and value match the source record, that person keys resolve, and that resending the same source identifier produces a duplicate outcome rather than a second conversion. Repeat for every event the integration accepts. [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) covers the sending side and what to check when Extole accepts an event but no business event appears.
+Confirm the event carries the canonical event name, that the transaction identifier and value match the source record, that person keys resolve, and that resending the same source identifier produces a duplicate outcome rather than a second conversion. Repeat for every event the integration accepts. [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) covers how to query the integration Event Stream and when to call PASS, FAIL, or INCONCLUSIVE. [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) covers the sending side and what to check when Extole accepts an event but no business event appears.
 
 **Outbound.** Trigger the Extole event the integration forwards and confirm the webhook fired against the partner endpoint.
 
