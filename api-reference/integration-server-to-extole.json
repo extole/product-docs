@@ -2041,9 +2041,22 @@
         },
         "type" : "object"
       },
+      "PersonDeviceHistoryResponse" : {
+        "properties" : {
+          "device_history" : {
+            "description" : "The devices recorded as having claimed this identity, most recently seen first. Bounded to the most recently seen devices, so a flood of claims evicts the ones seen longest ago, and the response carries no marker of what it dropped.",
+            "items" : {
+              "$ref" : "#/components/schemas/PersonDeviceResponse"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "device_history" ],
+        "type" : "object"
+      },
       "PersonDeviceResponse" : {
         "properties" : {
-          "claimed_at" : {
+          "last_seen_at" : {
             "$ref" : "#/components/schemas/ZonedDateTime"
           },
           "person_id" : {
@@ -2056,20 +2069,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "claimed_at", "person_id", "status" ],
-        "type" : "object"
-      },
-      "PersonDevicesResponse" : {
-        "properties" : {
-          "devices" : {
-            "description" : "The devices that claimed this identity, most recent claim first. Bounded: the earliest claims and the latest claims are kept, so a flood of claims evicts the ones in between.",
-            "items" : {
-              "$ref" : "#/components/schemas/PersonDeviceResponse"
-            },
-            "type" : "array"
-          }
-        },
-        "required" : [ "devices" ],
+        "required" : [ "last_seen_at", "person_id", "status" ],
         "type" : "object"
       },
       "PersonForwardRequest" : {
@@ -7938,10 +7938,10 @@
         "x-extole-visibility" : "visible"
       }
     },
-    "/v5/persons/{person_id}/devices" : {
+    "/v5/persons/{person_id}/device-history" : {
       "get" : {
-        "description" : "Returns the devices that claimed the specified person's identity, with the time of each claim and whether the device still points at this identity. A device that claims an identity without verifying it keeps its own activity, so this list is how to find that activity from the identity. The list is bounded: the earliest and the latest claims are kept.",
-        "operationId" : "listPersonDevices",
+        "description" : "Returns the devices recorded as having claimed the specified person's identity, most recently seen first. A device that claims an identity without verifying it keeps its own activity, so this history is how to find that activity from the identity. Each entry says whether the device still points at this identity, so an entry is a record that the device was here, not a claim that it still is, and its `last_seen_at` is refreshed at most once a day, so it can trail the device's latest activity. Extole started recording this history in September 2026 and does not backfill it, so a device that claimed an identity before then appears only after it saves again. The history is bounded to the most recently seen devices and carries no marker of what it dropped. It is for support: Extole's own engine, targeting and reporting never read it.",
+        "operationId" : "listPersonDeviceHistory",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -7956,7 +7956,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PersonDevicesResponse"
+                  "$ref" : "#/components/schemas/PersonDeviceHistoryResponse"
                 }
               }
             },
