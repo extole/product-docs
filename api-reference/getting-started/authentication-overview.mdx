@@ -78,6 +78,49 @@ The Security Center creates long-lived **managed tokens** that are named, listed
 
 For automation, CI/CD, or applications that rotate credentials, create short-lived tokens programmatically through the `/v4/tokens` endpoint. See the API reference for token creation, exchange, and revocation.
 
+#### A managed token cannot be created programmatically
+
+`POST /v4/tokens/managed` requires the calling user's My Extole **password** in the request body, and rejects the request with `missing_credentials` when it is absent. A valid bearer token is not enough on its own. Creating a named, long-lived token is therefore a deliberate one-time step a person takes in the Security Center, for each account that needs one — it cannot be scripted, and no scope grants an exemption.
+
+Plan for this when you are standing up monitoring or tooling across several accounts: either a person creates one managed token per account up front, or you use the short-lived pattern below.
+
+#### How long a programmatic token lasts
+
+A token from `POST /v4/tokens` is short-lived by design. The ceiling is a per-account security setting, so it varies between accounts rather than being a platform constant. To read an account's ceiling, ask for a deliberately long lifetime — the `400` response names the real limit:
+
+```bash
+curl -X POST https://api.extole.io/v4/tokens \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"client_id": "YOUR_CLIENT_ID", "duration_seconds": 31536000}'
+```
+
+```json
+{
+  "code": "invalid_duration",
+  "parameters": { "default_duration": 14400.0 }
+}
+```
+
+`default_duration` is that account's maximum token lifetime in seconds. `duration_seconds` can only request a shorter lifetime than the ceiling, never a longer one.
+
+#### Keeping a short-lived token alive
+
+`PUT /v4/tokens/exchange/{token}` returns a fresh token carrying the same scopes and a renewed expiry, without re-sending any credentials — send the token being exchanged as the bearer credential:
+
+```bash
+curl -X PUT https://api.extole.io/v4/tokens/exchange/YOUR_ACCESS_TOKEN \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+The exchange can be repeated, so a long-running job can hold a valid credential indefinitely by exchanging on a timer shorter than the account's ceiling. This is the supported alternative to a managed token when no person is available to create one.
+
+Two things to plan for when you automate this. The `access_token` in the response is a **different value** from the one you sent, so whatever holds the credential — a config entry, a secret store, a spreadsheet — has to be updated with the new one; the old string does not gain the new expiry. And the token you exchanged is **not** invalidated: it stays usable until its own expiry runs out. An exchange loop therefore leaves a trail of live credentials rather than rotating a single one, so revoke the previous token explicitly if you are accounting for how many are outstanding.
+
+#### Scopes on a programmatic token are not always narrowed
+
+The `scopes` field on `POST /v4/tokens` selects a **subset of the caller's own scopes**, and a caller holding `CLIENT_SUPERUSER` passes that scope on to every token it mints regardless of what the request asks for. A token minted by a superuser credential is therefore itself a superuser credential. When you need a genuinely narrower credential, mint it from a caller that does not hold the broader scope in the first place, rather than relying on the request body to drop it.
+
 ## Consumer Access Tokens
 
 Used for calls from a browser or native app to the Integration: Consumer to Extole API. Issued and rotated by Extole during a participant's session; the SDKs and the `access_token` cookie handle most of the lifecycle automatically.
@@ -196,7 +239,8 @@ Sandbox tenants use the same token endpoints and the same OAuth substrate as pro
 | 403    | `access_denied`                 | Caller is not authorized for the resource.            |
 | 403    | `scopes_denied`                 | Token does not carry a required scope.                |
 | 403    | `missing_credentials`           | Token creation called without sufficient credentials. |
-| 400    | `invalid_access_token_duration` | Token duration outside the allowed range.             |
+| 400    | `invalid_access_token_duration` | Consumer access token duration outside the allowed range. |
+| 400    | `invalid_duration`              | Bearer token duration longer than the account's ceiling. The response names the ceiling in `parameters.default_duration`. |
 | 400    | `invalid_client_id`             | `client_id` is not a known client.                    |
 | 400    | `jwt_error`                     | JWT is malformed or claims are invalid.               |
 
