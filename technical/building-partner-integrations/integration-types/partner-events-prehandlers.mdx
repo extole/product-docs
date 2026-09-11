@@ -3,11 +3,11 @@ title: "Normalize Partner Events with a Prehandler"
 description: "Reshape a partner's own webhook at ingest so it can post directly to Extole."
 ---
 
-Stage two of [Sending Partner Events to Extole](/technical/building-custom-integrations/integration-types/partner-events-to-extole).
+Stage two of [Sending Partner Events to Extole](/technical/building-partner-integrations/integration-types/partner-events-to-extole).
 
 # Overview
 
-A prehandler is a rule that runs against an arriving partner event **before** the platform decides what the event is. It sees the untouched HTTP request and can rename the event, add and remove data, and set the app type and sandbox. Everything downstream, starting with the `input_event` rules in [Map Partner Events to Business Events](/technical/building-custom-integrations/integration-types/partner-events-map-to-business-events), sees only what it left behind.
+A prehandler is a rule that runs against an arriving partner event **before** the platform decides what the event is. It sees the untouched HTTP request and can rename the event, add and remove data, and set the app type and sandbox. Everything downstream, starting with the `input_event` rules in [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events), sees only what it left behind.
 
 ## When You Need One
 
@@ -26,8 +26,8 @@ A prehandler does that reshaping inside Extole; the alternative is a customer-bu
 
 | You need | Detail |
 | :--- | :--- |
-| Two tokens and the host | `MANAGEMENT_API_ACCESS_TOKEN` to manage prehandlers, `EVENTS_API_ACCESS_TOKEN` for the partner's deliveries, `EXTOLE_API_HOST` — see [Build a Packaged Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration). |
-| `INTEGRATION_COMPONENT_ID` | The published model component from [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model). The prehandler is scoped to it, and its scripts read its settings. |
+| Two tokens and the host | `MANAGEMENT_API_ACCESS_TOKEN` to manage prehandlers, `EVENTS_API_ACCESS_TOKEN` for the partner's deliveries, `EXTOLE_API_HOST` — see [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration). |
+| `INTEGRATION_COMPONENT_ID` | The published model component from [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model). The prehandler is scoped to it, and its scripts read its settings. |
 | A sample of the partner's webhook | Body and headers; partner documentation usually omits them. |
 
 ## Give the Partner a URL It Can Post To
@@ -40,7 +40,7 @@ POST /v6/events/{event_name}
 
 The last path segment becomes the event name and the body becomes the event's data as it arrived, with no required fields. Name the segment after the partner, not an outcome — `example_webhook`, never `converted` — and match it with `EVENT_NAME_MATCH`.
 
-Extole reads the access token from the `access_token` query parameter, an `Authorization` header, or a cookie, in that order, and a partner that can only set a URL has the query parameter (see [Send Events from the Partner Platform](/technical/building-custom-integrations/integration-types/partner-events-send-from-platform)).
+Extole reads the access token from the `access_token` query parameter, an `Authorization` header, or a cookie, in that order, and a partner that can only set a URL has the query parameter (see [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform)).
 
 One body field is inspected at the API boundary: a top-level `event_time`, which must parse as a date or the delivery is rejected as `invalid_event_time_format`.
 
@@ -48,7 +48,7 @@ Render that endpoint in the configuration tab, computed from the campaign, with 
 
 ### Request Signatures Are Not Verified
 
-Extole does not verify a partner's request-signature header — `Stripe-Signature`, `X-Shopify-Hmac-Sha256`, or any other — on packaged or client-local integrations; the token in the URL authenticates the event. A condition matching a signature header therefore recognizes the partner's traffic rather than authenticating it, working from the header's presence rather than its contents. Escalate a demand for cryptographic verification rather than scripting it.
+Extole does not verify a partner's request-signature header — `Stripe-Signature`, `X-Shopify-Hmac-Sha256`, or any other — on maintained or client-local integrations; the token in the URL authenticates the event. A condition matching a signature header therefore recognizes the partner's traffic rather than authenticating it, working from the header's presence rather than its contents. Escalate a demand for cryptographic verification rather than scripting it.
 
 <Note>
 The partner's webhook signing secret is not required, and the build is not blocked on obtaining it.
@@ -121,7 +121,7 @@ A reshape adds rather than replaces: `addData` keeps existing values, `MAP_DATA_
 
 ### Flatten the Whole Identity Set, Including the Email Address
 
-A data component can only read a key the prehandler left behind, so flatten the full set [Map Partner Events to Business Events](/technical/building-custom-integrations/integration-types/partner-events-map-to-business-events) requires — transaction identifier, partner customer identifier, email address — on every event, including lifecycle ones.
+A data component can only read a key the prehandler left behind, so flatten the full set [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) requires — transaction identifier, partner customer identifier, email address — on every event, including lifecycle ones.
 
 The email address is the one that gets dropped: Stripe carries it as `receipt_email` on the payment intent and `billing_details.email` on the charge, while the ids sit at the top of the object. Extole resolves a person from `person_id`, `email`, `partner_user_id`, and any key a published campaign registers as `PARTNER_PROFILE_KEY`, but without an email address there is no destination for a reward or message.
 
@@ -152,15 +152,15 @@ A condition returns a boolean; an action returns nothing and mutates through the
 | `withDeviceId(id)` / `withPageId(id)` / `withDeviceType(type)` / `withDeviceOs(os)` | Device attribution |
 | `addJwt(jwt)` / `addSourceGeoIp(ip)` / `removeSourceGeoIp(ip)` | Identity and geolocation inputs |
 
-`getHttpHeaders()` returns each header as an array, so read a single-valued header as `getHttpHeaders().get("x-example-signature")[0]`. `getData()` returns a map; packaged scripts read it as both `data.get("field_name")` and `data.field_name`, so use `.get(name)`.
+`getHttpHeaders()` returns each header as an array, so read a single-valued header as `getHttpHeaders().get("x-example-signature")[0]`. `getData()` returns a map; scripts in maintained integrations read it as both `data.get("field_name")` and `data.field_name`, so use `.get(name)`.
 
 Guard every call on `getCandidatePerson()`: it returns null on anonymous and first-touch traffic, and an unguarded call is the most common cause of `prehandler_action_execution_failure` alerts.
 
 ## Produce a Name This Integration Owns
 
-Prehandlers run first, so the `input_event` rule in [Map Partner Events to Business Events](/technical/building-custom-integrations/integration-types/partner-events-map-to-business-events) lists the name the prehandler produced. Produce a name this integration owns — `example_order_completed`, `stripe_payment_succeeded`, `example_order_refunded` — and leave the canonical vocabulary on the business event that rule feeds.
+Prehandlers run first, so the `input_event` rule in [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) lists the name the prehandler produced. Produce a name this integration owns — `example_order_completed`, `stripe_payment_succeeded`, `example_order_refunded` — and leave the canonical vocabulary on the business event that rule feeds.
 
-An `input_event` rule matches by case-insensitive equality on the event name and nothing else: not the app type, not the component, not the campaign. A business event's alternate names are consulted only for the step it produces, never for an arriving partner event. A packaged business event's rule listens for its own name by default, so renaming a webhook to `converted` at ingest points it at every `converted` event in the account, bypassing the integration built to interpret it.
+An `input_event` rule matches by case-insensitive equality on the event name and nothing else: not the app type, not the component, not the campaign. A business event's alternate names are consulted only for the step it produces, never for an arriving partner event. A maintained business event's rule listens for its own name by default, so renaming a webhook to `converted` at ingest points it at every `converted` event in the account, bypassing the integration built to interpret it.
 
 <Note>
 Shopify is the exception: its prehandler produces `conversion`, and it ships no business events of its own, so it deliberately owns no rules.

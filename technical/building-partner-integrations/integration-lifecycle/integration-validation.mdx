@@ -3,7 +3,7 @@ title: "Validate and Publish an Integration"
 description: "Gate Extole to Partner resources, validate the finished shape, publish the validated version, and connect the integration to a program."
 ---
 
-Part of the [packaged integration guide](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
+Part of the [partner integration guide](/technical/building-partner-integrations/integration-lifecycle/management-api-integration).
 
 # Overview
 
@@ -41,7 +41,7 @@ Read the latest campaign and its built components, then confirm:
 
 - Campaign type is `INTEGRATION` and program type is `integration`.
 - The root and integration model components exist, the model component carrying an `integration-v10.x` type.
-- Where the build must appear as an installed integration, its owner and tags match what [Build a Packaged Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration) describes; read the tags back.
+- Where the build must appear as an installed integration, its owner and tags match what [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration) describes; read the tags back.
 - No unrequested reward supplier, webhook, client key, or socket exists.
 - No legacy custom controller duplicates a reusable business event.
 - Read from `/v1/components/built`, every webhook's `enabled` resolves to the integration's own toggle rather than to a literal `false`. A webhook holding a literal `false` never starts, regardless of what the installer does. Confirm every use case the integration promises has a webhook that can fire.
@@ -57,7 +57,7 @@ Read the latest campaign and its built components, then confirm:
 
 ### Reachability
 
-- Whoever sends the partner event can send the shape the rules expect. Where the sender is the partner's own webhook, a prehandler exists, is `enabled`, carries at least one condition, and is referenced to the integration component — a disabled prehandler, or one with no conditions, passes every structural check here and leaves the integration inert. Read the evaluated `order` where more than one participates ([Normalize Partner Events with a Prehandler](/technical/building-custom-integrations/integration-types/partner-events-prehandlers)).
+- Whoever sends the partner event can send the shape the rules expect. Where the sender is the partner's own webhook, a prehandler exists, is `enabled`, carries at least one condition, and is referenced to the integration component — a disabled prehandler, or one with no conditions, passes every structural check here and leaves the integration inert. Read the evaluated `order` where more than one participates ([Normalize Partner Events with a Prehandler](/technical/building-partner-integrations/integration-types/partner-events-prehandlers)).
 - Whoever configures the partner is given the endpoint: the configuration view's setup instructions render the URL the partner posts to, computed from the campaign, rather than naming the event endpoint without producing it.
 
 ### Views
@@ -69,7 +69,7 @@ Read the latest campaign and its built components, then confirm:
 
 ### Display Settings
 
-Read all eight display settings from `/v1/components/built` and check each against the value convention in [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model). Present is not usable: `short.description` and `about` describe this partner rather than integrations generally, `documentation.url` points at the partner-facing page rather than this build guide, and `categories` spells a string other integrations already use.
+Read all eight display settings from `/v1/components/built` and check each against the value convention in [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model). Present is not usable: `short.description` and `about` describe this partner rather than integrations generally, `documentation.url` points at the partner-facing page rather than this build guide, and `categories` spells a string other integrations already use.
 
 `logo` on the integration component and `rewardSupplierLogo` on every supplier template each hold an absolute URL. An empty value, or one still showing a `spel@buildtime:` expression, renders the grey placeholder tile.
 
@@ -119,10 +119,10 @@ Most commerce platforms map onto the same three canonical events; adjust this sh
 | `shipped` | `template_tracked_business_event` | Shipment |
 | `canceled` | `template_tracked_business_event` | Cancellation, plus any legacy spelling a live sender still emits |
 
-[Map Partner Events to Business Events](/technical/building-custom-integrations/integration-types/partner-events-map-to-business-events) names the fields each event captures. A complete integration of this shape carries the model component, three business events, one `input_event` rule per event, one data component per captured field, and the three baseline views. It is Partner to Extole only: no reward-supplier socket, reward webhook, or client key.
+[Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) names the fields each event captures. A complete integration of this shape carries the model component, three business events, one `input_event` rule per event, one data component per captured field, and the three baseline views. It is Partner to Extole only: no reward-supplier socket, reward webhook, or client key.
 
 Platforms with a different lifecycle keep the same construction and change the event set: a lending or account platform maps to `account_opened`, `application_approved`, and `funded`; a subscription platform to `converted`, `renewed`, and `canceled`. The canonical name describes the business outcome, never the partner's transport name.
 
 ## Related Documentation
 
-- [Build a Packaged Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration)
+- [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration)
