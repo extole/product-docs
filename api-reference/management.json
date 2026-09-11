@@ -44003,7 +44003,6 @@
     "/v1/audiences" : {
       "get" : {
         "description" : "Returns the client's audience definitions sorted by creation date, newest first. By default archived audiences are excluded; pass `include_archived=true` to include them. Use `limit` and `offset` to page (defaults: `limit=1000`, `offset=0`). Each entry is the editable definition - for runtime targeting reads, use `GET /v1/audiences/built` instead.",
-        "operationId" : "listAudiences",
         "parameters" : [ {
           "in" : "query",
           "name" : "include_archived",
@@ -44152,7 +44151,6 @@
       },
       "post" : {
         "description" : "Creates a new audience definition. `name` is required; `enabled`, `tags`, and `component_references` are optional. New audiences default to enabled. Tags must be 255 characters or fewer each; the resolved name must also be 255 characters or fewer. Returns the created audience.",
-        "operationId" : "createAudience",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -44296,7 +44294,6 @@
     "/v1/audiences/built" : {
       "get" : {
         "description" : "Returns the rendered (built) audience snapshots that the runtime evaluates against - the resolved name, enabled flag, tags, and component references for every audience the client owns. Filter by `name` (supports a trailing `*` wildcard), by `enabled` (`ENABLED`, `DISABLED`, or `ANY`), and by archived status. Use `limit` and `offset` to page (defaults: `limit=1000`, `offset=0`). Use `GET /v1/audiences` for the editable definitions.",
-        "operationId" : "listBuilt",
         "parameters" : [ {
           "in" : "query",
           "name" : "name",
@@ -44461,7 +44458,6 @@
     "/v1/audiences/{audience_id}" : {
       "get" : {
         "description" : "Returns the editable audience definition for the supplied `audience_id`, including its name, enabled state, tags, and the campaign components that reference it. For the rendered (runtime) snapshot use `GET /v1/audiences/{audience_id}/built` instead.",
-        "operationId" : "getAudience",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -44585,7 +44581,6 @@
       },
       "put" : {
         "description" : "Updates an existing audience. Only fields supplied in the body are changed; omitted fields are left untouched. Sending `null` for `name` returns `400 invalid_null` because `name` is a required attribute on the audience. Returns the updated audience.",
-        "operationId" : "updateAudience",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -44735,7 +44730,6 @@
       },
       "delete" : {
         "description" : "Soft-archives the audience. Archived audiences disappear from default `GET /v1/audiences` and `GET /v1/audiences/built` responses; pass `include_archived=true` to surface them. Reversible via `POST /v1/audiences/{audience_id}/unarchive`. Fails if the audience is still referenced by a campaign-controller membership trigger, a create- or remove-membership controller action, or a campaign component variable.",
-        "operationId" : "archive",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -44867,7 +44861,6 @@
     "/v1/audiences/{audience_id}/built" : {
       "get" : {
         "description" : "Returns the rendered (built) snapshot for the supplied `audience_id`. The snapshot has the same shape as `GET /v1/audiences/{audience_id}/built` items in the list response and is what the runtime evaluates against during targeting.",
-        "operationId" : "getBuilt",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -44993,7 +44986,6 @@
     "/v1/audiences/{audience_id}/members" : {
       "get" : {
         "description" : "Returns the person IDs of all current members of the specified audience.",
-        "operationId" : "listAudienceMembers",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -45181,7 +45173,6 @@
     "/v1/audiences/{audience_id}/members/download{format}" : {
       "get" : {
         "description" : "Downloads the full member list for the specified audience. Append a format extension (`.csv`, `.json`, `.xlsx`) to select the download format.",
-        "operationId" : "download",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -45366,7 +45357,6 @@
     "/v1/audiences/{audience_id}/members/view/details" : {
       "get" : {
         "description" : "Returns detailed profiles for all current members of the specified audience.",
-        "operationId" : "listPeople",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -45554,7 +45544,6 @@
     "/v1/audiences/{audience_id}/operations" : {
       "get" : {
         "description" : "Returns all operations for the specified audience, optionally filtered by the provided query parameters.",
-        "operationId" : "listAudienceOperations",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -45747,7 +45736,6 @@
       },
       "post" : {
         "description" : "Creates a new operation for the specified audience. An operation modifies audience membership by adding, removing, or syncing members from a data source.",
-        "operationId" : "createAudienceOperation",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -45949,7 +45937,6 @@
     "/v1/audiences/{audience_id}/operations/{operation_id}" : {
       "get" : {
         "description" : "Returns the audience operation identified by its operation ID for the specified audience.",
-        "operationId" : "getAudienceOperation",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -46100,7 +46087,6 @@
     "/v1/audiences/{audience_id}/operations/{operation_id}/state" : {
       "get" : {
         "description" : "Returns the current state of the specified audience operation, including progress counters and any error details.",
-        "operationId" : "getState",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -46251,7 +46237,6 @@
     "/v1/audiences/{audience_id}/operations/{operation_id}/state/debug" : {
       "get" : {
         "description" : "Returns the detailed debug state of the specified audience operation, including internal processing information. Restricted to client superusers.",
-        "operationId" : "getDebugState",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -46402,7 +46387,6 @@
     "/v1/audiences/{audience_id}/operations/{operation_id}/view/details" : {
       "get" : {
         "description" : "Returns the audience operation with its full detail view, including data source configuration and processing statistics.",
-        "operationId" : "getWithDetails",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -46553,7 +46537,6 @@
     "/v1/audiences/{audience_id}/stats" : {
       "get" : {
         "description" : "Returns membership statistics for the specified audience, including total member count and any size change since the last operation.",
-        "operationId" : "getStats",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -46693,7 +46676,6 @@
     },
     "/v1/client-domains" : {
       "get" : {
-        "operationId" : "listClientDomains",
         "parameters" : [ {
           "in" : "query",
           "name" : "status",
@@ -46828,7 +46810,6 @@
         "x-extole-visibility" : "visible"
       },
       "post" : {
-        "operationId" : "createClientDomain",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -47050,7 +47031,6 @@
     },
     "/v1/client-domains/{client_domain_id}" : {
       "get" : {
-        "operationId" : "getClientDomain",
         "parameters" : [ {
           "in" : "path",
           "name" : "client_domain_id",
@@ -47192,7 +47172,6 @@
       },
       "put" : {
         "description" : "Fields omitted from the body are left unchanged — you do not need to send the whole resource.",
-        "operationId" : "updateClientDomain",
         "parameters" : [ {
           "in" : "path",
           "name" : "client_domain_id",
@@ -47421,7 +47400,6 @@
         "x-extole-visibility" : "visible"
       },
       "delete" : {
-        "operationId" : "archive_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "client_domain_id",
@@ -47580,7 +47558,6 @@
     },
     "/v1/client-domains/{client_domain_id}/decrypt" : {
       "get" : {
-        "operationId" : "getDecrypt",
         "parameters" : [ {
           "in" : "path",
           "name" : "client_domain_id",
@@ -47724,7 +47701,6 @@
     "/v1/components" : {
       "get" : {
         "description" : "Returns all components visible to the current client. Components are the reusable building blocks that campaigns assemble — creatives, content blocks, and sub-experiences.",
-        "operationId" : "listComponents",
         "parameters" : [ {
           "in" : "query",
           "name" : "name",
@@ -48108,7 +48084,6 @@
       },
       "post" : {
         "description" : "Creates a component. `name` is the only required field; `settings`, `types` and `tags` may be supplied here or added later with `PUT /v1/components/{component_id}`.",
-        "operationId" : "createComponent",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -48714,7 +48689,6 @@
     "/v1/components/built" : {
       "get" : {
         "description" : "Returns all components in their fully evaluated runtime form.",
-        "operationId" : "listBuilt_4",
         "parameters" : [ {
           "in" : "query",
           "name" : "name",
@@ -49100,7 +49074,6 @@
     "/v1/components/duplicatable" : {
       "get" : {
         "description" : "Returns all components that are eligible for duplication by the current client.",
-        "operationId" : "listDuplicatableComponents",
         "parameters" : [ {
           "in" : "query",
           "name" : "name",
@@ -49474,7 +49447,6 @@
     "/v1/components/duplicatable/built" : {
       "get" : {
         "description" : "Returns all duplicatable components in their fully evaluated runtime form.",
-        "operationId" : "listBuiltDuplicatableComponents",
         "parameters" : [ {
           "in" : "query",
           "name" : "name",
@@ -49848,7 +49820,6 @@
     "/v1/components/{component_id}" : {
       "get" : {
         "description" : "Returns the component.",
-        "operationId" : "getComponent",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -50026,7 +49997,6 @@
       },
       "put" : {
         "description" : "Updates a component, including its `settings`. Top-level fields omitted from the body are left unchanged — you do not need to send the whole component to change its name, display name, description or tags.\n\n`settings` is replaced rather than merged, and each setting you send is rebuilt from what you send. Supplying the array stores exactly the settings listed and drops every setting you leave out; within a listed setting, omitting `values` clears that setting's values rather than keeping them. Changing one setting through this endpoint therefore means restating every other setting and every value in full. Prefer `PUT /v1/components/{component_id}/settings/{setting_name}`, which changes a single setting in place. A setting's `values` map is also replaced rather than merged: supplying `{\"default\": \"$40\"}` stores that one key and drops the others.",
-        "operationId" : "updateComponent",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -50637,7 +50607,6 @@
       },
       "delete" : {
         "description" : "Recursively deletes the specified component and all its children. If the deleted component is the root component of a campaign, the entire campaign is archived.",
-        "operationId" : "deleteComponent",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -51216,7 +51185,6 @@
     "/v1/components/{component_id}/built" : {
       "get" : {
         "description" : "Returns the fully evaluated (built) runtime form of the specified component, with expression fields resolved.",
-        "operationId" : "getBuilt_4",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -51390,7 +51358,6 @@
     "/v1/components/{component_id}/anchors" : {
       "get" : {
         "description" : "Returns the anchor details for the specified component.",
-        "operationId" : "getAnchors",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -51573,7 +51540,6 @@
     "/v1/components/{component_id}/available-upgrades" : {
       "get" : {
         "description" : "Returns a map of available upgrade targets for the specified component, keyed by target component id.",
-        "operationId" : "getAvailableUpgrades",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -51726,7 +51692,6 @@
     "/v1/components/{component_id}/diff/{other_component_id}" : {
       "get" : {
         "description" : "Returns a diff between two component versions, showing added, removed, and changed settings.",
-        "operationId" : "diff",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -51883,7 +51848,6 @@
     "/v1/components/{component_id}/selectable-by-references" : {
       "get" : {
         "description" : "Returns the `COMPONENT_REFERENCE` and `COMPONENT_REFERENCE_LIST` settings across the client that can select the specified component — the reverse of `GET /v1/components/{component_id}/settings/component-reference/{setting_name}/selectable-components`. A reference is listed when it already points at the component (`SELECTED`), or when the component is eligible for it: the component carries the reference's declared component type, sits inside the reference's boundary, and is not excluded by one of its selectable filters. Matching runs entirely on the server, so callers never reproduce match rules. One row per component, setting and variant. The result is computed per request and never persisted.\n\nThe search covers every non-archived campaign of the client at its latest version, so the row count is driven by how those references declare their boundary: campaign-scoped references match only within their own campaign, while an account-scoped reference can match a component anywhere in the client.",
-        "operationId" : "listSelectableByReferences",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -52060,7 +52024,6 @@
     "/v1/components/{component_id}/translatable.{format}" : {
       "get" : {
         "description" : "Downloads the translatable variable values for the specified component for localisation.",
-        "operationId" : "batchGetTranslatableComponentVariablesValues",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -52290,7 +52253,6 @@
     "/v1/components/{component_id}/assets" : {
       "get" : {
         "description" : "Returns all file assets attached to the component identified by `component_id`.",
-        "operationId" : "listComponentAssets",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -52447,7 +52409,6 @@
       },
       "post" : {
         "description" : "Uploads a new file asset to the component identified by `component_id`. Supply asset metadata in the `asset` form field and file content in the `file` form field.",
-        "operationId" : "createComponentAsset",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -52735,7 +52696,6 @@
     "/v1/components/{component_id}/assets/built" : {
       "get" : {
         "description" : "Returns the built (compiled) asset representations for all assets on the specified component.",
-        "operationId" : "listBuilt_5",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -52918,7 +52878,6 @@
     "/v1/components/{component_id}/assets/{asset_id}" : {
       "get" : {
         "description" : "Returns metadata for the asset identified by `asset_id` on the specified component.",
-        "operationId" : "getComponentAsset",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -53082,7 +53041,6 @@
       },
       "put" : {
         "description" : "Replaces or updates the asset identified by `asset_id` on the specified component. Supply updated metadata in the `asset` form field and optional new file content in `file`.",
-        "operationId" : "updateComponentAsset",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -53378,7 +53336,6 @@
       },
       "delete" : {
         "description" : "Removes the asset identified by `asset_id` from the specified component and returns the deleted asset metadata.",
-        "operationId" : "deleteComponentAsset",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -53607,7 +53564,6 @@
     "/v1/components/{component_id}/assets/{asset_id}/built" : {
       "get" : {
         "description" : "Returns the built (compiled) representation of the asset identified by `asset_id` on the specified component.",
-        "operationId" : "getBuilt_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -53797,7 +53753,6 @@
     "/v1/components/{component_id}/assets/{asset_id}/content" : {
       "get" : {
         "description" : "Streams the raw file content of the asset identified by `asset_id` on the specified component.",
-        "operationId" : "getContent",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -53959,7 +53914,6 @@
     "/v1/components/{component_id}/operations" : {
       "get" : {
         "description" : "Returns all operations declared by the specified component.",
-        "operationId" : "listComponentOperations",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -54116,7 +54070,6 @@
       },
       "post" : {
         "description" : "Declares a new operation on the component identified by `component_id`.",
-        "operationId" : "createComponentOperation",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -54459,7 +54412,6 @@
     "/v1/components/{component_id}/operations/built" : {
       "get" : {
         "description" : "Returns all component operations as they appear on the built component.",
-        "operationId" : "listBuilt_6",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -54642,7 +54594,6 @@
     "/v1/components/{component_id}/operations/{operation_name}" : {
       "get" : {
         "description" : "Returns the component operation for the specified name.",
-        "operationId" : "getComponentOperation",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -54806,7 +54757,6 @@
       },
       "put" : {
         "description" : "Updates the operation identified by `operation_name`. Omitted fields keep their current value.",
-        "operationId" : "updateComponentOperation",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -55156,7 +55106,6 @@
       },
       "delete" : {
         "description" : "Removes the operation identified by `operation_name` and returns the deleted operation.",
-        "operationId" : "deleteComponentOperation",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -55487,7 +55436,6 @@
     "/v1/components/{component_id}/operations/{operation_name}/built" : {
       "get" : {
         "description" : "Returns the specified component operation as it appears on the built component.",
-        "operationId" : "getBuilt_5",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -55677,7 +55625,6 @@
     "/v1/components/{component_id}/settings" : {
       "get" : {
         "description" : "Returns all settings for the specified component.",
-        "operationId" : "listComponentSettings",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -55834,7 +55781,6 @@
       },
       "post" : {
         "description" : "Adds a new named configuration setting to the specified component. Returns the created setting.",
-        "operationId" : "createComponentSetting",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -56198,7 +56144,6 @@
       },
       "put" : {
         "description" : "Applies a batch of setting value updates across the component in one request.\n\nFields omitted from the body are left unchanged, except `settings`, which the request schema marks required and which every request must send.",
-        "operationId" : "batchUpdate",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -56586,7 +56531,6 @@
     "/v1/components/{component_id}/settings/built" : {
       "get" : {
         "description" : "Returns all component settings in their fully evaluated runtime form.",
-        "operationId" : "listBuilt_7",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -56769,7 +56713,6 @@
     "/v1/components/{component_id}/settings/component-reference-list/{setting_name}/selectable-components" : {
       "get" : {
         "description" : "Returns the components eligible to be selected for the named `COMPONENT_REFERENCE_LIST` setting. Eligibility is evaluated on the server from the setting's component type, its selectable filters, its boundary, and whether the setting's lookup can capture key values for the candidate, so a picker never reproduces those rules. Candidates from this component's own campaign are resolved against its current draft; candidates from every other campaign are resolved against that campaign's published version, so a component that exists only in another campaign's unpublished draft is never eligible.",
-        "operationId" : "listSelectableComponents",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -57106,7 +57049,6 @@
     "/v1/components/{component_id}/settings/component-reference-list/{setting_name}/selected-components" : {
       "get" : {
         "description" : "Returns the components the named `COMPONENT_REFERENCE_LIST` setting points at, hydrated from the component ids it stores. The result is computed per request and is never persisted or written into the built setting. A pin into this component's own campaign is hydrated from its current draft; a pin into another campaign is hydrated from that other campaign's published version regardless of what its own unpublished draft holds - deleting the component in that draft without publishing does not change what this endpoint returns. A component whose campaign has been archived is omitted, and a reference that points at nothing returns an empty list.",
-        "operationId" : "listSelectedComponents",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -57419,7 +57361,6 @@
     "/v1/components/{component_id}/settings/component-reference/{setting_name}/selectable-components" : {
       "get" : {
         "description" : "Returns the components eligible to be selected for the named `COMPONENT_REFERENCE` setting. Eligibility is evaluated on the server from the setting's component type, its selectable filters, its boundary, and whether the setting's lookup can capture key values for the candidate, so a picker never reproduces those rules. Candidates from this component's own campaign are resolved against its current draft; candidates from every other campaign are resolved against that campaign's published version, so a component that exists only in another campaign's unpublished draft is never eligible.",
-        "operationId" : "listSelectableComponents_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -57756,7 +57697,6 @@
     "/v1/components/{component_id}/settings/component-reference/{setting_name}/selected-components" : {
       "get" : {
         "description" : "Returns the component the named `COMPONENT_REFERENCE` setting points at, hydrated from the component id it stores. The result is computed per request and is never persisted or written into the built setting. A pin into this component's own campaign is hydrated from its current draft; a pin into another campaign is hydrated from that other campaign's published version regardless of what its own unpublished draft holds - deleting the component in that draft without publishing does not change what this endpoint returns. A reference that points at nothing, or at a component whose campaign has been archived, returns an empty list.",
-        "operationId" : "listSelectedComponents_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -58069,7 +58009,6 @@
     "/v1/components/{component_id}/settings/{setting_name}" : {
       "get" : {
         "description" : "Returns the component setting for the specified name.",
-        "operationId" : "getComponentSetting",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -58245,7 +58184,6 @@
       },
       "put" : {
         "description" : "Updates the specified component setting. Only fields present in the request body are changed. Returns the updated setting.",
-        "operationId" : "updateComponentSetting",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -58631,7 +58569,6 @@
       },
       "delete" : {
         "description" : "Removes the specified component setting and returns the deleted record.",
-        "operationId" : "deleteComponentSetting",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -59100,7 +59037,6 @@
     "/v1/components/{component_id}/settings/{setting_name}/built" : {
       "get" : {
         "description" : "Returns the fully evaluated (built) runtime form of the component setting, with expression fields resolved.",
-        "operationId" : "getBuilt_6",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -59302,7 +59238,6 @@
     "/v1/components/{component_id}/settings/{setting_name}/installed-components" : {
       "get" : {
         "description" : "Returns all component references currently installed in the specified socket-type setting.",
-        "operationId" : "listInstalledComponents",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -59492,7 +59427,6 @@
     "/v1/components/{component_id}/version/{version}" : {
       "get" : {
         "description" : "Returns the component.",
-        "operationId" : "getVersioned",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -59679,7 +59613,6 @@
     "/v1/components/{component_id}/version/{version}/built" : {
       "get" : {
         "description" : "Returns the fully evaluated (built) runtime form of the specified component, with expression fields resolved.",
-        "operationId" : "getBuiltVersioned",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -59860,7 +59793,6 @@
     "/v1/components/{component_id}/version/{version}/anchors" : {
       "get" : {
         "description" : "Returns the anchor details for the specified component.",
-        "operationId" : "getAnchorsVersioned",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -60050,7 +59982,6 @@
     "/v2/blocks" : {
       "get" : {
         "description" : "Returns all content blocks for the client.",
-        "operationId" : "getBlocks",
         "parameters" : [ {
           "in" : "query",
           "name" : "search_query",
@@ -60208,7 +60139,6 @@
       },
       "post" : {
         "description" : "Creates a new named content block used as a reusable fragment in campaign experiences. Returns the created block with its server-assigned id.",
-        "operationId" : "createBlock",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -60355,7 +60285,6 @@
     "/v2/blocks/global" : {
       "get" : {
         "description" : "Returns all globally available content blocks that can be shared across clients.",
-        "operationId" : "getGlobalBlocks",
         "parameters" : [ {
           "in" : "query",
           "name" : "search_query",
@@ -60515,7 +60444,6 @@
     "/v2/blocks/{blockId}" : {
       "get" : {
         "description" : "Returns the content block for the specified id.",
-        "operationId" : "getBlockById",
         "parameters" : [ {
           "in" : "path",
           "name" : "blockId",
@@ -60654,7 +60582,6 @@
       },
       "delete" : {
         "description" : "Removes the content block for the specified id. Returns the deleted block.",
-        "operationId" : "deleteBlock",
         "parameters" : [ {
           "in" : "path",
           "name" : "blockId",
@@ -60795,7 +60722,6 @@
     "/v2/campaign-summaries" : {
       "get" : {
         "description" : "Returns lightweight read-only summaries of campaigns, including id, name, state, and dates. Supports filtering via query parameters.",
-        "operationId" : "getCampaignSummaries",
         "parameters" : [ {
           "in" : "query",
           "name" : "version",
@@ -61011,7 +60937,6 @@
     "/v2/campaign-summaries/{campaignId}" : {
       "get" : {
         "description" : "Returns a lightweight read-only summary of the specified campaign, including id, name, state, and dates.",
-        "operationId" : "getCampaignSummary",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -61176,7 +61101,6 @@
     "/v2/campaign-summaries/{campaignId}/version/{version}" : {
       "get" : {
         "description" : "Returns a lightweight read-only summary of the specified campaign, including id, name, state, and dates.",
-        "operationId" : "getCampaignSummaryVersioned",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -61348,7 +61272,6 @@
     "/v2/campaigns" : {
       "get" : {
         "description" : "Returns campaigns for the calling client, filtered and ordered by the supplied query parameters. Supports filtering by state (draft, published, archived), label, and date range. Use `GET /v2/campaigns/built` for fully evaluated runtime forms.",
-        "operationId" : "getCampaigns",
         "parameters" : [ {
           "in" : "query",
           "name" : "version",
@@ -61535,7 +61458,6 @@
       },
       "post" : {
         "description" : "Creates a new campaign in DRAFT state and returns the persisted record with its server-assigned id. The request body specifies the initial name, labels, and global component references. Add components, controllers, and flow steps by subsequent PUT calls on the returned campaign id. To import a campaign ZIP archive, use `POST /v2/campaigns/upload-bundle`.",
-        "operationId" : "createCampaign",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -61863,7 +61785,6 @@
     "/v2/campaigns/built" : {
       "get" : {
         "description" : "Returns campaigns in their fully evaluated (built) runtime form, with all evaluatable fields resolved. Use this when the calling system needs effective component values and settings rather than source definitions. Supports the same filtering as `GET /v2/campaigns`.",
-        "operationId" : "getBuiltCampaigns",
         "parameters" : [ {
           "in" : "query",
           "name" : "version",
@@ -62066,7 +61987,6 @@
     "/v2/campaigns/deleted" : {
       "get" : {
         "description" : "Returns the campaigns that have been soft-deleted for the calling client. Deleted campaigns are retained for audit and recovery purposes. Use `POST /v2/campaigns/{id}/undelete` to restore a deleted campaign.",
-        "operationId" : "getDeletedCampaigns",
         "responses" : {
           "200" : {
             "content" : {
@@ -62196,7 +62116,6 @@
     "/v2/campaigns/duplicatable" : {
       "get" : {
         "description" : "Returns the campaigns that the calling client is permitted to duplicate. Duplicatable campaigns include both the client's own draft and published campaigns and any shared template campaigns. Use `POST /v2/campaigns/{id}/duplicate` to create a copy.",
-        "operationId" : "getDuplicatableCampaigns",
         "responses" : {
           "200" : {
             "content" : {
@@ -62326,7 +62245,6 @@
     "/v2/campaigns/{campaignId}" : {
       "get" : {
         "description" : "Returns the source definition of the campaign. Use `GET /v2/campaigns/{id}/built` for the fully evaluated runtime form.",
-        "operationId" : "getCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -62501,7 +62419,6 @@
       },
       "put" : {
         "description" : "Applies a partial update to the campaign. Only the fields present in the body are changed; omitted fields are left intact. Returns `400 campaign_concurrent_update` if the campaign has changed since the caller last read it. To replace from a ZIP archive, use `PUT /v2/campaigns/{campaignId}/upload-bundle`.",
-        "operationId" : "editCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -62673,7 +62590,6 @@
       },
       "delete" : {
         "description" : "Soft-deletes the campaign. Deleted campaigns are excluded from standard listings but are recoverable via `POST /v2/campaigns/{id}/undelete`. Returns the deleted campaign record. Requires the campaign to be in a state that permits deletion (e.g. DRAFT or ARCHIVED).",
-        "operationId" : "deleteCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -62955,7 +62871,6 @@
     "/v2/campaigns/{campaignId}/built" : {
       "get" : {
         "description" : "Returns the campaign in its fully evaluated (built) runtime form, with all evaluatable fields resolved against current component and setting values.",
-        "operationId" : "getBuiltCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -63144,7 +63059,6 @@
     "/v2/campaigns/{campaignId}.zip" : {
       "get" : {
         "description" : "Downloads the campaign as a ZIP archive containing all campaign assets, component definitions, and configuration files. The archive can be used to back up a campaign or to import it into another client via `POST /v2/campaigns/upload-bundle` or `PUT /v2/campaigns/{id}/upload-bundle`.",
-        "operationId" : "downloadCampaignBundle",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -63310,7 +63224,6 @@
     "/v2/campaigns/{campaignId}/versions" : {
       "get" : {
         "description" : "Returns the campaign version history (an index of versions with state and timestamps), ordered from most recent to oldest. Supports `limit` and `offset` query parameters for pagination. Use `GET /v2/campaigns/{id}/version/{version}` to retrieve the full campaign definition for a specific version.",
-        "operationId" : "getVersions",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -63501,7 +63414,6 @@
     "/v2/campaigns/{campaignId}/version/{version}" : {
       "get" : {
         "description" : "Returns the full source definition of the campaign at the specified version. Use `GET /v2/campaigns/{id}/version/{version}/built` for the fully evaluated runtime form, or `GET /v2/campaigns/{id}/versions` for version history metadata.",
-        "operationId" : "getCampaignVersioned",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -63685,7 +63597,6 @@
     "/v2/campaigns/{campaignId}/version/{version}/built" : {
       "get" : {
         "description" : "Returns the campaign in its fully evaluated (built) runtime form, with all evaluatable fields resolved against current component and setting values.",
-        "operationId" : "getBuiltCampaignVersioned",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -63881,7 +63792,6 @@
     "/v2/campaigns/{campaignId}/version/{version}.zip" : {
       "get" : {
         "description" : "Downloads the campaign as a ZIP archive containing all campaign assets, component definitions, and configuration files. The archive can be used to back up a campaign or to import it into another client via `POST /v2/campaigns/upload-bundle` or `PUT /v2/campaigns/{id}/upload-bundle`.",
-        "operationId" : "downloadCampaignBundleVersioned",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -64054,7 +63964,6 @@
     "/v2/consumers/{accessToken}/debug" : {
       "get" : {
         "description" : "Returns metadata for a consumer (person) access token by value, including tokens that are expired or invalidated. Distinct from client access token debug (`GET /v4/tokens/{token}/debug`) and managed API tokens (`/v4/tokens/managed`). Requires a user access token with the `CLIENT_ADMIN` scope.",
-        "operationId" : "debugConsumerToken",
         "parameters" : [ {
           "in" : "path",
           "name" : "accessToken",
@@ -64189,7 +64098,6 @@
     "/v2/logo" : {
       "get" : {
         "description" : "Returns the current logo image metadata for the client.",
-        "operationId" : "listLogo",
         "responses" : {
           "200" : {
             "content" : {
@@ -64320,7 +64228,6 @@
       },
       "post" : {
         "description" : "Uploads a new logo image for the client via multipart form upload. Returns the created logo metadata.",
-        "operationId" : "createLogo",
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
@@ -64476,7 +64383,6 @@
       },
       "delete" : {
         "description" : "Archives the current client logo, removing it from active use. Returns the archived logo metadata.",
-        "operationId" : "archive_7",
         "responses" : {
           "200" : {
             "content" : {
@@ -64609,7 +64515,6 @@
     "/v2/logo/image" : {
       "get" : {
         "description" : "Downloads the client logo as a PNG image binary.",
-        "operationId" : "downloadLogoImage",
         "responses" : {
           "200" : {
             "content" : {
@@ -64737,7 +64642,6 @@
     "/v2/promotion-links" : {
       "get" : {
         "description" : "Returns all promotion links for the client. Promotion links are the short URLs that participants share to drive referrals.",
-        "operationId" : "getPromotionLinks",
         "responses" : {
           "200" : {
             "content" : {
@@ -64865,7 +64769,6 @@
       },
       "post" : {
         "description" : "Creates a new promotion link for a participant. Returns the created link with its server-assigned id.",
-        "operationId" : "createPromotionLink",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -65066,7 +64969,6 @@
     "/v2/promotion-links/{code}" : {
       "get" : {
         "description" : "Returns the promotion link for the specified code.",
-        "operationId" : "getPromotionLink",
         "parameters" : [ {
           "in" : "path",
           "name" : "code",
@@ -65205,7 +65107,6 @@
     "/v2/reward-suppliers/manual-coupons/{reward_supplier_id}/coupons" : {
       "get" : {
         "description" : "Downloads the current coupon pool for the manual coupon supplier as a JSON response.",
-        "operationId" : "downloadCoupons",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -65400,7 +65301,6 @@
       },
       "post" : {
         "description" : "Uploads a coupon code file (CSV or text) to the manual coupon supplier's pool.",
-        "operationId" : "uploadCoupons",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -65624,7 +65524,6 @@
       },
       "delete" : {
         "description" : "Removes coupons from the manual coupon supplier's pool.",
-        "operationId" : "deleteCoupons",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -65792,7 +65691,6 @@
     "/v2/reward-suppliers/manual-coupons/{reward_supplier_id}/coupons{extension}" : {
       "get" : {
         "description" : "Downloads the current coupon pool for the manual coupon supplier as a file.",
-        "operationId" : "downloadCoupons_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -66058,7 +65956,6 @@
     "/v2/reward-suppliers/manual-coupons/{reward_supplier_id}/operations" : {
       "get" : {
         "description" : "Returns a log of recent upload and delete operations for this manual coupon supplier.",
-        "operationId" : "getOperations",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -66235,7 +66132,6 @@
     "/v2/reward-suppliers/manual-coupons/{reward_supplier_id}/stats" : {
       "get" : {
         "description" : "Returns usage statistics for the coupon pool on this manual coupon supplier.",
-        "operationId" : "getCouponStats",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -66379,7 +66275,6 @@
     "/v2/reward-suppliers/salesforce-coupons/list-available-coupon-pools" : {
       "get" : {
         "description" : "Returns the available Salesforce coupon pools that can be linked to a reward supplier.",
-        "operationId" : "listAvailableCouponPools",
         "responses" : {
           "200" : {
             "content" : {
@@ -66527,7 +66422,6 @@
     "/v2/reward-suppliers/salesforce-coupons/{reward_supplier_id}/operations" : {
       "get" : {
         "description" : "Returns a log of recent Salesforce sync operations for this coupon supplier.",
-        "operationId" : "getOperations_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -66697,7 +66591,6 @@
     "/v2/reward-suppliers/salesforce-coupons/{reward_supplier_id}/stats" : {
       "get" : {
         "description" : "Returns usage statistics for the coupon pool on this Salesforce coupon supplier.",
-        "operationId" : "getCouponStats_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -66841,7 +66734,6 @@
     "/v2/reward-suppliers/tango/catalog" : {
       "get" : {
         "description" : "Returns the available Tango gift card brands and denominations from the Tango Card API.",
-        "operationId" : "getCatalog",
         "responses" : {
           "200" : {
             "content" : {
@@ -66986,7 +66878,6 @@
     "/v2/settings/security/keys" : {
       "get" : {
         "description" : "Returns active (non-archived) security keys for the client. Keys store credentials and cryptographic material used by integrations, campaign components, SFTP file transfer, and outbound webhooks. Pass one or more `tags` query values; a key is returned only when it includes every supplied tag. Use `GET /v2/settings/security/keys/built` for the fully evaluated runtime form.",
-        "operationId" : "listClientKeys",
         "parameters" : [ {
           "in" : "query",
           "name" : "tags",
@@ -67125,7 +67016,6 @@
       },
       "post" : {
         "description" : "Creates a client key from a JSON request body. Supported variants include OAuth integrations, inline PGP or SSH key material, JWT signing keys, webhook secrets, and generic password or HTTP basic credentials. Set `algorithm` to select the polymorphic request and response schema. Set `type` to classify what the key is used for. To upload a PKCS#12 keystore file, use `POST /v2/settings/security/keys/upload`.",
-        "operationId" : "createSettingSecurityKey",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -67470,7 +67360,6 @@
     "/v2/settings/security/keys/built" : {
       "get" : {
         "description" : "Returns the built form of each matching active client key with evaluatable fields resolved for the current client context. Supports the same `tags` filter as `GET /v2/settings/security/keys`.",
-        "operationId" : "listBuiltClientKeys",
         "parameters" : [ {
           "in" : "query",
           "name" : "tags",
@@ -67611,7 +67500,6 @@
     "/v2/timeline-entries" : {
       "get" : {
         "description" : "Returns all campaign timeline entries for the client, optionally filtered by tags.",
-        "operationId" : "listTimelineEntries",
         "parameters" : [ {
           "in" : "query",
           "name" : "tags",
@@ -67751,7 +67639,6 @@
       },
       "post" : {
         "description" : "Creates a new named milestone in the campaign timeline visible in the console. Returns the created entry with its server-assigned name.",
-        "operationId" : "createTimelineEntry",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -67914,7 +67801,6 @@
     "/v2/timeline-entries/{name}" : {
       "get" : {
         "description" : "Returns the campaign timeline entry for the specified name.",
-        "operationId" : "getTimelineEntry",
         "parameters" : [ {
           "in" : "path",
           "name" : "name",
@@ -68050,7 +67936,6 @@
       },
       "put" : {
         "description" : "Updates the campaign timeline entry for the specified name. Only fields present in the request body are changed. Returns the updated entry.",
-        "operationId" : "updateTimelineEntry",
         "parameters" : [ {
           "in" : "path",
           "name" : "name",
@@ -68222,7 +68107,6 @@
       },
       "delete" : {
         "description" : "Removes the campaign timeline entry for the specified name. Returns the deleted entry.",
-        "operationId" : "deleteTimelineEntry",
         "parameters" : [ {
           "in" : "path",
           "name" : "name",
@@ -68363,7 +68247,6 @@
     "/v2/users" : {
       "get" : {
         "description" : "Returns all staff user accounts with access to the Extole console. Use the `scope` query parameter to restrict results to the current account or retrieve all accessible users.",
-        "operationId" : "getAll_6",
         "parameters" : [ {
           "description" : "accepts values: 'account'|'all'",
           "in" : "query",
@@ -68501,7 +68384,6 @@
       },
       "post" : {
         "description" : "Creates a new staff user account with access to the Extole console. Returns the created user with its server-assigned id. An invitation email is sent to the new user.",
-        "operationId" : "createUser",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -68686,7 +68568,6 @@
     "/v2/users/{userId}" : {
       "get" : {
         "description" : "Returns the staff user account for the specified id.",
-        "operationId" : "getUser",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -68825,7 +68706,6 @@
       },
       "put" : {
         "description" : "Updates the staff user account. Only fields present in the request body are changed. Returns the updated user.",
-        "operationId" : "updateUser",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -69022,7 +68902,6 @@
       },
       "delete" : {
         "description" : "Deactivates and removes the staff user account, revoking all console access.",
-        "operationId" : "deleteUser",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -69163,7 +69042,6 @@
     "/v2/users/{user_id}/properties" : {
       "get" : {
         "description" : "Returns all per-user property overrides for the specified staff user.",
-        "operationId" : "listUserProperties",
         "parameters" : [ {
           "in" : "path",
           "name" : "user_id",
@@ -69305,7 +69183,6 @@
       },
       "post" : {
         "description" : "Creates a new per-user property override for the specified staff user. Returns the created property.",
-        "operationId" : "createUserProperty",
         "parameters" : [ {
           "in" : "path",
           "name" : "user_id",
@@ -69477,7 +69354,6 @@
     "/v2/users/{user_id}/properties/{name}" : {
       "get" : {
         "description" : "Returns the per-user property override for the specified user and property name.",
-        "operationId" : "getUserProperty",
         "parameters" : [ {
           "in" : "path",
           "name" : "user_id",
@@ -69626,7 +69502,6 @@
       },
       "put" : {
         "description" : "Updates the per-user property override for the specified staff user and property name. Returns the updated property.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
-        "operationId" : "updateUserProperty",
         "parameters" : [ {
           "in" : "path",
           "name" : "user_id",
@@ -69799,7 +69674,6 @@
       },
       "delete" : {
         "description" : "Removes the per-user property override for the specified staff user and property name.",
-        "operationId" : "deleteUserProperty",
         "parameters" : [ {
           "in" : "path",
           "name" : "user_id",
@@ -69950,7 +69824,6 @@
     "/v3/shareables/{code}" : {
       "get" : {
         "description" : "Returns the v3 shareable link for the specified code, including the participant and campaign context resolved at runtime.",
-        "operationId" : "getShareable_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "code",
@@ -70092,7 +69965,6 @@
     "/v4/email-domains" : {
       "get" : {
         "description" : "Returns all custom sending domains configured for the client.",
-        "operationId" : "listEmailDomains",
         "responses" : {
           "200" : {
             "content" : {
@@ -70220,7 +70092,6 @@
       },
       "post" : {
         "description" : "Creates a new custom sending domain for campaign emails. DNS verification records are generated for the domain. Returns the created domain with its server-assigned id.",
-        "operationId" : "createEmailDomain",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -70391,7 +70262,6 @@
     "/v4/email-domains/{emailDomainId}" : {
       "get" : {
         "description" : "Returns the custom sending domain for the specified id.",
-        "operationId" : "getEmailDomain",
         "parameters" : [ {
           "in" : "path",
           "name" : "emailDomainId",
@@ -70527,7 +70397,6 @@
       },
       "put" : {
         "description" : "Updates the custom sending domain. Only fields present in the request body are changed. Returns the updated domain.",
-        "operationId" : "updateEmailDomain",
         "parameters" : [ {
           "in" : "path",
           "name" : "emailDomainId",
@@ -70707,7 +70576,6 @@
       },
       "delete" : {
         "description" : "Removes the custom sending domain. Returns the deleted domain.",
-        "operationId" : "deleteEmailDomain",
         "parameters" : [ {
           "in" : "path",
           "name" : "emailDomainId",
@@ -70845,7 +70713,6 @@
     "/v4/email-domains/{emailDomainId}/validate" : {
       "get" : {
         "description" : "Checks DNS records for the custom sending domain to confirm verification status. Returns the current validation result without making changes.",
-        "operationId" : "validate_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "emailDomainId",
@@ -70983,7 +70850,6 @@
     "/v4/optouts" : {
       "get" : {
         "description" : "Returns the opt-out suppression state for a person identified by email address. A person who is opted out will not receive campaign sends or reward awards.",
-        "operationId" : "isOptout",
         "parameters" : [ {
           "in" : "query",
           "name" : "email",
@@ -71120,7 +70986,6 @@
     "/v4/reports" : {
       "get" : {
         "description" : "Returns all report runs visible to the authenticated client, optionally filtered by the provided query parameters.",
-        "operationId" : "listReports",
         "parameters" : [ {
           "in" : "query",
           "name" : "report_type_name",
@@ -71356,7 +71221,6 @@
       },
       "post" : {
         "description" : "Submits a new report run for the specified report type and parameters. The report executes asynchronously; poll the returned report ID to check status.",
-        "operationId" : "createReport",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -71549,7 +71413,6 @@
     "/v4/reports-tags" : {
       "get" : {
         "description" : "Returns the list of tags available for filtering reports.",
-        "operationId" : "getReportsTags",
         "parameters" : [ {
           "in" : "query",
           "name" : "having_any_tags",
@@ -71701,7 +71564,6 @@
     "/v4/reports/latest" : {
       "get" : {
         "description" : "Returns the most recent completed report run matching the specified report name and optional parameter filters.",
-        "operationId" : "getLatestReport",
         "parameters" : [ {
           "in" : "query",
           "name" : "having_any_tags",
@@ -71885,7 +71747,6 @@
     "/v4/reports/latest/download{format}" : {
       "get" : {
         "description" : "Downloads the output of the most recent completed report run matching the specified report name and optional filters. Append a format extension to select the download format.",
-        "operationId" : "downloadLatestReport",
         "parameters" : [ {
           "in" : "header",
           "name" : "Content-Type",
@@ -72113,7 +71974,6 @@
     "/v4/reports/recommendations" : {
       "get" : {
         "description" : "Returns reports recommended for scheduling according to the selected recommendation type.",
-        "operationId" : "getRecommendations",
         "parameters" : [ {
           "description" : "Recommendation type, can be one of: SCHEDULE",
           "in" : "query",
@@ -72268,7 +72128,6 @@
     "/v4/reports/{reportId}" : {
       "get" : {
         "description" : "Returns the status and metadata for the report run identified by its report ID.",
-        "operationId" : "readReport",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -72404,7 +72263,6 @@
       },
       "put" : {
         "description" : "Updates the parameters of a pending report run identified by its report ID.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
-        "operationId" : "updateReport",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -72594,7 +72452,6 @@
       },
       "delete" : {
         "description" : "Deletes the report run identified by its report ID, including its output data.",
-        "operationId" : "deleteReport",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -72732,7 +72589,6 @@
     "/v4/reports/{reportId}/debug" : {
       "get" : {
         "description" : "Returns internal debug information for the report run identified by its report ID. Restricted to client superusers.",
-        "operationId" : "readReportDebug",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -72870,7 +72726,6 @@
     "/v4/reports/{reportId}/download{format}" : {
       "get" : {
         "description" : "Downloads the output of a completed report run. Append a format extension (`.csv`, `.json`, `.jsonl`, `.xlsx`, `.psv`) to select the download format, or omit it to use the report's default format.",
-        "operationId" : "downloadReport",
         "parameters" : [ {
           "in" : "header",
           "name" : "Content-Type",
@@ -73071,7 +72926,6 @@
     "/v4/reports/{reportId}/info" : {
       "get" : {
         "description" : "Returns metadata about a completed report across all available formats, including row count and available column sets.",
-        "operationId" : "getReportInfo",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -73227,7 +73081,6 @@
     "/v4/reports/{reportId}/info/{format}" : {
       "get" : {
         "description" : "Returns metadata about a completed report in the specified format, such as row count and column names.",
-        "operationId" : "getReportInfoByFormat",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -73391,7 +73244,6 @@
     "/v4/reports/{reportId}/views/public" : {
       "get" : {
         "description" : "Returns the publicly accessible view of the specified report.",
-        "operationId" : "readPublicReport",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -73529,7 +73381,6 @@
     "/v4/tokens/managed" : {
       "get" : {
         "description" : "Returns all managed API access tokens for the client.",
-        "operationId" : "getTokens",
         "responses" : {
           "200" : {
             "content" : {
@@ -73657,7 +73508,6 @@
       },
       "post" : {
         "description" : "Creates a new server-generated managed API access token with configurable scopes and expiry. Returns the created token with its server-assigned id.",
-        "operationId" : "createManagedToken",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -73838,7 +73688,6 @@
     "/v6/batches" : {
       "get" : {
         "description" : "Returns a paginated list of batch jobs for the authenticated client. Filter by `name`, `event_name`, `tags`, `status`, or `user_id`. Results are ordered by creation date descending. Default page size is 100.",
-        "operationId" : "listBatches",
         "parameters" : [ {
           "in" : "query",
           "name" : "name",
@@ -74010,7 +73859,6 @@
       },
       "post" : {
         "description" : "Creates a new asynchronous batch job that reads its data source row-by-row and dispatches a consumer event for each row. The data source can be a previously run report, an audience list, or an uploaded file asset (CSV, PSV, or JSON). The job begins processing immediately after creation; poll `GET /v6/batches/{batchId}` to monitor `status`. For small inline batches of events, use `POST /v6/async-events` in the event-api instead.",
-        "operationId" : "createBatch",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -74177,7 +74025,6 @@
     "/v6/batches/{batchId}" : {
       "get" : {
         "description" : "Returns the full record for a single batch job, including current `status`, `success_rows`, `failed_rows`, and data source configuration. Poll this endpoint to monitor job progress until `status` reaches a terminal state: `DONE`, `FAILED`, `CANCELED`, or `EXPIRED`.",
-        "operationId" : "getBatch",
         "parameters" : [ {
           "description" : "Batch job ID.",
           "in" : "path",
@@ -74328,7 +74175,6 @@
       },
       "put" : {
         "description" : "Updates the mutable fields of an existing batch job: `name`, `tags`, and `scopes`. The job must not be in a terminal state (`DONE`, `FAILED`, `CANCELED`, or `EXPIRED`). Data source, event name, and column mappings are immutable after creation.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
-        "operationId" : "updateBatch",
         "parameters" : [ {
           "description" : "Batch job ID.",
           "in" : "path",
@@ -74511,7 +74357,6 @@
       },
       "delete" : {
         "description" : "Permanently deletes a batch job record. The job must be in a terminal state (`DONE`, `FAILED`, `CANCELED`, or `EXPIRED`). This action is irreversible; the job record cannot be recovered after deletion.",
-        "operationId" : "deleteBatch",
         "parameters" : [ {
           "description" : "Batch job ID.",
           "in" : "path",
@@ -74664,7 +74509,6 @@
     "/v6/event-streams" : {
       "get" : {
         "description" : "Returns all event-stream subscriptions configured for the client. Event streams push a filtered view of client-event activity to a downstream consumer such as a webhook or Kafka topic. Use `GET /v6/event-streams/built` to retrieve evaluated runtime configs.",
-        "operationId" : "listEventStreams",
         "parameters" : [ {
           "in" : "query",
           "name" : "include_archived",
@@ -74813,7 +74657,6 @@
       },
       "post" : {
         "description" : "Creates a new event-stream subscription for the client. Event streams push a filtered view of client-event activity to a downstream consumer such as a webhook or Kafka topic. Returns the created event stream with its server-assigned id.",
-        "operationId" : "createEventStream",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -75077,7 +74920,6 @@
     "/v6/event-streams/built" : {
       "get" : {
         "description" : "Returns the evaluated runtime configuration for all event-stream subscriptions of the client. Built representations reflect component inheritance and dynamic overrides applied at runtime.",
-        "operationId" : "listBuilt_21",
         "parameters" : [ {
           "in" : "query",
           "name" : "include_archived",
@@ -75228,7 +75070,6 @@
     "/v6/event-streams/{eventStreamId}" : {
       "get" : {
         "description" : "Returns the event-stream subscription for the specified id.",
-        "operationId" : "getEventStream",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -75481,7 +75322,6 @@
       },
       "put" : {
         "description" : "Updates the event-stream subscription. Only fields present in the request body are changed. Returns the updated event stream.",
-        "operationId" : "updateEventStream",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -75754,7 +75594,6 @@
       },
       "delete" : {
         "description" : "Archives the event-stream subscription, stopping event delivery without permanently removing the configuration. Returns the archived event stream.",
-        "operationId" : "archive_16",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -76009,7 +75848,6 @@
     "/v6/event-streams/{eventStreamId}/built" : {
       "get" : {
         "description" : "Returns the evaluated runtime configuration for the specified event-stream subscription. The built representation reflects component inheritance and dynamic overrides applied at runtime.",
-        "operationId" : "getBuilt_39",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -76264,7 +76102,6 @@
     "/v6/event-streams/{eventStreamId}/events" : {
       "get" : {
         "description" : "Returns events captured by the event stream identified by `eventStreamId`, sorted newest first. Use `limit`, `offset`, and date-range filter parameters to page and narrow the result set. Each entry includes the event type, timestamp, and the full event payload as recorded by the stream.",
-        "operationId" : "events",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -76425,7 +76262,6 @@
     "/v6/event-streams/{eventStreamId}/filters" : {
       "get" : {
         "description" : "Returns all filter rules configured on the specified event stream.",
-        "operationId" : "listEventStreamFilters",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -76564,7 +76400,6 @@
       },
       "post" : {
         "description" : "Creates a new filter rule on the specified event stream. Filters restrict which events are delivered to the downstream consumer. Returns the created filter with its server-assigned id.",
-        "operationId" : "createEventStreamFilter",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -76838,7 +76673,6 @@
     "/v6/event-streams/{eventStreamId}/filters/{filterId}" : {
       "get" : {
         "description" : "Returns the filter rule for the specified id on the given event stream.",
-        "operationId" : "getEventStreamFilter",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -77104,7 +76938,6 @@
       },
       "put" : {
         "description" : "Updates the filter rule on the specified event stream. Only fields present in the request body are changed. Returns the updated filter.",
-        "operationId" : "updateEventStreamFilter",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -77383,7 +77216,6 @@
       },
       "delete" : {
         "description" : "Archives the filter rule on the specified event stream. Returns the archived filter.",
-        "operationId" : "archive_17",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -77528,7 +77360,6 @@
     "/v6/jobs" : {
       "get" : {
         "description" : "Returns all batch jobs configured for the client.",
-        "operationId" : "listJobs",
         "responses" : {
           "200" : {
             "content" : {
@@ -77656,7 +77487,6 @@
       },
       "post" : {
         "description" : "Creates a batch job. Optional triggers and tasks may be supplied in the same request.",
-        "operationId" : "createJob",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -78002,7 +77832,6 @@
     "/v6/jobs/history" : {
       "get" : {
         "description" : "Returns aggregated batch job execution history for the client.",
-        "operationId" : "listJobHistory",
         "parameters" : [ {
           "in" : "query",
           "name" : "limit",
@@ -78196,7 +78025,6 @@
     "/v6/jobs/history/{historyId}" : {
       "get" : {
         "description" : "Returns a single batch job execution history entry by execution chain id.",
-        "operationId" : "getJobHistory",
         "parameters" : [ {
           "description" : "Execution chain id for the history entry.",
           "in" : "path",
@@ -78350,7 +78178,6 @@
     "/v6/jobs/{jobId}" : {
       "get" : {
         "description" : "Returns the job for the specified id, including its triggers and tasks.",
-        "operationId" : "getJob",
         "parameters" : [ {
           "in" : "path",
           "name" : "jobId",
@@ -78483,7 +78310,6 @@
       },
       "put" : {
         "description" : "Updates top-level job fields. Trigger and task changes use the sub-endpoints.\n\nFields omitted from the body are left unchanged, except `tasks` and `triggers`, which the request schema marks required and which every request must send.",
-        "operationId" : "updateJob",
         "parameters" : [ {
           "in" : "path",
           "name" : "jobId",
@@ -78781,7 +78607,6 @@
       },
       "delete" : {
         "description" : "Soft-deletes the job and cascades soft-delete to its triggers and tasks.",
-        "operationId" : "deleteJob",
         "parameters" : [ {
           "in" : "path",
           "name" : "jobId",
@@ -78925,7 +78750,6 @@
     "/v6/jobs/{jobId}/built" : {
       "get" : {
         "description" : "Returns the built job for the specified id, including its built triggers and tasks with the resolved parent job id and component references.",
-        "operationId" : "getBuilt_40",
         "parameters" : [ {
           "in" : "path",
           "name" : "jobId",
@@ -79060,7 +78884,6 @@
     "/v6/jobs/{jobId}/tasks" : {
       "get" : {
         "description" : "Returns all tasks for the specified job, sorted by order. Unattached tasks have no order relative to each other.",
-        "operationId" : "listJobTasks",
         "parameters" : [ {
           "description" : "The unique identifier of the job that owns the task. Use the reserved value `unattached` to address tasks that are not attached to any job, which happens when a component defines a task whose `parent_job_id` expression evaluates to nothing.",
           "in" : "path",
@@ -79197,7 +79020,6 @@
       },
       "post" : {
         "description" : "Adds a task to the specified job. Order defaults to max+1 when omitted. A task added under `unattached` is stored without a job. When order is omitted it defaults to 0; when provided, the requested order is stored until the task is attached to a job.",
-        "operationId" : "createJobTask",
         "parameters" : [ {
           "description" : "The unique identifier of the job that owns the task. Use the reserved value `unattached` to address tasks that are not attached to any job, which happens when a component defines a task whose `parent_job_id` expression evaluates to nothing.",
           "in" : "path",
@@ -79490,7 +79312,6 @@
     "/v6/jobs/{jobId}/tasks/{taskId}" : {
       "get" : {
         "description" : "Returns the task for the specified id.",
-        "operationId" : "getJobTask",
         "parameters" : [ {
           "description" : "The unique identifier of the job that owns the task. Use the reserved value `unattached` to address tasks that are not attached to any job, which happens when a component defines a task whose `parent_job_id` expression evaluates to nothing.",
           "in" : "path",
@@ -79637,7 +79458,6 @@
       },
       "put" : {
         "description" : "Updates the task. The request task type must match the stored task.\n\nFields omitted from the body are left unchanged, except `task_type`, which the request schema marks required and which every request must send.",
-        "operationId" : "updateJobTask",
         "parameters" : [ {
           "description" : "The unique identifier of the job that owns the task. Use the reserved value `unattached` to address tasks that are not attached to any job, which happens when a component defines a task whose `parent_job_id` expression evaluates to nothing.",
           "in" : "path",
@@ -79938,7 +79758,6 @@
       },
       "delete" : {
         "description" : "Soft-deletes the task and compacts remaining order values. Deleting an unattached task leaves other tasks untouched.",
-        "operationId" : "deleteJobTask",
         "parameters" : [ {
           "description" : "The unique identifier of the job that owns the task. Use the reserved value `unattached` to address tasks that are not attached to any job, which happens when a component defines a task whose `parent_job_id` expression evaluates to nothing.",
           "in" : "path",
@@ -80087,7 +79906,6 @@
     "/v6/jobs/{jobId}/triggers" : {
       "get" : {
         "description" : "Returns all triggers for the specified job.",
-        "operationId" : "listJobTriggers",
         "parameters" : [ {
           "description" : "The unique identifier of the job that owns the trigger. Use the reserved value `unattached` to address triggers that are not attached to any job, which happens when a component defines a trigger whose `parent_job_id` expression evaluates to nothing.",
           "in" : "path",
@@ -80224,7 +80042,6 @@
       },
       "post" : {
         "description" : "Adds a trigger to the specified job. A trigger added under `unattached` is stored without a job and does not fire until it is attached to a job.",
-        "operationId" : "createJobTrigger",
         "parameters" : [ {
           "description" : "The unique identifier of the job that owns the trigger. Use the reserved value `unattached` to address triggers that are not attached to any job, which happens when a component defines a trigger whose `parent_job_id` expression evaluates to nothing.",
           "in" : "path",
@@ -80509,7 +80326,6 @@
     "/v6/jobs/{jobId}/triggers/{triggerId}" : {
       "get" : {
         "description" : "Returns the trigger for the specified id.",
-        "operationId" : "getJobTrigger",
         "parameters" : [ {
           "description" : "The unique identifier of the job that owns the trigger. Use the reserved value `unattached` to address triggers that are not attached to any job, which happens when a component defines a trigger whose `parent_job_id` expression evaluates to nothing.",
           "in" : "path",
@@ -80653,7 +80469,6 @@
       },
       "put" : {
         "description" : "Updates the trigger. The request trigger type must match the stored trigger.\n\nFields omitted from the body are left unchanged, except `trigger_type`, which the request schema marks required and which every request must send.",
-        "operationId" : "updateJobTrigger",
         "parameters" : [ {
           "description" : "The unique identifier of the job that owns the trigger. Use the reserved value `unattached` to address triggers that are not attached to any job, which happens when a component defines a trigger whose `parent_job_id` expression evaluates to nothing.",
           "in" : "path",
@@ -80946,7 +80761,6 @@
       },
       "delete" : {
         "description" : "Soft-deletes the trigger.",
-        "operationId" : "deleteJobTrigger",
         "parameters" : [ {
           "description" : "The unique identifier of the job that owns the trigger. Use the reserved value `unattached` to address triggers that are not attached to any job, which happens when a component defines a trigger whose `parent_job_id` expression evaluates to nothing.",
           "in" : "path",
@@ -81092,7 +80906,6 @@
     "/v6/notifications" : {
       "get" : {
         "description" : "Returns the calling user's in-portal notifications sorted newest first. Use the `limit` and `offset` parameters to page through results. Notifications include report completion alerts, campaign status changes, and custom client events fired via `createClientEvent`.",
-        "operationId" : "getNotifications",
         "parameters" : [ {
           "in" : "query",
           "name" : "limit",
@@ -81259,7 +81072,6 @@
     "/v6/notifications/read" : {
       "get" : {
         "description" : "Returns the timestamp up to which the calling user has read their notifications. Use this cursor to determine which notifications are unread (those created after the returned timestamp). Advance the cursor with `updateNotificationCursor`.",
-        "operationId" : "getNotificationCursor",
         "responses" : {
           "200" : {
             "content" : {
@@ -81384,7 +81196,6 @@
       },
       "post" : {
         "description" : "Advances the read cursor to the supplied timestamp, marking all notifications created at or before that time as read for the calling user. Returns the updated cursor state. Use `getNotificationCursor` to retrieve the current cursor position.",
-        "operationId" : "updateNotificationCursor",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -81514,7 +81325,6 @@
     "/v6/notifications/snoozes" : {
       "get" : {
         "description" : "Returns all active notification snooze rules for the calling portal user, sorted newest first. A snooze rule suppresses notifications matching specified tags until its expiry time. To list snoozes for a different user, use `listSnoozesByUser`.",
-        "operationId" : "getSnoozes",
         "responses" : {
           "200" : {
             "content" : {
@@ -81651,7 +81461,6 @@
       },
       "post" : {
         "description" : "Creates a snooze rule that suppresses portal notifications matching the supplied tags for the calling portal user until the `expires_at` timestamp. Returns the newly created snooze with its assigned id. To create a snooze for a different user, use `createSnoozeByUser`.",
-        "operationId" : "createSnooze",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -81786,7 +81595,6 @@
     "/v6/notifications/snoozes/{snoozeId}" : {
       "get" : {
         "description" : "Returns the snooze rule identified by `snoozeId` belonging to the calling portal user. Returns the tags being snoozed and the expiry timestamp. To retrieve a snooze for a different user, use `getSnoozeByUser`.",
-        "operationId" : "getSnooze",
         "parameters" : [ {
           "in" : "path",
           "name" : "snoozeId",
@@ -81910,7 +81718,6 @@
       },
       "delete" : {
         "description" : "Removes the snooze rule identified by `snoozeId` belonging to the calling portal user. Returns the deleted snooze. Notifications previously suppressed by this rule will resume immediately. To delete a snooze for a different user, use `deleteSnoozeByUser`.",
-        "operationId" : "deleteSnooze",
         "parameters" : [ {
           "in" : "path",
           "name" : "snoozeId",
@@ -82036,7 +81843,6 @@
     "/v6/notifications/{userId}" : {
       "get" : {
         "description" : "Returns the in-portal notifications for the Extole portal user identified by `userId`, sorted newest first. Requires the `USER_SUPPORT` scope. Use the `limit` and `offset` parameters to page through results.",
-        "operationId" : "getNotificationsByUserId",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -82201,7 +82007,6 @@
     "/v6/notifications/{userId}/read" : {
       "get" : {
         "description" : "Returns the timestamp up to which the Extole portal user identified by `userId` has read their notifications. Requires the `USER_SUPPORT` scope. Use `updateNotificationCursorByUser` to advance the cursor.",
-        "operationId" : "getNotificationCursorByUserId",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -82325,7 +82130,6 @@
       },
       "post" : {
         "description" : "Advances the read cursor to the supplied timestamp for the Extole portal user identified by `userId`, marking all notifications created at or before that time as read. Returns the updated cursor state.",
-        "operationId" : "updateNotificationCursorByUserId",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -82466,7 +82270,6 @@
     "/v6/notifications/{userId}/snoozes" : {
       "get" : {
         "description" : "Returns all active notification snooze rules for the Extole portal user identified by `userId`, sorted newest first. A snooze rule suppresses notifications matching specified tags until its expiry time.",
-        "operationId" : "getSnoozesByUserId",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -82596,7 +82399,6 @@
       },
       "post" : {
         "description" : "Creates a snooze rule that suppresses portal notifications matching the supplied tags for the Extole portal user identified by `userId` until the `expires_at` timestamp. Returns the newly created snooze with its assigned id.",
-        "operationId" : "createSnoozeByUserId",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -82745,7 +82547,6 @@
     "/v6/notifications/{userId}/snoozes/{snoozeId}" : {
       "get" : {
         "description" : "Returns the snooze rule identified by `snoozeId` belonging to the Extole portal user identified by `userId`. Returns the tags being snoozed and the expiry timestamp.",
-        "operationId" : "getSnoozeByUserId",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -82882,7 +82683,6 @@
       },
       "delete" : {
         "description" : "Removes the snooze rule identified by `snoozeId` belonging to the Extole portal user identified by `userId`. Returns the deleted snooze. Notifications previously suppressed by this rule will resume immediately.",
-        "operationId" : "deleteSnoozeByUserId",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -83021,7 +82821,6 @@
     "/v6/report-types" : {
       "get" : {
         "description" : "Returns the report types visible to the calling client, filtered and ordered by the supplied query parameters. Supports paging via `limit` / `offset` and ordering via `order_by` / `order`. Use this to populate report-builder pickers and to discover the available `parameters`, `formats`, and `scopes` for each report type.",
-        "operationId" : "listReportTypes",
         "parameters" : [ {
           "in" : "query",
           "name" : "report_type_id",
@@ -83232,7 +83031,6 @@
     "/v6/report-types/clients" : {
       "get" : {
         "description" : "Returns every report type alongside the ids of clients that have access to it. Equivalent to running `listReportTypes` and `listReportTypeClients` for every result, but in a single call. Requires the `client_superuser` scope - use this only when auditing cross-client access at the platform level.",
-        "operationId" : "listReportTypesWithClients",
         "parameters" : [ {
           "in" : "query",
           "name" : "report_type_id",
@@ -83443,7 +83241,6 @@
     "/v6/report-types/recommendations" : {
       "get" : {
         "description" : "Returns report types that are recommended for immediate execution, ranked by relevance for the calling client. Use the `limit` parameter to control the maximum number of results (default: 5).",
-        "operationId" : "getRecommendations_2",
         "parameters" : [ {
           "description" : "Optional filter for limit, defaults to 5.",
           "in" : "query",
@@ -83590,7 +83387,6 @@
     "/v6/report-types/schemas" : {
       "get" : {
         "description" : "Returns the schema for every report type visible to the calling client whose output shape is known ahead of a run. Each entry pairs a `report_type_id` with ordered `columns` or representative nested `sample_rows`. Report types that do not support a schema are omitted from the list, and so is a schema that resolves to no columns and no sample rows. Each entry echoes the `context_parameters` it was resolved against, always the report type's own defaults - post parameter values to a single report type's schema to resolve it against your own context. Use this to discover output shapes across report types in one call instead of requesting each schema by id.",
-        "operationId" : "listReportTypeSchemas",
         "responses" : {
           "200" : {
             "content" : {
@@ -83720,7 +83516,6 @@
     "/v6/report-types/{id}" : {
       "get" : {
         "description" : "Returns the full report-type record for the supplied id, including its display name, description, declared `parameters`, supported `formats`, allowed `scopes`, visibility, and associated `tags`.",
-        "operationId" : "readReportType",
         "parameters" : [ {
           "description" : "The Extole unique report type identifier.",
           "in" : "path",
@@ -83887,7 +83682,6 @@
       },
       "put" : {
         "description" : "Applies a partial update to the supplied report type. Only the fields present in the body are changed; omitted fields are left intact. Returns the persisted report type after update.",
-        "operationId" : "updateReportType",
         "parameters" : [ {
           "description" : "The Extole unique report type identifier.",
           "in" : "path",
@@ -84074,7 +83868,6 @@
       },
       "delete" : {
         "description" : "Deletes the supplied report type. Returns the deleted record on success. Fails with `400 report_type_has_dependent_types` if other report types depend on it; delete or detach the dependents first.",
-        "operationId" : "deleteReportType",
         "parameters" : [ {
           "description" : "The Extole unique report type identifier.",
           "in" : "path",
@@ -84213,7 +84006,6 @@
     "/v6/report-types/{id}/mapping-suggestions" : {
       "get" : {
         "description" : "Returns the column expressions this report type's mapping parameters accept, as ordered suggestion groups of `column_name` / `expression` pairs. Where the schema endpoints describe the columns a report produces, this endpoint describes the expressions that can go into its column mapping parameters. Each `expression` is complete and ready to append to the parameter's `;`-separated `name=expression` mapping value. Suggestions are derived from the contracts the report executor resolves expressions against, so every suggestion resolves to a real value when the report runs. A report type whose mapping parameters have no suggestions yet, or which has no mapping parameters at all, returns an empty `parameters` list.",
-        "operationId" : "getReportTypeMappingSuggestions",
         "parameters" : [ {
           "description" : "The Extole unique report type identifier.",
           "in" : "path",
@@ -84362,7 +84154,6 @@
     "/v6/report-types/{id}/schema" : {
       "get" : {
         "description" : "Returns the schema a report type produces - ordered `columns` for flat output, or representative `sample_rows` for nested JSON output. For report types with fixed columns, these are the report type's preview columns. For configurable report types, they are the client-named columns defined by the report type's column mapping parameters. Report types whose schema depends on the client's own configuration resolve it against the report type's declared parameter defaults, which the response echoes as `context_parameters`. To resolve the schema against your own parameter values instead, post them to this same path. Use this to discover a report type's output shape without running the report.",
-        "operationId" : "readReportTypeSchema",
         "parameters" : [ {
           "description" : "The Extole unique report type identifier.",
           "in" : "path",
@@ -84502,7 +84293,6 @@
       },
       "post" : {
         "description" : "Returns the schema a report type produces for the supplied report parameter values - the ordered `columns` or representative `sample_rows` in its output. Persists nothing. The response describes the output the report emits when run with those same values, so a client can learn its output shape before running it. Only parameters the report type contextualizes its schema on are accepted, and supplying any other is rejected. The response echoes the effective parameter values used to resolve the schema. Parameters left out resolve to the report type's own defaults rather than making the answer partial. When the supplied values select nothing the report would summarize, the report emits no rows, so `sample_rows` is empty while `context_parameters` still echoes what the schema resolved against.",
-        "operationId" : "readReportTypeSchemaForContext",
         "parameters" : [ {
           "description" : "The Extole unique report type identifier.",
           "in" : "path",
@@ -84667,7 +84457,6 @@
     "/v6/reward-suppliers" : {
       "get" : {
         "description" : "Returns all reward supplier configurations for the client, across all supplier types. Reward suppliers are integrations with upstream providers that fulfil reward issuance (gift cards, coupons, payouts, etc.). Use the `types` query parameter to filter by supplier type.",
-        "operationId" : "listRewardSuppliers_2",
         "parameters" : [ {
           "in" : "query",
           "name" : "include_archived",
@@ -84812,7 +84601,6 @@
       },
       "post" : {
         "description" : "Creates a new reward supplier configuration. Returns the persisted supplier with its server-assigned id.",
-        "operationId" : "createRewardSupplier",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -85262,7 +85050,6 @@
     "/v6/reward-suppliers/built" : {
       "get" : {
         "description" : "Returns all reward suppliers in their fully evaluated (built) runtime form.",
-        "operationId" : "listBuilt_24",
         "parameters" : [ {
           "in" : "query",
           "name" : "include_archived",
@@ -85484,7 +85271,6 @@
     "/v6/reward-suppliers/display-types" : {
       "get" : {
         "description" : "Returns the available display type labels for reward suppliers on this client.",
-        "operationId" : "getDisplayTypes",
         "responses" : {
           "200" : {
             "content" : {
@@ -85615,7 +85401,6 @@
     "/v6/reward-suppliers/{reward_supplier_id}" : {
       "get" : {
         "description" : "Returns the reward supplier configuration for the specified supplier id.",
-        "operationId" : "getRewardSupplier",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -85757,7 +85542,6 @@
       },
       "put" : {
         "description" : "Updates the reward supplier on the client. Only fields present in the request body are changed. Returns the updated supplier.",
-        "operationId" : "updateRewardSupplier",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -86213,7 +85997,6 @@
       },
       "delete" : {
         "description" : "Archives the reward supplier, removing it from active use. Returns the archived supplier.",
-        "operationId" : "archive_19",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -86525,7 +86308,6 @@
     "/v6/reward-suppliers/{reward_supplier_id}/built" : {
       "get" : {
         "description" : "Returns the fully evaluated (built) runtime form of the specified reward supplier.",
-        "operationId" : "getBuilt_43",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -86729,7 +86511,6 @@
     "/v6/subscriptions" : {
       "get" : {
         "description" : "Returns all notification subscriptions for the calling client, optionally filtered by tags. Use `having_any_tags` to match subscriptions that have at least one of the specified tags, or `having_all_tags` to match subscriptions that have all specified tags.",
-        "operationId" : "listSubscriptions",
         "parameters" : [ {
           "in" : "query",
           "name" : "having_any_tags",
@@ -86874,7 +86655,6 @@
     "/v6/users/{user_id}/subscriptions" : {
       "get" : {
         "description" : "Returns all notification subscriptions for the specified Extole user. Subscriptions define which report or alert events the user wants to be notified about and through which channel (email, Slack, webhook).",
-        "operationId" : "listUserSubscriptions",
         "parameters" : [ {
           "description" : "The unique identifier of this user at Extole.",
           "in" : "path",
@@ -87017,7 +86797,6 @@
       },
       "post" : {
         "description" : "Creates a new notification subscription for the specified user. The request body specifies the event type to subscribe to and the delivery channel (email, Slack, or webhook). Returns the created subscription.",
-        "operationId" : "createUserSubscription",
         "parameters" : [ {
           "description" : "The unique identifier of this user at Extole.",
           "in" : "path",
@@ -87219,7 +86998,6 @@
     "/v6/users/{user_id}/subscriptions/{subscription_id}" : {
       "get" : {
         "description" : "Returns the specified notification subscription for the given user. Returns `400 invalid_subscription_id` if the subscription does not exist.",
-        "operationId" : "getUserSubscription",
         "parameters" : [ {
           "description" : "The unique identifier of this user at Extole.",
           "in" : "path",
@@ -87354,7 +87132,6 @@
       },
       "put" : {
         "description" : "Updates the specified notification subscription for the given user. Returns `400 invalid_subscription_id` if the subscription does not exist.\n\nFields omitted from the body are left unchanged — you do not need to send the whole resource.",
-        "operationId" : "updateUserSubscription",
         "parameters" : [ {
           "description" : "The unique identifier of this user at Extole.",
           "in" : "path",
@@ -87510,7 +87287,6 @@
       },
       "delete" : {
         "description" : "Permanently deletes the specified notification subscription. The user will no longer receive notifications for the subscribed event type via that channel. Returns `400 invalid_subscription_id` if the subscription does not exist.",
-        "operationId" : "deleteUserSubscription",
         "parameters" : [ {
           "description" : "The unique identifier of this user at Extole.",
           "in" : "path",
@@ -87647,7 +87423,6 @@
     "/v6/webhooks" : {
       "get" : {
         "description" : "Returns all webhooks for the client. Filter by `enabled` or `type` to narrow the result set. Use `GET /v6/webhooks/built` for the fully evaluated runtime form. Webhooks are outbound HTTP callbacks Extole fires when specific platform events occur.",
-        "operationId" : "listWebhooks",
         "parameters" : [ {
           "in" : "query",
           "name" : "enabled",
@@ -87836,7 +87611,6 @@
       },
       "post" : {
         "description" : "Creates a new webhook definition and returns the persisted record with its server-assigned id. The webhook fires immediately for matching events once created; set `enabled=false` in the request body to create it in a disabled state.",
-        "operationId" : "createWebhook",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -88155,7 +87929,6 @@
     "/v6/webhooks/built" : {
       "get" : {
         "description" : "Returns all webhooks in their fully evaluated (built) runtime form, with all evaluatable fields resolved. Supports finer filtering than the source list: `name`, `include_archived`, `limit`, and `offset` are only available on this endpoint. Use this when you need effective endpoint URLs and headers.",
-        "operationId" : "listBuiltWebhooks",
         "parameters" : [ {
           "in" : "query",
           "name" : "enabled",
@@ -88331,7 +88104,6 @@
     "/v6/webhooks/{webhook_id}" : {
       "get" : {
         "description" : "Returns the source definition of the supplied webhook, including its URL, headers, event filters, and state. Returns `400 webhook_not_found` if the id does not exist or is not accessible.",
-        "operationId" : "getWebhook",
         "parameters" : [ {
           "in" : "path",
           "name" : "webhook_id",
@@ -88455,7 +88227,6 @@
       },
       "put" : {
         "description" : "Applies a partial update to the supplied webhook. Only the fields present in the body are changed; omitted fields are left intact. Returns the persisted webhook after the update. Returns `400 webhook_not_found` if the id does not exist.",
-        "operationId" : "updateWebhook",
         "parameters" : [ {
           "description" : "The id of the webhook to be updated.",
           "in" : "path",
@@ -88623,7 +88394,6 @@
       },
       "delete" : {
         "description" : "Archives (soft-deletes) the supplied webhook. The webhook stops firing immediately but its definition is retained. Fails with `400 webhook_associated_with_webhook_controller_action` if the webhook is referenced by a controller action, or `400 webhook_associated_with_webhook_user_subscription_channel` if it is referenced by a user subscription channel. Remove those references before archiving.",
-        "operationId" : "archiveWebhook",
         "parameters" : [ {
           "description" : "The id of the webhook to be deleted.",
           "in" : "path",
@@ -88753,7 +88523,6 @@
     "/v6/webhooks/{webhook_id}/built" : {
       "get" : {
         "description" : "Returns the fully evaluated (built) runtime form of the supplied webhook, with all evaluatable fields resolved. Returns `400 webhook_not_found` if the id does not exist or is not accessible.",
-        "operationId" : "getBuiltWebhook",
         "parameters" : [ {
           "in" : "path",
           "name" : "webhook_id",
@@ -88882,7 +88651,6 @@
     "/v7/report-runners" : {
       "get" : {
         "description" : "Returns report runners for the calling client, filtered and ordered by the supplied query parameters. Report runners are scheduled report execution definitions that run a report type on a recurring schedule and deliver output to a configured destination (e.g. SFTP). Use `GET /v7/report-runners/template` to retrieve the available runner templates.",
-        "operationId" : "getReportRunners",
         "parameters" : [ {
           "in" : "query",
           "name" : "type",
@@ -89135,7 +88903,6 @@
       },
       "post" : {
         "description" : "Creates a new report runner definition and schedules it for execution. Returns the persisted report runner with its server-assigned id. The runner begins executing on its first scheduled interval after creation.",
-        "operationId" : "createReportRunner",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -89313,7 +89080,6 @@
     "/v7/report-runners/template" : {
       "get" : {
         "description" : "Returns the available report runner templates for the calling client. Templates are pre-configured runner definitions that can be duplicated via `POST /v7/report-runners/{id}/duplicate` to create new runners with minimal configuration.",
-        "operationId" : "getTemplateReportRunners",
         "responses" : {
           "200" : {
             "content" : {
@@ -89443,7 +89209,6 @@
     "/v7/report-runners/{reportRunnerId}" : {
       "get" : {
         "description" : "Returns the full report runner definition for the supplied id, including its schedule, report type, parameters, formats, and delivery configuration. Returns `404 report_runner_not_found` if the id does not exist.",
-        "operationId" : "getReportRunner",
         "parameters" : [ {
           "description" : "The Extole unique report runner identifier.",
           "in" : "path",
@@ -89589,7 +89354,6 @@
       },
       "put" : {
         "description" : "Applies a partial update to the supplied report runner. Only the fields present in the body are changed; omitted fields are left intact. Returns the persisted report runner after the update. Returns `404 report_runner_not_found` if the id does not exist. Locked runners (`report_runner_locked`) must be updated via deployment tooling.",
-        "operationId" : "updateReportRunner",
         "parameters" : [ {
           "description" : "The Extole unique report runner identifier.",
           "in" : "path",
@@ -89774,7 +89538,6 @@
       },
       "delete" : {
         "description" : "Permanently deletes the supplied report runner and cancels all pending executions. Returns the deleted record on success. Returns `404 report_runner_not_found` if the id does not exist. Locked runners cannot be deleted via the REST API.",
-        "operationId" : "deleteReportRunner",
         "parameters" : [ {
           "description" : "The Extole unique report runner identifier.",
           "in" : "path",
@@ -89913,7 +89676,6 @@
     "/v1/audiences/{audience_id}/delete" : {
       "post" : {
         "description" : "Hard-deletes the audience. Unlike `DELETE /v1/audiences/{audience_id}` (which archives and is reversible), a deleted audience cannot be recovered. Fails with the same association errors as archive: the audience must be detached from any campaign-controller membership trigger, create- or remove-membership controller action, or campaign component variable before deletion can succeed.",
-        "operationId" : "createAudienceDelete",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -90045,7 +89807,6 @@
     "/v1/audiences/{audience_id}/operations/{operation_id}/cancel" : {
       "post" : {
         "description" : "Cancels a pending or in-progress audience operation identified by its operation ID.",
-        "operationId" : "cancel",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -90202,7 +89963,6 @@
     "/v1/audiences/{audience_id}/operations/{operation_id}/retry" : {
       "post" : {
         "description" : "Retries a failed audience operation identified by its operation ID.",
-        "operationId" : "retry",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -90359,7 +90119,6 @@
     "/v1/audiences/{audience_id}/unarchive" : {
       "post" : {
         "description" : "Restores a previously archived audience so it appears in default `GET /v1/audiences` and `GET /v1/audiences/built` responses again. Fails with `400 audience_not_found` if the audience does not exist or has been hard-deleted via `POST /v1/audiences/{audience_id}/delete`.",
-        "operationId" : "unArchive",
         "parameters" : [ {
           "in" : "path",
           "name" : "audience_id",
@@ -90484,7 +90243,6 @@
     },
     "/v1/client-domains/{client_domain_id}/validate" : {
       "post" : {
-        "operationId" : "validate",
         "parameters" : [ {
           "in" : "path",
           "name" : "client_domain_id",
@@ -90628,7 +90386,6 @@
     "/v1/components/{component_id}/duplicate" : {
       "post" : {
         "description" : "Creates a deep copy of the specified component and all its child settings and assets.",
-        "operationId" : "duplicate",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -91396,7 +91153,6 @@
     "/v1/components/{component_id}/upgrade" : {
       "post" : {
         "description" : "Upgrades the component to the latest version of its component type definition.",
-        "operationId" : "upgrade",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -91582,7 +91338,6 @@
     "/v1/components/{component_id}/settings/component-reference-list/{setting_name}/select" : {
       "post" : {
         "description" : "Replaces the components selected for the named `COMPONENT_REFERENCE_LIST` setting with the components in `component_ids`, and captures them in the setting value. The request carries the complete set to end up selected, so a picker sends what the user chose without working out which components to add and which to remove; an empty list clears the selection. Returns the setting in the same shape as `GET` and `PUT` on the setting itself. A component whose lookup captures no key values is still selectable even though selectable-components omits it: the stored `component.id` is the reference, and the captured values only exist to recover it.",
-        "operationId" : "select",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -91929,7 +91684,6 @@
     "/v1/components/{component_id}/settings/component-reference-list/{setting_name}/unselect" : {
       "post" : {
         "description" : "Clears the components in `component_ids` from the named `COMPONENT_REFERENCE_LIST` setting, along with the values captured with them, and leaves every other selected component in place. Naming a component that is not selected leaves the stored value unchanged, though the setting is still saved and a campaign version is still written. Returns the setting in the same shape as `GET` and `PUT` on the setting itself. A reference left pointing at nothing warns at build rather than failing it.",
-        "operationId" : "unselect",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -92276,7 +92030,6 @@
     "/v1/components/{component_id}/settings/component-reference/{setting_name}/select" : {
       "post" : {
         "description" : "Selects `component_id` for the named `COMPONENT_REFERENCE` setting, replacing whatever it pointed at, and captures it in the setting value. Returns the setting in the same shape as `GET` and `PUT` on the setting itself. A component whose lookup captures no key values is still selectable even though selectable-components omits it: the stored `component.id` is the reference, and the captured values only exist to recover it.",
-        "operationId" : "select_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -92623,7 +92376,6 @@
     "/v1/components/{component_id}/settings/component-reference/{setting_name}/unselect" : {
       "post" : {
         "description" : "Clears `component_id` from the named `COMPONENT_REFERENCE` setting, along with the values captured with it. A reference pointing at a different component is left untouched, though the setting is still saved and a campaign version is still written. Returns the setting in the same shape as `GET` and `PUT` on the setting itself. A reference left pointing at nothing warns at build rather than failing it.",
-        "operationId" : "unselect_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -92970,7 +92722,6 @@
     "/v1/components/{component_id}/settings/{setting_name}/add-component" : {
       "post" : {
         "description" : "Creates a distinct duplicate of the component identified by `source_component_id` and installs it into the specified `SOCKET` or `MULTI_SOCKET` setting. The source component is not referenced or modified. Optional `settings` entries override settings on the duplicate.",
-        "operationId" : "addComponent",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -93537,7 +93288,6 @@
     "/v1/components/{component_id}/settings/{setting_name}/remove-component/{target_component_id}" : {
       "post" : {
         "description" : "Removes a component reference from the specified socket-type setting.",
-        "operationId" : "removeComponent",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -93869,7 +93619,6 @@
     "/v2/blocks/test" : {
       "post" : {
         "description" : "Evaluates the block configuration against a test payload without persisting any changes. Returns the rendered output and any validation errors.",
-        "operationId" : "test",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -94015,7 +93764,6 @@
     "/v2/campaigns/program/{programLabel}/rename" : {
       "post" : {
         "description" : "Renames the specified program label across all campaigns that use it.",
-        "operationId" : "renameCampaignsProgramLabel",
         "parameters" : [ {
           "in" : "path",
           "name" : "programLabel",
@@ -94219,7 +93967,6 @@
     "/v2/campaigns/upload-bundle" : {
       "post" : {
         "description" : "Creates a new campaign by importing a campaign ZIP archive previously exported via `GET /v2/campaigns/{id}.zip`. All components, controllers, flow steps, and creative assets contained in the archive are imported and the new campaign is created in DRAFT state with a server-assigned id. For JSON create use `POST /v2/campaigns`.",
-        "operationId" : "uploadNewCampaignArchive",
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
@@ -95067,7 +94814,6 @@
     "/v2/campaigns/{campaignId}/archive" : {
       "post" : {
         "description" : "Moves the campaign to archived state, hiding it from default campaign listings while retaining it for reporting and recovery. Use `POST /v2/campaigns/{id}/unarchive` to restore an archived campaign to active state.",
-        "operationId" : "archiveCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -95352,7 +95098,6 @@
     "/v2/campaigns/{campaignId}/discard" : {
       "post" : {
         "description" : "Discards the draft version of the specified campaign, reverting it to the last published state. Uncommitted changes made since the last publish are lost. If no published version exists, the campaign remains in draft with its changes removed.",
-        "operationId" : "discard",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -95523,7 +95268,6 @@
     "/v2/campaigns/{campaignId}/duplicate" : {
       "post" : {
         "description" : "Creates a new draft campaign by deep-copying the campaign. The copy inherits all components, settings, and labels; the optional request body lets callers override the new campaign's name and label list. The new campaign is created in DRAFT state regardless of the source's state.",
-        "operationId" : "duplicate_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -96033,7 +95777,6 @@
     "/v2/campaigns/{campaignId}/end" : {
       "post" : {
         "description" : "Transitions the campaign to ended state, permanently closing it to new participants. Ended campaigns are retained for reporting and audit; use `POST /v2/campaigns/{id}/archive` to hide them from active lists. Supports an optional schedule request body to defer the end to a future time.",
-        "operationId" : "endCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -96276,7 +96019,6 @@
     "/v2/campaigns/{campaignId}/launch-burst" : {
       "post" : {
         "description" : "Transitions the campaign into burst mode, which is a high-throughput live state designed for time-limited promotional surges. Validates all campaign components and reward rules before the transition. Returns the updated campaign on success.",
-        "operationId" : "launchBurst",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -96707,7 +96449,6 @@
     "/v2/campaigns/{campaignId}/launch-test" : {
       "post" : {
         "description" : "Transitions the campaign into test mode, enabling a limited rollout to test participants without affecting production traffic. Validates all campaign components, controllers, and reward rules before the transition. Returns the updated campaign on success.",
-        "operationId" : "launchTest",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -97147,7 +96888,6 @@
     "/v2/campaigns/{campaignId}/live" : {
       "post" : {
         "description" : "Transitions the campaign directly to live state, bypassing the normal test-mode phase. Validates all components and reward rules before the transition. Returns the updated campaign. Use `POST /v2/campaigns/{id}/publish` for the standard publish flow with full validation.",
-        "operationId" : "liveCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -97378,7 +97118,6 @@
     "/v2/campaigns/{campaignId}/lock" : {
       "post" : {
         "description" : "Locks the campaign to prevent concurrent edits. While a campaign is locked, attempts to edit it by other callers are rejected with `400 campaign_locked`. The lock is associated with the caller's access token; use `POST /v2/campaigns/{id}/unlock` to release it.",
-        "operationId" : "lock_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -97561,7 +97300,6 @@
     "/v2/campaigns/{campaignId}/make-latest-draft" : {
       "post" : {
         "description" : "Promotes the campaign to be the latest draft, replacing any existing latest-draft pointer. Useful for rolling back to a prior version that should become the new active draft for editing. The campaign must be in a state that permits draft promotion.",
-        "operationId" : "makeLatestDraft",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -97877,7 +97615,6 @@
     "/v2/campaigns/{campaignId}/make-latest-preserve-state" : {
       "post" : {
         "description" : "Promotes the campaign to the latest pointer while keeping the campaign's current lifecycle state (draft, published, etc.) unchanged. Unlike `make-latest-draft` or `make-latest-published`, this transition preserves the state the campaign was already in rather than changing it.",
-        "operationId" : "makeLatestPreserveState",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -98193,7 +97930,6 @@
     "/v2/campaigns/{campaignId}/make-latest-published" : {
       "post" : {
         "description" : "Promotes the campaign to be the latest published version, replacing the existing latest-published pointer. Use to roll back live traffic to a prior published version without going through a full publish cycle. The campaign must already be in published state.",
-        "operationId" : "makeLatestPublished",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -98509,7 +98245,6 @@
     "/v2/campaigns/{campaignId}/pause" : {
       "post" : {
         "description" : "Transitions the campaign to paused state, temporarily halting participant eligibility and reward processing. The campaign can be resumed by publishing it again. Supports an optional schedule request body to defer the pause to a future time.",
-        "operationId" : "pauseCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -98752,7 +98487,6 @@
     "/v2/campaigns/{campaignId}/publish" : {
       "post" : {
         "description" : "Validates, builds, and publishes the campaign, making it live for participants. The optional request body lets callers override the publish schedule. Returns the published campaign. Validates all components, controllers, flow steps, and reward rules before publishing; validation failures return descriptive 4xx errors from the various validation exception types.",
-        "operationId" : "publish",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -98912,7 +98646,6 @@
     "/v2/campaigns/{campaignId}/schedule" : {
       "post" : {
         "description" : "Schedules the campaign for a future state transition (e.g. go-live or end) at the datetime specified in the request body. The campaign must be published before it can be scheduled. Replaces any existing schedule on the same campaign.",
-        "operationId" : "scheduleCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -99191,7 +98924,6 @@
     "/v2/campaigns/{campaignId}/stop" : {
       "post" : {
         "description" : "Immediately stops the campaign, halting all active processing and participant eligibility. Unlike pause, a stopped campaign must be republished to resume. Supports an optional schedule request body to defer the stop to a future time.",
-        "operationId" : "stopCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -99440,7 +99172,6 @@
     "/v2/campaigns/{campaignId}/unarchive" : {
       "post" : {
         "description" : "Restores the campaign from archived state back to its previous active state. After unarchiving, the campaign resumes appearing in standard listings and is eligible for editing or publishing.",
-        "operationId" : "unArchiveCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -99611,7 +99342,6 @@
     "/v2/campaigns/{campaignId}/undelete" : {
       "post" : {
         "description" : "Recovers a soft-deleted campaign, restoring it to an active state. Requires the `CLIENT_SUPERUSER` scope. After recovery the campaign appears again in standard listings and can be edited or published.",
-        "operationId" : "unDeleteCampaign",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -99887,7 +99617,6 @@
     "/v2/campaigns/{campaignId}/unlock" : {
       "post" : {
         "description" : "Releases the edit lock on the campaign. After unlocking, other callers can edit the campaign again. Returns `400 campaign_not_locked` if the campaign is not currently locked by the caller.",
-        "operationId" : "unlock",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -100070,7 +99799,6 @@
     "/v2/reward-suppliers/salesforce-coupons/{reward_supplier_id}/coupons" : {
       "post" : {
         "description" : "Triggers a sync to pull new coupon codes from the Salesforce coupon pool into the supplier.",
-        "operationId" : "refill",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -100293,7 +100021,6 @@
       },
       "delete" : {
         "description" : "Removes all unused coupons from the Salesforce coupon pool.",
-        "operationId" : "deleteCoupons_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -100461,7 +100188,6 @@
     "/v2/settings/security/keys/upload" : {
       "post" : {
         "description" : "Creates a client key by uploading key material as `multipart/form-data`. Currently supports PKCS#12 (`.p12`/`.pfx`) bundles with `algorithm` `SSL_PKCS_12`. For JSON create use `POST /v2/settings/security/keys`.",
-        "operationId" : "createFromFile",
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
@@ -100815,7 +100541,6 @@
     "/v2/settings/security/keys/{key_id}/delete" : {
       "post" : {
         "description" : "Permanently deletes an archived client key. The key must not be referenced by campaign components or other platform resources.",
-        "operationId" : "createSettingSecurityKeyDelete",
         "parameters" : [ {
           "in" : "path",
           "name" : "key_id",
@@ -100962,7 +100687,6 @@
     "/v2/settings/security/keys/{key_id}/unarchive" : {
       "post" : {
         "description" : "Restores a previously archived client key so it can be used again. Fails when another active key already uses the same name.",
-        "operationId" : "unArchive_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "key_id",
@@ -101142,7 +100866,6 @@
     "/v2/users/password-reset" : {
       "post" : {
         "description" : "Initiates a password reset flow for the staff user identified by the request. A password-reset email is sent to the user's registered address.",
-        "operationId" : "resetPassword",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -101263,7 +100986,6 @@
     "/v2/users/resend-invite-email" : {
       "post" : {
         "description" : "Resends the invitation email to a staff user who has not yet accepted their invitation.",
-        "operationId" : "resendInviteEmail",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -101402,7 +101124,6 @@
     "/v2/users/{userId}/unlock" : {
       "post" : {
         "description" : "Unlocks a staff user account that has been locked due to failed login attempts, restoring console access.",
-        "operationId" : "unlock_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "userId",
@@ -101543,7 +101264,6 @@
     "/v4/erasures" : {
       "post" : {
         "description" : "Submits an irreversible GDPR/privacy erasure request for a person's data. All personal data associated with the specified person is permanently deleted. Returns the erasure record.",
-        "operationId" : "erase",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -101690,7 +101410,6 @@
     "/v4/reports/{reportId}/cancel" : {
       "post" : {
         "description" : "Cancels a pending or in-progress report run identified by its report ID.",
-        "operationId" : "cancelReport",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -101867,7 +101586,6 @@
     "/v4/reports/{reportId}/retry" : {
       "post" : {
         "description" : "Retries a previously submitted report run identified by its report ID. Use this to re-run a failed or cancelled report with the same parameters.",
-        "operationId" : "retryReport",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -102008,7 +101726,6 @@
     "/v4/reports/{reportId}/sharedToken" : {
       "post" : {
         "description" : "Creates a shareable access token for the specified report, allowing the report to be accessed without full authentication.",
-        "operationId" : "createToken",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -102161,7 +101878,6 @@
     "/v6/batches/{batchId}/cancel" : {
       "post" : {
         "description" : "Requests cancellation of a batch job. The job transitions to `CANCELED` status. Only jobs in a non-terminal state (`PENDING`, `QUEUED`, `IN_PROGRESS`, or `DISPATCHING`) can be canceled.",
-        "operationId" : "cancel_3",
         "parameters" : [ {
           "description" : "Batch job ID.",
           "in" : "path",
@@ -102314,7 +102030,6 @@
     "/v6/batches/{batchId}/expire" : {
       "post" : {
         "description" : "Marks a completed batch job as expired, releasing associated resources. Only jobs in terminal state (`DONE`, `FAILED`, or `CANCELED`) can be expired. Once expired, the job record remains queryable but its data source reference is released.",
-        "operationId" : "expire",
         "parameters" : [ {
           "description" : "Batch job ID.",
           "in" : "path",
@@ -102467,7 +102182,6 @@
     "/v6/event-streams/{eventStreamId}/delete" : {
       "post" : {
         "description" : "Permanently deletes the event-stream subscription. Returns the deleted event stream.",
-        "operationId" : "createEventStreamDelete",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -102722,7 +102436,6 @@
     "/v6/event-streams/{eventStreamId}/unarchive" : {
       "post" : {
         "description" : "Restores a previously archived event-stream subscription, resuming event delivery. Returns the restored event stream.",
-        "operationId" : "unArchive_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventStreamId",
@@ -102977,7 +102690,6 @@
     "/v6/report-runners/scheduled/{reportRunnerId}/generate-missing-reports" : {
       "post" : {
         "description" : "Runs a scheduled report runner for past periods that have no report yet, and returns the reports it started. A period that already has a report is left alone, so this is safe to repeat.\n\nThe scheduler itself only ever fills the most recently completed period, so a period that was never run, or whose report was deleted after a newer one existed, stays empty until this operation is called. Each generated report runs against the data available now, not the data that existed when the period closed.\n\nPeriods are filled most recent first. Use `limit` to bound how many reports are started in one call, and poll `GET /v6/report-runners/{reportRunnerId}/reports` for their status.",
-        "operationId" : "scheduleMissingReports_2",
         "parameters" : [ {
           "description" : "The Extole unique report runner identifier.",
           "in" : "path",
@@ -103164,7 +102876,6 @@
     "/v6/reward-suppliers/{reward_supplier_id}/unarchive" : {
       "post" : {
         "description" : "Restores a previously archived reward supplier to active use. Returns the restored supplier.",
-        "operationId" : "unArchive_5",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
@@ -103476,7 +103187,6 @@
     "/v7/report-runners/{reportRunnerId}/duplicate" : {
       "post" : {
         "description" : "Creates a new report runner by duplicating the supplied one. The body provides the overrides to apply to the copy; fields absent from the body are copied from the source. Set `allow_duplicate=true` to allow creating a runner with the same name as an existing one. Returns the new report runner.",
-        "operationId" : "duplicate_4",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportRunnerId",
@@ -103663,7 +103373,6 @@
     "/v1/components/translatable" : {
       "put" : {
         "description" : "Uploads translated variable values from a CSV or Excel file.",
-        "operationId" : "batchUpdateTranslatableComponentVariablesValues",
         "parameters" : [ {
           "in" : "query",
           "name" : "target_component_id",
@@ -104162,7 +103871,6 @@
     "/v2/campaigns/program/{program_label}/update" : {
       "put" : {
         "description" : "Applies the specified update to all campaigns associated with the given program label.\n\nFields omitted from the body are left unchanged, except `program_type`, which the request schema marks required and which every request must send.",
-        "operationId" : "updateCampaignsByProgramLabel",
         "parameters" : [ {
           "in" : "path",
           "name" : "program_label",
@@ -104420,7 +104128,6 @@
     "/v2/campaigns/{campaignId}/upload-bundle" : {
       "put" : {
         "description" : "Replaces the content of the campaign with a campaign ZIP archive. All components, controllers, flow steps, and creative assets in the archive overwrite the existing campaign definition. Callers should supply the version they last read as the path `version` optimistic-lock token; returns `400 campaign_concurrent_update` if the campaign has changed since then. For JSON edit use `PUT /v2/campaigns/{campaignId}`.",
-        "operationId" : "updateWithCampaignArchive",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -105294,7 +105001,6 @@
     "/v2/settings/security/keys/{key_id}" : {
       "put" : {
         "description" : "Updates an existing client key identified by `key_id`. Only fields present in the request body are changed.",
-        "operationId" : "updateSettingSecurityKey",
         "parameters" : [ {
           "in" : "path",
           "name" : "key_id",
@@ -105631,7 +105337,6 @@
       },
       "delete" : {
         "description" : "Archives a client key so it no longer appears in list results or can be selected for new use. The key record is retained and can be restored with `POST /v2/settings/security/keys/{key_id}/unarchive`. Fails when the key is still referenced by campaign components or other platform resources.",
-        "operationId" : "archive_14",
         "parameters" : [ {
           "in" : "path",
           "name" : "key_id",
@@ -105778,7 +105483,6 @@
     "/v2/users/update-password" : {
       "put" : {
         "description" : "Updates the password for the authenticated staff user account.\n\nFields omitted from the body are left unchanged, except `password`, which the request schema marks required and which every request must send.",
-        "operationId" : "updatePassword",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -105965,7 +105669,6 @@
     "/v4/tokens/managed/{access_token_id}" : {
       "delete" : {
         "description" : "Revokes and removes the managed API access token for the specified id.",
-        "operationId" : "deleteTokenManaged",
         "parameters" : [ {
           "in" : "path",
           "name" : "access_token_id",
@@ -106132,7 +105835,6 @@
     "/v6/reward-suppliers/{reward_supplier_id}/delete" : {
       "delete" : {
         "description" : "Permanently deletes the reward supplier. Returns the deleted supplier record.",
-        "operationId" : "deleteRewardSupplierDelete",
         "parameters" : [ {
           "in" : "path",
           "name" : "reward_supplier_id",
