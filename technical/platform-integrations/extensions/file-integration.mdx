@@ -14,7 +14,7 @@ Use it for a recurring inbound CSV or SFTP feed — not a one-off [Batch Jobs](/
 | Recurring inbound event files | This extension |
 | A one-off CSV, PSV, or JSON upload | [General File Uploads](/technical/platform-integrations/files/general-file-uploads) |
 | Create the Extole SFTP directory the files land in | [Extole SFTP Server](/technical/platform-integrations/files/extoles-sftp-server) |
-| Connect an outside platform that posts events or webhooks | [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) |
+| Connect an outside platform that posts events or webhooks | [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories) |
 
 The column layout for event files is on [File-based Events](/technical/platform-integrations/files/file-based-events). This page covers installing the extension and configuring the job that already ships with it.
 
@@ -40,17 +40,17 @@ Deliver files over [Extole SFTP](/technical/platform-integrations/files/extoles-
 
 **Event File** ships with one trigger:
 
-- **File Name Matches**, setting **Filename Match Pattern**. The library default is `.*\.csv$` (any CSV filename, JavaScript regular expression syntax — not glob syntax such as `*.csv`). Leave that pattern unless you have a naming convention to enforce. A guessed prefix silently drops every other CSV the job would have processed.
+- **File Name Matches**, setting **Filename Match Pattern**. The default is `.*\.csv$` (any CSV filename, JavaScript regular expression syntax — not glob syntax such as `*.csv`). Leave that pattern unless you have a naming convention to enforce. A guessed prefix silently drops every other CSV the job would have processed.
 
-**Lands In Directory** is available to add. Its **Watch Directory** setting is the path prefix to watch (library default `/incoming`). Add it when you need the job to ignore CSVs that land anywhere else. Both triggers must match for a file to run.
+**Lands In Directory** is available to add. Its **Watch Directory** setting is the path prefix to watch (default `/incoming`). Add it when you need the job to ignore CSVs that land anywhere else. Both triggers must match for a file to run.
 
 ### Tasks
 
 **Event File** ships with two tasks, in order:
 
 1. **Validate Column Headers**
-   - **Expected File Headers**: the column names a file must contain. The library default is `email`. Replace that list with the header row you actually send.
-   - **On Mismatch**: **FAIL** stops the run; **WARN** records a warning and continues. The library default is **FAIL**. Headers must match as the same set in any order.
+   - **Expected File Headers**: the column names a file must contain. The default is `email`. Replace that list with the header row you actually send.
+   - **On Mismatch**: **FAIL** stops the run; **WARN** records a warning and continues. The default is **FAIL**. Headers must match as the same set in any order.
 2. **Create Events**: one event per row of the validated file.
    - **Event Name**: the event that fires for every row. Leave it empty to take the event name from the file itself (the `event_name` column on [File-based Events](/technical/platform-integrations/files/file-based-events)).
 

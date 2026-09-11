@@ -3,7 +3,7 @@ title: "Create the Integration Campaign and Component Model"
 description: "Create the campaign, root, and model component with its display metadata, logo, typed sockets, and configuration view."
 ---
 
-Part of the [packaged integration guide](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
+Part of the [partner integration guide](/technical/building-partner-integrations/integration-lifecycle/management-api-integration).
 
 # Overview
 
@@ -11,7 +11,7 @@ This page builds the container every integration needs before any business event
 
 ## When You Would Build One
 
-Every build path starts here; [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) describes what each adds.
+Every build path starts here; [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories) describes what each adds.
 
 | You want | This page gives you |
 |---|---|
@@ -23,7 +23,7 @@ Every build path starts here; [Integration Categories](/technical/building-custo
 
 ### Create the Integration Campaign
 
-Create an `INTEGRATION` campaign with the `integration` program type. Its tag names the integration component this campaign carries, as library bundles do; the component tags added next are what list it on the Integrations page.
+Create an `INTEGRATION` campaign with the `integration` program type. Its tag names the integration component this campaign carries, as published integration bundles do; the component tags added next are what list it on the Integrations page.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
@@ -68,7 +68,7 @@ curl --request POST \
   }'
 ```
 
-Record `ROOT_COMPONENT_ID`, [refresh the campaign version](/technical/building-custom-integrations/integration-lifecycle/management-api-integration#refresh-the-campaign-version-between-mutations), and create the model component with all eight display settings in one request:
+Record `ROOT_COMPONENT_ID`, [refresh the campaign version](/technical/building-partner-integrations/integration-lifecycle/management-api-integration#refresh-the-campaign-version-between-mutations), and create the model component with all eight display settings in one request:
 
 ```bash
 curl --request POST \
@@ -247,7 +247,7 @@ Add partner configuration settings separately, each with a display name, descrip
 Never tag a partner configuration setting `internal:ui-display`, and never place a credential value in a setting the configuration view displays.
 </Warning>
 
-Setup instructions carry the event endpoint, the current program label, the event names, the payload fields, the credential rule, and the documentation link, which [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) tells implementers to read from this view. Compute them at build time, substituting the campaign's program label for `PROGRAM_LABEL`:
+Setup instructions carry the event endpoint, the current program label, the event names, the payload fields, the credential rule, and the documentation link, which [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform) tells implementers to read from this view. Compute them at build time, substituting the campaign's program label for `PROGRAM_LABEL`:
 
 ```json
 {
@@ -258,7 +258,7 @@ Setup instructions carry the event endpoint, the current program label, the even
   "tags": ["category:configuration", "importance:basic"],
   "priority": "20",
   "values": {
-    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: POST /v6/events — see Send Platform Events to Extole\\nProgram label (send as data.labels): PROGRAM_LABEL\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\\nUse a server-side access token from the Security Center. Do not use a token that can manage campaigns in the partner application.\"; })()"
+    "default": "javascript@buildtime:(function(){ return \"Extole event endpoint: POST /v6/events — see Send Events from the Partner Platform\\nProgram label (send as data.labels): PROGRAM_LABEL\\nEvent names: example_order_created, example_order_shipped, example_order_canceled\\nUse a server-side access token from the Security Center. Do not use a token that can manage campaigns in the partner application.\"; })()"
   }
 }
 ```
@@ -311,7 +311,7 @@ curl --request POST \
   }'
 ```
 
-Declare a type on every socket and attach only components that satisfy it. `view-v10.0` is the parent of every view type, so one filter accepts the configuration view below plus the `report-runner-view-v10.0` and `event-stream-view-v10.0` children from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views).
+Declare a type on every socket and attach only components that satisfy it. `view-v10.0` is the parent of every view type, so one filter accepts the configuration view below plus the `report-runner-view-v10.0` and `event-stream-view-v10.0` children from [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views).
 
 ### Add a Configuration View
 

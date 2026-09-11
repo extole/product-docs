@@ -1,13 +1,13 @@
 ---
-title: "Build a Packaged Integration with the Management API"
-description: "Package a partner platform as a reusable Extole integration through the Management API, with the Extole AI tools as the recommended build path."
+title: "Build a Partner Integration with the Management API"
+description: "Build a partner platform into a reusable Extole integration through the Management API, with the Extole AI tools as the recommended build path."
 ---
 
 # Overview
 
-A packaged integration is a campaign whose component tree connects Extole to an outside platform, assembled from reusable component types so the same build can be installed and configured in any account. The [Management API](/technical/platform-integrations/rest-apis/index) builds that campaign and its components directly in a client account.
+A partner integration is a campaign whose component tree connects Extole to an outside platform, assembled from reusable component types so the same build can be installed and configured in any account. The [Management API](/technical/platform-integrations/rest-apis/index) builds that campaign and its components directly in a client account.
 
-The model is the same whether or not the finished build is published to Extole's integration library:
+The model is the same whether or not the finished build is published for other accounts to install:
 
 - **Reusable component types**, not one-off controllers.
 - **Typed sockets** — attachment points that accept only components of a declared type, such as a `views` socket holding view components.
@@ -17,9 +17,9 @@ The model is the same whether or not the finished build is published to Extole's
 
 Examples use a generic partner named `example`. Substitute the real partner name, event names, and field names.
 
-## Who Packages an Integration
+## Who Builds a Partner Integration
 
-Packaging is platform engineering on a reusable artifact — a partner connector meant to be installed repeatedly and maintained over time. It is not a step in launching a program, and most clients never do it. Extole solutions engineers, partner engineering teams, and clients building a connector for a platform Extole does not yet maintain are the audience for this guide.
+Building one is platform engineering on a reusable artifact — a partner connector meant to be installed repeatedly and maintained over time. It is not a step in launching a program, and most clients never do it. Extole solutions engineers, partner engineering teams, and clients building a connector for a platform Extole does not yet maintain are the audience for this guide.
 
 If you are connecting your own systems to Extole, one of these is your path instead:
 
@@ -27,10 +27,10 @@ If you are connecting your own systems to Extole, one of these is your path inst
 | :------- | :---- |
 | To connect your site, app, or servers and launch a program | [Integrating with Extole](/technical/integration-overview/integrating-with-extole) — the JavaScript SDK, REST APIs, and mobile SDKs |
 | To connect a platform Extole already maintains | Install it from the My Extole [Integrations page](https://my.extole.com/integrations); there is nothing to build |
-| To send your own platform's events server-side | [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) |
+| To send your own platform's events server-side | [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform) |
 | To send records as CSV or SFTP files | The [File Integration](/technical/platform-integrations/extensions/file-integration) extension |
 
-Even when packaging is your job, confirm Extole does not already maintain a source for the partner before you build anything — [When You Would Build One](#when-you-would-build-one) starts there.
+Even when this is your job, confirm Extole does not already maintain a source for the partner before you build anything — [When You Would Build One](#when-you-would-build-one) starts there.
 
 ## Build with Extole AI Tools
 
@@ -39,7 +39,7 @@ The recommended path is to run the build through the [Extole MCP server](/techni
 The build suits an agent better than it suits a person:
 
 - It is dozens of component duplications in a required order, each needing a fresh campaign version, and one stale value rejects the call.
-- Library components resolve **by name** at build time, so every duplication starts with a lookup whose result is used once and never stored.
+- Maintained components resolve **by name** at build time, so every duplication starts with a lookup whose result is used once and never stored.
 - Verification uses the same tool surface as the build: read the component tree back, send a test event, read the resulting steps.
 - Changes execute under your own Extole permissions and are attributed to you in the change log, exactly as they are through My Extole or the API.
 
@@ -49,16 +49,16 @@ The `curl` examples throughout this guide are the underlying contract. Read them
 
 | You want | Category | Start at |
 | :------- | :------- | :------- |
-| A client's commerce, banking, or subscription platform to send purchases, shipments, or account activity into Extole | Inbound | [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) |
-| Extole activity to reach a marketing automation, messaging, analytics, or customer data platform | Outbound | [Build an Outbound Library Integration](/technical/building-custom-integrations/integration-types/integration-build-outbound) |
-| Extole to order gift cards, prepaid cards, points, or payouts when a participant earns a reward | Reward fulfillment | [Build a Reward Fulfillment Integration](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment) |
-| A partner's own webhook, whose payload you do not control, to produce Extole events | Inbound with a prehandler | [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers) |
-| A platform to decide who is eligible and send that membership to Extole, rather than reporting events | Inbound, as audience membership | [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership) |
-| To inspect, configure, or test the component model in a development account | Any | [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model) |
+| A client's commerce, banking, or subscription platform to send purchases, shipments, or account activity into Extole | Partner to Extole | [Sending Partner Events to Extole](/technical/building-partner-integrations/integration-types/partner-events-to-extole) |
+| Extole activity to reach a marketing automation, messaging, analytics, or customer data platform | Extole to Partner | [Build an Extole to Partner Integration](/technical/building-partner-integrations/integration-types/integration-build-extole-to-partner) |
+| Extole to order gift cards, prepaid cards, points, or payouts when a participant earns a reward | Reward fulfillment | [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment) |
+| A partner's own webhook, whose payload you do not control, to produce Extole events | Partner to Extole, with a prehandler | [Normalize Partner Events with a Prehandler](/technical/building-partner-integrations/integration-types/partner-events-prehandlers) |
+| A platform to decide who is eligible and send that membership to Extole, rather than reporting events | Partner to Extole, as audience membership | [Receive Audience Membership from a Partner](/technical/building-partner-integrations/integration-types/partner-events-audience-membership) |
+| To inspect, configure, or test the component model in a development account | Any | [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model) |
 
-[Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) describes what each category contains. A partner that both sends outcomes and receives rewards uses two paths: build the inbound half first, then add the outbound resources. Adding inbound scope to a maintained outbound partner works the same way — install the library source, then add the inbound half to the installed campaign, business events for a partner that reports activity or an audience and credential for one that sends eligibility. Check the finished integration against every category the request matched.
+[Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories) describes what each category contains. A partner that both sends outcomes and receives rewards uses two paths: build the Partner to Extole half first, then add the Extole to Partner resources. Adding Partner to Extole scope to a maintained Extole to Partner install works the same way — install the maintained source, then add the incoming half to the installed campaign, business events for a partner that reports activity or an audience and credential for one that sends eligibility. Check the finished integration against every category the request matched.
 
-Check for a maintained library source before building anything. Query the duplicatable listing for an integration component whose **name** matches the partner, not a fixed type version — a source may be typed `integration-v10.0`, `integration-v10.1`, or later, and a query pinned to one revision reports a maintained partner as missing. Rebuilding a maintained partner from `custom_integration` produces a campaign that does none of the partner's webhook or credential work.
+Check for a maintained source before building anything. Query the duplicatable listing for an integration component whose **name** matches the partner, not a fixed type version — a source may be typed `integration-v10.0`, `integration-v10.1`, or later, and a query pinned to one revision reports a maintained partner as missing. Rebuilding a maintained partner from `custom_integration` produces a campaign that does none of the partner's webhook or credential work.
 
 When this documentation set has a page for your partner, read it first. It carries that platform's wire contract — event names, payload fields, status mapping. Partner pages use the partner's name as the page slug.
 
@@ -68,8 +68,8 @@ Building the tree in one account does not register the partner for anyone else.
 
 | Outcome | What to do |
 | :------ | :--------- |
-| An integration this client uses | Duplicate the library source, or build the campaign and component tree. |
-| An integration every client can find and install | Build and validate in a development account, then publish the reusable component to the Extole-owned library. |
+| An integration this client uses | Duplicate the maintained source, or build the campaign and component tree. |
+| An integration every client can find and install | Build and validate in a development account, then publish the reusable component as an Extole-owned source. |
 
 The My Extole [Integrations page](https://my.extole.com/integrations) lists components tagged `internal:type:integration`. It treats one as installed when its source client is this client, and as available to install when the source client is Extole. Two conditions decide whether a client-owned component appears at all:
 
@@ -77,14 +77,14 @@ The My Extole [Integrations page](https://my.extole.com/integrations) lists comp
 - Without **`internal:self-managed`** the entry renders as unavailable.
 
 <Note>
-`internal:integration-component-name:<component-name>` is an older convention that library bundles carry for traceability. The Integrations page does not read it, so it neither reveals nor hides a build. When an integration is missing from the page, check the component's tags, its owner, and whether it is the root.
+`internal:integration-component-name:<component-name>` is an older convention that published integration bundles carry for traceability. The Integrations page does not read it, so it neither reveals nor hides a build. When an integration is missing from the page, check the component's tags, its owner, and whether it is the root.
 </Note>
 
 ## Before You Start
 
 | Source | Values |
 | :----- | :----- |
-| The partner page, then the partner's developer documentation | Platform and version, category, event names and payload fields, identity and deduplication fields, status mapping, the settings the integration exposes, and any outbound destination, authentication, and retry contract |
+| The partner page, then the partner's developer documentation | Platform and version, category, event names and payload fields, identity and deduplication fields, status mapping, the settings the integration exposes, and any partner destination, authentication, and retry contract |
 | Derived from the partner name | Campaign name, a stable lowercase component name, and a unique program label |
 | Your Extole account | A server-side access token from the [Security Center](https://my.extole.com/security-center) authorized to manage campaigns and components and to read people, and the client that token authenticates to |
 | Nowhere — request these | The partner's API secret, any account identifier the partner issues, and the logo artwork |
@@ -109,14 +109,15 @@ Work through the pages in order. Each build sequence is a page of its own:
 
 | Page | Covers | Needed for |
 | :--- | :----- | :--------- |
-| [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model) | The campaign, root, and integration component; display metadata and logo; typed sockets and the configuration view | Every path |
-| [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views) | The report-runner and event-stream views, the report runner and event stream behind them, and the republish each attachment needs | Every path |
-| [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) | Business events, input event rules, and event data | Inbound |
-| [Normalize Inbound Events with a Prehandler](/technical/building-custom-integrations/integration-types/integration-prehandlers) | Reshaping a partner's own webhook at ingest | Inbound, when the partner defines the payload |
-| [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership) | The audience, the credential the partner authenticates with, and the setup instructions naming the membership endpoints | Inbound, when the partner sends eligibility rather than events |
-| [Build an Outbound Library Integration](/technical/building-custom-integrations/integration-types/integration-build-outbound) | Installing a maintained source, reshaping it, and attaching webhooks and a credential | Outbound |
-| [Build a Reward Fulfillment Integration](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment) | Supplier type, support campaign, supplier templates, and `REWARD` webhooks | Reward fulfillment |
-| [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation) | Gating outbound resources, the validation checklist, and connecting the integration to a program | Every path |
+| [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model) | The campaign, root, and integration component; display metadata and logo; typed sockets and the configuration view | Every path |
+| [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views) | The report-runner and event-stream views, the report runner and event stream behind them, and the republish each attachment needs | Every path |
+| [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform) | The sending code that runs in the partner platform | Partner to Extole, when you control the sender |
+| [Normalize Partner Events with a Prehandler](/technical/building-partner-integrations/integration-types/partner-events-prehandlers) | Reshaping a partner's own webhook at ingest | Partner to Extole, when the partner defines the payload |
+| [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) | Business events, input event rules, and event data | Partner to Extole |
+| [Receive Audience Membership from a Partner](/technical/building-partner-integrations/integration-types/partner-events-audience-membership) | The audience, the credential the partner authenticates with, and the setup instructions naming the membership endpoints | Partner to Extole, when the partner sends eligibility rather than events |
+| [Build an Extole to Partner Integration](/technical/building-partner-integrations/integration-types/integration-build-extole-to-partner) | Installing a maintained source, reshaping it, and attaching webhooks and a credential | Extole to Partner |
+| [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment) | Supplier type, support campaign, supplier templates, and `REWARD` webhooks | Reward fulfillment |
+| [Validate and Publish an Integration](/technical/building-partner-integrations/integration-lifecycle/integration-validation) | Gating Extole to Partner resources, the validation checklist, and connecting the integration to a program | Every path |
 
 A campaign and an integration component alone are the container. The events, views, and webhooks are the integration.
 
@@ -170,10 +171,10 @@ Check each candidate's type before duplicating, and prefer v10 when a legacy ver
 
 These hold on every path:
 
-- **Resolve library components by name at build time.** Stored identifiers go stale without failing loudly.
+- **Resolve maintained components by name at build time.** Stored identifiers go stale without failing loudly.
 - **Use the reusable business-event, rule, and data components.** Write a custom controller only where no template implements the behavior.
 - **Carry all three baseline views** — configuration, report-runner, and event-stream. The category decides what the report counts and what the feed filters to, not whether the tabs exist. Reward fulfillment adds a fourth, a `reward-suppliers` configuration view.
-- **Create reward suppliers, client keys, and webhooks only for an outbound flow the integration has.** An inbound integration needs none.
+- **Create reward suppliers, client keys, and webhooks only for an Extole to Partner flow the integration has.** A Partner to Extole integration needs none.
 - **Keep partner event names and canonical Extole names separate.** The trigger rule carries the wire name; the business event carries `converted`, `shipped`, or another canonical name. Renaming a business event to match a partner breaks every program and report reading the canonical name.
 - **Map every field you persist**, in the same pass that creates the business events. A business event with an empty `data` socket cannot deduplicate, attribute, reward, or report.
 - **Assign key types by meaning, not spelling.** A partner field named `customer_id` may hold the partner's own identifier rather than an Extole person key.
@@ -183,9 +184,9 @@ Reusing an active integration whose campaign and component identity already matc
 
 ## How to Test
 
-Test every inbound event and every configured outbound path before you call the integration live.
+Test every arriving event and every configured partner destination before you call the integration live.
 
-**Inbound.** Send a synchronous event to `POST /v6/events` with the current program label in `data.labels`, then read the step it produced:
+**Partner to Extole.** Send a synchronous event to `POST /v6/events` with the current program label in `data.labels`, then read the step it produced:
 
 ```bash
 curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
@@ -194,13 +195,13 @@ curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
   --data-urlencode "names=converted"
 ```
 
-Confirm the step carries the canonical event name, that the transaction identifier and value match the source record, that person keys resolve, and that resending the same source identifier produces a duplicate outcome rather than a second conversion. Repeat for every event the integration accepts. [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events) covers the sending side and what to check when Extole accepts an event but no business event appears.
+Confirm the step carries the canonical event name, that the transaction identifier and value match the source record, that person keys resolve, and that resending the same source identifier produces a duplicate outcome rather than a second conversion. Repeat for every event the integration accepts. [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform) covers the sending side and what to check when Extole accepts an event but no business event appears.
 
-**Outbound.** Trigger the Extole event the integration forwards and confirm the webhook fired against the partner endpoint.
+**Extole to Partner.** Trigger the Extole event the integration forwards and confirm the webhook fired against the partner endpoint.
 
 **The component tree.** Read the campaign and its built components back. Confirm every typed child carries its type, each webhook exists with its tags and resolved URL, and each `WEBHOOK_ID` setting resolves to a webhook identifier.
 
-A successful publish validates the model, not the behavior. Prehandler scripts and a data component's `valueExpression` are stored without ever being executed, so only a real payload proves they run. [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation) covers the full gate.
+A successful publish validates the model, not the behavior. Prehandler scripts and a data component's `valueExpression` are stored without ever being executed, so only a real payload proves they run. [Validate and Publish an Integration](/technical/building-partner-integrations/integration-lifecycle/integration-validation) covers the full gate.
 
 The integration is not live while the campaign is in draft, a webhook is disabled, a URL is a placeholder, or an event is untested.
 
@@ -221,6 +222,6 @@ Keep these identifiers as you build, for verification and for cleaning up test d
 
 ## Related Documentation
 
-- [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories)
-- [Send Platform Events to Extole](/technical/building-custom-integrations/integration-types/sending-platform-events)
+- [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories)
+- [Sending Partner Events to Extole](/technical/building-partner-integrations/integration-types/partner-events-to-extole)
 - [Integrating with Extole](/technical/integration-overview/integrating-with-extole)
