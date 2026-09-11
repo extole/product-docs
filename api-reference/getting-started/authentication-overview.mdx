@@ -115,6 +115,8 @@ curl -X PUT https://api.extole.io/v4/tokens/exchange/YOUR_ACCESS_TOKEN \
 
 The exchange can be repeated, so a long-running job can hold a valid credential indefinitely by exchanging on a timer shorter than the account's ceiling. This is the supported alternative to a managed token when no person is available to create one.
 
+Two things to plan for when you automate this. The `access_token` in the response is a **different value** from the one you sent, so whatever holds the credential — a config entry, a secret store, a spreadsheet — has to be updated with the new one; the old string does not gain the new expiry. And the token you exchanged is **not** invalidated: it stays usable until its own expiry runs out. An exchange loop therefore leaves a trail of live credentials rather than rotating a single one, so revoke the previous token explicitly if you are accounting for how many are outstanding.
+
 #### Scopes on a programmatic token are not always narrowed
 
 The `scopes` field on `POST /v4/tokens` selects a **subset of the caller's own scopes**, and a caller holding `CLIENT_SUPERUSER` passes that scope on to every token it mints regardless of what the request asks for. A token minted by a superuser credential is therefore itself a superuser credential. When you need a genuinely narrower credential, mint it from a caller that does not hold the broader scope in the first place, rather than relying on the request body to drop it.
