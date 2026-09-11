@@ -11,6 +11,7 @@ Jump ahead to the following sections:
 
 - [Notification Levels](#h_01FGQ4WERXC3S1FV07T5JQPAPD)
 - [Notification Categories and Example Notifications](#h_01FGQ4WQP146VS3YJYWY1XWWZQ)
+- [Narrowing a Subscription to One Campaign](#narrowing-a-subscription-to-one-campaign)
 - [Channels](#h_01FGQ4WYTJDFF376S7VCS1Q9HV)
 - [Specific Notification Types](#h_01FGQ4XAA8ST7K6908HX9SKFX2)
 
@@ -106,6 +107,28 @@ Below are the types of notifications that you will receive for each category of 
 | --- | --- |
 | All | All operations having to do with the well-defined objects in Extole's system (e.g. a user subscribed to notifications, a campaign was updated, a new team member was invited, a new promotion link was created, an email was sent to an audience, etc.) |
 | Some | Campaigns being published |
+
+# Narrowing a Subscription to One Campaign
+
+The four categories are broad. At the **Some** level, Configuration Changes notifies you every time any campaign is published, which is noise when you only care about one of them. To follow a single campaign, subscribe to that campaign's publish notifications instead of to the whole category.
+
+Every notification carries tags. A campaign publish notification carries `campaign_published` together with `campaign_id=` followed by that campaign's id, which you can read from the address bar while the campaign is open in My Extole. A subscription matches a notification only when every tag on the subscription is also on the notification, so a subscription carrying both of those tags reaches you for that one campaign and for nothing else.
+
+Create it on the User Subscriptions page under [Labs](https://my.extole.com/labs), or with the [Create a User Subscription](/api-reference/user-subscriptions/create-a-user-subscription) endpoint:
+
+```json
+{
+  "having_all_tags": ["campaign_published", "campaign_id=1234567890123456789"],
+  "filtering_level": "SOME",
+  "channels": [{ "type": "EMAIL" }]
+}
+```
+
+Campaign publish notifications are warnings, so the subscription needs the **Some** or **All** level — **Noteworthy** does not include them. To reach someone who has no My Extole login, use a `THIRD_PARTY_EMAIL` channel with a `recipient` address instead.
+
+<Note>
+  This tells you that the campaign was published. It does not list what changed inside it.
+</Note>
 
 # Channels
 
