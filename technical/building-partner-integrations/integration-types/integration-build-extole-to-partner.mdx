@@ -1,13 +1,13 @@
 ---
 title: "Build an Extole to Partner Integration"
-description: "Install or construct an outbound integration with controller triggers, webhook actions, request and response handlers, and partner credentials."
+description: "Forward Extole activity to a partner by installing a maintained source or building the controllers and webhooks its API requires."
 ---
 
 Part of the [partner integration guide](/technical/building-partner-integrations/integration-lifecycle/management-api-integration).
 
 # Overview
 
-An Extole to Partner integration forwards Extole program activity to a partner platform. Install and reshape a maintained source when it contains the required behavior. When a partner source contains only display metadata, construct the integration-owned controllers and webhook actions that send the activity.
+An Extole to Partner integration forwards Extole program activity to a partner platform. Start from a maintained source when it includes the required controllers and webhooks. When the source contains only display metadata, add the controller-backed delivery yourself.
 
 Substitute the component name, endpoints, and tag namespace from the partner page throughout. [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration) covers the constraints and shared mechanics every build follows.
 
@@ -36,14 +36,14 @@ Do not add Partner to Extole business-event scaffolding to this install. A partn
 
 Read the partner page first — it names the finished tree, the endpoints, and the tag namespace — and inspect any matching source before choosing the build path. Without a complete source, create the container from [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model), then add the controller-backed delivery described below.
 
-### Check the Source's Product Version and Capability
+### Choose the Build Path
 
 Query the duplicatable listing by the exact partner name without a type filter, then inspect the integration component and its children.
 
-Use the integration component's `integration-v10.*` type as the product version. The root campaign wrapper has no component type, so a version inferred from the root can incorrectly report a current integration as legacy.
+Use the integration component's `integration-v10.*` type as the product version. The root campaign wrapper has no component type.
 
 <Warning>
-An `integration-v10.*` type proves the source's product version, not its outbound capability. A metadata-only source can carry the partner description and logo without `internal:self-managed`, child controllers, or webhooks. Do not install it as a complete outbound integration.
+An `integration-v10.*` type identifies the product version, not the source's outbound capability. A metadata-only source can carry the partner description and logo without `internal:self-managed`, child controllers, or webhooks.
 </Warning>
 
 A complete maintained source has all of the following:
@@ -144,19 +144,7 @@ Create every controller and trigger while the path is disabled. Publish and crea
 
 ### Create Missing Component Types
 
-A typed child needs its component type first, and a partner page can require a type the account has never used:
-
-```bash
-curl -s -H "Authorization: Bearer ${TOKEN}" \
-  "${EXTOLE_API_HOST}/v1/component-types/${PARTNER_COMPONENT_NAME}-data"
-
-curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"'"${PARTNER_COMPONENT_NAME}"'-data","display_name":"Partner Data Item","schema":"{}"}' \
-  "${EXTOLE_API_HOST}/v1/component-types"
-```
-
-Omit `parent`. An empty `types` array leaves an untyped component, which satisfies no socket filter and no template lookup.
+Create any component type the partner's data template needs before creating the typed child. Use `POST /v1/component-types` with the partner type's name, display name, and schema, and omit `parent`. The child must carry that type; an empty `types` array satisfies no socket filter or template lookup.
 
 ### Install the Maintained Source
 
@@ -340,7 +328,7 @@ Create the webhook client key once you have the partner's API secret, then set t
 | `invalid_component_reference` | A webhook calling `context.getComponent()` was created before the campaign was published. | Publish once, then create the webhook with `component_ids`. |
 | Campaign validation rejects the publish | An account-URL setting that feeds a webhook URL is empty or not a valid host. | Keep a valid placeholder host there. |
 | Webhook setting evaluates to `null` | The `WEBHOOK_ID` expression filters on a tag no webhook carries, or several webhooks share the tag and `[0]` is arbitrary. | Give each webhook its own purpose tag. |
-| The first duplicatable result is the wrong source | The listing returns the maintained source plus one copy per account that installed it, in no reliable order, so `head -n 1` can install a client's own configuration. | Choose the Extole-owned source. Stop and ask when two entries are indistinguishable. |
+| The installed component is the wrong source | The listing returns the maintained source plus copies installed in client accounts, in no reliable order. | Choose the Extole-owned source by owner and type. |
 | A typed child is rejected | Its component type does not exist in the account. | Create the component type first; do not fall back to an empty `types` array. |
 | An integration source has a current type but no controllers or webhooks | The source is partner metadata, not a complete outbound implementation. | Build the controller-backed path instead of reporting the tile as installed behavior. |
 | The partner rejects authentication | The default key processor uses a header the partner does not accept. | Build the request explicitly with the partner's required authentication header. |
@@ -358,7 +346,7 @@ A `2xx` on the duplicate call means the source tree was copied, not that the ins
 - Request and response handlers match the partner's authentication, body, success, and retry contracts.
 - `enabled` is `true` on every webhook whose real URL and credential are both configured, and `false` on the rest.
 
-Then trigger the Extole event the integration forwards and confirm the webhook fired against the partner endpoint. Record the events it forwards and any credential or partner-side permission still outstanding.
+Trigger each Extole event the integration forwards and confirm the partner endpoint receives the expected payload. Enable only the paths whose destination and credential are ready.
 
 ## Related Documentation
 
