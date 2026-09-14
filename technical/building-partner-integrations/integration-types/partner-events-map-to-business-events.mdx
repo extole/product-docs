@@ -278,6 +278,33 @@ Give every business event its own data components; a field captured on one is no
 
 Lifecycle events such as `shipped` and `canceled` arrive independently, so repeat the identity set on each: they must resolve to the same person and, through the transaction identifier, the same original transaction.
 
+## Add the Test Event View
+
+After configuring the business events and input rules, add one test-event view to the integration component's `views` socket. The `test-event-view-v10.0` type makes My Extole render the **Test Event** tab.
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "test-events",
+    "display_name": "Test Event",
+    "description": "Send a configured partner event with an editable test payload.",
+    "types": ["view-v10.0", "test-event-view-v10.0"],
+    "installed_into_socket": "views",
+    "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"],
+    "variables": [
+      { "name": "order", "type": "INTEGER", "values": { "default": 2 } },
+      { "name": "title", "type": "STRING", "values": { "default": "Test Event" } },
+      { "name": "status", "type": "STRING", "values": { "default": "READY" } },
+      { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": [] } }
+    ]
+  }'
+```
+
+The view builds its editable payload from the integration's business events, enabled input rules, and program label.
+
 ## How to Test
 
 In the integration's **Test Event** view, choose a business event to generate an editable payload. The payload includes the enabled data fields configured on that business event. When a mapped data item reads a differently named partner field, the payload uses that source field name.
@@ -313,16 +340,16 @@ A `2xx` means Extole accepted the event, not that it matched a business event. O
 
 Capture `event_id` from the synchronous response, then search with [Event Stream Query Language](/technical/platform-integrations/extensions/event-streams-overview/event-stream-query-language):
 
-1. Search `event_id=` followed by the returned identifier to find the Input.
+1. Search `event_id=` followed by the returned identifier to find the `INPUT` event.
 2. Search `root_event_id=` followed by the same identifier to find downstream events.
 
-Open the JSON for the Input and its descendants:
+Open the JSON for the `INPUT` event and its descendants:
 
-- The Input's `name` is the wire event you submitted. Its `raw_data` contains the received payload, including `container: test` and, for a friend journey, `advocate.email`.
-- A descendant with `type` `STEP` and the canonical `name` is the mapped business event. Its `data` contains the mapped values, and its `person_profile` should match the Input.
+- The `INPUT` event's `name` is the wire event you submitted. Its `raw_data` contains the received payload, including `container: test` and, for a friend journey, `advocate.email`.
+- A descendant with `type` `STEP` and the canonical `name` is the mapped business event. Its `data` contains the mapped values, and its `person_profile` should match the `INPUT` event.
 - `campaign_context.quality` of `HIGH` or `LOW` means a campaign selected the event. `NONE`, or a missing `campaign_context`, means the event was recorded without attribution.
 - `duplicate` is `true` when the unique partner event identifier has already been processed.
-- When no campaign selects the event, `step_matching_campaign_contexts` shows each candidate. Use its `trigger_results` and `log_messages`, together with the Input's `log_messages`, to find the rule that did not match.
+- When no campaign selects the event, `step_matching_campaign_contexts` shows each candidate. Use its `trigger_results` and `log_messages`, together with the `INPUT` event's `log_messages`, to find the rule that did not match.
 
 Correct any mapping or rule that differs from the expected result, republish when required, and send a fresh unique event. Restore a stopped or filtered stream before testing again.
 

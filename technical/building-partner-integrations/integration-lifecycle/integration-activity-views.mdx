@@ -1,13 +1,13 @@
 ---
 title: "Add the Activity and Event Views"
-description: "Build the report-runner and event-stream views every integration needs, plus the test-event view for Partner to Extole integrations."
+description: "Build the report-runner and event-stream views, create the report runner and event stream behind them, and publish so each view resolves its element."
 ---
 
 Part of the [partner integration guide](/technical/building-partner-integrations/integration-lifecycle/management-api-integration).
 
 # Overview
 
-Every integration needs a **report-runner view** charting what it processed and an **event-stream view** carrying its live event feed. Partner to Extole integrations also need a test-event view. [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories) covers each category's views.
+Every integration needs a **report-runner view** charting what it processed and an **event-stream view** carrying its live event feed. [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) adds the **Test Event** view after its business events and input rules exist.
 
 ## When You Would Build These
 
@@ -94,35 +94,6 @@ curl --request POST \
 - **Type the element setting `STRING`** — `reportRunnerId` on the report view, `eventStreamId` on the event-stream view; there is no `REPORT_RUNNER_ID` or `EVENT_STREAM_ID` type. Each holds a buildtime query for the element its own component owns, so the view survives the element being recreated.
 - **Wrap every Java collection in `Java.from`**, as both expressions do; settings are evaluated as part of the create.
 - **Give every view an `order`** typed `INTEGER`, lowest first, configuration at the front.
-
-### Add the Test Event View to a Partner to Extole Integration
-
-My Extole renders the test-event sender when the integration component has a `test-event-view-v10.0` child in its `views` socket.
-
-Create the view after the integration's business events and input rules are configured:
-
-```bash
-curl --request POST \
-  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "name": "test-events",
-    "display_name": "Test Event",
-    "description": "Send a configured partner event with an editable test payload.",
-    "types": ["view-v10.0", "test-event-view-v10.0"],
-    "installed_into_socket": "views",
-    "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"],
-    "variables": [
-      { "name": "order", "type": "INTEGER", "values": { "default": 2 } },
-      { "name": "title", "type": "STRING", "values": { "default": "Test Event" } },
-      { "name": "status", "type": "STRING", "values": { "default": "READY" } },
-      { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": [] } }
-    ]
-  }'
-```
-
-The view builds an editable payload from the integration's business events, enabled input rules, and program label. Add one test-event view per integration. [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events#how-to-test) covers its generated fields, including referral data and analytics isolation.
 
 ### Map the Report's Columns to a Chart
 
@@ -263,7 +234,7 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
   }'
 ```
 
-Narrow the events you inspect at read time. After a synchronous test send, search the stream for the returned `event_id`, then search for descendants carrying the same `root_event_id`. This preserves events whose application context or downstream type differs from the Input while keeping each test trace precise.
+Narrow the events you inspect at read time. After a synchronous test send, search the stream for the returned `event_id`, then search for descendants carrying the same `root_event_id`. This preserves events whose application context or downstream type differs from the originating `INPUT` event while keeping each test trace precise.
 
 
 ### Republish Again So the Views Resolve Their Elements
