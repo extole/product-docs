@@ -280,7 +280,14 @@ Lifecycle events such as `shipped` and `canceled` arrive independently, so repea
 
 ## How to Test
 
-In the integration's **Test Event** view, choose a business event to generate an editable payload. The payload includes the enabled data fields configured on that business event. When a mapped data item reads a differently named partner field, the payload uses that source field name. Replace the generated values with representative test data before sending.
+In the integration's **Test Event** view, choose a business event to generate an editable payload. The payload includes the enabled data fields configured on that business event. When a mapped data item reads a differently named partner field, the payload uses that source field name.
+
+The generator adds two test-specific fields:
+
+- Every payload includes `container` with value `test`, which excludes the resulting events from production dashboard analytics and reports.
+- When the selected business event's built `journeyName` is `FRIEND`, the payload includes `advocate.email` with a sanitized address distinct from the friend's `email`. Extole uses it to create the referral between the two people.
+
+Replace the generated values with representative test data before sending. A test container does not disable event processing or rewards. See [Exclude Test Data from Analytics](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics).
 
 Send a synchronous test event through `POST /v6/events` with an event-submission token, not the one that created the campaign. Put the current program label in `data` to target this campaign; it is a testing convenience and does not belong in the partner's payload.
 
@@ -292,9 +299,11 @@ curl --request POST "$EXTOLE_API_HOST/v6/events" \
     "event_name": "partner_order_created",
     "data": {
       "email": "test@example.com",
+      "advocate.email": "test-advocate@example.com",
       "order_id": "test-order-001",
       "total": 42.50,
       "customer_id": "test-customer-001",
+      "container": "test",
       "labels": "'"$PROGRAM_LABEL"'"
     }
   }'
@@ -317,7 +326,7 @@ Open the JSON on each matching row. That payload is the log. The table columns a
 On the Input (`type` `INPUT`, `event_id` equal to the send):
 
 - `name` is the wire name you submitted.
-- `raw_data` is the partner payload as received.
+- `raw_data` is the payload as received, including `container: test` and, for a friend journey, `advocate.email`.
 - `log_messages` records processing notes.
 
 On each descendant (`root_event_id` equal to the send):
@@ -355,6 +364,8 @@ curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
 Confirm the canonical event name and every mapped value match what the stream already showed, using a new unique identifier per repeat unless duplicate handling is under test. Cover:
 
 - Every preferred partner input event.
+- Referral creation for each `FRIEND` journey event.
+- Test-container isolation from production dashboard analytics and reports.
 - Every supported legacy alias.
 - Missing required identity.
 - A repeated unique partner event identifier.
