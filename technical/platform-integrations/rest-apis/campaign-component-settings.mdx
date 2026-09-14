@@ -1,0 +1,97 @@
+---
+title: "Writing Campaign Component Settings"
+description: "How a component variable's source decides whether your write takes effect, why promoting a variable takes two requests, and how to prove the change reached the published campaign."
+---
+
+## Overview
+
+A component variable on a campaign carries a `source` alongside its value. The source decides where
+the value the platform uses comes from, and it can point somewhere other than the variable you're
+writing to. When it does, a write that returns `200` changes nothing you can see.
+
+This page covers writing those settings over the REST API: how to tell whether a write will take
+effect, the two-request shape that makes it take effect, and how to verify the result reached the
+published campaign rather than only the draft.
+
+## Check the source before you write
+
+Read the variable first:
+
+```
+GET /v2/campaigns/{campaign_id}/components/{component_id}
+```
+
+A variable whose `source` is `LOCAL` holds its own value, and writing that value is enough. Two other
+sources ignore it:
+
+| Source | Where the value comes from | Effect of writing the value |
+|---|---|---|
+| `LOCAL` | The variable itself | Takes effect |
+| `PARAMETER` | A parameter binding from the parent component | No visible change |
+| `INHERITED` | The component type's template | No visible change |
+
+A variable bound to a parameter can read back as `values.default: null` while the built campaign shows
+a real value, because the value arrives down the binding rather than from the variable. That
+combination — an empty stored value and a populated built value — is the signal that a direct write
+won't do anything.
+
+## Promote, then write
+
+Promoting a variable to `LOCAL` and setting its value are two separate requests, in that order:
+
+1. `PUT` the variable with `source` set to `LOCAL` and **no** values.
+2. `PUT` the values.
+
+Sending both in one request leaves the values unstored.
+
+**Read what the first request returns.** Promotion resolves whatever the variable was inheriting into
+a local literal, so the response usually carries a value you didn't send — the parameter's value for a
+`PARAMETER` variable, and for an `INHERITED` one the template with its build-time expressions already
+evaluated. That matters for two reasons:
+
+- The promotion has frozen a value that used to track its source. If you promote a variable and stop
+  there, you've pinned it.
+- If you send values in a single request and read the `200` as success, the stored value is the
+  resolved inherited copy and not yours.
+
+Send the second request, then read the variable back and confirm it equals what you sent.
+
+## Verify against the published campaign
+
+The settings read returns the **draft**:
+
+```
+GET /v1/components/{component_id}/settings/{setting_name}
+```
+
+A participant is served the **published** version, so a matching read-back proves you staged the
+change and nothing more. To confirm what a participant gets, publish and then read the published
+build:
+
+```
+POST /v2/campaigns/{campaign_id}/publish
+GET  /v2/campaigns/{campaign_id}/version/published/built
+```
+
+For a setting that resolves to an asset, compare the served asset's contents rather than its
+identifier — the identifier can change without the bytes changing, and the bytes can change without
+the identifier changing.
+
+## Proving the write changed one thing
+
+Comparing two builds of the same campaign leaf by leaf reports large numbers of differences that are
+pure re-serialization: timestamps move, and scalar lists such as `enabled_on_states` come back in a
+different order between builds. Normalize before you diff — drop `created_date` and `updated_date`,
+and sort scalar lists — and what's left is the change you made.
+
+## Concurrent updates
+
+Each setting write creates its own campaign version, and a campaign rebuilds after each one. Writing
+several settings in sequence can collide with that rebuild:
+
+```
+400 campaign_concurrent_update — Campaign is currently updated by other process/user
+```
+
+Retry that code with a backoff rather than serializing the batch by hand. Expect a run of a dozen
+components to produce dozens of campaign versions and to take several minutes.
