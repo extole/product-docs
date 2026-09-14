@@ -29,8 +29,8 @@ Do not add Partner to Extole business-event scaffolding to this install. A partn
 | `TOKEN` | Server-side access token authorized to manage campaigns, components, and webhooks. |
 | `EXTOLE_API_HOST` | Production host for those calls. |
 | `PARTNER_COMPONENT_NAME` | Maintained component name from the partner page. |
-| `SOURCE_COMPONENT_ID` | The Extole-owned maintained source from the duplicatable listing. |
-| `INTEGRATION_COMPONENT_ID` | The installed integration component, for component-scoped webhooks. |
+| `SOURCE_COMPONENT_ID` | The Extole-owned maintained source from the duplicatable listing, when one exists. |
+| `INTEGRATION_COMPONENT_ID` | The installed or newly created integration component, for component-scoped webhooks. |
 | `CONTROLLER_ID` | The controller that listens for one class of Extole activity. |
 | `WEBHOOK_ID` | The outbound connection invoked by a controller action. |
 
@@ -57,9 +57,10 @@ Extole Defaults V10 uses three distinct controller trigger patterns:
 | :------- | :------ |
 | Share-link creation | An event trigger with `event_type` set to `SHAREABLE`; the standard event name is `advocate_code_created` |
 | A program outcome such as `converted` | An event trigger with `event_type` set to `STEP` |
-| Reward fulfillment | A reward-event trigger with `reward_states` containing `FULFILLED` |
 
 Share-link creation and `shared` are distinct. The first creates a shareable and exposes its link; the second records a share action.
+
+For reward triggers and webhooks, use [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment).
 
 ## How to Build
 
@@ -111,6 +112,8 @@ curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
   "${EXTOLE_API_HOST}/v2/campaigns/${CAMPAIGN_ID}/version/${CAMPAIGN_VERSION}/controllers"
 ```
 
+Record the returned controller identifier as `CONTROLLER_ID`.
+
 Refresh the campaign version, then add a step-event trigger:
 
 ```bash
@@ -125,18 +128,7 @@ curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
   "${EXTOLE_API_HOST}/v2/campaigns/${CAMPAIGN_ID}/version/${CAMPAIGN_VERSION}/controllers/${CONTROLLER_ID}/triggers/events"
 ```
 
-For share-link creation, use the same endpoint with `event_type` set to `SHAREABLE` and read the link from `context.causeEvent.shareable.link`. For reward fulfillment, use `/triggers/reward-events`:
-
-```bash
-curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "trigger_phase": "MATCHING",
-    "trigger_name": "Reward Fulfilled",
-    "reward_states": ["FULFILLED"]
-  }' \
-  "${EXTOLE_API_HOST}/v2/campaigns/${CAMPAIGN_ID}/version/${CAMPAIGN_VERSION}/controllers/${CONTROLLER_ID}/triggers/reward-events"
-```
+For share-link creation, use the same endpoint with `event_type` set to `SHAREABLE` and read the link from `context.causeEvent.shareable.link`.
 
 Create every controller and trigger while the path is disabled. Publish and create the component-scoped webhook next, then attach the action after you have its identifier. Use the partner page for field names and identity rules.
 
@@ -247,6 +239,8 @@ Publishing validates every webhook the campaign already owns, so keep a valid pl
 }
 ```
 
+Record the returned webhook identifier as `WEBHOOK_ID`.
+
 Name each webhook for the endpoint it calls: an ingestion endpoint and a message-trigger endpoint are separate webhooks with separate tags. Keep the broad `internal:partner` tag for listing every webhook the integration owns. Where the account URL setting may lack a scheme, build the URL expression to add `https://`.
 
 ### Attach the Webhook Action
@@ -261,11 +255,9 @@ curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
     "enabled": false,
     "webhook_id": "'"${WEBHOOK_ID}"'",
     "data": {
-      "email": "spel@runtime:context.person.email",
-      "eventName": "extole_converted",
-      "createdAt": "spel@runtime:context.causeEvent.eventTime",
-      "firstName": "spel@runtime:context.person.firstName",
-      "lastName": "spel@runtime:context.person.lastName"
+      "person_identifier": "spel@runtime:context.person.email",
+      "activity_name": "extole_converted",
+      "activity_time": "spel@runtime:context.causeEvent.eventTime"
     }
   }' \
   "${EXTOLE_API_HOST}/v2/campaigns/${CAMPAIGN_ID}/version/${CAMPAIGN_VERSION}/controllers/${CONTROLLER_ID}/actions/webhooks"
@@ -277,31 +269,7 @@ Keep the controller, action, and webhook disabled until the credential, request 
 
 The default request handler serializes the webhook action's data as a JSON body, uses the configured method and URL, and applies the client key's default authentication. A `PASSWORD` key adds an `Authorization: Bearer` header.
 
-Write a custom `request` expression when the partner requires a distinct header, body envelope, URL, method, or idempotency key. For example, a partner that requires `Api-Key` authentication needs a request built with `context.createRequestBuilder()`, the key from `context.getWebhook().getClientKey().getKey()`, and an explicit `Api-Key` header. `createRequestBuilderWithDefaults()` would add the wrong authentication header for that contract.
-
-This request handler converts the flat webhook action data above into a nested partner payload and uses `Api-Key` authentication:
-
-```javascript
-javascript@runtime:(function() {
-    var eventData = context.getClientEvent().getData();
-    var payload = {
-        email: eventData.get("email").getValue(),
-        eventName: eventData.get("eventName").getValue(),
-        createdAt: eventData.get("createdAt").getValue(),
-        dataFields: {
-            firstName: eventData.get("firstName").getValue(),
-            lastName: eventData.get("lastName").getValue()
-        }
-    };
-
-    return context.createRequestBuilder()
-        .withUrl(context.getWebhook().getUrl())
-        .withMethod(context.getWebhook().getDefaultMethod())
-        .addHeader("Api-Key", context.getWebhook().getClientKey().getKey())
-        .withBody(context.getGlobalServices().getJsonService().toJsonString(payload))
-        .build();
-})()
-```
+Write a custom `request` expression when the partner requires a distinct authentication header, body envelope, URL, method, or idempotency key. Build the request from the webhook action data and the client key, following the contract on the partner page. Do not use `createRequestBuilderWithDefaults()` when its default authentication differs from the partner's requirement.
 
 The response handler returns:
 
@@ -337,7 +305,7 @@ A `2xx` on the duplicate call means the source tree was copied, not that the ins
 
 - The tree matches the partner page: one child per activity the page lists, and no child forwarding activity it does not.
 - Every typed child carries its type.
-- Every requested activity has the correct `SHAREABLE`, `STEP`, or reward-event controller trigger.
+- Every requested activity has the correct `SHAREABLE` or `STEP` controller trigger.
 - Every controller has a webhook action with the complete partner payload.
 - Each webhook exists with its tags and its resolved URL.
 - Each `WEBHOOK_ID` setting resolves to a webhook identifier rather than `null`.
