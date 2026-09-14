@@ -95,7 +95,7 @@ Extole answers an accepted submission with a `2xx`. Retry network failures, `429
 
 ## How to Test
 
-Send one event synchronously. The response returns `event_id` and `person_id`. First find the Input in the integration's running unfiltered Event Stream by `event_id`, then find the processing chain by searching for the same value as `root_event_id`. Read the person's steps after the stream establishes the correlated result:
+Send one event synchronously and capture the returned `event_id` and `person_id`. Use `person_id` to read the person's events:
 
 ```bash
 curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
@@ -104,7 +104,7 @@ curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
   --data-urlencode "names=converted"
 ```
 
-Confirm the event carries the canonical event name, not the platform's; the transaction identifier and value match the source record; person keys resolve; and resending the same source identifier produces a duplicate outcome, not a second conversion. Repeat for every event. Watch the Input and the correlated STEP on the integration Event Stream the same way [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) describes.
+Confirm the event carries the canonical event name, not the platform's; the transaction identifier and value match the source record; person keys resolve; and resending the same source identifier produces a duplicate outcome, not a second conversion. Repeat for every event. [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events#how-to-test) shows how to use `event_id` to follow the complete processing chain in Event Streams.
 
 ### No Business Event Appears
 

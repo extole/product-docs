@@ -40,11 +40,7 @@ Read the partner page first — it names the finished tree, the endpoints, and t
 
 Query the duplicatable listing by the exact partner name without a type filter, then inspect the integration component and its children.
 
-Use the integration component's `integration-v10.*` type as the product version. The root campaign wrapper has no component type.
-
-<Warning>
-An `integration-v10.*` type identifies the product version, not the source's outbound capability. A metadata-only source can carry the partner description and logo without `internal:self-managed`, child controllers, or webhooks.
-</Warning>
+Use the integration component's `integration-v10.*` type to identify the product version. Establish outbound capability by checking the source's behavior, not its version.
 
 A complete maintained source has all of the following:
 
@@ -52,6 +48,8 @@ A complete maintained source has all of the following:
 - Child controllers for the activity it forwards
 - Webhook actions with event-specific data
 - The webhooks and credential settings those actions reference
+
+When the source carries only display metadata, use the controller-backed path below.
 
 Extole Defaults V10 uses three distinct controller trigger patterns:
 
@@ -144,7 +142,7 @@ Create every controller and trigger while the path is disabled. Publish and crea
 
 ### Create Missing Component Types
 
-Create any component type the partner's data template needs before creating the typed child. Use `POST /v1/component-types` with the partner type's name, display name, and schema, and omit `parent`. The child must carry that type; an empty `types` array satisfies no socket filter or template lookup.
+Check `GET /v1/component-types/{name}` before creating a typed child. When the type is missing, create it through `POST /v1/component-types` with `name`, `display_name`, and `schema`, and omit `parent`. Set the new type on the child so it satisfies the socket filter or template lookup.
 
 ### Install the Maintained Source
 
@@ -312,7 +310,7 @@ The response handler returns:
 
 Without a response handler, Extole retries non-2xx responses. Add one when the partner contract distinguishes retryable responses such as `429` or `5xx` from terminal `4xx` configuration or payload errors. Log the terminal status and the minimum response detail needed to diagnose the rejection; do not log credentials or the full participant payload.
 
-A webhook is incomplete when its request handler cannot produce the partner's required body or authentication, or when its response handler contradicts the partner's retry contract. Keep it disabled until both are verified.
+A webhook is ready when its request handler produces the partner's required body and authentication and its response handler follows the partner's retry contract. Keep it disabled until both are verified.
 
 ### Attach the Credential
 
@@ -330,7 +328,7 @@ Create the webhook client key once you have the partner's API secret, then set t
 | Webhook setting evaluates to `null` | The `WEBHOOK_ID` expression filters on a tag no webhook carries, or several webhooks share the tag and `[0]` is arbitrary. | Give each webhook its own purpose tag. |
 | The installed component is the wrong source | The listing returns the maintained source plus copies installed in client accounts, in no reliable order. | Choose the Extole-owned source by owner and type. |
 | A typed child is rejected | Its component type does not exist in the account. | Create the component type first; do not fall back to an empty `types` array. |
-| An integration source has a current type but no controllers or webhooks | The source is partner metadata, not a complete outbound implementation. | Build the controller-backed path instead of reporting the tile as installed behavior. |
+| An integration source has a current type but no controllers or webhooks | The source is partner metadata, not a complete outbound implementation. | Build the controller-backed path. |
 | The partner rejects authentication | The default key processor uses a header the partner does not accept. | Build the request explicitly with the partner's required authentication header. |
 
 ## How to Test
