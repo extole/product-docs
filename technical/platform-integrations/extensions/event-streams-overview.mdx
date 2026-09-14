@@ -62,7 +62,7 @@ On the event page, you can:
 
 Additional meta-event entries will be recorded to indicate when the stream has been paused, ensuring clarity that no events were produced during those periods.
 
-## Common Use Cases for Marketers
+## Common Use Cases
 
 1. **QA During Program Testing**\
    When testing your referral program, you can use the Event Stream to follow the sequence of actions triggered by your test accounts.\
@@ -125,8 +125,6 @@ The goal is to determine why the reward was not issued.
 
 ### Scenario 3: Verify an Inbound Integration
 
-Open the integration's **Event Stream** tab and confirm the stream is running without filters. Send a sanitized test event as [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events) describes.
+Use [Map Inbound Partner Events](/technical/building-custom-integrations/integration-types/integration-inbound-events#how-to-test) to send a sanitized event while the integration's **Event Stream** tab is running without filters.
 
-Search `event_id=` followed by the identifier returned by the send to find the Input. Then search `root_event_id=` followed by the same identifier to find the events produced from it. A successful trace contains the submitted wire name on the Input and the canonical business event on a STEP with the same person, mapped values, and attributed campaign context.
-
-If the STEP is missing, unattributed, or has unexpected data, open the matching JSON and use `log_messages`, `step_matching_campaign_contexts`, and `trigger_results` to find the rule that did not match. Send a fresh unique event after correcting the integration.
+Find the Input by its returned `event_id`, then find descendants by the same `root_event_id`. Open their JSON to confirm the wire event produced the expected canonical STEP. The linked guide explains the fields and logs used to diagnose matching, mapping, and attribution.
