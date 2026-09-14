@@ -37,6 +37,10 @@ Most My Extole users create a Rewards block; the choice between the two types is
 A blocked person stops producing campaign activity, so anything that fires from a campaign event — a webhook, an integration that sends profile data, a journey email — stops reporting on that person once they are blocked. To read block state from your own systems, call [Get person block status](/api-reference/persons/get-person-block-status).
 </Note>
 
+## Telling Your Own Systems About a Block
+
+Blocking raises a `profile_block` event on the person, and unblocking raises `profile_unblock`. A campaign step can react to those events, which is how a block reaches a CRM or another external system: the step listens for the block itself rather than for the person's own activity, so it still runs once the block has landed. This covers Rewards blocks. An Events and Rewards block stops campaign evaluation for that person before any step runs, so it cannot announce itself — read those with [Get person block status](/api-reference/persons/get-person-block-status).
+
 # Unblock a User
 
 If you want to allow a user to participate in your program again:
