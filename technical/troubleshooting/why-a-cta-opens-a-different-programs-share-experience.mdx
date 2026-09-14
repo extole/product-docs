@@ -63,9 +63,11 @@ which is why the symptom looks intermittent and customer-specific.
 
 Three things that look like the fix are not:
 
-- **The program label on the share experience request.** The label sets which program is preferred
-  when a new journey is started. A visitor who already holds a journey never reaches that step, so
-  the label leaves them where they are.
+- **The program label on the share experience request.** The `labels` parameter sets which program
+  is preferred when a new journey is started. A visitor who already holds a journey never reaches
+  that step, so the label leaves them where they are. The journey hint has a label form of its own,
+  `journey.label`, which is a different parameter and does move them — see
+  [Option 2](#option-2-send-an-explicit-journey-hint).
 - **Adjusting the program-label rules** on the campaigns. The person is not being excluded by a
   rule — they are being matched by an existing journey, which happens first.
 - **A `campaign_id` request parameter.** This is not the journey hint, and it changes nothing here.
@@ -116,7 +118,20 @@ GET /zone/share_experience?journey.campaign_id=<campaign id>
 
 In a page URL that Extole's library reads, the same hint is `extole_journey.campaign_id`.
 
-Extole's own promotion links already send it. A click on a promotion is redirected by the
+The hint also has a program-shaped form. `journey.label` names a **program label** rather than a
+campaign id, and ranks immediately below `journey.campaign_id`:
+
+```
+GET /zone/share_experience?journey.label=<program label>
+```
+
+Prefer the label form when each of your programs is a product or an audience and your site already
+knows which one the page belongs to. A program label outlives the campaigns inside it, so a
+campaign rebuilt, duplicated or replaced by a burst does not send you back to re-edit the tag on
+your site. Use `journey.campaign_id` when you need one specific campaign rather than whichever
+campaign that program is currently running.
+
+Extole's own promotion links already send the campaign-id form. A click on a promotion is redirected by the
 **Promotion Link Behavior** component, which stamps `extole_journey.campaign_id` with the campaign
 that promotion belongs to, and a CTA popup carries its own campaign the same way. What carries
 nothing is a request your own site makes — a share experience opened from an account page, an order
