@@ -58,6 +58,30 @@ Each row should represent a single event tied to a participant’s email address
 - Once completed, you can search for that user or event on the **User Support** page to ensure it fired as expected.
 - If errors occur, review the error logs to identify missing or incorrectly formatted fields.
 
+# Understanding Batch Job Status
+
+A batch job reports one of these statuses, on the **Batch Jobs** page and on `GET /v6/batches`:
+
+| Status | What it means |
+| --- | --- |
+| `PENDING` | Submitted. Extole has accepted the job and it is either waiting to be picked up or already handed to a processor. |
+| `IN_PROGRESS` | A processor has claimed the job and is reading your file. |
+| `DISPATCHING` | Rows have been read and the events are being sent into your program. |
+| `DONE` | Every row was processed. `success_rows` and `failed_rows` are final. |
+| `FAILED` | Processing stopped. `error_code` and `error_message` say why. |
+| `CANCELED` | The job was cancelled before it finished. |
+| `EXPIRED` | A finished job whose record has aged out. |
+
+`PENDING` does not distinguish "not yet picked up" from "accepted by a processor and waiting to start", so a job can sit at `PENDING` for a short time even though it is already moving.
+
+How long that takes depends on the size of the file. Small uploads are processed immediately and usually reach `DONE` within seconds. Larger uploads are handed to Extole's batch processing cluster, which typically takes one to two minutes to start; during that time the job shows `PENDING` with no start date.
+
+<Warning>
+A job still showing `PENDING` with an empty start date more than a few minutes after submission has not started, and it will not clear on its own within the working day. Contact Extole support with the batch job ID rather than resubmitting the same file.
+</Warning>
+
+Cancelling a job that has not finished, with `POST /v6/batches/{id}/cancel`, moves it to `CANCELED`. A job can only be deleted once it has reached a finished status, so `DELETE /v6/batches/{id}` on a `PENDING` job is refused; cancel it first.
+
 # Best Practices
 
 - Always test with a small CSV file before uploading a large batch.
