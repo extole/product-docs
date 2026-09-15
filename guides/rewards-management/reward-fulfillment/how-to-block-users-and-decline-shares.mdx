@@ -24,6 +24,25 @@ If a user has violated the terms of your program, you can disable the user by fo
     3. Any clicks on that user's share will be declined. This means that any new friends will not receive any rewards.
     4. Any transaction event, such as conversions, account openings, and quote submissions, will be blocked and declined. This means that no one will receive any rewards.
 
+## Block Types
+
+A block is recorded on the person's profile, so it applies to every campaign and to both sides of a referral. A person carries one type at a time, and setting one replaces the other:
+
+- **Rewards**: the person's events keep arriving and the quality engine declines them. Neither the blocked person nor anyone they refer earns a reward.
+- **Events and Rewards**: Extole stops evaluating that person's events against your campaigns, so they produce no new shares, conversions, or rewards.
+
+Most My Extole users create a Rewards block; the choice between the two types is available to users with superuser access.
+
+<Note>
+A blocked person stops producing campaign activity, so anything that fires from a campaign event — a webhook, an integration that sends profile data, a journey email — stops reporting on that person once they are blocked. To read block state from your own systems, call [Get person block status](/api-reference/persons/get-person-block-status).
+</Note>
+
+## Telling Your Own Systems About a Block
+
+Blocking raises a `profile_block` event on the person, and unblocking raises `profile_unblock`. These events describe the block itself rather than the person's own activity, so a campaign step can listen for them and pass the block on to a CRM or another external system.
+
+This works for a Rewards block. An Events and Rewards block stops campaign evaluation for that person before any step runs, so it cannot announce itself — read that state with [Get person block status](/api-reference/persons/get-person-block-status) instead.
+
 # Unblock a User
 
 If you want to allow a user to participate in your program again:
