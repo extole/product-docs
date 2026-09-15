@@ -119,6 +119,60 @@ Check all three before you treat the integration as connected:
 2. The **Configurations** tab shows your Attentive Sign Up Source ID.
 3. A test phone capture in one of those campaigns produces a new subscriber in Attentive. Test the advocate and the friend paths separately — they capture the number in different experiences.
 
+### Send a Sample Event Without Publishing
+
+[//]: # "How do I send a test event to Attentive before publishing the campaign?"
+
+Attentive's journey builder only offers an event's properties as macros once it has seen that event, so teams often want a sample of each event before the referral program goes live.
+
+Real referral activity cannot produce those calls yet. The Attentive steps live inside the campaign, so they run only in that campaign's published version — until you publish, no share, sign-up or earned reward reaches Attentive no matter how the campaign is exercised.
+
+Send the sample straight through the webhook instead, which needs no campaign change:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v6/webhooks/events/send" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "type": "CONSUMER",
+    "client_id": "'"$CLIENT_ID"'",
+    "webhook_id": "'"$WEBHOOK_ID"'",
+    "event": {
+      "type": "CONSUMER",
+      "client_id": "'"$CLIENT_ID"'",
+      "webhook_id": "'"$WEBHOOK_ID"'",
+      "event_id": "sample00000000000001",
+      "root_event_id": "0",
+      "cause_event_id": "0",
+      "cause_event_sequence": 1,
+      "device_profile_id": "0",
+      "campaign_id": "'"$CAMPAIGN_ID"'",
+      "program_label": "refer-a-friend",
+      "journey_name": "everyone",
+      "client_domain": "'"$PROGRAM_DOMAIN"'",
+      "client_domain_id": "'"$CLIENT_DOMAIN_ID"'",
+      "sandbox": "production-production",
+      "variant": "en",
+      "schema_version": 6,
+      "data": {
+        "type": "Advocate Rewarded",
+        "user": { "email": "sample@example.com", "phone": "+15125550123" },
+        "properties": { "funnel": "Advocate", "coupon_code": "SAMPLE20" }
+      }
+    }
+  }'
+```
+
+`event.data` is delivered to Attentive as the request body, unchanged. It is the same object the campaign step would have built, so copy the shape from the step's webhook action: a dotted key there, such as `user.phone`, arrives nested.
+
+Use the subscriptions webhook id for a subscribe and the custom events webhook id for `Advocate Rewarded` or `Friend Rewarded`; both ids are on the **Configurations** tab. Each call is a real call to Attentive and creates a real subscriber or event, so use test identities.
+
+<Note>
+  **A subscribe still needs a Sign Up Source ID**
+
+  Attentive requires every opt-in request to carry either a sign-up source id, or both a locale and a subscription type. Extole's subscription payload sends the Sign Up Source ID from the **Configurations** tab, so while that field is empty a sample subscribe is rejected. The two reward events do not use it.
+</Note>
+
 [//]: ___
 
 ## Using this Integration
