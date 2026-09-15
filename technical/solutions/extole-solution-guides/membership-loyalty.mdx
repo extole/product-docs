@@ -1,32 +1,23 @@
 ---
-title: "Loyalty & Membership"
-description: "Build a points-based loyalty program, a membership referral program, or both — branded links, website tags, earning events, the Reward Bank, rewards, and mobile integration."
+title: "Membership & Loyalty"
+description: "Set up a membership and loyalty referral program with branded links, website tags, signup and purchase tracking, rewards, mobile integration, and optional enhancements."
 ---
 
 ## Overview
 
-[//]: # "How do I set up a loyalty or membership program with Extole?"
+[//]: # "What steps are required for setting up a membership and loyalty referral program with Extole?"
 
-Use this guide to build either of two programs for a membership business, or both together:
+Use this guide to set up a membership and loyalty referral program that tracks signups and purchases, then rewards advocates and friends.
 
-* A **points-based loyalty program**, where members earn points for actions you choose, accumulate a balance, and redeem it for rewards you configure.
-* A **membership referral program**, where members share with friends and both are rewarded when the friend signs up or purchases.
-
-The two share their foundation. Branding, website tags, signup and purchase tracking, creative, and mobile integration are the same work either way. They diverge only in how customers are rewarded, so this guide covers the shared setup once and then splits.
-
-### Which Program Are You Building?
-
-| If you want to | Follow |
-| :--- | :--- |
-| Reward members for actions over time — purchases, referrals, reviews, milestones — with points they bank and redeem | The shared setup, then [Build a Points-Based Loyalty Program](#build-a-points-based-loyalty-program) |
-| Reward members for bringing in new customers, one reward per successful referral | The shared setup, then [Reward your Customers](#reward-your-customers) |
-| Both — a loyalty program in which referrals are one of the ways to earn | The shared setup, then both sections |
-
-Complete these tasks:
+<Note>
+  This guide covers a **referral** program for a membership business. If you are building a
+  points-based loyalty program — members earning points for actions, accumulating a balance, and
+  redeeming it — see [Loyalty](/technical/solutions/extole-solution-guides/loyalty).
+</Note>
 
 1. Brand your Program
 2. Tag your Website
-3. Reward your Customers — as a loyalty program, a referral program, or both
+3. Reward your Customers
 4. Design your Experience (done by your creative team)
 5. Add to your Mobile App
 
@@ -610,84 +601,6 @@ Additional fields added on can be used for:
 | Response Field | Description                                                             |
 | :------------- | :---------------------------------------------------------------------- |
 | `id`           | Indicates the API input event at Extole that can be used for debugging. |
-
-[//]: ___
-
-## Build a Points-Based Loyalty Program
-
-[//]: # "How do I build a points-based loyalty program with Extole?"
-
-In a loyalty program, members earn points for actions you choose, accumulate them in a Reward Bank, and redeem them for rewards you configure. Branding and tagging are already covered above; this section covers what is specific to loyalty.
-
-<Frame>
-  <img
-    src="/images/extole/loyalty-program-flow.svg"
-    alt="Flow from your systems through quality and reward rules to a Collectible Reward, into the Reward Bank balance, then out through a Redemption Option to fulfillment. Events that fail the rules issue no points."
-  />
-
-  An event from your systems becomes points, accumulates as a balance, and is redeemed for a reward you configure.
-</Frame>
-
-### Send Your Earning Events
-
-Each way to earn is an event paired with a reward rule. Decide which actions you will reward, then confirm each one can reach Extole from the system that owns it.
-
-For the catalog of actions a loyalty program commonly rewards, see [Ways to Earn](/product/product-overview/programs/loyalty/ways-to-earn). For the integration path for each source system — ecommerce, mobile, in-store, contact center, CRM, CDP — see [Loyalty Data Sources](/technical/platform-integrations/loyalty-data-sources).
-
-Two decisions to settle before you build:
-
-**Identity.** A balance belongs to a person, so every source has to identify the member the same way. Send your own identifier for the member with every event, so activity from your site, your app, and your back-office systems lands on one profile. This is the same `partner_user_id` used by the registration and conversion tags above.
-
-**Timing.** Decide which events must arrive in real time and which can batch overnight. Real-time events go over the API; the rest can go by file. Members notice the difference on high-visibility actions such as a purchase.
-
-<Warning>
-  Confirm an event arrives and attributes to the right person before you attach a reward to it. An event that lands on a second profile produces a balance the member cannot see, and those are difficult to reconcile after launch.
-</Warning>
-
-### Configure the Reward Bank
-
-Install the Reward Bank extension from **Partners** > **Extensions**. The full click-path is in the [Reward Bank Configuration Guide](/technical/platform-integrations/extensions/reward-bank/reward-bank-configuration-guide); the decisions that shape a loyalty program are these.
-
-#### Collectible Rewards
-
-Create one Collectible Reward per way to earn, named so the value is obvious. Choose fixed or dynamic:
-
-* **Fixed** — a set number of points, for actions with no monetary value such as a review or an app download.
-* **Dynamic** — a percentage of the transaction, for purchases. A maximum per transaction is required; set it deliberately rather than high, because it is the cap on what a single event can cost you.
-
-#### Redemption Options
-
-Redemption Options are what a balance buys. Configure each as a reward supplier with a dynamic value, rather than a fixed amount, so the member's balance determines the value. Align the maximum with the limit your reward provider enforces.
-
-#### Redemption Rate
-
-Set the ratio of accumulated value to dollars. The default is 1:1; a ten-point rate means one dollar per ten points.
-
-This number sets the cost of your program and how the offer reads to a member. Choose it before launch and treat changes to it as a policy change. See [Choosing Your Point-to-Reward Ratio](/guides/strategy-and-best-practices/campaign-optimization/choosing-your-point-to-reward-ratio).
-
-#### Tiers
-
-If members earn at different rates by status, bring the tier in from your systems and write one reward rule per tier. See [Tiers and Member Status](/technical/platform-integrations/extensions/reward-bank/tiers-and-status).
-
-### Design the Member Experience
-
-Choose how members reach their balance:
-
-| Option | Use when |
-| :--- | :--- |
-| Redemption Center | You have a page to embed it into, such as an account or rewards page. |
-| Redemption Center Microsite | You want a standalone branded page to link to from email. |
-| Your own interface | You want full control. Read the balance through the Reward Bank endpoints and render it yourself; see [Points and Balances](/technical/platform-integrations/extensions/reward-bank/points-and-balances). |
-
-The Reward Bank requires a verified consumer. Confirm the verification path works from a logged-in page and from an email link, where a JSON Web Token appended to the link does the authentication. See [Verifying Consumers](/technical/operational-tasks/security-and-compliance/verifying-consumers).
-
-Then configure the recurring messages — earned reward emails pointing at the Redemption Center, and redemption confirmations. See [The Member Experience](/product/product-overview/programs/loyalty/member-experience).
-
-### Launch and Monitor
-
-Before launch, confirm each way to earn end to end: send a real event, check the member's profile shows the reward, and check the balance changes in the Redemption Center.
-
-After launch, watch points issued against points redeemed. A balance that only grows is a liability building on your side and a member who has not found a reason to spend. See [Reward Bank Reports](/guides/dashboards-and-reporting/report-types/rewards-reports/reward-bank-reports).
 
 [//]: ___
 
