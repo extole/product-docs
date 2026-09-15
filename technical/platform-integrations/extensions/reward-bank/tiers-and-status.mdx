@@ -1,0 +1,95 @@
+---
+title: "Tiers and Member Status"
+description: "The three distinct things Extole calls a tier, how to bring a membership tier into a participant's profile, and how to reward on it."
+---
+
+## Overview
+
+[//]: # "How do loyalty tiers work in Extole?"
+
+"Tier" means three unrelated things across Extole, and choosing the wrong one costs time. This page
+separates them, then covers the one most loyalty programs need: a membership status that travels
+with the participant and changes what they earn.
+
+[//]: ___
+
+## Three Meanings of Tier
+
+| Name | What it is | Where it lives |
+| :--- | :--- | :--- |
+| Advocate tiers | Reporting segments that classify advocates by how many successful activities they have driven. Descriptive only — they do not change behavior. | [Advocate Tiers](/guides/audiences-and-segmentation/advocate-tiers) |
+| Tiered rewards | Reward rules that issue a different reward value depending on cart value, product type, referral count, or a profile attribute. | [Rules and Quality](/product/product-overview/rewards/rules-quality) |
+| Membership tier | A named status the participant holds, such as Bronze or Gold, carried on their profile and used to target and to reward. | This page |
+
+A loyalty program that promises "Gold members earn double" needs the third, implemented with the
+second.
+
+## Bringing a Tier into Extole
+
+Extole does not calculate membership tier. Your systems own the definition and tell Extole the
+result. There are two supported paths.
+
+### As a Profile Attribute
+
+Prefix an event data key with `me.public.` and Extole writes the value onto the person's profile.
+The prefix is stripped and the rest of the key becomes the attribute name, so `me.public.loyalty_tier`
+writes an attribute named `loyalty_tier`.
+
+Send the attribute alongside an event you are already sending, or send it on its own when the tier
+changes. Campaign rules, audiences, and reports all read the resulting attribute. See
+[Set Person Profile Data from an Event](/technical/integration-overview/set-person-profile-data-from-an-event).
+
+Use this where tier needs to be readable per participant at the moment a rule evaluates.
+
+### As Audience Membership
+
+Extole supports partner-managed audience membership over the API, which is built for syncing groups
+such as segments, subscription states, or loyalty tiers. Create an audience per tier and maintain
+membership from your side. See
+[Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership).
+
+Use this where you already maintain tier lists in a CDP or CRM and want to sync them in bulk.
+
+<Tip>
+  Choose one path and stay with it. Maintaining a tier as both a profile attribute and an audience
+  produces two sources of truth that drift, and rules written against the stale one fail quietly.
+</Tip>
+
+## Rewarding on Tier
+
+Once the tier is on the profile, a reward rule can read it. Reward rules support conditions on a
+profile attribute, so a rule limited to participants whose `loyalty_tier` is `gold` issues the
+higher reward only to them.
+
+Build a tiered earning structure as one reward per tier, each with a rule matching that tier, on
+the same event. A participant matches exactly one, and changing the structure later is a change to
+the rules rather than to your integration.
+
+Trigger rules can read the same attribute, so an event can fire only for participants in a given
+tier. See [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules) and
+[How to Set Up Reward Rules](/guides/flow-campaigns/how-to-set-up-reward-rules).
+
+## Targeting on Tier
+
+Tier is also a targeting dimension. A campaign can be targeted to an audience, so a members-only
+offer or an early-access experience can be limited to one tier without changing the reward at all.
+See [How to Target a Program](/guides/flow-campaigns/how-to-target-a-program).
+
+## Tier Progression
+
+<Info>
+  **Planned capability.** PLANNED-CAPABILITY — a built-in tier engine that accumulates lifetime
+  points, promotes participants across named tiers, prevents demotion, and applies a per-tier
+  earning multiplier is not confirmed as an available feature. Confirm with Product before
+  publishing.
+
+  What works today: your systems decide when a participant's tier changes and write the new value
+  to Extole using one of the paths above. Extole reads the tier; it does not compute it.
+</Info>
+
+## Related
+
+* [Points and Balances](/technical/platform-integrations/extensions/reward-bank/points-and-balances)
+* [Reward Bank Configuration Guide](/technical/platform-integrations/extensions/reward-bank/reward-bank-configuration-guide)
+* [Set Person Profile Data from an Event](/technical/integration-overview/set-person-profile-data-from-an-event)
+* [Rules and Quality](/product/product-overview/rewards/rules-quality)
