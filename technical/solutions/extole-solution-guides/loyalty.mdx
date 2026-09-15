@@ -9,13 +9,13 @@ description: "Build a points-based loyalty program end to end — brand and tag 
 
 Use this guide to build a loyalty program in which members earn points for actions you choose, accumulate them in a Reward Bank, and redeem them for rewards you configure.
 
-1. Brand your Program
-2. Tag your Website
-3. Send your Earning Events
+1. Brand Your Program
+2. Tag Your Website
+3. Send Your Earning Events
 4. Configure the Reward Bank
-5. Show Members their Balance
-6. Design your Experience (done by your creative team)
-7. Add to your Mobile App
+5. Show Members Their Balance
+6. Design Your Experience (done by your creative team)
+7. Add to Your Mobile App
 
 <Note>
   Building a **referral** program for a membership business — advocates sharing with friends, both rewarded? That is a different build. See [Membership & Loyalty](/technical/solutions/extole-solution-guides/membership-loyalty).
@@ -32,11 +32,11 @@ Use this guide to build a loyalty program in which members earn points for actio
   An event from your systems becomes points, accumulates as a balance, and is redeemed for a reward you configure.
 </Frame>
 
-## Brand your Program
+## Brand Your Program
 
 Loyalty programs are long-lived and email-heavy. Members receive messages for years, so branding matters more here than in a short campaign.
 
-### Create a CNAME for your Domain
+### Create a CNAME for Your Domain
 
 <Info>
   **Task Duration**
@@ -46,7 +46,7 @@ Loyalty programs are long-lived and email-heavy. Members receive messages for ye
 
 Create a CNAME (a DNS record that points one domain to another) for your domain so you can serve branded links and experiences. Complete the steps in [Extole DNS Requirements](/technical/operational-tasks/account-configuration/extole-dns-requirements).
 
-### Send from Your Branded Email
+### Send From Your Branded Email
 
 A loyalty program sends earned reward emails, redemption confirmations, and reminders. The from address is typically something like `do-not-reply@mycompany.com`.
 
@@ -54,7 +54,7 @@ To update your SPF (Sender Policy Framework) records and install Extole DKIM (Do
 
 [//]: ___
 
-## Tag your Website
+## Tag Your Website
 
 Extole works with your site using lightweight JavaScript tags. The core tag must be included on every page and contains Extole's JavaScript library. Tags can go anywhere in the HTML and do not need to load in any particular order.
 
@@ -105,7 +105,7 @@ Reward members for joining, and establish the profile their balance will belong 
 | `first_name` | The first name of the person enrolling. |
 | `last_name` | The last name of the person enrolling. |
 | `email` **required** | The email address of the person enrolling. |
-| `partner_user_id` **required** | Your unique identifier for this person, such as an account ID or member ID. This is the key their balance is held against. |
+| `partner_user_id` **required for this implementation** | Your unique identifier for this person, such as an account ID or member ID. This is the key their balance is held against. |
 
 <Warning>
   Send `partner_user_id` on every tag and every API call. A balance belongs to a person, so activity arriving without a consistent identifier can land on a second profile, producing a balance the member cannot see.
@@ -126,7 +126,7 @@ Add the conversion tag to your order confirmation page so Extole receives the pu
      data: {
        "email":"julio@member.com", // DYNAMIC VALUE
        "partner_user_id":"00O40000004SQbO", // DYNAMIC VALUE
-       "partner_conversion_id":"00O415320037eWy", // DYNAMIC VALUE
+       "order_id":"00O415320037eWy", // DYNAMIC VALUE
        "cart_value":"20.00" // DYNAMIC VALUE
      }
   });
@@ -137,18 +137,18 @@ Add the conversion tag to your order confirmation page so Extole receives the pu
 | :--- | :--- |
 | `email` **required** | The email address of the person making the purchase. |
 | `partner_user_id` | Your unique identifier for this person. |
-| `partner_conversion_id` **required** | Your order number, uniquely identifying this transaction. Used for deduplication and customer support. |
+| `order_id` **required** | Your order number, uniquely identifying this transaction. Use the same value when the purchase can arrive by both tag and API so Extole can deduplicate it. |
 | `cart_value` **required** | The value of the purchase, ideally the gross cart value before coupons. |
 
 [//]: ___
 
-## Send your Earning Events
+## Send Your Earning Events
 
 Each way to earn is an event paired with a reward rule. Actions that happen off your website — an in-store purchase, a completed survey, a tenure milestone — arrive by API or file.
 
 For the catalog of actions a loyalty program commonly rewards, see [Ways to Earn](/product/product-overview/programs/loyalty/ways-to-earn).
 
-### Create Extole API Keys
+### Create an Extole Access Token
 
 API calls authenticate with an access token in the request header. Keys are managed in the [My Extole Security Center](https://my.extole.com/security-center). Create one with **Create New Access Token**; My Extole displays the key once.
 
@@ -167,7 +167,9 @@ curl -H "Authorization: Bearer XXXX" https://api.extole.io/v2/me/clients
 
 ### Send Events by API
 
-Send a request for each earning action that happens outside your site. Extole deduplicates events by order identifier, so the same purchase can safely arrive by both tag and API.
+Send a request for each earning action that happens outside your site. The same purchase can arrive
+by both tag and API when both send the same `order_id`; Extole uses that value to deduplicate the
+event.
 
 ```json Event API Call
 POST https://api.extole.io/v5/events
@@ -209,7 +211,7 @@ Every source resolves to one of three paths, in descending order of preference: 
 | Contact center | **No packaged integration.** User Support, or the Events API — see below |
 | Email and SMS | [Braze](/technical/partners/marketing-automation/braze), [Iterable](/technical/partners/marketing-automation/iterable), [Klaviyo](/technical/partners/marketing-automation/klaviyo), [Listrak](/technical/partners/marketing-automation/listrak), [Cordial](/technical/partners/marketing-automation/cordial), [Optimove](/technical/partners/marketing-automation/optimove), [Attentive](/technical/partners/marketing-automation/attentive) for SMS |
 | CRM | [Salesforce](/technical/partners/crm/extole-to-salesforce-crm), [HubSpot](/technical/partners/crm/hubspot), [ServiceTitan](/technical/partners/crm/service-titan) |
-| Customer data platform | [Segment](/technical/partners/customer-data/segment), [Amplitude](/technical/partners/customer-data/amplitude). Often the cleanest source for tier membership — see [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership) |
+| Customer data and analytics | [Segment](/technical/partners/customer-data/segment), [Amplitude](/technical/partners/customer-data/amplitude). Often the cleanest source for tier membership — see [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership) |
 | Existing loyalty platform | Extole can credit points into it rather than banking them. [SessionM](/technical/partners/loyalty/sessionm-loyalty-solution-guide) is a worked example; to build the same against another platform see [Build a Reward Fulfillment Integration](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment) |
 
 Check the direction of each packaged integration before designing around it. Several report activity into Extole without accepting rewards back out, which matters if you intend to redeem into store credit held by that platform.
@@ -239,6 +241,10 @@ Create one Collectible Reward per way to earn, named so the value is obvious.
 * **Fixed** — a set number of points, for actions with no monetary value such as a review or an app download.
 * **Dynamic** — a percentage of the transaction, for purchases. A maximum per transaction is required; set it deliberately rather than high, because it is the cap on what a single event can cost you.
 
+Supported Reward Bank Collectible Rewards can also expire on a fixed date or after a delay from the
+earn date. Republish an existing campaign after adding expiration so new rewards receive the
+setting; rewards already issued keep their existing expiration.
+
 ### Redemption Options
 
 Redemption Options are what a balance buys. Configure each as a reward supplier with a dynamic value rather than a fixed amount, so the member's balance determines the value. Align the maximum with the limit your reward provider enforces.
@@ -247,7 +253,7 @@ Redemption Options are what a balance buys. Configure each as a reward supplier 
 
 Set the ratio of accumulated value to dollars. The default is 1:1; a ten-point rate means one dollar per ten points.
 
-This number sets the cost of your program and how the offer reads to a member. Choose it before launch and treat changes as a policy change. See [Choosing Your Point-to-Reward Ratio](/guides/strategy-and-best-practices/campaign-optimization/choosing-your-point-to-reward-ratio).
+This number helps determine the cost of your program and how the offer reads to a member. Choose it before launch and treat changes as a policy change. See [Choosing Your Point-to-Reward Ratio](/guides/strategy-and-best-practices/campaign-optimization/choosing-your-point-to-reward-ratio).
 
 ### Tiers
 
@@ -255,7 +261,7 @@ If members earn at different rates by status, bring the tier in from your system
 
 [//]: ___
 
-## Show Members their Balance
+## Show Members Their Balance
 
 Choose how members reach their balance:
 
@@ -269,10 +275,12 @@ The Reward Bank requires a [verified consumer](/technical/operational-tasks/secu
 
 ### Read a Balance
 
-Replace `client` with your program domain, which you can find in the [Tech Center](https://my.extole.com/tech-center).
+Replace the placeholders with your program domain and configured Reward Bank zone name, which you
+can find in the [Tech Center](https://my.extole.com/tech-center). The zone name is configurable and
+is often `bankable_rewards`.
 
 ```curl
-curl --get "https://client.extole.io/zone/bankable_rewards" \
+curl --get "https://<PROGRAM_DOMAIN>/zone/<REWARD_BANK_ZONE>" \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer <VERIFIED CONSUMER ACCESS TOKEN>"
 ```
@@ -298,9 +306,11 @@ The `reward_supplier_id` must be one of the suppliers returned in `redemption_su
 
 For the full balance and state model, see [Points and Balances](/technical/platform-integrations/extensions/reward-bank/points-and-balances).
 
-### Reverse Points
+### Expire or Revoke Points
 
-Two operations remove value a member has already earned. Both are audited and both accept a reason stored with the record.
+Use `expire` to remove value under the program's expiration policy. Use `revoke` to invalidate a
+fulfilled or sent reward when the supplier supports revocation. Both actions are audited and accept
+an optional reason stored with the record.
 
 ```curl
 curl --request POST "https://api.extole.io/v2/rewards/<REWARD_ID>/expire" \
@@ -309,25 +319,31 @@ curl --request POST "https://api.extole.io/v2/rewards/<REWARD_ID>/expire" \
   --data '{ "message": "Points expired under program terms" }'
 ```
 
-Use `expire` for a reward that has reached the end of its life under your program terms, and `revoke` for one that should not stand — issued against an order later returned, or against activity found to be illegitimate.
+Extole does not automatically map a return to the points issued for its original order. Your system
+must identify the reward and call `revoke`.
 
 [//]: ___
 
-## Design your Experience
+## Design Your Experience
 
 Your creative team brands the enrollment experience, the Redemption Center, and the program emails. Customize the Redemption Center appearance through its creative bundle, and point earned reward emails at it so members have a route back to their balance.
 
 See [The Member Experience](/product/product-overview/programs/loyalty/member-experience) and the [Earned Reward Emails Asset Guide](/guides/programs-and-campaigns/asset-guides/earned-reward-emails-asset-guide).
 
-## Add to your Mobile App
+## Add to Your Mobile App
 
-Surface earning and redemption in your app with the [Mobile SDKs](/technical/platform-integrations/mobile-sdks), or render a balance in your own interface with the [Headless and Mobile API](/technical/platform-integrations/rest-apis/mobile-api).
+Use the [Mobile SDKs](/technical/platform-integrations/mobile-sdks) to send earning events from your
+app. To show a balance and let members redeem, build the interface from the Reward Bank response
+described above. See the [Headless and Mobile API](/technical/platform-integrations/rest-apis/mobile-api)
+for the broader headless experience.
 
 ## Launch and Monitor
 
 Before launch, confirm each way to earn end to end: send a real event, check the member's profile shows the reward, and check the balance changes in the Redemption Center.
 
-After launch, watch points issued against points redeemed. A balance that only grows is a liability building on your side and a member who has not found a reason to spend. See [Reward Bank Reports](/guides/dashboards-and-reporting/report-types/rewards-reports/reward-bank-reports).
+After launch, compare issued, redeemed, and unredeemed value. Interpret a growing balance alongside
+member growth, seasonality, and time since launch. See
+[Reward Bank Reports](/guides/dashboards-and-reporting/report-types/rewards-reports/reward-bank-reports).
 
 ## Related
 
