@@ -1,0 +1,659 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Rewardable",
+    "version": "1.0.0",
+    "description": "Issues and manages the rewards a person earns, including approval and re-notification.\n\n**Demo contract for the ENG-30863 docs preview. Operations are illustrative and are not implemented; do not integrate against this page.**"
+  },
+  "servers": [
+    {
+      "description": "Production",
+      "url": "https://api.extole.io"
+    }
+  ],
+  "paths": {
+    "/v5/persons/{person_id}/rewards": {
+      "get": {
+        "operationId": "get_status_and_history",
+        "summary": "Get Status and History",
+        "description": "Returns the person's rewards with their current state and full state history.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "rewardable",
+          "VIEW"
+        ],
+        "parameters": [
+          {
+            "name": "person_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "required": [
+                    "rewards"
+                  ],
+                  "properties": {
+                    "rewards": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "$schema": "https://json-schema.org/draft/2020-12/schema",
+                        "required": [
+                          "reward_id",
+                          "state"
+                        ],
+                        "properties": {
+                          "state": {
+                            "enum": [
+                              "EARNED",
+                              "PENDING",
+                              "FULFILLED",
+                              "FAILED",
+                              "REVOKED"
+                            ],
+                            "type": "string"
+                          },
+                          "history": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "$schema": "https://json-schema.org/draft/2020-12/schema",
+                              "required": [
+                                "state",
+                                "at"
+                              ],
+                              "properties": {
+                                "at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "state": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "earned_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "reward_id": {
+                            "type": "string"
+                          },
+                          "partner_reward_id": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v5/rewards/{reward_id}/force-approve": {
+      "post": {
+        "operationId": "force_approve",
+        "summary": "Force Approve",
+        "description": "Approves a reward that quality rules held back, bypassing the pending period.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "ACTION",
+          "rewardable"
+        ],
+        "parameters": [
+          {
+            "name": "reward_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "required": [
+                  "request_id"
+                ],
+                "properties": {
+                  "note": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "request_id": {
+                    "type": "string",
+                    "description": "Caller-supplied idempotency key."
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "required": [
+                    "reward_id",
+                    "state"
+                  ],
+                  "properties": {
+                    "state": {
+                      "type": "string"
+                    },
+                    "reward_id": {
+                      "type": "string"
+                    },
+                    "approved_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v5/rewards": {
+      "post": {
+        "operationId": "create_new",
+        "summary": "Create New Reward",
+        "description": "Issues a reward to a person outside the normal earning flow.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "ACTION",
+          "rewardable"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "required": [
+                  "person_id",
+                  "reward_supplier_id",
+                  "request_id"
+                ],
+                "properties": {
+                  "reason": {
+                    "type": "string"
+                  },
+                  "person_id": {
+                    "type": "string"
+                  },
+                  "face_value": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "request_id": {
+                    "type": "string",
+                    "description": "Caller-supplied idempotency key."
+                  },
+                  "reward_supplier_id": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "required": [
+                    "reward_id",
+                    "state"
+                  ],
+                  "properties": {
+                    "state": {
+                      "type": "string"
+                    },
+                    "reward_id": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v5/rewards/{reward_id}/resend-email": {
+      "post": {
+        "operationId": "resend_email",
+        "summary": "Resend Reward Email",
+        "description": "Sends the reward notification email again to the person who earned it.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "ACTION",
+          "rewardable"
+        ],
+        "parameters": [
+          {
+            "name": "reward_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "to_email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Overrides the address on the person's profile."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "reward_id": {
+                      "type": "string"
+                    },
+                    "message_id": {
+                      "type": "string"
+                    },
+                    "sent_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "reward_id",
+                    "message_id"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RestExceptionResponse": {
+        "type": "object",
+        "description": "Represents the API error response",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Specific error code for this error type, documented per endpoint"
+          },
+          "http_status_code": {
+            "type": "integer",
+            "description": "HTTP status code that was returned with this error, useful if client get response code"
+          },
+          "message": {
+            "type": "string",
+            "description": "User readable English description of the error"
+          },
+          "parameters": {
+            "type": "object",
+            "description": "Attributes related to the error, varies be error code, documented per endpoint",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Attributes related to the error, varies be error code, documented per endpoint"
+            }
+          },
+          "unique_id": {
+            "type": "string",
+            "description": "Unique id associated with this error, useful for discussions with Extole"
+          }
+        },
+        "required": [
+          "code",
+          "http_status_code",
+          "message",
+          "parameters",
+          "unique_id"
+        ]
+      }
+    },
+    "examples": {
+      "binding_error": {
+        "summary": "binding_error",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "binding_error",
+          "message": "Argument is not of the expected type",
+          "parameters": {}
+        }
+      },
+      "invalid_json": {
+        "summary": "invalid_json",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "invalid_json",
+          "message": "JSON is invalid",
+          "parameters": {}
+        }
+      },
+      "invalid_parameter": {
+        "summary": "invalid_parameter",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "invalid_parameter",
+          "message": "Parameter is invalid.",
+          "parameters": {}
+        }
+      },
+      "missing_request_body": {
+        "summary": "missing_request_body",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "missing_request_body",
+          "message": "Missing request body",
+          "parameters": {}
+        }
+      },
+      "access_denied": {
+        "summary": "access_denied",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "access_denied",
+          "message": "The access_token provided is not permitted to access the specified resource.",
+          "parameters": {}
+        }
+      },
+      "method_unauthorized": {
+        "summary": "method_unauthorized",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "method_unauthorized",
+          "message": "Access forbidden to this endpoint",
+          "parameters": {}
+        }
+      },
+      "missing_access_token": {
+        "summary": "missing_access_token",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "missing_access_token",
+          "message": "No access_token was provided with this request.",
+          "parameters": {}
+        }
+      }
+    },
+    "securitySchemes": {
+      "HEADER": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "x-bearer-format": "bearer"
+      },
+      "QUERY": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "access_token"
+      }
+    }
+  },
+  "security": [
+    {
+      "HEADER": []
+    },
+    {
+      "QUERY": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "ACTION"
+    },
+    {
+      "name": "VIEW"
+    },
+    {
+      "name": "rewardable"
+    }
+  ]
+}
