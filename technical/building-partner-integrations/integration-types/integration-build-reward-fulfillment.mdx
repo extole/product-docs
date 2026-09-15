@@ -3,13 +3,13 @@ title: "Build a Reward Fulfillment Integration"
 description: "Create the supplier type, support campaign, supplier templates, reward webhooks, and reward-specific views for a partner that fulfills rewards."
 ---
 
-Part of the [packaged integration guide](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
+Part of the [partner integration guide](/technical/building-partner-integrations/integration-lifecycle/management-api-integration).
 
 # Overview
 
-A reward fulfillment integration orders something of value from a partner when a participant earns a reward. It adds a supply side to an outbound integration: a component type for the partner's reward suppliers, a support campaign of one template per product, and `REWARD` webhooks scoped to those suppliers.
+A reward fulfillment integration orders something of value from a partner when a participant earns a reward. It adds a supply side to an Extole to Partner integration: a component type for the partner's reward suppliers, a support campaign of one template per product, and `REWARD` webhooks scoped to those suppliers.
 
-Examples use a generic partner named `example`. [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) describes the model; this page is the build order.
+Examples use a generic partner named `example`. [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories) describes the model; this page is the build order.
 
 ## When You Would Build One
 
@@ -20,7 +20,7 @@ Examples use a generic partner named `example`. [Integration Categories](/techni
 | Extole to credit points in the partner's own program | Points provider |
 | Extole to send a cash payout | Payout provider |
 
-Each product a client offers becomes a reward supplier, and templates live in their own `CONFIGURATION` support campaign — [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) explains why the model takes two campaigns.
+Each product a client offers becomes a reward supplier, and templates live in their own `CONFIGURATION` support campaign — [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories) explains why the model takes two campaigns.
 
 ## The Finished Shape
 
@@ -47,7 +47,7 @@ Resources attached by component_ids
 
 **Build all four views.** Their report-runner and event-stream elements come last, after the views exist and the campaign is republished.
 
-**The names above are literal**; only `example` stands in for the partner. Name both campaigns after the partner and generation, as in `Example V10` and `Example V10 Support`. Tab labels come from each view's `title`, so renaming a view stops the build from diffing against the packaged one.
+**The names above are literal**; only `example` stands in for the partner. Name both campaigns after the partner and generation, as in `Example V10` and `Example V10 Support`. Tab labels come from each view's `title`, so renaming a view stops the build from diffing against the maintained one.
 
 ## Before You Start
 
@@ -55,7 +55,7 @@ Install the maintained source when the duplicatable listing has one; the sequenc
 
 Confirm the source's type first — a pre-v10 type such as `integration-v1` is the partner's legacy integration under the same name. Build the shape below when that is the only source available.
 
-Making the partner installable for every client needs a registered, Extole-owned component — see [Build a Packaged Integration with the Management API](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
+Making the partner installable for every client needs a registered, Extole-owned component — see [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration).
 
 Three orderings are forced:
 
@@ -85,7 +85,7 @@ curl --request POST "$EXTOLE_API_HOST/v1/component-types" \
 
 ### Create the Integration and Its Sockets
 
-Create the `INTEGRATION` campaign, root, and model component as described in [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model).
+Create the `INTEGRATION` campaign, root, and model component as described in [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model).
 
 Declare the credential settings under the names the partner page uses — for BHN, `merchantId` (`STRING`) and `clientKeyId` (`CLIENT_KEY`). A prefixed invention such as `bhnMerchantId` is a distinct setting, and webhook `client_key_id` expressions plus request handlers that call `context.getVariable("merchantId")` will read null.
 
@@ -162,7 +162,7 @@ Settings arrive under `variables` on a create — `settings` is the sub-path for
 
 Declare every setting the supplier below reads — `dynamicValue`, `cashBackPercentage`, `cashBackMin`, `cashBackMax`, `financialAccountId` — plus `rewardSupplierId`, which the platform reward-supplier type requires by name.
 
-Name each template with the same token as its tag, so `example-virtual` carries `internal:example-virtual`; the Rewards page follows that match to offer the product. Give every template a `rewardSupplierLogo`, sourced as [Set a Logo That Resolves](/technical/building-custom-integrations/integration-lifecycle/integration-component-model#set-a-logo-that-resolves) describes.
+Name each template with the same token as its tag, so `example-virtual` carries `internal:example-virtual`; the Rewards page follows that match to offer the product. Give every template a `rewardSupplierLogo`, sourced as [Set a Logo That Resolves](/technical/building-partner-integrations/integration-lifecycle/integration-component-model#set-a-logo-that-resolves) describes.
 
 Default `enabled` to `false`. The rewards list shows enabled suppliers only, so enabling a template is the marketer's act.
 
@@ -214,7 +214,7 @@ curl --request POST \
 Read `$SUPPORT_CAMPAIGN_VERSION` immediately before publishing.
 
 <Info>
-This version-scoped publish is **missing from the OpenAPI specification**, so you will not find it in the API reference. That is a gap in the specification rather than a sign the operation is unavailable — this page and [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation) are its documentation. The specification does carry `POST /v2/campaigns/{campaignId}/publish`, the unversioned variant of the same action.
+This version-scoped publish is **missing from the OpenAPI specification**, so you will not find it in the API reference. That is a gap in the specification rather than a sign the operation is unavailable — this page and [Validate and Publish an Integration](/technical/building-partner-integrations/integration-lifecycle/integration-validation) are its documentation. The specification does carry `POST /v2/campaigns/{campaignId}/publish`, the unversioned variant of the same action.
 </Info>
 
 Finally, give each template a `REWARD_SUPPLIER_ID` setting resolving its own element by that tag:
@@ -242,7 +242,7 @@ curl --request POST "$EXTOLE_API_HOST/v1/component-subscriptions" \
 
 ### Give the Reward Activity Tab Its Report and Feed
 
-Build both views from [Add the Activity and Event Views](/technical/building-custom-integrations/integration-lifecycle/integration-activity-views), which carries the view bodies, their elements, and the republish each attachment needs. Three values are reward-specific.
+Build both views from [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views), which carries the view bodies, their elements, and the republish each attachment needs. Three values are reward-specific.
 
 The runner's `mappings` expression counts reward activity and the revenue behind it:
 
@@ -401,8 +401,8 @@ Then confirm the marketer-facing surfaces:
 | `GET /v6/reward-suppliers` | Each built supplier names a component whose own name matches its `internal:` tag |
 | `GET /v6/reward-suppliers/built` | The partner's products absent by default, present under `include_disabled=true` |
 
-[Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation) covers the views, logos, and display settings.
+[Validate and Publish an Integration](/technical/building-partner-integrations/integration-lifecycle/integration-validation) covers the views, logos, and display settings.
 
 ## Related Documentation
 
-- [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories)
+- [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories)
