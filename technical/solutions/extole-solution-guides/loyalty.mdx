@@ -48,9 +48,7 @@ Each way to earn is an event. Decide the actions you will reward, then confirm e
 Extole from the system that owns it.
 
 For the catalog of actions a loyalty program commonly rewards, see
-[Ways to Earn](/product/product-overview/programs/loyalty/ways-to-earn). For the integration path
-for each source system — ecommerce, mobile, in-store, contact center, CRM, CDP — see
-[Loyalty Data Sources](/technical/platform-integrations/loyalty-data-sources).
+[Ways to Earn](/product/product-overview/programs/loyalty/ways-to-earn).
 
 Two decisions to settle before you build:
 
@@ -67,6 +65,38 @@ actions such as a purchase.
   event that lands on a second profile produces a balance the member cannot see, and those are
   difficult to reconcile after launch.
 </Warning>
+
+### Where Events Come From
+
+Every source resolves to one of three paths, in descending order of preference:
+
+1. **A packaged integration.** Install and configure it; Extole maintains the mapping.
+2. **The Events API.** Your system sends events directly. Use where no packaged integration exists and the event should arrive in real time. See [Sending Platform Events](/technical/building-custom-integrations/integration-types/sending-platform-events).
+3. **File upload.** Batched events by SFTP or upload, for offline and back-office activity that does not need to be immediate. See [File-Based Events](/technical/platform-integrations/files/file-based-events).
+
+| Source | Path |
+| :--- | :--- |
+| Ecommerce | Packaged: [Shopify](/technical/partners/ecommerce/shopify), [Shopify Hydrogen](/technical/partners/ecommerce/shopify-hydrogen), [BigCommerce](/technical/partners/ecommerce/bigcommerce), [Salesforce Commerce Cloud SFRA](/technical/partners/ecommerce/salesforce-commerce-cloud-sfra) and [SiteGenesis](/technical/partners/ecommerce/salesforce-commerce-cloud-site-genesis), [OpenCart](/technical/partners/ecommerce/opencart) |
+| Website | [JavaScript SDK](/technical/platform-integrations/javascript-sdk), directly or through [Google Tag Manager](/technical/partners/tag-management/google-tag-manager), [Tealium](/technical/partners/tag-management/tealium) or [Ensighten](/technical/partners/tag-management/ensighten) |
+| Mobile app | [Mobile SDKs](/technical/platform-integrations/mobile-sdks) — [iOS](/technical/platform-integrations/mobile-sdks/ios-sdk), [Android](/technical/platform-integrations/mobile-sdks/android-sdk), [React Native](/technical/platform-integrations/mobile-sdks/react-native-sdk). To render a balance in your own app, use the [Headless and Mobile API](/technical/platform-integrations/rest-apis/mobile-api) |
+| Point of sale | **No packaged integration.** Events API or file upload — see below |
+| Contact center | **No packaged integration.** User Support, or the Events API — see below |
+| Email and SMS | [Braze](/technical/partners/marketing-automation/braze), [Iterable](/technical/partners/marketing-automation/iterable), [Klaviyo](/technical/partners/marketing-automation/klaviyo), [Listrak](/technical/partners/marketing-automation/listrak), [Cordial](/technical/partners/marketing-automation/cordial), [Optimove](/technical/partners/marketing-automation/optimove), [Attentive](/technical/partners/marketing-automation/attentive) for SMS |
+| CRM | [Salesforce](/technical/partners/crm/extole-to-salesforce-crm), [HubSpot](/technical/partners/crm/hubspot), [ServiceTitan](/technical/partners/crm/service-titan) |
+| Customer data platform | [Segment](/technical/partners/customer-data/segment), [Amplitude](/technical/partners/customer-data/amplitude). Often the cleanest source for tier membership — see [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership) |
+| Existing loyalty platform | Extole can credit points into it rather than banking them. [SessionM](/technical/partners/loyalty/sessionm-loyalty-solution-guide) is a worked example; to build the same against another platform see [Build a Reward Fulfillment Integration](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment) |
+
+Check the direction of each packaged integration before designing around it. Several report activity into Extole without accepting rewards back out, which matters if you intend to redeem into store credit held by that platform.
+
+#### Point of Sale and Contact Center
+
+Neither has a packaged integration, and both come up often enough to be worth stating plainly.
+
+**In store**, purchases reach Extole when something ties the transaction to a person — in practice the member ID your loyalty program already issues, captured at the register and sent with the transaction. Where in-store data settles in batches, a nightly file is usually right; where points must appear before the member leaves the store, the transaction has to be sent over the API. This path covers earning only. Redeeming a balance at the register, or discounting inside a live transaction, depends on what your point-of-sale system allows — discuss it with your Extole team before designing around it.
+
+**Agents** work with a loyalty program in two ways, both available without an integration. They can look a member up in User Support, which shows the profile, events, rewards, and the reasons a reward did or did not issue; see [Leveraging User Support Pages](/guides/platform-overview/leveraging-user-support-pages). And they can correct a balance by creating a missing event or issuing a reward directly; see [Managing Member Points](/guides/rewards-management/reward-fulfillment/managing-member-points). Where agents should stay in their own tooling, send the event from your contact center platform over the Events API.
+
+[//]: ___
 
 ## Configure the Reward Bank
 
@@ -135,5 +165,4 @@ building on your side and a member who has not found a reason to spend. See
 
 * [Loyalty](/product/product-overview/programs/loyalty)
 * [Reward Bank](/technical/platform-integrations/extensions/reward-bank)
-* [Loyalty Data Sources](/technical/platform-integrations/loyalty-data-sources)
 * [How to Set Up a Loyalty Program](/guides/programs-and-campaigns/how-to-set-up-a-loyalty-program)
