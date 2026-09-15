@@ -18,11 +18,120 @@
     }
   ],
   "paths": {
+    "/core/preview.html": {
+      "get": {
+        "operationId": "preview",
+        "summary": "Preview Draft",
+        "description": "Previews this content as the campaign's unpublished draft, before it is live. This is the entry point my.extole previews through: it renders the zone in the campaign preview sandbox rather than what consumers see.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "VIEW"
+        ],
+        "parameters": [
+          {
+            "name": "zone_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "The preview page, which renders the draft of the zone in the campaign preview sandbox."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "expired_access_token": {
+                    "$ref": "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token": {
+                    "$ref": "#/components/examples/invalid_access_token"
+                  },
+                  "jwt_authentication_error": {
+                    "$ref": "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "description": "Production",
+            "url": "https://{brand}.extole.io",
+            "variables": {
+              "brand": {
+                "default": "yourcompany",
+                "description": "Your Extole client subdomain (e.g. 'mycompany' for mycompany.extole.io)"
+              }
+            }
+          }
+        ],
+        "x-extole-component": "call_to_action"
+      }
+    },
     "/zones/{zone_name}": {
       "post": {
         "operationId": "render",
         "summary": "Render",
-        "description": "Renders this content for the person making the request, in the zone it is installed into. Send targeting data in the body to influence what is returned. Omit `sandbox` to render what is live; pass `sandbox=CAMPAIGN_PREVIEW-{campaign_id}` to render the campaign's unpublished draft, which is how my.extole previews a change before it is published.",
+        "description": "Renders this content for the person making the request, in the zone it is installed into. Send targeting data in the body to influence what is returned.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "VIEW"
@@ -35,14 +144,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "sandbox",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "requestBody": {
@@ -52,6 +153,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "data": {
+                    "type": "object",
+                    "description": "Targeting data made available to the content's variables.",
+                    "additionalProperties": true
+                  },
                   "email": {
                     "type": "string",
                     "format": "email",
@@ -60,11 +166,6 @@
                   "partner_user_id": {
                     "type": "string",
                     "description": "Your own identifier for the person, when you have one."
-                  },
-                  "data": {
-                    "type": "object",
-                    "description": "Targeting data made available to the content's variables.",
-                    "additionalProperties": true
                   }
                 }
               }
