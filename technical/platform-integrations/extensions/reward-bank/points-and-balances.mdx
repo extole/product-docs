@@ -110,7 +110,33 @@ Read the history for a single reward with the reward subresources:
 Two operations remove value a participant has already earned. Both are audited, and both accept an
 optional human-readable reason that is stored with the record.
 
-**Expire** marks a reward as expired and returns the updated reward:
+Points can expire on a schedule you configure, and can also be removed by hand.
+
+### Scheduled Expiration
+
+Configure expiration on a Collectible Reward as either a fixed date or a period measured from when
+the reward was earned. The expiry date is calculated at the moment the reward is earned and stored
+on it, so it does not move afterwards.
+
+From then on Extole does the work:
+
+* A scheduled process moves rewards past their expiry date into the `EXPIRED` state.
+* A `reward_expired` event fires, so your systems and the participant's profile stay in step. Use it to notify a member before or after their points go.
+* Redemption of an expired reward is rejected, and expired rewards are excluded from the balance.
+* The Redemption Center shows the expiry date on each eligible reward.
+
+Where expiration is set on both the reward and its supplier, the supplier setting wins.
+
+<Warning>
+  Expiration controls are not available on every reward supplier, and existing campaigns need to be
+  republished before a new expiration setting takes effect. Confirm the supplier you use supports
+  expiration before designing a program around it.
+</Warning>
+
+### Expiring or Revoking by Hand
+
+**Expire** marks a single reward as expired and returns the updated reward. Sending no date, or a
+date in the past, expires it immediately; a future date changes the planned expiry instead.
 
 ```bash
 curl --request POST "https://api.extole.io/v2/rewards/<REWARD_ID>/expire" \
@@ -125,14 +151,8 @@ an order that was later returned or found to be fraudulent. `POST /v2/rewards/{r
 Related operations on the same resource are `cancel`, for a reward that has not been fulfilled, and
 `retry`, for one whose fulfillment failed.
 
-<Info>
-  **Planned capability.** PLANNED-CAPABILITY — scheduled or automatic point expiration, in which
-  Extole expires balances after a configured period without a caller invoking the API, is not
-  confirmed as an available feature. Confirm with Product before publishing.
-
-  What works today: expiration is caller-driven. Your systems decide which rewards have expired
-  under your program terms and call the endpoint above for each.
-</Info>
+Both expire and revoke are audited and accept an optional human-readable reason stored with the
+record.
 
 <Warning>
   Expiring or revoking points is visible to the participant and reduces a balance they may have
