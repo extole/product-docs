@@ -42,6 +42,53 @@ If no campaign qualifies, Extole fires an **unattributed event**. No campaign re
 
 ***
 
+## Describe the Placement; Extole Chooses the Campaign
+
+Targeting is Extole's job. Your site's job is to describe the placement — which page this is, and
+which product line or audience it serves — and let Extole decide which campaign answers that
+description.
+
+That split is what keeps marketing changes out of your release cycle. While the mapping from a
+placement to a campaign lives in Extole, rebuilding a campaign, duplicating one for a second
+product line, or replacing one with a burst is a change you make in My Extole, and your site keeps
+sending exactly what it sent before. Once your site names a campaign or a program, that mapping
+lives in your markup instead: re-pointing a page at a different campaign becomes a code change, a
+release, and a developer's time.
+
+### What Your Site Describes
+
+- **The zone name.** A zone is a named place on your site, and the campaigns that publish that name
+  are the candidates for it. Give each program its own zone names and the placement alone decides
+  the program, because there is only ever one candidate to choose from.
+- **A label.** The `labels` and `required_labels` parameters carry a word for what the page is —
+  `business`, `consumer`, `student`. The word does not have to name a program: a **label injector**
+  in your Extole configuration maps it onto one, so you change which campaign `business` means
+  without anyone touching the site. Labels select candidates on targeting version 3; see
+  [Why a CTA Opens a Different Program's Share Experience](/technical/troubleshooting/why-a-cta-opens-a-different-programs-share-experience)
+  for how the two label parameters differ and which targeting versions read them.
+
+### What Extole Attaches for You
+
+The explicit hints in **Key Rules** below identify one campaign or one referral, and Extole's own
+surfaces already put them on the request:
+
+- A promotion link carries the campaign that promotion belongs to.
+- A CTA pop-up carries its own campaign.
+- A share link carries its `share_id`, and a coupon carries its `coupon_code`.
+
+So a person arriving through anything Extole generated is already pinned to the right campaign, and
+those links keep working when you rebuild the campaign behind them.
+
+<Tip>
+`journey.campaign_id`, `journey.label`, and `target=campaign_id:` all work when you send them
+yourself, and each one writes an Extole identifier into your own markup. Reserve them for a caller
+that genuinely owns the campaign choice, and read a page on your site reaching for one as a sign
+that its placement is not described precisely enough — a distinct zone name, or a label, usually
+is the better answer.
+</Tip>
+
+***
+
 ## Key Rules
 
 ### 1. Explicit Targeting Always Wins
