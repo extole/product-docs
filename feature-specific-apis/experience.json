@@ -8,6 +8,10 @@
   "servers": [
     {
       "description": "Production",
+      "url": "https://api.extole.io"
+    },
+    {
+      "description": "Production",
       "url": "https://{brand}.extole.io",
       "variables": {
         "brand": {
@@ -18,32 +22,23 @@
     }
   ],
   "paths": {
-    "/core/preview.html": {
+    "/v5/zones/embedded_experience": {
       "get": {
         "operationId": "preview",
         "summary": "Preview Draft",
-        "description": "Previews this experience as the campaign's unpublished draft, before it is live. This is the entry point my.extole previews through: it renders the zone in the campaign preview sandbox rather than what consumers see.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "description": "Previews this experience as the campaign's unpublished draft, before it is live. Rendered through the client zone API with the campaign preview sandbox, so it needs a client access token rather than a consumer one.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "VIEW"
         ],
         "parameters": [
-          {
-            "name": "zone_name",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "const": "embedded_experience"
-            }
-          },
           {
             "name": "sandbox",
             "in": "query",
             "required": true,
             "schema": {
               "type": "string",
-              "const": "CAMPAIGN_PREVIEW-7685765923149701193"
+              "const": "CAMPAIGN_PREVIEW-7686169356351895310"
             }
           }
         ],
@@ -55,6 +50,82 @@
                 "schema": {
                   "type": "string",
                   "description": "The preview page, which renders the draft of the zone in the campaign preview sandbox."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "description": "Production",
+            "url": "https://api.extole.io"
+          }
+        ],
+        "x-extole-component": "embedded_experience"
+      }
+    },
+    "/zones/embedded_experience": {
+      "get": {
+        "operationId": "render",
+        "summary": "Render",
+        "description": "Renders this experience for the person making the request, in the zone it is installed into. Returns what is live, with no targeting data sent.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "VIEW"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "Rendered zone content. The shape follows the zone's creative configuration: HTML, JavaScript, JSON, or plain text."
                 }
               }
             }
@@ -127,13 +198,11 @@
           }
         ],
         "x-extole-component": "embedded_experience"
-      }
-    },
-    "/zones/embedded_experience": {
+      },
       "post": {
-        "operationId": "render",
-        "summary": "Render",
-        "description": "Renders this experience for the person making the request, in the zone it is installed into. Send targeting data in the body to influence what is returned.",
+        "operationId": "render_with_data",
+        "summary": "Render With Data",
+        "description": "Renders this experience for the person making the request, merging the targeting data in the body into what the zone is given.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "VIEW"
@@ -143,23 +212,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "data": {
-                    "type": "object",
-                    "description": "Targeting data made available to the content's variables.",
-                    "additionalProperties": true
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "Email address of the person the event belongs to."
-                  },
-                  "partner_user_id": {
-                    "type": "string",
-                    "description": "Your own identifier for the person, when you have one."
-                  }
-                }
+                "type": "object"
               }
             }
           }
@@ -417,9 +470,6 @@
     },
     {
       "QUERY": []
-    },
-    {
-      "COOKIE": []
     }
   ]
 }
