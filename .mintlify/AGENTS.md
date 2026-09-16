@@ -172,6 +172,13 @@ because a similar title is already there.
   needs a border or caption. **Never add a remote image URL, and never one carrying an
   `expires=` parameter** — roughly 102 pages inherited rotting `intercom-attachments` links
   from the ReadMe corpus, which is exactly the problem the local `images/` tree exists to end.
+- **A caption goes in `<Frame caption="…">`, never as text inside the tag.** Mintlify renders
+  the frame's inner container as `flex justify-center`, so a caption written as a child is a
+  flex sibling of the `<img>` and lays out *beside* it, in a narrow column, squeezing the image
+  narrower too. The `caption` prop renders a `<figcaption>` centred underneath, and it supports
+  Markdown — links, bold, and code spans all work in it, so there is no reason to write one as a
+  child. The ReadMe converter emitted the child form and it shipped that way on 17 pages before
+  anyone said so.
 - If you rename or move a page, add an old-URL → new-path entry to `url-map.json`.
 
 ## MDX validity
