@@ -5769,7 +5769,7 @@
         "x-extole-visibility" : "visible"
       },
       "post" : {
-        "description" : "Mints a bearer token for server-to-Extole calls by a client. The body is optional: when omitted, the new token mirrors the calling identity's scopes; when supplied, the body can narrow the scope set (subset of the caller's scopes), bind the token to a specific `client_id`, supply email/password credentials in lieu of a calling token, or override the default lifetime via `duration_seconds`. Returns the new token, its `expires_in` (seconds), the resolved `client_id`, the `identity_id` of the user the token represents, and the granted `scopes`.",
+        "description" : "Mints a bearer token for server-to-Extole calls by a client. The body is optional: when omitted, the new token mirrors the calling identity's scopes; when supplied, the body can narrow the scope set (subset of the caller's scopes), bind the token to a specific `client_id`, supply email/password credentials in lieu of a calling token, or override the default lifetime via `duration_seconds`. `duration_seconds` may only shorten the lifetime: a value above the resolved client's `client_token_lifetime` security setting (4 hours by default) is rejected with `invalid_duration`, whose `default_duration` parameter reports that client's limit. When the calling identity is a managed API token, the new token always expires in one hour and `duration_seconds` has no effect. Returns the new token, its `expires_in` (seconds) - read the lifetime actually granted from there rather than assuming the one requested - the resolved `client_id`, the `identity_id` of the user the token represents, and the granted `scopes`.",
         "requestBody" : {
           "content" : {
             "application/json" : {
