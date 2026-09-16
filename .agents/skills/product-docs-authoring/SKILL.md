@@ -1,6 +1,6 @@
 ---
 name: product-docs-authoring
-description: Author or edit Extole customer-facing documentation in this repo (product-docs on Mintlify). Use when creating a new page, editing an existing one, converting a draft/.docx into a page, or addressing reviewer comments on a PR. Covers the authoring workflow, the pre-PR self-review, and the PR flow. Decide the tab with the product-docs-placement skill before writing a new page — do not default to guides/. Writing standards themselves live in .mintlify/AGENTS.md.
+description: Author or edit Extole customer-facing documentation in this repo (product-docs on Mintlify). Use when creating a new page, editing an existing one, converting a draft/.docx into a page, replacing a live page with a supplied draft, or addressing reviewer comments on a PR. Covers the authoring workflow, the pre-PR self-review, and the PR flow. Decide the tab with the product-docs-placement skill before writing a new page — do not default to guides/. Writing standards themselves live in .mintlify/AGENTS.md.
 ---
 
 # Product-docs authoring
@@ -25,6 +25,8 @@ Preview and validation mechanics: [`mintlify-branch-preview`](../mintlify-branch
 
 - Creating a new page, or converting a supplied draft or `.docx` into a page.
 - Editing an existing page — wording, restructure, correction.
+- Replacing a live page's copy with a supplied draft — see **Replacing a live page with a
+  supplied draft** below, because that is a merge and not a paste.
 - Addressing reviewer comments on a PR (see **Reviewer comments** below).
 
 ## Read this before your first edit: this repo is docs.extole.com
@@ -95,6 +97,43 @@ publishes docs.extole.com.
    http://localhost:3000. CI runs the same command on every PR as the required
    **`validate`** check, so this is a gate you clear before review, not after.
 6. **Self-review** against the checklist below, then open the PR.
+
+## Replacing a live page with a supplied draft
+
+"Here is the new copy for this page" is a **merge**, not a paste. A draft that has been
+through an editor, a Google Doc, or a chat attachment arrives stripped of things the live
+page has, and the loss is silent — the new file is valid MDX and `validate` passes at 0/0
+either way. Diff the two before you write anything:
+
+```bash
+# which images the draft dropped
+git show origin/main:<page>.mdx | grep -o 'images/[^")]*' | sort > /tmp/old
+grep -o 'images/[^")]*' <draft> | sort > /tmp/new
+diff /tmp/old /tmp/new
+```
+
+Three things a draft routinely loses, all seen on one page:
+
+- **Images, while keeping their captions.** A `<Frame>` that arrives holding only its caption
+  text had an `<img>` in it on the live page. Bare `<img>` tags and `![]()` images vanish
+  with no trace at all — the image diff above is the only thing that finds those.
+- **A heading level.** Dropping a `##` re-parents every `###` under it into the previous
+  section, which silently moves the whole sequence under an unrelated heading in the
+  on-page TOC.
+- **Link form.** Drafts written outside the repo use absolute `https://docs.extole.com/…`
+  links where the standard is a site path, and guess at My Extole routes. Check any
+  `my.extole.com/…` path against how the rest of the corpus writes it
+  (`grep -rno "my\.extole\.com/[a-z-]*" --include=*.mdx .`) — `/security` is not a route and
+  all 39 other links to that page use `/security-center`.
+
+**Some dropped images are not losses — they are orphans**, because the rewrite deleted the
+step they illustrated. That is the author's call, not yours: leave those out rather than
+placing a screenshot next to an instruction it does not show, and name each one in the PR
+body with what it depicts, so the author can say in one line where it should go. Never
+invent a caption or re-home a screenshot to keep a count whole.
+
+Everything else comes from the draft verbatim. Apply the unambiguous fixes above and flag
+them; do not rewrite the author's prose to the terminology table on a page they just wrote.
 
 ## Self-review checklist
 
