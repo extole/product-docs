@@ -25,7 +25,7 @@ docs.json navigation but the file does not exist.
 error Build validation failed with 1 warning(s).
 ```
 
-**The reverse is not caught.** A page file that is valid MDX but appears in no `docs.json` group passes validation with exit 0 — it simply ships unreachable, with no build signal and no CI failure. Measured 2026-08-21 against `mint@latest`. Adding the page to `docs.json` is on you and on the reviewer; the build will not remind you.
+**The reverse is not caught.** A page file that is valid MDX but appears in no `docs.json` group passes validation with exit 0 — it simply ships unreachable, with no build signal and no CI failure. Measured 2026-08-21 against `mint@latest`, and six troubleshooting pages then shipped exactly that way. `python3 scripts/check_navigation.py` reports it, along with paths that do not mirror their navigation group; run it alongside `validate`.
 
 ## Local preview
 
