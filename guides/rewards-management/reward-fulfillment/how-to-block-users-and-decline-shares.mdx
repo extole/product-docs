@@ -43,6 +43,10 @@ Blocking sends no email. Neither **Block** in My Extole nor the [Person Block AP
 
 Blocking and unblocking do raise a `profile_block` and a `profile_unblock` event on that person, so a campaign can be built to trigger on one — a removal-from-program notice, for example. That is campaign configuration rather than a setting, so reach out to your CSM if you want blocked people to be told. If your account already has one, check which event it listens for: a campaign built to react to your own inbound event will not fire for a block applied by the button or the API.
 
+<Warning>
+  Send the notice before you block, not after. A blocked person's activity is scored as low quality, and campaign actions that require high quality — sending an email among them — are skipped for them. Sending the event to someone who is already blocked records the step on their profile and sends no email, with no error to tell you. If they are already blocked, unblock them for the moment the event is processed; a campaign that applies the block itself will re-apply it as part of handling the event.
+</Warning>
+
 ## Block Users in Bulk
 
 My Extole blocks one person at a time. To work through a list, call the [Person Block API](/api-reference/persons/update-person-block-status) once per person — there is no bulk endpoint. Look each person up first, and treat a lookup that returns nothing as a person with no profile in your account, so misses are visible rather than silently skipped.
