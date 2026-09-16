@@ -106,6 +106,14 @@
             "url": "https://api.extole.io"
           }
         ],
+        "security": [
+          {
+            "CLIENT_HEADER": []
+          },
+          {
+            "CLIENT_QUERY": []
+          }
+        ],
         "x-extole-component": "call_to_action"
       }
     },
@@ -195,6 +203,17 @@
                 "description": "Your Extole client subdomain (e.g. 'mycompany' for mycompany.extole.io)"
               }
             }
+          }
+        ],
+        "security": [
+          {
+            "CONSUMER_HEADER": []
+          },
+          {
+            "CONSUMER_QUERY": []
+          },
+          {
+            "CONSUMER_COOKIE": []
           }
         ],
         "x-extole-component": "call_to_action"
@@ -296,26 +315,50 @@
             }
           }
         ],
+        "security": [
+          {
+            "CONSUMER_HEADER": []
+          },
+          {
+            "CONSUMER_QUERY": []
+          },
+          {
+            "CONSUMER_COOKIE": []
+          }
+        ],
         "x-extole-component": "call_to_action"
       }
     }
   },
   "components": {
     "securitySchemes": {
-      "HEADER": {
+      "CLIENT_HEADER": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Not a consumer access token - a consumer token identifies one person and cannot call this operation.",
+        "x-bearer-format": "bearer"
+      },
+      "CLIENT_QUERY": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "access_token",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Not a consumer access token - a consumer token identifies one person and cannot call this operation."
+      },
+      "CONSUMER_HEADER": {
         "type": "apiKey",
         "in": "header",
         "name": "Authorization",
         "description": "A consumer access token, issued to a single person in the browser or app. Not a client access token - never send a client token from a consumer device.",
         "x-bearer-format": "bearer"
       },
-      "QUERY": {
+      "CONSUMER_QUERY": {
         "type": "apiKey",
         "in": "query",
         "name": "access_token",
         "description": "A consumer access token, issued to a single person in the browser or app. Not a client access token - never send a client token from a consumer device."
       },
-      "COOKIE": {
+      "CONSUMER_COOKIE": {
         "type": "apiKey",
         "in": "cookie",
         "name": "extole_token",
@@ -412,6 +455,26 @@
           "parameters": {}
         }
       },
+      "method_unauthorized": {
+        "summary": "method_unauthorized",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "method_unauthorized",
+          "message": "Access forbidden to this endpoint",
+          "parameters": {}
+        }
+      },
+      "missing_access_token": {
+        "summary": "missing_access_token",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "missing_access_token",
+          "message": "No access_token was provided with this request.",
+          "parameters": {}
+        }
+      },
       "expired_access_token": {
         "summary": "expired_access_token",
         "value": {
@@ -441,35 +504,7 @@
           "message": "The jwt authentication failed.",
           "parameters": {}
         }
-      },
-      "method_unauthorized": {
-        "summary": "method_unauthorized",
-        "value": {
-          "unique_id": "00000000-0000-0000-0000-000000000000",
-          "http_status_code": 403,
-          "code": "method_unauthorized",
-          "message": "Access forbidden to this endpoint",
-          "parameters": {}
-        }
-      },
-      "missing_access_token": {
-        "summary": "missing_access_token",
-        "value": {
-          "unique_id": "00000000-0000-0000-0000-000000000000",
-          "http_status_code": 403,
-          "code": "missing_access_token",
-          "message": "No access_token was provided with this request.",
-          "parameters": {}
-        }
       }
     }
-  },
-  "security": [
-    {
-      "HEADER": []
-    },
-    {
-      "QUERY": []
-    }
-  ]
+  }
 }
