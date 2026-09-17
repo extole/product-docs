@@ -73,7 +73,32 @@ same for `main`, forcing a publish of docs.extole.com.
 
 The branch name becomes a DNS label in that host, so it must be lowercase
 `[a-z0-9-]` and the whole `extole-<branch>` subdomain must stay under 63
-characters.
+characters. A `/` in the branch name becomes a `-`:
+`docs/loyalty-content-gaps` is served at
+`extole-docs-loyalty-content-gaps.mintlify.site`.
+
+### A preview URL in a request names a branch that already exists
+
+Review feedback usually arrives as the preview link the reviewer was reading
+("here are some updates to make to this doc: extole-docs-…mintlify.site/…").
+That link is not a page on the live site — it is somebody's open branch, so the
+edits belong as a commit on that branch, not on a new one off `main`. A second
+PR against the same pages splits the review and races the first one to merge.
+
+Map the host back before you plan. Strip the `extole-` prefix, then resolve the
+rest against the real branch list rather than assuming — the `/` collapse above
+means `docs/loyalty-content-gaps` and `docs-loyalty-content-gaps` are the same
+host:
+
+```bash
+git ls-remote --heads origin | grep -i loyalty-content-gaps
+gh pr list --repo extole/product-docs --state open --head docs/loyalty-content-gaps
+```
+
+Then `git fetch origin <branch>`, commit, push, and say on the PR what you
+changed. The preview host is unchanged, so the reviewer's own link shows the
+edits once **Mintlify Deployment** goes green — about 90 seconds after
+`validate`.
 
 `MINTLIFY_API_KEY` and `MINTLIFY_PROJECT_ID` come from the Mintlify dashboard's
 API keys page; `extole/openapi` holds them as repository secrets for the
