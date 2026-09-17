@@ -1,6 +1,6 @@
 ---
 title: "Redemption and Reward Options"
-description: "What loyalty points convert into, how the Redemption Rate controls the conversion, and the program models you can build with them."
+description: "What loyalty points convert into, how the Redemption Ratio controls the conversion, and the program models you can build with them."
 ---
 
 ## Overview
@@ -8,21 +8,25 @@ description: "What loyalty points convert into, how the Redemption Rate controls
 [//]: # "What can loyalty points be redeemed for?"
 
 Points are only worth what a participant can turn them into. Redemption Options are the set of
-rewards you make available in the Redemption Center, and the Redemption Rate controls how many
+rewards you make available in the Redemption Center, and the Redemption Ratio controls how many
 points each one costs.
 
 [//]: ___
 
-## The Redemption Rate
+## The Redemption Ratio
 
-The Redemption Rate is the ratio of accumulated reward value to dollars. By default it is 1:1, so
-one point equals one dollar. With a ten-point rate, a participant earns one dollar for every ten
-points.
+The Redemption Ratio is how many points make one dollar of redeemable value. It is a single whole
+number, set on the Reward Bank extension, and it applies to every Redemption Option in that bank.
 
-You also set value limits — a minimum and maximum monetary amount per redemption. Align the maximum
-with the limit your reward provider enforces. Setting a limit to `0` disables it.
+The default is `1`, so one point is worth one dollar. Set it to `10` and ten points are worth one
+dollar — a 2,500-point balance redeems for $250. Raise the number and points buy less; lower it and
+points buy more.
 
-For how to choose a rate, see
+You also set **Minimum Value** and **Maximum Value**, the smallest and largest monetary amount a
+participant can redeem at one time. Align the maximum with the limit your reward provider enforces.
+Setting either to `0` disables it.
+
+For how to choose the number, see
 [Choosing Your Point-to-Reward Ratio](/guides/strategy-and-best-practices/campaign-optimization/choosing-your-point-to-reward-ratio).
 
 ## Reward Options
@@ -68,20 +72,55 @@ This is the model the Reward Bank is built around, and it gives participants the
 Deferred redemption also spreads reward cost over time rather than paying it out at the moment of
 earning.
 
+<Frame caption="A Choose Your Reward member experience: a running point balance, the rewards already claimed, and a catalog priced in points.">
+  <img src="/images/extole/loyalty-choose-your-reward.png" alt="A member rewards page showing a points balance, claimed reward coupon codes with their states, and a reward catalog priced in points" />
+</Frame>
+
+### Automatic Issuance
+
+Participants accumulate points, and each time the balance reaches a set threshold a reward issues
+automatically — every 500 points becomes a $10 coupon, or every $500 spent returns a $20 coupon.
+There is no catalog and no redemption step, but the participant still watches a balance build
+toward the next reward, so the program keeps the progress that makes points motivating.
+
+Use this where you want the simplicity of a single predictable reward rather than a catalog, or
+where your audience will not reliably come back to redeem.
+
+<Note>
+  Automatic issuance is not a checkbox on the Reward Bank extension. Extole configures the rule
+  that converts a balance at the threshold, so ask your Extole contact to set it up rather than
+  looking for it in the extension.
+</Note>
+
+### Tiered Earning
+
+Participants earn at different rates depending on their tier. Everyone can earn; higher tiers earn
+faster, and tier can also unlock Redemption Options the base tier does not see. Two models cover
+most programs.
+
+**Tiers based on subscription**: Every customer accumulates points for the same activities, and
+paid members of your loyalty program get the better perks — a higher point multiplier, exclusive
+rewards, or both. The subscription decides the tier, so the tier comes from your systems.
+
+**Tiers based on activity**: Participants move up as they accumulate points, and each tier earns at
+a higher multiplier. Lifetime points decide the tier and the redeemable balance is spent
+separately, so redeeming never costs a participant their status.
+
+Both are built the same way: each tier is an audience or a profile attribute, and each tier has its
+own Collectible Reward with a rule matching it. Extole reads a participant's tier and rewards on
+it; your systems decide when a participant moves between tiers. See
+[Tiers and Member Status](/technical/platform-integrations/extensions/reward-bank/tiers-and-status).
+
+<Frame caption="A tiered program that also issues automatically: lifetime points set the earning rate, and the redeemable balance converts to a coupon every 500 points.">
+  <img src="/images/extole/loyalty-tiered-earning.png" alt="A member rewards page showing lifetime tier progress from Bronze to Gold, a separate redeemable balance converting to a coupon every 500 points, and the points-per-dollar rate for each tier" />
+</Frame>
+
 ### Reward on Action
 
 Points are not banked. A qualifying action issues a reward directly — a purchase over a threshold
 returns a coupon, a completed survey returns a gift card. There is no redemption step and no
 balance for the participant to track. Use this where the reward should feel immediate, or where a
 balance would add friction without adding value.
-
-You can also vary earning by tier, without a built-in tier engine. Hold the tier as an attribute
-on the participant's profile, or as an audience, and write reward rules that issue more points to
-higher tiers — your systems decide when a participant changes tier. Two patterns cover most
-programs: a fixed tier set from a client-sent attribute, such as subscriber versus non-subscriber,
-and tiers a participant moves between as their lifetime points cross a threshold, tracked as
-audience membership. See
-[Tiers and Member Status](/technical/platform-integrations/extensions/reward-bank/tiers-and-status).
 
 ## Related
 
