@@ -1,0 +1,176 @@
+---
+title: "Points and Balances"
+description: "How points are represented in Extole, how to read a participant's Reward Bank balance, how to redeem over the API, and how rewards expire or are revoked."
+---
+
+## Overview
+
+[//]: # "How do I read a customer's loyalty point balance from Extole?"
+
+Extole has no separate points ledger. Points are rewards with a point denomination, held against a
+person's profile and accumulated in a Reward Bank. Everything that applies to a reward — states,
+rules, reporting, the API — applies to points.
+
+This page covers how points are represented, how to read a balance, and how a reward is expired or
+revoked.
+
+[//]: ___
+
+## How Points Are Represented
+
+Points reach a participant through one of two configurations.
+
+**Collectible Rewards** are configured inside the Reward Bank extension and are the earning
+mechanism for a banked program. Each Collectible Reward has a name, a value, and a denomination,
+and is attached to an event in your campaign. A Collectible Reward can be fixed, or dynamic — a
+percentage of the transaction value, with a minimum and a required maximum per transaction. See the
+[Reward Bank Configuration Guide](/technical/platform-integrations/extensions/reward-bank/reward-bank-configuration-guide).
+
+**Custom rewards** typed as points are created on the [Rewards](https://my.extole.com/account-rewards)
+page. Choose **Custom Reward**, then set **Type** to **Loyalty Points**. Use this where points are
+credited into your own loyalty system rather than banked in Extole.
+
+In reporting and in API responses, a point-denominated reward carries a face value type of
+`POINTS`. The other face value types are `CREDIT` and `COUPON_CODE`.
+
+## Reading a Balance
+
+A participant's balance is the sum of their eligible Collectible Rewards. Read it from the Reward
+Bank zone on your program domain. The zone name is configurable and is often `bankable_rewards`.
+Find the value for your bank in the
+[Tech Center](https://my.extole.com/tech-center).
+
+```bash
+curl --get "https://brand.extole.io/zone/<REWARD_BANK_ZONE>" \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer <VERIFIED_CONSUMER_ACCESS_TOKEN>"
+```
+
+A verified consumer access token or JWT is required. The response carries four parts:
+
+| Field | Contents |
+| :--- | :--- |
+| `eligible_rewards` | The rewards making up the current balance, each with a `reward_id`, `reward_supplier_id`, `face_value`, and `face_value_type`. |
+| `redemption_suppliers` | The Redemption Options available to this participant, each with a `reward_supplier_id`, `name`, and `type`. |
+| `redemption_history` | Past redemptions, in the denomination they were redeemed into. |
+| `reward_parameters` | The redemption configuration in force: `face_value_type`, `max_amount`, `min_amount`, and `ratio_of_value_to_dollars`. |
+
+`ratio_of_value_to_dollars` is the Redemption Ratio. Read it rather than hard-coding a ratio in
+your front end, so a change made in My Extole takes effect without a release.
+
+<Warning>
+  A participant who is not verified receives an empty bank rather than an error. Confirm
+  verification before treating an empty response as a zero balance.
+</Warning>
+
+## Redeeming Over the API
+
+Redeem by sending a `redeem_rewards` event with the rewards to spend and the supplier to redeem
+into.
+
+```bash
+curl --request POST "https://brand.extole.io/api/v6/events" \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer <VERIFIED_CONSUMER_ACCESS_TOKEN>" \
+  --data '{
+    "event_name": "redeem_rewards",
+    "data": {
+      "rewards": ["<REWARD_ID_TO_REDEEM>"],
+      "reward_supplier_id": "<REDEMPTION_REWARD_SUPPLIER_ID>"
+    }
+  }'
+```
+
+The `reward_supplier_id` must be one of the suppliers returned in `redemption_suppliers`. Redeeming
+into a supplier that is not configured as a Redemption Option fails.
+
+## Reward States
+
+A Collectible Reward normally moves from earned to fulfilled or sent, then to redeemed. Other
+states record a cancellation before fulfillment, a fulfillment failure, a revocation, or an
+expiration. The Reward Bank Rewards Audit report exposes the current state and state history.
+
+<Frame caption="Which transitions are available depends on the reward's current state and supplier.">
+  <img
+    src="/images/extole/reward-state-lifecycle.svg"
+    alt="A Collectible Reward normally moves from earned to fulfilled or sent, then to redeemed. Other states are canceled, failed, revoked, and expired."
+  />
+</Frame>
+
+Read the history for a single reward with the reward subresources:
+
+| Endpoint | Returns |
+| :--- | :--- |
+| `GET /v2/rewards/{reward_id}/redeems` | Redemption records for the reward. |
+| `GET /v2/rewards/{reward_id}/sends` | Send events for the reward. |
+| `GET /v2/rewards/{reward_id}/expirations` | Expiration records for the reward. |
+
+## Expiring and Reversing Points
+
+Two operations remove value a participant has already earned. Both are audited, and both accept an
+optional human-readable reason that is stored with the record.
+
+Points can expire on a schedule you configure, and can also be removed by hand.
+
+### Scheduled Expiration
+
+Configure expiration on a Collectible Reward as either a fixed date or a period measured from when
+the reward was earned. The expiry date is calculated at the moment the reward is earned and stored
+on it, so it does not move afterwards.
+
+From then on Extole does the work:
+
+* A scheduled process moves rewards past their expiry date into the `EXPIRED` state.
+* A `reward_expired` event fires, so your systems and the participant's profile stay in step. Use it to notify a member before or after their points go.
+* Redemption of an expired reward is rejected, and expired rewards are excluded from the balance.
+* The Redemption Center shows the expiry date on each eligible reward.
+
+Where expiration is set on both the reward and its supplier, the supplier setting wins.
+
+<Warning>
+  Expiration controls are not available on every reward supplier, and existing campaigns need to be
+  republished before a new expiration setting takes effect. Confirm the supplier you use supports
+  expiration before designing a program around it.
+</Warning>
+
+### Expiring or Revoking by Hand
+
+**Expire** marks a single reward as expired and returns the updated reward. Sending no date, or a
+date in the past, expires it immediately; a future date changes the planned expiry instead.
+
+```bash
+curl --request POST "https://api.extole.io/v2/rewards/<REWARD_ID>/expire" \
+  --header "Authorization: Bearer <ACCESS_TOKEN>" \
+  --header "Content-Type: application/json" \
+  --data '{ "message": "Points expired under program terms" }'
+```
+
+**Revoke** removes a reward that should not stand — the correction path for a reward issued against
+an order that was later returned or found to be fraudulent. `POST /v2/rewards/{reward_id}/revoke`.
+
+Related operations on the same resource are `cancel`, for a reward that has not been fulfilled, and
+`retry`, for one whose fulfillment failed.
+
+Both expire and revoke are audited and accept an optional human-readable reason stored with the
+record.
+
+<Warning>
+  Expiring or revoking points is visible to the participant and reduces a balance they may have
+  been planning against. Make sure your program terms state the expiration policy before you rely
+  on it, and prefer `revoke` with a reason over `expire` when you are correcting an error rather
+  than applying a policy.
+</Warning>
+
+## Multiple Reward Banks
+
+An account can run more than one Reward Bank, each with its own Collectible Rewards, Redemption
+Options, and rate. Give each live bank a distinct **Zone Name**, and include
+`target=campaign_id:<REWARD_BANK_CAMPAIGN_ID>` in links that lead to a specific bank so the correct
+one loads.
+
+## Related
+
+* [Reward Bank](/technical/platform-integrations/extensions/reward-bank)
+* [Reward Bank Configuration Guide](/technical/platform-integrations/extensions/reward-bank/reward-bank-configuration-guide)
+* [Tiers and Member Status](/technical/platform-integrations/extensions/reward-bank/tiers-and-status)
+* [Verifying Consumers](/technical/operational-tasks/security-and-compliance/verifying-consumers)
