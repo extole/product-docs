@@ -96,6 +96,31 @@ publishes docs.extole.com.
    **`validate`** check, so this is a gate you clear before review, not after.
 6. **Self-review** against the checklist below, then open the PR.
 
+## Naming a My Extole setting: read the label, don't reconstruct it
+
+Every setting a page tells a reader to fill in has a `display_name` in the component that
+defines it, and that string is the label on the screen. For an extension, it is in
+[`extole/creative`](https://github.com/extole/creative) at
+`<extension>-components/components/extension-<name>/components/**/component.json`. Read it
+before you bold a setting name:
+
+```bash
+git grep -n display_name code/creative/reward-bank-components/components/extension-reward-bank-v10
+```
+
+A label shortened to the words that read naturally is the failure this catches, because the
+prose stays plausible and only the reader standing in front of the screen finds out. On
+[#120](https://github.com/extole/product-docs/pull/120) the Loyalty setup guide named the
+Reward Bank's redemption limits **Minimum Value** and **Maximum Value**; `component.json`
+gives `minAmount` → **Redemption Minimum Value** and `maxAmount` → **Redemption Maximum
+Value**, alongside `redemptionSuppliers` → **Redemption Options**, `valueRewardSuppliers` →
+**Collectible Rewards**, and `ratioOfValueToDollars` → **Redemption Ratio**.
+
+The same file settles whether a name is free to reuse. Do not adopt a proposed heading or
+term without checking it there: **Eligible Rewards** looks available for the rewards a member
+redeems into, and the Redemption Center already uses it for the earned rewards they redeem
+*from* (`No Eligible Rewards Message Heading`) — the other side of the same transaction.
+
 ## Self-review checklist
 
 Derived from repeated reviewer feedback — clearing these is the point of this skill. Each
@@ -109,7 +134,8 @@ item checks conformance to `.mintlify/AGENTS.md` rather than restating it.
 - [ ] **Navigation paths and UI elements** bolded, not quoted.
 - [ ] **Numbers, units, spelling** follow the standard.
 - [ ] **Accuracy** — wording matches actual product behavior and current UI labels and
-      status text; no invented values.
+      status text; no invented values. Setting names come from the component's
+      `display_name`, not from memory — see **Naming a My Extole setting** above.
 - [ ] **Placement** — a new page sits in the tab the actor test chose, not in
       Guides by default. Mechanism, diagnosis, tags, domains, and request
       parameters belong in Technical Docs even when the symptom is a campaign.
