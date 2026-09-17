@@ -156,6 +156,20 @@ was wrong with the page:
 So this is not "changed pages cannot be previewed", and the cause is unproven. An
 empty commit produced no new deployment, so retrying is not the move.
 
+**A commit that changes a file is, though.** Measured on
+[#140](https://github.com/extole/product-docs/pull/140) (2026-09-17), the same
+shape again: deployment of `c3a0bb6` at 17:40:09Z, bot 🟢 Ready, `Mintlify
+Deployment` check green, and the one changed page 404 on roughly twenty probes
+over the next ten minutes while every sibling page, the site root, and the same
+path on two other open PRs' preview hosts all answered 200. A second commit
+touching the same file deployed at 17:50:40Z and the page answered 200 about
+ninety seconds later, carrying every new heading. That is one observation, not a
+mechanism — but it is cheap, and it beats the alternative, which is to go hunting
+for an MDX fault that `npx mint@latest validate` and `npx mint@latest dev` both
+say is not there. Do that local render first so you know which you are looking
+at: a page that renders locally and 404s on the preview is this bug, and the next
+push is the fix to try before any edit to the page.
+
 It also happens to the **entire host**, not just the changed page, so a 404 at
 `/` is not evidence that the branch failed to deploy. Measured on
 [#88](https://github.com/extole/product-docs/pull/88) (2026-09-09), 40 minutes
