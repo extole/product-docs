@@ -27,6 +27,8 @@ error Build validation failed with 1 warning(s).
 
 **The reverse is not caught.** A page file that is valid MDX but appears in no `docs.json` group passes validation with exit 0 — it simply ships unreachable, with no build signal and no CI failure. Measured 2026-08-21 against `mint@latest`. Adding the page to `docs.json` is on you and on the reviewer; the build will not remind you.
 
+**Indented content inside a callout is not caught either, and it takes the whole page down.** Write the body of a `<Warning>`, `<Info>`, `<Tip>` or `<Note>` flush to the left margin, the way the existing pages do. Indent it two spaces — the shape most editors and most other MDX sites accept — and `npx mint@latest validate` still reports `success build validation passed` with 0 errors and 0 warnings, `npx mint@latest dev` still serves the page at `200` with the new section in it, the PR's `validate` check still passes, and the hosted preview returns **404 for that one page** while every other page on the same branch serves normally. So the only signal is fetching your own page on the preview and finding it missing, which reads like a preview that has not finished building. Measured 2026-09-17 on `guides/flow-campaigns/how-to-set-up-reward-rules`: one commit that changed nothing but the indentation of a callout body turned that 404 into a rendered page. Fetch the page you edited, not just the preview root, before you call a preview good.
+
 ## Local preview
 
 ```bash
