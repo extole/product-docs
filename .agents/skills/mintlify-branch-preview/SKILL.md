@@ -100,6 +100,23 @@ changed. The preview host is unchanged, so the reviewer's own link shows the
 edits once **Mintlify Deployment** goes green — about 90 seconds after
 `validate`.
 
+**Read that branch's newest commits before you plan, and fetch it again before
+you push.** A reviewer going through a large branch sends several rounds of
+feedback within a few minutes, and each one is worked separately, so the page
+you were sent can already carry somebody else's fix. On 2026-09-17 the
+`docs/loyalty-content-gaps` branch took five commits between 22:03 and 22:15,
+and the sentence flagged at 22:05 was rewritten at 22:13 by the round before
+it:
+
+```bash
+git log --format='%h %ad %s' --date=iso -5 origin/<branch>
+git show origin/<branch>:<path/to/page.mdx>
+```
+
+Read the page at the branch tip, not the preview HTML the reviewer linked —
+the deployed copy lags the branch. Then rebase onto the tip and push; what is
+left to do is usually smaller and more specific than the request implies.
+
 `MINTLIFY_API_KEY` and `MINTLIFY_PROJECT_ID` come from the Mintlify dashboard's
 API keys page; `extole/openapi` holds them as repository secrets for the
 pipeline above.
