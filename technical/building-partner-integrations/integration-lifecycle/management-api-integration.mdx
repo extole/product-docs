@@ -113,9 +113,9 @@ Work through the pages in order. Each build sequence is a page of its own:
 | [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views) | The report-runner and event-stream views, the report runner and event stream behind them, and the republish each attachment needs | Every path |
 | [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform) | The sending code that runs in the partner platform | Partner to Extole, when you control the sender |
 | [Normalize Partner Events with a Prehandler](/technical/building-partner-integrations/integration-types/partner-events-prehandlers) | Reshaping a partner's own webhook at ingest | Partner to Extole, when the partner defines the payload |
-| [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) | Business events, input event rules, and event data | Partner to Extole |
+| [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) | Business events, input event rules, event data, the test event payload and configuration view, and proof that each partner event reaches a business event | Partner to Extole |
 | [Receive Audience Membership from a Partner](/technical/building-partner-integrations/integration-types/partner-events-audience-membership) | The audience, the credential the partner authenticates with, and the setup instructions naming the membership endpoints | Partner to Extole, when the partner sends eligibility rather than events |
-| [Build an Extole to Partner Integration](/technical/building-partner-integrations/integration-types/integration-build-extole-to-partner) | Installing a maintained source, reshaping it, and attaching webhooks and a credential | Extole to Partner |
+| [Build an Extole to Partner Integration](/technical/building-partner-integrations/integration-types/integration-build-extole-to-partner) | Installing and reshaping a complete maintained source, or adding controller-backed delivery when the source contains only metadata | Extole to Partner |
 | [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment) | Supplier type, support campaign, supplier templates, and `REWARD` webhooks | Reward fulfillment |
 | [Validate and Publish an Integration](/technical/building-partner-integrations/integration-lifecycle/integration-validation) | Gating Extole to Partner resources, the validation checklist, and connecting the integration to a program | Every path |
 
@@ -173,7 +173,7 @@ These hold on every path:
 
 - **Resolve maintained components by name at build time.** Stored identifiers go stale without failing loudly.
 - **Use the reusable business-event, rule, and data components.** Write a custom controller only where no template implements the behavior.
-- **Carry all three baseline views** — configuration, report-runner, and event-stream. The category decides what the report counts and what the feed filters to, not whether the tabs exist. Reward fulfillment adds a fourth, a `reward-suppliers` configuration view.
+- **Carry all three baseline views** — configuration, report-runner, and event-stream. The category decides what the report counts, while the event stream keeps a complete unfiltered processing chain. A Partner to Extole integration adds a `testEventPayload` JSON setting and a **Test Event** configuration view that displays it; reward fulfillment adds a `reward-suppliers` configuration view.
 - **Create reward suppliers, client keys, and webhooks only for an Extole to Partner flow the integration has.** A Partner to Extole integration needs none.
 - **Keep partner event names and canonical Extole names separate.** The trigger rule carries the wire name; the business event carries `converted`, `shipped`, or another canonical name. Renaming a business event to match a partner breaks every program and report reading the canonical name.
 - **Map every field you persist**, in the same pass that creates the business events. A business event with an empty `data` socket cannot deduplicate, attribute, reward, or report.
@@ -186,7 +186,7 @@ Reusing an active integration whose campaign and component identity already matc
 
 Test every arriving event and every configured partner destination before you call the integration live.
 
-**Partner to Extole.** Send a synchronous event to `POST /v6/events` with the current program label in `data.labels`, then read the step it produced:
+**Partner to Extole.** Send a synchronous event to `POST /v6/events` with the current program label in `data.labels`, confirm the `INPUT` event and its resulting `STEP` event in the integration's **Event Stream** tab, then read the event it produced:
 
 ```bash
 curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
@@ -195,7 +195,7 @@ curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
   --data-urlencode "names=converted"
 ```
 
-Confirm the step carries the canonical event name, that the transaction identifier and value match the source record, that person keys resolve, and that resending the same source identifier produces a duplicate outcome rather than a second conversion. Repeat for every event the integration accepts. [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform) covers the sending side and what to check when Extole accepts an event but no business event appears.
+Confirm the event carries the canonical event name, that the transaction identifier and value match the source record, that person keys resolve, and that resending the same source identifier produces a duplicate outcome rather than a second conversion. Repeat for every event the integration accepts. [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) covers Event Stream diagnosis, while [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform) covers delivery and acceptance.
 
 **Extole to Partner.** Trigger the Extole event the integration forwards and confirm the webhook fired against the partner endpoint.
 

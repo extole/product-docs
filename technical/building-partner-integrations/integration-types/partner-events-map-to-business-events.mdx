@@ -30,13 +30,14 @@ root
     │   └── canceled            template_tracked_business_event
     └── views                   MULTI_SOCKET → view-v10.0
         ├── configuration       config-view-v10.0
+        ├── test-events         config-view-v10.0
         ├── report-runner-view  report-runner-view-v10.0
         └── event-streams       event-stream-view-v10.0
 ```
 
 Never rename an Extole business event to match a partner wire event: the partner name belongs in an `input_event` trigger rule, the canonical name on the business-event component.
 
-The three views are the same for every category — see [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories). Chart and stream this integration's canonical business events, and build the sender against [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform).
+The three baseline views are the same for every category — see [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories). Add a test event payload setting and display it through a configuration view so My Extole can send an editable test payload, and build the sender against [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform).
 
 This page assumes the event arrives with a name in `event_name` and its fields readable in `data`. When the partner's own webhook defines the payload instead, a prehandler renames and flattens it first — see [Normalize Partner Events with a Prehandler](/technical/building-partner-integrations/integration-types/partner-events-prehandlers).
 
@@ -277,9 +278,56 @@ Give every business event its own data components; a field captured on one is no
 
 Lifecycle events such as `shipped` and `canceled` arrive independently, so repeat the identity set on each: they must resolve to the same person and, through the transaction identifier, the same original transaction.
 
+## Add the Test Event Payload
+
+After configuring the business events and input rules, add a `testEventPayload` JSON setting to the integration component. Author the payload with a partner wire event name, representative identity and event data, the current program label, and `container: "test"`. Include a distinct `advocate.email` when the event produces a `FRIEND` journey.
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components/$INTEGRATION_COMPONENT_ID/settings" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "testEventPayload",
+    "display_name": "Test Event Payload",
+    "description": "Edit and send a partner event through the test container.",
+    "type": "JSON",
+    "values": {
+      "default": "{\"event_name\":\"partner_order_created\",\"data\":{\"email\":\"test@example.com\",\"advocate.email\":\"test-advocate@example.com\",\"order_id\":\"test-order-001\",\"total\":42.50,\"customer_id\":\"test-customer-001\",\"container\":\"test\",\"labels\":\"'"$PROGRAM_LABEL"'\"}}"
+    },
+    "tags": ["importance:basic"],
+    "priority": "30"
+  }'
+```
+
+Add a `config-view-v10.0` child to the integration component's `views` socket. Its `settingsToDisplay` names the parent integration setting, which makes My Extole render the payload and **Send Event** button in the **Test Event** tab.
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "test-events",
+    "display_name": "Test Event",
+    "description": "Send a configured partner event with an editable test payload.",
+    "types": ["config-view-v10.0"],
+    "installed_into_socket": "views",
+    "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"],
+    "variables": [
+      { "name": "order", "type": "INTEGER", "values": { "default": 2 } },
+      { "name": "title", "type": "STRING", "values": { "default": "Test Event" } },
+      { "name": "status", "type": "STRING", "values": { "default": "READY" } },
+      { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": ["testEventPayload"] } }
+    ]
+  }'
+```
+
 ## How to Test
 
-Send a synchronous test event through `POST /v6/events` with an event-submission token, not the one that created the campaign. Put the current program label in `data` to target this campaign; it is a testing convenience and does not belong in the partner's payload.
+Open the integration's **Test Event** tab, edit the payload with representative values, and select **Send Event**. Keep `data.container` set to `test`; it excludes the event from production dashboard analytics and reports without disabling event processing or rewards. To test another wire event, change `event_name` and the event-specific data fields. For a `FRIEND` journey, keep `advocate.email` distinct from the friend's `email`.
+
+You can also send the same payload through `POST /v6/events` with an event-submission token, not the token that created the campaign. Put the current program label in `data` to target this campaign; it is a testing convenience and does not belong in the partner's production payload. See [Exclude Test Data from Analytics](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics).
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/events" \
@@ -289,13 +337,32 @@ curl --request POST "$EXTOLE_API_HOST/v6/events" \
     "event_name": "partner_order_created",
     "data": {
       "email": "test@example.com",
+      "advocate.email": "test-advocate@example.com",
       "order_id": "test-order-001",
       "total": 42.50,
       "customer_id": "test-customer-001",
+      "container": "test",
       "labels": "'"$PROGRAM_LABEL"'"
     }
   }'
 ```
+
+A `2xx` means Extole accepted the event, not that it matched a business event. Open the integration's **Event Stream** tab and confirm the stream is running with an empty `filters` collection before sending. [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views) shows how to create this stream.
+
+Capture `event_id` from the synchronous response, then search with [Event Stream Query Language](/technical/platform-integrations/extensions/event-streams-overview/event-stream-query-language):
+
+1. Search `event_id=` followed by the returned identifier to find the `INPUT` event.
+2. Search `root_event_id=` followed by the same identifier to find downstream events.
+
+Open the JSON for the `INPUT` event and its descendants:
+
+- The `INPUT` event's `name` is the wire event you submitted. Its `raw_data` contains the received payload, including `container: test` and, for a friend journey, `advocate.email`.
+- A descendant with `type` `STEP` and the canonical `name` is the mapped business event. Its `data` contains the mapped values, and its `person_profile` should match the `INPUT` event.
+- `campaign_context.quality` of `HIGH` or `LOW` means a campaign selected the event. `NONE`, or a missing `campaign_context`, means the event was recorded without attribution.
+- `duplicate` is `true` when the unique partner event identifier has already been processed.
+- When no campaign selects the event, `step_matching_campaign_contexts` shows each candidate. Use its `trigger_results` and `log_messages`, together with the `INPUT` event's `log_messages`, to find the rule that did not match.
+
+Correct any mapping or rule that differs from the expected result, republish when required, and send a fresh unique event. Restore a stopped or filtered stream before testing again.
 
 Use the returned `person_id` to list the resulting events:
 
@@ -306,9 +373,11 @@ curl --get "$EXTOLE_API_HOST/v5/persons/$PERSON_ID/steps" \
   --data-urlencode "names=converted"
 ```
 
-Confirm the canonical event name and every mapped value, using a new unique identifier per repeat unless duplicate handling is under test. Cover:
+Confirm the canonical event name and every mapped value match what the stream already showed, using a new unique identifier per repeat unless duplicate handling is under test. Cover:
 
 - Every preferred partner input event.
+- Referral creation for each `FRIEND` journey event.
+- Test-container isolation from production dashboard analytics and reports.
 - Every supported legacy alias.
 - Missing required identity.
 - A repeated unique partner event identifier.

@@ -63,9 +63,9 @@ Read the latest campaign and its built components, then confirm:
 ### Views
 
 - `views` accepts `view-v10.0`, and the configuration view is attached to the model component with `settingsToDisplay` referencing existing parent settings.
-- The socket holds the three baseline views, plus the `reward-suppliers` configuration view on a reward fulfillment build.
+- The socket holds the three baseline views, a **Test Event** `config-view-v10.0` child that lists the parent integration's `testEventPayload` JSON setting on a Partner to Extole build, and the `reward-suppliers` configuration view on a reward fulfillment build.
 - Read from `/v1/components/built`, `reportRunnerId` on the report-runner view and `eventStreamId` on the event-stream view each resolve to an identifier rather than null — a null means the element was never created, or was attached to the integration component instead of the view that reads it, and neither fails loudly.
-- Every column named in `reportColumnsMapping` is one the report runner's `mappings` expression produces, and the event stream carries its filters.
+- Every column named in `reportColumnsMapping` is one the report runner's `mappings` expression produces, and the event stream is running with an empty `filters` collection.
 
 ### Display Settings
 
@@ -88,6 +88,8 @@ curl --request POST \
 <Warning>
 A successful publish is model validation, not end-to-end verification. Nothing above proves an event reaches a step, and two pieces this guide creates — a prehandler script and a data component's `valueExpression` — are stored without ever being executed. Send a real payload and read the resulting step before you call the integration working.
 </Warning>
+
+For each partner wire name, use the `event_id` returned by the send to find the `INPUT` event and its resulting `STEP` event in the integration's **Event Stream** tab. Confirm the `STEP` event has the canonical name, expected person, mapped data, and attributed campaign context. Connecting the integration to a program does not replace this test. [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) covers the complete sequence.
 
 ## Connect the Integration to a Program
 
@@ -119,7 +121,7 @@ Most commerce platforms map onto the same three canonical events; adjust this sh
 | `shipped` | `template_tracked_business_event` | Shipment |
 | `canceled` | `template_tracked_business_event` | Cancellation, plus any legacy spelling a live sender still emits |
 
-[Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) names the fields each event captures. A complete integration of this shape carries the model component, three business events, one `input_event` rule per event, one data component per captured field, and the three baseline views. It is Partner to Extole only: no reward-supplier socket, reward webhook, or client key.
+[Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) names the fields each event captures. A complete integration of this shape carries the model component, three business events, one `input_event` rule per event, one data component per captured field, the three baseline views, a `testEventPayload` JSON setting, and the **Test Event** configuration view that displays it. It is Partner to Extole only: no reward-supplier socket, reward webhook, or client key.
 
 Platforms with a different lifecycle keep the same construction and change the event set: a lending or account platform maps to `account_opened`, `application_approved`, and `funded`; a subscription platform to `converted`, `renewed`, and `canceled`. The canonical name describes the business outcome, never the partner's transport name.
 
