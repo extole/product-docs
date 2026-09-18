@@ -38,6 +38,10 @@ When a referred visitor arrives carrying a referral, Extole tries to place them 
 journey**. It looks at the programs the advocate is already enrolled in and, for each one, asks
 which live campaigns could receive a friend for it.
 
+There are two ways the wrong program comes out of that, and they need different fixes.
+
+### Cause One: The Campaign Cannot Receive Its Own Referrals
+
 A campaign is only in that competition if its friend landing experience belongs to the campaign's
 **friend** journey. A campaign can instead have that experience built on its advocate-side journey —
 the same journey its share experience and advocate pages sit on. When that happens:
@@ -50,6 +54,26 @@ the same journey its share experience and advocate pages sit on. When that happe
 A friend-journey match outranks ordinary program-label selection, so the correct campaign losing
 here is not a matter of labels or rules — it never reached the stage where its label would have been
 read.
+
+### Cause Two: The Request Does Not Say Which Program It Is
+
+Once every campaign can receive its own referrals, a second problem can remain. The request the
+landing page makes carries the advocate's referral code, but **not the program the referral link
+belonged to**. With nothing to identify the program, Extole works through the programs the advocate
+is enrolled in and takes the first one that can receive a friend.
+
+That list is ordered by which of the advocate's journeys was written to most recently — often a
+difference of a fraction of a second, from activity that has nothing to do with the link the friend
+clicked. So:
+
+- an advocate enrolled in only one program is always routed correctly;
+- an advocate enrolled in several programs is routed to whichever of them their record happened to
+  touch last, and every friend who clicks *any* of that advocate's links gets the same answer;
+- two testers clicking the same program's link can therefore see two different results, and each of
+  them sees their own result consistently.
+
+This is the cause to suspect when a program misroutes for one person and behaves for another, and
+when a clean browser changes nothing for either of them.
 
 <Warning>
 Every referral for an affected program goes to another program. Those referrals do not appear in the
@@ -83,14 +107,28 @@ reproduces on every attempt from a clean session is this one.
 
 ## How to Fix It
 
-The fix is on the campaign, and it is the same for every affected program: the friend landing
-experience has to belong to the campaign's **friend** journey, the way the rest of the campaign's
-friend-facing experiences already do. Contact your Extole team with the list of programs that
-misroute — they can confirm which journey each friend landing experience is built on and correct it.
+Both fixes are on the campaign. Contact your Extole team with the list of programs that misroute.
 
-After the change is published, retest with step 1 above from a clean session for each program. Until
-then, treat those programs' referral counts and referral-based rewards as understated, and the
-program that is absorbing the traffic as overstated by the same referrals.
+**For cause one,** the friend landing experience has to belong to the campaign's **friend** journey,
+the way the rest of the campaign's friend-facing experiences already do. Your Extole team can
+confirm which journey each friend landing experience is built on and correct it.
+
+**For cause two,** the referral link's landing page has to be told which program it is serving. The
+program's own label can be added to the landing page address configured on the referral link, so
+that every visitor arriving through that link is pinned to that program regardless of what else the
+advocate is enrolled in. A program label survives a campaign being rebuilt, which a campaign
+identifier does not, so prefer the label.
+
+<Note>
+Adding the program's label to the page's own request is what pins the program. Supplying it as a
+preference rather than a requirement has no effect here — the journey match is made before
+preferences are read.
+</Note>
+
+After the change is published, retest with step 1 above from a clean session for each program, and
+retest with at least two different advocates, since cause two can behave for one advocate and fail
+for another. Until then, treat those programs' referral counts and referral-based rewards as
+understated, and the program that is absorbing the traffic as overstated by the same referrals.
 
 <Note>
 A campaign can have more than one friend landing experience — a hosted landing page, and an embedded
