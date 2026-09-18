@@ -30,14 +30,14 @@ root
     │   └── canceled            template_tracked_business_event
     └── views                   MULTI_SOCKET → view-v10.0
         ├── configuration       config-view-v10.0
-        ├── test-events         test-event-view-v10.0
+        ├── test-events         config-view-v10.0
         ├── report-runner-view  report-runner-view-v10.0
         └── event-streams       event-stream-view-v10.0
 ```
 
 Never rename an Extole business event to match a partner wire event: the partner name belongs in an `input_event` trigger rule, the canonical name on the business-event component.
 
-The three baseline views are the same for every category — see [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories). Add the test-event view so My Extole can build an editable payload from the configured wire events, and build the sender against [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform).
+The three baseline views are the same for every category — see [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories). Add a test event payload setting and display it through a configuration view so My Extole can send an editable test payload, and build the sender against [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform).
 
 This page assumes the event arrives with a name in `event_name` and its fields readable in `data`. When the partner's own webhook defines the payload instead, a prehandler renames and flattens it first — see [Normalize Partner Events with a Prehandler](/technical/building-partner-integrations/integration-types/partner-events-prehandlers).
 
@@ -278,9 +278,29 @@ Give every business event its own data components; a field captured on one is no
 
 Lifecycle events such as `shipped` and `canceled` arrive independently, so repeat the identity set on each: they must resolve to the same person and, through the transaction identifier, the same original transaction.
 
-## Add the Test Event View
+## Add the Test Event Payload
 
-After configuring the business events and input rules, add one test-event view to the integration component's `views` socket. The `test-event-view-v10.0` type makes My Extole render the **Test Event** tab.
+After configuring the business events and input rules, add a `testEventPayload` JSON setting to the integration component. Author the payload with a partner wire event name, representative identity and event data, the current program label, and `container: "test"`. Include a distinct `advocate.email` when the event produces a `FRIEND` journey.
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components/$INTEGRATION_COMPONENT_ID/settings" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "testEventPayload",
+    "display_name": "Test Event Payload",
+    "description": "Edit and send a partner event through the test container.",
+    "type": "JSON",
+    "values": {
+      "default": "{\"event_name\":\"partner_order_created\",\"data\":{\"email\":\"test@example.com\",\"advocate.email\":\"test-advocate@example.com\",\"order_id\":\"test-order-001\",\"total\":42.50,\"customer_id\":\"test-customer-001\",\"container\":\"test\",\"labels\":\"'"$PROGRAM_LABEL"'\"}}"
+    },
+    "tags": ["importance:basic"],
+    "priority": "30"
+  }'
+```
+
+Add a `config-view-v10.0` child to the integration component's `views` socket. Its `settingsToDisplay` names the parent integration setting, which makes My Extole render the payload and **Send Event** button in the **Test Event** tab.
 
 ```bash
 curl --request POST \
@@ -291,32 +311,23 @@ curl --request POST \
     "name": "test-events",
     "display_name": "Test Event",
     "description": "Send a configured partner event with an editable test payload.",
-    "types": ["view-v10.0", "test-event-view-v10.0"],
+    "types": ["config-view-v10.0"],
     "installed_into_socket": "views",
     "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"],
     "variables": [
       { "name": "order", "type": "INTEGER", "values": { "default": 2 } },
       { "name": "title", "type": "STRING", "values": { "default": "Test Event" } },
       { "name": "status", "type": "STRING", "values": { "default": "READY" } },
-      { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": [] } }
+      { "name": "settingsToDisplay", "type": "STRING_LIST", "values": { "default": ["testEventPayload"] } }
     ]
   }'
 ```
 
-The view builds its editable payload from the integration's business events, enabled input rules, and program label.
-
 ## How to Test
 
-In the integration's **Test Event** view, choose a business event to generate an editable payload. The payload includes the enabled data fields configured on that business event. When a mapped data item reads a differently named partner field, the payload uses that source field name.
+Open the integration's **Test Event** tab, edit the payload with representative values, and select **Send Event**. Keep `data.container` set to `test`; it excludes the event from production dashboard analytics and reports without disabling event processing or rewards. To test another wire event, change `event_name` and the event-specific data fields. For a `FRIEND` journey, keep `advocate.email` distinct from the friend's `email`.
 
-The generator adds two test-specific fields:
-
-- Every payload includes `container` with value `test`, which excludes the resulting events from production dashboard analytics and reports.
-- When the selected business event's built `journeyName` is `FRIEND`, the payload includes `advocate.email` with a sanitized address distinct from the friend's `email`. Extole uses it to create the referral between the two people.
-
-Replace the generated values with representative test data before sending. A test container does not disable event processing or rewards. See [Exclude Test Data from Analytics](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics).
-
-Send a synchronous test event through `POST /v6/events` with an event-submission token, not the one that created the campaign. Put the current program label in `data` to target this campaign; it is a testing convenience and does not belong in the partner's payload.
+You can also send the same payload through `POST /v6/events` with an event-submission token, not the token that created the campaign. Put the current program label in `data` to target this campaign; it is a testing convenience and does not belong in the partner's production payload. See [Exclude Test Data from Analytics](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics).
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/events" \
