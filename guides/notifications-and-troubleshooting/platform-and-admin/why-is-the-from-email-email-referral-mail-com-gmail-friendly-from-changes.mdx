@@ -1,12 +1,40 @@
 ---
-title: "Why is the from email @email.referral-mail.com? - Gmail Friendly From Changes"
-description: "Gmail has unilaterally decided to change its DMARC policy, which means that Referral Emails sent using gmail.com in the from address, will have to originate from Gmail's infrastructure:"
+title: "Why Is the From Address @email.referral-mail.com?"
+description: "Extole sends share emails from the advocate's own address, and rewrites that address to @email.referral-mail.com when the advocate's email provider enforces a strict DMARC policy. Replies always go to the advocate."
 ---
 
-Gmail has unilaterally decided to change its DMARC policy, which means that Referral Emails sent using [gmail.com](http://gmail.com/) in the from address, will have to originate from Gmail's infrastructure:
+# Overview
 
-- Impact to referral programs: Referral Emails sent from Advocate's with a "@[gmail.com](http://gmail.com/)" email will be changed to "[@email.referral-mail.com](mailto:advocate@email.referral-mail.com)"; all replie-tos, however, will be to the advocate's actual email address.
-- Extole has been extensively testing the impact of sending emails from the advocate versus sending emails using the alternate email address format.
-- Our testing has shown there is no change to friend CTR based on this change
-- Extole will be building a new integration with Gmail that will help us support our original integration of coming from the friend.
-- In the meantime, we do not expect any impact to your program - though we will continue to help you to monitor for any changes to friend click through rate performance.
+Share emails are sent from the advocate's own email address, so a friend sees a personal message from someone they know. Some email providers publish a DMARC policy telling receiving mail servers to quarantine or reject any message that carries their domain in the From address but was not sent from their own infrastructure. Extole cannot satisfy that policy on an advocate's behalf, so for those advocates Extole rewrites the visible From address to `@email.referral-mail.com`. The Reply-To address is always the advocate's real address, so replies reach them either way.
+
+## When Extole Rewrites the From Address
+
+Each time a message is rendered, Extole reads the DMARC record published by the domain in the From address and decides from that:
+
+| The From domain publishes | From address Extole sends |
+|---|---|
+| `p=quarantine` or `p=reject`, and Extole's DKIM keys are not installed for that domain | Rewritten to `@email.referral-mail.com` |
+| `p=quarantine` or `p=reject`, and Extole's DKIM keys are installed and resolving | The address unchanged |
+| `p=none` | The address unchanged |
+| No DMARC record, and an SPF record that does not hard-fail | The address unchanged |
+| No DMARC record, and an SPF record ending in `-all` | Rewritten to `@email.referral-mail.com` |
+
+Extole also rewrites the From address when an advocate shares with their own address.
+
+A subdomain with no DMARC record of its own inherits the policy in its parent domain's `sp=` tag. A sending domain such as `share.yourcompany.com` is therefore treated as strict whenever `yourcompany.com` publishes `sp=quarantine` or `sp=reject`, even though the subdomain itself publishes nothing.
+
+## Advocates on Gmail
+
+`gmail.com` publishes `p=none`, so Extole sends Gmail shares from the advocate's own Gmail address. SPF and DKIM authenticate `referral-mail.com` rather than `gmail.com`, so Gmail displays the message as sent **via referral-mail.com** and records a DMARC failure for it. `outlook.com` and `hotmail.com` behave the same way. Advocates on `yahoo.com`, `aol.com`, `comcast.net`, `icloud.com`, and `att.net` are rewritten, because those providers enforce.
+
+<Note>
+Providers change their DMARC policies. Look up the current record for a domain — `_dmarc.<domain>`, a TXT record — before drawing a conclusion about how a particular advocate's shares are sent.
+</Note>
+
+Nothing you publish in your own DNS changes this, because the From domain belongs to the advocate's email provider rather than to you. If you want every share to pass DMARC, set the share email's From address to a branded address on a sending domain you control, and install Extole's DKIM keys for it. Shares then arrive as a message from your brand rather than from the advocate, and Gmail is more likely to place them in the **Promotions** tab.
+
+## Program Emails from Your Own Domain
+
+Welcome, reward, and stats emails are sent from the address in your campaign's **Company Email From** setting. To have them arrive under your own domain rather than `@email.referral-mail.com`, install Extole's DKIM keys for that sending domain and keep all three CNAME records resolving to the targets Extole gives you. See [Extole DNS Requirements](/technical/operational-tasks/account-configuration/extole-dns-requirements).
+
+If those records are missing, point at the wrong targets, or stop resolving, Extole treats the domain as unauthenticated. When the domain also inherits or publishes an enforcing DMARC policy, the From address on every program email is rewritten to `@email.referral-mail.com`.
