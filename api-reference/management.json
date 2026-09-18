@@ -9263,6 +9263,11 @@
             "headers" : {
               "$ref" : "#/components/schemas/HeadersInBuiltCampaignControllerActionEmailV2Response"
             },
+            "optout_list" : {
+              "description" : "Opt-out list this email sends on, resolved at build time. An email on the promotional list is suppressed for a person who opted out of that list, and carries the List-Unsubscribe and List-Unsubscribe-Post headers for one-click unsubscribe. An email on the transactional, personal or notification list is always delivered and carries no unsubscribe headers.",
+              "enum" : [ "NOTIFICATION", "PERSONAL", "PROMOTIONAL", "TRANSACTIONAL" ],
+              "type" : "string"
+            },
             "reply_to" : {
               "$ref" : "#/components/schemas/ReplyToInBuiltCampaignControllerActionEmailV2Response"
             },
@@ -15382,6 +15387,9 @@
             },
             "headers" : {
               "$ref" : "#/components/schemas/HeadersInCampaignControllerActionEmailV2Response"
+            },
+            "optout_list" : {
+              "$ref" : "#/components/schemas/OptoutListInCampaignControllerActionEmailV2Response"
             },
             "reply_to" : {
               "$ref" : "#/components/schemas/ReplyToInCampaignControllerActionEmailV2Response"
@@ -28903,14 +28911,14 @@
         } ]
       },
       "HeadersInBuiltCampaignControllerActionEmailV2Response" : {
-        "description" : "Additional email headers to attach to the email, as header-name to header-value pairs, with buildtime expressions resolved. Still a runtime evaluatable that is evaluated when the action runs. Runtime expressions use [EmailV2ActionContentContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionContentContext.d.ts).",
+        "description" : "Additional email headers to attach to the email, as header-name to header-value pairs, with buildtime expressions resolved. Still a runtime evaluatable that is evaluated when the action runs. An action on the promotional opt-out list replaces the List-Unsubscribe and List-Unsubscribe-Post headers with the ones Extole generates for one-click unsubscribe. Runtime expressions use [EmailV2ActionContentContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionContentContext.d.ts).",
         "externalDocs" : {
           "description" : "EmailV2ActionContentContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionContentContext.d.ts"
         },
         "oneOf" : [ {
           "additionalProperties" : {
-            "description" : "Additional email headers to attach to the email, as header-name to header-value pairs, with buildtime expressions resolved. Still a runtime evaluatable that is evaluated when the action runs.",
+            "description" : "Additional email headers to attach to the email, as header-name to header-value pairs, with buildtime expressions resolved. Still a runtime evaluatable that is evaluated when the action runs. An action on the promotional opt-out list replaces the List-Unsubscribe and List-Unsubscribe-Post headers with the ones Extole generates for one-click unsubscribe.",
             "type" : "string"
           },
           "description" : "Literal headers",
@@ -28990,10 +28998,10 @@
         } ]
       },
       "HeadersInCampaignControllerActionEmailV2Response" : {
-        "description" : "Additional email headers to attach to the email, as header-name to header-value pairs. Evaluated when the action runs. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts). Runtime expressions use [EmailV2ActionContentContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionContentContext.d.ts).",
+        "description" : "Additional email headers to attach to the email, as header-name to header-value pairs. Evaluated when the action runs. An action on the promotional opt-out list replaces the List-Unsubscribe and List-Unsubscribe-Post headers with the ones Extole generates for one-click unsubscribe. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts). Runtime expressions use [EmailV2ActionContentContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionContentContext.d.ts).",
         "oneOf" : [ {
           "additionalProperties" : {
-            "description" : "Additional email headers to attach to the email, as header-name to header-value pairs. Evaluated when the action runs.",
+            "description" : "Additional email headers to attach to the email, as header-name to header-value pairs. Evaluated when the action runs. An action on the promotional opt-out list replaces the List-Unsubscribe and List-Unsubscribe-Post headers with the ones Extole generates for one-click unsubscribe.",
             "type" : "string"
           },
           "description" : "Literal headers",
@@ -33079,6 +33087,39 @@
         }, {
           "description" : "Javascript expression with [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
           "example" : "javascript@buildtime:function() { return context.getVariableContext().get('operator');}",
+          "externalDocs" : {
+            "description" : "ControllerBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "OptoutListInCampaignControllerActionEmailV2Response" : {
+        "description" : "Opt-out list this email sends on. Evaluated when the campaign is built. An email on the promotional list is suppressed for a person who opted out of that list, and carries the List-Unsubscribe and List-Unsubscribe-Post headers for one-click unsubscribe. An email on the transactional, personal or notification list is always delivered and carries no unsubscribe headers. Defaults to promotional. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "ControllerBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal optout list",
+          "enum" : [ "NOTIFICATION", "PERSONAL", "PROMOTIONAL", "TRANSACTIONAL" ],
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{optoutList}}",
+          "externalDocs" : {
+            "description" : "ControllerBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('optoutList');}",
           "externalDocs" : {
             "description" : "ControllerBuildtimeContext",
             "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts"
