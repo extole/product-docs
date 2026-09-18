@@ -116,16 +116,35 @@ Both fixes are on the campaign. Contact your Extole team with the list of progra
 the way the rest of the campaign's friend-facing experiences already do. Your Extole team can
 confirm which journey each friend landing experience is built on and correct it.
 
-**For cause two,** the referral link's landing page has to be told which program it is serving. The
-program's own label can be added to the landing page address configured on the referral link, so
-that every visitor arriving through that link is pinned to that program regardless of what else the
-advocate is enrolled in. A program label survives a campaign being rebuilt, which a campaign
-identifier does not, so prefer the label.
+**For cause two,** the referral link's landing page has to be told which program it is serving. Each
+program's referral link is configured by a **Share Link Behavior** on the friend side of the
+campaign, and its *Destination for Clicks on Share Links* is the address the link opens. Adding the
+program's own label to that address as a query parameter pins every visitor who arrives through that
+link to that program, whatever else the advocate is enrolled in:
+
+```
+https://www.example.com/your-landing-page?extole_required_labels=your-program-label
+```
+
+A program label survives a campaign being rebuilt, which a campaign identifier does not, so prefer
+the label.
+
+That single field is enough because of two things the platform already does:
+
+- The redirect carries the destination's own query string through to the landing page, alongside the
+  advocate code, share channel and UTM parameters it adds itself.
+- On the landing page, any query parameter whose name begins `extole_` is passed to every Extole zone
+  on that page with the prefix removed — so `extole_required_labels` reaches the zone request as a
+  required label.
+
+*Destination for Clicks on Share Links for Mobile Devices* follows the desktop address unless it has
+been given one of its own. Check it, and make the same change there if it has. Publish the campaign
+when the change is in; it applies to the next click.
 
 <Note>
-Adding the program's label to the page's own request is what pins the program. Supplying it as a
-preference rather than a requirement has no effect here — the journey match is made before
-preferences are read.
+Adding the label as a **requirement** is what pins the program. Supplying it as a preference —
+`extole_labels` rather than `extole_required_labels` — has no effect here, because the journey match
+is made before preferences are read.
 </Note>
 
 After the change is published, retest with step 1 above from a clean session for each program, and
