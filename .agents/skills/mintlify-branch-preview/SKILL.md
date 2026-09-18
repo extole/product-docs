@@ -27,6 +27,8 @@ error Build validation failed with 1 warning(s).
 
 **The reverse is not caught.** A page file that is valid MDX but appears in no `docs.json` group passes validation with exit 0 — it simply ships unreachable, with no build signal and no CI failure. Measured 2026-08-21 against `mint@latest`. Adding the page to `docs.json` is on you and on the reviewer; the build will not remind you.
 
+**An angle-bracket placeholder can drop the page from the deployed build.** A page carrying `` `<reward name>_reward_earned` `` — a placeholder inside an inline code span — passed `validate` with 0/0 and rendered at 200 under `mint dev`, and the deployed preview served 404 for that one page while every sibling in the group served 200. Replacing the placeholder with a concrete example was the only change; the preview returned 200 about a minute later, after the 404 had held for ten (measured 2026-09-16 on `reward-name-vs-label`). Write the example value rather than a `<placeholder>`, and open the preview on the page you edited — a green `validate` and a local render both miss this.
+
 ## Local preview
 
 ```bash
