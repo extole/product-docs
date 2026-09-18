@@ -60742,7 +60742,7 @@
     },
     "/v2/campaign-summaries" : {
       "get" : {
-        "description" : "Returns lightweight read-only summaries of campaigns, including id, name, state, and dates. Supports filtering via query parameters.",
+        "description" : "Returns lightweight read-only summaries of campaigns, including id, name, state, and dates. Supports filtering via query parameters. An archived or deleted campaign returned via `include_archived=true` reflects its emptied tombstone state — see `POST /v2/campaigns/{id}/archive`.",
         "parameters" : [ {
           "in" : "query",
           "name" : "version",
@@ -61121,7 +61121,7 @@
     },
     "/v2/campaign-summaries/{campaignId}/version/{version}" : {
       "get" : {
-        "description" : "Returns a lightweight read-only summary of the specified campaign, including id, name, state, and dates.",
+        "description" : "Returns a lightweight read-only summary of the specified campaign, including id, name, state, and dates. If `version` is the campaign's archived or deleted (tombstone) version, the summary reflects that tombstone state — see `POST /v2/campaigns/{id}/archive`.",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -61292,7 +61292,7 @@
     },
     "/v2/campaigns" : {
       "get" : {
-        "description" : "Returns campaigns for the calling client, filtered and ordered by the supplied query parameters. Supports filtering by state (draft, published, archived), label, and date range. Use `GET /v2/campaigns/built` for fully evaluated runtime forms.",
+        "description" : "Returns campaigns for the calling client, filtered and ordered by the supplied query parameters. Supports filtering by state (draft, published, archived), label, and date range. An archived campaign returned via `include_archived=true` is in its emptied tombstone form, not the content it had before archiving — see `POST /v2/campaigns/{id}/archive`. Use `GET /v2/campaigns/built` for fully evaluated runtime forms.",
         "parameters" : [ {
           "in" : "query",
           "name" : "version",
@@ -62007,7 +62007,7 @@
     },
     "/v2/campaigns/deleted" : {
       "get" : {
-        "description" : "Returns the campaigns that have been soft-deleted for the calling client. Deleted campaigns are retained for audit and recovery purposes. Use `POST /v2/campaigns/{id}/undelete` to restore a deleted campaign.",
+        "description" : "Returns the campaigns that have been soft-deleted for the calling client. Deleted campaigns are retained for audit and recovery purposes, but the returned definitions are emptied by the same tombstone mechanism as archiving — see `POST /v2/campaigns/{id}/archive`. Use `POST /v2/campaigns/{id}/undelete` to restore a deleted campaign along with the content it had before deletion.",
         "responses" : {
           "200" : {
             "content" : {
@@ -62610,7 +62610,7 @@
         "x-extole-visibility" : "visible"
       },
       "delete" : {
-        "description" : "Soft-deletes the campaign. Deleted campaigns are excluded from standard listings but are recoverable via `POST /v2/campaigns/{id}/undelete`. Returns the deleted campaign record. Requires the campaign to be in a state that permits deletion (e.g. DRAFT or ARCHIVED).",
+        "description" : "Soft-deletes the campaign. Deleting empties the campaign the same way archiving does — see `POST /v2/campaigns/{id}/archive` — so the returned record, and any later read of this campaign, reflects that emptied tombstone rather than the content it had before deletion. Deleted campaigns are excluded from standard listings but are recoverable via `POST /v2/campaigns/{id}/undelete`, which restores the pre-deletion content along with the campaign's active state. Requires the campaign to be in a state that permits deletion (e.g. DRAFT or ARCHIVED).",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -63434,7 +63434,7 @@
     },
     "/v2/campaigns/{campaignId}/version/{version}" : {
       "get" : {
-        "description" : "Returns the full source definition of the campaign at the specified version. Use `GET /v2/campaigns/{id}/version/{version}/built` for the fully evaluated runtime form, or `GET /v2/campaigns/{id}/versions` for version history metadata.",
+        "description" : "Returns the full source definition of the campaign at the specified version. If `version` is the campaign's archived or deleted (tombstone) version, the returned definition is the emptied form produced by archiving — see `POST /v2/campaigns/{id}/archive`; use `GET /v2/campaigns/{id}/versions` to find the version immediately before it for the pre-archive content. Use `GET /v2/campaigns/{id}/version/{version}/built` for the fully evaluated runtime form, or `GET /v2/campaigns/{id}/versions` for version history metadata.",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -94840,7 +94840,7 @@
     },
     "/v2/campaigns/{campaignId}/archive" : {
       "post" : {
-        "description" : "Moves the campaign to archived state, hiding it from default campaign listings while retaining it for reporting and recovery. Use `POST /v2/campaigns/{id}/unarchive` to restore an archived campaign to active state.",
+        "description" : "Moves the campaign to archived state, hiding it from default campaign listings while retaining it for reporting and recovery. Archiving empties the campaign: components, flow steps, and transition, reward, and quality rules are removed, while name, description, tags, theme, and labels are kept. Every subsequent read of this campaign — direct, via `include_archived=true`, or by version — returns this emptied form; the content as it stood before archiving is reachable only through the version immediately preceding it (`GET /v2/campaigns/{id}/versions`). Use `POST /v2/campaigns/{id}/unarchive` to restore an archived campaign to active state, content included.",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -99189,7 +99189,7 @@
     },
     "/v2/campaigns/{campaignId}/unarchive" : {
       "post" : {
-        "description" : "Restores the campaign from archived state back to its previous active state. After unarchiving, the campaign resumes appearing in standard listings and is eligible for editing or publishing.",
+        "description" : "Restores the campaign from archived state back to its previous active state, restoring the content — components, flow steps, and transition, reward, and quality rules — that was in place immediately before archiving emptied it (see `POST /v2/campaigns/{id}/archive`). After unarchiving, the campaign resumes appearing in standard listings and is eligible for editing or publishing.",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
@@ -99359,7 +99359,7 @@
     },
     "/v2/campaigns/{campaignId}/undelete" : {
       "post" : {
-        "description" : "Recovers a soft-deleted campaign, restoring it to an active state. Requires the `CLIENT_SUPERUSER` scope. After recovery the campaign appears again in standard listings and can be edited or published.",
+        "description" : "Recovers a soft-deleted campaign, restoring both its active state and the content it had immediately before it was deleted or archived (see `POST /v2/campaigns/{id}/archive`). Requires the `CLIENT_SUPERUSER` scope. After recovery the campaign appears again in standard listings and can be edited or published.",
         "parameters" : [ {
           "in" : "path",
           "name" : "campaignId",
