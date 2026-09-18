@@ -146,6 +146,24 @@ When using multiple integrations, include `target=campaign_id:<REWARD_BANK_CAMPA
 Example link:  
 `https://test.extole.io/zone/bankable_rewards_redemption_center?target=campaign_id:<CAMPAIGN_ID>&jwt=<JWT_TOKEN>`
 
+### Give each Reward Bank its own zone name
+
+`Zone Name`, on the Reward Bank extension's **Content** tab, defaults to `bankable_rewards` on every bank. Two live banks left on the default both answer that same request, and the platform then picks one of them for the visitor. The visitor keeps whichever bank they were given on every later visit, so they can be shown an empty balance that belongs to the other bank. Nothing is reported as an error when this happens.
+
+Set a unique `Zone Name` on each Reward Bank before you make a second one live, and set each bank's **Redemption Center URL** to that bank's own Redemption Center Microsite zone.
+
+<Warning>
+  Reward Bank extensions created before V10.1 have no `Zone Name` setting and always answer `bankable_rewards`. If one of your banks is an older version, give the newer bank the unique zone name.
+</Warning>
+
+A standalone Redemption Center link sent from a reward email carries only `?jwt=<JWT_TOKEN>`: the extension builds it from the **Redemption Center URL** setting plus the token, so there is nowhere in that link for a `target=campaign_id:` parameter. Unique zone names are what keeps those email links pointed at the right bank.
+
+### Repoint every program that embeds a bank
+
+A program whose microsite shows a Reward Bank embeds it with the **Reward Bank Redemption Center Panel** content block, and that block's **Reward Bank Campaign ID** setting names one bank explicitly. The panel is therefore already pinned: it asks for the bank you named and never the other one, whatever the zone names are.
+
+That pin is per program, and it does not follow the reward. When you move a program's rewards to a different bank, change **Reward Bank Campaign ID** on that program's panel in the same release. A program left naming the old bank keeps showing the old bank's balance, so the person sees an empty Reward Bank while their new rewards sit in the other one.
+
 ## Reporting
 
 Run the following reports to track Reward Bank activity:
