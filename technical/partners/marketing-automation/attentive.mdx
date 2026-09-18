@@ -145,7 +145,7 @@ curl --request POST "$EXTOLE_API_HOST/v6/webhooks/events/send" \
       "root_event_id": "0",
       "cause_event_id": "0",
       "cause_event_sequence": 1,
-      "device_profile_id": "0",
+      "device_profile_id": "'"$TEST_PERSON_ID"'",
       "campaign_id": "'"$CAMPAIGN_ID"'",
       "program_label": "refer-a-friend",
       "journey_name": "everyone",
@@ -166,6 +166,27 @@ curl --request POST "$EXTOLE_API_HOST/v6/webhooks/events/send" \
 `event.data` is delivered to Attentive as the request body, unchanged. It is the same object the campaign step would have built, so copy the shape from the step's webhook action: a dotted key there, such as `user.phone`, arrives nested.
 
 Use the subscriptions webhook id for a subscribe and the custom events webhook id for `Advocate Rewarded` or `Friend Rewarded`; both ids are on the **Configurations** tab. Each call is a real call to Attentive and creates a real subscriber or event, so use test identities.
+
+`device_profile_id` has to be an existing profile in the account — the dispatcher looks it up — so use a test person's id rather than a placeholder. The other ids in the envelope are free-form.
+
+### Confirm the Sample Arrived
+
+[//]: # "How do I check that a sample event reached Attentive?"
+
+The `200` from the send endpoint means Extole queued the event, not that Attentive accepted it. Attentive's own reply is recorded in the **Webhook Dispatch Result Events** report, which carries the exact request body sent, the response status code and the response body for every dispatch:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v4/reports" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "report_type": "WEBHOOK_DISPATCH_RESULT_EVENTS",
+    "formats": ["JSON"],
+    "parameters": { "time_range": "LAST_DAY", "webhook_id": "'"$WEBHOOK_ID"'", "limit": "50" }
+  }'
+```
+
+That report is built from stored event data rather than read live, so a dispatch from the last few minutes will not be in it yet. To see a sample immediately, look in Attentive — a subscribe appears against the sign-up unit, and a custom event appears in the journey builder's event list, which is what makes its properties available as macros.
 
 <Note>
   **A subscribe still needs a Sign Up Source ID**
