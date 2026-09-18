@@ -1,0 +1,42 @@
+---
+title: "Merge Duplicate Person Profiles"
+description: "Consolidate two profiles that belong to the same person, so their referral activity, rewards, and journeys all sit on one profile."
+---
+
+## Overview
+
+[//]: # "How do I merge two profiles that both have referral activity?"
+
+When the same person reaches your program under two email addresses, Extole records them as two profiles. Each one holds its own referral activity — shares, journeys, events, and rewards — so reporting counts the person twice and reward limits are applied to each profile separately.
+
+Merging consolidates them. You choose which profile survives, everything on the other profile is forwarded to it, and from then on a lookup of either address resolves to the surviving profile.
+
+<Warning>
+Merging is one-way. Extole has no operation that separates two profiles once they have been merged, so confirm which address you are keeping before you run it.
+</Warning>
+
+## There Is No My Extole Control for This
+
+Merging is an API operation. My Extole's person pages show a profile's activity, rewards, and identity history, but they carry no merge action — so this work is done through the Persons API, or by asking your Extole contact to run it for you.
+
+## What Moves
+
+Forwarding moves everything the source profile holds onto the surviving profile:
+
+* Journeys, and the events recorded on them
+* Rewards, including rewards that have already been sent
+* Shares, share links, and referral relationships
+* Profile data, audience memberships, and stored assets
+
+Blocks on the two profiles are combined, and the stricter of the two applies. The surviving profile keeps its own email address as its identity.
+
+## Merge Two Profiles
+
+1. Look up both addresses with [Search for Persons](/api-reference/persons/search-for-persons) to get their profile IDs, and confirm each one returns its own ID. If both addresses already return the same profile, they have been merged already and there is nothing to do.
+2. Decide which profile survives. The survivor is usually the address the person still uses, not the one with the most activity — the activity moves either way.
+3. Call [Forward an Identity Profile to Another Identity Profile](/api-reference/persons/forward-an-identity-profile-to-another-identity-profile) on the profile that is being merged away, naming the survivor as `forward_to_profile_id`. The call needs an access token with the `USER_SUPPORT` scope.
+4. Verify from the profile you merged away: looking it up by ID or by email address now returns the surviving profile's ID and email address.
+
+<Note>
+Both addresses have to exist as profiles for this to be a merge. If the address you want to keep has never been seen by your program, there is nothing to merge into — update the identity key value on the existing profile instead, with [Update a Person](/api-reference/persons/update-a-person).
+</Note>
