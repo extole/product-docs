@@ -147,9 +147,14 @@ evidence that revises this file, and the label exists to collect it.
 
 What is measured so far, on `claude-opus-5`, before any human has seen a verdict:
 
-- **11 open pull requests sampled: 11 `needs-human-review`, 0 `minor`.** Sampled across authors
-  and sizes (#99, #105, #109, #111, #130, #137, #143, #146, #161, #162, #164). Two drafts of
-  this rubric produced the same 11, so the second draft did not move it.
+- **The whole open queue: 64 judged, 64 `needs-human-review`, 0 `minor`.** Not a sample — every
+  pull request open on 2026-09-21, at $3.57 on `claude-opus-5`. An 11-pull-request sample
+  beforehand returned the same, under two different drafts of this rubric.
+- **The trigger count is the ordering the label fails to give.** Across those 64: 8 carry one
+  trigger, 10 carry two, 27 carry three, and 8 carry five or more. `product-claim` fired on 57,
+  `literal-change` on 37, `scope-change` on 34, `link-or-image` on 30, `nav-change` and
+  `new-or-moved-page` on 10 each. A one-trigger pull request is a short read; a seven-trigger
+  one is a new page plus navigation plus literals plus links.
 - **The label does discriminate.** A control on merged work returned `minor` for
   [#134](https://github.com/extole/product-docs/pull/134), a mechanical conversion of 46
   `<Frame>` captions across 16 pages, while [#128](https://github.com/extole/product-docs/pull/128),
