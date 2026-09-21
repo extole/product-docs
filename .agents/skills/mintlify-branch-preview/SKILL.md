@@ -1,6 +1,6 @@
 ---
 name: mintlify-branch-preview
-description: Prove an Extole docs change builds, and see it rendered, before it merges to the live site. Use before opening any branch or PR in extole/product-docs, and whenever someone needs to see how a page will look. Covers the `npx mint@latest validate` gate and what it does and does not catch, the CI check that enforces it on every PR, local `npx mint@latest dev`, why the per-PR Mintlify preview cannot be relied on, branch naming (no prefix requirement here — unlike the ReadMe repo), and the fact that merging publishes docs.extole.com.
+description: Must be read before opening a branch or pull request in this repo, and whenever someone needs to see how a page will render.
 ---
 
 # Mintlify preview & validation
