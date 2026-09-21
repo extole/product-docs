@@ -325,9 +325,15 @@ curl --request POST \
 
 ## How to Test
 
-Open the integration's **Test Event** tab, edit the payload with representative values, and select **Send Event**. Keep `data.container` set to `test`; it excludes the event from production dashboard analytics and reports without disabling event processing or rewards. To test another wire event, change `event_name` and the event-specific data fields. For a `FRIEND` journey, keep `advocate.email` distinct from the friend's `email`.
+Open the integration's **Test Event** tab, edit the payload with representative values, and select **Send Event**.
 
-You can also send the same payload through `POST /v6/events` with an event-submission token, not the token that created the campaign. Put the current program label in `data` to target this campaign; it is a testing convenience and does not belong in the partner's production payload. See [Exclude Test Data from Analytics](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics).
+- For an Extole-shaped event, keep `data.container` set to `test`. To test another wire event, change `event_name` and the event-specific data fields.
+- For a prehandler-backed integration, keep the partner's raw webhook body without adding `event_name`. The control sends it through the named Events API endpoint and adds a top-level `container` with value `test`.
+- For a `FRIEND` journey, keep `advocate.email` distinct from the friend's `email`.
+
+The test container excludes the event from production dashboard analytics and reports without disabling event processing or rewards.
+
+An external command-line sender can submit the Extole-shaped payload through `POST /v6/events` with an event-submission token, not the token that created the campaign. Put the current program label in `data` to target this campaign; it is a testing convenience and does not belong in the partner's production payload. My Extole's **Send Event** control and chat tools use your authenticated client context. Never paste an access token or other credential into My Extole chat. See [Exclude Test Data from Analytics](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics).
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/events" \
