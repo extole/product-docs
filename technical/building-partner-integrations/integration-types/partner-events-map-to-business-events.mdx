@@ -280,7 +280,9 @@ Lifecycle events such as `shipped` and `canceled` arrive independently, so repea
 
 ## Add the Test Event Payload
 
-After configuring the business events and input rules, add a `testEventPayload` JSON setting to the integration component. For an Extole-shaped event, author the payload with the partner wire event name, representative identity and event data, the current program label, and `data.container` set to `test`. For a prehandler-backed integration, preserve the partner's raw webhook body without adding `event_name`; the Test Event control supplies the integration name and a top-level test container when it sends the payload. Include a distinct `advocate.email` when the event produces a `FRIEND` journey.
+After configuring the business events and input rules, add a `testEventPayload` JSON setting to the integration component. The setting holds a complete `POST /v6/events` request body, which My Extole sends exactly as written: author `event_name`, an optional `event_time`, and a `data` object carrying representative identity and event data, the current program label, and `container` set to `test`. Include a distinct `advocate.email` when the event produces a `FRIEND` journey.
+
+For a prehandler-backed integration, set `event_name` to the path segment the prehandler matches with `EVENT_NAME_MATCH` and put the partner's raw webhook body in `data`. The platform resolves both Events API forms to the same event name and data, so the prehandler sees what it would have seen had the partner posted the body to `POST /v6/events/{event_name}` itself.
 
 ```bash
 curl --request POST \
@@ -327,8 +329,10 @@ curl --request POST \
 
 Open the integration's **Test Event** tab, edit the payload with representative values, and select **Send Event**.
 
-- For an Extole-shaped event, keep `data.container` set to `test`. To test another wire event, change `event_name` and the event-specific data fields.
-- For a prehandler-backed integration, keep the partner's raw webhook body without adding `event_name`. The control sends it through the named Events API endpoint and adds a top-level `container` with value `test`.
+The control sends the payload exactly as authored and adds nothing, so every field the event needs must be in the setting.
+
+- Keep `data.container` set to `test`. To test another wire event, change `event_name` and the event-specific data fields.
+- For a prehandler-backed integration, keep `event_name` as the segment the prehandler matches and edit the partner's body inside `data`.
 - For a `FRIEND` journey, keep `advocate.email` distinct from the friend's `email`.
 
 The test container excludes the event from production dashboard analytics and reports without disabling event processing or rewards.
