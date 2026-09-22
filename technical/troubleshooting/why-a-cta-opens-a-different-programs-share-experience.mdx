@@ -63,19 +63,23 @@ which is why the symptom looks intermittent and customer-specific.
 
 Three things that look like the fix are not:
 
-- **The program label on the share experience request.** The label sets which program is preferred
-  when a new journey is started. A visitor who already holds a journey never reaches that step, so
-  the label leaves them where they are.
+- **The program label on the share experience request.** The `labels` parameter sets which program
+  is preferred when a new journey is started. A visitor who already holds a journey never reaches
+  that step, so the label leaves them where they are. The same label sent as a **required** label
+  does move them, because a required label is a filter applied before the journey check rather than
+  a preference applied after it — see
+  [Option 2](#option-2-require-the-programs-label-on-the-request).
 - **Adjusting the program-label rules** on the campaigns. The person is not being excluded by a
   rule — they are being matched by an existing journey, which happens first.
 - **A `campaign_id` request parameter.** This is not the journey hint, and it changes nothing here.
   It leaves every candidate in the running, so the journey check still matches the journey the
   person already holds. The hint has its own form, shown in
-  [Option 2](#option-2-send-an-explicit-journey-hint).
+  [Option 3](#option-3-send-an-explicit-journey-hint).
 
 ## How to Fix It
 
-There are two remedies, and they trade a campaign change against a site change.
+There are three remedies. The first changes the campaigns, the other two change what the share
+experience request carries.
 
 ### Option 1: Give Each Program Its Own Share Experience Zone
 
@@ -99,7 +103,43 @@ Changing a zone name changes what your site tags must request. Inventory every s
 for the old name before you publish, or those surfaces will request a zone no campaign publishes.
 </Warning>
 
-### Option 2: Send an Explicit Journey Hint
+### Option 2: Require the Program's Label on the Request
+
+Recommended when your site already knows which product, brand, or audience the page belongs to, and
+you want Extole to keep deciding which campaign answers for it.
+
+`labels` states a preference, used only when a new journey is started. `required_labels` is a
+filter: Extole drops every candidate whose program does not carry the label **before** the journey
+check runs, so a visitor already in a sibling program's journey is moved to the program you named.
+
+```
+GET /zone/share_experience?required_labels=<label>
+```
+
+In a page URL that Extole's library reads, the same parameter is `extole_required_labels`. In an
+`extole.createZone` call it is a `required_labels` entry in the request data.
+
+**The label does not have to name a program.** A **label injector** maps labels onto a program, so
+your site can send a word that describes the page — `business`, `consumer` — and Extole decides
+which campaign that word currently means. Add the descriptive label to the child labels of the
+injector named after the program's label, one injector per program. Your site keeps sending the
+same word when a campaign is rebuilt, duplicated, or replaced by a burst, and nothing on the site
+names a campaign or a program.
+
+<Warning>
+A required label that no live campaign carries leaves the zone with no candidate, and the zone
+renders nothing at all. Confirm that every label your site sends is carried by a live program
+before you roll it out, and keep the labels in step when you retire a program.
+</Warning>
+
+<Info>
+Labels select candidates on **targeting version 3**, where the program-label rule is applied to
+each journey's entry. On **targeting version 4** labels are not used to select candidates at all,
+so `required_labels` has no effect there — use
+[Option 3](#option-3-send-an-explicit-journey-hint) instead.
+</Info>
+
+### Option 3: Send an Explicit Journey Hint
 
 Recommended when changing the campaigns is not practical. `journey.campaign_id` is a high-priority
 targeting hint that is considered ahead of the visitor's existing journey, so a share experience
@@ -108,19 +148,45 @@ already in a sibling program's journey. See
 [Targeting](/guides/platform-overview/targeting) for how explicit hints rank against normal
 selection.
 
-On a zone request, send the hint as a `target` parameter naming the campaign, alongside the
-program's own label:
+On a zone request, the hint is a `journey.campaign_id` parameter naming the campaign:
 
 ```
-GET /zone/share_experience?labels=<program label>&target=campaign_id:<campaign id>
+GET /zone/share_experience?journey.campaign_id=<campaign id>
 ```
 
-<Warning>
-Send the hint **with** the program label, not instead of it. The hint narrows the candidates to the
-campaign you named, and journey entry then still needs the label to start the journey. A request
-carrying the hint and no label matches nothing and comes back empty, so the share experience does
-not open at all.
-</Warning>
+In a page URL that Extole's library reads, the same hint is `extole_journey.campaign_id`.
+
+The hint also has a program-shaped form. `journey.label` names a **program label** rather than a
+campaign id, and ranks immediately below `journey.campaign_id`:
+
+```
+GET /zone/share_experience?journey.label=<program label>
+```
+
+Prefer the label form when each of your programs is a product or an audience and your site already
+knows which one the page belongs to. A program label outlives the campaigns inside it, so a
+campaign rebuilt, duplicated or replaced by a burst does not send you back to re-edit the tag on
+your site. Use `journey.campaign_id` when you need one specific campaign rather than whichever
+campaign that program is currently running.
+
+Both forms put an Extole identifier in your site's markup, which means changing which program a
+page belongs to becomes a site change. [Option 2](#option-2-require-the-programs-label-on-the-request)
+keeps that mapping in Extole, so prefer it where labels are available to you.
+
+Extole's own promotion links already send the campaign-id form. A click on a promotion is redirected by the
+**Promotion Link Behavior** component, which stamps `extole_journey.campaign_id` with the campaign
+that promotion belongs to, and a CTA popup carries its own campaign the same way. What carries
+nothing is a request your own site makes — a share experience opened from an account page, an order
+confirmation, or a hardcoded referral link — so those are the surfaces to add the hint to.
+
+<Info>
+`target=campaign_id:<campaign id>` also serves the campaign you name, by a different route: it
+removes every other candidate before targeting runs, instead of hinting a journey. It has one sharp
+edge that `journey.campaign_id` does not. It needs the program's label on the same request —
+`labels=<program label>&target=campaign_id:<campaign id>` — because journey entry has nothing left
+to match on, and sent without a label it comes back empty and the share experience does not open at
+all. Prefer `journey.campaign_id`, which works with or without the label.
+</Info>
 
 This keeps one shared zone name and moves the work to whatever makes the share experience request —
 each CTA has to send the hint for its own program. Test it on one program before rolling it out; the
