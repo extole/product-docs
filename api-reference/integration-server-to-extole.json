@@ -201,6 +201,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "device_history_page_out_of_range" : {
+        "summary" : "device_history_page_out_of_range",
+        "value" : {
+          "code" : "device_history_page_out_of_range",
+          "http_status_code" : 400,
+          "message" : "offset must be at least 0 and limit between 0 and 1000",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "event_blocked" : {
         "summary" : "event_blocked",
         "value" : {
@@ -1127,6 +1137,26 @@
           "code" : "unsupported_operation",
           "http_status_code" : 400,
           "message" : "Operation is not supported for given sftp destination type",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "unverified_device_limit_out_of_range" : {
+        "summary" : "unverified_device_limit_out_of_range",
+        "value" : {
+          "code" : "unverified_device_limit_out_of_range",
+          "http_status_code" : 400,
+          "message" : "unverified_device_limit must be between 1 and 100",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "unverified_device_read_out_of_range" : {
+        "summary" : "unverified_device_read_out_of_range",
+        "value" : {
+          "code" : "unverified_device_read_out_of_range",
+          "http_status_code" : 400,
+          "message" : "With include_unverified_devices, offset must be at least 0 and offset plus limit at most 1000",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -7962,7 +7992,7 @@
     },
     "/v5/persons/{person_id}/device-history" : {
       "get" : {
-        "description" : "Returns the devices recorded as having claimed the specified person's identity, most recently seen first. A device that claims an identity without verifying it keeps its own activity, so this history is how to find that activity from the identity. Each entry says whether the device still points at this identity, so an entry is a record that the device was here, not a claim that it still is, and its `last_seen_at` is refreshed at most once a day, so it can trail the device's latest activity. Extole started recording this history in September 2026 and does not backfill it, so a device that claimed an identity before then appears only after it saves again. The history is bounded to the most recently seen devices, so a flood of claims evicts the ones seen longest ago, and it carries no marker of what it dropped. It is for support: Extole's own engine, targeting and reporting never read it.",
+        "description" : "Returns the devices recorded as having claimed the specified person's identity, most recently seen first. A device that claims an identity without verifying it keeps its own activity, so this history is how to find that activity from the identity. Each entry says whether the device still points at this identity, so an entry is a record that the device was here, not a claim that it still is, and its `last_seen_at` is refreshed at most once a day, so it can trail the device's latest activity. Extole started recording this history in September 2026 and does not backfill it, so a device that claimed an identity before then appears only after it saves again. Every recorded device is kept, so a flood of claims does not push older devices out of the history; page through it with `offset` and `limit`, at most 1000 devices a page. A device dropped before Extole started keeping the full history is not recovered. It is for support: Extole's own engine, targeting and reporting never read it.",
         "parameters" : [ {
           "description" : "The Extole unique profile identifier of this user at Extole.",
           "in" : "path",
@@ -7970,6 +8000,22 @@
           "required" : true,
           "schema" : {
             "type" : "string"
+          }
+        }, {
+          "description" : "Optional number of devices to skip, most recently seen first. Defaults to 0.",
+          "in" : "query",
+          "name" : "offset",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "description" : "Optional maximum number of devices to return. Defaults to 100 and must be at most 1000.",
+          "in" : "query",
+          "name" : "limit",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "responses" : {
@@ -7993,6 +8039,9 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "device_history_page_out_of_range" : {
+                    "$ref" : "#/components/examples/device_history_page_out_of_range"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
@@ -8004,6 +8053,12 @@
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
+                  },
+                  "unverified_device_limit_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_limit_out_of_range"
+                  },
+                  "unverified_device_read_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_read_out_of_range"
                   }
                 },
                 "schema" : {
@@ -8331,11 +8386,19 @@
             "type" : "integer"
           }
         }, {
-          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The devices followed are the ones `GET /v5/persons/{person_id}/device-history` reports as still pointing at this identity; that history keeps only the devices seen most recently, so an identity with more devices than it holds is covered for those alone. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
+          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The read follows the first `unverified_device_limit` devices that `GET /v5/persons/{person_id}/device-history` returns, most recently seen first, and skips any of them that no longer point at this identity. To reach older devices, page that endpoint and read each device directly. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list, so with this flag `offset` plus `limit` must be at most 1000. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
           "in" : "query",
           "name" : "include_unverified_devices",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "description" : "Optional number of devices, taken from the start of `GET /v5/persons/{person_id}/device-history`, that `include_unverified_devices` follows. Defaults to 20 and must be between 1 and 100. Ignored unless `include_unverified_devices` is `true`.",
+          "in" : "query",
+          "name" : "unverified_device_limit",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         }, {
           "in" : "query",
@@ -8377,6 +8440,9 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "device_history_page_out_of_range" : {
+                    "$ref" : "#/components/examples/device_history_page_out_of_range"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
@@ -8388,6 +8454,12 @@
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
+                  },
+                  "unverified_device_limit_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_limit_out_of_range"
+                  },
+                  "unverified_device_read_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_read_out_of_range"
                   },
                   "value_does_not_follow_pattern" : {
                     "$ref" : "#/components/examples/value_does_not_follow_pattern"
@@ -8672,11 +8744,19 @@
             "type" : "integer"
           }
         }, {
-          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The devices followed are the ones `GET /v5/persons/{person_id}/device-history` reports as still pointing at this identity; that history keeps only the devices seen most recently, so an identity with more devices than it holds is covered for those alone. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
+          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The read follows the first `unverified_device_limit` devices that `GET /v5/persons/{person_id}/device-history` returns, most recently seen first, and skips any of them that no longer point at this identity. To reach older devices, page that endpoint and read each device directly. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list, so with this flag `offset` plus `limit` must be at most 1000. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
           "in" : "query",
           "name" : "include_unverified_devices",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "description" : "Optional number of devices, taken from the start of `GET /v5/persons/{person_id}/device-history`, that `include_unverified_devices` follows. Defaults to 20 and must be between 1 and 100. Ignored unless `include_unverified_devices` is `true`.",
+          "in" : "query",
+          "name" : "unverified_device_limit",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "responses" : {
@@ -8700,6 +8780,9 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "device_history_page_out_of_range" : {
+                    "$ref" : "#/components/examples/device_history_page_out_of_range"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
@@ -8711,6 +8794,12 @@
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
+                  },
+                  "unverified_device_limit_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_limit_out_of_range"
+                  },
+                  "unverified_device_read_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_read_out_of_range"
                   }
                 },
                 "schema" : {
@@ -8852,11 +8941,19 @@
             "type" : "integer"
           }
         }, {
-          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The devices followed are the ones `GET /v5/persons/{person_id}/device-history` reports as still pointing at this identity; that history keeps only the devices seen most recently, so an identity with more devices than it holds is covered for those alone. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
+          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The read follows the first `unverified_device_limit` devices that `GET /v5/persons/{person_id}/device-history` returns, most recently seen first, and skips any of them that no longer point at this identity. To reach older devices, page that endpoint and read each device directly. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list, so with this flag `offset` plus `limit` must be at most 1000. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
           "in" : "query",
           "name" : "include_unverified_devices",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "description" : "Optional number of devices, taken from the start of `GET /v5/persons/{person_id}/device-history`, that `include_unverified_devices` follows. Defaults to 20 and must be between 1 and 100. Ignored unless `include_unverified_devices` is `true`.",
+          "in" : "query",
+          "name" : "unverified_device_limit",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "responses" : {
@@ -8883,6 +8980,9 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "device_history_page_out_of_range" : {
+                    "$ref" : "#/components/examples/device_history_page_out_of_range"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
@@ -8894,6 +8994,12 @@
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
+                  },
+                  "unverified_device_limit_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_limit_out_of_range"
+                  },
+                  "unverified_device_read_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_read_out_of_range"
                   }
                 },
                 "schema" : {
@@ -9250,11 +9356,19 @@
             "type" : "integer"
           }
         }, {
-          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The devices followed are the ones `GET /v5/persons/{person_id}/device-history` reports as still pointing at this identity; that history keeps only the devices seen most recently, so an identity with more devices than it holds is covered for those alone. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
+          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The read follows the first `unverified_device_limit` devices that `GET /v5/persons/{person_id}/device-history` returns, most recently seen first, and skips any of them that no longer point at this identity. To reach older devices, page that endpoint and read each device directly. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list, so with this flag `offset` plus `limit` must be at most 1000. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
           "in" : "query",
           "name" : "include_unverified_devices",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "description" : "Optional number of devices, taken from the start of `GET /v5/persons/{person_id}/device-history`, that `include_unverified_devices` follows. Defaults to 20 and must be between 1 and 100. Ignored unless `include_unverified_devices` is `true`.",
+          "in" : "query",
+          "name" : "unverified_device_limit",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "responses" : {
@@ -9281,6 +9395,9 @@
                   "data_values_invalid" : {
                     "$ref" : "#/components/examples/data_values_invalid"
                   },
+                  "device_history_page_out_of_range" : {
+                    "$ref" : "#/components/examples/device_history_page_out_of_range"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
@@ -9292,6 +9409,12 @@
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
+                  },
+                  "unverified_device_limit_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_limit_out_of_range"
+                  },
+                  "unverified_device_read_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_read_out_of_range"
                   }
                 },
                 "schema" : {
@@ -9480,11 +9603,19 @@
             "type" : "integer"
           }
         }, {
-          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The devices followed are the ones `GET /v5/persons/{person_id}/device-history` reports as still pointing at this identity; that history keeps only the devices seen most recently, so an identity with more devices than it holds is covered for those alone. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
+          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The read follows the first `unverified_device_limit` devices that `GET /v5/persons/{person_id}/device-history` returns, most recently seen first, and skips any of them that no longer point at this identity. To reach older devices, page that endpoint and read each device directly. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list, so with this flag `offset` plus `limit` must be at most 1000. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
           "in" : "query",
           "name" : "include_unverified_devices",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "description" : "Optional number of devices, taken from the start of `GET /v5/persons/{person_id}/device-history`, that `include_unverified_devices` follows. Defaults to 20 and must be between 1 and 100. Ignored unless `include_unverified_devices` is `true`.",
+          "in" : "query",
+          "name" : "unverified_device_limit",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         }, {
           "in" : "query",
@@ -9535,6 +9666,9 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "device_history_page_out_of_range" : {
+                    "$ref" : "#/components/examples/device_history_page_out_of_range"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
@@ -9546,6 +9680,12 @@
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
+                  },
+                  "unverified_device_limit_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_limit_out_of_range"
+                  },
+                  "unverified_device_read_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_read_out_of_range"
                   },
                   "value_does_not_follow_pattern" : {
                     "$ref" : "#/components/examples/value_does_not_follow_pattern"
@@ -9848,11 +9988,19 @@
             "type" : "integer"
           }
         }, {
-          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The devices followed are the ones `GET /v5/persons/{person_id}/device-history` reports as still pointing at this identity; that history keeps only the devices seen most recently, so an identity with more devices than it holds is covered for those alone. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
+          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The read follows the first `unverified_device_limit` devices that `GET /v5/persons/{person_id}/device-history` returns, most recently seen first, and skips any of them that no longer point at this identity. To reach older devices, page that endpoint and read each device directly. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list, so with this flag `offset` plus `limit` must be at most 1000. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
           "in" : "query",
           "name" : "include_unverified_devices",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "description" : "Optional number of devices, taken from the start of `GET /v5/persons/{person_id}/device-history`, that `include_unverified_devices` follows. Defaults to 20 and must be between 1 and 100. Ignored unless `include_unverified_devices` is `true`.",
+          "in" : "query",
+          "name" : "unverified_device_limit",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "responses" : {
@@ -9879,6 +10027,9 @@
                   "data_values_invalid" : {
                     "$ref" : "#/components/examples/data_values_invalid"
                   },
+                  "device_history_page_out_of_range" : {
+                    "$ref" : "#/components/examples/device_history_page_out_of_range"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
@@ -9890,6 +10041,12 @@
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
+                  },
+                  "unverified_device_limit_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_limit_out_of_range"
+                  },
+                  "unverified_device_read_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_read_out_of_range"
                   }
                 },
                 "schema" : {
@@ -10679,11 +10836,19 @@
             "type" : "integer"
           }
         }, {
-          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The devices followed are the ones `GET /v5/persons/{person_id}/device-history` reports as still pointing at this identity; that history keeps only the devices seen most recently, so an identity with more devices than it holds is covered for those alone. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
+          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The read follows the first `unverified_device_limit` devices that `GET /v5/persons/{person_id}/device-history` returns, most recently seen first, and skips any of them that no longer point at this identity. To reach older devices, page that endpoint and read each device directly. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list, so with this flag `offset` plus `limit` must be at most 1000. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
           "in" : "query",
           "name" : "include_unverified_devices",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "description" : "Optional number of devices, taken from the start of `GET /v5/persons/{person_id}/device-history`, that `include_unverified_devices` follows. Defaults to 20 and must be between 1 and 100. Ignored unless `include_unverified_devices` is `true`.",
+          "in" : "query",
+          "name" : "unverified_device_limit",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         } ],
         "responses" : {
@@ -10710,6 +10875,9 @@
                   "data_values_invalid" : {
                     "$ref" : "#/components/examples/data_values_invalid"
                   },
+                  "device_history_page_out_of_range" : {
+                    "$ref" : "#/components/examples/device_history_page_out_of_range"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
@@ -10724,6 +10892,12 @@
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
+                  },
+                  "unverified_device_limit_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_limit_out_of_range"
+                  },
+                  "unverified_device_read_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_read_out_of_range"
                   }
                 },
                 "schema" : {
@@ -11083,11 +11257,19 @@
             "type" : "integer"
           }
         }, {
-          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The devices followed are the ones `GET /v5/persons/{person_id}/device-history` reports as still pointing at this identity; that history keeps only the devices seen most recently, so an identity with more devices than it holds is covered for those alone. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
+          "description" : "Optional flag to also return the activity of the devices recorded as having claimed this person's identity, so support can see what a consumer who never verified did. Defaults to `false`, and `false` leaves the response exactly as it is without the parameter. The read follows the first `unverified_device_limit` devices that `GET /v5/persons/{person_id}/device-history` returns, most recently seen first, and skips any of them that no longer point at this identity. To reach older devices, page that endpoint and read each device directly. Results from every device are merged into one list in the same order, and `offset` and `limit` page that merged list, so with this flag `offset` plus `limit` must be at most 1000. Nothing on an entry says which device it came from - read that device's own activity to attribute it.",
           "in" : "query",
           "name" : "include_unverified_devices",
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "description" : "Optional number of devices, taken from the start of `GET /v5/persons/{person_id}/device-history`, that `include_unverified_devices` follows. Defaults to 20 and must be between 1 and 100. Ignored unless `include_unverified_devices` is `true`.",
+          "in" : "query",
+          "name" : "unverified_device_limit",
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         }, {
           "in" : "query",
@@ -11129,6 +11311,9 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "device_history_page_out_of_range" : {
+                    "$ref" : "#/components/examples/device_history_page_out_of_range"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
@@ -11146,6 +11331,12 @@
                   },
                   "person_step_invalid_visit_type" : {
                     "$ref" : "#/components/examples/person_step_invalid_visit_type"
+                  },
+                  "unverified_device_limit_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_limit_out_of_range"
+                  },
+                  "unverified_device_read_out_of_range" : {
+                    "$ref" : "#/components/examples/unverified_device_read_out_of_range"
                   },
                   "value_does_not_follow_pattern" : {
                     "$ref" : "#/components/examples/value_does_not_follow_pattern"
