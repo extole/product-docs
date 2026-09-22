@@ -1941,6 +1941,36 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "component_operation_invocation_failed" : {
+        "summary" : "component_operation_invocation_failed",
+        "value" : {
+          "code" : "component_operation_invocation_failed",
+          "http_status_code" : 400,
+          "message" : "Component operation evaluatable failed to evaluate",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "component_operation_invoke_missing" : {
+        "summary" : "component_operation_invoke_missing",
+        "value" : {
+          "code" : "component_operation_invoke_missing",
+          "http_status_code" : 400,
+          "message" : "Component operation of kind INVOKABLE requires an invoke evaluatable",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "component_operation_invoke_not_allowed" : {
+        "summary" : "component_operation_invoke_not_allowed",
+        "value" : {
+          "code" : "component_operation_invoke_not_allowed",
+          "http_status_code" : 400,
+          "message" : "Component operation of kind API_DESCRIPTOR does not accept an invoke evaluatable",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "component_operation_method_missing" : {
         "summary" : "component_operation_method_missing",
         "value" : {
@@ -1957,6 +1987,16 @@
           "code" : "component_operation_name_already_in_use",
           "http_status_code" : 400,
           "message" : "Component operation name is already used by another operation on this component",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "component_operation_name_ambiguous" : {
+        "summary" : "component_operation_name_ambiguous",
+        "value" : {
+          "code" : "component_operation_name_ambiguous",
+          "http_status_code" : 400,
+          "message" : "More than one component declares an invokable operation with this name",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -2007,6 +2047,16 @@
           "code" : "component_operation_not_found",
           "http_status_code" : 400,
           "message" : "Component operation is not found",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "component_operation_not_invokable" : {
+        "summary" : "component_operation_not_invokable",
+        "value" : {
+          "code" : "component_operation_not_invokable",
+          "http_status_code" : 400,
+          "message" : "Component operation is not of kind INVOKABLE",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -11579,6 +11629,14 @@
             "description" : "Human-readable label for the operation, already evaluated.",
             "type" : "string"
           },
+          "invoke" : {
+            "$ref" : "#/components/schemas/InvokeInBuiltComponentOperationResponse"
+          },
+          "kind" : {
+            "description" : "Whether the operation describes an external Extole API endpoint (`API_DESCRIPTOR`, the default) or holds an evaluatable this platform runs (`INVOKABLE`).",
+            "enum" : [ "API_DESCRIPTOR", "INVOKABLE" ],
+            "type" : "string"
+          },
           "method" : {
             "description" : "HTTP method of the operation.",
             "enum" : [ "DELETE", "GET", "PATCH", "POST", "PUT" ],
@@ -11619,7 +11677,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "display_name", "method", "name", "openapi_spec", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
+        "required" : [ "description", "display_name", "invoke", "kind", "method", "name", "openapi_spec", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
         "type" : "object"
       },
       "BuiltComponentPartnerEnumListVariableResponse" : {
@@ -19099,6 +19157,14 @@
           "display_name" : {
             "$ref" : "#/components/schemas/DisplayNameInComponentOperationCreateRequest"
           },
+          "invoke" : {
+            "$ref" : "#/components/schemas/InvokeInComponentOperationCreateRequest"
+          },
+          "kind" : {
+            "description" : "Whether the operation describes an external Extole API endpoint (`API_DESCRIPTOR`, the default) or holds an evaluatable this platform runs (`INVOKABLE`).",
+            "enum" : [ "API_DESCRIPTOR", "INVOKABLE" ],
+            "type" : "string"
+          },
           "method" : {
             "$ref" : "#/components/schemas/MethodInComponentOperationCreateRequest"
           },
@@ -19136,14 +19202,36 @@
         "required" : [ "method", "name", "path", "type" ],
         "type" : "object"
       },
+      "ComponentOperationInvokeRequest" : {
+        "properties" : {
+          "data" : {
+            "additionalProperties" : {
+              "description" : "Payload handed to the operation's invoke evaluatable as `context.getData()`.",
+              "type" : "object"
+            },
+            "description" : "Payload handed to the operation's invoke evaluatable as `context.getData()`.",
+            "type" : "object"
+          }
+        },
+        "required" : [ "data" ],
+        "type" : "object"
+      },
       "ComponentOperationResponse" : {
-        "description" : "Stored component operation definition. Fields `display_name`, `description`, `request_schema`, `response_schema`, `path`, and `method` are unevaluated and appear in buildtime-evaluatable form.",
+        "description" : "Stored component operation definition. Fields `display_name`, `description`, `request_schema`, `response_schema`, `path`, `method`, and `invoke` are unevaluated and appear in buildtime-evaluatable form.",
         "properties" : {
           "description" : {
             "$ref" : "#/components/schemas/DescriptionInComponentOperationResponse"
           },
           "display_name" : {
             "$ref" : "#/components/schemas/DisplayNameInComponentOperationResponse"
+          },
+          "invoke" : {
+            "$ref" : "#/components/schemas/InvokeInComponentOperationResponse"
+          },
+          "kind" : {
+            "description" : "Whether the operation describes an external Extole API endpoint (`API_DESCRIPTOR`, the default) or holds an evaluatable this platform runs (`INVOKABLE`).",
+            "enum" : [ "API_DESCRIPTOR", "INVOKABLE" ],
+            "type" : "string"
           },
           "method" : {
             "$ref" : "#/components/schemas/MethodInComponentOperationResponse"
@@ -19179,7 +19267,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "display_name", "method", "name", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
+        "required" : [ "description", "display_name", "invoke", "kind", "method", "name", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
         "type" : "object"
       },
       "ComponentOperationUpdateRequest" : {
@@ -19190,6 +19278,14 @@
           },
           "display_name" : {
             "$ref" : "#/components/schemas/DisplayNameInComponentOperationUpdateRequest"
+          },
+          "invoke" : {
+            "$ref" : "#/components/schemas/InvokeInComponentOperationUpdateRequest"
+          },
+          "kind" : {
+            "description" : "Whether the operation describes an external Extole API endpoint (`API_DESCRIPTOR`, the default) or holds an evaluatable this platform runs (`INVOKABLE`).",
+            "enum" : [ "API_DESCRIPTOR", "INVOKABLE" ],
+            "type" : "string"
           },
           "method" : {
             "$ref" : "#/components/schemas/MethodInComponentOperationUpdateRequest"
@@ -29428,6 +29524,190 @@
           },
           "pattern" : "^javascript@buildtime:.*",
           "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "InvokeInBuiltComponentOperationResponse" : {
+        "description" : "The invoke as configured: a literal value, or an expression (type:string) when defined dynamically. Runtime expressions use [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "ComponentOperationInvokeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "$ref" : "#/components/schemas/ApiResponse"
+          } ],
+          "description" : "Literal invoke",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+          "example" : "handlebars@runtime:{{invoke}}",
+          "externalDocs" : {
+            "description" : "ComponentOperationInvokeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('invoke');}",
+          "externalDocs" : {
+            "description" : "ComponentOperationInvokeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "InvokeInComponentOperationCreateRequest" : {
+        "description" : "Choose between static or dynamic invoke. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts). Runtime expressions use [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+        "oneOf" : [ {
+          "allOf" : [ {
+            "$ref" : "#/components/schemas/ApiResponse"
+          } ],
+          "description" : "Static invoke",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{invoke}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('invoke');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+          "example" : "handlebars@runtime:{{invoke}}",
+          "externalDocs" : {
+            "description" : "ComponentOperationInvokeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('invoke');}",
+          "externalDocs" : {
+            "description" : "ComponentOperationInvokeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "InvokeInComponentOperationResponse" : {
+        "description" : "The invoke as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts). Runtime expressions use [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+        "oneOf" : [ {
+          "allOf" : [ {
+            "$ref" : "#/components/schemas/ApiResponse"
+          } ],
+          "description" : "Literal invoke",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{invoke}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('invoke');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+          "example" : "handlebars@runtime:{{invoke}}",
+          "externalDocs" : {
+            "description" : "ComponentOperationInvokeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('invoke');}",
+          "externalDocs" : {
+            "description" : "ComponentOperationInvokeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "InvokeInComponentOperationUpdateRequest" : {
+        "description" : "Choose between static or dynamic invoke. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts). Runtime expressions use [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+        "oneOf" : [ {
+          "allOf" : [ {
+            "$ref" : "#/components/schemas/ApiResponse"
+          } ],
+          "description" : "Static invoke",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{invoke}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('invoke');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+          "example" : "handlebars@runtime:{{invoke}}",
+          "externalDocs" : {
+            "description" : "ComponentOperationInvokeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ComponentOperationInvokeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('invoke');}",
+          "externalDocs" : {
+            "description" : "ComponentOperationInvokeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/component/operation/ComponentOperationInvokeContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
           "type" : "string"
         } ]
       },
@@ -48310,6 +48590,12 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -50215,6 +50501,12 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -50799,6 +51091,12 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -54146,6 +54444,14 @@
               "example" : {
                 "description" : "description",
                 "display_name" : "display_name",
+                "invoke" : {
+                  "body" : "body",
+                  "headers" : {
+                    "headers_key" : "headers_key"
+                  },
+                  "statusCode" : 1
+                },
+                "kind" : "API_DESCRIPTOR",
                 "method" : "DELETE",
                 "name" : "name",
                 "path" : "path",
@@ -54245,6 +54551,12 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -54840,6 +55152,14 @@
               "example" : {
                 "description" : "description",
                 "display_name" : "display_name",
+                "invoke" : {
+                  "body" : "body",
+                  "headers" : {
+                    "headers_key" : "headers_key"
+                  },
+                  "statusCode" : 1
+                },
+                "kind" : "API_DESCRIPTOR",
                 "method" : "DELETE",
                 "path" : "path",
                 "priority" : "10",
@@ -54938,6 +55258,12 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -55269,6 +55595,12 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -58778,6 +59110,12 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -61628,6 +61966,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -62740,6 +63084,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -67217,6 +67567,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -74802,6 +75158,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -75203,6 +75565,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -75475,6 +75843,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -75726,6 +76100,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -75980,6 +76360,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -76546,6 +76932,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -76812,6 +77204,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -77090,6 +77488,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -77650,6 +78054,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -78482,6 +78892,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -79173,6 +79589,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -79617,6 +80039,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -80193,6 +80621,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -80626,6 +81060,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -84785,6 +85225,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -85734,6 +86180,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -86126,6 +86578,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -87774,6 +88232,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -90451,6 +90915,222 @@
         "x-extole-visibility" : "visible"
       }
     },
+    "/v1/components/operations/{operation_name}/invoke" : {
+      "post" : {
+        "description" : "Evaluates the invoke evaluatable of the invokable operation named `operation_name`, searching every built component of the client, and returns whatever HTTP response that evaluatable built: its own status code, headers and body. The evaluatable receives a context that can read the request payload, issue rewards, and build the response.",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operation_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "data" : {
+                  "data_key" : { }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentOperationInvokeRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : { }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_build_failed" : {
+                    "$ref" : "#/components/examples/campaign_build_failed"
+                  },
+                  "campaign_component_not_found" : {
+                    "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_invocation_failed" : {
+                    "$ref" : "#/components/examples/component_operation_invocation_failed"
+                  },
+                  "component_operation_name_ambiguous" : {
+                    "$ref" : "#/components/examples/component_operation_name_ambiguous"
+                  },
+                  "component_operation_not_found" : {
+                    "$ref" : "#/components/examples/component_operation_not_found"
+                  },
+                  "component_operation_not_invokable" : {
+                    "$ref" : "#/components/examples/component_operation_not_invokable"
+                  },
+                  "component_operation_path_malformed" : {
+                    "$ref" : "#/components/examples/component_operation_path_malformed"
+                  },
+                  "component_operation_path_missing" : {
+                    "$ref" : "#/components/examples/component_operation_path_missing"
+                  },
+                  "component_operation_schema_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_schema_invalid"
+                  },
+                  "component_operation_schema_too_large" : {
+                    "$ref" : "#/components/examples/component_operation_schema_too_large"
+                  },
+                  "controller_state_misconfiguration" : {
+                    "$ref" : "#/components/examples/controller_state_misconfiguration"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "expression_invalid_syntax" : {
+                    "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "rebuild_campaigns_build_failed" : {
+                    "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
+                  },
+                  "settings_build_failed" : {
+                    "$ref" : "#/components/examples/settings_build_failed"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Invoke a component operation",
+        "tags" : [ "Components Operations" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
     "/v1/components/{component_id}/duplicate" : {
       "post" : {
         "description" : "Creates a deep copy of the specified component and all its child settings and assets.",
@@ -90644,6 +91324,12 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -92945,6 +93631,12 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -93464,6 +94156,12 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -94357,6 +95055,12 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -94977,6 +95681,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -95508,6 +96218,12 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -96262,6 +96978,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -96697,6 +97419,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -97464,6 +98192,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -97779,6 +98513,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -98093,6 +98833,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -99487,6 +100233,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -100395,6 +101147,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -102312,6 +103070,12 @@
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -102565,6 +103329,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -103008,6 +103778,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -104538,6 +105314,12 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
+                  },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
                   },
@@ -105208,6 +105990,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
@@ -105964,6 +106752,12 @@
                   },
                   "component_ids_and_references_both_provided" : {
                     "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_operation_invoke_missing" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_missing"
+                  },
+                  "component_operation_invoke_not_allowed" : {
+                    "$ref" : "#/components/examples/component_operation_invoke_not_allowed"
                   },
                   "component_operation_method_missing" : {
                     "$ref" : "#/components/examples/component_operation_method_missing"
