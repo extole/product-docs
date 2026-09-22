@@ -103,7 +103,13 @@ Give each wire event its own prehandler, sequenced with `order`.
 
 Recognize the partner before you reshape anything. An `EVENT_NAME_MATCH` on the path segment you chose keeps the prehandler off unrelated traffic, and the segment is yours alone, so it carries recognition on its own.
 
-Conditions are combined with AND, and the **Test Event** control sends from My Extole with no partner headers, so an `HTTP_HEADER_MATCH` puts the prehandler beyond the reach of the only test path the builder has: the event arrives under the path segment, unrenamed and unflattened, and produces no step. Add one only where the event name cannot separate the traffic by itself, and confirm the header name against a real delivery because partner header lists are often incomplete. Where a header condition has to stay, point the test payload at the event name the prehandler produces, which exercises the input rules and leaves the prehandler itself to a real delivery.
+Conditions are combined with AND, and the **Test Event** control sends from My Extole with no partner headers, so a plain `HTTP_HEADER_MATCH` puts the prehandler beyond the reach of the only test path the builder has: the event arrives under the path segment, unrenamed and unflattened, and produces no step. Where a header signal is worth keeping, write it as an `EXPRESSION` admitting either the header or a test-container event, so a real delivery and a **Send Event** both reach the actions:
+
+```javascript
+javascript@runtime:(function(){ var headers = context.getRawEvent().getHttpHeaders(); if (headers) { var names = headers.keySet().iterator(); while (names.hasNext()) { if (String(names.next()).toLowerCase() === "x-hub-signature") { return true; } } } var sandbox = context.getProcessedRawEvent().getSandbox(); return sandbox != null && String(sandbox.getContainer()) === "test"; })();
+```
+
+`context.getRawEvent()` reaches the headers as they arrived, and `getSandbox().getContainer()` is `test` for whatever the test payload sends, so neither branch depends on the other. Confirm the header name against a real delivery, because partner header lists are often incomplete.
 
 Two instances of one integration answer the same event name and see the same header, so scope each with an expression comparing a request value — the store URL, the partner account identifier — against that instance's setting.
 
