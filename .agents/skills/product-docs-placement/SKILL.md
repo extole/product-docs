@@ -1,6 +1,6 @@
 ---
 name: product-docs-placement
-description: Decide which tab and group a new or moved docs.extole.com page belongs in. Use before creating a new page, converting a draft into a page, adding a path to docs.json, or when a page was added under guides/ and may belong in technical/ or product/ instead. Covers the actor test (who performs the work), the split when a topic has both a My Extole click-path and an integration mechanism, and how to pick the nav group. Do not default to Guides.
+description: Must be read before creating a new page, converting a draft into one, or adding a path to docs.json.
 ---
 
 # Product-docs placement
