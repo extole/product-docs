@@ -101,7 +101,9 @@ Give each wire event its own prehandler, sequenced with `order`.
 | `BLOCK_MATCH` | `considered_block_list_types` | The event matching an account block list. |
 | `JAVASCRIPT_V1` | `javascript` | As `EXPRESSION`, with a bare function body. |
 
-Recognize the partner before you reshape anything. An `EVENT_NAME_MATCH` on the path segment you chose keeps the prehandler off unrelated traffic; add a header condition as a second signal, confirming the header name against a real delivery because partner header lists are often incomplete.
+Recognize the partner before you reshape anything. An `EVENT_NAME_MATCH` on the path segment you chose keeps the prehandler off unrelated traffic, and the segment is yours alone, so it carries recognition on its own.
+
+Conditions are combined with AND, and the **Test Event** control sends from My Extole with no partner headers, so an `HTTP_HEADER_MATCH` puts the prehandler beyond the reach of the only test path the builder has: the event arrives under the path segment, unrenamed and unflattened, and produces no step. Add one only where the event name cannot separate the traffic by itself, and confirm the header name against a real delivery because partner header lists are often incomplete. Where a header condition has to stay, point the test payload at the event name the prehandler produces, which exercises the input rules and leaves the prehandler itself to a real delivery.
 
 Two instances of one integration answer the same event name and see the same header, so scope each with an expression comparing a request value — the store URL, the partner account identifier — against that instance's setting.
 
