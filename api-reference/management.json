@@ -19889,6 +19889,7 @@
               "type" : "array"
             },
             "parameters" : {
+              "description" : "Complete parameter list for this report type. Replaces the stored parameters rather than merging into them: an existing parameter left out of this array is removed, and leaving out a static parameter is rejected with `400 report_type_parameter_static_delete`. Omit the field to leave the stored parameters untouched, or use `PUT /v6/report-types/{id}/parameters-add` and `PUT /v6/report-types/{id}/parameters-delete` to change named parameters in place.",
               "items" : {
                 "$ref" : "#/components/schemas/ReportTypeParameterDetailsRequest"
               },
@@ -35940,7 +35941,8 @@
           "$ref" : "#/components/schemas/DynamicReportTypeParameterDetailsRequest"
         }, {
           "$ref" : "#/components/schemas/StaticReportTypeParameterDetailsRequest"
-        } ]
+        } ],
+        "required" : [ "name", "type" ]
       },
       "ReportTypeParameterDetailsRequestBase" : {
         "properties" : {
@@ -36218,7 +36220,7 @@
         "type" : "object"
       },
       "ReportTypeUpdateRequest" : {
-        "description" : "Body of `PUT /v6/report-types/{id}`. Polymorphic on `type`: SQL, SPARK, CONFIGURED, and DASHBOARD shapes share the metadata fields below and add their own type-specific fields. Only fields present in the body are applied; omitted fields are left intact.",
+        "description" : "Body of `PUT /v6/report-types/{id}`. Polymorphic on `type`: SQL, SPARK, CONFIGURED, and DASHBOARD shapes share the metadata fields below and add their own type-specific fields. Only fields present in the body are applied; omitted fields are left intact. The exception is `parameters` on the CONFIGURED shape, which is replaced rather than merged: an existing parameter left out of the array is removed.",
         "discriminator" : {
           "mapping" : {
             "CONFIGURED" : "#/components/schemas/ConfiguredReportTypeUpdateRequest",
@@ -83743,7 +83745,7 @@
         "x-extole-visibility" : "visible"
       },
       "put" : {
-        "description" : "Applies a partial update to the supplied report type. Only the fields present in the body are changed; omitted fields are left intact. Returns the persisted report type after update.",
+        "description" : "Applies a partial update to the supplied report type. Top-level fields omitted from the body are left unchanged - you do not need to send the whole report type to change its display name, description, visibility or tags.\n\n`parameters` is replaced rather than merged. Supplying the array stores exactly the parameters listed and removes every existing parameter you leave out, so changing one parameter through this endpoint means restating every other one in full; leaving out a static parameter is rejected with `400 report_type_parameter_static_delete`. Prefer `PUT /v6/report-types/{id}/parameters-add` and `PUT /v6/report-types/{id}/parameters-delete`, which add and remove named parameters in place. Returns the persisted report type after update.",
         "parameters" : [ {
           "description" : "The Extole unique report type identifier.",
           "in" : "path",
