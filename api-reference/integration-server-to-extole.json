@@ -641,6 +641,26 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "missing_my_role" : {
+        "summary" : "missing_my_role",
+        "value" : {
+          "code" : "missing_my_role",
+          "http_status_code" : 400,
+          "message" : "My role is mandatory",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "missing_other_person_id" : {
+        "summary" : "missing_other_person_id",
+        "value" : {
+          "code" : "missing_other_person_id",
+          "http_status_code" : 400,
+          "message" : "Container is mandatory",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "missing_request_body" : {
         "summary" : "missing_request_body",
         "value" : {
@@ -777,6 +797,16 @@
           "code" : "read_only_name",
           "http_status_code" : 400,
           "message" : "One or more names supplied are read only",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "referral_campaign_requires_program" : {
+        "summary" : "referral_campaign_requires_program",
+        "value" : {
+          "code" : "referral_campaign_requires_program",
+          "http_status_code" : 400,
+          "message" : "Campaign ID can be updated only with a program",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -1097,6 +1127,16 @@
           "code" : "too_many_requests",
           "http_status_code" : 429,
           "message" : "The server is unable to process your request at the moment, please retry later.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "unable_to_update_relationship" : {
+        "summary" : "unable_to_update_relationship",
+        "value" : {
+          "code" : "unable_to_update_relationship",
+          "http_status_code" : 500,
+          "message" : "Unable to update relationship",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -16517,6 +16557,170 @@
         },
         "summary" : "Validate an SFTP destination",
         "tags" : [ "SFTP Servers" ],
+        "x-extole-bundle" : "integration-server-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v2/persons/{person_id}/relationships" : {
+      "put" : {
+        "parameters" : [ {
+          "description" : "The Extole unique profile identifier of this user at Extole.",
+          "in" : "path",
+          "name" : "person_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/PersonRelationshipResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "missing_my_role" : {
+                    "$ref" : "#/components/examples/missing_my_role"
+                  },
+                  "missing_other_person_id" : {
+                    "$ref" : "#/components/examples/missing_other_person_id"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "person_not_found" : {
+                    "$ref" : "#/components/examples/person_not_found"
+                  },
+                  "referral_campaign_requires_program" : {
+                    "$ref" : "#/components/examples/referral_campaign_requires_program"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unable_to_update_relationship" : {
+                    "$ref" : "#/components/examples/unable_to_update_relationship"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          }
+        },
+        "summary" : "Updates person relationship",
+        "tags" : [ "Persons" ],
         "x-extole-bundle" : "integration-server-to-extole",
         "x-extole-visibility" : "visible"
       }
