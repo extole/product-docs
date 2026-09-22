@@ -186,6 +186,13 @@ because a similar title is already there.
 Pages are **MDX**, which is JSX-strict. A bare `<`, an unclosed tag, or a stray `{` fails
 the whole site build, not just that page. Keep every component tag balanced.
 
+**Escape every dollar amount as `\$`.** Mintlify reads a pair of `$` in one block — a
+paragraph, a list item, a table cell — as inline LaTeX and renders everything between them
+as an italic formula: `from $50 to $100` published as "from 50to100", with both dollar signs
+eaten. `validate` passes, because the page is still valid MDX — only the rendered page shows
+it. One amount on its own is safe today and stops being safe the moment somebody adds a
+second, so escape them all.
+
 ## Terminology
 
 Use the **Preferred** term. Never introduce a term from the **Avoid** column. Apply swaps

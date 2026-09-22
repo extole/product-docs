@@ -1,6 +1,6 @@
 ---
 name: product-docs-authoring
-description: Author or edit Extole customer-facing documentation in this repo (product-docs on Mintlify). Use when creating a new page, editing an existing one, converting a draft/.docx into a page, or addressing reviewer comments on a PR. Covers the authoring workflow, the pre-PR self-review, and the PR flow. Decide the tab with the product-docs-placement skill before writing a new page — do not default to guides/. Writing standards themselves live in .mintlify/AGENTS.md.
+description: Must be read before creating or editing a docs.extole.com page, converting a draft into one, or addressing reviewer comments. Decide the tab with product-docs-placement first.
 ---
 
 # Product-docs authoring
