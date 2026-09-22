@@ -1,6 +1,6 @@
 ---
 name: product-docs-authoring
-description: Author or edit Extole customer-facing documentation in this repo (product-docs on Mintlify). Use when creating a new page, editing an existing one, converting a draft/.docx into a page, or addressing reviewer comments on a PR. Covers the authoring workflow, the pre-PR self-review, and the PR flow. Decide the tab with the product-docs-placement skill before writing a new page — do not default to guides/. Writing standards themselves live in .mintlify/AGENTS.md.
+description: Must be read before creating or editing a docs.extole.com page, converting a draft into one, or addressing reviewer comments. Decide the tab with product-docs-placement first.
 ---
 
 # Product-docs authoring
@@ -119,6 +119,36 @@ item checks conformance to `.mintlify/AGENTS.md` rather than restating it.
 - [ ] **Literals** — event names, schema fields, and API identifiers left verbatim.
 - [ ] **Open decisions** matched to the surrounding page, not silently standardized.
 - [ ] **`npx mint@latest validate` is clean** (0 errors, 0 warnings).
+
+## Describing a My Extole behaviour: read the screen's own code
+
+A page that tells a reader to click something in My Extole is describing
+[`extole/showtime`](https://github.com/extole/showtime). Its components carry two things worth
+reading before you write: the exact label on the control, and the condition around it — which
+tells you **which paths already warn the reader and which leave them on their own**. That
+difference is usually the most useful sentence on the page, and no screenshot shows it.
+
+[#163](https://github.com/extole/product-docs/pull/163) is the worked example. The subject was
+publishing a campaign that is not live yet, and the flat version — "remember to publish" — is
+what the page already implied. Three components said something better:
+
+- `GoLiveModal.vue` checks `is_published` before it launches and, when the campaign has a draft,
+  offers **Publish Changes and Go Live** or **Go Live with Last Published Version**. The
+  **Go Live** path guards the reader.
+- `CampaignScheduleModal.vue` has no such check, so a scheduled go-live does not. The page can
+  now say which path asks you and which does not, instead of asking every reader to remember.
+- `CampaignListItem.vue` renders **Unpublished changes** only when the campaign has a draft, and
+  the **Last Published** date only when it has ever been published — so "no **Last Published**
+  date" is a check the reader can actually perform.
+
+The labels came out of the same files: the editor's button reads **Apply**, and the page had
+said "the blue Apply Changes button" three times.
+
+Where the behaviour is the platform's rather than the screen's, the same rule points at
+[`extole/pluribus`](https://github.com/extole/pluribus). Here `CampaignPojo.getState()` derives
+a campaign's state from its dates on every read and returns `NOT_LAUNCHED` before it ever tests
+the start date, which is why a start date on a never-published campaign never takes effect —
+a sentence worth writing only because it was read, not assumed.
 
 ## Reviewer comments
 
