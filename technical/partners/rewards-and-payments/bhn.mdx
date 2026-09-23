@@ -39,7 +39,7 @@ BHN card products can also be used within Extole's Reward Bank. Reward Bank give
 
 ## Integration Model
 
-BHN is an outbound reward fulfillment integration: Extole orders cards from BHN when a program participant earns a reward, and BHN's response moves that reward to fulfilled or failed. BHN sends no activity into Extole, so the integration carries no business events.
+BHN is an Extole to Partner reward fulfillment integration: Extole orders cards from BHN when a program participant earns a reward, and BHN's response moves that reward to fulfilled or failed. BHN sends no activity into Extole, so the integration carries no business events.
 
 Each card product is a reward supplier that you install when you create a reward, and you install one per reward you offer. The integration supplies four of them — virtual prepaid cards, physical single-load prepaid cards, physical reloadable prepaid cards, and eGift cards — and each carries its own value, client program number, financial account, and payment type.
 
@@ -55,11 +55,11 @@ Extole calls five Hawk Marketplace endpoints, all on `https://api.blackhawknetwo
 
 Order calls are retried over a few hours. The status check runs on a much longer schedule, escalating out to roughly a month, because physical cards are manufactured and mailed rather than delivered instantly.
 
-The first reloadable order uses `submitOpenLoopPersonalizedIndividual` and arrives loaded. A later reward for the same person and client program number is not a second card: the request handler rewrites that call to [`submitFunding`](https://developer.blackhawknetwork.com/hawkmarketplace/reference/dosubmitfunding) and funds the card already issued. That rewrite is part of the packaged integration, not an extra webhook.
+The first reloadable order uses `submitOpenLoopPersonalizedIndividual` and arrives loaded. A later reward for the same person and client program number is not a second card: the request handler rewrites that call to [`submitFunding`](https://developer.blackhawknetwork.com/hawkmarketplace/reference/dosubmitfunding) and funds the card already issued. That rewrite is part of the maintained integration, not an extra webhook.
 
 ### Reward Connection Contract
 
-The integration component is named `bhn`. Its type is the current `integration-v10` revision (`integration-v10.1` on the packaged source). It carries tags `internal:type:integration`, `internal:integration-component-name:bhn`, and `internal:self-managed`. The campaign program label is `bhn`; the support campaign's is `bhn-v10-support`.
+The integration component is named `bhn`. Its type is the current `integration-v10` revision (`integration-v10.1` on the maintained source). It carries tags `internal:type:integration`, `internal:integration-component-name:bhn`, and `internal:self-managed`. The campaign program label is `bhn`; the support campaign's is `bhn-v10-support`.
 
 Both credentials sit on that component under these setting names — handlers and webhook `client_key_id` expressions read them, so a prefixed name such as `bhnMerchantId` is a different setting and leaves every order unauthenticated or unaddressed:
 
@@ -74,13 +74,13 @@ Create five `REWARD` webhooks, one for each endpoint above, attached to the `bhn
 [10800, 10800, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 86400, 259200, 259200, 259200, 864000, 1296000, 2592000]
 ```
 
-The exact supplier tags are `internal:bhn-virtual`, `internal:bhn-physical-single-load`, `internal:bhn-physical-reloadable`, and `internal:bhn-egift-card`. Template names use the same tokens without the `internal:` prefix. Webhook names on the packaged source are `bhn_v10_virtual_prepaid_cards`, `bhn_v10_physical_single_load`, `bhn_v10_physical_reloadable`, `bhn_v10_egift`, and `bhn_v10_check_order_status`.
+The exact supplier tags are `internal:bhn-virtual`, `internal:bhn-physical-single-load`, `internal:bhn-physical-reloadable`, and `internal:bhn-egift-card`. Template names use the same tokens without the `internal:` prefix. Webhook names on the maintained source are `bhn_v10_virtual_prepaid_cards`, `bhn_v10_physical_single_load`, `bhn_v10_physical_reloadable`, `bhn_v10_egift`, and `bhn_v10_check_order_status`.
 
 Every webhook `client_key_id` is `javascript@buildtime:context.getVariableContext().get("clientKeyId")`. Enable the webhooks once that setting and `merchantId` are populated; a default empty request builder is not a finished handler.
 
 #### Order and status handlers
 
-These are the packaged v10 handlers. Write them; do not leave `request` as `createRequestBuilderWithDefaults().build()` or `response_handler` null.
+These are the maintained v10 handlers. Write them; do not leave `request` as `createRequestBuilderWithDefaults().build()` or `response_handler` null.
 
 Each order request uses `context.createRequestBuilder()` (not the defaults builder) and these headers:
 
@@ -106,14 +106,14 @@ The status response handler treats `orderStatus` values `Complete`, `Funding Pos
 
 #### Map BHN Order Statuses
 
-The status webhook reads `orderStatus` from BHN's [Order Status Reference](https://developer.blackhawknetwork.com/hawkmarketplace/docs/get-order-information). The packaged completed set is `Complete`, `Funding Posted`, and `Shipped`. `Funding Posted` is included because the order webhook already marked the reward as processing with `withSuccess(false)`; the status check is what closes it.
+The status webhook reads `orderStatus` from BHN's [Order Status Reference](https://developer.blackhawknetwork.com/hawkmarketplace/docs/get-order-information). The maintained completed set is `Complete`, `Funding Posted`, and `Shipped`. `Funding Posted` is included because the order webhook already marked the reward as processing with `withSuccess(false)`; the status check is what closes it.
 
 | BHN `orderStatus` | Treat as | Why |
 | :---------------- | :------- | :-- |
 | `Complete` | Fulfilled | BHN's own final status for a successfully delivered order. |
 | `Shipped` | Fulfilled | BHN has been notified the card shipped. Real-time eGift and Virtual products never ship. |
-| `Funding Posted` | Fulfilled | The packaged integration closes the reward here rather than waiting for `Complete`. |
-| `Cancelled`, `Declined`, `Error`, `Failure` | Retry, then fail | The packaged handler does not fail these on first sight. It returns `"RETRY"` until the schedule is exhausted, then fails the reward. |
+| `Funding Posted` | Fulfilled | The maintained integration closes the reward here rather than waiting for `Complete`. |
+| `Cancelled`, `Declined`, `Error`, `Failure` | Retry, then fail | The maintained handler does not fail these on first sight. It returns `"RETRY"` until the schedule is exhausted, then fails the reward. |
 | `Funding Hold`, `Settlement Error`, `Not All Records Funded`, `Not All Records Reversed`, `Not All Records Processed` | Retry, then fail | Same: retry until exhausted, then fail. These usually mean the funding account needs attention. |
 | `In Process`, `Successfully Sent To Processor` | Still processing | Keep checking until the retry schedule is exhausted, then fail. |
 
@@ -177,7 +177,7 @@ Do not substitute a reward-earned count or reward face value for this mapping: t
 }
 ```
 
-For how this category is built in general terms, see [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories), [Build a Reward Fulfillment Integration](/technical/building-custom-integrations/integration-types/integration-build-reward-fulfillment) for the sequence, and [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model) for the campaign, component, and display metadata every path needs.
+For how this category is built in general terms, see [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories), [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment) for the sequence, and [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model) for the campaign, component, and display metadata every path needs.
 
 ## Integration
 
