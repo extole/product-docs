@@ -7,7 +7,7 @@ Part of the [partner integration guide](/technical/building-partner-integrations
 
 # Overview
 
-Every integration needs a **report-runner view** charting what it processed and an **event-stream view** carrying its live event feed. [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) adds the **Test Event** tab after its business events and input rules exist.
+Every integration needs a **report-runner view** charting what it processed and an **event-stream view** carrying its live event feed. This page builds both. A Partner to Extole integration also gets a **Test Event** tab, which [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) adds once its business events and input rules exist.
 
 ## When You Would Build These
 
@@ -220,7 +220,7 @@ Give `schedule_start_date` an ISO-8601 timestamp with an offset, dated in the fu
 
 ### Build the Event Stream Behind the Events Tab
 
-Create the stream after the republish above. Keep its `filters` collection empty so the view records the complete processing chain across Input, STEP, reward, and delivery events.
+Create the stream after the republish above, and add no filters. A stream records an event only when every filter matches, and the events one input event causes — the `STEP` business event, rewards, and deliveries — can carry a different application type or event type from the `INPUT` event. A filter on either hides part of that chain, which is exactly what you need to see when you test the integration.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
@@ -234,7 +234,7 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
   }'
 ```
 
-Narrow the events you inspect at read time. After a synchronous test send, search the stream for the returned `event_id`, then search for descendants carrying the same `root_event_id`. This preserves events whose application context or downstream type differs from the originating `INPUT` event while keeping each test trace precise.
+An unfiltered stream records every event in the account while it runs, so narrow what you read instead of what it records. After a test send, search the stream for the returned `event_id`, then for the events carrying the same `root_event_id`. [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events#how-to-test) walks through the search.
 
 
 ### Republish Again So the Views Resolve Their Elements
