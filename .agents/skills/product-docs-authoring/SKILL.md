@@ -59,6 +59,24 @@ publishes docs.extole.com.
   bundles are written by CI from [`extole/openapi`](https://github.com/extole/openapi)
   (`sync-to-mintlify.yml`), which extracts them from pluribus. Leave them and the API
   Reference tab alone unless that is the task.
+- **An API-reference page's URL comes from the operation's OpenAPI `tags` value, not from the
+  `docs.json` group it is listed under.** The group name sets only the sidebar heading and the
+  page eyebrow. Give a group a name that no operation inside it is tagged with and the page
+  reads as one section while living at the URL of another — five operations tagged `Rewards`
+  grouped as `"Reward Suppliers"` serve at `/api-reference/rewards/…` under a **Reward
+  Suppliers** heading. Worse, any redirect written against the group name — in `docs.json` or
+  `url-map.json` — points at a path that exists nowhere and 404s, and nothing catches it:
+  `mint validate` does not resolve redirect destinations. Name an API group after the tag the
+  bundle already carries, and `curl -L` any redirect destination you typed by hand.
+- **The API navigation is generated too, so regenerate it rather than editing groups by
+  hand:** `python3 scripts/convert_from_product_docs.py --out . --sync-api-navigation` rebuilds
+  the three API groups from the bundles, one group per tag, in spec order. The bundle sync from
+  [`extole/openapi`](https://github.com/extole/openapi) touches only `api-reference/*.json`, so
+  the navigation drifts on its own every time pluribus renames a subcategory or adds an
+  endpoint: the old group name stays behind as a heading no page is served under, and the new
+  endpoint gets no page at all. On 2026-09-22 that was three stale groups covering 20
+  operations, 46 redirects pointing at paths that existed nowhere, and 11 endpoints published
+  in the bundles with no page in the site.
 - **Published vs. not:** the content directories are customer-visible. `.agents/` and
   `.claude/` are excluded by Mintlify's built-in ignores, `.mintlify/` is never served, and
   `.cursor/` plus the repo-root agent files are excluded by
