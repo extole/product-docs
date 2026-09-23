@@ -172,12 +172,26 @@ because a similar title is already there.
   needs a border or caption. **Never add a remote image URL, and never one carrying an
   `expires=` parameter** — roughly 102 pages inherited rotting `intercom-attachments` links
   from the ReadMe corpus, which is exactly the problem the local `images/` tree exists to end.
+- **A caption goes in `<Frame caption="…">`, never as text inside the tag.** Mintlify renders
+  the frame's inner container as `flex justify-center`, so a caption written as a child is a
+  flex sibling of the `<img>` and lays out *beside* it, in a narrow column, squeezing the image
+  narrower too. The `caption` prop renders a `<figcaption>` centred underneath, and it supports
+  Markdown — links, bold, and code spans all work in it, so there is no reason to write one as a
+  child. The ReadMe converter emitted the child form and it shipped that way on 17 pages before
+  anyone said so.
 - If you rename or move a page, add an old-URL → new-path entry to `url-map.json`.
 
 ## MDX validity
 
 Pages are **MDX**, which is JSX-strict. A bare `<`, an unclosed tag, or a stray `{` fails
 the whole site build, not just that page. Keep every component tag balanced.
+
+**Escape every dollar amount as `\$`.** Mintlify reads a pair of `$` in one block — a
+paragraph, a list item, a table cell — as inline LaTeX and renders everything between them
+as an italic formula: `from $50 to $100` published as "from 50to100", with both dollar signs
+eaten. `validate` passes, because the page is still valid MDX — only the rendered page shows
+it. One amount on its own is safe today and stops being safe the moment somebody adds a
+second, so escape them all.
 
 ## Terminology
 
