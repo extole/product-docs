@@ -27,6 +27,8 @@ error Build validation failed with 1 warning(s).
 
 **The reverse is not caught.** A page file that is valid MDX but appears in no `docs.json` group passes validation with exit 0 — it simply ships unreachable, with no build signal and no CI failure. Measured 2026-08-21 against `mint@latest`. Adding the page to `docs.json` is on you and on the reviewer; the build will not remind you.
 
+**And a page can pass `validate`, render in `mint dev`, and still 404 on the hosted preview.** The hosted build is stricter than both local tools, and it fails one page rather than the run — so `validate` is green, **Mintlify Deployment** is green, and the page you edited is the only one missing. Measured 2026-09-21: adding a `<Warning>` containing an indented markdown bullet list and a `×` (U+00D7) to `creative-image-asset-guide.mdx` left that one path 404 on `https://extole-<branch>.mintlify.site` while every unedited sibling in the same group answered 200; `npx mint@latest validate` reported `success build validation passed` and `npx mint@latest dev` served the page with the callout rendered. Rewriting the callout as plain paragraphs with ASCII `x` fixed it on the next push. So **curl the preview path of every page you touched** — a green deployment check is not the same claim, and the failure signature is indistinguishable from a page you forgot to add to `docs.json`.
+
 ## Local preview
 
 ```bash
@@ -34,6 +36,20 @@ npx mint@latest dev        # http://localhost:3000
 ```
 
 Renders the whole site from the working tree — the fastest way to check heading structure, the on-page TOC, callout components, image paths, and where a page landed in the sidebar.
+
+### `dev` is also the only way to census a rendering defect
+
+`validate` proves the MDX parses, not that the page says what it says. Nothing in CI reads the rendered HTML, so a defect that is legal MDX ships silently and is only visible to someone who opens the page. Drive the dev server over every page and grep the HTML for the defect's own marker:
+
+```bash
+npx mint@latest dev &                     # wait for / to answer 200
+find guides product technical news runbooks -name '*.mdx' | sed 's/\.mdx$//' \
+  | xargs -P 4 -I{} sh -c 'echo "$(curl -s --max-time 180 http://localhost:3000/{} | grep -c "katex-mathml") {}"'
+```
+
+Three things that bite. Count the rows against the file count and check every page returned 200 — a sweep against a dead server reports zero of everything, which reads exactly like a clean result. Do not wrap `mint dev` in `timeout`; it dies mid-sweep. And `curl` it once per page with a couple of retries, because the server compiles each page on first request.
+
+Measured 2026-09-21 on `docs/dollar-amounts-render-as-math`: 432 pages swept in about six minutes, 22 of them publishing accidental LaTeX (see the `\$` rule in [`.mintlify/AGENTS.md`](../../../.mintlify/AGENTS.md)), 0 after the fix. `validate` was green throughout, before and after.
 
 ## CI runs the gate on every PR
 
