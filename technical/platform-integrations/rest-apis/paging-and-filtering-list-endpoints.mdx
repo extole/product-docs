@@ -1,0 +1,100 @@
+---
+title: "Paging and Filtering List Endpoints"
+description: "How Extole's REST list endpoints page, which parameters they honor, and how to confirm a filter narrowed the result before you trust a count."
+---
+
+# Overview
+
+Several Extole list endpoints return a short first page by default, and every endpoint ignores a
+query parameter it does not recognize. Both behaviors return a valid, plausible response rather
+than an error, so a missing row or a count that looks complete can be an artifact of the request.
+This page covers the paging defaults and the filter behavior you need to read a list correctly.
+
+## Unknown Parameters Are Ignored
+
+A query parameter the endpoint does not declare is dropped silently. The response is the
+unfiltered result, not a `400`. Two habits keep a dropped parameter from becoming a wrong answer:
+
+- **Confirm that a filter narrowed the result.** A filtered call that returns rows proves only that
+  rows exist. Compare it against the unfiltered call, or run a control that must return nothing,
+  such as a date window in a year with no data. Two windows that return identical counts is the
+  sign that the date parameter was dropped.
+- **Read the identifier back out of the response.** A parameter that selects a record can be
+  dropped the same way, and the response is then the default record. Compare the id or version in
+  the response with the one you requested.
+
+Parameter names follow the endpoint's request schema in the [API Reference](/api-reference).
+Some names differ from what a client application might send; for example, the built component
+list filters by `campaign_ids`, not `campaign_id`.
+
+## Default Page Sizes
+
+| Endpoint | Default page | Notes |
+| --- | --- | --- |
+| `GET /v5/persons/{person_id}/steps` | 20 steps | Pass `limit` and page with `offset`. A missing step in the first page is not proof that it never happened. |
+| `GET /v2/persons/{person_id}/steps` | Not paged | Takes no `limit`, and a long history comes back short. Use the `/v5` endpoint when a count matters. |
+| `GET /v1/components/built` | 1000 components, sorted by name | `offset` is honored; page until a short page. An unpaged read stops partway through the alphabet. |
+| `GET /v2/emails` | Honors `limit` | `offset` and `zone_name` are not filters. Fetch one page with a large `limit`, then filter by zone and de-duplicate on `email_id` yourself. |
+| `GET /v7/report-runners` | All runners | Filter by tag with `having_all_tags` or `having_any_tags`. The `tags` field on a runner can read as empty while the tag filter still matches it. |
+
+A count that is the same round number for every record you fetched, such as exactly 20 or exactly
+1000, is the sign that you read a default page rather than the end of the data.
+
+## Rewards List Parameters
+
+`GET /v2/rewards` filters on `reward_supplier_id`, `state`, `person_id`, `partner_reward_id`,
+`reward_type`, `time_interval`, and `success_only`. It has no campaign or program filter.
+
+- `time_interval` is one parameter carrying both ends of the window, in the form
+  `time_interval=<from>/<to>`. Separate start and end parameters are ignored.
+- `success_only` defaults to `true`, so an unqualified count is the count of successfully
+  fulfilled rewards, not of all rewards. Pass `success_only=false` to include the rest.
+
+## Campaign Versions
+
+Campaign reads return the current version. A `version` query parameter on `GET /v2/campaigns/{id}`,
+`/components`, `/components/built`, or `/controllers/built` is ignored, so a before-and-after
+comparison built on it compares the current version with itself. Use the path form instead:
+
+- `GET /v2/campaigns/{id}/version/{n}/components/built` builds that version. Use it to compare
+  what is published with what sits in draft.
+- `GET /v2/campaigns/{id}/version/{n}/components` returns that version's stored values, including
+  the per-locale `values` map that the built view flattens.
+- `GET /v2/campaigns/{id}/versions` lists versions with their metadata only: `created_date`,
+  `published_date`, `editor_id`, `message`, `parent_version`, and `version`. A publish is a
+  version whose `published_date` equals its own `created_date`.
+
+`is_published: false` on a campaign means that the latest version is unpublished. It does not mean
+that the campaign was never published. To find the live version, take the newest entry in the
+version list whose `published_date` is not null.
+
+## Person Statistics
+
+`GET /v4/persons/{person_id}/stats` and `GET /v4/persons/{person_id}/network-stats` take no date
+range. Start and end parameters are ignored and the lifetime figure comes back. To compute a
+windowed figure, sum the person's steps by `event_date` instead.
+
+Network statistics walk the person's first 100 friends before adding the second-degree tail, so
+a person with more than 100 friends is undercounted there. `GET /v4/persons/{person_id}/relationships?limit=1000`
+returns every friend; sum their individual statistics when the person's network is large.
+
+## Date Fields on Steps
+
+`GET /v2/persons/{person_id}/steps` returns `event_date` only, in the account's time zone.
+`GET /v5/persons/{person_id}/steps` returns both `created_date` and `event_date`. A client-side
+filter on a field the response does not carry matches nothing and reports zero, so print one record
+and confirm the field is present before you trust a zero.
+
+## Token Scope and Cross-Account Reads
+
+A token minted with `POST /v4/tokens` and no `client_id` in the body belongs to the key owner's own
+account. Some reads still succeed across accounts with such a token; for example,
+`GET /v2/campaigns/{campaign_id}` returns another account's campaign by id. A write to that campaign
+under the same token fails with `400 invalid_campaign_id`, even though a read of the same id
+succeeded. Mint the token for the owning account, with `client_id` in the request body, before you
+write. Read `client_id` back off the token response to confirm which account the token is for.
+
+## Related Documentation
+
+- [Asynchronous Reporting API](/technical/platform-integrations/rest-apis/asynchronous-reporting-api)
+- [Errors](/technical/platform-integrations/rest-apis/errors)
