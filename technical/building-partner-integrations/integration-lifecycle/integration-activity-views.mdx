@@ -3,15 +3,15 @@ title: "Add the Activity and Event Views"
 description: "Build the report-runner and event-stream views, create the report runner and event stream behind them, and publish so each view resolves its element."
 ---
 
-Part of the [packaged integration guide](/technical/building-custom-integrations/integration-lifecycle/management-api-integration).
+Part of the [partner integration guide](/technical/building-partner-integrations/integration-lifecycle/management-api-integration).
 
 # Overview
 
-This page builds two of an integration's three baseline views: a **report-runner view** charting what the integration processed, and an **event-stream view** carrying a live feed of the events it produces. [Integration Categories](/technical/building-custom-integrations/integration-types/integration-categories) covers what each category charts and streams.
+This page builds two of an integration's three baseline views: a **report-runner view** charting what the integration processed, and an **event-stream view** carrying a live feed of the events it produces. [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories) covers what each category charts and streams.
 
 ## When You Would Build These
 
-Every build path needs both, whatever the partner does. The third view comes from [Create the Integration Campaign and Component Model](/technical/building-custom-integrations/integration-lifecycle/integration-component-model).
+Every build path needs both, whatever the partner does. The third view comes from [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model).
 
 <Warning>
 Each view resolves its element only after the campaign is republished, and skipping a publish returns no error — the activity tab reports no report runner configured and there is no event feed.
@@ -19,13 +19,13 @@ Each view resolves its element only after the campaign is republished, and skipp
 
 ## Before You Start
 
-You need an integration campaign whose model component owns a `views` socket and [an access token](/technical/building-custom-integrations/integration-lifecycle/management-api-integration#one-host-two-access-tokens) authorized to manage campaigns, components, report runners, and event streams.
+You need an integration campaign whose model component owns a `views` socket and [an access token](/technical/building-partner-integrations/integration-lifecycle/management-api-integration#one-host-two-access-tokens) authorized to manage campaigns, components, report runners, and event streams.
 
 ## How to Build
 
 ### Create the Two View Components
 
-Name the components `report-runner-view` and `event-streams` — literal names that let a client-local build be compared against the packaged one. Tab labels come from each view's `title`.
+Name the components `report-runner-view` and `event-streams` — literal names that let a client-local build be compared against the maintained one. Tab labels come from each view's `title`.
 
 Both install into the `views` socket via `installed_into_socket`; `socket_name` is not a property of a component create. Give each `title`, `status`, and `settingsToDisplay`, the last typed `STRING_LIST`.
 
@@ -131,7 +131,7 @@ curl --request POST \
 
 
 <Note>
-The publish operation is **not carried in the OpenAPI specification**, so a reference lookup returns nothing found. This page and [Validate and Publish an Integration](/technical/building-custom-integrations/integration-lifecycle/integration-validation) are its documentation.
+The publish operation is **not carried in the OpenAPI specification**, so a reference lookup returns nothing found. This page and [Validate and Publish an Integration](/technical/building-partner-integrations/integration-lifecycle/integration-validation) are its documentation.
 </Note>
 
 ### Choose or Create the Report Type
@@ -212,7 +212,7 @@ curl --request POST "$EXTOLE_API_HOST/v7/report-runners" \
   }'
 ```
 
-The `mappings` expression is where the partner shows up: count and group the events this integration produces — business events an inbound build maps to, reward events a fulfillment partner generates, outbound activity a library install forwards — and give each series a column the chart mapping can name.
+The `mappings` expression is where the partner shows up: count and group the events this integration produces — business events a Partner to Extole build maps to, reward events a fulfillment partner generates, activity an Extole to Partner install forwards — and give each series a column the chart mapping can name.
 
 Where the partner page publishes a runner contract, copy it literally: name, schedule, formats, tags, scopes, execution policy, and every parameter and mapping expression.
 
@@ -267,7 +267,7 @@ curl --request POST \
   --data '{}'
 ```
 
-[Refresh `$CAMPAIGN_VERSION`](/technical/building-custom-integrations/integration-lifecycle/management-api-integration#refresh-the-campaign-version-between-mutations) first.
+[Refresh `$CAMPAIGN_VERSION`](/technical/building-partner-integrations/integration-lifecycle/management-api-integration#refresh-the-campaign-version-between-mutations) first.
 
 ## How to Test
 

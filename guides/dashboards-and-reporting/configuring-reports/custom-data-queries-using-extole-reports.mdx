@@ -73,6 +73,22 @@ expression operator value
 
 **Operators:** `==`, `!=`, `>=`, `<=`, `>`, `<`, `like`, `not like`
 
+### Pattern Matching with `like`
+
+`like` is a regular expression match against the **whole** value, not a search for a substring and not SQL's `LIKE`. `%` is not a wildcard. A bare value therefore behaves like an equality test, and a pattern matches only when it spans the entire value:
+
+| Expression | Matches |
+| --- | --- |
+| `event.name like "purchase"` | Only the value `purchase` |
+| `event.name like "%purchase%"` | Nothing |
+| `event.name like ".*purchase.*"` | Any name containing `purchase` |
+
+Wrap a substring in `.*` on both sides. Add `(?s)` at the start when the value can contain a line break. The `pattern` parameter on event reports follows the same rule: it is matched against the whole serialized event.
+
+<Tip>
+Put a control column in the report: one mapping that asserts a value you know is present. Read a zero-row result as a pattern that did not match until that column says the rows are there.
+</Tip>
+
 **Values** are quoted strings or column references:
 
 ```
