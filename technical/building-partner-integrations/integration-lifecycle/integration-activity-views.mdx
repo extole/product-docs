@@ -7,7 +7,7 @@ Part of the [partner integration guide](/technical/building-partner-integrations
 
 # Overview
 
-This page builds two of an integration's three baseline views: a **report-runner view** charting what the integration processed, and an **event-stream view** carrying a live feed of the events it produces. [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories) covers what each category charts and streams.
+Every integration needs a **report-runner view** charting what it processed and an **event-stream view** carrying its live event feed. This page builds both. A Partner to Extole integration also gets a **Test Event** tab, which [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) adds once its business events and input rules exist.
 
 ## When You Would Build These
 
@@ -117,7 +117,7 @@ curl --request POST \
 
 ### Republish Before Attaching Elements
 
-A bundled component declares `elements` inline; the API creates each as its own resource attached by `component_ids` — `report_runners` becomes `POST /v7/report-runners`, `event_streams` becomes `POST /v6/event-streams` with filters added afterward. Attach each to the **view** that displays it: the runner to `$REPORT_VIEW_COMPONENT_ID`, the stream to `$EVENT_STREAM_VIEW_COMPONENT_ID`.
+A bundled component declares `elements` inline; the API creates each as its own resource attached by `component_ids` — `report_runners` becomes `POST /v7/report-runners`, and `event_streams` becomes `POST /v6/event-streams`. Attach each to the **view** that displays it: the runner to `$REPORT_VIEW_COMPONENT_ID`, the stream to `$EVENT_STREAM_VIEW_COMPONENT_ID`.
 
 Publish now, after creating the views and before creating their elements: a `component_ids` reference resolves against the published campaign, the same rule that governs webhooks and reward suppliers.
 
@@ -220,7 +220,7 @@ Give `schedule_start_date` an ISO-8601 timestamp with an offset, dated in the fu
 
 ### Build the Event Stream Behind the Events Tab
 
-Create the stream after the republish above, then add each filter. Filters are created under the stream with a `type` discriminator in the body rather than a path segment, the opposite of reward webhook filters. The create returns the `EVENT_STREAM_ID` filters need.
+Create the stream after the republish above, and add no filters. A stream records an event only when every filter matches, and the events one input event causes — the `STEP` business event, rewards, and deliveries — can carry a different application type or event type from the `INPUT` event. A filter on either hides part of that chain, which is exactly what you need to see when you test the integration.
 
 ```bash
 curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
@@ -232,14 +232,9 @@ curl --request POST "$EXTOLE_API_HOST/v6/event-streams" \
     "tags": ["internal:app_type=example"],
     "component_ids": ["'"$EVENT_STREAM_VIEW_COMPONENT_ID"'"]
   }'
-
-curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{"type": "APPLICATION_TYPE", "app_types": ["example"]}'
 ```
 
-Filter the feed to this integration's activity: `APPLICATION_TYPE` narrows it to the partner's app type and belongs on every stream. Add an `EVENT_TYPE` filter when the integration produces one recognizable class of event, as reward fulfillment does with `{"type": "EVENT_TYPE", "event_types": ["REWARD", "SEND_REWARD"]}`.
+An unfiltered stream records every event in the account while it runs, so narrow what you read instead of what it records. After a test send, search the stream for the returned `event_id`, then for the events carrying the same `root_event_id`. [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events#how-to-test) walks through the search.
 
 
 ### Republish Again So the Views Resolve Their Elements
@@ -275,7 +270,7 @@ Read the **built** campaign — a component's own definition holds the buildtime
 
 - `reportRunnerId` and `eventStreamId` are non-null.
 - Each element's `component_ids` names its own view.
-- The stream carries `APPLICATION_TYPE`, plus any `EVENT_TYPE` filter needed.
+- The stream is running with an empty `filters` collection.
 - Every column `reportColumnsMapping` names is one the runner's `mappings` produces.
 - `schedule_start_date` is in the future.
 

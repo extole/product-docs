@@ -270,14 +270,7 @@ Put that object into `values.default` serialized as an escaped JSON string:
 "{\"chart\":{\"type\":\"line\"},\"xAxis\":{\"column\":\"date\",\"type\":\"datetime\"},\"series\":[{\"name\":\"Count\",\"column\":\"count\",\"aggregation\":\"sum\"},{\"name\":\"Total Spend\",\"column\":\"revenue\",\"aggregation\":\"sum\"}]}"
 ```
 
-The event stream carries an event-type filter as well as the application-type filter every stream gets, at the `$EVENT_STREAM_ID` the create returned:
-
-```bash
-curl --request POST "$EXTOLE_API_HOST/v6/event-streams/$EVENT_STREAM_ID/filters" \
-  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{"type": "EVENT_TYPE", "event_types": ["REWARD", "SEND_REWARD"]}'
-```
+Add no filters to the event stream, so the `INPUT`, `STEP`, `REWARD`, `SEND_REWARD`, and delivery events of one reward stay visible as a single chain. The stream then records every event in the account while it runs, so narrow an investigation when you read it, using the identifiers returned by the originating event.
 
 The supplier view's `settingsToDisplay` names the supplier socket. Copy its status expression rather than composing one; it reaches for the suppliers themselves instead of counting children, which breaks as soon as the tree gains a view:
 
