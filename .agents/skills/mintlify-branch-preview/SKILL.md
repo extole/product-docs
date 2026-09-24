@@ -95,6 +95,23 @@ characters.
 API keys page; `extole/openapi` holds them as repository secrets for the
 pipeline above.
 
+### Read the host backwards when somebody sends you one
+
+A request that arrives as a preview URL — "updates to this doc: `extole-<something>.mintlify.site/…`"
+— is feedback on a **branch**, and the host names it. Strip the `extole-` prefix; what is left is
+the branch with its slashes flattened to hyphens, so more than one branch name can produce it.
+`git ls-remote --heads origin` and pick the one that exists:
+`extole-docs-loyalty-content-gaps` is `docs/loyalty-content-gaps`, not `loyalty-content-gaps`.
+
+Then check `main` before you plan. The page may not be there at all — a preview host serves pages
+that have never been published, so `git grep` on `main` returns nothing and the page is neither
+missing nor deleted. Read it with `git show origin/<branch>:<path>`.
+
+Feedback on a page in that state is a commit onto that branch, and a comment on its open pull
+request saying what changed. A second pull request off `main` for the same page duplicates work
+that is already in somebody's review queue, and it cannot be previewed at the URL the request
+came from.
+
 ### What the comment costs you in time, and where its link actually points
 
 Measured over the 25 pull requests #20 and #24–#50 (2026-08-20 → 2026-08-25), by
