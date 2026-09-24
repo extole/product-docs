@@ -240,6 +240,8 @@ code sample.
 | **conversion / converted** | — | A friend completing the program's goal action. |
 | **program** | campaign *(when you mean the use case)* | The overall referral use case: audience plus outcome (Refer A Friend, Welcome Offer, Ambassador). |
 | **campaign** | program *(when you mean an implementation)* | A specific implementation within a program: creative, behavior, and rules. |
+| **Flow Builder campaign** | v10, V10, "v10 campaign", "v10 microsite", and any other version number for a current campaign | A campaign built in Flow Builder. Say this instead of a version. |
+| **legacy campaign** | v8, V8, v9, V9, and any version below v10 | A campaign from before Flow Builder. Say "legacy" instead of the version. |
 | **journey** | funnel *(loosely)* | The end-to-end path a participant takes through a program. |
 | **participant journey** | — | A journey with one person and no referrer/referred relationship (welcome offer, loyalty). |
 | **referral journey** | — | A journey with two people: an advocate and a friend. |
@@ -264,6 +266,8 @@ code sample.
 | **My Extole** | MyExtole, my.extole *(as the product name)* | The client-facing application. `my.extole.com` is fine as a URL. |
 
 Prefer **distinct** over **different** when separating two concepts.
+
+**Never write a campaign version in prose.** `v8`, `v9`, `v10`, and the same labels in any casing are internal. Call a v10 campaign a **Flow Builder campaign**. Call any earlier campaign a **legacy campaign**. Do not name the version, including in phrases like "v10 microsite" or "older than v10". Leave a version string that is part of a code sample, a component type name, or an API identifier exactly as written.
 
 ## Literals — never rewrite these
 
@@ -297,6 +301,20 @@ responses, metric names.
 **Never invent event names, product behavior, metrics, or numbers to make prose flow.** If
 you are unsure, verify it or mark it as needing confirmation. Say you are unsure rather
 than writing something plausible.
+
+**For an extension setting, the label is in `extole/creative`, not in a screenshot here.**
+Each setting declares a `display_name` and a `description` in the extension's
+`component.json`, and that is what My Extole renders. A capture in `images/` is a snapshot
+of whatever the UI said the day it was taken — several are v8-era and now name fields the
+product renamed. Read the component, and prefer the newest capture when two disagree.
+
+The Reward Bank field is one worked example. Its `display_name` is **Redemption Ratio**,
+its two neighbours are **Redemption Minimum Value** and **Redemption Maximum Value**, and
+the loyalty pages had shipped "Redemption Rate" and "Value Limits" — none of which a reader
+can find in the extension. Worse, **Redemption Rate** is a real Extole name already:
+*Advocate Reward Redemption Rate* is a referral metric, redeemed over issued as a
+percentage. Before coining a name for something, `git grep` it across the corpus and search
+the platform for it; a term that already means something else costs more than a clumsy one.
 
 ## Open decisions — do not pick a side
 
