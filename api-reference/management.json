@@ -3031,6 +3031,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "file_name_matches_directory_path_invalid" : {
+        "summary" : "file_name_matches_directory_path_invalid",
+        "value" : {
+          "code" : "file_name_matches_directory_path_invalid",
+          "http_status_code" : 400,
+          "message" : "File name matches trigger directory path is not a valid sftp directory",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "file_name_matches_match_type_required" : {
         "summary" : "file_name_matches_match_type_required",
         "value" : {
@@ -3057,6 +3067,16 @@
           "code" : "file_name_matches_pattern_required",
           "http_status_code" : 400,
           "message" : "File name matches trigger requires a pattern",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "file_name_matches_sftp_destination_invalid" : {
+        "summary" : "file_name_matches_sftp_destination_invalid",
+        "value" : {
+          "code" : "file_name_matches_sftp_destination_invalid",
+          "http_status_code" : 400,
+          "message" : "File name matches trigger sftp destination is not a LOCAL sftp destination of the client",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -12193,7 +12213,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "expected_headers", "id", "job_id", "match_mode", "on_mismatch", "order", "task_type" ],
+        "required" : [ "component_ids", "enabled", "expected_headers", "id", "job_id", "match_mode", "on_mismatch", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltFileNameMatchesTriggerResponse" : {
@@ -12201,6 +12221,10 @@
           "$ref" : "#/components/schemas/BuiltTriggerResponseBase"
         }, {
           "properties" : {
+            "directory_path" : {
+              "description" : "Optional directory path prefix to match, resolved when the campaign was published.",
+              "type" : "string"
+            },
             "match_type" : {
               "description" : "How the pattern is matched against filenames, resolved when the campaign was published.",
               "enum" : [ "EXACT", "REGEX" ],
@@ -12210,6 +12234,10 @@
               "description" : "Filename pattern to match, resolved when the campaign was published.",
               "type" : "string"
             },
+            "sftp_destination_id" : {
+              "description" : "Optional SFTP destination id to match, resolved when the campaign was published.",
+              "type" : "string"
+            },
             "trigger_type" : {
               "enum" : [ "FILE_NAME_MATCHES" ],
               "type" : "string"
@@ -12217,7 +12245,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "id", "job_id", "match_type", "pattern", "trigger_type" ],
+        "required" : [ "component_ids", "directory_path", "enabled", "id", "job_id", "match_type", "pattern", "sftp_destination_id", "trigger_type" ],
         "type" : "object"
       },
       "BuiltGenericClientKeyResponse" : {
@@ -12346,7 +12374,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "directory_path", "id", "job_id", "trigger_type" ],
+        "required" : [ "component_ids", "directory_path", "enabled", "id", "job_id", "trigger_type" ],
         "type" : "object"
       },
       "BuiltManualCouponRewardSupplierResponse" : {
@@ -12901,7 +12929,7 @@
             }
           }
         } ],
-        "required" : [ "component_ids", "id", "job_id", "order", "task_type" ],
+        "required" : [ "component_ids", "enabled", "id", "job_id", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltStartBatchJobTaskResponse" : {
@@ -12925,7 +12953,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "data_source_type", "event_name", "id", "job_id", "order", "task_type" ],
+        "required" : [ "component_ids", "data_source_type", "enabled", "event_name", "id", "job_id", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltStepDataResponse" : {
@@ -13049,6 +13077,11 @@
             "readOnly" : true,
             "type" : "array"
           },
+          "enabled" : {
+            "description" : "Resolved enabled state of the task, computed at build time. A disabled task is skipped when the job runs.",
+            "readOnly" : true,
+            "type" : "boolean"
+          },
           "id" : {
             "description" : "Unique id of the task.",
             "readOnly" : true,
@@ -13101,6 +13134,11 @@
             },
             "readOnly" : true,
             "type" : "array"
+          },
+          "enabled" : {
+            "description" : "Resolved enabled state of the trigger, computed at build time. A disabled trigger is ignored when a file arrives.",
+            "readOnly" : true,
+            "type" : "boolean"
           },
           "id" : {
             "description" : "Unique id of the trigger.",
@@ -22988,6 +23026,96 @@
           "type" : "string"
         } ]
       },
+      "DirectoryPathInFileNameMatchesTriggerRequest" : {
+        "description" : "Optional directory path prefix to match. A literal value or a buildtime expression resolved from component references when the trigger is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Static directory path",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{directoryPath}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('directoryPath');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "DirectoryPathInFileNameMatchesTriggerResponse" : {
+        "description" : "Optional directory path prefix to match. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Literal directory path",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{directoryPath}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('directoryPath');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "DirectoryPathInLandsInDirectoryTriggerRequest" : {
         "description" : "Directory path prefix to match. A literal value or a buildtime expression resolved from component references when the trigger is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -24375,6 +24503,134 @@
           "externalDocs" : {
             "description" : "CampaignBuildtimeContext",
             "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTaskRequest" : {
+        "description" : "Whether this task runs as part of the job. A disabled task is skipped and the run continues with the next enabled task. A literal value or a buildtime expression resolved from component references when the task is saved; defaults to true when omitted on create. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTaskResponse" : {
+        "description" : "Whether this task runs as part of the job, as the buildtime expression or literal that was saved. A disabled task is skipped and the run continues with the next enabled task. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTriggerRequest" : {
+        "description" : "Whether this trigger takes part in deciding when the job runs. A disabled trigger is ignored when a file arrives. A literal value or a buildtime expression resolved from component references when the trigger is saved; defaults to true when omitted on create. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTriggerResponse" : {
+        "description" : "Whether this trigger takes part in deciding when the job runs, as the buildtime expression or literal that was saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
           },
           "pattern" : "^javascript@buildtime:.*",
           "title" : "Buildtime - Javascript",
@@ -27293,8 +27549,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored file header validator task definition. Fields `order`, `expected_headers`, and `on_mismatch` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "expected_headers", "id", "match_mode", "on_mismatch", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored file header validator task definition. Fields `order`, `expected_headers`, `on_mismatch`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "expected_headers", "id", "match_mode", "on_mismatch", "order", "parent_job_id", "task_type" ],
         "type" : "object"
       },
       "FileInputStreamRequest" : {
@@ -27314,11 +27570,17 @@
           "$ref" : "#/components/schemas/TriggerRequestBase"
         }, {
           "properties" : {
+            "directory_path" : {
+              "$ref" : "#/components/schemas/DirectoryPathInFileNameMatchesTriggerRequest"
+            },
             "match_type" : {
               "$ref" : "#/components/schemas/MatchTypeInFileNameMatchesTriggerRequest"
             },
             "pattern" : {
               "$ref" : "#/components/schemas/PatternInFileNameMatchesTriggerRequest"
+            },
+            "sftp_destination_id" : {
+              "$ref" : "#/components/schemas/SftpDestinationIdInFileNameMatchesTriggerRequest"
             },
             "trigger_type" : {
               "enum" : [ "FILE_NAME_MATCHES" ],
@@ -27335,11 +27597,17 @@
           "$ref" : "#/components/schemas/TriggerResponseBase"
         }, {
           "properties" : {
+            "directory_path" : {
+              "$ref" : "#/components/schemas/DirectoryPathInFileNameMatchesTriggerResponse"
+            },
             "match_type" : {
               "$ref" : "#/components/schemas/MatchTypeInFileNameMatchesTriggerResponse"
             },
             "pattern" : {
               "$ref" : "#/components/schemas/PatternInFileNameMatchesTriggerResponse"
+            },
+            "sftp_destination_id" : {
+              "$ref" : "#/components/schemas/SftpDestinationIdInFileNameMatchesTriggerResponse"
             },
             "trigger_type" : {
               "enum" : [ "FILE_NAME_MATCHES" ],
@@ -27348,8 +27616,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored file name matches trigger definition. Fields `match_type` and `pattern` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "id", "match_type", "parent_job_id", "pattern", "trigger_type" ],
+        "description" : "Stored file name matches trigger definition. Fields `match_type`, `pattern`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "directory_path", "enabled", "id", "match_type", "parent_job_id", "pattern", "sftp_destination_id", "trigger_type" ],
         "type" : "object"
       },
       "FilterCampaignIdsInBuiltCampaignControllerTriggerHasPriorStepResponse" : {
@@ -29913,8 +30181,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored lands in directory trigger definition. Field `directory_path` is unevaluated and appears in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "directory_path", "id", "parent_job_id", "trigger_type" ],
+        "description" : "Stored lands in directory trigger definition. Fields `directory_path` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "directory_path", "enabled", "id", "parent_job_id", "trigger_type" ],
         "type" : "object"
       },
       "LegacyActionIdInBuiltCampaignControllerActionIncentivizeStatusUpdateResponse" : {
@@ -39853,6 +40121,70 @@
         },
         "type" : "object"
       },
+      "SftpDestinationIdInFileNameMatchesTriggerRequest" : {
+        "description" : "Optional SFTP destination id to match. A literal value or a buildtime expression resolved from component references when the trigger is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static sftp destination id",
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{sftpDestinationId}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('sftpDestinationId');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "SftpDestinationIdInFileNameMatchesTriggerResponse" : {
+        "description" : "Optional SFTP destination id to match. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal sftp destination id",
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{sftpDestinationId}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('sftpDestinationId');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "SftpReportNamePatternInReportRunnerCreateRequest" : {
         "description" : "Choose between static or dynamic sftp report name pattern. Runtime expressions use [ReportRunnerExecutionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/report_runner/ReportRunnerExecutionContext.d.ts).",
         "externalDocs" : {
@@ -40540,8 +40872,8 @@
             }
           }
         } ],
-        "description" : "Stored start audience operation task definition. Field `order` is unevaluated and appears in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "id", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored start audience operation task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ],
         "type" : "object"
       },
       "StartBatchJobTaskRequest" : {
@@ -40585,8 +40917,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored start batch job task definition. Fields `order` and `event_name` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "data_source_type", "event_name", "id", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored start batch job task definition. Fields `order`, `event_name`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "data_source_type", "enabled", "event_name", "id", "order", "parent_job_id", "task_type" ],
         "type" : "object"
       },
       "StaticReportTypeParameterDetailsRequest" : {
@@ -41806,6 +42138,9 @@
             },
             "type" : "array"
           },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTaskRequest"
+          },
           "order" : {
             "$ref" : "#/components/schemas/OrderInTaskRequest"
           },
@@ -41820,7 +42155,7 @@
         "type" : "object"
       },
       "TaskResponse" : {
-        "description" : "Stored task definition. Field `order` is unevaluated and appears in buildtime-evaluatable form.",
+        "description" : "Stored task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
         "discriminator" : {
           "mapping" : {
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/FileHeaderValidatorTaskResponse",
@@ -41836,7 +42171,7 @@
         }, {
           "$ref" : "#/components/schemas/StartBatchJobTaskResponse"
         } ],
-        "required" : [ "component_ids", "component_references", "id", "order", "parent_job_id", "task_type" ]
+        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ]
       },
       "TaskResponseBase" : {
         "properties" : {
@@ -41851,6 +42186,9 @@
               "$ref" : "#/components/schemas/ComponentReferenceResponse"
             },
             "type" : "array"
+          },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTaskResponse"
           },
           "id" : {
             "description" : "Unique id of the task.",
@@ -42218,6 +42556,9 @@
             },
             "type" : "array"
           },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTriggerRequest"
+          },
           "parent_job_id" : {
             "$ref" : "#/components/schemas/ParentJobIdInTriggerRequest"
           },
@@ -42229,6 +42570,7 @@
         "type" : "object"
       },
       "TriggerResponse" : {
+        "description" : "Stored trigger definition. Field `enabled` is unevaluated and appears in buildtime-evaluatable form.",
         "discriminator" : {
           "mapping" : {
             "FILE_NAME_MATCHES" : "#/components/schemas/FileNameMatchesTriggerResponse",
@@ -42241,7 +42583,7 @@
         }, {
           "$ref" : "#/components/schemas/LandsInDirectoryTriggerResponse"
         } ],
-        "required" : [ "component_ids", "component_references", "id", "parent_job_id", "trigger_type" ]
+        "required" : [ "component_ids", "component_references", "enabled", "id", "parent_job_id", "trigger_type" ]
       },
       "TriggerResponseBase" : {
         "properties" : {
@@ -42256,6 +42598,9 @@
               "$ref" : "#/components/schemas/ComponentReferenceResponse"
             },
             "type" : "array"
+          },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTriggerResponse"
           },
           "id" : {
             "description" : "Unique id of the trigger.",
@@ -78006,6 +78351,7 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "enabled" : true,
                   "expected_headers" : [ "expected_header" ],
                   "match_mode" : "EXACT_SET",
                   "on_mismatch" : "FAIL",
@@ -78019,9 +78365,12 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "directory_path" : "directory_path",
+                  "enabled" : true,
                   "match_type" : "EXACT",
                   "parent_job_id" : "parent_job_id",
                   "pattern" : "pattern",
+                  "sftp_destination_id" : "sftp_destination_id",
                   "trigger_type" : "FILE_NAME_MATCHES"
                 } ]
               },
@@ -78142,6 +78491,9 @@
                   "file_header_validator_on_mismatch_required" : {
                     "$ref" : "#/components/examples/file_header_validator_on_mismatch_required"
                   },
+                  "file_name_matches_directory_path_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_directory_path_invalid"
+                  },
                   "file_name_matches_match_type_required" : {
                     "$ref" : "#/components/examples/file_name_matches_match_type_required"
                   },
@@ -78150,6 +78502,9 @@
                   },
                   "file_name_matches_pattern_required" : {
                     "$ref" : "#/components/examples/file_name_matches_pattern_required"
+                  },
+                  "file_name_matches_sftp_destination_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
@@ -78837,6 +79192,7 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "enabled" : true,
                   "expected_headers" : [ "expected_header" ],
                   "match_mode" : "EXACT_SET",
                   "on_mismatch" : "FAIL",
@@ -78850,9 +79206,12 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "directory_path" : "directory_path",
+                  "enabled" : true,
                   "match_type" : "EXACT",
                   "parent_job_id" : "parent_job_id",
                   "pattern" : "pattern",
+                  "sftp_destination_id" : "sftp_destination_id",
                   "trigger_type" : "FILE_NAME_MATCHES"
                 } ]
               },
@@ -79540,6 +79899,7 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "enabled" : true,
                 "expected_headers" : [ "expected_header" ],
                 "match_mode" : "EXACT_SET",
                 "on_mismatch" : "FAIL",
@@ -79985,6 +80345,7 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "enabled" : true,
                 "expected_headers" : [ "expected_header" ],
                 "match_mode" : "EXACT_SET",
                 "on_mismatch" : "FAIL",
@@ -80562,9 +80923,12 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "directory_path" : "directory_path",
+                "enabled" : true,
                 "match_type" : "EXACT",
                 "parent_job_id" : "parent_job_id",
                 "pattern" : "pattern",
+                "sftp_destination_id" : "sftp_destination_id",
                 "trigger_type" : "FILE_NAME_MATCHES"
               },
               "schema" : {
@@ -80675,6 +81039,9 @@
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
+                  "file_name_matches_directory_path_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_directory_path_invalid"
+                  },
                   "file_name_matches_match_type_required" : {
                     "$ref" : "#/components/examples/file_name_matches_match_type_required"
                   },
@@ -80683,6 +81050,9 @@
                   },
                   "file_name_matches_pattern_required" : {
                     "$ref" : "#/components/examples/file_name_matches_pattern_required"
+                  },
+                  "file_name_matches_sftp_destination_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
@@ -80996,9 +81366,12 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "directory_path" : "directory_path",
+                "enabled" : true,
                 "match_type" : "EXACT",
                 "parent_job_id" : "parent_job_id",
                 "pattern" : "pattern",
+                "sftp_destination_id" : "sftp_destination_id",
                 "trigger_type" : "FILE_NAME_MATCHES"
               },
               "schema" : {
@@ -81109,6 +81482,9 @@
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
+                  "file_name_matches_directory_path_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_directory_path_invalid"
+                  },
                   "file_name_matches_match_type_required" : {
                     "$ref" : "#/components/examples/file_name_matches_match_type_required"
                   },
@@ -81117,6 +81493,9 @@
                   },
                   "file_name_matches_pattern_required" : {
                     "$ref" : "#/components/examples/file_name_matches_pattern_required"
+                  },
+                  "file_name_matches_sftp_destination_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
