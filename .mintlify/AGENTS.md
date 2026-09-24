@@ -240,6 +240,8 @@ code sample.
 | **conversion / converted** | — | A friend completing the program's goal action. |
 | **program** | campaign *(when you mean the use case)* | The overall referral use case: audience plus outcome (Refer A Friend, Welcome Offer, Ambassador). |
 | **campaign** | program *(when you mean an implementation)* | A specific implementation within a program: creative, behavior, and rules. |
+| **Flow Builder campaign** | v10, V10, "v10 campaign", "v10 microsite", and any other version number for a current campaign | A campaign built in Flow Builder. Say this instead of a version. |
+| **legacy campaign** | v8, V8, v9, V9, and any version below v10 | A campaign from before Flow Builder. Say "legacy" instead of the version. |
 | **journey** | funnel *(loosely)* | The end-to-end path a participant takes through a program. |
 | **participant journey** | — | A journey with one person and no referrer/referred relationship (welcome offer, loyalty). |
 | **referral journey** | — | A journey with two people: an advocate and a friend. |
@@ -264,6 +266,8 @@ code sample.
 | **My Extole** | MyExtole, my.extole *(as the product name)* | The client-facing application. `my.extole.com` is fine as a URL. |
 
 Prefer **distinct** over **different** when separating two concepts.
+
+**Never write a campaign version in prose.** `v8`, `v9`, `v10`, and the same labels in any casing are internal. Call a v10 campaign a **Flow Builder campaign**. Call any earlier campaign a **legacy campaign**. Do not name the version, including in phrases like "v10 microsite" or "older than v10". Leave a version string that is part of a code sample, a component type name, or an API identifier exactly as written.
 
 ## Literals — never rewrite these
 
