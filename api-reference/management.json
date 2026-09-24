@@ -3051,6 +3051,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "file_name_matches_directory_path_invalid" : {
+        "summary" : "file_name_matches_directory_path_invalid",
+        "value" : {
+          "code" : "file_name_matches_directory_path_invalid",
+          "http_status_code" : 400,
+          "message" : "File name matches trigger directory path is not a valid sftp directory",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "file_name_matches_match_type_required" : {
         "summary" : "file_name_matches_match_type_required",
         "value" : {
@@ -3077,6 +3087,16 @@
           "code" : "file_name_matches_pattern_required",
           "http_status_code" : 400,
           "message" : "File name matches trigger requires a pattern",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "file_name_matches_sftp_destination_invalid" : {
+        "summary" : "file_name_matches_sftp_destination_invalid",
+        "value" : {
+          "code" : "file_name_matches_sftp_destination_invalid",
+          "http_status_code" : 400,
+          "message" : "File name matches trigger sftp destination is not a LOCAL sftp destination of the client",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -12154,6 +12174,10 @@
           "$ref" : "#/components/schemas/BuiltTriggerResponseBase"
         }, {
           "properties" : {
+            "directory_path" : {
+              "description" : "Optional directory path prefix to match, resolved when the campaign was published.",
+              "type" : "string"
+            },
             "match_type" : {
               "description" : "How the pattern is matched against filenames, resolved when the campaign was published.",
               "enum" : [ "EXACT", "REGEX" ],
@@ -12163,6 +12187,10 @@
               "description" : "Filename pattern to match, resolved when the campaign was published.",
               "type" : "string"
             },
+            "sftp_destination_id" : {
+              "description" : "Optional SFTP destination id to match, resolved when the campaign was published.",
+              "type" : "string"
+            },
             "trigger_type" : {
               "enum" : [ "FILE_NAME_MATCHES" ],
               "type" : "string"
@@ -12170,7 +12198,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "id", "job_id", "match_type", "pattern", "trigger_type" ],
+        "required" : [ "component_ids", "directory_path", "id", "job_id", "match_type", "pattern", "sftp_destination_id", "trigger_type" ],
         "type" : "object"
       },
       "BuiltGenericClientKeyResponse" : {
@@ -22950,6 +22978,96 @@
           "type" : "string"
         } ]
       },
+      "DirectoryPathInFileNameMatchesTriggerRequest" : {
+        "description" : "Optional directory path prefix to match. A literal value or a buildtime expression resolved from component references when the trigger is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Static directory path",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{directoryPath}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('directoryPath');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "DirectoryPathInFileNameMatchesTriggerResponse" : {
+        "description" : "Optional directory path prefix to match. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Literal directory path",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{directoryPath}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('directoryPath');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "DirectoryPathInLandsInDirectoryTriggerRequest" : {
         "description" : "Directory path prefix to match. A literal value or a buildtime expression resolved from component references when the trigger is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -27276,11 +27394,17 @@
           "$ref" : "#/components/schemas/TriggerRequestBase"
         }, {
           "properties" : {
+            "directory_path" : {
+              "$ref" : "#/components/schemas/DirectoryPathInFileNameMatchesTriggerRequest"
+            },
             "match_type" : {
               "$ref" : "#/components/schemas/MatchTypeInFileNameMatchesTriggerRequest"
             },
             "pattern" : {
               "$ref" : "#/components/schemas/PatternInFileNameMatchesTriggerRequest"
+            },
+            "sftp_destination_id" : {
+              "$ref" : "#/components/schemas/SftpDestinationIdInFileNameMatchesTriggerRequest"
             },
             "trigger_type" : {
               "enum" : [ "FILE_NAME_MATCHES" ],
@@ -27297,11 +27421,17 @@
           "$ref" : "#/components/schemas/TriggerResponseBase"
         }, {
           "properties" : {
+            "directory_path" : {
+              "$ref" : "#/components/schemas/DirectoryPathInFileNameMatchesTriggerResponse"
+            },
             "match_type" : {
               "$ref" : "#/components/schemas/MatchTypeInFileNameMatchesTriggerResponse"
             },
             "pattern" : {
               "$ref" : "#/components/schemas/PatternInFileNameMatchesTriggerResponse"
+            },
+            "sftp_destination_id" : {
+              "$ref" : "#/components/schemas/SftpDestinationIdInFileNameMatchesTriggerResponse"
             },
             "trigger_type" : {
               "enum" : [ "FILE_NAME_MATCHES" ],
@@ -27311,7 +27441,7 @@
           "type" : "object"
         } ],
         "description" : "Stored file name matches trigger definition. Fields `match_type` and `pattern` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "id", "match_type", "parent_job_id", "pattern", "trigger_type" ],
+        "required" : [ "component_ids", "component_references", "directory_path", "id", "match_type", "parent_job_id", "pattern", "sftp_destination_id", "trigger_type" ],
         "type" : "object"
       },
       "FilterCampaignIdsInBuiltCampaignControllerTriggerHasPriorStepResponse" : {
@@ -39916,6 +40046,70 @@
           }
         },
         "type" : "object"
+      },
+      "SftpDestinationIdInFileNameMatchesTriggerRequest" : {
+        "description" : "Optional SFTP destination id to match. A literal value or a buildtime expression resolved from component references when the trigger is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static sftp destination id",
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{sftpDestinationId}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('sftpDestinationId');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "SftpDestinationIdInFileNameMatchesTriggerResponse" : {
+        "description" : "Optional SFTP destination id to match. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal sftp destination id",
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{sftpDestinationId}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('sftpDestinationId');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
       },
       "SftpReportNamePatternInReportRunnerCreateRequest" : {
         "description" : "Choose between static or dynamic sftp report name pattern. Runtime expressions use [ReportRunnerExecutionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/report_runner/ReportRunnerExecutionContext.d.ts).",
@@ -77882,9 +78076,11 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "directory_path" : "directory_path",
                   "match_type" : "EXACT",
                   "parent_job_id" : "parent_job_id",
                   "pattern" : "pattern",
+                  "sftp_destination_id" : "sftp_destination_id",
                   "trigger_type" : "FILE_NAME_MATCHES"
                 } ]
               },
@@ -78005,6 +78201,9 @@
                   "file_header_validator_on_mismatch_required" : {
                     "$ref" : "#/components/examples/file_header_validator_on_mismatch_required"
                   },
+                  "file_name_matches_directory_path_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_directory_path_invalid"
+                  },
                   "file_name_matches_match_type_required" : {
                     "$ref" : "#/components/examples/file_name_matches_match_type_required"
                   },
@@ -78013,6 +78212,9 @@
                   },
                   "file_name_matches_pattern_required" : {
                     "$ref" : "#/components/examples/file_name_matches_pattern_required"
+                  },
+                  "file_name_matches_sftp_destination_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
@@ -78713,9 +78915,11 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "directory_path" : "directory_path",
                   "match_type" : "EXACT",
                   "parent_job_id" : "parent_job_id",
                   "pattern" : "pattern",
+                  "sftp_destination_id" : "sftp_destination_id",
                   "trigger_type" : "FILE_NAME_MATCHES"
                 } ]
               },
@@ -80425,9 +80629,11 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "directory_path" : "directory_path",
                 "match_type" : "EXACT",
                 "parent_job_id" : "parent_job_id",
                 "pattern" : "pattern",
+                "sftp_destination_id" : "sftp_destination_id",
                 "trigger_type" : "FILE_NAME_MATCHES"
               },
               "schema" : {
@@ -80538,6 +80744,9 @@
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
+                  "file_name_matches_directory_path_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_directory_path_invalid"
+                  },
                   "file_name_matches_match_type_required" : {
                     "$ref" : "#/components/examples/file_name_matches_match_type_required"
                   },
@@ -80546,6 +80755,9 @@
                   },
                   "file_name_matches_pattern_required" : {
                     "$ref" : "#/components/examples/file_name_matches_pattern_required"
+                  },
+                  "file_name_matches_sftp_destination_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
@@ -80859,9 +81071,11 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "directory_path" : "directory_path",
                 "match_type" : "EXACT",
                 "parent_job_id" : "parent_job_id",
                 "pattern" : "pattern",
+                "sftp_destination_id" : "sftp_destination_id",
                 "trigger_type" : "FILE_NAME_MATCHES"
               },
               "schema" : {
@@ -80972,6 +81186,9 @@
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
+                  "file_name_matches_directory_path_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_directory_path_invalid"
+                  },
                   "file_name_matches_match_type_required" : {
                     "$ref" : "#/components/examples/file_name_matches_match_type_required"
                   },
@@ -80980,6 +81197,9 @@
                   },
                   "file_name_matches_pattern_required" : {
                     "$ref" : "#/components/examples/file_name_matches_pattern_required"
+                  },
+                  "file_name_matches_sftp_destination_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
