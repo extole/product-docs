@@ -298,6 +298,20 @@ responses, metric names.
 you are unsure, verify it or mark it as needing confirmation. Say you are unsure rather
 than writing something plausible.
 
+**For an extension setting, the label is in `extole/creative`, not in a screenshot here.**
+Each setting declares a `display_name` and a `description` in the extension's
+`component.json`, and that is what My Extole renders. A capture in `images/` is a snapshot
+of whatever the UI said the day it was taken — several are v8-era and now name fields the
+product renamed. Read the component, and prefer the newest capture when two disagree.
+
+The Reward Bank field is one worked example. Its `display_name` is **Redemption Ratio**,
+its two neighbours are **Redemption Minimum Value** and **Redemption Maximum Value**, and
+the loyalty pages had shipped "Redemption Rate" and "Value Limits" — none of which a reader
+can find in the extension. Worse, **Redemption Rate** is a real Extole name already:
+*Advocate Reward Redemption Rate* is a referral metric, redeemed over issued as a
+percentage. Before coining a name for something, `git grep` it across the corpus and search
+the platform for it; a term that already means something else costs more than a clumsy one.
+
 ## Open decisions — do not pick a side
 
 These are genuinely split across the corpus and await a docs-team call. Until each is
