@@ -14,10 +14,11 @@ links, images, frontmatter, and accuracy all live in one self-contained file:
 canonical because Mintlify's own agent reads it directly and cannot follow links — so a
 standard stated anywhere else is one that some editing surface silently ignores.
 
-**Where a new page goes is not decided here.** Tab and group are an actor test
-(who performs the work), not "put it next to a similar title in Guides". Load
-[`product-docs-placement`](../product-docs-placement/SKILL.md) **before writing a
-new page**, and before adding a path to `docs.json`.
+**Where content goes is not decided here.** Tab and group follow the three-tab model
+(Product Docs answers what and why, Guides answers how in My Extole, Technical Docs answers
+how it works and how to implement or diagnose it), not "put it next to a similar title in
+Guides". Load [`product-docs-placement`](../product-docs-placement/SKILL.md) **before
+writing a new page or a new section**, and before adding a path to `docs.json`.
 
 Preview and validation mechanics: [`mintlify-branch-preview`](../mintlify-branch-preview/SKILL.md).
 
@@ -106,7 +107,9 @@ publishes docs.extole.com.
 3. **Write to the standard as you go.** Everything in `.mintlify/AGENTS.md` applies while
    you write — terminology, imperative how-to, Title Case, de-hedging, navigation bolding,
    number rules, callout components. Do not leave these for the reviewer.
-4. **Place in nav.** Add the chosen path to that group in `docs.json`.
+4. **Place in nav.** Add the chosen path to that group in `docs.json`, then run
+   `python3 scripts/check_navigation.py` — it reports a page absent from the navigation
+   and a path that does not mirror its group chain, neither of which `validate` catches.
 5. **Validate.** `npx mint@latest validate` must report **0 errors, 0 warnings**. MDX is
    JSX-strict: a broken tag fails the whole build, not just the page, and `validate` treats
    a warning as a failure. `npx mint@latest dev` renders it locally at
@@ -128,10 +131,13 @@ item checks conformance to `.mintlify/AGENTS.md` rather than restating it.
 - [ ] **Numbers, units, spelling** follow the standard.
 - [ ] **Accuracy** — wording matches actual product behavior and current UI labels and
       status text; no invented values.
-- [ ] **Placement** — a new page sits in the tab the actor test chose, not in
-      Guides by default. Mechanism, diagnosis, tags, domains, and request
-      parameters belong in Technical Docs even when the symptom is a campaign.
-- [ ] **Frontmatter** present (`title`, `description`); **page path added to `docs.json`**.
+- [ ] **Placement** — a new page, or a new section on an existing page, sits in the tab
+      the placement test chose, not in Guides by default and not in an inherited group.
+      Mechanism, diagnosis, tags, domains, and request parameters belong in Technical
+      Docs even when the symptom is a campaign. The topic is not already covered in
+      another tab.
+- [ ] **Frontmatter** present (`title`, `description`); **page path added to `docs.json`**
+      and `python3 scripts/check_navigation.py` reports no finding your change introduced.
 - [ ] **Links and images resolve** — internal links are site paths, images are
       root-relative repo assets, no `doc:slug` and no remote `expires=` URL.
 - [ ] **Literals** — event names, schema fields, and API identifiers left verbatim.
