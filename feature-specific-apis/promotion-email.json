@@ -7,19 +7,33 @@
   },
   "servers": [
     {
-      "description": "Production",
+      "description": "Production - Extole events host",
       "url": "https://events.extole.io"
     }
   ],
   "paths": {
-    "/v6/async-events/generic_promotion_email_triggered": {
+    "/v6/async-events/{event_name}": {
       "post": {
         "operationId": "send_async",
         "summary": "Send Async",
-        "description": "Sends this email to one person without waiting for identity resolution: the event is accepted immediately and resolved afterwards. Call it once per recipient - it takes one person, and exists for sending to many of them at volume.",
+        "description": "Sends this email to one person without waiting for identity resolution: the event is accepted immediately and resolved afterwards. Call it once per recipient - it takes one person, and exists for sending to many of them at volume from your own backend.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "ACTION"
+        ],
+        "parameters": [
+          {
+            "name": "event_name",
+            "in": "path",
+            "required": true,
+            "description": "The event that triggers this email. Any of the events this email listens for sends it.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "generic_promotion_email_triggered"
+              ]
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -113,29 +127,43 @@
         },
         "servers": [
           {
-            "description": "Production",
+            "description": "Production - Extole events host",
             "url": "https://events.extole.io"
           }
         ],
         "security": [
           {
-            "CLIENT_HEADER": []
+            "HEADER": []
           },
           {
-            "CLIENT_QUERY": []
+            "QUERY_PARAM": []
           }
         ],
         "x-extole-component": "generic_promotion_email"
       }
     },
-    "/v6/events/generic_promotion_email_triggered": {
+    "/v6/events/{event_name}": {
       "post": {
         "operationId": "send_now",
         "summary": "Send Now",
-        "description": "Sends this email to one person now, by submitting one of the events that trigger it. Returns once identity resolution has completed, so the send is attributed to a known person.",
+        "description": "Sends this email to one person now, by submitting one of the events that trigger it. Returns once identity resolution has completed, so the send is attributed to a known person - which suits low-volume, interactive sending from an admin or a user interface rather than bulk traffic; use Send Async for that.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "ACTION"
+        ],
+        "parameters": [
+          {
+            "name": "event_name",
+            "in": "path",
+            "required": true,
+            "description": "The event that triggers this email. Any of the events this email listens for sends it.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "generic_promotion_email_triggered"
+              ]
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -234,16 +262,16 @@
         },
         "servers": [
           {
-            "description": "Production",
+            "description": "Production - Extole events host",
             "url": "https://events.extole.io"
           }
         ],
         "security": [
           {
-            "CLIENT_HEADER": []
+            "HEADER": []
           },
           {
-            "CLIENT_QUERY": []
+            "QUERY_PARAM": []
           }
         ],
         "x-extole-component": "generic_promotion_email"
@@ -252,18 +280,18 @@
   },
   "components": {
     "securitySchemes": {
-      "CLIENT_HEADER": {
+      "HEADER": {
         "type": "apiKey",
         "in": "header",
         "name": "Authorization",
-        "description": "A client access token, issued to your Extole account and used from your own backend. Not a consumer access token - a consumer token identifies one person and cannot call this operation.",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
         "x-bearer-format": "bearer"
       },
-      "CLIENT_QUERY": {
+      "QUERY_PARAM": {
         "type": "apiKey",
         "in": "query",
         "name": "access_token",
-        "description": "A client access token, issued to your Extole account and used from your own backend. Not a consumer access token - a consumer token identifies one person and cannot call this operation."
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device."
       }
     },
     "schemas": {

@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "description": "Production",
+      "description": "Production - Extole events host",
       "url": "https://events.extole.io"
     }
   ],
@@ -16,7 +16,7 @@
       "post": {
         "operationId": "create_event_asynchronously",
         "summary": "Create New - Count Only",
-        "description": "Submits this business event without waiting for identity resolution. Use for high-volume counting where only acceptance matters.",
+        "description": "Submits this business event without waiting for identity resolution. Use for high-volume server-to-server counting where only acceptance matters.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "ACTION"
@@ -113,16 +113,16 @@
         },
         "servers": [
           {
-            "description": "Production",
+            "description": "Production - Extole events host",
             "url": "https://events.extole.io"
           }
         ],
         "security": [
           {
-            "CLIENT_HEADER": []
+            "HEADER": []
           },
           {
-            "CLIENT_QUERY": []
+            "QUERY_PARAM": []
           }
         ],
         "x-extole-component": "template_tracked_business_event"
@@ -132,7 +132,7 @@
       "post": {
         "operationId": "create_event",
         "summary": "Create New",
-        "description": "Submits this business event from your backend as a person reaches it in the journey. Returns once identity resolution has completed.",
+        "description": "Submits this business event from your backend as a person reaches it in the journey. Returns once identity resolution has completed, so the event is attributed to a known person - which suits low-volume, interactive submission from an admin or a user interface rather than bulk traffic; use Create New - Count Only for that.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "ACTION"
@@ -234,16 +234,16 @@
         },
         "servers": [
           {
-            "description": "Production",
+            "description": "Production - Extole events host",
             "url": "https://events.extole.io"
           }
         ],
         "security": [
           {
-            "CLIENT_HEADER": []
+            "HEADER": []
           },
           {
-            "CLIENT_QUERY": []
+            "QUERY_PARAM": []
           }
         ],
         "x-extole-component": "template_tracked_business_event"
@@ -252,18 +252,18 @@
   },
   "components": {
     "securitySchemes": {
-      "CLIENT_HEADER": {
+      "HEADER": {
         "type": "apiKey",
         "in": "header",
         "name": "Authorization",
-        "description": "A client access token, issued to your Extole account and used from your own backend. Not a consumer access token - a consumer token identifies one person and cannot call this operation.",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
         "x-bearer-format": "bearer"
       },
-      "CLIENT_QUERY": {
+      "QUERY_PARAM": {
         "type": "apiKey",
         "in": "query",
         "name": "access_token",
-        "description": "A client access token, issued to your Extole account and used from your own backend. Not a consumer access token - a consumer token identifies one person and cannot call this operation."
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device."
       }
     },
     "schemas": {

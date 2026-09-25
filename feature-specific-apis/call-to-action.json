@@ -7,11 +7,11 @@
   },
   "servers": [
     {
-      "description": "Production",
+      "description": "Production - Extole API host",
       "url": "https://api.extole.io"
     },
     {
-      "description": "Production",
+      "description": "Production - your program domain",
       "url": "https://{brand}.extole.io",
       "variables": {
         "brand": {
@@ -26,7 +26,7 @@
       "get": {
         "operationId": "preview",
         "summary": "Preview Draft",
-        "description": "Previews this content as the campaign's unpublished draft, before it is live. Rendered through the client zone API with the campaign preview sandbox, so it needs a client access token rather than a consumer one.",
+        "description": "Previews the latest content. Use to test changes prior to publishing them for live traffic. Rendered through the client zone API with the campaign preview sandbox, so it needs a client access token rather than a consumer one, and it renders against an anonymous profile rather than a named person.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "VIEW"
@@ -48,8 +48,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
-                  "description": "The preview page, which renders the draft of the zone in the campaign preview sandbox."
+                  "description": "The preview content, which renders the draft of the zone in the campaign preview sandbox."
                 }
               }
             }
@@ -102,16 +101,16 @@
         },
         "servers": [
           {
-            "description": "Production",
+            "description": "Production - Extole API host",
             "url": "https://api.extole.io"
           }
         ],
         "security": [
           {
-            "CLIENT_HEADER": []
+            "HEADER": []
           },
           {
-            "CLIENT_QUERY": []
+            "QUERY_PARAM": []
           }
         ],
         "x-extole-component": "call_to_action"
@@ -121,7 +120,7 @@
       "get": {
         "operationId": "render",
         "summary": "Render",
-        "description": "Renders this content for the person making the request, in the zone it is installed into. Returns what is live, with no targeting data sent.",
+        "description": "Renders this content for the person making the request, in the zone it is installed into. Returns what is live, with no targeting data sent: a GET carries no request body, so use Render With Data when you have some to send.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "VIEW"
@@ -132,7 +131,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
                   "description": "Rendered zone content. The shape follows the zone's creative configuration: HTML, JavaScript, JSON, or plain text."
                 }
               }
@@ -195,7 +193,7 @@
         },
         "servers": [
           {
-            "description": "Production",
+            "description": "Production - your program domain",
             "url": "https://{brand}.extole.io",
             "variables": {
               "brand": {
@@ -207,13 +205,13 @@
         ],
         "security": [
           {
-            "CONSUMER_HEADER": []
+            "HEADER": []
           },
           {
-            "CONSUMER_QUERY": []
+            "QUERY_PARAM": []
           },
           {
-            "CONSUMER_COOKIE": []
+            "COOKIE": []
           }
         ],
         "x-extole-component": "call_to_action"
@@ -231,7 +229,24 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Email address of the person to render for."
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "description": "Last name of the person to render for."
+                  },
+                  "first_name": {
+                    "type": "string",
+                    "description": "First name of the person to render for."
+                  }
+                },
+                "description": "Targeting data merged into the zone's rendering context. Keys are open - recognised fields such as email, first_name and last_name target the render, and anything else is passed through to the creative.",
+                "additionalProperties": true
               }
             }
           }
@@ -242,7 +257,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
                   "description": "Rendered zone content. The shape follows the zone's creative configuration: HTML, JavaScript, JSON, or plain text."
                 }
               }
@@ -305,7 +319,7 @@
         },
         "servers": [
           {
-            "description": "Production",
+            "description": "Production - your program domain",
             "url": "https://{brand}.extole.io",
             "variables": {
               "brand": {
@@ -317,13 +331,13 @@
         ],
         "security": [
           {
-            "CONSUMER_HEADER": []
+            "HEADER": []
           },
           {
-            "CONSUMER_QUERY": []
+            "QUERY_PARAM": []
           },
           {
-            "CONSUMER_COOKIE": []
+            "COOKIE": []
           }
         ],
         "x-extole-component": "call_to_action"
@@ -332,33 +346,20 @@
   },
   "components": {
     "securitySchemes": {
-      "CLIENT_HEADER": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization",
-        "description": "A client access token, issued to your Extole account and used from your own backend. Not a consumer access token - a consumer token identifies one person and cannot call this operation.",
-        "x-bearer-format": "bearer"
-      },
-      "CLIENT_QUERY": {
-        "type": "apiKey",
-        "in": "query",
-        "name": "access_token",
-        "description": "A client access token, issued to your Extole account and used from your own backend. Not a consumer access token - a consumer token identifies one person and cannot call this operation."
-      },
-      "CONSUMER_HEADER": {
+      "HEADER": {
         "type": "apiKey",
         "in": "header",
         "name": "Authorization",
         "description": "A consumer access token, issued to a single person in the browser or app. Not a client access token - never send a client token from a consumer device.",
         "x-bearer-format": "bearer"
       },
-      "CONSUMER_QUERY": {
+      "QUERY_PARAM": {
         "type": "apiKey",
         "in": "query",
         "name": "access_token",
         "description": "A consumer access token, issued to a single person in the browser or app. Not a client access token - never send a client token from a consumer device."
       },
-      "CONSUMER_COOKIE": {
+      "COOKIE": {
         "type": "apiKey",
         "in": "cookie",
         "name": "extole_token",

@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "description": "Production",
+      "description": "Production - Extole events host",
       "url": "https://events.extole.io"
     }
   ],
@@ -16,7 +16,7 @@
       "post": {
         "operationId": "create_event",
         "summary": "Create New",
-        "description": "Submits a completed transaction from your backend so it can be attributed, counted toward quality, and rewarded.",
+        "description": "Submits a completed transaction from your backend so it can be attributed, counted toward quality, and rewarded. Returns once identity resolution has completed, so it suits low-volume, interactive submission rather than a high-volume transaction feed.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "ACTION"
@@ -37,6 +37,19 @@
                     "format": "email",
                     "description": "Email address of the person the event belongs to."
                   },
+                  "currency": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$",
+                    "description": "ISO 4217 currency code of the transaction value."
+                  },
+                  "cart_value": {
+                    "type": "string",
+                    "description": "Transaction value, as a decimal string in the currency below."
+                  },
+                  "coupon_code": {
+                    "type": "string",
+                    "description": "Coupon redeemed on the transaction, when one was."
+                  },
                   "partner_user_id": {
                     "type": "string",
                     "description": "Your own identifier for the person, when you have one."
@@ -44,19 +57,6 @@
                   "partner_conversion_id": {
                     "type": "string",
                     "description": "Your own order or transaction identifier. Used to de-duplicate repeat submissions."
-                  },
-                  "cart_value": {
-                    "type": "string",
-                    "description": "Transaction value, as a decimal string in the currency below."
-                  },
-                  "currency": {
-                    "type": "string",
-                    "pattern": "^[A-Z]{3}$",
-                    "description": "ISO 4217 currency code of the transaction value."
-                  },
-                  "coupon_code": {
-                    "type": "string",
-                    "description": "Coupon redeemed on the transaction, when one was."
                   }
                 }
               }
@@ -136,16 +136,16 @@
         },
         "servers": [
           {
-            "description": "Production",
+            "description": "Production - Extole events host",
             "url": "https://events.extole.io"
           }
         ],
         "security": [
           {
-            "CLIENT_HEADER": []
+            "HEADER": []
           },
           {
-            "CLIENT_QUERY": []
+            "QUERY_PARAM": []
           }
         ],
         "x-extole-component": "template_transacted_business_event"
@@ -154,18 +154,18 @@
   },
   "components": {
     "securitySchemes": {
-      "CLIENT_HEADER": {
+      "HEADER": {
         "type": "apiKey",
         "in": "header",
         "name": "Authorization",
-        "description": "A client access token, issued to your Extole account and used from your own backend. Not a consumer access token - a consumer token identifies one person and cannot call this operation.",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
         "x-bearer-format": "bearer"
       },
-      "CLIENT_QUERY": {
+      "QUERY_PARAM": {
         "type": "apiKey",
         "in": "query",
         "name": "access_token",
-        "description": "A client access token, issued to your Extole account and used from your own backend. Not a consumer access token - a consumer token identifies one person and cannot call this operation."
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device."
       }
     },
     "schemas": {
