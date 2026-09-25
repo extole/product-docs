@@ -26,7 +26,7 @@ Each tool below shows a different part of that path. Most debugging time is lost
 | Event Streams | **Tech Center** > **Event Streams** | Every event, of every type, with its full payload, from the moment you start streaming | Arrival through evaluation, live |
 | Event Live View | **Tech Center** > **Event Live View**, also under **Support** | Recent events your campaigns acted on, with campaign, quality score, and review status | Evaluation, historical |
 | A person's steps | **Support** > **Person Search** > the person > **Show Steps** | Every step on one person, with campaign, program, container, quality, and journey | Identity through evaluation, for one person |
-| Debugging reports | **Reports**, mostly in the **Debugging** category | Input events and steps across the whole account, over any time range | Arrival, matching, and reporting, in bulk |
+| Debugging reports | **Reports** > **+ New Report**, searched by name | Input events and steps across the whole account, over any time range | Arrival, matching, and reporting, in bulk |
 
 ## Event Streams: Watch Events Arrive
 
@@ -65,12 +65,11 @@ If you can't find the steps you expected, search for the person by every identif
 
 ## Debugging Reports: Check the Whole Feed
 
-Streams and person lookups test one event at a time. To know whether a feed is working across the account — every event, over a day, a week, or a month — run a report under **Reports**. These are the most useful for inbound integrations, and all but **Input Records** sit in the **Debugging** category:
+Streams and person lookups test one event at a time. To know whether a feed is working across the account — every event, over a day, a week, or a month — run a report. These are the most useful for inbound integrations. None of them is on a category tile on the **Reports** page, so open **Reports**, click **+ New Report**, and search for the report by name. A Client Admin can find and run every report in this table:
 
 | Report | Answers |
 | --- | --- |
 | **Input event names with triggered steps** | For each input event name received, how many arrived and which step names they created. A name with a high count and no steps is a feed nothing listens to. |
-| **Input Event Count** | How many input events arrived in a time range, optionally for one event name. |
 | **Input Events By Event Time** | The input events themselves, filterable by event name, person ID, email, partner user ID, program, and container. |
 | **Input Records** | A configurable log of input events for the event names you choose, with the columns you map. Use it to check that each event carried the data your campaign reads. |
 | **Step Events By Event Time** | The steps created in a time range, filterable by step, person, partner event ID, and container. |
@@ -85,7 +84,7 @@ Once the feed is sound, the [Events](/guides/dashboards-and-reporting/report-typ
 
 Work through these in order and stop at the first check that fails. That check names the stage to fix.
 
-1. **Did the event arrive?** Start an Event Stream filtered to the event name, and send a test event. For past traffic, run **Input Event Count** for the name and time range. If nothing arrives, the problem is on the sending side: the tag, SDK, API call, partner configuration, or file never reached Extole, or reached it under a different name.
+1. **Did the event arrive?** Start an Event Stream filtered to the event name, and send a test event. For past traffic, run **Input event names with triggered steps** for the time range and look for the name and its count. If nothing arrives, the problem is on the sending side: the tag, SDK, API call, partner configuration, or file never reached Extole, or reached it under a different name.
 2. **Did it arrive under the name the campaign expects?** Compare the `name` on the input event with the event name on the campaign's trigger. Matching ignores case, but not spelling — `order_complete` does not match `order_completed`. A partner integration has two vocabularies: the partner's own event name belongs on the trigger, and the Extole name (`converted`, `shipped`) belongs on the step. See [Sending Partner Events to Extole](/technical/building-partner-integrations/integration-types/partner-events-to-extole).
 3. **Did it create a step?** Run **Input event names with triggered steps** for the name. Events with no triggered steps mean no live campaign is listening for that name, or the campaign's trigger rules rejected the event.
 4. **Did the step land on the right person?** Open the person's steps. If the step is on an anonymous or unexpected profile, the event didn't carry the identifier the rest of the journey used.
