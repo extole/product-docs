@@ -51,30 +51,61 @@ hand-edit a spec to fix wording.
 
 ## Where a page lives
 
-Choose the tab by **who performs the work**, not by the topic or by whether the title
-starts with "How to". **Guides is the largest tab and the wrong default.**
+The three customer tabs answer three different questions for three different readers.
+One topic may have one page in each, linking to the others. It never has two pages in one
+tab and never the same content copied into two tabs. **Guides is the largest tab and the
+wrong default.**
 
-- **Guides** (`guides/`): a marketer or operator finishes the work in My Extole —
-  campaign setup, creative, audiences, rewards, reporting, QA, strategy.
-- **Technical Docs** (`technical/`): an integration owner diagnoses or implements —
-  site tags, SDKs, APIs, zone requests, targeting parameters, domains, SSL, webhooks,
-  partner integrations, and symptom-to-cause troubleshooting. A page that explains a
-  platform mechanism belongs here even when the symptom showed up on a campaign.
-- **Product Docs** (`product/`): what a capability is — overviews, program types,
-  concepts. Not the My Extole click-path and not the implementation.
-- **News** (`news/`): announcements. Not evergreen pages.
-- **Runbooks** (`runbooks/`): hidden operational checklists for Extole's own review
-  work. Not customer pages.
+- **Product Docs** (`product/`) answers *what is this and why would I want it*, for a
+  reader with no My Extole login: definitions, program types, capabilities, benefits,
+  strategy framing. No numbered steps, no UI labels, no request forms.
+- **Guides** (`guides/`) answers *how do I do it in My Extole*, for a marketer or operator:
+  numbered steps with bold UI labels, every step inside the application.
+- **Technical Docs** (`technical/`) answers *how does it work, and how do I implement or
+  diagnose it outside My Extole*, for an integration owner: site tags, SDKs, APIs, zone
+  requests, targeting parameters, identity resolution, domains, SSL, files, webhooks,
+  partner integrations, and symptom-to-cause troubleshooting.
+- **News** (`news/`): newsletters and release notes. Dated, and linking to the evergreen
+  page; never the only place a feature is documented.
+- **Runbooks** (`runbooks/`): hidden operational checklists for Extole's own review work.
+  Not customer pages.
+- **API Reference** (`api-reference/`): generated from OpenAPI bundles. Its **Getting
+  Started** group is the one hand-authored part, for material that applies to every API
+  (authentication, errors, conventions). A how-to for one feature over REST is a Technical
+  Docs page under Platform Integrations > REST APIs.
 
-If the topic has both a My Extole click-path and a platform mechanism, put the
-mechanism in Technical Docs. A Guides page, if one is needed, is short and links
-to it — do not bury zone selection, journey pinning, targeting hints, certificates,
-or tag behavior under Programs & Campaigns.
+Pick the tab in this order and stop at the first answer. Does the reader perform steps? No
+→ Product Docs. Are all the steps inside My Extole? Yes → Guides. Does any step leave My
+Extole — a tag, a DNS record, a certificate, an SFTP upload, an API call, a partner console?
+→ Technical Docs, even when the symptom showed up on a campaign and a marketer asked. Does
+it explain a platform mechanism in terms the reader acts on — identifiers, ordering,
+parameters, request forms? → Technical Docs.
 
-The live corpus is mixed. Guides still contains a Technical Items group and some
-targeting and webhook pages from the migration. Do not copy those placements for
-new pages. Match neighbouring pages for structure and house style after the tab
-is chosen, not in order to choose it.
+When a topic has both a My Extole click-path and a platform mechanism, the mechanism goes
+in Technical Docs. A Guides page, if one is needed, is short and links to it. Never bury
+zone selection, journey pinning, targeting hints, certificates, or tag behavior under
+Programs & Campaigns.
+
+**An addition to an existing page follows the same test.** Place a new section by what it
+says, not by the page the reader landed on: a mechanism or request form goes on the
+Technical Docs counterpart even when the page in hand is in Guides.
+
+**Do not duplicate across tabs.** Search the corpus for the topic before writing. If another
+tab already covers it, link to it rather than restating it.
+
+The live corpus is mixed. Guides still holds integration pages inherited from the migration
+(Platform Overview > Technical Items, the SFTP and event-upload pages, Targeting,
+Dashboards and Reporting > Integrating Reports, Notifications & Troubleshooting), Technical
+Docs holds My Extole click-paths under Operational Tasks > Program Testing, and A/B testing,
+ADA compliance, the glossary, and single sign-on each appear in more than one tab. Do not
+add to any of those placements. Match neighbouring pages for structure and house style
+after the tab is chosen, never in order to choose it.
+
+**File path, navigation, and URL are one thing.** A page lives at
+`<tab dir>/<group slug>/<subgroup slug>/<page>.mdx`, with `&` written as `and`, and its
+path without `.mdx` is listed under the same groups in `docs.json`. Renaming a navigation
+group changes every URL in it, so it comes with the directory move and a redirect per
+published page, or does not happen.
 
 ## Brand voice
 
@@ -186,6 +217,13 @@ because a similar title is already there.
 Pages are **MDX**, which is JSX-strict. A bare `<`, an unclosed tag, or a stray `{` fails
 the whole site build, not just that page. Keep every component tag balanced.
 
+**Escape every dollar amount as `\$`.** Mintlify reads a pair of `$` in one block — a
+paragraph, a list item, a table cell — as inline LaTeX and renders everything between them
+as an italic formula: `from $50 to $100` published as "from 50to100", with both dollar signs
+eaten. `validate` passes, because the page is still valid MDX — only the rendered page shows
+it. One amount on its own is safe today and stops being safe the moment somebody adds a
+second, so escape them all.
+
 ## Terminology
 
 Use the **Preferred** term. Never introduce a term from the **Avoid** column. Apply swaps
@@ -202,6 +240,8 @@ code sample.
 | **conversion / converted** | — | A friend completing the program's goal action. |
 | **program** | campaign *(when you mean the use case)* | The overall referral use case: audience plus outcome (Refer A Friend, Welcome Offer, Ambassador). |
 | **campaign** | program *(when you mean an implementation)* | A specific implementation within a program: creative, behavior, and rules. |
+| **Flow Builder campaign** | v10, V10, "v10 campaign", "v10 microsite", and any other version number for a current campaign | A campaign built in Flow Builder. Say this instead of a version. |
+| **legacy campaign** | v8, V8, v9, V9, and any version below v10 | A campaign from before Flow Builder. Say "legacy" instead of the version. |
 | **journey** | funnel *(loosely)* | The end-to-end path a participant takes through a program. |
 | **participant journey** | — | A journey with one person and no referrer/referred relationship (welcome offer, loyalty). |
 | **referral journey** | — | A journey with two people: an advocate and a friend. |
@@ -226,6 +266,8 @@ code sample.
 | **My Extole** | MyExtole, my.extole *(as the product name)* | The client-facing application. `my.extole.com` is fine as a URL. |
 
 Prefer **distinct** over **different** when separating two concepts.
+
+**Never write a campaign version in prose.** `v8`, `v9`, `v10`, and the same labels in any casing are internal. Call a v10 campaign a **Flow Builder campaign**. Call any earlier campaign a **legacy campaign**. Do not name the version, including in phrases like "v10 microsite" or "older than v10". Leave a version string that is part of a code sample, a component type name, or an API identifier exactly as written.
 
 ## Literals — never rewrite these
 
@@ -259,6 +301,20 @@ responses, metric names.
 **Never invent event names, product behavior, metrics, or numbers to make prose flow.** If
 you are unsure, verify it or mark it as needing confirmation. Say you are unsure rather
 than writing something plausible.
+
+**For an extension setting, the label is in `extole/creative`, not in a screenshot here.**
+Each setting declares a `display_name` and a `description` in the extension's
+`component.json`, and that is what My Extole renders. A capture in `images/` is a snapshot
+of whatever the UI said the day it was taken — several are v8-era and now name fields the
+product renamed. Read the component, and prefer the newest capture when two disagree.
+
+The Reward Bank field is one worked example. Its `display_name` is **Redemption Ratio**,
+its two neighbours are **Redemption Minimum Value** and **Redemption Maximum Value**, and
+the loyalty pages had shipped "Redemption Rate" and "Value Limits" — none of which a reader
+can find in the extension. Worse, **Redemption Rate** is a real Extole name already:
+*Advocate Reward Redemption Rate* is a referral metric, redeemed over issued as a
+percentage. Before coining a name for something, `git grep` it across the corpus and search
+the platform for it; a term that already means something else costs more than a clumsy one.
 
 ## Open decisions — do not pick a side
 
