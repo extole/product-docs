@@ -53,7 +53,7 @@ Deliver files over [Extole SFTP](/technical/platform-integrations/files/extoles-
    - **On Mismatch**: **FAIL** stops the run; **WARN** records a warning and continues. The default is **FAIL**. Headers must match as the same set in any order.
 2. **Create Events**: one event per row of the validated file.
    - **Event Name**: the event that fires for every row. Leave it empty to take the event name from the file itself (the `event_name` column on [File-based Events](/technical/platform-integrations/files/file-based-events)).
-   - **Trigger Events**: named events this job produces. A campaign business event, reward, or creative listens by selecting one. **Delayed Event** is installed here by default. See [Delay a File Event](#delay-a-file-event).
+   - **Trigger Events**: named events this job produces. A campaign business event, reward, or creative listens by selecting one. Add **Event** to send it when the file is processed, or **Delayed Event** to send it when the row's date arrives. **Delayed Event** is installed by default. See [Delay a File Event](#delay-a-file-event).
 
 A sample header row is the contract for **Expected File Headers**. Do not invent columns the file does not contain.
 
@@ -61,11 +61,13 @@ A sample header row is the contract for **Expected File Headers**. Do not invent
 
 ## Delay a File Event
 
-**Delayed Event** holds a matching row and sends its event when that row's date arrives. Use it when the campaign should react on the row's date, not at the moment the file is processed.
+On **Create Events**, under **Trigger Events**, add either **Event** or **Delayed Event**. Both name an event the file rows produce, so a campaign can select it. They differ in when that event is sent.
 
-A shipment date, an account-open date, or any other future date in the file is the usual case. Rows with no date, or a date that has already passed, can wait for a delay you set before the campaign sees them. Leave it unset when every row should fire as soon as the file is processed.
+**Event** sends the event when the file is processed. Its only setting is **Event Name**, the name of the event the rows produce. Use it when the campaign should react as soon as the file lands.
 
-The add-on is installed on **Create Events**, under **Trigger Events**. **Enabled** is on, and **Event to Delay** is blank, so nothing is held until you set a name.
+**Delayed Event** holds each matching row and sends the event when that row's date arrives. Use it when the campaign should react on the row's date, not at the moment the file is processed. A shipment date, an account-open date, or any other future date in the file is the usual case. Rows with no date, or a date that has already passed, can wait for a delay you set before the campaign sees them.
+
+**Delayed Event** is installed by default. **Enabled** is on, and **Event to Delay** is blank, so nothing is held until you set a name.
 
 ### How a Row Is Sent
 
