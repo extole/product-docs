@@ -171,6 +171,51 @@ Once the qualification event is received and validated within the time window, t
 
 * * *
 
+# **Scenario 4: Rewards Sent When a Total Amount Is Reached Within a Time Limit**
+
+## **Overview**
+
+Extole evaluates the qualification. The bank or CU sends one event per transaction, such as each direct deposit, with the amount in the event data. The reward issues when the amounts add up to a threshold within a time window. For example, the member earns a reward once direct deposits total $3,000 within 90 days of opening a checking account.
+
+## **Flow Builder Configuration**
+
+  1. **[Add a new business event](https://docs.extole.com/docs/how-to-add-a-new-business-event)** for the transaction, such as **Direct Deposit Posted**, and **[add a reward](https://docs.extole.com/docs/how-to-add-a-new-reward)** on it.
+
+  2. On that business event, under the **Data** section, click **+ New Data** and choose **Business Event Data**.
+
+     1. Rename the data to match the parameter that carries the amount (ex. value).
+
+     2. Set its **Key Type** to **VALUE**. This makes the amount the step's value, which is what the reward rules add up.
+
+  3. Click into the reward and click **+ New Reward Rule**. Choose **Has Taken Action**.
+
+     1. Update the name and description to describe the rule (ex. Direct Deposits Total $3,000 Within 90 Days).
+
+     2. Choose the transaction business event, set **Total value is greater than** to the threshold (ex. 3000), and set the **Recent Activity Window** (ex. 90 days).
+
+  4. To require the account opening in the same window, add a second **Has Taken Action** rule on the account opening business event with the same **Recent Activity Window**.
+
+  5. Adjust any other **[reward rules](https://docs.extole.com/docs/how-to-set-up-reward-rules)** (Annual Reward Value Limit, etc).
+
+<Warning>
+  If the amount data does not have **Key Type** set to **VALUE**, the total is always 0 and every member fails the rule. The rule's result reads "The person has not performed the business event … within the specified time period" even when the events are there.
+</Warning>
+
+<Note>
+  **Total value is greater than** passes when the total is equal to or greater than the number you enter, so 3000 means $3,000 or more.
+</Note>
+
+## **When to Use This Setup**
+
+  * The bank or CU sends individual transactions rather than a qualification event.
+
+  * Qualification depends on a total amount, not on a single event.
+
+
+
+
+* * *
+
 # **Sending Different Rewards Based on Account Type**
 
 In some programs, the reward varies based on account type, such as checking versus mortgage. The preferred method is to create multiple business events each with their own associated reward. 
@@ -220,4 +265,5 @@ The three primary configurations needed are creating events for each product typ
 ---|---|---|---  
 Qualify immediately on Account Qualified| Account Qualified| None| Immediate  
 Pending period qualification| Account Opening only (+ optional Account Closed)| Pending Period (+ optional Has Not Taken Action)| After waiting period (if no closure happened)  
-Time-bound qualification| Account Opening + Account Qualified| Has Taken Action with Recent Activity Window| Immediate after validation as long as within activity window
+Time-bound qualification| Account Opening + Account Qualified| Has Taken Action with Recent Activity Window| Immediate after validation as long as within activity window  
+Total amount within a time limit| Account Opening + one event per transaction, with the amount| Has Taken Action with Total value is greater than and Recent Activity Window| Immediate once the total is reached within the window
