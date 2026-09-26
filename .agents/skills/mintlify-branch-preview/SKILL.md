@@ -29,6 +29,8 @@ error Build validation failed with 1 warning(s).
 
 **And a page can pass `validate`, render in `mint dev`, and still 404 on the hosted preview.** The hosted build is stricter than both local tools, and it fails one page rather than the run — so `validate` is green, **Mintlify Deployment** is green, and the page you edited is the only one missing. Measured 2026-09-21: adding a `<Warning>` containing an indented markdown bullet list and a `×` (U+00D7) to `creative-image-asset-guide.mdx` left that one path 404 on `https://extole-<branch>.mintlify.site` while every unedited sibling in the same group answered 200; `npx mint@latest validate` reported `success build validation passed` and `npx mint@latest dev` served the page with the callout rendered. Rewriting the callout as plain paragraphs with ASCII `x` fixed it on the next push. So **curl the preview path of every page you touched** — a green deployment check is not the same claim, and the failure signature is indistinguishable from a page you forgot to add to `docs.json`.
 
+**An angle-bracket placeholder can drop the page from the deployed build.** A page carrying `` `<reward name>_reward_earned` `` — a placeholder inside an inline code span — passed `validate` with 0/0 and rendered at 200 under `mint dev`, and the deployed preview served 404 for that one page while every sibling in the group served 200. Replacing the placeholder with a concrete example was the only change; the preview returned 200 about a minute later, after the 404 had held for ten (measured 2026-09-16 on `reward-name-vs-label`). Write the example value rather than a `<placeholder>`, and open the preview on the page you edited — a green `validate` and a local render both miss this.
+
 ## Local preview
 
 ```bash
