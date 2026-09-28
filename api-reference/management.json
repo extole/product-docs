@@ -2011,6 +2011,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "component_operation_parameter_invalid" : {
+        "summary" : "component_operation_parameter_invalid",
+        "value" : {
+          "code" : "component_operation_parameter_invalid",
+          "http_status_code" : 400,
+          "message" : "Component operation parameter is invalid",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "component_operation_path_malformed" : {
         "summary" : "component_operation_path_malformed",
         "value" : {
@@ -3031,6 +3041,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "file_name_matches_directory_path_invalid" : {
+        "summary" : "file_name_matches_directory_path_invalid",
+        "value" : {
+          "code" : "file_name_matches_directory_path_invalid",
+          "http_status_code" : 400,
+          "message" : "File name matches trigger directory path is not a valid sftp directory",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "file_name_matches_match_type_required" : {
         "summary" : "file_name_matches_match_type_required",
         "value" : {
@@ -3057,6 +3077,16 @@
           "code" : "file_name_matches_pattern_required",
           "http_status_code" : 400,
           "message" : "File name matches trigger requires a pattern",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "file_name_matches_sftp_destination_invalid" : {
+        "summary" : "file_name_matches_sftp_destination_invalid",
+        "value" : {
+          "code" : "file_name_matches_sftp_destination_invalid",
+          "http_status_code" : 400,
+          "message" : "File name matches trigger sftp destination is not a LOCAL sftp destination of the client",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -8950,6 +8980,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11347,6 +11378,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11379,6 +11411,7 @@
               "$ref" : "#/components/schemas/ComponentIdFilterResponse"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11425,6 +11458,7 @@
               "type" : "array"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11479,6 +11513,7 @@
               "type" : "array"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11514,6 +11549,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11549,6 +11585,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11591,6 +11628,13 @@
           "openapi_spec" : {
             "$ref" : "#/components/schemas/JsonNode"
           },
+          "parameters" : {
+            "description" : "The path, query, header and cookie parameters the operation accepts, each with the values it accepts.",
+            "items" : {
+              "$ref" : "#/components/schemas/ComponentOperationParameter"
+            },
+            "type" : "array"
+          },
           "path" : {
             "description" : "Path of the operation, for example `/v5/persons/{person_id}`. The host is derived from the operation type: `api.extole.io` for SERVER_TO_EXTOLE, or the default program domain of the client for CONSUMER_TO_EXTOLE.",
             "type" : "string"
@@ -11619,7 +11663,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "display_name", "method", "name", "openapi_spec", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
+        "required" : [ "description", "display_name", "method", "name", "openapi_spec", "parameters", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
         "type" : "object"
       },
       "BuiltComponentPartnerEnumListVariableResponse" : {
@@ -11631,6 +11675,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11669,6 +11714,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11841,6 +11887,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11883,6 +11930,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11948,6 +11996,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -11984,6 +12033,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -12123,7 +12173,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "expected_headers", "id", "job_id", "match_mode", "on_mismatch", "order", "task_type" ],
+        "required" : [ "component_ids", "enabled", "expected_headers", "id", "job_id", "match_mode", "on_mismatch", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltFileNameMatchesTriggerResponse" : {
@@ -12131,6 +12181,10 @@
           "$ref" : "#/components/schemas/BuiltTriggerResponseBase"
         }, {
           "properties" : {
+            "directory_path" : {
+              "description" : "Optional directory path prefix to match, resolved when the campaign was published.",
+              "type" : "string"
+            },
             "match_type" : {
               "description" : "How the pattern is matched against filenames, resolved when the campaign was published.",
               "enum" : [ "EXACT", "REGEX" ],
@@ -12140,6 +12194,10 @@
               "description" : "Filename pattern to match, resolved when the campaign was published.",
               "type" : "string"
             },
+            "sftp_destination_id" : {
+              "description" : "Optional SFTP destination id to match, resolved when the campaign was published.",
+              "type" : "string"
+            },
             "trigger_type" : {
               "enum" : [ "FILE_NAME_MATCHES" ],
               "type" : "string"
@@ -12147,7 +12205,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "id", "job_id", "match_type", "pattern", "trigger_type" ],
+        "required" : [ "component_ids", "directory_path", "enabled", "id", "job_id", "match_type", "pattern", "sftp_destination_id", "trigger_type" ],
         "type" : "object"
       },
       "BuiltGenericClientKeyResponse" : {
@@ -12276,7 +12334,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "directory_path", "id", "job_id", "trigger_type" ],
+        "required" : [ "component_ids", "directory_path", "enabled", "id", "job_id", "trigger_type" ],
         "type" : "object"
       },
       "BuiltManualCouponRewardSupplierResponse" : {
@@ -12831,7 +12889,7 @@
             }
           }
         } ],
-        "required" : [ "component_ids", "id", "job_id", "order", "task_type" ],
+        "required" : [ "component_ids", "enabled", "id", "job_id", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltStartBatchJobTaskResponse" : {
@@ -12855,7 +12913,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "data_source_type", "event_name", "id", "job_id", "order", "task_type" ],
+        "required" : [ "component_ids", "data_source_type", "enabled", "event_name", "id", "job_id", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltStepDataResponse" : {
@@ -12979,6 +13037,11 @@
             "readOnly" : true,
             "type" : "array"
           },
+          "enabled" : {
+            "description" : "Resolved enabled state of the task, computed at build time. A disabled task is skipped when the job runs.",
+            "readOnly" : true,
+            "type" : "boolean"
+          },
           "id" : {
             "description" : "Unique id of the task.",
             "readOnly" : true,
@@ -13031,6 +13094,11 @@
             },
             "readOnly" : true,
             "type" : "array"
+          },
+          "enabled" : {
+            "description" : "Resolved enabled state of the trigger, computed at build time. A disabled trigger is ignored when a file arrives.",
+            "readOnly" : true,
+            "type" : "boolean"
           },
           "id" : {
             "description" : "Unique id of the trigger.",
@@ -13190,6 +13258,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13239,6 +13308,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13292,6 +13362,7 @@
               "$ref" : "#/components/schemas/ComponentIdFilterResponse"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13335,6 +13406,7 @@
               "$ref" : "#/components/schemas/ComponentIdFilterUpdateRequest"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13419,6 +13491,7 @@
               "type" : "array"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13479,6 +13552,7 @@
               "type" : "array"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13571,6 +13645,7 @@
               "type" : "array"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13632,6 +13707,7 @@
               "type" : "array"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13691,6 +13767,7 @@
               "type" : "array"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13737,6 +13814,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13796,6 +13874,7 @@
               "type" : "array"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13842,6 +13921,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13920,6 +14000,7 @@
         }, {
           "properties" : {
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -13969,6 +14050,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -14034,6 +14116,7 @@
         }, {
           "properties" : {
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -14083,6 +14166,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -14233,6 +14317,7 @@
               "$ref" : "#/components/schemas/AllowedRewardSupplierIdsInCampaignComponentRewardSupplierIdListVariableResponse"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -14276,6 +14361,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -14637,6 +14723,7 @@
         }, {
           "properties" : {
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -14667,6 +14754,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -14856,6 +14944,7 @@
               "type" : "array"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -14902,6 +14991,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -14963,6 +15053,7 @@
               "type" : "array"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -15010,6 +15101,7 @@
               "type" : "string"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -15056,6 +15148,7 @@
         }, {
           "properties" : {
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. For an INHERITED setting, `values` shows what is stored on this component, not the value in effect; the built setting reports that.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -15080,6 +15173,7 @@
               "$ref" : "#/components/schemas/DescriptionInCampaignComponentVariableUpdateRequest"
             },
             "source" : {
+              "description" : "Where this setting takes its value from. LOCAL uses the `values` stored on this component. INHERITED uses the same-named setting of the nearest ancestor component that is not itself INHERITED. PARAMETER uses the same-named parameter of the socket this component is installed into. Omit to leave it unchanged; it is applied independently of `values`. To reconnect a setting to its ancestor, send INHERITED without `values`: the values stored on this component are kept but no longer used. Changing an INHERITED setting to LOCAL without `values` copies the inherited value onto this component.",
               "enum" : [ "INHERITED", "LOCAL", "PARAMETER" ],
               "type" : "string"
             },
@@ -19107,6 +19201,9 @@
             "description" : "Unique name of the operation within its component. Lowercase letters, digits, underscores and dashes only.",
             "type" : "string"
           },
+          "parameters" : {
+            "$ref" : "#/components/schemas/ParametersInComponentOperationCreateRequest"
+          },
           "path" : {
             "$ref" : "#/components/schemas/PathInComponentOperationCreateRequest"
           },
@@ -19137,8 +19234,66 @@
         "required" : [ "method", "name", "path", "type" ],
         "type" : "object"
       },
+      "ComponentOperationParameter" : {
+        "description" : "A parameter a component operation's path carries, and the values it accepts.",
+        "properties" : {
+          "description" : {
+            "description" : "What the parameter means to the caller.",
+            "nullable" : true,
+            "type" : "string"
+          },
+          "name" : {
+            "description" : "The placeholder or query key the operation's path carries.",
+            "type" : "string"
+          },
+          "required" : {
+            "description" : "Whether the caller must send the parameter. A `PATH` parameter is always required.",
+            "type" : "boolean"
+          },
+          "type" : {
+            "description" : "Where in the path the caller puts the parameter.",
+            "enum" : [ "PATH", "QUERY" ],
+            "type" : "string"
+          },
+          "value_schema" : {
+            "$ref" : "#/components/schemas/ComponentOperationParameterSchema"
+          }
+        },
+        "type" : "object"
+      },
+      "ComponentOperationParameterSchema" : {
+        "description" : "The values a component operation parameter accepts.",
+        "properties" : {
+          "default_value" : {
+            "description" : "The value Extole uses when the caller sends none.",
+            "nullable" : true,
+            "type" : "string"
+          },
+          "format" : {
+            "description" : "A format refining the type, such as `date-time` or `uuid`.",
+            "nullable" : true,
+            "type" : "string"
+          },
+          "items" : {
+            "$ref" : "#/components/schemas/ComponentOperationParameterSchema"
+          },
+          "type" : {
+            "description" : "The JSON type the parameter carries. Defaults to STRING.",
+            "enum" : [ "ARRAY", "BOOLEAN", "INTEGER", "NUMBER", "OBJECT", "STRING" ],
+            "type" : "string"
+          },
+          "values" : {
+            "description" : "The only values the parameter accepts. An empty list leaves the parameter free text.",
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
       "ComponentOperationResponse" : {
-        "description" : "Stored component operation definition. Fields `display_name`, `description`, `request_schema`, `response_schema`, `path`, and `method` are unevaluated and appear in buildtime-evaluatable form.",
+        "description" : "Stored component operation definition. Fields `display_name`, `description`, `request_schema`, `response_schema`, `parameters`, `path`, and `method` are unevaluated and appear in buildtime-evaluatable form.",
         "properties" : {
           "description" : {
             "$ref" : "#/components/schemas/DescriptionInComponentOperationResponse"
@@ -19152,6 +19307,9 @@
           "name" : {
             "description" : "Unique name of the operation within its component. Lowercase letters, digits, underscores and dashes only.",
             "type" : "string"
+          },
+          "parameters" : {
+            "$ref" : "#/components/schemas/ParametersInComponentOperationResponse"
           },
           "path" : {
             "$ref" : "#/components/schemas/PathInComponentOperationResponse"
@@ -19180,7 +19338,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "display_name", "method", "name", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
+        "required" : [ "description", "display_name", "method", "name", "parameters", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
         "type" : "object"
       },
       "ComponentOperationUpdateRequest" : {
@@ -19194,6 +19352,9 @@
           },
           "method" : {
             "$ref" : "#/components/schemas/MethodInComponentOperationUpdateRequest"
+          },
+          "parameters" : {
+            "$ref" : "#/components/schemas/ParametersInComponentOperationUpdateRequest"
           },
           "path" : {
             "$ref" : "#/components/schemas/PathInComponentOperationUpdateRequest"
@@ -22918,6 +23079,96 @@
           "type" : "string"
         } ]
       },
+      "DirectoryPathInFileNameMatchesTriggerRequest" : {
+        "description" : "Optional directory path prefix to match. A literal value or a buildtime expression resolved from component references when the trigger is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Static directory path",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{directoryPath}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('directoryPath');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "DirectoryPathInFileNameMatchesTriggerResponse" : {
+        "description" : "Optional directory path prefix to match. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Literal directory path",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{directoryPath}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('directoryPath');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "DirectoryPathInLandsInDirectoryTriggerRequest" : {
         "description" : "Directory path prefix to match. A literal value or a buildtime expression resolved from component references when the trigger is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -24305,6 +24556,134 @@
           "externalDocs" : {
             "description" : "CampaignBuildtimeContext",
             "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTaskRequest" : {
+        "description" : "Whether this task runs as part of the job. A disabled task is skipped and the run continues with the next enabled task. A literal value or a buildtime expression resolved from component references when the task is saved; defaults to true when omitted on create. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTaskResponse" : {
+        "description" : "Whether this task runs as part of the job, as the buildtime expression or literal that was saved. A disabled task is skipped and the run continues with the next enabled task. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTriggerRequest" : {
+        "description" : "Whether this trigger takes part in deciding when the job runs. A disabled trigger is ignored when a file arrives. A literal value or a buildtime expression resolved from component references when the trigger is saved; defaults to true when omitted on create. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTriggerResponse" : {
+        "description" : "Whether this trigger takes part in deciding when the job runs, as the buildtime expression or literal that was saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
           },
           "pattern" : "^javascript@buildtime:.*",
           "title" : "Buildtime - Javascript",
@@ -27223,8 +27602,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored file header validator task definition. Fields `order`, `expected_headers`, and `on_mismatch` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "expected_headers", "id", "match_mode", "on_mismatch", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored file header validator task definition. Fields `order`, `expected_headers`, `on_mismatch`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "expected_headers", "id", "match_mode", "on_mismatch", "order", "parent_job_id", "task_type" ],
         "type" : "object"
       },
       "FileInputStreamRequest" : {
@@ -27244,11 +27623,17 @@
           "$ref" : "#/components/schemas/TriggerRequestBase"
         }, {
           "properties" : {
+            "directory_path" : {
+              "$ref" : "#/components/schemas/DirectoryPathInFileNameMatchesTriggerRequest"
+            },
             "match_type" : {
               "$ref" : "#/components/schemas/MatchTypeInFileNameMatchesTriggerRequest"
             },
             "pattern" : {
               "$ref" : "#/components/schemas/PatternInFileNameMatchesTriggerRequest"
+            },
+            "sftp_destination_id" : {
+              "$ref" : "#/components/schemas/SftpDestinationIdInFileNameMatchesTriggerRequest"
             },
             "trigger_type" : {
               "enum" : [ "FILE_NAME_MATCHES" ],
@@ -27265,11 +27650,17 @@
           "$ref" : "#/components/schemas/TriggerResponseBase"
         }, {
           "properties" : {
+            "directory_path" : {
+              "$ref" : "#/components/schemas/DirectoryPathInFileNameMatchesTriggerResponse"
+            },
             "match_type" : {
               "$ref" : "#/components/schemas/MatchTypeInFileNameMatchesTriggerResponse"
             },
             "pattern" : {
               "$ref" : "#/components/schemas/PatternInFileNameMatchesTriggerResponse"
+            },
+            "sftp_destination_id" : {
+              "$ref" : "#/components/schemas/SftpDestinationIdInFileNameMatchesTriggerResponse"
             },
             "trigger_type" : {
               "enum" : [ "FILE_NAME_MATCHES" ],
@@ -27278,8 +27669,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored file name matches trigger definition. Fields `match_type` and `pattern` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "id", "match_type", "parent_job_id", "pattern", "trigger_type" ],
+        "description" : "Stored file name matches trigger definition. Fields `match_type`, `pattern`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "directory_path", "enabled", "id", "match_type", "parent_job_id", "pattern", "sftp_destination_id", "trigger_type" ],
         "type" : "object"
       },
       "FilterCampaignIdsInBuiltCampaignControllerTriggerHasPriorStepResponse" : {
@@ -29843,8 +30234,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored lands in directory trigger definition. Field `directory_path` is unevaluated and appears in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "directory_path", "id", "parent_job_id", "trigger_type" ],
+        "description" : "Stored lands in directory trigger definition. Fields `directory_path` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "directory_path", "enabled", "id", "parent_job_id", "trigger_type" ],
         "type" : "object"
       },
       "LegacyActionIdInBuiltCampaignControllerActionIncentivizeStatusUpdateResponse" : {
@@ -33231,6 +33622,111 @@
         },
         "required" : [ "groups", "parameter_name", "parameter_type_name" ],
         "type" : "object"
+      },
+      "ParametersInComponentOperationCreateRequest" : {
+        "description" : "The path, query, header and cookie parameters the operation accepts, each with the values it accepts. A `PATH` or `QUERY` parameter names a placeholder or query key the path carries, and a `PATH` parameter is always required. Defaults to `[]`, which documents every parameter the path carries as free text. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static parameters",
+          "items" : {
+            "$ref" : "#/components/schemas/ComponentOperationParameter"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{parameters}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('parameters');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ParametersInComponentOperationResponse" : {
+        "description" : "The path, query, header and cookie parameters the operation accepts, each with the values it accepts. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal parameters",
+          "items" : {
+            "$ref" : "#/components/schemas/ComponentOperationParameter"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{parameters}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('parameters');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ParametersInComponentOperationUpdateRequest" : {
+        "description" : "The path, query, header and cookie parameters the operation accepts, each with the values it accepts. A `PATH` or `QUERY` parameter names a placeholder or query key the path carries, and a `PATH` parameter is always required. Omit it to keep the operation's current parameters, or send `[]` to document every parameter the path carries as free text. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static parameters",
+          "items" : {
+            "$ref" : "#/components/schemas/ComponentOperationParameter"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{parameters}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('parameters');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
       },
       "ParentJobIdInTaskRequest" : {
         "description" : "Id of the job this task belongs to. A literal job id or a buildtime expression resolved from component references when the task is saved; when omitted the task belongs to the job in the request path. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
@@ -39783,6 +40279,70 @@
         },
         "type" : "object"
       },
+      "SftpDestinationIdInFileNameMatchesTriggerRequest" : {
+        "description" : "Optional SFTP destination id to match. A literal value or a buildtime expression resolved from component references when the trigger is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static sftp destination id",
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{sftpDestinationId}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('sftpDestinationId');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "SftpDestinationIdInFileNameMatchesTriggerResponse" : {
+        "description" : "Optional SFTP destination id to match. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal sftp destination id",
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{sftpDestinationId}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('sftpDestinationId');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "SftpReportNamePatternInReportRunnerCreateRequest" : {
         "description" : "Choose between static or dynamic sftp report name pattern. Runtime expressions use [ReportRunnerExecutionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/report_runner/ReportRunnerExecutionContext.d.ts).",
         "externalDocs" : {
@@ -40470,8 +41030,8 @@
             }
           }
         } ],
-        "description" : "Stored start audience operation task definition. Field `order` is unevaluated and appears in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "id", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored start audience operation task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ],
         "type" : "object"
       },
       "StartBatchJobTaskRequest" : {
@@ -40515,8 +41075,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored start batch job task definition. Fields `order` and `event_name` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "data_source_type", "event_name", "id", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored start batch job task definition. Fields `order`, `event_name`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "data_source_type", "enabled", "event_name", "id", "order", "parent_job_id", "task_type" ],
         "type" : "object"
       },
       "StaticReportTypeParameterDetailsRequest" : {
@@ -41736,6 +42296,9 @@
             },
             "type" : "array"
           },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTaskRequest"
+          },
           "order" : {
             "$ref" : "#/components/schemas/OrderInTaskRequest"
           },
@@ -41750,7 +42313,7 @@
         "type" : "object"
       },
       "TaskResponse" : {
-        "description" : "Stored task definition. Field `order` is unevaluated and appears in buildtime-evaluatable form.",
+        "description" : "Stored task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
         "discriminator" : {
           "mapping" : {
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/FileHeaderValidatorTaskResponse",
@@ -41766,7 +42329,7 @@
         }, {
           "$ref" : "#/components/schemas/StartBatchJobTaskResponse"
         } ],
-        "required" : [ "component_ids", "component_references", "id", "order", "parent_job_id", "task_type" ]
+        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ]
       },
       "TaskResponseBase" : {
         "properties" : {
@@ -41781,6 +42344,9 @@
               "$ref" : "#/components/schemas/ComponentReferenceResponse"
             },
             "type" : "array"
+          },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTaskResponse"
           },
           "id" : {
             "description" : "Unique id of the task.",
@@ -42148,6 +42714,9 @@
             },
             "type" : "array"
           },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTriggerRequest"
+          },
           "parent_job_id" : {
             "$ref" : "#/components/schemas/ParentJobIdInTriggerRequest"
           },
@@ -42159,6 +42728,7 @@
         "type" : "object"
       },
       "TriggerResponse" : {
+        "description" : "Stored trigger definition. Field `enabled` is unevaluated and appears in buildtime-evaluatable form.",
         "discriminator" : {
           "mapping" : {
             "FILE_NAME_MATCHES" : "#/components/schemas/FileNameMatchesTriggerResponse",
@@ -42171,7 +42741,7 @@
         }, {
           "$ref" : "#/components/schemas/LandsInDirectoryTriggerResponse"
         } ],
-        "required" : [ "component_ids", "component_references", "id", "parent_job_id", "trigger_type" ]
+        "required" : [ "component_ids", "component_references", "enabled", "id", "parent_job_id", "trigger_type" ]
       },
       "TriggerResponseBase" : {
         "properties" : {
@@ -42186,6 +42756,9 @@
               "$ref" : "#/components/schemas/ComponentReferenceResponse"
             },
             "type" : "array"
+          },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTriggerResponse"
           },
           "id" : {
             "description" : "Unique id of the trigger.",
@@ -43001,7 +43574,7 @@
         } ]
       },
       "ValuesInCampaignComponentVariableUpdateRequest" : {
-        "description" : "Choose between static or dynamic values. Buildtime expressions use [VariableBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableBuildtimeContext.d.ts). Runtime expressions use one of the contexts: [ApproveActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/approve/ApproveActionContext.d.ts), [AudienceMembershipTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/audience/membership/AudienceMembershipTriggerContext.d.ts), [ClientWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/ClientWebhookRuntimeContext.d.ts), [ConsumerWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/ConsumerWebhookRuntimeContext.d.ts), [CreativeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/creative/CreativeActionContext.d.ts), [DisplayActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/display/DisplayActionContext.d.ts), [DisplayActionResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/display/DisplayActionResponseContext.d.ts), [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts), [EmailActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/EmailActionContext.d.ts), [EmailV2ActionContentContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionContentContext.d.ts), [EmailV2ActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionContext.d.ts), [EmailV2ActionResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionResponseContext.d.ts), [ExpireRewardActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expire/reward/ExpireRewardActionContext.d.ts), [ExpressionActionCommandContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expression/ExpressionActionCommandContext.d.ts), [ExpressionActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expression/ExpressionActionContext.d.ts), [ExpressionTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/expression/ExpressionTriggerContext.d.ts), [FireAsPersonActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/fire/as/person/FireAsPersonActionContext.d.ts), [HasPriorRewardTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/reward/HasPriorRewardTriggerContext.d.ts), [HasPriorStepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/step/HasPriorStepTriggerContext.d.ts), [IncentivizeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/incentivize/IncentivizeActionContext.d.ts), [IncentivizeStatusUpdateActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/incentivize/status/update/IncentivizeStatusUpdateActionContext.d.ts), [JourneyKeyContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/journey/JourneyKeyContext.d.ts), [LegacyQualityRuleTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/legacy/quality/LegacyQualityRuleTriggerContext.d.ts), [PartnerWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/PartnerWebhookRuntimeContext.d.ts), [PrehandlerActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerActionContext.d.ts), [PrehandlerConditionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerConditionContext.d.ts), [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts), [RewardActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/reward/RewardActionContext.d.ts), [RewardHasPriorRewardTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/reward/RewardHasPriorRewardTriggerContext.d.ts), [RewardWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/reward/RewardWebhookRuntimeContext.d.ts), [ScheduleActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/schedule/ScheduleActionContext.d.ts), [SignalActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/signal/SignalActionContext.d.ts), [StepActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/StepActionContext.d.ts), [StepBuilderContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/builder/StepBuilderContext.d.ts), [StepContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/StepContext.d.ts), [StepDataContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/data/StepDataContext.d.ts), [StepHasPriorStepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/step/StepHasPriorStepTriggerContext.d.ts), [StepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/StepTriggerContext.d.ts), [VariableRuntimeCreativeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/runtime/VariableRuntimeCreativeActionContext.d.ts), [WebhookActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/webhook/WebhookActionContext.d.ts), [WebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/WebhookRuntimeContext.d.ts).",
+        "description" : "Values to store on this component, keyed by locale or `default`. Omit to leave them unchanged. Sending `values` does not change `source`: an INHERITED setting keeps using its ancestor's value until `source` is set to LOCAL. Buildtime expressions use [VariableBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/VariableBuildtimeContext.d.ts). Runtime expressions use one of the contexts: [ApproveActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/approve/ApproveActionContext.d.ts), [AudienceMembershipTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/audience/membership/AudienceMembershipTriggerContext.d.ts), [ClientWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/ClientWebhookRuntimeContext.d.ts), [ConsumerWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/ConsumerWebhookRuntimeContext.d.ts), [CreativeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/creative/CreativeActionContext.d.ts), [DisplayActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/display/DisplayActionContext.d.ts), [DisplayActionResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/display/DisplayActionResponseContext.d.ts), [EarnedRewardEvaluationContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/reward/EarnedRewardEvaluationContext.d.ts), [EmailActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/EmailActionContext.d.ts), [EmailV2ActionContentContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionContentContext.d.ts), [EmailV2ActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionContext.d.ts), [EmailV2ActionResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/email/v2/EmailV2ActionResponseContext.d.ts), [ExpireRewardActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expire/reward/ExpireRewardActionContext.d.ts), [ExpressionActionCommandContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expression/ExpressionActionCommandContext.d.ts), [ExpressionActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/expression/ExpressionActionContext.d.ts), [ExpressionTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/expression/ExpressionTriggerContext.d.ts), [FireAsPersonActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/fire/as/person/FireAsPersonActionContext.d.ts), [HasPriorRewardTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/reward/HasPriorRewardTriggerContext.d.ts), [HasPriorStepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/step/HasPriorStepTriggerContext.d.ts), [IncentivizeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/incentivize/IncentivizeActionContext.d.ts), [IncentivizeStatusUpdateActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/incentivize/status/update/IncentivizeStatusUpdateActionContext.d.ts), [JourneyKeyContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/journey/JourneyKeyContext.d.ts), [LegacyQualityRuleTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/legacy/quality/LegacyQualityRuleTriggerContext.d.ts), [PartnerWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/PartnerWebhookRuntimeContext.d.ts), [PrehandlerActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerActionContext.d.ts), [PrehandlerConditionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerConditionContext.d.ts), [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts), [RewardActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/reward/RewardActionContext.d.ts), [RewardHasPriorRewardTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/reward/RewardHasPriorRewardTriggerContext.d.ts), [RewardWebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/reward/RewardWebhookRuntimeContext.d.ts), [ScheduleActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/schedule/ScheduleActionContext.d.ts), [SignalActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/signal/SignalActionContext.d.ts), [StepActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/StepActionContext.d.ts), [StepBuilderContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/builder/StepBuilderContext.d.ts), [StepContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/StepContext.d.ts), [StepDataContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/data/StepDataContext.d.ts), [StepHasPriorStepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/has/prior/step/StepHasPriorStepTriggerContext.d.ts), [StepTriggerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/trigger/StepTriggerContext.d.ts), [VariableRuntimeCreativeActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/runtime/VariableRuntimeCreativeActionContext.d.ts), [WebhookActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/webhook/WebhookActionContext.d.ts), [WebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/WebhookRuntimeContext.d.ts).",
         "oneOf" : [ {
           "description" : "Static values",
           "title" : "Static Value",
@@ -43058,6 +43631,7 @@
         "additionalProperties" : {
           "$ref" : "#/components/schemas/ValuesInCampaignComponentVariableUpdateRequest"
         },
+        "description" : "Values to store on this component, keyed by locale or `default`. Omit to leave them unchanged. Sending `values` does not change `source`: an INHERITED setting keeps using its ancestor's value until `source` is set to LOCAL.",
         "type" : "object"
       },
       "VariantSelectorInBuiltCampaignResponse" : {
@@ -48329,6 +48903,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -50234,6 +50811,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -50819,6 +51399,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -51279,6 +51862,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -51946,6 +52532,9 @@
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -52594,6 +53183,9 @@
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -52796,6 +53388,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -53236,6 +53831,9 @@
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -53462,6 +54060,9 @@
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -53671,6 +54272,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -54149,6 +54753,18 @@
                 "display_name" : "display_name",
                 "method" : "DELETE",
                 "name" : "name",
+                "parameters" : [ {
+                  "description" : "description",
+                  "name" : "name",
+                  "required" : true,
+                  "type" : "PATH",
+                  "value_schema" : {
+                    "default_value" : "default_value",
+                    "format" : "format",
+                    "type" : "ARRAY",
+                    "values" : [ "value" ]
+                  }
+                } ],
                 "path" : "path",
                 "priority" : "10",
                 "tags" : [ "tag" ],
@@ -54264,6 +54880,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -54512,6 +55131,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -54842,6 +55464,18 @@
                 "description" : "description",
                 "display_name" : "display_name",
                 "method" : "DELETE",
+                "parameters" : [ {
+                  "description" : "description",
+                  "name" : "name",
+                  "required" : true,
+                  "type" : "PATH",
+                  "value_schema" : {
+                    "default_value" : "default_value",
+                    "format" : "format",
+                    "type" : "ARRAY",
+                    "values" : [ "value" ]
+                  }
+                } ],
                 "path" : "path",
                 "priority" : "10",
                 "tags" : [ "tag" ],
@@ -54960,6 +55594,9 @@
                   },
                   "component_operation_not_found" : {
                     "$ref" : "#/components/examples/component_operation_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -55292,6 +55929,9 @@
                   "component_operation_not_found" : {
                     "$ref" : "#/components/examples/component_operation_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -55543,6 +56183,9 @@
                   },
                   "component_operation_not_found" : {
                     "$ref" : "#/components/examples/component_operation_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -55963,6 +56606,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -56333,6 +56979,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -56632,6 +57281,9 @@
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -56850,6 +57502,9 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -57498,6 +58153,9 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -58373,6 +59031,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -58797,6 +59458,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -59141,6 +59805,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -59714,6 +60381,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -61647,6 +62317,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -61902,6 +62575,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -62975,6 +63651,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -63707,6 +64386,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -77567,6 +78249,7 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "enabled" : true,
                   "expected_headers" : [ "expected_header" ],
                   "match_mode" : "EXACT_SET",
                   "on_mismatch" : "FAIL",
@@ -77580,9 +78263,12 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "directory_path" : "directory_path",
+                  "enabled" : true,
                   "match_type" : "EXACT",
                   "parent_job_id" : "parent_job_id",
                   "pattern" : "pattern",
+                  "sftp_destination_id" : "sftp_destination_id",
                   "trigger_type" : "FILE_NAME_MATCHES"
                 } ]
               },
@@ -77703,6 +78389,9 @@
                   "file_header_validator_on_mismatch_required" : {
                     "$ref" : "#/components/examples/file_header_validator_on_mismatch_required"
                   },
+                  "file_name_matches_directory_path_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_directory_path_invalid"
+                  },
                   "file_name_matches_match_type_required" : {
                     "$ref" : "#/components/examples/file_name_matches_match_type_required"
                   },
@@ -77711,6 +78400,9 @@
                   },
                   "file_name_matches_pattern_required" : {
                     "$ref" : "#/components/examples/file_name_matches_pattern_required"
+                  },
+                  "file_name_matches_sftp_destination_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
@@ -78398,6 +79090,7 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "enabled" : true,
                   "expected_headers" : [ "expected_header" ],
                   "match_mode" : "EXACT_SET",
                   "on_mismatch" : "FAIL",
@@ -78411,9 +79104,12 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "directory_path" : "directory_path",
+                  "enabled" : true,
                   "match_type" : "EXACT",
                   "parent_job_id" : "parent_job_id",
                   "pattern" : "pattern",
+                  "sftp_destination_id" : "sftp_destination_id",
                   "trigger_type" : "FILE_NAME_MATCHES"
                 } ]
               },
@@ -79101,6 +79797,7 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "enabled" : true,
                 "expected_headers" : [ "expected_header" ],
                 "match_mode" : "EXACT_SET",
                 "on_mismatch" : "FAIL",
@@ -79546,6 +80243,7 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "enabled" : true,
                 "expected_headers" : [ "expected_header" ],
                 "match_mode" : "EXACT_SET",
                 "on_mismatch" : "FAIL",
@@ -80123,9 +80821,12 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "directory_path" : "directory_path",
+                "enabled" : true,
                 "match_type" : "EXACT",
                 "parent_job_id" : "parent_job_id",
                 "pattern" : "pattern",
+                "sftp_destination_id" : "sftp_destination_id",
                 "trigger_type" : "FILE_NAME_MATCHES"
               },
               "schema" : {
@@ -80236,6 +80937,9 @@
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
+                  "file_name_matches_directory_path_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_directory_path_invalid"
+                  },
                   "file_name_matches_match_type_required" : {
                     "$ref" : "#/components/examples/file_name_matches_match_type_required"
                   },
@@ -80244,6 +80948,9 @@
                   },
                   "file_name_matches_pattern_required" : {
                     "$ref" : "#/components/examples/file_name_matches_pattern_required"
+                  },
+                  "file_name_matches_sftp_destination_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
@@ -80557,9 +81264,12 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "directory_path" : "directory_path",
+                "enabled" : true,
                 "match_type" : "EXACT",
                 "parent_job_id" : "parent_job_id",
                 "pattern" : "pattern",
+                "sftp_destination_id" : "sftp_destination_id",
                 "trigger_type" : "FILE_NAME_MATCHES"
               },
               "schema" : {
@@ -80670,6 +81380,9 @@
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
+                  "file_name_matches_directory_path_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_directory_path_invalid"
+                  },
                   "file_name_matches_match_type_required" : {
                     "$ref" : "#/components/examples/file_name_matches_match_type_required"
                   },
@@ -80678,6 +81391,9 @@
                   },
                   "file_name_matches_pattern_required" : {
                     "$ref" : "#/components/examples/file_name_matches_pattern_required"
+                  },
+                  "file_name_matches_sftp_destination_invalid" : {
+                    "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
@@ -90664,6 +91380,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -91492,6 +92211,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -91837,6 +92559,9 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -92184,6 +92909,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -92529,6 +93257,9 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -92963,6 +93694,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -93484,6 +94218,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -93894,6 +94631,9 @@
                   },
                   "campaign_stale_version" : {
                     "$ref" : "#/components/examples/campaign_stale_version"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -94375,6 +95115,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -95528,6 +96271,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -95920,6 +96666,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -96280,6 +97029,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -96717,6 +97469,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -97030,6 +97785,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -97483,6 +98241,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -97797,6 +98558,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -98113,6 +98877,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -98378,6 +99145,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -98816,6 +99586,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -99060,6 +99833,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -103538,6 +104314,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -104016,6 +104795,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -104556,6 +105338,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
