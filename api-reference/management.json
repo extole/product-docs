@@ -2011,6 +2011,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "component_operation_parameter_invalid" : {
+        "summary" : "component_operation_parameter_invalid",
+        "value" : {
+          "code" : "component_operation_parameter_invalid",
+          "http_status_code" : 400,
+          "message" : "Component operation parameter is invalid",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "component_operation_path_malformed" : {
         "summary" : "component_operation_path_malformed",
         "value" : {
@@ -11611,6 +11621,13 @@
           "openapi_spec" : {
             "$ref" : "#/components/schemas/JsonNode"
           },
+          "parameters" : {
+            "description" : "The path, query, header and cookie parameters the operation accepts, each with the values it accepts.",
+            "items" : {
+              "$ref" : "#/components/schemas/ComponentOperationParameter"
+            },
+            "type" : "array"
+          },
           "path" : {
             "description" : "Path of the operation, for example `/v5/persons/{person_id}`. The host is derived from the operation type: `api.extole.io` for SERVER_TO_EXTOLE, or the default program domain of the client for CONSUMER_TO_EXTOLE.",
             "type" : "string"
@@ -11639,7 +11656,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "display_name", "method", "name", "openapi_spec", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
+        "required" : [ "description", "display_name", "method", "name", "openapi_spec", "parameters", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
         "type" : "object"
       },
       "BuiltComponentPartnerEnumListVariableResponse" : {
@@ -12143,7 +12160,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "expected_headers", "id", "job_id", "match_mode", "on_mismatch", "order", "task_type" ],
+        "required" : [ "component_ids", "enabled", "expected_headers", "id", "job_id", "match_mode", "on_mismatch", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltFileNameMatchesTriggerResponse" : {
@@ -12175,7 +12192,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "directory_path", "id", "job_id", "match_type", "pattern", "sftp_destination_id", "trigger_type" ],
+        "required" : [ "component_ids", "directory_path", "enabled", "id", "job_id", "match_type", "pattern", "sftp_destination_id", "trigger_type" ],
         "type" : "object"
       },
       "BuiltGenericClientKeyResponse" : {
@@ -12304,7 +12321,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "directory_path", "id", "job_id", "trigger_type" ],
+        "required" : [ "component_ids", "directory_path", "enabled", "id", "job_id", "trigger_type" ],
         "type" : "object"
       },
       "BuiltManualCouponRewardSupplierResponse" : {
@@ -12859,7 +12876,7 @@
             }
           }
         } ],
-        "required" : [ "component_ids", "id", "job_id", "order", "task_type" ],
+        "required" : [ "component_ids", "enabled", "id", "job_id", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltStartBatchJobTaskResponse" : {
@@ -12883,7 +12900,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "data_source_type", "event_name", "id", "job_id", "order", "task_type" ],
+        "required" : [ "component_ids", "data_source_type", "enabled", "event_name", "id", "job_id", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltStepDataResponse" : {
@@ -13007,6 +13024,11 @@
             "readOnly" : true,
             "type" : "array"
           },
+          "enabled" : {
+            "description" : "Resolved enabled state of the task, computed at build time. A disabled task is skipped when the job runs.",
+            "readOnly" : true,
+            "type" : "boolean"
+          },
           "id" : {
             "description" : "Unique id of the task.",
             "readOnly" : true,
@@ -13059,6 +13081,11 @@
             },
             "readOnly" : true,
             "type" : "array"
+          },
+          "enabled" : {
+            "description" : "Resolved enabled state of the trigger, computed at build time. A disabled trigger is ignored when a file arrives.",
+            "readOnly" : true,
+            "type" : "boolean"
           },
           "id" : {
             "description" : "Unique id of the trigger.",
@@ -19135,6 +19162,9 @@
             "description" : "Unique name of the operation within its component. Lowercase letters, digits, underscores and dashes only.",
             "type" : "string"
           },
+          "parameters" : {
+            "$ref" : "#/components/schemas/ParametersInComponentOperationCreateRequest"
+          },
           "path" : {
             "$ref" : "#/components/schemas/PathInComponentOperationCreateRequest"
           },
@@ -19165,8 +19195,66 @@
         "required" : [ "method", "name", "path", "type" ],
         "type" : "object"
       },
+      "ComponentOperationParameter" : {
+        "description" : "A parameter a component operation's path carries, and the values it accepts.",
+        "properties" : {
+          "description" : {
+            "description" : "What the parameter means to the caller.",
+            "nullable" : true,
+            "type" : "string"
+          },
+          "name" : {
+            "description" : "The placeholder or query key the operation's path carries.",
+            "type" : "string"
+          },
+          "required" : {
+            "description" : "Whether the caller must send the parameter. A `PATH` parameter is always required.",
+            "type" : "boolean"
+          },
+          "type" : {
+            "description" : "Where in the path the caller puts the parameter.",
+            "enum" : [ "PATH", "QUERY" ],
+            "type" : "string"
+          },
+          "value_schema" : {
+            "$ref" : "#/components/schemas/ComponentOperationParameterSchema"
+          }
+        },
+        "type" : "object"
+      },
+      "ComponentOperationParameterSchema" : {
+        "description" : "The values a component operation parameter accepts.",
+        "properties" : {
+          "default_value" : {
+            "description" : "The value Extole uses when the caller sends none.",
+            "nullable" : true,
+            "type" : "string"
+          },
+          "format" : {
+            "description" : "A format refining the type, such as `date-time` or `uuid`.",
+            "nullable" : true,
+            "type" : "string"
+          },
+          "items" : {
+            "$ref" : "#/components/schemas/ComponentOperationParameterSchema"
+          },
+          "type" : {
+            "description" : "The JSON type the parameter carries. Defaults to STRING.",
+            "enum" : [ "ARRAY", "BOOLEAN", "INTEGER", "NUMBER", "OBJECT", "STRING" ],
+            "type" : "string"
+          },
+          "values" : {
+            "description" : "The only values the parameter accepts. An empty list leaves the parameter free text.",
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
       "ComponentOperationResponse" : {
-        "description" : "Stored component operation definition. Fields `display_name`, `description`, `request_schema`, `response_schema`, `path`, and `method` are unevaluated and appear in buildtime-evaluatable form.",
+        "description" : "Stored component operation definition. Fields `display_name`, `description`, `request_schema`, `response_schema`, `parameters`, `path`, and `method` are unevaluated and appear in buildtime-evaluatable form.",
         "properties" : {
           "description" : {
             "$ref" : "#/components/schemas/DescriptionInComponentOperationResponse"
@@ -19180,6 +19268,9 @@
           "name" : {
             "description" : "Unique name of the operation within its component. Lowercase letters, digits, underscores and dashes only.",
             "type" : "string"
+          },
+          "parameters" : {
+            "$ref" : "#/components/schemas/ParametersInComponentOperationResponse"
           },
           "path" : {
             "$ref" : "#/components/schemas/PathInComponentOperationResponse"
@@ -19208,7 +19299,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "display_name", "method", "name", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
+        "required" : [ "description", "display_name", "method", "name", "parameters", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
         "type" : "object"
       },
       "ComponentOperationUpdateRequest" : {
@@ -19222,6 +19313,9 @@
           },
           "method" : {
             "$ref" : "#/components/schemas/MethodInComponentOperationUpdateRequest"
+          },
+          "parameters" : {
+            "$ref" : "#/components/schemas/ParametersInComponentOperationUpdateRequest"
           },
           "path" : {
             "$ref" : "#/components/schemas/PathInComponentOperationUpdateRequest"
@@ -24429,6 +24523,134 @@
           "type" : "string"
         } ]
       },
+      "EnabledInTaskRequest" : {
+        "description" : "Whether this task runs as part of the job. A disabled task is skipped and the run continues with the next enabled task. A literal value or a buildtime expression resolved from component references when the task is saved; defaults to true when omitted on create. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTaskResponse" : {
+        "description" : "Whether this task runs as part of the job, as the buildtime expression or literal that was saved. A disabled task is skipped and the run continues with the next enabled task. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTriggerRequest" : {
+        "description" : "Whether this trigger takes part in deciding when the job runs. A disabled trigger is ignored when a file arrives. A literal value or a buildtime expression resolved from component references when the trigger is saved; defaults to true when omitted on create. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "EnabledInTriggerResponse" : {
+        "description" : "Whether this trigger takes part in deciding when the job runs, as the buildtime expression or literal that was saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal enabled",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{enabled}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('enabled');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "EnabledInWebhookCreateRequest" : {
         "description" : "Choose between static or dynamic enabled. Buildtime expressions use [WebhookBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/built/WebhookBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -27341,8 +27563,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored file header validator task definition. Fields `order`, `expected_headers`, and `on_mismatch` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "expected_headers", "id", "match_mode", "on_mismatch", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored file header validator task definition. Fields `order`, `expected_headers`, `on_mismatch`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "expected_headers", "id", "match_mode", "on_mismatch", "order", "parent_job_id", "task_type" ],
         "type" : "object"
       },
       "FileInputStreamRequest" : {
@@ -27408,8 +27630,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored file name matches trigger definition. Fields `match_type` and `pattern` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "directory_path", "id", "match_type", "parent_job_id", "pattern", "sftp_destination_id", "trigger_type" ],
+        "description" : "Stored file name matches trigger definition. Fields `match_type`, `pattern`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "directory_path", "enabled", "id", "match_type", "parent_job_id", "pattern", "sftp_destination_id", "trigger_type" ],
         "type" : "object"
       },
       "FilterCampaignIdsInBuiltCampaignControllerTriggerHasPriorStepResponse" : {
@@ -29973,8 +30195,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored lands in directory trigger definition. Field `directory_path` is unevaluated and appears in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "directory_path", "id", "parent_job_id", "trigger_type" ],
+        "description" : "Stored lands in directory trigger definition. Fields `directory_path` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "directory_path", "enabled", "id", "parent_job_id", "trigger_type" ],
         "type" : "object"
       },
       "LegacyActionIdInBuiltCampaignControllerActionIncentivizeStatusUpdateResponse" : {
@@ -33361,6 +33583,111 @@
         },
         "required" : [ "groups", "parameter_name", "parameter_type_name" ],
         "type" : "object"
+      },
+      "ParametersInComponentOperationCreateRequest" : {
+        "description" : "The path, query, header and cookie parameters the operation accepts, each with the values it accepts. A `PATH` or `QUERY` parameter names a placeholder or query key the path carries, and a `PATH` parameter is always required. Defaults to `[]`, which documents every parameter the path carries as free text. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static parameters",
+          "items" : {
+            "$ref" : "#/components/schemas/ComponentOperationParameter"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{parameters}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('parameters');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ParametersInComponentOperationResponse" : {
+        "description" : "The path, query, header and cookie parameters the operation accepts, each with the values it accepts. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal parameters",
+          "items" : {
+            "$ref" : "#/components/schemas/ComponentOperationParameter"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{parameters}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('parameters');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ParametersInComponentOperationUpdateRequest" : {
+        "description" : "The path, query, header and cookie parameters the operation accepts, each with the values it accepts. A `PATH` or `QUERY` parameter names a placeholder or query key the path carries, and a `PATH` parameter is always required. Omit it to keep the operation's current parameters, or send `[]` to document every parameter the path carries as free text. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static parameters",
+          "items" : {
+            "$ref" : "#/components/schemas/ComponentOperationParameter"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{parameters}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('parameters');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
       },
       "ParentJobIdInTaskRequest" : {
         "description" : "Id of the job this task belongs to. A literal job id or a buildtime expression resolved from component references when the task is saved; when omitted the task belongs to the job in the request path. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
@@ -40664,8 +40991,8 @@
             }
           }
         } ],
-        "description" : "Stored start audience operation task definition. Field `order` is unevaluated and appears in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "id", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored start audience operation task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ],
         "type" : "object"
       },
       "StartBatchJobTaskRequest" : {
@@ -40709,8 +41036,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored start batch job task definition. Fields `order` and `event_name` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "data_source_type", "event_name", "id", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored start batch job task definition. Fields `order`, `event_name`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "data_source_type", "enabled", "event_name", "id", "order", "parent_job_id", "task_type" ],
         "type" : "object"
       },
       "StaticReportTypeParameterDetailsRequest" : {
@@ -41930,6 +42257,9 @@
             },
             "type" : "array"
           },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTaskRequest"
+          },
           "order" : {
             "$ref" : "#/components/schemas/OrderInTaskRequest"
           },
@@ -41944,7 +42274,7 @@
         "type" : "object"
       },
       "TaskResponse" : {
-        "description" : "Stored task definition. Field `order` is unevaluated and appears in buildtime-evaluatable form.",
+        "description" : "Stored task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
         "discriminator" : {
           "mapping" : {
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/FileHeaderValidatorTaskResponse",
@@ -41960,7 +42290,7 @@
         }, {
           "$ref" : "#/components/schemas/StartBatchJobTaskResponse"
         } ],
-        "required" : [ "component_ids", "component_references", "id", "order", "parent_job_id", "task_type" ]
+        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ]
       },
       "TaskResponseBase" : {
         "properties" : {
@@ -41975,6 +42305,9 @@
               "$ref" : "#/components/schemas/ComponentReferenceResponse"
             },
             "type" : "array"
+          },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTaskResponse"
           },
           "id" : {
             "description" : "Unique id of the task.",
@@ -42342,6 +42675,9 @@
             },
             "type" : "array"
           },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTriggerRequest"
+          },
           "parent_job_id" : {
             "$ref" : "#/components/schemas/ParentJobIdInTriggerRequest"
           },
@@ -42353,6 +42689,7 @@
         "type" : "object"
       },
       "TriggerResponse" : {
+        "description" : "Stored trigger definition. Field `enabled` is unevaluated and appears in buildtime-evaluatable form.",
         "discriminator" : {
           "mapping" : {
             "FILE_NAME_MATCHES" : "#/components/schemas/FileNameMatchesTriggerResponse",
@@ -42365,7 +42702,7 @@
         }, {
           "$ref" : "#/components/schemas/LandsInDirectoryTriggerResponse"
         } ],
-        "required" : [ "component_ids", "component_references", "id", "parent_job_id", "trigger_type" ]
+        "required" : [ "component_ids", "component_references", "enabled", "id", "parent_job_id", "trigger_type" ]
       },
       "TriggerResponseBase" : {
         "properties" : {
@@ -42380,6 +42717,9 @@
               "$ref" : "#/components/schemas/ComponentReferenceResponse"
             },
             "type" : "array"
+          },
+          "enabled" : {
+            "$ref" : "#/components/schemas/EnabledInTriggerResponse"
           },
           "id" : {
             "description" : "Unique id of the trigger.",
@@ -48523,6 +48863,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -50428,6 +50771,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -51013,6 +51359,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -51473,6 +51822,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -52140,6 +52492,9 @@
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -52788,6 +53143,9 @@
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -52990,6 +53348,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -53430,6 +53791,9 @@
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -53656,6 +54020,9 @@
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -53865,6 +54232,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -54343,6 +54713,18 @@
                 "display_name" : "display_name",
                 "method" : "DELETE",
                 "name" : "name",
+                "parameters" : [ {
+                  "description" : "description",
+                  "name" : "name",
+                  "required" : true,
+                  "type" : "PATH",
+                  "value_schema" : {
+                    "default_value" : "default_value",
+                    "format" : "format",
+                    "type" : "ARRAY",
+                    "values" : [ "value" ]
+                  }
+                } ],
                 "path" : "path",
                 "priority" : "10",
                 "tags" : [ "tag" ],
@@ -54458,6 +54840,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -54706,6 +55091,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -55036,6 +55424,18 @@
                 "description" : "description",
                 "display_name" : "display_name",
                 "method" : "DELETE",
+                "parameters" : [ {
+                  "description" : "description",
+                  "name" : "name",
+                  "required" : true,
+                  "type" : "PATH",
+                  "value_schema" : {
+                    "default_value" : "default_value",
+                    "format" : "format",
+                    "type" : "ARRAY",
+                    "values" : [ "value" ]
+                  }
+                } ],
                 "path" : "path",
                 "priority" : "10",
                 "tags" : [ "tag" ],
@@ -55154,6 +55554,9 @@
                   },
                   "component_operation_not_found" : {
                     "$ref" : "#/components/examples/component_operation_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -55486,6 +55889,9 @@
                   "component_operation_not_found" : {
                     "$ref" : "#/components/examples/component_operation_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -55737,6 +56143,9 @@
                   },
                   "component_operation_not_found" : {
                     "$ref" : "#/components/examples/component_operation_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -56157,6 +56566,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -56527,6 +56939,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -56826,6 +57241,9 @@
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -57044,6 +57462,9 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -57692,6 +58113,9 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -58567,6 +58991,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -58991,6 +59418,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -59335,6 +59765,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -59908,6 +60341,9 @@
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -61841,6 +62277,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -62096,6 +62535,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -63169,6 +63611,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -63901,6 +64346,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -77761,6 +78209,7 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "enabled" : true,
                   "expected_headers" : [ "expected_header" ],
                   "match_mode" : "EXACT_SET",
                   "on_mismatch" : "FAIL",
@@ -77775,6 +78224,7 @@
                     "socket_names" : [ "socket_name" ]
                   } ],
                   "directory_path" : "directory_path",
+                  "enabled" : true,
                   "match_type" : "EXACT",
                   "parent_job_id" : "parent_job_id",
                   "pattern" : "pattern",
@@ -78606,6 +79056,7 @@
                     "component_id" : "component_id",
                     "socket_names" : [ "socket_name" ]
                   } ],
+                  "enabled" : true,
                   "expected_headers" : [ "expected_header" ],
                   "match_mode" : "EXACT_SET",
                   "on_mismatch" : "FAIL",
@@ -78620,6 +79071,7 @@
                     "socket_names" : [ "socket_name" ]
                   } ],
                   "directory_path" : "directory_path",
+                  "enabled" : true,
                   "match_type" : "EXACT",
                   "parent_job_id" : "parent_job_id",
                   "pattern" : "pattern",
@@ -79311,6 +79763,7 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "enabled" : true,
                 "expected_headers" : [ "expected_header" ],
                 "match_mode" : "EXACT_SET",
                 "on_mismatch" : "FAIL",
@@ -79756,6 +80209,7 @@
                   "component_id" : "component_id",
                   "socket_names" : [ "socket_name" ]
                 } ],
+                "enabled" : true,
                 "expected_headers" : [ "expected_header" ],
                 "match_mode" : "EXACT_SET",
                 "on_mismatch" : "FAIL",
@@ -80334,6 +80788,7 @@
                   "socket_names" : [ "socket_name" ]
                 } ],
                 "directory_path" : "directory_path",
+                "enabled" : true,
                 "match_type" : "EXACT",
                 "parent_job_id" : "parent_job_id",
                 "pattern" : "pattern",
@@ -80776,6 +81231,7 @@
                   "socket_names" : [ "socket_name" ]
                 } ],
                 "directory_path" : "directory_path",
+                "enabled" : true,
                 "match_type" : "EXACT",
                 "parent_job_id" : "parent_job_id",
                 "pattern" : "pattern",
@@ -90890,6 +91346,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -91718,6 +92177,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -92063,6 +92525,9 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -92410,6 +92875,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -92755,6 +93223,9 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -93189,6 +93660,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -93710,6 +94184,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -94120,6 +94597,9 @@
                   },
                   "campaign_stale_version" : {
                     "$ref" : "#/components/examples/campaign_stale_version"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -94601,6 +95081,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -95754,6 +96237,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -96146,6 +96632,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -96506,6 +96995,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -96943,6 +97435,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -97256,6 +97751,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -97709,6 +98207,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -98023,6 +98524,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -98339,6 +98843,9 @@
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -98604,6 +99111,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -99042,6 +99552,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -99286,6 +99799,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -103764,6 +104280,9 @@
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
                   },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
                   },
@@ -104242,6 +104761,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
@@ -104782,6 +105304,9 @@
                   },
                   "component_operation_name_reserved" : {
                     "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
                   },
                   "component_operation_path_malformed" : {
                     "$ref" : "#/components/examples/component_operation_path_malformed"
