@@ -316,6 +316,26 @@ can find in the extension. Worse, **Redemption Rate** is a real Extole name alre
 percentage. Before coining a name for something, `git grep` it across the corpus and search
 the platform for it; a term that already means something else costs more than a clumsy one.
 
+## Expert variables
+
+Some component settings are **expert variables**. My Extole shows them only to Extole
+employees, behind the **Show Expert** filter. Customer-facing pages do not describe them.
+
+When a sentence names **Show Expert**, tells the reader to turn that filter on, or calls a
+setting an Expert setting, delete that sentence. It often sits at the end of a paragraph
+that is otherwise about something the reader can see — keep the paragraph and delete the
+sentence.
+
+A value the reader already sees can stay: an event name, a metric, a reward identifier on
+a report. What stays out is the hidden setting and the filter that reveals it.
+
+Leave a schema literal alone. An `importance:expert` tag inside a component JSON sample is
+a field value, and the literals rule already covers it. Add no prose around that tag that
+explains the filter.
+
+Apply this to the page you are writing or editing. Search the rest of the corpus for older
+sentences only when that is the task.
+
 ## Open decisions — do not pick a side
 
 These are genuinely split across the corpus and await a docs-team call. Until each is
