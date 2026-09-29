@@ -3091,6 +3091,26 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "filter_rows_script_invalid" : {
+        "summary" : "filter_rows_script_invalid",
+        "value" : {
+          "code" : "filter_rows_script_invalid",
+          "http_status_code" : 400,
+          "message" : "Filter rows task script does not compile",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "filter_rows_script_required" : {
+        "summary" : "filter_rows_script_required",
+        "value" : {
+          "code" : "filter_rows_script_required",
+          "http_status_code" : 400,
+          "message" : "Filter rows task requires a script",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "handlebars_expression_invalid_syntax" : {
         "summary" : "handlebars_expression_invalid_syntax",
         "value" : {
@@ -6487,6 +6507,26 @@
           "code" : "too_many_requests",
           "http_status_code" : 429,
           "message" : "The server is unable to process your request at the moment, please retry later.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "transform_column_headers_column_mapping_invalid" : {
+        "summary" : "transform_column_headers_column_mapping_invalid",
+        "value" : {
+          "code" : "transform_column_headers_column_mapping_invalid",
+          "http_status_code" : 400,
+          "message" : "Transform column headers task has an invalid column mapping",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "transform_column_headers_column_mappings_required" : {
+        "summary" : "transform_column_headers_column_mappings_required",
+        "value" : {
+          "code" : "transform_column_headers_column_mappings_required",
+          "http_status_code" : 400,
+          "message" : "Transform column headers task requires at least one column mapping",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -12195,6 +12235,25 @@
         "required" : [ "component_ids", "directory_path", "enabled", "id", "job_id", "match_type", "pattern", "sftp_destination_id", "trigger_type" ],
         "type" : "object"
       },
+      "BuiltFilterRowsTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltTaskResponseBase"
+        }, {
+          "properties" : {
+            "script" : {
+              "description" : "JavaScript body of the row filter. Receives one row as `row` and returns true to keep it.",
+              "type" : "string"
+            },
+            "task_type" : {
+              "enum" : [ "FILTER_ROWS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "component_ids", "enabled", "id", "job_id", "order", "script", "task_type" ],
+        "type" : "object"
+      },
       "BuiltGenericClientKeyResponse" : {
         "allOf" : [ {
           "$ref" : "#/components/schemas/BuiltClientKeyResponseBase"
@@ -12998,17 +13057,23 @@
         "discriminator" : {
           "mapping" : {
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/BuiltFileHeaderValidatorTaskResponse",
+            "FILTER_ROWS" : "#/components/schemas/BuiltFilterRowsTaskResponse",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/BuiltStartAudienceOperationTaskResponse",
-            "START_BATCH_JOB" : "#/components/schemas/BuiltStartBatchJobTaskResponse"
+            "START_BATCH_JOB" : "#/components/schemas/BuiltStartBatchJobTaskResponse",
+            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/BuiltTransformColumnHeadersTaskResponse"
           },
           "propertyName" : "task_type"
         },
         "oneOf" : [ {
           "$ref" : "#/components/schemas/BuiltFileHeaderValidatorTaskResponse"
         }, {
+          "$ref" : "#/components/schemas/BuiltFilterRowsTaskResponse"
+        }, {
           "$ref" : "#/components/schemas/BuiltStartAudienceOperationTaskResponse"
         }, {
           "$ref" : "#/components/schemas/BuiltStartBatchJobTaskResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltTransformColumnHeadersTaskResponse"
         } ],
         "readOnly" : true
       },
@@ -13047,11 +13112,33 @@
           },
           "task_type" : {
             "description" : "Discriminator identifying the task type.",
-            "enum" : [ "FILE_HEADER_VALIDATOR", "START_AUDIENCE_OPERATION", "START_BATCH_JOB" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
             "readOnly" : true,
             "type" : "string"
           }
         },
+        "type" : "object"
+      },
+      "BuiltTransformColumnHeadersTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltTaskResponseBase"
+        }, {
+          "properties" : {
+            "column_mappings" : {
+              "description" : "Column headers renamed in the uploaded file, incoming header to canonical header.",
+              "items" : {
+                "$ref" : "#/components/schemas/ColumnMappingResponse"
+              },
+              "type" : "array"
+            },
+            "task_type" : {
+              "enum" : [ "TRANSFORM_COLUMN_HEADERS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "column_mappings", "component_ids", "enabled", "id", "job_id", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltTriggerResponse" : {
@@ -18744,6 +18831,34 @@
             "type" : "string"
           },
           "canonical_name" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ColumnMappingRequest" : {
+        "description" : "Column headers to rename in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header.",
+        "properties" : {
+          "canonical_name" : {
+            "description" : "Column header written to the transformed file in place of the incoming one.",
+            "type" : "string"
+          },
+          "incoming_column" : {
+            "description" : "Column header as it appears in the uploaded file.",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ColumnMappingResponse" : {
+        "description" : "Column headers renamed in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header.",
+        "properties" : {
+          "canonical_name" : {
+            "description" : "Column header written to the transformed file in place of the incoming one.",
+            "type" : "string"
+          },
+          "incoming_column" : {
+            "description" : "Column header as it appears in the uploaded file.",
             "type" : "string"
           }
         },
@@ -28581,6 +28696,45 @@
           "title" : "Buildtime - Javascript",
           "type" : "string"
         } ]
+      },
+      "FilterRowsTaskRequest" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskRequestBase"
+        }, {
+          "properties" : {
+            "script" : {
+              "description" : "JavaScript body of a function that receives one file row as `row`, an object keyed by column header with string values, and returns true to keep the row or false to drop it.",
+              "type" : "string"
+            },
+            "task_type" : {
+              "enum" : [ "FILTER_ROWS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "script", "task_type" ],
+        "type" : "object"
+      },
+      "FilterRowsTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskResponseBase"
+        }, {
+          "properties" : {
+            "script" : {
+              "description" : "JavaScript body of a function that receives one file row as `row`, an object keyed by column header with string values, and returns true to keep the row or false to drop it.",
+              "type" : "string"
+            },
+            "task_type" : {
+              "enum" : [ "FILTER_ROWS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Stored filter rows task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "script", "task_type" ],
+        "type" : "object"
       },
       "FilterScopeInCampaignControllerTriggerHasPriorRewardResponse" : {
         "description" : "The filter scope as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
@@ -42216,7 +42370,7 @@
             "type" : "integer"
           },
           "status" : {
-            "enum" : [ "FAIL", "SUCCESS" ],
+            "enum" : [ "FAIL", "PENDING", "SUCCESS" ],
             "type" : "string"
           },
           "task_id" : {
@@ -42229,17 +42383,23 @@
         "discriminator" : {
           "mapping" : {
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/FileHeaderValidatorTaskRequest",
+            "FILTER_ROWS" : "#/components/schemas/FilterRowsTaskRequest",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/StartAudienceOperationTaskRequest",
-            "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskRequest"
+            "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskRequest",
+            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/TransformColumnHeadersTaskRequest"
           },
           "propertyName" : "task_type"
         },
         "oneOf" : [ {
           "$ref" : "#/components/schemas/FileHeaderValidatorTaskRequest"
         }, {
+          "$ref" : "#/components/schemas/FilterRowsTaskRequest"
+        }, {
           "$ref" : "#/components/schemas/StartAudienceOperationTaskRequest"
         }, {
           "$ref" : "#/components/schemas/StartBatchJobTaskRequest"
+        }, {
+          "$ref" : "#/components/schemas/TransformColumnHeadersTaskRequest"
         } ],
         "required" : [ "task_type" ]
       },
@@ -42267,7 +42427,7 @@
             "$ref" : "#/components/schemas/ParentJobIdInTaskRequest"
           },
           "task_type" : {
-            "enum" : [ "FILE_HEADER_VALIDATOR", "START_AUDIENCE_OPERATION", "START_BATCH_JOB" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
             "type" : "string"
           }
         },
@@ -42278,17 +42438,23 @@
         "discriminator" : {
           "mapping" : {
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/FileHeaderValidatorTaskResponse",
+            "FILTER_ROWS" : "#/components/schemas/FilterRowsTaskResponse",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/StartAudienceOperationTaskResponse",
-            "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskResponse"
+            "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskResponse",
+            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/TransformColumnHeadersTaskResponse"
           },
           "propertyName" : "task_type"
         },
         "oneOf" : [ {
           "$ref" : "#/components/schemas/FileHeaderValidatorTaskResponse"
         }, {
+          "$ref" : "#/components/schemas/FilterRowsTaskResponse"
+        }, {
           "$ref" : "#/components/schemas/StartAudienceOperationTaskResponse"
         }, {
           "$ref" : "#/components/schemas/StartBatchJobTaskResponse"
+        }, {
+          "$ref" : "#/components/schemas/TransformColumnHeadersTaskResponse"
         } ],
         "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ]
       },
@@ -42321,7 +42487,7 @@
             "$ref" : "#/components/schemas/ParentJobIdInTaskResponse"
           },
           "task_type" : {
-            "enum" : [ "FILE_HEADER_VALIDATOR", "START_AUDIENCE_OPERATION", "START_BATCH_JOB" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
             "type" : "string"
           }
         },
@@ -42512,6 +42678,51 @@
           "title" : "Runtime - Javascript",
           "type" : "string"
         } ]
+      },
+      "TransformColumnHeadersTaskRequest" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskRequestBase"
+        }, {
+          "properties" : {
+            "column_mappings" : {
+              "description" : "Column headers to rename in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header.",
+              "items" : {
+                "$ref" : "#/components/schemas/ColumnMappingRequest"
+              },
+              "type" : "array"
+            },
+            "task_type" : {
+              "enum" : [ "TRANSFORM_COLUMN_HEADERS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "column_mappings", "task_type" ],
+        "type" : "object"
+      },
+      "TransformColumnHeadersTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskResponseBase"
+        }, {
+          "properties" : {
+            "column_mappings" : {
+              "description" : "Column headers renamed in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header.",
+              "items" : {
+                "$ref" : "#/components/schemas/ColumnMappingResponse"
+              },
+              "type" : "array"
+            },
+            "task_type" : {
+              "enum" : [ "TRANSFORM_COLUMN_HEADERS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Stored transform column headers task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "column_mappings", "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ],
+        "type" : "object"
       },
       "TransitionRuleResponse" : {
         "properties" : {
@@ -78364,6 +78575,12 @@
                   "file_name_matches_sftp_destination_invalid" : {
                     "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
+                  "filter_rows_script_invalid" : {
+                    "$ref" : "#/components/examples/filter_rows_script_invalid"
+                  },
+                  "filter_rows_script_required" : {
+                    "$ref" : "#/components/examples/filter_rows_script_required"
+                  },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
                   },
@@ -78435,6 +78652,12 @@
                   },
                   "task_validation_failed" : {
                     "$ref" : "#/components/examples/task_validation_failed"
+                  },
+                  "transform_column_headers_column_mapping_invalid" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mapping_invalid"
+                  },
+                  "transform_column_headers_column_mappings_required" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mappings_required"
                   },
                   "trigger_evaluation_failed" : {
                     "$ref" : "#/components/examples/trigger_evaluation_failed"
@@ -79882,6 +80105,12 @@
                   "file_header_validator_on_mismatch_required" : {
                     "$ref" : "#/components/examples/file_header_validator_on_mismatch_required"
                   },
+                  "filter_rows_script_invalid" : {
+                    "$ref" : "#/components/examples/filter_rows_script_invalid"
+                  },
+                  "filter_rows_script_required" : {
+                    "$ref" : "#/components/examples/filter_rows_script_required"
+                  },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
                   },
@@ -79932,6 +80161,12 @@
                   },
                   "task_validation_failed" : {
                     "$ref" : "#/components/examples/task_validation_failed"
+                  },
+                  "transform_column_headers_column_mapping_invalid" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mapping_invalid"
+                  },
+                  "transform_column_headers_column_mappings_required" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mappings_required"
                   }
                 },
                 "schema" : {
@@ -80328,6 +80563,12 @@
                   "file_header_validator_on_mismatch_required" : {
                     "$ref" : "#/components/examples/file_header_validator_on_mismatch_required"
                   },
+                  "filter_rows_script_invalid" : {
+                    "$ref" : "#/components/examples/filter_rows_script_invalid"
+                  },
+                  "filter_rows_script_required" : {
+                    "$ref" : "#/components/examples/filter_rows_script_required"
+                  },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
                   },
@@ -80381,6 +80622,12 @@
                   },
                   "task_validation_failed" : {
                     "$ref" : "#/components/examples/task_validation_failed"
+                  },
+                  "transform_column_headers_column_mapping_invalid" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mapping_invalid"
+                  },
+                  "transform_column_headers_column_mappings_required" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mappings_required"
                   }
                 },
                 "schema" : {
