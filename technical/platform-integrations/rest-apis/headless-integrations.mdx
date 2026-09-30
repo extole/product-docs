@@ -1,0 +1,164 @@
+---
+title: "Headless Integrations"
+description: "Build your own referral experience on the Consumer to Extole API. Extole serves campaign content as JSON zones, your site or app renders it, and your code identifies the person and sends the events."
+---
+
+# Overview
+
+In a headless integration your website or app calls Extole's **Consumer to Extole API**, sometimes called the client API, and draws the referral experience with your own UI. There is no Extole JavaScript tag and no Extole SDK on the page. Extole still runs the program: targeting, content, share links, attribution, rules, and rewards. It returns each placement's content as JSON instead of a rendered creative.
+
+This page covers when to choose a headless integration, how to set up the campaign for it, and which endpoints to call. For full request and response examples from a mobile app, see [Headless and Mobile API](/technical/platform-integrations/rest-apis/mobile-api).
+
+## When You Can Use a Headless Integration
+
+A headless integration fits when:
+
+- **You render the experience natively**, such as in an iOS, Android, or React Native app with your own screens, or a smart TV or kiosk app.
+- **Your site can't load third-party JavaScript**, because of a strict Content Security Policy, a tag governance policy, or a server-rendered page with no client scripts.
+- **You want full control of the look and behavior**, for example an advocate hub or share screen built into your own design system.
+- **Your backend assembles the page**, and your server fetches Extole's content on the person's behalf.
+
+A headless integration needs development work on your side for every surface it covers. If you use Extole's hosted pages and pop-ups, the [JavaScript SDK](/technical/platform-integrations/javascript-sdk) or a [mobile SDK](/technical/platform-integrations/mobile-sdks) does more of the work for you.
+
+## Headless Compared with a Tag or SDK Integration
+
+| | Headless (Consumer to Extole API) | Tag or SDK integration |
+|---|---|---|
+| **Look and feel** | Pro: fully yours, built with your own components | Con: Extole renders the creative, styled in My Extole |
+| **Content changes** | Pro: copy, offers, and links in the JSON still change in My Extole with no app release. Con: a new layout or a new field needs a code change on your side | Pro: layout and copy change in My Extole with no code change |
+| **Third-party script** | Pro: none on your pages | Con: `core.js` or the SDK loads on your pages, and your Content Security Policy has to allow it |
+| **Identity and tokens** | Con: your code creates, stores, and replaces the person's access token | Pro: the tag or SDK manages the token for you |
+| **Event tracking** | Con: your code sends every event, including impressions, taps, and shares | Pro: the tag or SDK tracks impressions and interactions |
+| **Share links and friend attribution** | Con: your code shares the link and sends the `share` event, and your landing page has to pass the friend's arrival to Extole | Pro: handled by Extole's share experience and the tag on your landing page |
+| **Targeting and A/B tests** | Pro: still run in Extole, and one test can span web and app | Pro: run in Extole |
+| **Development effort** | Con: medium to high, for each surface | Pro: lower, because you install the tag or SDK and call it |
+
+## Set Up the Campaign to Serve JSON Zones
+
+A zone is a named placement, and a headless integration reads each zone as JSON. A zone returns JSON when the campaign content behind it responds with `Content-Type: application/json`. There is no separate headless campaign type. The difference is the content component that backs each zone.
+
+### Start from a Template
+
+The Refer A Friend and Refer A Member Flow Builder templates include the **Advocate Mobile Experience** component. It serves the `advocate_mobile_experience` zone as JSON with everything an advocate screen needs:
+
+- `program_label` and `campaign_id`.
+- `links`: your company, terms, and how-it-works URLs.
+- `calls_to_action`: the copy for the menu, account page, product, and confirmation placements.
+- `sharing`: the email, native, and SMS share copy.
+- `me`: the person's name, email, `partner_user_id`, share link, advocate code, rewards, and up to 10 friends.
+
+Its copy is edited in My Extole like any other content component. Ask your Extole team to add it to your campaign if it is not there yet.
+
+### Adjust an Existing Campaign
+
+To take a campaign that already runs on the tag or an SDK and make it headless:
+
+1. List the placements your UI will show, such as an account-page CTA, a share screen, and a rewards summary. Each one becomes a zone name your code requests.
+2. For each placement, add a content component that returns JSON, such as **Advocate Mobile Experience**, or have your Extole team add one. Give each JSON zone its own name, distinct from the zones your tag pages request, so web pages and headless surfaces can run side by side from one campaign.
+3. Agree on the JSON fields with your Extole team, and read them in your code by name. The structure of `data` depends on the component, not on the API.
+4. Publish the campaign, then request each zone and check that it returns JSON.
+
+A zone backed by an HTML creative, such as a hosted share page, cannot be read as JSON. The API returns the error `unexpected_content_type` for it.
+
+## Endpoints
+
+Consumer calls go to your **program domain**, such as `https://refer.yourcompany.com`, which you find in the [Tech Center](https://my.extole.com/tech-center). Server calls go to `https://api.extole.io`. Both are described in [REST APIs](/technical/platform-integrations/rest-apis).
+
+### Identify the Person
+
+Create an access token for the person, store it on the device, and send it on every consumer call in an `Authorization: Bearer` header.
+
+- `POST /api/v5/token` with a `jwt` gives a verified token, which can read the person's private data such as rewards and friends. Your server signs the JWT. See [Verifying Consumers](/technical/operational-tasks/security-and-compliance/verifying-consumers).
+- `POST /api/v5/token` with an `email` gives an identified token. With an empty body it gives an anonymous token.
+- `DELETE /api/v5/token` when the person logs out, so the next person on the device starts fresh.
+
+If a response carries an `X-Extole-Token` header, replace the stored token with its value.
+
+### Promotional Placements
+
+Request a zone with `POST /api/v6/zones`:
+
+```json Request a zone
+POST https://refer.yourcompany.com/api/v6/zones
+Content-Type: application/json
+Authorization: Bearer YOUR_CONSUMER_TOKEN
+
+{
+  "event_name": "advocate_mobile_experience",
+  "data": {
+    "email": "advocate@example.com",
+    "partner_user_id": "3000500000",
+    "labels": "refer-a-friend"
+  }
+}
+```
+
+`event_name` is the zone name. Anything in `data` is recorded with the zone request. The response wraps the content:
+
+- `data`: the JSON the zone's content component returned.
+- `event_id`: the ID of the zone request event. Use it when you trace the request later.
+- `campaign_id`: the campaign that served the zone.
+
+`POST /api/v6/zones/{event_name}` does the same with the zone name in the path. Each zone request is recorded as an event for the person. Track impressions and taps on your placements with events of their own, as described under **Track Events** in [Headless and Mobile API](/technical/platform-integrations/rest-apis/mobile-api).
+
+### Profile Information and Stats
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/v4/me` | The person's profile: `email`, `first_name`, `last_name`, `partner_user_id`, `locale`, `profile_picture_url`, `parameters`, and consent. |
+| `POST /api/v4/me` | Updates the profile. Needs a verified token. |
+| `POST /api/v6/me/shareables/get-or-create` | The person's share link and code (`link`, `code`), created if they have none yet. `GET /api/v6/me/shareables` lists existing ones. |
+| `GET /api/v4/me/shares` | The shares the person has made. |
+| `GET /api/v4/me/referrals-from-me` | The friends this person referred. |
+| `GET /api/v4/me/referrals-to-me` | The advocate who referred this person. |
+| `GET /api/v4/me/rewards/status` | The status of one pending reward, by `polling_id`, `reward_name`, or `partner_event_id`. |
+| `GET /api/v4/me/steps` | The steps the person has completed. |
+
+The Consumer to Extole API has no single stats endpoint. For a stats panel, read `me.rewards` and `me.friends` from a JSON zone such as `advocate_mobile_experience`, or count referrals from `referrals-from-me`. A verified token is needed for private data like rewards and friends.
+
+Your backend can read the same person's full reward list from the Server to Extole API with `GET /v5/persons/{person_id}/rewards`, and their referrals with `GET /v5/persons/{person_id}/relationships`.
+
+### Fire Events to Extole
+
+From the person's device, send the event with their consumer token:
+
+```json Send a consumer event
+POST https://refer.yourcompany.com/events
+Content-Type: application/json
+Authorization: Bearer YOUR_CONSUMER_TOKEN
+
+{
+  "event_name": "share",
+  "data": {
+    "share.channel": "sms",
+    "partner_share_id": "1580408545"
+  }
+}
+```
+
+`GET /events/{event_name}` sends the same event with its data as query parameters. Both always return HTTP 200. If the event failed, the response carries an `X-Extole-Error-Message` header, so check for it.
+
+From your backend, send the event to the Server to Extole API with a server access token and identify the person in `data`:
+
+```json Send a server event
+POST https://api.extole.io/v6/events
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+{
+  "event_name": "converted",
+  "data": {
+    "email": "friend@example.com",
+    "partner_user_id": "3000500001",
+    "cart_value": "120.00"
+  }
+}
+```
+
+Send outcome events such as conversions and account openings from your backend, where they can't be forged. Send engagement events such as zone taps and shares from the device.
+
+## Debug a Headless Integration
+
+- Add the `X-Extole-Debug` header, level one to three, to a consumer call to get more detail back. See [REST APIs](/technical/platform-integrations/rest-apis).
+- Follow an event from your app or server into Extole with [Debug an Inbound Integration](/technical/troubleshooting/debug-an-inbound-integration). It covers Event Streams, Event Live View, the person's steps, and the debugging reports.
+- If a zone returns an error instead of JSON, check that the zone name matches the content component and that the campaign is live and published.
