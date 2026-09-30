@@ -338,9 +338,9 @@ A successful send proves only that Extole accepted the event. To prove the mappi
 
 ### Prepare the Event Stream
 
-Before you send anything, open the integration's event-stream tab and confirm the stream is running and has no filters. [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views) shows how to create it.
+Before you send anything, open the integration's event-stream tab and confirm the stream is running and filtered to `INPUT` and `STEP`. [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views) shows how to create that filter.
 
-An event stream with no filters records every event in the account while it runs. That is deliberate: the business events, rewards, and deliveries an input event causes can carry a different application type or event type from the input event, so a filtered stream can hide part of the chain. Narrow what you read with the event's identifier instead of narrowing what the stream records.
+The filter keeps the input event and the business-event step, and leaves the rest of the account off the feed. Search by the event's identifier to pick this send out of what remains.
 
 ### Send the Test Event
 
@@ -392,7 +392,7 @@ Open the JSON for the `INPUT` event and the events it caused, and check:
 
 When no campaign selected the event, `step_matching_campaign_contexts` lists each campaign that considered it. Its `trigger_results` and `log_messages`, together with the `INPUT` event's own `log_messages`, name the rule that did not match.
 
-Correct the mapping or rule that differs from what you expected, republish if the change requires it, and send a new event with a new unique identifier. If the stream stopped or gained a filter in the meantime, restart it or remove the filter first.
+Correct the mapping or rule that differs from what you expected, republish if the change requires it, and send a new event with a new unique identifier. If the stream stopped, or the filter no longer lists `INPUT` and `STEP`, restart the stream or restore the filter first.
 
 ### Confirm the Result on the Person
 

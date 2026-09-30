@@ -173,7 +173,7 @@ These hold on every path:
 
 - **Resolve maintained components by name at build time.** Stored identifiers go stale without failing loudly.
 - **Use the reusable business-event, rule, and data components.** Write a custom controller only where no template implements the behavior.
-- **Carry all three baseline views** — configuration, report-runner, and event-stream. The category decides what the report counts, while the event stream keeps a complete unfiltered processing chain. A Partner to Extole integration adds a `testEventPayload` JSON setting and a **Test Event** configuration view that displays it; reward fulfillment adds a `reward-suppliers` configuration view.
+- **Carry all three baseline views** — configuration, report-runner, and event-stream. The category decides what the report counts. The event stream is filtered to `INPUT` and `STEP` events. A Partner to Extole integration adds a `testEventPayload` JSON setting and a **Test Event** configuration view that displays it; reward fulfillment adds a `reward-suppliers` configuration view.
 - **Create reward suppliers, client keys, and webhooks only for an Extole to Partner flow the integration has.** A Partner to Extole integration needs none.
 - **Keep partner event names and canonical Extole names separate.** The trigger rule carries the wire name; the business event carries `converted`, `shipped`, or another canonical name. Renaming a business event to match a partner breaks every program and report reading the canonical name.
 - **Map every field you persist**, in the same pass that creates the business events. A business event with an empty `data` socket cannot deduplicate, attribute, reward, or report.
@@ -209,7 +209,7 @@ The integration is not live while the campaign is in draft, a webhook is disable
 
 An arriving event stops at one of five stages: arrival, identity, matching, evaluation, or reporting. Each tool in My Extole sees only some of them, so pick the one that can see the stage you're checking:
 
-- **Event Streams** show every event live, from the moment you click **Start Streaming** — start the stream before you send the test. An `INPUT` event followed by a `STEP` event arrived and matched a campaign; an `INPUT` event with nothing after it matched nothing. The event-stream view this guide builds is an Event Stream filtered to the integration's app type.
+- **Event Streams** show every event live, from the moment you click **Start Streaming** — start the stream before you send the test. An `INPUT` event followed by a `STEP` event arrived and matched a campaign; an `INPUT` event with nothing after it matched nothing. The event-stream view this guide builds is an Event Stream filtered to `INPUT` and `STEP` events.
 - **Event Live View** looks back in time, but lists only events a campaign acted on. An input event that matched no campaign never appears in it.
 - **A person's steps**, under **Support** > **Person Search** > **Show Steps**, show one person's full history. A step that appears under **All Containers** but not **Production Only** went to a test container, and production reports won't count it.
 - **The Debugging reports** check the whole feed over any time range. **Input event names with triggered steps** finds a partner event name that arrives in volume and creates no step — usually a rule listening for a name the partner doesn't send.
