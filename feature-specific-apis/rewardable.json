@@ -7,16 +7,6 @@
   },
   "servers": [
     {
-      "description": "Production - your program domain",
-      "url": "https://{brand}.extole.io",
-      "variables": {
-        "brand": {
-          "default": "yourcompany",
-          "description": "Your Extole client subdomain (e.g. 'mycompany' for mycompany.extole.io)"
-        }
-      }
-    },
-    {
       "description": "Production - Extole events host",
       "url": "https://events.extole.io"
     }
@@ -278,74 +268,195 @@
         }
       }
     },
-    "/api/v4/me/rewards": {
-      "get": {
-        "operationId": "get_rewards",
-        "summary": "Current Status and History",
-        "description": "Returns every reward this person has earned, each with the state it is in now and the dates it moved through: earned, issued, delivered, redeemed, and when it expires. Called from the browser or app with that person's own access token, so a person only ever reads their own rewards.",
-        "x-extole-type": "CONSUMER_TO_EXTOLE",
+    "/v6/events/advocate_manual_decline": {
+      "post": {
+        "operationId": "decline",
+        "summary": "Decline",
+        "description": "Declines a rewardable that is being held for review, by submitting this reward's own decline event. Nothing is issued, and the note is recorded with the decision.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
-          "VIEW"
+          "ACTION"
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "person_id",
+                  "target"
+                ],
+                "properties": {
+                  "person_id": {
+                    "type": "string",
+                    "description": "Extole person whose rewardable is being approved."
+                  },
+                  "target": {
+                    "type": "string",
+                    "description": "Which campaign the approval applies to, written as campaign_id: followed by the campaign's id."
+                  },
+                  "journey.campaign_id": {
+                    "type": "string",
+                    "description": "Campaign of the journey the rewardable belongs to."
+                  },
+                  "container": {
+                    "type": "string",
+                    "description": "Container the rewardable sits in, when it has one."
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "Why the rewardable was declined. Recorded alongside it."
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "description": "Every reward belonging to the person the access token identifies.",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "reward_id": {
-                        "type": "string",
-                        "description": "Extole identifier for this reward."
-                      },
-                      "reward_name": {
-                        "type": "string",
-                        "description": "Configured name of the reward that was earned."
-                      },
-                      "state": {
-                        "type": "string",
-                        "description": "Where the reward has reached: earned, issued, delivered, redeemed, expired or failed."
-                      },
-                      "face_value": {
-                        "type": "string",
-                        "description": "Value of the reward as the person sees it."
-                      },
-                      "face_value_type": {
-                        "type": "string",
-                        "description": "What that value is denominated in."
-                      },
-                      "date_earned": {
-                        "type": "string",
-                        "description": "When the person qualified for the reward."
-                      },
-                      "date_issued": {
-                        "type": "string",
-                        "description": "When the reward was issued, if it has been."
-                      },
-                      "date_delivered": {
-                        "type": "string",
-                        "description": "When the reward reached the person, if it has."
-                      },
-                      "redeemed_date": {
-                        "type": "string",
-                        "description": "When the person redeemed it, if they have."
-                      },
-                      "expiry_date": {
-                        "type": "string",
-                        "description": "When the reward stops being redeemable."
-                      },
-                      "campaign_id": {
-                        "type": "string",
-                        "description": "Campaign the reward was earned in."
-                      },
-                      "journey_name": {
-                        "type": "string",
-                        "description": "Journey the person was on when they earned it."
-                      }
+                  "type": "object",
+                  "required": [
+                    "event_id"
+                  ],
+                  "properties": {
+                    "event_id": {
+                      "type": "string",
+                      "description": "Identifier of the event. The outcome follows from the campaign's rules, so read the person's rewards to confirm it."
+                    },
+                    "person_id": {
+                      "type": "string",
+                      "description": "Extole person the event resolved to."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "expired_access_token": {
+                    "$ref": "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token": {
+                    "$ref": "#/components/examples/invalid_access_token"
+                  },
+                  "jwt_authentication_error": {
+                    "$ref": "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v6/events/advocate_manual_re_evaluation": {
+      "post": {
+        "operationId": "re_evaluate",
+        "summary": "Re-Evaluate",
+        "description": "Runs this reward's rules over the rewardable again, by submitting its re-evaluation event. Use when the thing that held it has changed - the rules decide the outcome, not the caller.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "ACTION"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "person_id",
+                  "target"
+                ],
+                "properties": {
+                  "person_id": {
+                    "type": "string",
+                    "description": "Extole person whose rewardable is being approved."
+                  },
+                  "target": {
+                    "type": "string",
+                    "description": "Which campaign the approval applies to, written as campaign_id: followed by the campaign's id."
+                  },
+                  "journey.campaign_id": {
+                    "type": "string",
+                    "description": "Campaign of the journey the rewardable belongs to."
+                  },
+                  "container": {
+                    "type": "string",
+                    "description": "Container the rewardable sits in, when it has one."
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "Why it is being re-evaluated. Optional, and recorded when supplied."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "event_id"
+                  ],
+                  "properties": {
+                    "event_id": {
+                      "type": "string",
+                      "description": "Identifier of the event. The outcome follows from the campaign's rules, so read the person's rewards to confirm it."
+                    },
+                    "person_id": {
+                      "type": "string",
+                      "description": "Extole person the event resolved to."
                     }
                   }
                 }
