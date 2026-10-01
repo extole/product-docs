@@ -1,15 +1,14 @@
 ---
 title: "Tiers and Member Status"
-description: "The three distinct things Extole calls a tier, how to bring a membership tier into a participant's profile, and how to reward on it."
+description: "The three distinct things Extole calls a tier, and how a membership tier can arrive so reward rules and targeting can read it."
 ---
 
 ## Overview
 
 [//]: # "How do loyalty tiers work in Extole?"
 
-"Tier" means three unrelated things across Extole, and choosing the wrong one costs time. This page
-separates them, then covers the one most loyalty programs need: a membership status that travels
-with the participant and changes what they earn.
+"Tier" means three unrelated things across Extole. This page separates them, then covers membership
+status: a named tier that travels with the participant and can change what they earn.
 
 [//]: ___
 
@@ -21,18 +20,19 @@ with the participant and changes what they earn.
 | Tiered rewards | Reward rules that issue a different reward value depending on cart value, product type, referral count, or a profile attribute. | [Rules and Quality](/product/product-overview/rewards/rules-quality) |
 | Membership tier | A named status the participant holds, such as Bronze or Gold, carried on their profile and used to target and to reward. | This page |
 
-A loyalty program that promises "Gold members earn double" needs the third, implemented with the
-second.
+A program where Gold members earn at a higher rate can use a membership tier together with tiered
+rewards. The tier records the status, and a reward rule can issue a different value because of it.
 
 ## Bringing a Tier into Extole
 
-Extole does not calculate membership tier. Your systems own the definition and tell Extole the
-result. There are two supported paths.
+You can send the membership tier you want Extole to read. Two ways to send it are a profile
+attribute and audience membership. Reward rules, trigger rules, and targeting can read the value
+you send.
 
-<Frame caption="Your systems own the tier definition. Extole reads the result.">
+<Frame caption="A tier can arrive as a profile attribute or as audience membership. Reward rules, trigger rules, and targeting can read it.">
   <img
     src="/images/extole/loyalty-tier-sources.svg"
-    alt="Your systems decide when a participant changes tier. The tier reaches Extole either as a loyalty_tier profile attribute sent with an event, or as audience membership synced over the API. Reward rules, trigger rules and targeting then read it."
+    alt="A membership tier can reach Extole as a loyalty_tier profile attribute sent with an event, or as audience membership synced over the API. Reward rules, trigger rules, and targeting can read it."
   />
 </Frame>
 
@@ -46,31 +46,30 @@ Send the attribute alongside an event you are already sending, or send it on its
 changes. Campaign rules, audiences, and reports all read the resulting attribute. See
 [Set Person Profile Data from an Event](/technical/integration-overview/set-person-profile-data-from-an-event).
 
-Use this where tier needs to be readable per participant at the moment a rule evaluates.
+A reward rule can read this attribute on the participant at the moment it evaluates.
 
 ### As Audience Membership
 
 Extole supports partner-managed audience membership over the API, which is built for syncing groups
-such as segments, subscription states, or loyalty tiers. Create an audience per tier and maintain
-membership from your side. See
+such as segments, subscription states, or loyalty tiers. You can create an audience for a tier and
+sync membership from your side. See
 [Receive Audience Membership from a Partner](/technical/building-custom-integrations/integration-types/integration-inbound-audience-membership).
 
-Use this where you already maintain tier lists in a CDP or CRM and want to sync them in bulk.
+This fits when tier lists already live in a CDP or CRM and you want to sync them in bulk.
 
 <Tip>
-  Choose one path and stay with it. Maintaining a tier as both a profile attribute and an audience
-  produces two sources of truth that drift, and rules written against the stale one fail quietly.
+  If the same tier is stored both as a profile attribute and as an audience, the two can drift. A
+  rule reads the one it is written against.
 </Tip>
 
 ## Rewarding on Tier
 
-Once the tier is on the profile, a reward rule can read it. Reward rules support conditions on a
-profile attribute, so a rule limited to participants whose `loyalty_tier` is `gold` issues the
-higher reward only to them.
+A reward rule can condition on a profile attribute and issue a different value for participants in
+a given tier. A rule for participants whose `loyalty_tier` is `gold`, for example, can issue the
+higher reward.
 
-Build a tiered earning structure as one reward per tier, each with a rule matching that tier, on
-the same event. A participant matches exactly one, and changing the structure later is a change to
-the rules rather than to your integration.
+One way to set this up is a separate reward for each tier, with a rule matching that tier, on the
+same event. The rules decide who receives which value.
 
 Trigger rules can read the same attribute, so an event can fire only for participants in a given
 tier. See [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules) and
@@ -90,8 +89,8 @@ See [How to Target a Program](/guides/flow-campaigns/how-to-target-a-program).
   earning multiplier is not confirmed as an available feature. Confirm with Product before
   publishing.
 
-  What works today: your systems decide when a participant's tier changes and write the new value
-  to Extole using one of the paths above. Extole reads the tier; it does not compute it.
+  What you can do today is send the current tier on either path above. Reward rules and targeting
+  read that value.
 </Info>
 
 ## Related
