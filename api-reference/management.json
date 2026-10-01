@@ -11698,6 +11698,14 @@
       },
       "BuiltComponentOperationResponse" : {
         "properties" : {
+          "consumes" : {
+            "description" : "The media types the request body may use.",
+            "items" : {
+              "enum" : [ "APPLICATION_FORM_URLENCODED", "APPLICATION_JSON", "APPLICATION_OCTET_STREAM", "MULTIPART_FORM_DATA", "TEXT_CSV", "TEXT_HTML", "TEXT_JAVASCRIPT", "TEXT_PLAIN" ],
+              "type" : "string"
+            },
+            "type" : "array"
+          },
           "description" : {
             "description" : "Explanation of what the operation does, already evaluated.",
             "type" : "string"
@@ -11732,6 +11740,14 @@
           "priority" : {
             "$ref" : "#/components/schemas/DeweyDecimal"
           },
+          "produces" : {
+            "description" : "The media types the response can carry.",
+            "items" : {
+              "enum" : [ "APPLICATION_FORM_URLENCODED", "APPLICATION_JSON", "APPLICATION_OCTET_STREAM", "MULTIPART_FORM_DATA", "TEXT_CSV", "TEXT_HTML", "TEXT_JAVASCRIPT", "TEXT_PLAIN" ],
+              "type" : "string"
+            },
+            "type" : "array"
+          },
           "request_schema" : {
             "$ref" : "#/components/schemas/JsonNode"
           },
@@ -11753,7 +11769,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "display_name", "method", "name", "openapi_spec", "parameters", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
+        "required" : [ "consumes", "description", "display_name", "method", "name", "openapi_spec", "parameters", "path", "priority", "produces", "request_schema", "response_schema", "tags", "type" ],
         "type" : "object"
       },
       "BuiltComponentPartnerEnumListVariableResponse" : {
@@ -19278,6 +19294,9 @@
       "ComponentOperationCreateRequest" : {
         "description" : "Body of a `POST /v1/components/{component_id}/operations` request.",
         "properties" : {
+          "consumes" : {
+            "$ref" : "#/components/schemas/ConsumesInComponentOperationCreateRequest"
+          },
           "description" : {
             "$ref" : "#/components/schemas/DescriptionInComponentOperationCreateRequest"
           },
@@ -19299,6 +19318,9 @@
           },
           "priority" : {
             "$ref" : "#/components/schemas/DeweyDecimal"
+          },
+          "produces" : {
+            "$ref" : "#/components/schemas/ProducesInComponentOperationCreateRequest"
           },
           "request_schema" : {
             "$ref" : "#/components/schemas/RequestSchemaInComponentOperationCreateRequest"
@@ -19383,8 +19405,11 @@
         "type" : "object"
       },
       "ComponentOperationResponse" : {
-        "description" : "Stored component operation definition. Fields `display_name`, `description`, `request_schema`, `response_schema`, `parameters`, `path`, and `method` are unevaluated and appear in buildtime-evaluatable form.",
+        "description" : "Stored component operation definition. Fields `display_name`, `description`, `request_schema`, `response_schema`, `parameters`, `produces`, `consumes`, `path`, and `method` are unevaluated and appear in buildtime-evaluatable form.",
         "properties" : {
+          "consumes" : {
+            "$ref" : "#/components/schemas/ConsumesInComponentOperationResponse"
+          },
           "description" : {
             "$ref" : "#/components/schemas/DescriptionInComponentOperationResponse"
           },
@@ -19407,6 +19432,9 @@
           "priority" : {
             "$ref" : "#/components/schemas/DeweyDecimal"
           },
+          "produces" : {
+            "$ref" : "#/components/schemas/ProducesInComponentOperationResponse"
+          },
           "request_schema" : {
             "$ref" : "#/components/schemas/RequestSchemaInComponentOperationResponse"
           },
@@ -19428,12 +19456,15 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "display_name", "method", "name", "parameters", "path", "priority", "request_schema", "response_schema", "tags", "type" ],
+        "required" : [ "consumes", "description", "display_name", "method", "name", "parameters", "path", "priority", "produces", "request_schema", "response_schema", "tags", "type" ],
         "type" : "object"
       },
       "ComponentOperationUpdateRequest" : {
         "description" : "Body of a `PUT /v1/components/{component_id}/operations/{operation_name}` request.",
         "properties" : {
+          "consumes" : {
+            "$ref" : "#/components/schemas/ConsumesInComponentOperationUpdateRequest"
+          },
           "description" : {
             "$ref" : "#/components/schemas/DescriptionInComponentOperationUpdateRequest"
           },
@@ -19451,6 +19482,9 @@
           },
           "priority" : {
             "$ref" : "#/components/schemas/DeweyDecimal"
+          },
+          "produces" : {
+            "$ref" : "#/components/schemas/ProducesInComponentOperationUpdateRequest"
           },
           "request_schema" : {
             "$ref" : "#/components/schemas/RequestSchemaInComponentOperationUpdateRequest"
@@ -20208,6 +20242,117 @@
         },
         "required" : [ "access_token", "client_id", "expired", "expires_at", "invalidated", "person_id", "scopes", "updated_at" ],
         "type" : "object"
+      },
+      "ConsumesInComponentOperationCreateRequest" : {
+        "description" : "The media types the request body may use. Omit it to publish application/json. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static consumes",
+          "items" : {
+            "description" : "The media types the request body may use. Omit it to publish application/json.",
+            "enum" : [ "APPLICATION_FORM_URLENCODED", "APPLICATION_JSON", "APPLICATION_OCTET_STREAM", "MULTIPART_FORM_DATA", "TEXT_CSV", "TEXT_HTML", "TEXT_JAVASCRIPT", "TEXT_PLAIN" ],
+            "type" : "string"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{consumes}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('consumes');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ConsumesInComponentOperationResponse" : {
+        "description" : "The media types the request body may use. An operation that declares none publishes application/json. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal consumes",
+          "items" : {
+            "description" : "The media types the request body may use. An operation that declares none publishes application/json.",
+            "enum" : [ "APPLICATION_FORM_URLENCODED", "APPLICATION_JSON", "APPLICATION_OCTET_STREAM", "MULTIPART_FORM_DATA", "TEXT_CSV", "TEXT_HTML", "TEXT_JAVASCRIPT", "TEXT_PLAIN" ],
+            "type" : "string"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{consumes}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('consumes');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ConsumesInComponentOperationUpdateRequest" : {
+        "description" : "The media types the request body may use. Omit it to keep the operation's current media types. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static consumes",
+          "items" : {
+            "description" : "The media types the request body may use. Omit it to keep the operation's current media types.",
+            "enum" : [ "APPLICATION_FORM_URLENCODED", "APPLICATION_JSON", "APPLICATION_OCTET_STREAM", "MULTIPART_FORM_DATA", "TEXT_CSV", "TEXT_HTML", "TEXT_JAVASCRIPT", "TEXT_PLAIN" ],
+            "type" : "string"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{consumes}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('consumes');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
       },
       "CountMatchesInCampaignControllerTriggerHasPriorRewardResponse" : {
         "description" : "The count matches as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
@@ -35237,6 +35382,117 @@
         }, {
           "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
           "example" : "javascript@buildtime:function() { return context.getVariableContext().get('priority');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ProducesInComponentOperationCreateRequest" : {
+        "description" : "The media types the response can carry. Omit it to publish application/json. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static produces",
+          "items" : {
+            "description" : "The media types the response can carry. Omit it to publish application/json.",
+            "enum" : [ "APPLICATION_FORM_URLENCODED", "APPLICATION_JSON", "APPLICATION_OCTET_STREAM", "MULTIPART_FORM_DATA", "TEXT_CSV", "TEXT_HTML", "TEXT_JAVASCRIPT", "TEXT_PLAIN" ],
+            "type" : "string"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{produces}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('produces');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ProducesInComponentOperationResponse" : {
+        "description" : "The media types the response can carry. An operation that declares none publishes application/json. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal produces",
+          "items" : {
+            "description" : "The media types the response can carry. An operation that declares none publishes application/json.",
+            "enum" : [ "APPLICATION_FORM_URLENCODED", "APPLICATION_JSON", "APPLICATION_OCTET_STREAM", "MULTIPART_FORM_DATA", "TEXT_CSV", "TEXT_HTML", "TEXT_JAVASCRIPT", "TEXT_PLAIN" ],
+            "type" : "string"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{produces}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('produces');}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ProducesInComponentOperationUpdateRequest" : {
+        "description" : "The media types the response can carry. Omit it to keep the operation's current media types. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "CampaignBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static produces",
+          "items" : {
+            "description" : "The media types the response can carry. Omit it to keep the operation's current media types.",
+            "enum" : [ "APPLICATION_FORM_URLENCODED", "APPLICATION_JSON", "APPLICATION_OCTET_STREAM", "MULTIPART_FORM_DATA", "TEXT_CSV", "TEXT_HTML", "TEXT_JAVASCRIPT", "TEXT_PLAIN" ],
+            "type" : "string"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{produces}}",
+          "externalDocs" : {
+            "description" : "CampaignBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('produces');}",
           "externalDocs" : {
             "description" : "CampaignBuildtimeContext",
             "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts"
@@ -55114,6 +55370,7 @@
           "content" : {
             "application/json" : {
               "example" : {
+                "consumes" : [ "APPLICATION_FORM_URLENCODED" ],
                 "description" : "description",
                 "display_name" : "display_name",
                 "method" : "DELETE",
@@ -55132,6 +55389,7 @@
                 } ],
                 "path" : "path",
                 "priority" : "10",
+                "produces" : [ "APPLICATION_FORM_URLENCODED" ],
                 "tags" : [ "tag" ],
                 "type" : "CONSUMER_TO_EXTOLE"
               },
@@ -55844,6 +56102,7 @@
           "content" : {
             "application/json" : {
               "example" : {
+                "consumes" : [ "APPLICATION_FORM_URLENCODED" ],
                 "description" : "description",
                 "display_name" : "display_name",
                 "method" : "DELETE",
@@ -55861,6 +56120,7 @@
                 } ],
                 "path" : "path",
                 "priority" : "10",
+                "produces" : [ "APPLICATION_FORM_URLENCODED" ],
                 "tags" : [ "tag" ],
                 "type" : "CONSUMER_TO_EXTOLE"
               },
