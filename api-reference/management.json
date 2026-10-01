@@ -3531,6 +3531,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "invalid_max_depth" : {
+        "summary" : "invalid_max_depth",
+        "value" : {
+          "code" : "invalid_max_depth",
+          "http_status_code" : 400,
+          "message" : "max_depth must be 1 or greater",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "invalid_missing_fulfillment_auto_fail_delay_ms" : {
         "summary" : "invalid_missing_fulfillment_auto_fail_delay_ms",
         "value" : {
@@ -4687,6 +4697,16 @@
           "code" : "orphan_external_component_reference",
           "http_status_code" : 400,
           "message" : "Orphan external referenced campaign component",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "parent_component_id_required" : {
+        "summary" : "parent_component_id_required",
+        "value" : {
+          "code" : "parent_component_id_required",
+          "http_status_code" : 400,
+          "message" : "This parameter requires parent_component_id",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -48512,6 +48532,29 @@
             "type" : "string"
           }
         }, {
+          "description" : "The ID of a component whose descendants to return, within that component's campaign. A child references this component and is installed into one of its sockets. The component itself is not returned. Descendants are returned in the same order as any other listing, not grouped by level; each result's component_ids and installed_into_socket identify its parent and socket.",
+          "in" : "query",
+          "name" : "parent_component_id",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "The name of a socket on parent_component_id. Only children installed into this socket are returned at the first level; deeper levels include children in any socket. Requires parent_component_id.",
+          "in" : "query",
+          "name" : "parent_socket_name",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "How many levels below parent_component_id to return. 1 (default) returns direct children only, 2 adds their children, and so on. To return the whole subtree, pass a value at least as large as its depth. Must be 1 or greater. Requires parent_component_id.",
+          "in" : "query",
+          "name" : "max_depth",
+          "schema" : {
+            "default" : 1,
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
           "in" : "query",
           "name" : "show_all",
           "schema" : {
@@ -48598,6 +48641,9 @@
                   "invalid_limit" : {
                     "$ref" : "#/components/examples/invalid_limit"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_offset" : {
                     "$ref" : "#/components/examples/invalid_offset"
                   },
@@ -48621,6 +48667,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "reward_supplier_id_list_invalid_configuration" : {
                     "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
@@ -49554,6 +49603,29 @@
             "type" : "string"
           }
         }, {
+          "description" : "The ID of a component whose descendants to return, within that component's campaign. A child references this component and is installed into one of its sockets. The component itself is not returned. Descendants are returned in the same order as any other listing, not grouped by level; each result's component_ids and installed_into_socket identify its parent and socket.",
+          "in" : "query",
+          "name" : "parent_component_id",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "The name of a socket on parent_component_id. Only children installed into this socket are returned at the first level; deeper levels include children in any socket. Requires parent_component_id.",
+          "in" : "query",
+          "name" : "parent_socket_name",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "How many levels below parent_component_id to return. 1 (default) returns direct children only, 2 adds their children, and so on. To return the whole subtree, pass a value at least as large as its depth. Must be 1 or greater. Requires parent_component_id.",
+          "in" : "query",
+          "name" : "max_depth",
+          "schema" : {
+            "default" : 1,
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
           "in" : "query",
           "name" : "show_all",
           "schema" : {
@@ -49640,6 +49712,9 @@
                   "invalid_limit" : {
                     "$ref" : "#/components/examples/invalid_limit"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_offset" : {
                     "$ref" : "#/components/examples/invalid_offset"
                   },
@@ -49663,6 +49738,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "reward_supplier_id_list_invalid_configuration" : {
                     "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
@@ -50013,6 +50091,9 @@
                   "invalid_limit" : {
                     "$ref" : "#/components/examples/invalid_limit"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_offset" : {
                     "$ref" : "#/components/examples/invalid_offset"
                   },
@@ -50036,6 +50117,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "reward_supplier_id_list_invalid_configuration" : {
                     "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
@@ -50386,6 +50470,9 @@
                   "invalid_limit" : {
                     "$ref" : "#/components/examples/invalid_limit"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_offset" : {
                     "$ref" : "#/components/examples/invalid_offset"
                   },
@@ -50409,6 +50496,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "reward_supplier_id_list_invalid_configuration" : {
                     "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
@@ -50643,6 +50733,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -50654,6 +50747,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -51103,6 +51199,9 @@
                   "invalid_limits" : {
                     "$ref" : "#/components/examples/invalid_limits"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_null" : {
                     "$ref" : "#/components/examples/invalid_null"
                   },
@@ -51156,6 +51255,9 @@
                   },
                   "orphan_external_component_reference" : {
                     "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "prehandler_build_failed" : {
                     "$ref" : "#/components/examples/prehandler_build_failed"
@@ -51697,6 +51799,9 @@
                   "invalid_limits" : {
                     "$ref" : "#/components/examples/invalid_limits"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -51744,6 +51849,9 @@
                   },
                   "orphan_external_component_reference" : {
                     "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "prehandler_build_failed" : {
                     "$ref" : "#/components/examples/prehandler_build_failed"
@@ -52068,6 +52176,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -52076,6 +52187,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -52247,6 +52361,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -52258,6 +52375,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -52405,6 +52525,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -52413,6 +52536,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -52561,6 +52687,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -52569,6 +52698,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -52737,6 +52869,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -52745,6 +52880,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -52969,6 +53107,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -52977,6 +53118,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -53124,6 +53268,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -53132,6 +53279,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "settings_build_failed" : {
                     "$ref" : "#/components/examples/settings_build_failed"
@@ -53400,6 +53550,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_null" : {
                     "$ref" : "#/components/examples/invalid_null"
                   },
@@ -53414,6 +53567,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -53594,6 +53750,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -53602,6 +53761,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -53762,6 +53924,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -53770,6 +53935,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "settings_build_failed" : {
                     "$ref" : "#/components/examples/settings_build_failed"
@@ -54048,6 +54216,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_null" : {
                     "$ref" : "#/components/examples/invalid_null"
                   },
@@ -54062,6 +54233,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -54277,6 +54451,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_null" : {
                     "$ref" : "#/components/examples/invalid_null"
                   },
@@ -54291,6 +54468,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -54478,6 +54658,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -54486,6 +54669,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -54642,6 +54828,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -54650,6 +54839,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "settings_build_failed" : {
                     "$ref" : "#/components/examples/settings_build_failed"
@@ -54800,6 +54992,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -54808,6 +55003,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "settings_build_failed" : {
                     "$ref" : "#/components/examples/settings_build_failed"
@@ -55134,6 +55332,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_null" : {
                     "$ref" : "#/components/examples/invalid_null"
                   },
@@ -55151,6 +55352,9 @@
                   },
                   "orphan_external_component_reference" : {
                     "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -55337,6 +55541,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -55345,6 +55552,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -55505,6 +55715,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -55513,6 +55726,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "settings_build_failed" : {
                     "$ref" : "#/components/examples/settings_build_failed"
@@ -55848,6 +56064,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_null" : {
                     "$ref" : "#/components/examples/invalid_null"
                   },
@@ -55865,6 +56084,9 @@
                   },
                   "orphan_external_component_reference" : {
                     "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -56182,6 +56404,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -56196,6 +56421,9 @@
                   },
                   "orphan_external_component_reference" : {
                     "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -56389,6 +56617,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -56397,6 +56628,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -56550,6 +56784,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -56558,6 +56795,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "settings_build_failed" : {
                     "$ref" : "#/components/examples/settings_build_failed"
@@ -56829,6 +57069,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -56849,6 +57092,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -57298,6 +57544,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -57321,6 +57570,9 @@
                   },
                   "orphan_external_component_reference" : {
                     "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -57615,6 +57867,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -57626,6 +57881,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -57861,6 +58119,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -57881,6 +58142,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -58176,6 +58440,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -58196,6 +58463,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "reward_supplier_id_list_invalid_configuration" : {
                     "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
@@ -58512,6 +58782,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -58532,6 +58805,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -58827,6 +59103,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -58847,6 +59126,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "reward_supplier_id_list_invalid_configuration" : {
                     "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
@@ -59088,6 +59370,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -59096,6 +59381,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "setting_not_found" : {
                     "$ref" : "#/components/examples/setting_not_found"
@@ -59389,6 +59677,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -59409,6 +59700,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -59897,6 +60191,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -59923,6 +60220,9 @@
                   },
                   "orphan_external_component_reference" : {
                     "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -60224,6 +60524,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -60235,6 +60538,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -60434,6 +60740,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -60445,6 +60754,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -60620,6 +60932,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -60631,6 +60946,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -60806,6 +61124,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -60814,6 +61135,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -60992,6 +61316,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -61003,6 +61330,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -91999,6 +92329,9 @@
                   "invalid_limits" : {
                     "$ref" : "#/components/examples/invalid_limits"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -92097,6 +92430,9 @@
                   },
                   "orphan_external_component_reference" : {
                     "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "parent_trigger_group_name_does_not_exist" : {
                     "$ref" : "#/components/examples/parent_trigger_group_name_does_not_exist"
@@ -92487,6 +92823,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -92498,6 +92837,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
@@ -92737,6 +93079,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -92757,6 +93102,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -93086,6 +93434,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -93106,6 +93457,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -93435,6 +93789,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -93455,6 +93812,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -93784,6 +94144,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -93804,6 +94167,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -94377,6 +94743,9 @@
                   "invalid_limits" : {
                     "$ref" : "#/components/examples/invalid_limits"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -94472,6 +94841,9 @@
                   },
                   "orphan_external_component_reference" : {
                     "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "prehandler_build_failed" : {
                     "$ref" : "#/components/examples/prehandler_build_failed"
@@ -94984,6 +95356,9 @@
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -94998,6 +95373,9 @@
                   },
                   "orphan_external_component_reference" : {
                     "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
@@ -105521,6 +105899,9 @@
                   "invalid_limits" : {
                     "$ref" : "#/components/examples/invalid_limits"
                   },
+                  "invalid_max_depth" : {
+                    "$ref" : "#/components/examples/invalid_max_depth"
+                  },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
                   },
@@ -105565,6 +105946,9 @@
                   },
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "parent_component_id_required" : {
+                    "$ref" : "#/components/examples/parent_component_id_required"
                   },
                   "prehandler_build_failed" : {
                     "$ref" : "#/components/examples/prehandler_build_failed"
