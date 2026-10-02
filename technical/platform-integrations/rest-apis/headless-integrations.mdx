@@ -99,24 +99,55 @@ Authorization: Bearer YOUR_CONSUMER_TOKEN
 - `event_id`: the ID of the zone request event. Use it when you trace the request later.
 - `campaign_id`: the campaign that served the zone.
 
-`POST /api/v6/zones/{event_name}` does the same with the zone name in the path. Each zone request is recorded as an event for the person. Track impressions and taps on your placements with events of their own, as described under **Track Events** in [Headless and Mobile API](/technical/platform-integrations/rest-apis/mobile-api).
+`POST /api/v6/zones/{event_name}` does the same with the zone name in the path. See [Render a zone](/api-reference/content/render-a-zone). Each zone request is recorded as an event for the person.
+
+#### Example: A JSON Call to Action
+
+The **Mobile CTA** component, part of the Mobile SDK extension, serves a small call to action as JSON from the `mobile_cta` zone. Use it for a "Refer a friend" banner or menu item that your app draws itself.
+
+```json Request the mobile_cta zone
+POST https://refer.yourcompany.com/api/v6/zones
+Content-Type: application/json
+Authorization: Bearer YOUR_CONSUMER_TOKEN
+
+{
+  "event_name": "mobile_cta",
+  "data": {
+    "labels": "refer-a-friend"
+  }
+}
+```
+
+```json Response
+{
+  "event_id": "7385039920586347221",
+  "campaign_id": "7385039920586341111",
+  "data": {
+    "title": "Give $20, Get $20",
+    "image": "https://YOUR_IMAGE_URL/refer-a-friend.png"
+  }
+}
+```
+
+- `title` is the component's **Title Copy** setting. The default is "CTA Item", so set your own copy in My Extole.
+- `image` is the component's **Social Share Image URL** setting.
+
+The component also tracks the placement for you. Send `mobile_cta_viewed` when the CTA is shown and `mobile_cta_tap` when the person taps it, as described under [Fire Events to Extole](#fire-events-to-extole). Extole records them as **promotion_viewed** and **promotion_clicked**. If your zone has another name, the events are `<zone name>_viewed` and `<zone name>_tap`.
 
 ### Profile Information and Stats
 
-| Endpoint | Returns |
+Read the person's profile and stats from the `advocate_mobile_experience` zone. One zone request returns everything an advocate screen needs, in `data.me`:
+
+| Field | Contains |
 |---|---|
-| `GET /api/v4/me` | The person's profile: `email`, `first_name`, `last_name`, `partner_user_id`, `locale`, `profile_picture_url`, `parameters`, and consent. |
-| `POST /api/v4/me` | Updates the profile. Needs a verified token. |
-| `POST /api/v6/me/shareables/get-or-create` | The person's share link and code (`link`, `code`), created if they have none yet. `GET /api/v6/me/shareables` lists existing ones. |
-| `GET /api/v4/me/shares` | The shares the person has made. |
-| `GET /api/v4/me/referrals-from-me` | The friends this person referred. |
-| `GET /api/v4/me/referrals-to-me` | The advocate who referred this person. |
-| `GET /api/v4/me/rewards/status` | The status of one pending reward, by `polling_id`, `reward_name`, or `partner_event_id`. |
-| `GET /api/v4/me/steps` | The steps the person has completed. |
+| `email`, `first_name`, `last_name`, `partner_user_id`, `profile_picture_url` | The person's profile. |
+| `shareable_link`, `advocate_code` | The person's share link and code, created if they have none yet. |
+| `rewards` | The person's rewards, oldest first, without canceled, revoked, or failed ones. Each has `faceValue`, `faceValueType`, `rewardType`, `state`, and `dateEarned`. |
+| `friends` | Up to 10 friends the person referred, most recent first. Each has `firstNameOrEmail`, `initials`, and a `status` such as "Signed Up" or "Purchased". |
 
-The Consumer to Extole API has no single stats endpoint. For a stats panel, read `me.rewards` and `me.friends` from a JSON zone such as `advocate_mobile_experience`, or count referrals from `referrals-from-me`. A verified token is needed for private data like rewards and friends.
+`rewards` and `friends` are private data. The zone returns them only when the token has the `VERIFIED_CONSUMER` scope, which means a verified token created from a JWT your server signs. With an anonymous or identified token they come back empty. Your backend can read them too, as described in [Server-to-Server Headless Integration](#server-to-server-headless-integration).
 
-Your backend can read the same person's full reward list from the Server to Extole API with `GET /v5/persons/{person_id}/rewards`, and their referrals with `GET /v5/persons/{person_id}/relationships`.
+Count the entries in `rewards` and `friends`, or add up `faceValue`, for a stats panel. There is no separate stats endpoint to call.
 
 ### Fire Events to Extole
 
@@ -156,6 +187,60 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
 Send outcome events such as conversions and account openings from your backend, where they can't be forged. Send engagement events such as zone taps and shares from the device.
+
+## Server-to-Server Headless Integration
+
+In a server-to-server integration, the person's browser or app never calls Extole. Your backend calls the **Server to Extole API** at `https://api.extole.io` and passes Extole's content into the page or app response it already builds. Use it when your pages are rendered on the server, when no client script or Extole token may run on the device, or when you want every Extole call behind your own API.
+
+### Authenticate Your Backend
+
+Your backend uses one access token for all its calls, not a token per person. Create it in My Extole in the [Security Center](https://my.extole.com/security-center), or with [Create access token](/api-reference/authentication/create-access-token), and keep it on the server. Zone calls need the `USER_SUPPORT` scope. Never send this token to a browser or app, because it acts for every person in your program.
+
+### Identify the Person in Each Call
+
+There is no person token. Name the person in each request instead, with `email`, `partner_user_id`, or `person_id`. Extole finds that person, or creates a profile for someone new, the same way it does for a server event. Use the same key every time, usually `partner_user_id`, so web, app, and server activity land on one profile.
+
+The person's private data, such as rewards and friends, comes back on server calls without a JWT, because your backend's token already has access to every person in the program.
+
+### Request a Zone from Your Server
+
+Request a zone with `POST /v5/zones/{zone_name}`, with the person's identity and any targeting data in the body. See [Render a zone with targeting data](/api-reference/content/render-a-zone-with-targeting-data).
+
+```json Request a zone from your server
+POST https://api.extole.io/v5/zones/advocate_mobile_experience
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+{
+  "partner_user_id": "3000500000",
+  "email": "advocate@example.com"
+}
+```
+
+The server call differs from the consumer call in two ways:
+
+- **The body is flat.** The identity and targeting keys sit at the top level, not inside `data`, and the zone name goes in the path.
+- **The response is not wrapped.** The body is the component's JSON itself, the same object the consumer call returns in `data`. The campaign and the zone request event come back in `X-Extole-*` response headers, such as `X-Extole-Input-Event-Id`.
+
+So the same `advocate_mobile_experience` zone gives your server the profile, share link, rewards, and friends in one call, and the same `mobile_cta` zone gives it the CTA copy.
+
+### Other Server Calls
+
+| Task | Endpoint |
+|---|---|
+| Find a person's Extole ID | [`GET /v5/persons`](/api-reference/persons/search-for-persons), by their identity key value |
+| Read a person's share links and codes | [`GET /v5/persons/{person_id}/shareables`](/api-reference/persons/list-person-shareables) |
+| Read a person's full reward list | [`GET /v5/persons/{person_id}/rewards`](/api-reference/persons/list-person-rewards) |
+| Read a person's referrals | [`GET /v5/persons/{person_id}/relationships`](/api-reference/persons/list-person-relationships) |
+| Send an event | [`POST /v6/events`](/api-reference/events/submit-an-event), as shown in [Fire Events to Extole](#fire-events-to-extole) |
+
+### What Still Happens on the Device
+
+A server-to-server integration still has to report what the person does on the page. Your backend sends those events on the person's behalf:
+
+- **Impressions and taps.** When your page shows or the person taps a placement, send its event from your backend, such as `mobile_cta_viewed` and `mobile_cta_tap`.
+- **Shares.** Send the `share` event when the person shares their link.
+- **Friend arrival.** When a friend lands on your site from a share link, your landing page has to capture that arrival and your backend has to pass it to Extole. Without it, Extole can't attribute the friend to the advocate. Agree with your Extole team which event carries it.
 
 ## Debug a Headless Integration
 
