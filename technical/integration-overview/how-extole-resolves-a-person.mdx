@@ -1,0 +1,66 @@
+---
+title: "How Extole Resolves a Person"
+description: "How Extole decides which profile an incoming event or file row belongs to, and what happens when two people share one identifier."
+---
+
+## Overview
+
+Every event you send — a tag request, an API call, or a row in an uploaded file — has to be attached to a person before anything else happens. Extole resolves the profile first, then processes the event against it. Knowing that order explains a class of surprises, most of them variations on one theme: two people who share an identifier end up on a single profile.
+
+## The Resolution Order
+
+Extole looks for an existing profile using the identifiers the event carries, and stops at the first one that matches:
+
+1. An explicit Extole person ID on the event.
+2. The account's **identity key** value. For most accounts the identity key is the email address.
+3. The email address, when email is not the account's identity key.
+4. The partner user ID.
+5. Any other **person key** the event carries that one of your campaigns declares as a person key.
+
+If nothing matches, Extole creates a profile.
+
+## Identity Keys and Person Keys Are Distinct
+
+The **identity key** is one field chosen per account — email for most accounts — and it is what makes a profile the person it is. One identity key value belongs to exactly one profile, and Extole enforces that.
+
+A **person key** is an additional identifier your campaigns declare so that Extole can find a profile by it: a member number, an account number, a partner's customer identifier. Person keys are a convenience for lookup, and they carry no uniqueness guarantee. Nothing stops your system from sending the same person key value for two distinct people.
+
+<Info>
+  To see which person keys your account has, call the partner keys endpoint described in [List partner keys](/api-reference/persons/list-partner-keys). Person keys come from your campaigns, so the list changes when a campaign that declares one is launched or stopped.
+</Info>
+
+## When Two People Share a Person Key
+
+Joint and household accounts are the common case: two people, two email addresses, one account number — and the account number is declared as a person key.
+
+Only one profile can hold that account number. The first row processed creates a profile identified by that person's email, and the account number is recorded as a person key pointing at it. What happens to the second person then depends on what else Extole can identify them by:
+
+- **Their email already has a profile.** Step 2 matches, both people keep separate profiles, and nothing is lost.
+- **Their email is new to Extole.** Steps 2 and 3 find nothing, step 5 matches the shared account number, and the event resolves onto the first person's profile.
+
+In the second case the second person's data is written onto the first person's profile — names and other attributes are overwritten by whichever row was processed most recently — and no profile is created for their email address.
+
+The visible consequences are:
+
+- Searching for the second email address in My Extole returns nothing.
+- Adding that email to an audience adds the shared profile, which is usually already a member, so the audience does not grow.
+- Email sent to that person is delivered to the first person's address.
+
+<Warning>
+  This affects people added to an account Extole already knows, so it appears gradually rather than all at once. An integration that worked at launch can accumulate these over months as new joint account holders are added.
+</Warning>
+
+## How to Tell
+
+Look up the shared identifier rather than the email address. [Search for persons](/api-reference/persons/search-for-persons) accepts a person key in `name:value` form. If the account number returns a profile whose identity is a different email address from the one you were looking for, that is the collapse.
+
+For audiences populated from an uploaded file, compare **Input Size** with **Members** on the operation's entry in the audience History tab. Rows that resolved to a profile another row had already resolved to do not add a distinct member, so a large difference that stays roughly the same on every run points at shared person keys rather than at rejected rows.
+
+## What to Do About It
+
+Two changes fix it, and both are account-wide — discuss either with your Extole contact before making it.
+
+- **Send a per-person identifier as the person key.** If your system has a member number that is unique per person, declaring that as the person key instead of the account-level number keeps every person distinct while preserving lookup.
+- **Stop declaring the shared identifier as a person key.** Email then identifies people on its own. The identifier can still be sent and stored as profile data. The trade-off is that you can no longer look a profile up by it, and any relationship or deduplication that relies on it has to be rebuilt on something else.
+
+If the two people genuinely are one participant for your program — a household that earns one reward — leaving the behavior in place is a legitimate choice. Make it deliberately rather than by default.
