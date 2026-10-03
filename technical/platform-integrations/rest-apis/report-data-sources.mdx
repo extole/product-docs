@@ -1,0 +1,36 @@
+---
+title: "Report Data Sources"
+description: "What each value in a report type's data_sources list means, and how to use it to pick a report that can actually return the data you want."
+---
+
+# Overview
+
+Every Extole report type declares a `data_sources` list naming the underlying data it reads from. You can see it in the response to [Get Report Type](/api-reference/report-types/get-report-type) (`GET /v6/report-types/{id}`), in [List Report Types](/api-reference/report-types/list-report-types), or with `extole reports describe` in the [Extole CLI](/technical/extole-ai-tools/extole-cli/index).
+
+Check `data_sources` before you tune a report's parameters to surface some activity. If the data you expect isn't in the list, no combination of parameters will produce it. That's a report-selection problem, not a filter problem: pick a report type that reads the right source.
+
+## Data Source Values
+
+| Value | What it represents | Example report types |
+|---|---|---|
+| `CONSUMER` | The participant and business event stream: journey steps and triggered events as they happen. | `ACQUISITION_RATE`, `ADVOCATE_LIST` |
+| `CONSUMER_PROFILE` | Participant profile records: the "who is this person" view assembled from profile data. | `FULL_PROFILE` |
+| `PROFILE` | The lower-level log of changes saved to participant profiles. | `PROFILE_EVENTS` |
+| `CLIENT` | A broad log of changes to your account, its configuration, and platform activity. | `CLIENT_EVENTS` |
+| `CLIENT_CHANGE` | Narrower than `CLIENT`: a log of account and campaign configuration changes. Many reports join it in to show the names that were in effect when an event happened. | `CLIENT_CHANGE` |
+| `REWARD` | Reward lifecycle records: each state a reward moves through, such as earned, fulfilled, redeemed, or expired. | `REWARD_EVENTS_BY_REWARD_ID`, `REWARDS_BY_STATE_COUNT` |
+| `REWARD_COMMAND` | The commands that drive reward actions, as distinct from the resulting `REWARD` records. | `REWARD_COMMAND_EVENTS` |
+| `MESSAGE` | Message events for a profile or email address: the content and send side of messaging. | `MESSAGE_EVENTS`, `EMAIL_MESSAGE_EVENTS` |
+| `NOTIFICATION` | Platform notifications, each linked to the event that triggered it. | `NOTIFICATION_EVENTS`, `NOTIFICATION_BY_EVENT_ID` |
+| `AUDIT_EMAIL` | An audit trail of the emails actually sent in a time period. Specific to the email share channel and distinct from `MESSAGE`. | `AUDIT_EMAIL_BY_TIME` |
+| `WEBHOOK` | The webhook trigger log: which webhook fired, for which event, and why. | `WEBHOOK_EVENTS` |
+| `WEBHOOK_DISPATCH_RESULT` | The delivery outcome of each webhook dispatch, such as the HTTP response status code. | `WEBHOOK_DISPATCH_RESULT_EVENTS` |
+| `DASHBOARD` | Pre-aggregated rollups that power the dashboards in My Extole. A report that reads only from `DASHBOARD` can't be filtered any finer than the data was aggregated. | `summary`, `summary_per_campaign` |
+| `BATCH` | Batch and bulk-import job events from the `/v6/batches` endpoints. | `BATCH_EVENTS_BY_EVENT_TIME` |
+
+A report type can list more than one source. Many reports read `CONSUMER` for the events and join `CLIENT_CHANGE`, `CONSUMER_PROFILE`, `MESSAGE`, or `REWARD` to add context to each row.
+
+## Related Pages
+
+- [Asynchronous Reporting API](/technical/platform-integrations/rest-apis/asynchronous-reporting-api)
+- [Custom Data Queries Using Extole Reports](/guides/dashboards-and-reporting/configuring-reports/custom-data-queries-using-extole-reports)
