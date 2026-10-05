@@ -1,6 +1,6 @@
 ---
 title: "Why a Zone Shows on Your Website but Not in Your App"
-description: "A Flow Builder call-to-action serves a zone request only when the request's name and app type match a declaration selected in its Triggered By. Here is how app type works and how to cover every place a zone is requested from."
+description: "A zone request produces a trigger event with the zone's name and the request's app type, and a Flow Builder call-to-action responds only when both match a trigger event selected in its Triggered By. Here is how app type works and how to cover every place a zone is requested from."
 ---
 
 <Note>
@@ -15,33 +15,33 @@ The cause is almost always the **app type** of the zone request. This page expla
 
 ## How App Type Decides Which Requests Are Served
 
-Every zone request carries an app type that says where it came from:
+When your website or app requests a zone, the request produces a trigger event, usually named the same as the zone. Every request also carries an app type that says where it came from:
 
-| Requested from | App type | Declared on |
+| Requested from | App type | Trigger event declared on |
 |---|---|---|
 | Your website, including your mobile website | `javascript_sdk` | **Javascript SDK**, under **Tagged CTAs** |
 | Your iOS app | `mobile-sdk-ios` | **Mobile SDK**, under **Platforms** > **iOS** |
 | Your Android app | `mobile_sdk_android` | **Mobile SDK**, under **Platforms** > **Android** |
 
-Each zone declared on an SDK extension belongs to one app type, which it takes from where it is installed. [Javascript SDK and Mobile SDK Extensions](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions) covers where each declaration lives and how to add one. A call-to-action serves a request only when the request's zone name **and** app type both match one of the declarations selected in its **Triggered By**.
+Each trigger event declared on an SDK extension belongs to one app type, which it takes from where it is installed. [Javascript SDK and Mobile SDK Extensions](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions) covers where each trigger event is declared and how to add one. A call-to-action responds to a request only when the request's name **and** app type both match one of the trigger events selected in its **Triggered By**.
 
 Two things follow:
 
-- **A declaration under the wrong app type changes nothing.** If your iOS app requests a zone and you declare it on the Javascript SDK, or only under Android, you can select it and the campaign publishes, but no request from your iOS app reaches it.
+- **A trigger event under the wrong app type changes nothing.** If your iOS app requests a zone and you declare its trigger event on the Javascript SDK, or only under Android, you can select it and the campaign publishes, but no request from your iOS app reaches it.
 - **A clean publish does not prove traffic flows.** Publishing checks that **Triggered By** holds a selection. It does not check that every place the zone is requested from is covered.
 
 ## Example: The Mobile Header Shows on the Website but Not in the App
 
-The Refer a Friend programs include three calls-to-action named for mobile placements: `mobile_header`, `mobile_footer`, and `mobile_menu`. Despite the names, they are not only for apps. The same names are requested from your mobile website, your iOS app, and your Android app, and each is a distinct declaration.
+The Refer a Friend programs include three calls-to-action named for mobile placements: `mobile_header`, `mobile_footer`, and `mobile_menu`. Despite the names, they are not only for apps. The same zones are requested from your mobile website, your iOS app, and your Android app, and each place produces a distinct trigger event.
 
-With only the Javascript SDK's `mobile_header` selected, the call-to-action shows on your mobile website and never in either app.
+With only the Javascript SDK's `mobile_header` trigger event selected, the call-to-action shows on your mobile website and never in either app.
 
-This is the usual result when the campaign was created before you installed the Mobile SDK extension. When the campaign was created, it matched the Javascript SDK declaration. Installing the Mobile SDK later does not add the app declarations to the campaign, because that matching happens only when a campaign is created.
+This is the usual result when the campaign was created before you installed the Mobile SDK extension. When the campaign was created, it matched the Javascript SDK trigger event. Installing the Mobile SDK later does not add the app trigger events to the campaign, because that matching happens only when a campaign is created.
 
 To fix it:
 
 1. In My Extole, open [Partners](https://my.extole.com/integrations), select **Extensions**, and open **Mobile SDK**. Check that `mobile_header` is declared under **iOS** and under **Android**. Add it where it is missing, and publish the extension.
-2. Open the campaign, select the `mobile_header` call-to-action, and in **Triggered By** select the iOS and Android declarations as well as the Javascript SDK one.
+2. Open the campaign, select the `mobile_header` call-to-action, and in **Triggered By** select the iOS and Android `mobile_header` trigger events as well as the Javascript SDK one.
 3. Publish the campaign, then check the call-to-action in each app.
 4. Repeat for `mobile_footer` and `mobile_menu`.
 
@@ -49,9 +49,9 @@ Whenever a zone shows in one place and not another, compare where its requests c
 
 ## Requests With No App Type, or a Custom One
 
-Some zone requests carry none of the three app types. An older or custom integration may send its own value, such as `Web`, or send no app type at all. No SDK declaration matches those requests, so a call-to-action with only SDK declarations selected never shows for them.
+Some zone requests carry none of the three app types. An older or custom integration may send its own value, such as `Web`, or send no app type at all. No SDK trigger event matches those requests, so a call-to-action with only SDK trigger events selected never shows for them.
 
-To accept them, declare the zone name on the **Event API** and select it alongside the SDK declarations. An Event API event has no app type, and a declaration without an app type matches every request with that name, whatever app type it carries, including none.
+To accept them, declare a trigger event with the zone's name on the **Event API** and select it alongside the SDK trigger events. An Event API trigger event has no app type, and a trigger event without an app type matches every request with that name, whatever app type it carries, including none.
 
 1. Open the **Event API** extension.
 2. Under **Integration Events**, add an event named exactly as the zone, for example `mobile_header`, and publish the extension.
@@ -59,14 +59,14 @@ To accept them, declare the zone name on the **Event API** and select it alongsi
 4. Publish the campaign, and check the call-to-action where the custom requests come from.
 
 <Warning>
-An Event API declaration matches every source. With it selected, the call-to-action serves a request of that name from any website, app, or integration. Use it when that is what you want, not to get one particular source working.
+An Event API trigger event matches every source. With it selected, the call-to-action serves a request of that name from any website, app, or integration. Use it when that is what you want, not to get one particular source working.
 </Warning>
 
-Matching one custom app type and nothing else is not something you can set up yourself. The Javascript SDK sets one app type for all of its zones, so changing it moves every zone at once. If a call-to-action must show for one custom app type only, contact your Extole team.
+Matching one custom app type and nothing else is not something you can set up yourself. The Javascript SDK sets one app type for all of its trigger events, so changing it moves every one at once. If a call-to-action must show for one custom app type only, contact your Extole team.
 
 ## A Zone Page Opened by a Plain Link Renders Blank
 
-A zone page opened directly by a link, rather than requested by an SDK, carries no app type. A link such as `/zone/in_branch_referral_portal` matches no SDK declaration and renders blank.
+A zone page opened directly by a link, rather than requested by an SDK, carries no app type. A link such as `/zone/in_branch_referral_portal` matches no SDK trigger event and renders blank.
 
 Add the app type to the link:
 
