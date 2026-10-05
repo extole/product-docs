@@ -1,0 +1,80 @@
+---
+title: "Eligibility Window"
+description: "Install the Eligibility Window extension to hold an outcome event for a grace period, so an event that arrives before its referral still counts and still rewards."
+---
+
+## Overview
+
+Eligibility Window is an extension that gives an outcome event a grace period. It holds each matching event for a delay you set, then sends it on to your campaigns with its original event time and data. By then the referral that goes with it has had time to arrive, so the event is attributed and rewarded as if it had come in after the referral.
+
+Use it when events reach Extole out of order. The common case is an `account_opened` event for a bank or credit union. An account opened in a branch is often sent with a timestamp backdated to the start of the day, or with a date and no time. The account opening then looks like it happened before the referral, and neither the friend nor the advocate is rewarded. The same can happen with any event sent from a file, a CRM, or another system that reports on its own schedule.
+
+| Goal | Use |
+| :--- | :--- |
+| Let an outcome event count when it arrives before the referral | This extension |
+| Send an event from a file when the row's date arrives | [File Integration](/technical/platform-integrations/extensions/file-integration#delay-a-file-event) |
+
+## How It Works
+
+For each event you configure, the extension does three things:
+
+1. It listens for the input event, for example `account_opened`, from any source: the API, a file, JavaScript, or a webhook.
+2. It holds the event for the length of the **Eligibility Window**.
+3. When the window ends, it sends the event again under the same name, with the original event time and data.
+
+Your campaign listens for the event the extension sends, not the input event. That's why setup has two halves: configure the extension, then change the trigger rule on the business event in each campaign that uses the event.
+
+<Warning>
+Every event the extension handles waits for the full window, including events whose referral was already in place. A 24-hour window delays every reward on that event by 24 hours. Pick the shortest window that covers how late your referrals arrive.
+</Warning>
+
+## Install Eligibility Window
+
+1. Open [Partners](https://my.extole.com/integrations) in My Extole.
+2. Select the **Extensions** tab, then click **+ New Extension**.
+3. Select **Eligibility Window** and install it.
+
+The installed extension is **Enabled** by default. Turning **Enabled** off stops the extension from sending its events at all, so a campaign pointed at the held event stops reacting to it. Change that campaign's trigger rule back before you turn the extension off.
+
+## Add an Event
+
+The events the extension holds are listed under **Business Events**. It's an advanced setting, so open the filter menu on the settings list and turn on **Show Advanced** if you don't see it.
+
+1. Under **Business Events**, add one entry for each event you want to hold.
+2. Set **Input Event Name** to the event's exact name, for example `account_opened`. It defaults to the entry's name.
+3. Set **Eligibility Window** to the grace period. The default is 24 hours.
+4. Click **Save**.
+
+For bank and credit union account openings, a window of one day covers a timestamp backdated to the start of the day. Set it longer if referrals for your program can arrive more than a day after the account is opened.
+
+### Event Settings
+
+| Setting | Default | What it does |
+| :--- | :--- | :--- |
+| **Input Event Name** | The entry's name | The event to hold. Must match the name the event is sent with. |
+| **Eligibility Window** | 24 hours | How long to hold the event before it is sent to your campaigns. |
+| **Data Capture Policy** | All Data | **All Data** copies the event's data onto the extension's record of the event. **No Additional Data** copies nothing extra. |
+| **Data Copy Scope** | Private | Whether that copied data is private, public, or available across your client. |
+| **Excluded Data Keys** | Empty | Keys to drop from the event, for example `event_date` or `event_time`. Leave empty to keep every key. |
+
+**Data Capture Policy**, **Data Copy Scope**, and **Excluded Data Keys** are advanced settings.
+
+## Point Your Campaign at the Held Event
+
+A business event that is triggered by the input event still reacts the moment the event arrives, before the window has done anything. Change its trigger rule so it reacts to the event the extension sends instead:
+
+1. Open the campaign in Flow Builder and select the business event, for example **Account Opened**.
+2. Under **Trigger Rules**, delete **Triggered by Input Event**.
+3. Click **+ New Rule** and add **Published event matches event names**.
+4. Under **Trigger Event Names**, remove `default` and add the same name you set as **Input Event Name**, for example `account_opened`.
+5. Save and publish the campaign.
+
+Keep any other trigger rules on the business event, such as an **Event Data Comparison** on product type. Only the rule that matches the input event changes.
+
+If more than one campaign reacts to the same event, change the trigger rule in each of them. A campaign that still uses **Triggered by Input Event** reacts to the event at arrival, without the grace period.
+
+## Related Articles
+
+- [Extensions](/technical/platform-integrations/extensions)
+- [File Integration](/technical/platform-integrations/extensions/file-integration)
+- [Configure Common Reward Scenarios for Credit Unions and Banks](/guides/flow-campaigns/configure-common-reward-scenarios-for-credit-unions-and-banks)
