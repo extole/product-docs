@@ -12520,8 +12520,7 @@
         }, {
           "properties" : {
             "script" : {
-              "description" : "JavaScript body of the row filter. Receives one row as `row` and returns true to keep it.",
-              "type" : "string"
+              "$ref" : "#/components/schemas/ScriptInBuiltFilterRowsTaskResponse"
             },
             "task_type" : {
               "enum" : [ "FILTER_ROWS" ],
@@ -19143,7 +19142,7 @@
       },
       "ColumnMappingRequest" : {
         "properties" : {
-          "canonical_name" : {
+          "canonical_column" : {
             "description" : "Column header written to the transformed file in place of the incoming one.",
             "type" : "string"
           },
@@ -19152,13 +19151,13 @@
             "type" : "string"
           }
         },
-        "required" : [ "canonical_name", "incoming_column" ],
+        "required" : [ "canonical_column", "incoming_column" ],
         "type" : "object"
       },
       "ColumnMappingResponse" : {
         "description" : "Column headers renamed in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header. A literal list or a buildtime expression resolved from component settings when the task is saved.",
         "properties" : {
-          "canonical_name" : {
+          "canonical_column" : {
             "description" : "Column header written to the transformed file in place of the incoming one.",
             "type" : "string"
           },
@@ -29272,7 +29271,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "script", "task_type" ],
+        "required" : [ "task_type" ],
         "type" : "object"
       },
       "FilterRowsTaskResponse" : {
@@ -29290,7 +29289,7 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored filter rows task definition. Fields `order`, `script`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "description" : "Stored filter rows task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
         "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "script", "task_type" ],
         "type" : "object"
       },
@@ -40940,93 +40939,99 @@
           "type" : "string"
         } ]
       },
-      "ScriptInFilterRowsTaskRequest" : {
-        "description" : "JavaScript body of a function that receives one file row as `row`, an object keyed by column header with string values, and returns true to keep the row or false to drop it. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+      "ScriptInBuiltFilterRowsTaskResponse" : {
+        "description" : "JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. It must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header with string values, for example `context.getRow().status === 'active'`. Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
         "externalDocs" : {
-          "description" : "JobBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          "description" : "FilterRowsContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
         },
         "oneOf" : [ {
-          "allOf" : [ {
-            "type" : "string"
-          }, {
-            "not" : {
-              "anyOf" : [ {
-                "pattern" : "^handlebars@buildtime:.*",
-                "type" : "string"
-              }, {
-                "pattern" : "^javascript@buildtime:.*",
-                "type" : "string"
-              } ]
-            },
-            "type" : "string"
-          } ],
-          "description" : "Static script",
-          "title" : "Static Value"
+          "description" : "Literal script",
+          "title" : "Static Value",
+          "type" : "boolean"
         }, {
-          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{script}}",
+          "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "handlebars@runtime:{{script}}",
           "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
           },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
           "type" : "string"
         }, {
-          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('script');}",
+          "description" : "Javascript expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('script');}",
           "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
           },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ScriptInFilterRowsTaskRequest" : {
+        "description" : "JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. It must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header with string values, for example `context.getRow().status === 'active'`. Required on create. Omit on update to keep the existing script. Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+        "externalDocs" : {
+          "description" : "FilterRowsContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static script",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "handlebars@runtime:{{script}}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('script');}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
           "type" : "string"
         } ]
       },
       "ScriptInFilterRowsTaskResponse" : {
-        "description" : "JavaScript body of a function that receives one file row as `row`, an object keyed by column header with string values, and returns true to keep the row or false to drop it. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "description" : "JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. It must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header with string values, for example `context.getRow().status === 'active'`. Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
         "externalDocs" : {
-          "description" : "JobBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          "description" : "FilterRowsContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
         },
         "oneOf" : [ {
-          "allOf" : [ {
-            "type" : "string"
-          }, {
-            "not" : {
-              "anyOf" : [ {
-                "pattern" : "^handlebars@buildtime:.*",
-                "type" : "string"
-              }, {
-                "pattern" : "^javascript@buildtime:.*",
-                "type" : "string"
-              } ]
-            },
-            "type" : "string"
-          } ],
           "description" : "Literal script",
-          "title" : "Static Value"
+          "title" : "Static Value",
+          "type" : "boolean"
         }, {
-          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{script}}",
+          "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "handlebars@runtime:{{script}}",
           "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
           },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
           "type" : "string"
         }, {
-          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('script');}",
+          "description" : "Javascript expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('script');}",
           "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
           },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
           "type" : "string"
         } ]
       },
@@ -43356,7 +43361,7 @@
             "type" : "integer"
           },
           "status" : {
-            "enum" : [ "FAIL", "PENDING", "SUCCESS" ],
+            "enum" : [ "FAIL", "RUNNING", "SUCCESS" ],
             "type" : "string"
           },
           "task_id" : {
@@ -43671,7 +43676,7 @@
         }, {
           "properties" : {
             "column_mappings" : {
-              "description" : "Column headers to rename in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header.",
+              "description" : "Column headers to rename in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header. Omit on update to leave existing mappings unchanged.",
               "items" : {
                 "$ref" : "#/components/schemas/ColumnMappingRequest"
               },
@@ -43684,7 +43689,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "column_mappings", "task_type" ],
+        "required" : [ "task_type" ],
         "type" : "object"
       },
       "TransformColumnHeadersTaskResponse" : {
