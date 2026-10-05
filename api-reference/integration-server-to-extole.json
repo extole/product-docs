@@ -2176,7 +2176,7 @@
             "type" : "string"
           },
           "other_person_id" : {
-            "description" : "Extole person id of the friend who received this share. Absent if the friend has not yet joined.",
+            "description" : "Extole person id of the friend whose email matches `recipient`. Absent when the share has no recipient email or no person has that email.",
             "type" : "string"
           },
           "partner_id" : {
@@ -2184,6 +2184,10 @@
           },
           "program" : {
             "description" : "Program key associated with this share.",
+            "type" : "string"
+          },
+          "recipient" : {
+            "description" : "Email address the share was sent to. Absent when the share has no recipient email.",
             "type" : "string"
           },
           "shareable_code" : {
@@ -2195,7 +2199,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "campaign_id", "channel", "created_date", "data", "id", "link", "message", "other_person_id", "partner_id", "program", "shareable_code", "subject" ],
+        "required" : [ "campaign_id", "channel", "created_date", "data", "id", "link", "message", "other_person_id", "partner_id", "program", "recipient", "shareable_code", "subject" ],
         "type" : "object"
       },
       "PersonShareableContentRequest" : {
@@ -2425,6 +2429,9 @@
             "description" : "Name of the event type that created this step (e.g. `purchase`, `signup`).",
             "type" : "string"
           },
+          "partner_event_id" : {
+            "$ref" : "#/components/schemas/PartnerEventIdResponse"
+          },
           "program" : {
             "description" : "Program key associated with this step. Absent when no program context exists.",
             "type" : "string"
@@ -2445,9 +2452,13 @@
           },
           "updated_date" : {
             "$ref" : "#/components/schemas/ZonedDateTime"
+          },
+          "value" : {
+            "description" : "Monetary value the step recorded, such as the cart value of a purchase. Absent when the step recorded no value.",
+            "type" : "number"
           }
         },
-        "required" : [ "campaign_id", "cause_event_id", "container", "created_date", "data", "event_date", "event_id", "id", "is_primary", "journey_key", "journey_name", "name", "program", "quality", "root_event_id", "scope", "updated_date" ],
+        "required" : [ "campaign_id", "cause_event_id", "container", "created_date", "data", "event_date", "event_id", "id", "is_primary", "journey_key", "journey_name", "name", "partner_event_id", "program", "quality", "root_event_id", "scope", "updated_date", "value" ],
         "type" : "object"
       },
       "RedeemedRewardRequest" : {
@@ -10429,6 +10440,7 @@
             "type" : "string"
           }
         }, {
+          "description" : "Optional step name filter. Will include steps that match at least one of the names.",
           "in" : "query",
           "name" : "names",
           "schema" : {
@@ -10438,6 +10450,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional container filter, defaults to all containers. Will include steps that match at least one of the containers.",
           "in" : "query",
           "name" : "containers",
           "schema" : {
@@ -10447,6 +10460,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional campaign id filter. Will include steps that match at least one of the campaign ids.",
           "in" : "query",
           "name" : "campaign_ids",
           "schema" : {
@@ -10456,6 +10470,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional program label filter. Will include steps that match at least one of the programs.",
           "in" : "query",
           "name" : "programs",
           "schema" : {
@@ -10465,6 +10480,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional journey names filter. Will include steps that match at least one of the journey names.",
           "in" : "query",
           "name" : "journey_names",
           "schema" : {
@@ -10474,12 +10490,14 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional filter for primary steps. Defaults to all steps.",
           "in" : "query",
           "name" : "is_primary",
           "schema" : {
             "type" : "boolean"
           }
         }, {
+          "description" : "Optional filter for existence of a specific data keys with non-empty values. Will include steps that have at least one of the data keys.",
           "in" : "query",
           "name" : "data_keys",
           "schema" : {
@@ -10489,6 +10507,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional event IDs filter. Will include steps that match at least one of the event IDs.",
           "in" : "query",
           "name" : "event_ids",
           "schema" : {
@@ -10498,6 +10517,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional cause event IDs filter. Will include steps that match at least one of the cause event IDs.",
           "in" : "query",
           "name" : "cause_event_ids",
           "schema" : {
@@ -10507,6 +10527,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional root event IDs filter. Will include steps that match at least one of the root event IDs.",
           "in" : "query",
           "name" : "root_event_ids",
           "schema" : {
@@ -10516,6 +10537,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional offset filter, defaults to 0.",
           "in" : "query",
           "name" : "offset",
           "schema" : {
@@ -10523,6 +10545,7 @@
             "type" : "integer"
           }
         }, {
+          "description" : "Optional limit filter, defaults to 20.",
           "in" : "query",
           "name" : "limit",
           "schema" : {
@@ -10530,6 +10553,7 @@
             "type" : "integer"
           }
         }, {
+          "description" : "Optional journey key names filter. Will include steps, whose journey key matches one of the journey key names.",
           "in" : "query",
           "name" : "journey_key_names",
           "schema" : {
@@ -10539,6 +10563,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional journey key values filter. Will include steps that have one of the specified journey keys. Valid format is name:value.",
           "in" : "query",
           "name" : "journey_key_values",
           "schema" : {
@@ -10546,6 +10571,20 @@
               "type" : "string"
             },
             "type" : "array"
+          }
+        }, {
+          "description" : "Optional flow path filter, such as `/business-events`. Will include only steps whose name is a step at that path in the latest version of the client's campaigns.",
+          "in" : "query",
+          "name" : "flow_path",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Optional visit type filter, one of `ALL` or `LAST_VISITED`, defaults to `ALL`. `LAST_VISITED` returns only the latest step for each step name and campaign.",
+          "in" : "query",
+          "name" : "visit_type",
+          "schema" : {
+            "type" : "string"
           }
         } ],
         "responses" : {
