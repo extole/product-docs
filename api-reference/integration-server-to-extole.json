@@ -2362,6 +2362,11 @@
       "PersonStepDataResponse" : {
         "description" : "Named data parameters attached to this step.",
         "properties" : {
+          "key_type" : {
+            "description" : "What the campaign uses this data parameter for. `VALUE` is the monetary value of the step, such as a cart value, `UNIQUE_PARTNER_EVENT_KEY` is the partner's identifier for the event that created the step, `PARTNER_EVENT_KEY` and `PARTNER_PROFILE_KEY` are other partner identifiers, and `NONE` is plain data.",
+            "enum" : [ "NONE", "PARTNER_EVENT_KEY", "PARTNER_PROFILE_KEY", "UNIQUE_PARTNER_EVENT_KEY", "VALUE" ],
+            "type" : "string"
+          },
           "name" : {
             "description" : "Name of the data parameter.",
             "type" : "string"
@@ -2429,9 +2434,6 @@
             "description" : "Name of the event type that created this step (e.g. `purchase`, `signup`).",
             "type" : "string"
           },
-          "partner_event_id" : {
-            "$ref" : "#/components/schemas/PartnerEventIdResponse"
-          },
           "program" : {
             "description" : "Program key associated with this step. Absent when no program context exists.",
             "type" : "string"
@@ -2452,13 +2454,9 @@
           },
           "updated_date" : {
             "$ref" : "#/components/schemas/ZonedDateTime"
-          },
-          "value" : {
-            "description" : "Monetary value the step recorded, such as the cart value of a purchase. Absent when the step recorded no value.",
-            "type" : "number"
           }
         },
-        "required" : [ "campaign_id", "cause_event_id", "container", "created_date", "data", "event_date", "event_id", "id", "is_primary", "journey_key", "journey_name", "name", "partner_event_id", "program", "quality", "root_event_id", "scope", "updated_date", "value" ],
+        "required" : [ "campaign_id", "cause_event_id", "container", "created_date", "data", "event_date", "event_id", "id", "is_primary", "journey_key", "journey_name", "name", "program", "quality", "root_event_id", "scope", "updated_date" ],
         "type" : "object"
       },
       "RedeemedRewardRequest" : {
@@ -10571,20 +10569,6 @@
               "type" : "string"
             },
             "type" : "array"
-          }
-        }, {
-          "description" : "Optional flow path filter, such as `/business-events`. Will include only steps whose name is a step at that path in the latest version of the client's campaigns.",
-          "in" : "query",
-          "name" : "flow_path",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Optional visit type filter, one of `ALL` or `LAST_VISITED`, defaults to `ALL`. `LAST_VISITED` returns only the latest step for each step name and campaign.",
-          "in" : "query",
-          "name" : "visit_type",
-          "schema" : {
-            "type" : "string"
           }
         } ],
         "responses" : {
