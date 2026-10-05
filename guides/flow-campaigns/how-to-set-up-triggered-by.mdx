@@ -1,0 +1,138 @@
+---
+title: "How to Set Up Triggered By"
+description: "Choose the event that starts each business event, reward, and call-to-action in a Flow Builder campaign, and declare events from your website, app, or backend so a campaign can select them."
+---
+
+# Overview
+
+In a Flow Builder campaign, each business event (Shared, Signed Up, Converted, and the like), each reward, and each call-to-action has a **Triggered By** setting. It names the event that starts that step. Flow Builder shows the selection as a chip on the card, so you can see what starts each part of the campaign without opening its rules.
+
+Every default campaign theme uses Triggered By: Refer a Friend (with and without Lead Gen), the three Ambassador themes, Refer a Member (including Refer a Member for Q2), Welcome Offer (including Welcome Offer for Banks and CUs), Reward for Action (with and without Promotion), Customer Appreciation, and the Custom Campaign Template.
+
+A campaign will not publish while a Triggered By setting it needs is empty. Declaring your events before you create the campaign is the easiest path: every Triggered By fills itself in, and the campaign publishes on the first try.
+
+## Where Trigger Events Come From
+
+The events you can select come from two places:
+
+- **Events the campaign produces itself**: shares, share link clicks, sign-ups from the landing page, ambassador applications, and the campaign's own business events. These are connected automatically when the campaign is created.
+- **Events from outside the campaign**: events your systems send through the **Event API**, and zones your website or app requests through the **JavaScript SDK** or the **Mobile SDK**. You declare these on the matching extension before a campaign can select them.
+
+When a campaign is created, each Triggered By looks for a declared event with the name it expects. If it finds one, it selects it for you. If it does not, the setting stays empty until you fill it.
+
+<Warning>
+A newly declared event is never added to an existing campaign automatically. If the campaign was created before you declared the event, select it in **Triggered By** yourself.
+</Warning>
+
+## Choose the Extension
+
+| The event comes from | Declare it on | Examples |
+|---|---|---|
+| Your backend or a partner system, sent server to server | **Event API**, as an **API Event** under **Integration Events** | `conversion`, `account_opened`, `account_qualified`, `outcome` |
+| Your website, which loads an Extole zone (a banner, an overlay, an embedded experience, a portal page) | **Javascript SDK**, under **Tagged CTAs** | `global_header`, `overlay`, `homepage_banner`, `embedded_welcome_experience` |
+| Your iOS app, which requests an Extole zone | **Mobile SDK**, under **Platforms** > **iOS** | `advocate_mobile_experience`, `mobile_header` |
+| Your Android app, which requests an Extole zone | **Mobile SDK**, under **Platforms** > **Android** | `advocate_mobile_experience`, `mobile_header` |
+
+If a person's browser or app asks Extole for something to show, it is a zone on an SDK. If your system tells Extole that something happened, it is an Event API event.
+
+A zone requested from more than one place, such as your website and your apps, is declared once for each place, and you select each declaration in **Triggered By**. To learn why, see [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app).
+
+## Check the Extensions
+
+1. Open [Partners](https://my.extole.com/integrations) in My Extole and select the **Extensions** tab.
+2. Look for **Event API**, **Javascript SDK**, and **Mobile SDK** among the installed extensions.
+3. Open each one and check that it lists the events or zones your campaign needs. On the **Mobile SDK**, check **iOS** and **Android** separately.
+
+If an extension is missing, click **+ New Extension**, select it, install it, and publish it. Install only one copy of each extension. If a live copy already exists, use it: a second copy splits your declarations and makes the **Triggered By** list harder to read.
+
+If an extension was installed before Triggered By was available, it may not list the standard zones, so nothing from it appears in **Triggered By**. Add the missing zones or events to that copy rather than installing a second one. If the extension gives you no way to add them, contact your Extole team.
+
+### Zones the Extensions Declare by Default
+
+- **Javascript SDK**: `confirmation`, `embedded_share_experience`, `global_footer`, `global_header`, `mobile_footer`, `mobile_header`, `mobile_menu`, `overlay`, `stats_embedded`. These cover the Refer a Friend themes on your website, including your mobile website.
+- **Mobile SDK**, under **iOS** and again under **Android**: `advocate_mobile_experience`, `mobile_footer`, `mobile_header`, `mobile_menu`.
+
+The **Event API** declares no events by default.
+
+## What Each Theme Needs
+
+Add the events and zones below before you create a campaign from a theme. Zones are listed only when they are beyond the default **Javascript SDK** set.
+
+| Theme | Zones to add on the Javascript SDK | Events to add on the Event API |
+|---|---|---|
+| Refer a Friend | None | `conversion` |
+| Refer a Friend with Lead Gen | None | `conversion` |
+| Ambassador with No Application | None | `conversion` |
+| Ambassador with Auto Approval | None | None |
+| Ambassador with Manual Approval | None | None |
+| Refer a Member | `homepage_banner`, `online_link_banner`, `in_branch_referral_portal` | `account_opened`, `account_qualified` |
+| Refer a Member for Q2 | `homepage_banner`, `online_link_banner`, `in_branch_referral_portal` | `q2_integration_account`, `q2_integration_transaction` |
+| Welcome Offer | `embedded_welcome_experience`, `show_reward_banner`, `show_reward_overlay` | `conversion` |
+| Welcome Offer for Banks and CUs | `embedded_welcome_experience`, `show_reward_banner`, `show_reward_overlay` | `account_opened`, `account_qualified` |
+| Customer Appreciation | None | `customer_appreciation_reward` |
+| Reward for Action | None | `outcome` |
+| Reward for Action with Promotion | None | `outcome` |
+| Custom Campaign Template | None | `template_business_event` |
+
+If you rename a business event in Customer Appreciation, Reward for Action, Refer a Member, Welcome Offer for Banks and CUs, or the Custom Campaign Template, it expects an event with its new name. Declare that name instead.
+
+<Note>
+The Converted business event in Welcome Offer listens for `conversion`. If your systems send `converted` instead, either send `conversion`, or declare `converted` on the Event API and select it in the business event's **Triggered By**.
+</Note>
+
+## Set Up Triggered By
+
+1. **Find the step.** Open the business event, reward, or call-to-action in Flow Builder and note which event it should listen for. The table above lists what each theme expects.
+2. **Choose the extension.** Use [Choose the Extension](#choose-the-extension) to decide where the event comes from.
+3. **Declare the event or zone.** Open that extension, add the event or zone with the exact name your systems send, and publish the extension. For a zone on the **Mobile SDK**, add it under the platform that requests it.
+4. **Select it.** Open the step in the campaign, open **Triggered By**, and select the declaration. Options are grouped by where they come from: this campaign, your integrations and extensions, and your other campaigns, which start collapsed. For a zone requested from more than one place, select the declaration for each.
+5. **Publish the campaign.**
+
+Each chip in **Triggered By** names where its event comes from, for example **This Campaign: Converted** or **Event API: Conversion**. A chip from another campaign or an extension opens it in a new tab. A gray chip is a selection whose component is turned off.
+
+Business events you add to a campaign from the library still listen for an input event with their own name until you select something in **Triggered By**. Once you make a selection, the selection is what the business event listens for.
+
+### Example: A Refer a Friend Campaign Fails on Converted
+
+Publishing fails with *The Triggered By setting on 'converted' is not configured.*
+
+1. Converted should fire when your backend reports a purchase, so it belongs on the **Event API**.
+2. Open [Partners](https://my.extole.com/integrations), select **Extensions**, and open **Event API**. If it is not installed, click **+ New Extension** and install it.
+3. Under **Integration Events**, add an event named `conversion` and publish the extension.
+4. Open the Refer a Friend campaign and select the friend's **Converted** business event.
+5. In **Triggered By**, select the Event API's `conversion` event.
+6. Publish the campaign.
+
+From then on, every `conversion` event you send for a referred friend records their Converted step and starts the rewards that follow it.
+
+### Example: A Welcome Offer Campaign Fails on a Zone
+
+Publishing fails on the `show_reward_banner` call-to-action.
+
+1. The banner is loaded by your website, so it is a zone on the **Javascript SDK**.
+2. Open the **Javascript SDK** extension.
+3. Under **Tagged CTAs**, add `show_reward_banner`. Add `embedded_welcome_experience` and `show_reward_overlay` while you are there, since Welcome Offer needs all three.
+4. Publish the extension, select the zone in the call-to-action's **Triggered By** if it did not fill itself in, and publish the campaign.
+
+## If Publishing Fails
+
+| Message | What it means | What to do |
+|---|---|---|
+| *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* | Nothing is selected, usually because the event the step expects has not been declared. | Follow [Set Up Triggered By](#set-up-triggered-by). |
+| *The Triggered By setting on '`step`' points at a component that no longer declares a trigger event (`ids`). Select a trigger event before publishing.* | The selected event was deleted or renamed on its extension. | Declare the event again, or select a different one, then publish. |
+
+The message names the step by its internal name, such as `converted`. If another publish error names Triggered By or a trigger event, contact your Extole team with the campaign link and the exact message.
+
+A campaign that publishes is not proof that every zone shows everywhere it is requested. Publishing checks only that something is selected. If a call-to-action shows on your website but not in your app, see [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app).
+
+## Good to Know
+
+- **A reward can list more than one event, with a trade-off.** When a reward's **Triggered By** holds more than one business event, any of them can earn the reward, but the reward no longer records the earning event to dashboard data and no longer creates the advocate–friend relationship. Both work only with a single event selected. A call-to-action or zone can list several declarations without this trade-off.
+- **Not every event uses Triggered By.** Events that My Extole itself sends, such as an ambassador's application being reviewed, and events tied to opening a link or page, such as the landing page and share experience, still use [trigger rules](/guides/flow-campaigns/common-trigger-rules) and do not show a **Triggered By** setting.
+- **Campaigns created before Triggered By keep working.** They don't show **Triggered By** until they are upgraded to the current theme version. Contact your Extole team about upgrading an existing campaign.
+
+## Related
+
+- [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules)
+- [How to Add a New Business Event](/guides/flow-campaigns/how-to-add-a-new-business-event)
+- [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app)
