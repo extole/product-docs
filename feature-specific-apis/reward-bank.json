@@ -20,7 +20,6 @@
   "paths": {
     "/api/v6/zones/bankable_rewards": {
       "post": {
-        "operationId": "get_bankable_rewards",
         "summary": "Current Balance and Transaction History",
         "description": "Returns what this person can redeem and what they have redeemed already: the rewards their balance currently reaches, the suppliers those can be redeemed with, the redemption history, and the parameters the bank is configured with. Rendered for the person the access token identifies, so a person only ever sees their own bank.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
@@ -32,14 +31,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "description": "Optional data merged into the zone's rendering context. Send an empty object when there is nothing to add."
+                "$ref": "#/components/schemas/GetBankableRewardsRequest"
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
-                "type": "object",
-                "description": "Optional data merged into the zone's rendering context. Send an empty object when there is nothing to add."
+                "$ref": "#/components/schemas/GetBankableRewardsRequest"
               }
             }
           }
@@ -316,13 +313,13 @@
         ],
         "security": [
           {
-            "HEADER": []
+            "CONSUMER_AUTH_HEADER": []
           },
           {
-            "QUERY_PARAM": []
+            "CONSUMER_AUTH_QUERY_PARAM": []
           },
           {
-            "COOKIE": []
+            "CONSUMER_AUTH_COOKIE": []
           }
         ],
         "x-extole-component": "reward-bank"
@@ -330,7 +327,6 @@
     },
     "/events": {
       "post": {
-        "operationId": "redeem_rewards",
         "summary": "Redeem Credits",
         "description": "Spends chosen rewards from this person's balance with one supplier, by submitting the reward bank's redeem event. The event is only accepted here - the redemption happens afterwards, and its outcome arrives as a signal rather than in this response. Read Current Balance and Transaction History until the redemption appears in redemption_history.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
@@ -342,174 +338,22 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "event_name",
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "type": "object",
-                    "required": [
-                      "rewards",
-                      "reward_supplier_id"
-                    ],
-                    "properties": {
-                      "labels": {
-                        "type": "string",
-                        "description": "The program label the redemption belongs to."
-                      },
-                      "rewards": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "description": "The reward_id of each reward being spent, taken from eligible_rewards."
-                      },
-                      "reward_supplier_id": {
-                        "type": "string",
-                        "description": "The supplier to redeem with, taken from redemption_suppliers."
-                      }
-                    },
-                    "description": "What to redeem and what to redeem it for."
-                  },
-                  "event_name": {
-                    "enum": [
-                      "redeem_rewards"
-                    ],
-                    "type": "string",
-                    "description": "Always redeem_rewards. This event is what the reward bank listens for."
-                  }
-                }
+                "$ref": "#/components/schemas/RedeemRewardsRequest"
               }
             },
             "text/plain": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "event_name",
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "type": "object",
-                    "required": [
-                      "rewards",
-                      "reward_supplier_id"
-                    ],
-                    "properties": {
-                      "labels": {
-                        "type": "string",
-                        "description": "The program label the redemption belongs to."
-                      },
-                      "rewards": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "description": "The reward_id of each reward being spent, taken from eligible_rewards."
-                      },
-                      "reward_supplier_id": {
-                        "type": "string",
-                        "description": "The supplier to redeem with, taken from redemption_suppliers."
-                      }
-                    },
-                    "description": "What to redeem and what to redeem it for."
-                  },
-                  "event_name": {
-                    "enum": [
-                      "redeem_rewards"
-                    ],
-                    "type": "string",
-                    "description": "Always redeem_rewards. This event is what the reward bank listens for."
-                  }
-                }
+                "$ref": "#/components/schemas/RedeemRewardsRequest"
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "event_name",
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "type": "object",
-                    "required": [
-                      "rewards",
-                      "reward_supplier_id"
-                    ],
-                    "properties": {
-                      "labels": {
-                        "type": "string",
-                        "description": "The program label the redemption belongs to."
-                      },
-                      "rewards": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "description": "The reward_id of each reward being spent, taken from eligible_rewards."
-                      },
-                      "reward_supplier_id": {
-                        "type": "string",
-                        "description": "The supplier to redeem with, taken from redemption_suppliers."
-                      }
-                    },
-                    "description": "What to redeem and what to redeem it for."
-                  },
-                  "event_name": {
-                    "enum": [
-                      "redeem_rewards"
-                    ],
-                    "type": "string",
-                    "description": "Always redeem_rewards. This event is what the reward bank listens for."
-                  }
-                }
+                "$ref": "#/components/schemas/RedeemRewardsRequest"
               }
             },
             "multipart/form-data": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "event_name",
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "type": "object",
-                    "required": [
-                      "rewards",
-                      "reward_supplier_id"
-                    ],
-                    "properties": {
-                      "labels": {
-                        "type": "string",
-                        "description": "The program label the redemption belongs to."
-                      },
-                      "rewards": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "description": "The reward_id of each reward being spent, taken from eligible_rewards."
-                      },
-                      "reward_supplier_id": {
-                        "type": "string",
-                        "description": "The supplier to redeem with, taken from redemption_suppliers."
-                      }
-                    },
-                    "description": "What to redeem and what to redeem it for."
-                  },
-                  "event_name": {
-                    "enum": [
-                      "redeem_rewards"
-                    ],
-                    "type": "string",
-                    "description": "Always redeem_rewards. This event is what the reward bank listens for."
-                  }
-                }
+                "$ref": "#/components/schemas/RedeemRewardsRequest"
               }
             }
           }
@@ -604,13 +448,13 @@
         ],
         "security": [
           {
-            "HEADER": []
+            "CONSUMER_AUTH_HEADER": []
           },
           {
-            "QUERY_PARAM": []
+            "CONSUMER_AUTH_QUERY_PARAM": []
           },
           {
-            "COOKIE": []
+            "CONSUMER_AUTH_COOKIE": []
           }
         ],
         "x-extole-component": "reward-bank"
@@ -619,20 +463,20 @@
   },
   "components": {
     "securitySchemes": {
-      "HEADER": {
+      "CONSUMER_AUTH_HEADER": {
         "type": "apiKey",
         "in": "header",
         "name": "Authorization",
         "description": "A consumer access token, issued to a single person in the browser or app. Not a client access token - never send a client token from a consumer device.",
         "x-bearer-format": "bearer"
       },
-      "QUERY_PARAM": {
+      "CONSUMER_AUTH_QUERY_PARAM": {
         "type": "apiKey",
         "in": "query",
         "name": "access_token",
         "description": "A consumer access token, issued to a single person in the browser or app. Not a client access token - never send a client token from a consumer device."
       },
-      "COOKIE": {
+      "CONSUMER_AUTH_COOKIE": {
         "type": "apiKey",
         "in": "cookie",
         "name": "extole_token",
@@ -676,6 +520,51 @@
           "parameters",
           "unique_id"
         ]
+      },
+      "GetBankableRewardsRequest": {
+        "type": "object",
+        "description": "Optional data merged into the zone's rendering context. Send an empty object when there is nothing to add."
+      },
+      "RedeemRewardsRequest": {
+        "type": "object",
+        "required": [
+          "event_name",
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "rewards",
+              "reward_supplier_id"
+            ],
+            "properties": {
+              "labels": {
+                "type": "string",
+                "description": "The program label the redemption belongs to."
+              },
+              "rewards": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "The reward_id of each reward being spent, taken from eligible_rewards."
+              },
+              "reward_supplier_id": {
+                "type": "string",
+                "description": "The supplier to redeem with, taken from redemption_suppliers."
+              }
+            },
+            "description": "What to redeem and what to redeem it for."
+          },
+          "event_name": {
+            "enum": [
+              "redeem_rewards"
+            ],
+            "type": "string",
+            "description": "Always redeem_rewards. This event is what the reward bank listens for."
+          }
+        }
       }
     },
     "examples": {
