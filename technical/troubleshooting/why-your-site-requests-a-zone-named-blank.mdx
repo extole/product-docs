@@ -1,0 +1,97 @@
+---
+title: "Why Your Site Requests a Zone Named blank"
+description: "Why the Extole tag on your site can request a zone called blank after a share link click, how the tag reads Extole parameters from the page URL, and why the request renders nothing on purpose."
+---
+
+# Overview
+
+Your site's network log shows a request from the Extole tag for a zone named `blank`. No campaign
+publishes a zone with that name, your integration never asks for it, and nothing renders from it.
+
+This is not a broken tag and not a missing campaign. The request is the Extole tag doing what the
+page URL told it to do, and the URL was written by a share link redirect. This page explains how
+the tag reads that URL, where the name `blank` comes from, and why the request still matters.
+
+## How the Tag Reads Parameters from the Page URL
+
+When the core tag loads, it reads the page's query string. Every parameter whose name starts with
+`extole_` is meant for Extole, and the tag handles three shapes:
+
+- `extole_zone_name=<name>` asks the tag to request that zone on page load, the same way a
+  `createZone` call on the page would. If the URL carries this parameter, the tag requests the zone
+  whether or not your page has a placement for it.
+- `extole_zone_<key>=<value>` becomes data named `<key>` on that zone request. For example,
+  `extole_zone_shareable_code=ABC123` reaches the zone as `shareable_code`.
+- Any other `extole_<key>=<value>` is passed to Extole as data named `<key>`. For example,
+  `extole_share_channel=SHARE_LINK` reaches Extole as `share_channel`.
+
+Parameters that do not start with `extole_` are left alone. Your own UTM parameters and any other
+query string your page uses are not sent to Extole.
+
+<Info>
+A zone request that appears on a page with no placement for it is almost always this mechanism.
+Read the page URL for `extole_zone_name` before looking for a `createZone` call in your code. The
+name in the URL was put there by whatever redirected the visitor to the page.
+</Info>
+
+## Where the Redirect Comes From
+
+A share link opens on your program domain first. Extole records the click there, then redirects the
+friend to the address in your campaign's **Destination for Clicks on Share Links** setting. The
+redirect appends the parameters Extole needs to recognize the referral on the destination page:
+
+- `extole_zone_advocate_code`, the advocate whose link was clicked.
+- `extole_zone_share_channel`, the channel the share was made on.
+- `extole_zone_name`, the zone the destination page is asked to request, when the campaign is
+  configured to name one.
+- Your UTM parameters, and anything you added to the destination address's own query string.
+
+What the destination setting holds decides whether a redirect happens at all:
+
+- A bare zone name, letters, digits and underscores only, such as `friend_landing_experience_microsite`,
+  renders that experience on the program domain without redirecting to your site.
+- Anything else, including a full address, a path, or a value with a query string, redirects the
+  friend to that address with the parameters above appended.
+
+See [Share Link and Promote Link Behavior](/guides/programs-and-campaigns/managing-campaigns/share-link-and-promote-link-behavior)
+for where the destination is set in My Extole.
+
+## Why the Zone Is Named blank
+
+Some campaign themes carry a **Show Extole Landing Creative** setting on the share destination. When
+it is on, the redirect names the friend landing zone in `extole_zone_name`, and the friend landing
+experience opens on your page. When it is off, the redirect still has to carry the referral to your
+page, so it names a zone called `blank` instead.
+
+`blank` is not a reserved name and no campaign serves it. The tag requests it, no campaign has a
+candidate for it, and the response is empty. That is the intended result: the request exists to
+deliver the advocate code, the share channel and the click to Extole on your page, so the visitor is
+recognized as a referred friend. Nothing has to render for that to happen.
+
+Campaigns built on the current share destination component do not use `blank`. They either render
+the experience in place or name your friend landing zone directly.
+
+<Note>
+An empty zone response is not an error, so it does not appear in Extole's error reporting or in
+your browser's console as a failure. If you are reconstructing what a share link click recorded,
+read the data on the request itself. Each `extole_zone_` and `extole_` parameter on the page URL
+maps to one field on it.
+</Note>
+
+## What to Check
+
+1. Read the page URL in the network log, not only the zone request. If it carries
+   `extole_zone_name=blank`, the request came from a share link redirect and is working as designed.
+2. Confirm which share destination your campaign uses. If it has a **Show Extole Landing Creative**
+   setting that is off, `blank` is expected. If you want the friend landing experience to open on the
+   page, turn the setting on and publish.
+3. If the friend landing experience should open and does not, check that the page loads the core
+   tag and that a live campaign publishes the zone named in the URL. A zone with no live campaign
+   returns the same empty response as `blank` does.
+
+## Related
+
+- [Share Link and Promote Link Behavior](/guides/programs-and-campaigns/managing-campaigns/share-link-and-promote-link-behavior)
+  covers setting the share destination.
+- [Deep Link Integrations](/technical/platform-integrations/mobile-sdks/deep-link-integrations)
+  covers what the same redirect carries into a mobile app install.
