@@ -20,10 +20,10 @@ A campaign will not publish while a Triggered By setting it needs is empty. Decl
 Everything you select in **Triggered By** is a **trigger event**. Trigger events come from two places:
 
 - **Trigger events the campaign produces itself**: shares, share link clicks, sign-ups from the landing page, ambassador applications, and the campaign's own business events. These are connected automatically when the campaign is created.
-- **Trigger events from outside the campaign**: events your systems send through the **Event API**, events you send to Extole in a file through [File Integration](/technical/platform-integrations/extensions/file-integration), and events produced when your website or app requests a zone through the **Javascript SDK** or the **Mobile SDK**. You declare these on the matching extension before a campaign can select them.
+- **Trigger events from outside the campaign**: events your systems send through the **Event API**, events you send to Extole in a file through [File Integration](/technical/platform-integrations/extensions/file-integration), and events your website or app sends through the **Javascript SDK** or the **Mobile SDK**, either by requesting a zone or, on your website, through a tag. You declare these on the matching extension before a campaign can select them.
 
 <Info>
-A trigger event from the **Javascript SDK** or **Mobile SDK** comes into existence when your website or app requests a zone, and it is usually named the same as that zone. A request for the `homepage_banner` zone produces the `homepage_banner` trigger event. Otherwise, it works like any other trigger event.
+A trigger event from the **Javascript SDK** or **Mobile SDK** comes into existence when your website or app calls Extole, and it is usually named the same as the zone it calls. A request for the `homepage_banner` zone produces the `homepage_banner` trigger event, and a conversion tag on your site that sends `conversion` produces the `conversion` trigger event. Otherwise, it works like any other trigger event.
 </Info>
 
 When a campaign is created, each Triggered By looks for a declared trigger event with the name it expects. If it finds one, it selects it for you. If it does not, the setting stays empty until you fill it.
@@ -38,10 +38,10 @@ A newly declared event is never added to an existing campaign automatically. If 
 |---|---|---|
 | Your backend sends an event, server to server | **Event API**, as an **API Event** under **Integration Events** | `conversion`, `account_opened`, `account_qualified`, `outcome` |
 | You send Extole a file, such as a recurring SFTP feed | **File Integration**, as an **Event** or **Delayed Event** under the job's **Create Events** > **Trigger Events** | The event name your file rows produce. See [File Integration](/technical/platform-integrations/extensions/file-integration). |
-| Your website requests a zone (a banner, an overlay, an embedded experience, a portal page) | **Javascript SDK** | `global_header`, `overlay`, `homepage_banner`, `embedded_welcome_experience` |
+| Your website requests a zone (a banner, an overlay, an embedded experience, a portal page), or a tag on your site sends an event | **Javascript SDK** | `global_header`, `overlay`, `homepage_banner`, `embedded_welcome_experience`, or `conversion` from a conversion tag |
 | Your iOS or Android app requests a zone | **Mobile SDK**, under that app's platform | `advocate_mobile_experience`, `mobile_header` |
 
-If a person's browser or app asks Extole for something to show, the trigger event belongs on an SDK. If your system tells Extole that something happened, it belongs on the Event API, or on File Integration when it arrives in a file.
+Declare a trigger event on the extension that carries it to Extole. The same event can arrive more than one way: if you send `conversion` from a tag on your site, declare it on the **Javascript SDK**; if you send it server to server, declare it on the **Event API**; if it arrives in a file, declare it on **File Integration**.
 
 Trigger events that come from a partner integration work the same way. The integration's trigger events appear in **Triggered By** alongside your extensions, and you select them the same way.
 
@@ -59,9 +59,9 @@ The **Event API** and **File Integration** declare no trigger events by default.
 
 ## What Each Program Needs
 
-Declare the trigger events below before you create a campaign for one of these programs. The Javascript SDK trigger events listed in the table below are beyond the [defaults that come with the extension](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions#trigger-events-declared-by-default).
+Declare the trigger events below before you create a campaign for one of these programs. The zone trigger events listed in the table below are beyond the [defaults that come with the Javascript SDK extension](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions#trigger-events-declared-by-default). Declare the other trigger events on whichever extension you send them through: the **Event API**, **File Integration**, or the **Javascript SDK** when a tag on your site sends them.
 
-| Program | Add on the Javascript SDK | Add on the Event API or File Integration |
+| Program | Zone trigger events to add on the Javascript SDK | Other trigger events to add |
 |---|---|---|
 | Refer a Friend | None | `conversion` |
 | Refer a Friend with Lead Gen | None | `conversion` |
@@ -80,14 +80,14 @@ Declare the trigger events below before you create a campaign for one of these p
 If you rename a business event in Customer Appreciation, Reward for Action, Refer a Member, Welcome Offer for Banks and CUs, or the Custom Campaign Template, it expects an event with its new name. Declare that name instead.
 
 <Note>
-The Converted business event in Welcome Offer listens for `conversion`. If your systems send `converted` instead, either send `conversion`, or declare `converted` on the Event API and select it in the business event's **Triggered By**.
+The Converted business event in Welcome Offer listens for `conversion`. If your systems send `converted` instead, either send `conversion`, or declare `converted` on the extension you send it through and select it in the business event's **Triggered By**.
 </Note>
 
 ## Set Up Triggered By
 
 1. **Find the step.** Open the business event, reward, or call-to-action in Flow Builder and note which trigger event it should listen for. The table above lists what each program expects.
 2. **Choose the extension.** Use [Choose the Extension](#choose-the-extension) to decide where the trigger event comes from.
-3. **Declare the trigger event.** Open that extension, add the trigger event with the exact name your systems send or your site or app requests, and publish the extension. For the Javascript SDK and Mobile SDK, see [Add a Trigger Event](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions#add-a-trigger-event).
+3. **Declare the trigger event.** Open that extension, add the trigger event with the exact name your systems, site, or app send, and publish the extension. For the Javascript SDK and Mobile SDK, see [Add a Trigger Event](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions#add-a-trigger-event).
 4. **Select it.** Open the step in the campaign, open **Triggered By**, and select the trigger event. Options are grouped by where they come from: this campaign, your integrations and extensions, and your other campaigns, which start collapsed. When the same zone is requested from more than one place, select the trigger event for each.
 5. **Publish the campaign.**
 
@@ -107,6 +107,8 @@ Publishing fails with *The Triggered By setting on 'converted' is not configured
 6. Publish the campaign.
 
 From then on, every `conversion` event you send for a referred friend records their Converted step and starts the rewards that follow it.
+
+If your site sends `conversion` from a conversion tag instead, declare it on the **Javascript SDK** under **Tagged CTAs** in step 3, and select the Javascript SDK's `conversion` in step 5.
 
 ### Example: A Welcome Offer Campaign Fails on a Banner
 
