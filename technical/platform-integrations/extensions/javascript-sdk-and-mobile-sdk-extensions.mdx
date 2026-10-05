@@ -1,0 +1,81 @@
+---
+title: "Javascript SDK and Mobile SDK Extensions"
+description: "The Javascript SDK and Mobile SDK extensions declare the zones your website and apps request, so a Flow Builder campaign can select them in Triggered By. Here is what each extension holds, the zones it declares by default, and how to add one."
+---
+
+<Note>
+**Triggered By may only appear in newly created Flow Builder campaigns.** Campaigns created before this feature was released don't show a **Triggered By** setting and keep working as they did. Contact your Extole team about upgrading an existing campaign.
+</Note>
+
+# Overview
+
+When your website or app asks Extole for something to show, such as a banner, an overlay, or an embedded share experience, it requests a **zone** by name. A Flow Builder call-to-action or business event that listens for that zone selects it in [Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by), and it can only select a zone that an extension declares:
+
+- The **Javascript SDK** extension declares the zones your website requests.
+- The **Mobile SDK** extension declares the zones your iOS and Android apps request, separately for each platform.
+
+These extensions describe your integration to your campaigns. They don't change the code on your site or in your app. For the code side, see [JavaScript SDK](/technical/platform-integrations/javascript-sdk/index) and [Mobile SDKs](/technical/platform-integrations/mobile-sdks/index).
+
+Install one copy of each extension. A second copy splits your declarations and makes the **Triggered By** list harder to read. To install one, open [Partners](https://my.extole.com/integrations) in My Extole, select the **Extensions** tab, click **+ New Extension**, and select **Javascript SDK** or **Mobile SDK**.
+
+## Javascript SDK
+
+The **Javascript SDK** extension has two lists of zones, and they do different jobs.
+
+- **Tagged CTAs**: zones your own site code requests, through a marketing tag or a `createZone` call. A Tagged CTA only declares the zone so a campaign can select it. It does not make the SDK request the zone.
+- **Tagless CTAs**: zones the SDK requests for you, with no code on your page. Each **Tagless CTA** has a **Zone Name**, a **URL Filter** that limits which pages it appears on (blank means every page), and an optional **Anchor Element ID** that sets where on the page it is added. A Tagless CTA can also be selected in **Triggered By**.
+
+If your page already requests a zone, declare it under **Tagged CTAs**. If you want a zone to appear without changing your page, add a **Tagless CTA**.
+
+### Zones Declared by Default
+
+A new **Javascript SDK** extension declares these zones under **Tagged CTAs**: `confirmation`, `embedded_share_experience`, `global_footer`, `global_header`, `mobile_footer`, `mobile_header`, `mobile_menu`, `overlay`, `stats_embedded`. They cover the Refer a Friend programs on your website, including your mobile website.
+
+Other programs request zones beyond this set, such as `homepage_banner` or `show_reward_banner`. [What Each Program Needs](/guides/flow-campaigns/how-to-set-up-triggered-by#what-each-program-needs) lists them.
+
+### App Type
+
+Every zone the **Javascript SDK** declares carries the app type `javascript_sdk`, which is what the SDK reports on your website. The value is one expert setting for the whole extension, so changing it changes every zone at once. Leave it at `javascript_sdk` unless your Extole team tells you otherwise.
+
+## Mobile SDK
+
+The **Mobile SDK** extension holds its zones under **Platforms**, with one platform for each app:
+
+| Platform | App type it reports |
+|---|---|
+| **iOS** | `mobile-sdk-ios` |
+| **Android** | `mobile_sdk_android` |
+
+Each platform has its own **Tagged CTAs**, and every zone under a platform takes that platform's app type. A zone your iOS app and your Android app both request is declared twice, once under each platform.
+
+The extension also has **Experiences**: the mobile zones the app loads, including bootstrap and the call to action. These aren't selected through **Triggered By**.
+
+### Zones Declared by Default
+
+A new **Mobile SDK** extension declares these zones under **iOS** and again under **Android**: `advocate_mobile_experience`, `mobile_footer`, `mobile_header`, `mobile_menu`.
+
+## The Same Zone From Your Website and Your Apps
+
+`mobile_footer`, `mobile_header`, and `mobile_menu` are declared in both extensions: on the **Javascript SDK** for your mobile website, and on the **Mobile SDK** under each platform for your apps. Each is a distinct declaration with its own app type, and a call-to-action serves only the requests whose app type matches a declaration it has selected.
+
+To show a call-to-action everywhere it is requested, select every declaration of its zone in **Triggered By**. If it shows in one place and not another, see [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app).
+
+## Add a Zone
+
+1. Open [Partners](https://my.extole.com/integrations) in My Extole, select the **Extensions** tab, and open **Javascript SDK** or **Mobile SDK**.
+2. Add the zone with the exact name your site or app requests:
+   - On the **Javascript SDK**, add it under **Tagged CTAs**.
+   - On the **Mobile SDK**, open **Platforms**, then **iOS** or **Android**, and add it under that platform's **Tagged CTAs**. Repeat for the other platform if both apps request it.
+3. Publish the extension.
+4. In each campaign that should show the zone, select it in **Triggered By** and publish the campaign. A campaign created before you declared the zone does not pick it up on its own.
+
+## Extensions Installed Before Triggered By
+
+A **Javascript SDK** or **Mobile SDK** extension installed before Triggered By was available may not declare the default zones above, so none of its zones appear in **Triggered By**. Add the missing zones to that copy, as in [Add a Zone](#add-a-zone), rather than installing a second one. If the extension gives you no way to add them, contact your Extole team.
+
+## Related
+
+- [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by)
+- [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app)
+- [JavaScript SDK](/technical/platform-integrations/javascript-sdk/index)
+- [Mobile SDKs](/technical/platform-integrations/mobile-sdks/index)

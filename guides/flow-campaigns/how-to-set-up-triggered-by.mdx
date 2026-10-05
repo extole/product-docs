@@ -34,36 +34,28 @@ A newly declared event is never added to an existing campaign automatically. If 
 |---|---|---|
 | Your backend, sent server to server | **Event API**, as an **API Event** under **Integration Events** | `conversion`, `account_opened`, `account_qualified`, `outcome` |
 | A file you send to Extole, such as a recurring SFTP feed | **File Integration**, as an **Event** or **Delayed Event** under the job's **Create Events** > **Trigger Events** | The event name your file rows produce. See [File Integration](/technical/platform-integrations/extensions/file-integration). |
-| Your website, which loads an Extole zone (a banner, an overlay, an embedded experience, a portal page) | **Javascript SDK**, under **Tagged CTAs** | `global_header`, `overlay`, `homepage_banner`, `embedded_welcome_experience` |
-| Your iOS app, which requests an Extole zone | **Mobile SDK**, under **Platforms** > **iOS** | `advocate_mobile_experience`, `mobile_header` |
-| Your Android app, which requests an Extole zone | **Mobile SDK**, under **Platforms** > **Android** | `advocate_mobile_experience`, `mobile_header` |
+| Your website, which loads an Extole zone (a banner, an overlay, an embedded experience, a portal page) | **Javascript SDK**, as a zone | `global_header`, `overlay`, `homepage_banner`, `embedded_welcome_experience` |
+| Your iOS or Android app, which requests an Extole zone | **Mobile SDK**, as a zone under that app's platform | `advocate_mobile_experience`, `mobile_header` |
 
 If a person's browser or app asks Extole for something to show, it is a zone on an SDK. If your system tells Extole that something happened, it is an Event API event, or a File Integration event when it arrives in a file.
 
 Events that come from a partner integration work the same way. The integration's events appear in **Triggered By** alongside your extensions, and you select them the same way.
 
-A zone requested from more than one place, such as your website and your apps, is declared once for each place, and you select each declaration in **Triggered By**. To learn why, see [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app).
+Zones work a little differently from events: the same zone requested from your website and your apps is declared once for each, and you select each declaration. See [Javascript SDK and Mobile SDK Extensions](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions) for where zones are declared and which ones each extension declares by default.
 
 ## Check the Extensions
 
 1. Open [Partners](https://my.extole.com/integrations) in My Extole and select the **Extensions** tab.
 2. Look for **Event API**, **File Integration**, **Javascript SDK**, and **Mobile SDK** among the installed extensions.
-3. Open each one and check that it lists the events or zones your campaign needs. On **File Integration**, check **Trigger Events** on each job's **Create Events**. On the **Mobile SDK**, check **iOS** and **Android** separately.
+3. Open each one and check that it lists the events or zones your campaign needs. On **File Integration**, check **Trigger Events** on each job's **Create Events**.
 
 If an extension is missing, click **+ New Extension**, select it, install it, and publish it. Install only one copy of each extension. If a live copy already exists, use it: a second copy splits your declarations and makes the **Triggered By** list harder to read.
 
-If your **Javascript SDK** or **Mobile SDK** extension was installed before Triggered By was available, it may not declare the default zones listed below, so none of its zones appear in **Triggered By**. Add the missing zones to that copy rather than installing a second one: under **Tagged CTAs** on the **Javascript SDK**, or under each platform on the **Mobile SDK**. If the extension gives you no way to add them, contact your Extole team.
-
-### Zones the Extensions Declare by Default
-
-- **Javascript SDK**: `confirmation`, `embedded_share_experience`, `global_footer`, `global_header`, `mobile_footer`, `mobile_header`, `mobile_menu`, `overlay`, `stats_embedded`. These cover the Refer a Friend programs on your website, including your mobile website.
-- **Mobile SDK**, under **iOS** and again under **Android**: `advocate_mobile_experience`, `mobile_footer`, `mobile_header`, `mobile_menu`.
-
-The **Event API** and **File Integration** declare no events by default.
+The **Event API** and **File Integration** declare no events by default. The **Javascript SDK** and **Mobile SDK** declare a default set of zones; [Javascript SDK and Mobile SDK Extensions](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions) lists them, and covers what to do when an SDK extension installed before Triggered By lists none.
 
 ## What Each Program Needs
 
-Add the events and zones below before you create a campaign from a program. Zones are listed only when they are beyond the default **Javascript SDK** set.
+Add the events and zones below before you create a campaign from a program. Zones are listed only when they are beyond the [default Javascript SDK set](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions#zones-declared-by-default).
 
 | Program | Zones to add on the Javascript SDK | Events to add on the Event API or File Integration |
 |---|---|---|
@@ -91,7 +83,7 @@ The Converted business event in Welcome Offer listens for `conversion`. If your 
 
 1. **Find the step.** Open the business event, reward, or call-to-action in Flow Builder and note which event it should listen for. The table above lists what each program expects.
 2. **Choose the extension.** Use [Choose the Extension](#choose-the-extension) to decide where the event comes from.
-3. **Declare the event or zone.** Open that extension, add the event or zone with the exact name your systems send, and publish the extension. For a zone on the **Mobile SDK**, add it under the platform that requests it.
+3. **Declare the event or zone.** Open that extension, add the event or zone with the exact name your systems send, and publish the extension. For a zone, see [Add a Zone](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions#add-a-zone).
 4. **Select it.** Open the step in the campaign, open **Triggered By**, and select the declaration. Options are grouped by where they come from: this campaign, your integrations and extensions, and your other campaigns, which start collapsed. For a zone requested from more than one place, select the declaration for each.
 5. **Publish the campaign.**
 
@@ -141,4 +133,5 @@ A campaign that publishes is not proof that every zone shows everywhere it is re
 
 - [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules)
 - [How to Add a New Business Event](/guides/flow-campaigns/how-to-add-a-new-business-event)
+- [Javascript SDK and Mobile SDK Extensions](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions)
 - [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app)
