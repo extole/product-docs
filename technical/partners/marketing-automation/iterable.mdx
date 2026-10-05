@@ -83,22 +83,26 @@ An integration between Extole and [Iterable](https://iterable.com/) offers you s
 
 [//]: # "How do I set up the Extole integration with Iterable?"
 
-### Generating an Iterable API Key
+### Generate an Iterable API Key
 
 1. Log in to your Iterable account and follow [Iterable’s support documentation to create a new API Key](https://support.iterable.com/hc/en-us/articles/360043464871-API-Keys-#creating-api-keys).
 2. Save your API key in a safe place. You will need to paste it into your My Extole account.
 
-### Setting Up an Extole Integration
+### Set Up the Extole Integration
 
-Extole supports sending webhooks on any event in a customer Journey to connect with third-party products. To do so, you will first need to generate an JavaScript API key within Iterable:
+Store your Iterable REST API key as a webhook client key in Extole:
 
-1. Log in to your Extole account and navigate to [Tech Center > Outbound Webhooks](https://my.extole.com/tech-center/outbound-webhooks).
-2. Hit the + New Integration button.
-3. Enter a name for the Key (this is how the key will be referenced within Extole).
-4. Select Webhook as the Key Type.
-5. Set the Algorithm to Password.
-6. Paste your Iterable REST API key into the key field
-7. Click Create Key.
+1. In My Extole, navigate to [**Security Center**](https://my.extole.com/security-center) and find the **Keys** section.
+2. Click **+ New Key**.
+3. Enter a **Key Name**. You'll choose the key by this name when you create the webhook.
+4. Select **Webhook** as the **Key Type**.
+5. Set the **Algorithm** to **PASSWORD**.
+6. Paste your Iterable REST API key into the key field.
+7. Click **Create Key**.
+
+The key appears in the **Keys** list, not in the outbound webhooks list.
+
+Iterable expects this key in the `Api-Key` header. Your Extole team will configure the webhook request to use that header when they set up the event mapping.
 
 <img src="/images/extole/8ee1014538310518dd9a1dbc8f0329e699d3744416140f788b7d89a680daad94.png" alt="Screenshot showing Click Create Key." width="60%" />
 
@@ -116,11 +120,11 @@ Whenever new or existing customers interact with your Extole-powered programs, t
 
 1. [Create your static lists](https://api.iterable.com/api/docs#lists_subscribe) in Iterable. **Extole strongly recommends creating separate lists by audience (advocate/friend) and marketing opt-in status (opted-in to email vs. not opted-in to email)**.
 2. Copy the list ID from your newly created list (you’ll need to paste it into your My Extole account).
-3. Log in to your My Extole account and navigate to the Tech Center > Outbound Webhooks.
-4. Click + New Webhook and fill out the necessary fields.
-5. Leave the Type as Generic.
-6. Open the Client Key dropdown and select the key you created in the **Setting Up an Extole Integration in Extole** section of this guide.
-7. Paste in the API URL for Iterable’s [List Subscribe API](https://api.iterable.com/api/docs#lists_subscribe): `https://api.iterable.com/api/lists/subscribe`.  If you are using Iterable's EU Data Center, please use [https://api.eu.iterable.com/api/docs#lists_subscribe](https://api.eu.iterable.com/api/docs#lists_subscribe).
+3. Log in to My Extole and navigate to **Tech Center** > **Outbound Webhooks**.
+4. Click **+ New Webhook** and fill out the necessary fields.
+5. Leave the **Type** as **Generic**.
+6. Open the **Client Key** dropdown and select the key you created in [Set Up the Extole Integration](#set-up-the-extole-integration).
+7. Paste in the API URL for Iterable’s [List Subscribe API](https://api.iterable.com/api/docs#lists_subscribe): `https://api.iterable.com/api/lists/subscribe`. If you use Iterable's EU Data Center, use [https://api.eu.iterable.com/api/docs#lists_subscribe](https://api.eu.iterable.com/api/docs#lists_subscribe).
 
 <img src="/images/extole/4889b03cdd3c43f9ef4a34a72057410034aacb749248cedf85670b7220285690.png" alt="The outbound webhook creation screen in My Extole" width="60%" />
 
@@ -167,8 +171,20 @@ Additionally, when marketing your referral and engagement programs to customers 
 **Complete the following steps to send Extole event data into your Iterable account**:
 
 1. Make sure you have [event handling](https://support.iterable.com/hc/en-us/articles/115002065083-Managing-Custom-Events-#adding-events-to-the-custom-events-list) enabled in your Iterable account.
-2. Work with your Extole team to decide which custom events you’d like to send into Iterable, or choose from our standard table below. Your Extole team will then set up a webhook that points to Iterable’s [Events API](https://api.iterable.com/api/docs#events_track) and events will automatically start flowing into Iterable.  
-   Note that if you are using Iterable's EU Data Center, use [https://api.eu.iterable.com/api/docs#events_track](https://api.eu.iterable.com/api/docs#events_track).
+2. Work with your Extole team to decide which custom events you’d like to send into Iterable, or choose from our standard table below. Your Extole team will then set up a webhook that points to Iterable’s [Events API](https://api.iterable.com/api/docs#events_track) and events will automatically start flowing into Iterable.
+   If you use Iterable's EU Data Center, use [https://api.eu.iterable.com/api/docs#events_track](https://api.eu.iterable.com/api/docs#events_track).
+
+#### Choose the Events to Send
+
+Extole can send Iterable an event when:
+
+- An advocate receives a share link.
+- A friend converts.
+- A participant's reward is fulfilled.
+
+Each request to Iterable's Events API identifies the person with `email` or `userId` and includes `eventName`, `createdAt`, and the relevant `dataFields`. Work with your Extole team to choose the events and fields you need in Iterable.
+
+Whoever builds the integration follows [Build an Extole to Partner Integration](/technical/building-partner-integrations/integration-types/integration-build-extole-to-partner) for the controllers and webhooks, and uses Iterable's `Api-Key` header and the request fields on this page.
 
 <table>
   <thead>
@@ -274,10 +290,9 @@ A typical request body will look something like the following:
   "dataFields": {
     "first_name":"test",
     "last_name":"user",
-    "coupon_code":"RAF12345"
+    "coupon_code":"RAF12345",
     "reward_face_value":"30",
-    "reward_face_value_type":"USD",
-    
+    "reward_face_value_type":"USD"
   }
 }
 ```
