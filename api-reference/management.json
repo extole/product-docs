@@ -28050,8 +28050,7 @@
               "$ref" : "#/components/schemas/ExpectedHeadersInFileHeaderValidatorTaskRequest"
             },
             "match_mode" : {
-              "enum" : [ "EXACT_SET", "ORDERED", "SUBSET" ],
-              "type" : "string"
+              "$ref" : "#/components/schemas/MatchModeInFileHeaderValidatorTaskRequest"
             },
             "on_mismatch" : {
               "$ref" : "#/components/schemas/OnMismatchInFileHeaderValidatorTaskRequest"
@@ -28075,8 +28074,7 @@
               "$ref" : "#/components/schemas/ExpectedHeadersInFileHeaderValidatorTaskResponse"
             },
             "match_mode" : {
-              "enum" : [ "EXACT_SET", "ORDERED", "SUBSET" ],
-              "type" : "string"
+              "$ref" : "#/components/schemas/MatchModeInFileHeaderValidatorTaskResponse"
             },
             "on_mismatch" : {
               "$ref" : "#/components/schemas/OnMismatchInFileHeaderValidatorTaskResponse"
@@ -28088,7 +28086,7 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored file header validator task definition. Fields `order`, `expected_headers`, `on_mismatch`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "description" : "Stored file header validator task definition. Fields `order`, `expected_headers`, `match_mode`, `on_mismatch`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
         "required" : [ "component_ids", "component_references", "enabled", "expected_headers", "id", "match_mode", "on_mismatch", "order", "parent_job_id", "task_type" ],
         "type" : "object"
       },
@@ -31408,6 +31406,72 @@
         },
         "required" : [ "column_name", "expression" ],
         "type" : "object"
+      },
+      "MatchModeInFileHeaderValidatorTaskRequest" : {
+        "description" : "How the file's headers are compared with the expected headers: EXACT_SET requires the same headers in any order, ORDERED requires the same headers in the same order, and SUBSET requires the expected headers and allows any others. A literal value or a buildtime expression resolved from component references when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static match mode",
+          "enum" : [ "EXACT_SET", "ORDERED", "SUBSET" ],
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{matchMode}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('matchMode');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "MatchModeInFileHeaderValidatorTaskResponse" : {
+        "description" : "How the file's headers are compared with the expected headers: EXACT_SET requires the same headers in any order, ORDERED requires the same headers in the same order, and SUBSET requires the expected headers and allows any others. A literal value or a buildtime expression resolved from component references when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal match mode",
+          "enum" : [ "EXACT_SET", "ORDERED", "SUBSET" ],
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{matchMode}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('matchMode');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
       },
       "MatchTypeInFileNameMatchesTriggerRequest" : {
         "description" : "How the pattern is matched against filenames. A literal value or a buildtime expression resolved from component references when the trigger is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
