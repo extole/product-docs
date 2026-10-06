@@ -2176,7 +2176,7 @@
             "type" : "string"
           },
           "other_person_id" : {
-            "description" : "Extole person id of the friend who received this share. Absent if the friend has not yet joined.",
+            "description" : "Extole person id of the friend whose email matches `recipient`. Absent when the share has no recipient email or no person has that email.",
             "type" : "string"
           },
           "partner_id" : {
@@ -2184,6 +2184,10 @@
           },
           "program" : {
             "description" : "Program key associated with this share.",
+            "type" : "string"
+          },
+          "recipient" : {
+            "description" : "Email address the share was sent to. Absent when the share has no recipient email.",
             "type" : "string"
           },
           "shareable_code" : {
@@ -2195,7 +2199,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "campaign_id", "channel", "created_date", "data", "id", "link", "message", "other_person_id", "partner_id", "program", "shareable_code", "subject" ],
+        "required" : [ "campaign_id", "channel", "created_date", "data", "id", "link", "message", "other_person_id", "partner_id", "program", "recipient", "shareable_code", "subject" ],
         "type" : "object"
       },
       "PersonShareableContentRequest" : {
@@ -2358,6 +2362,11 @@
       "PersonStepDataResponse" : {
         "description" : "Named data parameters attached to this step.",
         "properties" : {
+          "key_type" : {
+            "description" : "What the campaign uses this data parameter for. `VALUE` is the monetary value of the step, such as a cart value, `UNIQUE_PARTNER_EVENT_KEY` is the partner's identifier for the event that created the step, `PARTNER_EVENT_KEY` and `PARTNER_PROFILE_KEY` are other partner identifiers, and `NONE` is plain data.",
+            "enum" : [ "NONE", "PARTNER_EVENT_KEY", "PARTNER_PROFILE_KEY", "UNIQUE_PARTNER_EVENT_KEY", "VALUE" ],
+            "type" : "string"
+          },
           "name" : {
             "description" : "Name of the data parameter.",
             "type" : "string"
@@ -10429,6 +10438,7 @@
             "type" : "string"
           }
         }, {
+          "description" : "Optional step name filter. Will include steps that match at least one of the names.",
           "in" : "query",
           "name" : "names",
           "schema" : {
@@ -10438,6 +10448,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional container filter, defaults to all containers. Will include steps that match at least one of the containers.",
           "in" : "query",
           "name" : "containers",
           "schema" : {
@@ -10447,6 +10458,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional campaign id filter. Will include steps that match at least one of the campaign ids.",
           "in" : "query",
           "name" : "campaign_ids",
           "schema" : {
@@ -10456,6 +10468,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional program label filter. Will include steps that match at least one of the programs.",
           "in" : "query",
           "name" : "programs",
           "schema" : {
@@ -10465,6 +10478,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional journey names filter. Will include steps that match at least one of the journey names.",
           "in" : "query",
           "name" : "journey_names",
           "schema" : {
@@ -10474,12 +10488,14 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional filter for primary steps. Defaults to all steps.",
           "in" : "query",
           "name" : "is_primary",
           "schema" : {
             "type" : "boolean"
           }
         }, {
+          "description" : "Optional filter for existence of a specific data keys with non-empty values. Will include steps that have at least one of the data keys.",
           "in" : "query",
           "name" : "data_keys",
           "schema" : {
@@ -10489,6 +10505,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional event IDs filter. Will include steps that match at least one of the event IDs.",
           "in" : "query",
           "name" : "event_ids",
           "schema" : {
@@ -10498,6 +10515,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional cause event IDs filter. Will include steps that match at least one of the cause event IDs.",
           "in" : "query",
           "name" : "cause_event_ids",
           "schema" : {
@@ -10507,6 +10525,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional root event IDs filter. Will include steps that match at least one of the root event IDs.",
           "in" : "query",
           "name" : "root_event_ids",
           "schema" : {
@@ -10516,6 +10535,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional offset filter, defaults to 0.",
           "in" : "query",
           "name" : "offset",
           "schema" : {
@@ -10523,6 +10543,7 @@
             "type" : "integer"
           }
         }, {
+          "description" : "Optional limit filter, defaults to 20.",
           "in" : "query",
           "name" : "limit",
           "schema" : {
@@ -10530,6 +10551,7 @@
             "type" : "integer"
           }
         }, {
+          "description" : "Optional journey key names filter. Will include steps, whose journey key matches one of the journey key names.",
           "in" : "query",
           "name" : "journey_key_names",
           "schema" : {
@@ -10539,6 +10561,7 @@
             "type" : "array"
           }
         }, {
+          "description" : "Optional journey key values filter. Will include steps that have one of the specified journey keys. Valid format is name:value.",
           "in" : "query",
           "name" : "journey_key_values",
           "schema" : {
