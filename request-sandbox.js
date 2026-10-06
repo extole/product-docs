@@ -28,6 +28,30 @@
     form.querySelector('[name="last_name"]').value = lastName;
   }
 
+  function updateCaptchaTimestamp() {
+    var response = form.querySelector('[name="g-recaptcha-response"]');
+    if (response && response.value.trim()) return;
+    var settings = form.querySelector('[name="captcha_settings"]');
+    var values = JSON.parse(settings.value);
+    values.ts = JSON.stringify(new Date().getTime());
+    settings.value = JSON.stringify(values);
+  }
+
+  function resetCaptcha() {
+    if (window.grecaptcha && typeof window.grecaptcha.reset === "function") {
+      window.grecaptcha.reset();
+    }
+  }
+
+  function loadCaptcha() {
+    if (document.querySelector('script[src="https://www.google.com/recaptcha/api.js"]')) return;
+    var script = document.createElement("script");
+    script.src = "https://www.google.com/recaptcha/api.js";
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+
   function showSubmissionConfirmation() {
     modal.querySelector("#extole-sandbox-title").textContent = "Thanks for your request";
     modal.querySelector("#extole-sandbox-description").textContent =
@@ -38,6 +62,7 @@
 
   function resetModal() {
     form.reset();
+    resetCaptcha();
     form.hidden = false;
     modal.querySelector(".extole-sandbox-success").hidden = true;
     modal.querySelector("#extole-sandbox-title").textContent = "Request a Sandbox";
@@ -115,10 +140,11 @@
       '<button class="extole-sandbox-close" type="button" aria-label="Close request sandbox form">×</button>' +
       '<h2 id="extole-sandbox-title">Request a Sandbox</h2>' +
       '<p id="extole-sandbox-description">Tell us about yourself and we’ll help you get started.</p>' +
-      '<form class="extole-sandbox-form" method="post" action="https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8">' +
+      '<form class="extole-sandbox-form" method="post" action="https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8&orgId=00D400000009iMx">' +
       '<input type="hidden" name="oid" value="00D400000009iMx">' +
       '<input type="hidden" name="Campaign__c" value="Developer Docs">' +
       '<input type="hidden" name="lead_source" value="Inbound - Organic">' +
+      '<input type="hidden" name="captcha_settings" value=\'{"keyname":"Developer_Docs_WebToLead_v2","fallback":"true","orgId":"00D400000009iMx","ts":""}\'>' +
       '<input type="hidden" name="first_name">' +
       '<input type="hidden" name="last_name">' +
       '<input type="hidden" name="retURL">' +
@@ -126,6 +152,7 @@
       '<div class="extole-sandbox-field"><label for="extole-sandbox-title-field">Title</label><input id="extole-sandbox-title-field" name="title" autocomplete="organization-title" required></div>' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-company">Company</label><input id="extole-sandbox-company" name="company" autocomplete="organization" required></div>' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-email">Email</label><input id="extole-sandbox-email" name="email" type="email" autocomplete="email" required></div>' +
+      '<div class="extole-sandbox-captcha"><div class="g-recaptcha" data-sitekey="6LecTeItAAAAAJ92rFMWrCosWV7_AWzWpgwIYeIk"></div></div>' +
       '<button class="extole-sandbox-submit" type="submit">Request sandbox</button>' +
       '</form>' +
       '<div class="extole-sandbox-success" aria-live="polite" hidden><span class="extole-sandbox-success-icon" aria-hidden="true">✓</span><div class="extole-sandbox-success-copy"><h3>In the meantime</h3><p>Explore the documentation while we prepare your sandbox.</p></div><button class="extole-sandbox-submit" type="button">Return to documentation</button></div>' +
@@ -134,6 +161,8 @@
     modal = wrapper;
     dialog = wrapper.querySelector(".extole-sandbox-dialog");
     form = wrapper.querySelector("form");
+    loadCaptcha();
+    window.setInterval(updateCaptchaTimestamp, 500);
 
     form.addEventListener("submit", function () {
       setNameFields();
