@@ -14,7 +14,6 @@
   "paths": {
     "/v6/events/{approve_event_name}": {
       "post": {
-        "operationId": "force_approve",
         "summary": "Force Approve",
         "description": "Approves a rewardable that is being held for review, by submitting this reward's own approve event. The campaign's rules issue the reward once the event is accepted, so a successful call means the approval was recorded, not that the reward has reached the person.",
         "x-extole-type": "SERVER_TO_EXTOLE",
@@ -40,38 +39,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "person_id",
-                  "target",
-                  "note",
-                  "identity_person_id"
-                ],
-                "properties": {
-                  "container": {
-                    "description": "Container the rewardable sits in, when it has one.",
-                    "type": "string"
-                  },
-                  "identity_person_id": {
-                    "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
-                    "type": "string"
-                  },
-                  "note": {
-                    "description": "Why the approval was made. Required: the campaign drops the event without one, so a call with no note answers with an event id and nothing happens.",
-                    "type": "string"
-                  },
-                  "person_id": {
-                    "description": "Extole person whose rewardable is being approved.",
-                    "type": "string"
-                  },
-                  "target": {
-                    "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
-                    "type": "string",
-                    "enum": [
-                      "campaign_id:{id}"
-                    ]
-                  }
-                }
+                "$ref": "#/components/schemas/ForceApproveRequest"
               }
             }
           }
@@ -155,10 +123,10 @@
         ],
         "security": [
           {
-            "HEADER": []
+            "CLIENT_AUTH_HEADER": []
           },
           {
-            "QUERY_PARAM": []
+            "CLIENT_AUTH_QUERY_PARAM": []
           }
         ],
         "x-extole-component": "reward_core"
@@ -166,7 +134,6 @@
     },
     "/v6/events/{decline_event_name}": {
       "post": {
-        "operationId": "decline",
         "summary": "Decline",
         "description": "Declines a rewardable that is being held for review, by submitting this reward's own decline event. Nothing is issued, and the note is recorded with the decision.",
         "x-extole-type": "SERVER_TO_EXTOLE",
@@ -192,38 +159,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "person_id",
-                  "target",
-                  "note",
-                  "identity_person_id"
-                ],
-                "properties": {
-                  "container": {
-                    "description": "Container the rewardable sits in, when it has one.",
-                    "type": "string"
-                  },
-                  "identity_person_id": {
-                    "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
-                    "type": "string"
-                  },
-                  "note": {
-                    "description": "Why the rewardable was declined. Required: the campaign drops the event without one, so a call with no note answers with an event id and nothing happens.",
-                    "type": "string"
-                  },
-                  "person_id": {
-                    "description": "Extole person whose rewardable is being declined.",
-                    "type": "string"
-                  },
-                  "target": {
-                    "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
-                    "type": "string",
-                    "enum": [
-                      "campaign_id:{id}"
-                    ]
-                  }
-                }
+                "$ref": "#/components/schemas/DeclineRequest"
               }
             }
           }
@@ -307,10 +243,10 @@
         ],
         "security": [
           {
-            "HEADER": []
+            "CLIENT_AUTH_HEADER": []
           },
           {
-            "QUERY_PARAM": []
+            "CLIENT_AUTH_QUERY_PARAM": []
           }
         ],
         "x-extole-component": "reward_core"
@@ -318,7 +254,6 @@
     },
     "/v6/events/{manual_request_event_name}": {
       "post": {
-        "operationId": "create_reward",
         "summary": "Create New",
         "description": "Issues this reward to a person who did not reach it through the normal flow, by submitting the reward's manual request event. The campaign's rules still decide the outcome, so a successful call means the request was recorded.",
         "x-extole-type": "SERVER_TO_EXTOLE",
@@ -344,45 +279,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "person_id",
-                  "target",
-                  "identity_person_id"
-                ],
-                "properties": {
-                  "container": {
-                    "description": "Container the rewardable sits in, when it has one.",
-                    "type": "string"
-                  },
-                  "identity_person_id": {
-                    "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
-                    "type": "string"
-                  },
-                  "other_person_id": {
-                    "description": "The other person in the referral relationship, when the reward depends on one.",
-                    "type": "string"
-                  },
-                  "ignore_quality": {
-                    "description": "Issue the reward even when the quality rules would hold it.",
-                    "type": "boolean"
-                  },
-                  "note": {
-                    "description": "Why the reward is being issued by hand. Recorded alongside it.",
-                    "type": "string"
-                  },
-                  "person_id": {
-                    "description": "Extole person whose rewardable is being rewarded.",
-                    "type": "string"
-                  },
-                  "target": {
-                    "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
-                    "type": "string",
-                    "enum": [
-                      "campaign_id:{id}"
-                    ]
-                  }
-                }
+                "$ref": "#/components/schemas/CreateRewardRequest"
               }
             }
           }
@@ -466,10 +363,10 @@
         ],
         "security": [
           {
-            "HEADER": []
+            "CLIENT_AUTH_HEADER": []
           },
           {
-            "QUERY_PARAM": []
+            "CLIENT_AUTH_QUERY_PARAM": []
           }
         ],
         "x-extole-component": "reward_core"
@@ -477,7 +374,6 @@
     },
     "/v6/events/{re_evaluation_event_name}": {
       "post": {
-        "operationId": "re_evaluate",
         "summary": "Re-Evaluate",
         "description": "Runs this reward's rules over the rewardable again, by submitting its re-evaluation event. Use when the thing that held it has changed - the rules decide the outcome, not the caller.",
         "x-extole-type": "SERVER_TO_EXTOLE",
@@ -503,37 +399,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "person_id",
-                  "target",
-                  "identity_person_id"
-                ],
-                "properties": {
-                  "container": {
-                    "description": "Container the rewardable sits in, when it has one.",
-                    "type": "string"
-                  },
-                  "identity_person_id": {
-                    "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
-                    "type": "string"
-                  },
-                  "note": {
-                    "description": "Why it is being re-evaluated. Recorded when supplied.",
-                    "type": "string"
-                  },
-                  "person_id": {
-                    "description": "Extole person whose rewardable is being re-evaluated.",
-                    "type": "string"
-                  },
-                  "target": {
-                    "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
-                    "type": "string",
-                    "enum": [
-                      "campaign_id:{id}"
-                    ]
-                  }
-                }
+                "$ref": "#/components/schemas/ReEvaluateRequest"
               }
             }
           }
@@ -617,10 +483,10 @@
         ],
         "security": [
           {
-            "HEADER": []
+            "CLIENT_AUTH_HEADER": []
           },
           {
-            "QUERY_PARAM": []
+            "CLIENT_AUTH_QUERY_PARAM": []
           }
         ],
         "x-extole-component": "reward_core"
@@ -629,14 +495,14 @@
   },
   "components": {
     "securitySchemes": {
-      "HEADER": {
+      "CLIENT_AUTH_HEADER": {
         "type": "apiKey",
         "in": "header",
         "name": "Authorization",
         "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
         "x-bearer-format": "bearer"
       },
-      "QUERY_PARAM": {
+      "CLIENT_AUTH_QUERY_PARAM": {
         "type": "apiKey",
         "in": "query",
         "name": "access_token",
@@ -680,6 +546,148 @@
           "parameters",
           "unique_id"
         ]
+      },
+      "CreateRewardRequest": {
+        "type": "object",
+        "required": [
+          "person_id",
+          "target",
+          "identity_person_id"
+        ],
+        "properties": {
+          "container": {
+            "description": "Container the rewardable sits in, when it has one.",
+            "type": "string"
+          },
+          "identity_person_id": {
+            "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
+            "type": "string"
+          },
+          "other_person_id": {
+            "description": "The other person in the referral relationship, when the reward depends on one.",
+            "type": "string"
+          },
+          "ignore_quality": {
+            "description": "Issue the reward even when the quality rules would hold it.",
+            "type": "boolean"
+          },
+          "note": {
+            "description": "Why the reward is being issued by hand. Recorded alongside it.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person whose rewardable is being rewarded.",
+            "type": "string"
+          },
+          "target": {
+            "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
+            "type": "string",
+            "enum": [
+              "campaign_id:{id}"
+            ]
+          }
+        }
+      },
+      "DeclineRequest": {
+        "type": "object",
+        "required": [
+          "person_id",
+          "target",
+          "note",
+          "identity_person_id"
+        ],
+        "properties": {
+          "container": {
+            "description": "Container the rewardable sits in, when it has one.",
+            "type": "string"
+          },
+          "identity_person_id": {
+            "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
+            "type": "string"
+          },
+          "note": {
+            "description": "Why the rewardable was declined. Required: the campaign drops the event without one, so a call with no note answers with an event id and nothing happens.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person whose rewardable is being declined.",
+            "type": "string"
+          },
+          "target": {
+            "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
+            "type": "string",
+            "enum": [
+              "campaign_id:{id}"
+            ]
+          }
+        }
+      },
+      "ForceApproveRequest": {
+        "type": "object",
+        "required": [
+          "person_id",
+          "target",
+          "note",
+          "identity_person_id"
+        ],
+        "properties": {
+          "container": {
+            "description": "Container the rewardable sits in, when it has one.",
+            "type": "string"
+          },
+          "identity_person_id": {
+            "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
+            "type": "string"
+          },
+          "note": {
+            "description": "Why the approval was made. Required: the campaign drops the event without one, so a call with no note answers with an event id and nothing happens.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person whose rewardable is being approved.",
+            "type": "string"
+          },
+          "target": {
+            "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
+            "type": "string",
+            "enum": [
+              "campaign_id:{id}"
+            ]
+          }
+        }
+      },
+      "ReEvaluateRequest": {
+        "type": "object",
+        "required": [
+          "person_id",
+          "target",
+          "identity_person_id"
+        ],
+        "properties": {
+          "container": {
+            "description": "Container the rewardable sits in, when it has one.",
+            "type": "string"
+          },
+          "identity_person_id": {
+            "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
+            "type": "string"
+          },
+          "note": {
+            "description": "Why it is being re-evaluated. Recorded when supplied.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person whose rewardable is being re-evaluated.",
+            "type": "string"
+          },
+          "target": {
+            "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
+            "type": "string",
+            "enum": [
+              "campaign_id:{id}"
+            ]
+          }
+        }
       }
     },
     "examples": {
