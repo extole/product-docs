@@ -14,7 +14,6 @@
   "paths": {
     "/v6/events/template_tracked_business_event": {
       "post": {
-        "operationId": "create_event",
         "summary": "Create New",
         "description": "Submits this business event from your backend as a person reaches it in the journey. Returns once identity resolution has completed, so the event is attributed to a known person.",
         "x-extole-type": "SERVER_TO_EXTOLE",
@@ -26,21 +25,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "email"
-                ],
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "Email address of the person the event belongs to."
-                  },
-                  "partner_user_id": {
-                    "type": "string",
-                    "description": "Your own identifier for the person, when you have one."
-                  }
-                }
+                "$ref": "#/components/schemas/CreateEventRequest"
               }
             }
           }
@@ -124,10 +109,10 @@
         ],
         "security": [
           {
-            "HEADER": []
+            "CLIENT_AUTH_HEADER": []
           },
           {
-            "QUERY_PARAM": []
+            "CLIENT_AUTH_QUERY_PARAM": []
           }
         ],
         "x-extole-component": "template_tracked_business_event"
@@ -136,14 +121,14 @@
   },
   "components": {
     "securitySchemes": {
-      "HEADER": {
+      "CLIENT_AUTH_HEADER": {
         "type": "apiKey",
         "in": "header",
         "name": "Authorization",
         "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
         "x-bearer-format": "bearer"
       },
-      "QUERY_PARAM": {
+      "CLIENT_AUTH_QUERY_PARAM": {
         "type": "apiKey",
         "in": "query",
         "name": "access_token",
@@ -187,6 +172,23 @@
           "parameters",
           "unique_id"
         ]
+      },
+      "CreateEventRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the person the event belongs to."
+          },
+          "partner_user_id": {
+            "type": "string",
+            "description": "Your own identifier for the person, when you have one."
+          }
+        }
       }
     },
     "examples": {
