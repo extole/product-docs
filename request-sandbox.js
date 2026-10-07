@@ -235,6 +235,7 @@
       '<div class="extole-sandbox-field"><label for="extole-sandbox-title-field">Title</label><input id="extole-sandbox-title-field" name="title" autocomplete="organization-title" required></div>' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-company">Company</label><input id="extole-sandbox-company" name="company" autocomplete="organization" required></div>' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-email">Email</label><input id="extole-sandbox-email" name="email" type="email" autocomplete="email" required></div>' +
+      '<div class="extole-sandbox-field extole-sandbox-field-full"><label for="extole-sandbox-message">What are you looking to build with Extole?</label><textarea id="extole-sandbox-message" name="00N8Z000003wCnI" rows="4" maxlength="32768" required></textarea></div>' +
       '<p class="extole-sandbox-error" aria-live="assertive" hidden></p>' +
       '<button class="extole-sandbox-submit" type="submit">Request sandbox</button>' +
       '</form>' +
