@@ -1,0 +1,49 @@
+---
+title: "Triggered By: In-Campaign Trigger Event Missing"
+description: "Add an in-campaign trigger event when a library business event has nothing to select in Triggered By and publishing fails."
+noindex: true
+---
+
+Use this runbook when a Flow Builder campaign shows a yellow **No Trigger Events are selected.** notice on a business event, **Triggered By** has nothing eligible to select, and publishing fails with *The Triggered By setting on '`step`' is not configured.*
+
+Customer-facing setup for declared extension events is in [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by). Use this page only for the in-campaign producer case below.
+
+<Info>
+**Audience**
+
+Extole operators and agents. Creating the journey setting requires a super user.
+</Info>
+
+## When This Applies
+
+You added a current library business event to a campaign and its **Triggered By** has nothing to select. This happens most often on campaigns created before Triggered By existed, or when a business event such as **Signed Up** was added without the companion trigger event that current themes create with the campaign.
+
+A business event's **Triggered By** can select events declared inside its own campaign. On a campaign created from a current theme, the components that produce the event declare it — for example, the landing page declares the sign-up event. On an older campaign, those components may declare nothing. An Event API or SDK declaration does not help for that in-campaign producer, because it lives outside the campaign.
+
+Do not try to fix this by upgrading only the component that produces the event, such as the landing page. That kind of partial upgrade can fail with *Component upgrade failed*.
+
+## Steps
+
+Work in the campaign's draft.
+
+1. **Open the journey that holds the business event.** For example, the friend's **Signed Up** in Refer a Friend sits in the **new_customer** journey, under the friend role.
+2. **Add a socket for trigger events to the journey.** Open the kebab menu (**Component actions**), choose **New Setting**, and create it with:
+   - **Name:** `triggerEvents`
+   - **Type:** **Multi Socket**
+   - **Component type:** **Trigger Event**
+
+   Only super users can create a setting.
+3. **Add the trigger event that declares the event.** Add it from the library to the new **Trigger Events** socket. Which component to add depends on the event. For a sign-up from the landing page, add **Email Capture Event**, which declares the input event `signed_up`. If you cannot find a trigger event for the event you need, contact Engineering.
+4. **Select it in the business event's Triggered By.** A library business event usually selects it when you add it. If **Triggered By** is still empty, select the trigger event you just added.
+5. **Publish the campaign.**
+
+## Things to Know
+
+- The journey keeps its link to the library. Adding the socket and the trigger event only raises its version, and it can still be upgraded later.
+- Do not make an existing business event a trigger event by changing its component types. That cuts its link to the library, and it can no longer be upgraded.
+- The trigger event belongs to the journey, not to any one business event. You can remove or replace a business event without losing the declaration. Before you remove the trigger event itself, clear it from every **Triggered By** that selects it. Otherwise the change is refused.
+
+## Related
+
+- [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by)
+- [How to Add a New Business Event](/guides/flow-campaigns/how-to-add-a-new-business-event)

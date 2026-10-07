@@ -15,6 +15,10 @@ All default programs use Triggered By.
 
 A campaign will not publish while a Triggered By setting it needs is empty. Declaring your events before you create the campaign is the easiest path: every Triggered By fills itself in, and the campaign publishes on the first try.
 
+<Warning>
+When a step shows a yellow **No Trigger Events are selected.** notice, its **Triggered By** setting is empty. That notice is a warning while you edit. When you publish, Extole turns the same condition into a hard error: *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* Select a trigger event before you publish. If **Triggered By** has nothing you can select, see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select).
+</Warning>
+
 ## Where Trigger Events Come From
 
 Everything you select in **Triggered By** is a **trigger event**. Trigger events come from two places:
@@ -110,6 +114,15 @@ From then on, every `conversion` event you send for a referred friend records th
 
 If your site sends `conversion` from a conversion tag instead, declare it on the **Javascript SDK** under **Tagged CTAs** in step 3, and select the Javascript SDK's `conversion` in step 5.
 
+### Example: Signed Up Shows No Trigger Events Are Selected
+
+**Signed Up** shows a yellow **No Trigger Events are selected.** notice, and publishing fails with *The Triggered By setting on 'signed_up' is not configured.*
+
+1. Open **Signed Up** and check **Triggered By**.
+2. If an option from **This Campaign** for the landing-page email capture is listed, select it and publish.
+3. If your own systems send the signup event, declare that event on the matching extension, select it, and publish. See [Set Up Triggered By](#set-up-triggered-by).
+4. If **Triggered By** has no option for that signup, the campaign is missing the in-campaign trigger event that current themes create with the campaign. Contact your Extole team to add it. Declaring the event only on an extension does not replace that in-campaign producer.
+
 ### Example: A Welcome Offer Campaign Fails on a Banner
 
 Publishing fails on the `show_reward_banner` call-to-action.
@@ -119,14 +132,22 @@ Publishing fails on the `show_reward_banner` call-to-action.
 3. Under **Tagged CTAs**, add `show_reward_banner`. Add `embedded_welcome_experience` and `show_reward_overlay` while you are there, since Welcome Offer needs all three.
 4. Publish the extension, select `show_reward_banner` in the call-to-action's **Triggered By** if it did not fill itself in, and publish the campaign.
 
+## When Triggered By Has Nothing to Select
+
+**Triggered By** lists trigger events from this campaign, your extensions and integrations, and your other campaigns. If nothing eligible appears for the event the step needs, publishing fails until something you can select is available.
+
+- **Trigger event from outside the campaign.** Declare it on the matching extension, then select it yourself. A newly declared event is never added to an existing campaign automatically. Follow [Set Up Triggered By](#set-up-triggered-by).
+- **Trigger event the campaign produces itself**, such as a friend signing up on the landing page. Current themes connect these automatically when the campaign is created. If you add a business event later, for example **Signed Up**, and **Triggered By** has no in-campaign option, the campaign is missing the companion trigger event that declares that signup. Contact your Extole team to add it. Selecting an Event API or SDK declaration does not replace that in-campaign producer.
+
 ## If Publishing Fails
 
-| Message | What it means | What to do |
+| Message or notice | What it means | What to do |
 |---|---|---|
-| *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* | Nothing is selected, usually because the trigger event the step expects has not been declared. | Follow [Set Up Triggered By](#set-up-triggered-by). |
+| Yellow **No Trigger Events are selected.** on the step | **Triggered By** is empty. This is the same condition that blocks publish. | Select a trigger event, or see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select). |
+| *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* | Nothing is selected. Often the trigger event the step expects has not been declared, or an in-campaign producer is missing. | Follow [Set Up Triggered By](#set-up-triggered-by), or see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select). |
 | *The Triggered By setting on '`step`' points at a component that no longer declares a trigger event (`ids`). Select a trigger event before publishing.* | The selected trigger event was deleted or renamed on its extension. | Declare the trigger event again, or select a different one, then publish. |
 
-The message names the step by its internal name, such as `converted`. If another publish error names Triggered By or a trigger event, contact your Extole team with the campaign link and the exact message.
+The publish message names the step by its internal name, such as `converted` or `signed_up`. If another publish error names Triggered By or a trigger event, contact your Extole team with the campaign link and the exact message.
 
 A campaign that publishes is not proof that a call-to-action shows everywhere its zone is requested. Publishing checks only that something is selected. If a call-to-action shows on your website but not in your app, see [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app).
 
