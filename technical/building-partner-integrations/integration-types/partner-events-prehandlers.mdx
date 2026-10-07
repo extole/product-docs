@@ -170,7 +170,7 @@ Guard every call on `getCandidatePerson()`: it returns null on anonymous and fir
 
 ### Use a Platform Service, Not a Java Class
 
-The script runtime offers no general Java interop. `Java.type(...)` resolves against a short fixed list of host classes and refuses everything else, and a refused lookup fails when the event arrives, not when you save the prehandler. A script built on `java.time` is therefore a prehandler that creates cleanly and drops live traffic.
+The script runtime offers no general Java interop. `Java.type(...)` resolves against a fixed internal list of host classes and refuses everything else, and a refused lookup fails when the event arrives, not when you save the prehandler. That list is not published and is not a contract, so a script built on `java.time` is one that creates cleanly and can drop live traffic with no warning. A class that looks adjacent to one that works is refused on its own name: a date formatter is not covered by the date classes beside it.
 
 <Warning>
 Reshape values through `context.getGlobalServices()` rather than a Java class. Nothing in a prehandler needs `Java.type(...)`, and a prehandler that uses it is validated by neither the create call nor the update call.
@@ -190,7 +190,7 @@ Dates are where this comes up most, because the platform's own handling of them 
 
 Every `dateTime` argument is read as ISO 8601 — `2026-10-06`, `2026-10-06T23:59`, `2026-10-06T23:59:59`, each with an optional offset or zone — and a value carrying no zone is read in your account's time zone. A partner's own format is not one of these: `10/06/2026` raises `InvalidDateException`, and so does `10/06/2026 23:59:59`. Reorder the parts into ISO 8601 first, then hand the result to the service.
 
-Setting a `MM/dd/yyyy` value as the event time at the end of that day, in your account's time zone:
+Setting a `MM/dd/yyyy` value as the event time at the end of that day, in your account's time zone. `date` is the key the partner's payload carries, so name your own; a value the three-part check rejects raises `prehandler_action_execution_failure` rather than stamping the event with a wrong time:
 
 ```javascript
 javascript@runtime:(function () {
