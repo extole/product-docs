@@ -6,6 +6,8 @@
   var form;
   var lastTrigger;
   var hiddenSiblings = [];
+  // Set true after enabling Salesforce Web-to-Lead reCAPTCHA enforcement.
+  var captchaEnabled = false;
 
   function triggerLinks() {
     return document.querySelectorAll('a[href="#request-sandbox"]');
@@ -31,6 +33,8 @@
   }
 
   function updateCaptchaTimestamp() {
+    if (!captchaEnabled) return;
+
     var response = form.querySelector('[name="g-recaptcha-response"]');
     if (response && response.value.trim()) return;
     var settings = form.querySelector('[name="captcha_settings"]');
@@ -40,7 +44,11 @@
   }
 
   function resetCaptcha() {
-    if (window.grecaptcha && typeof window.grecaptcha.reset === "function") {
+    if (
+      captchaEnabled &&
+      window.grecaptcha &&
+      typeof window.grecaptcha.reset === "function"
+    ) {
       window.grecaptcha.reset();
     }
   }
@@ -58,12 +66,17 @@
     event.preventDefault();
     setNameFields();
     setReturnUrl();
-    updateCaptchaTimestamp();
 
-    var captchaResponse = form.querySelector('[name="g-recaptcha-response"]');
-    if (!captchaResponse || !captchaResponse.value.trim()) {
-      showSubmissionError("Complete the reCAPTCHA verification to continue.");
-      return;
+    if (captchaEnabled) {
+      updateCaptchaTimestamp();
+
+      var captchaResponse = form.querySelector(
+        '[name="g-recaptcha-response"]'
+      );
+      if (!captchaResponse || !captchaResponse.value.trim()) {
+        showSubmissionError("Complete the reCAPTCHA verification to continue.");
+        return;
+      }
     }
 
     clearSubmissionError();
@@ -186,6 +199,14 @@
   function addModal() {
     if (document.getElementById("extole-request-sandbox-modal")) return;
     var wrapper = document.createElement("div");
+    var captchaMarkup = "";
+
+    if (captchaEnabled) {
+      captchaMarkup =
+        '<input type="hidden" name="captcha_settings" value=\'{"keyname":"Developer_Docs_WebToLead_v2","fallback":"true","orgId":"00D400000009iMx","ts":""}\'>' +
+        '<div class="extole-sandbox-captcha"><div class="g-recaptcha" data-sitekey="6LecTeItAAAAAJ92rFMWrCosWV7_AWzWpgwIYeIk"></div></div>';
+    }
+
     wrapper.className = "extole-sandbox-modal";
     wrapper.id = "extole-request-sandbox-modal";
     wrapper.hidden = true;
@@ -198,7 +219,7 @@
       '<input type="hidden" name="oid" value="00D400000009iMx">' +
       '<input type="hidden" name="Campaign__c" value="Developer Docs">' +
       '<input type="hidden" name="lead_source" value="Inbound - Organic">' +
-      '<input type="hidden" name="captcha_settings" value=\'{"keyname":"Developer_Docs_WebToLead_v2","fallback":"true","orgId":"00D400000009iMx","ts":""}\'>' +
+      captchaMarkup +
       '<input type="hidden" name="first_name">' +
       '<input type="hidden" name="last_name">' +
       '<input type="hidden" name="retURL">' +
@@ -206,7 +227,6 @@
       '<div class="extole-sandbox-field"><label for="extole-sandbox-title-field">Title</label><input id="extole-sandbox-title-field" name="title" autocomplete="organization-title" required></div>' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-company">Company</label><input id="extole-sandbox-company" name="company" autocomplete="organization" required></div>' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-email">Email</label><input id="extole-sandbox-email" name="email" type="email" autocomplete="email" required></div>' +
-      '<div class="extole-sandbox-captcha"><div class="g-recaptcha" data-sitekey="6LecTeItAAAAAJ92rFMWrCosWV7_AWzWpgwIYeIk"></div></div>' +
       '<p class="extole-sandbox-error" aria-live="assertive" hidden></p>' +
       '<button class="extole-sandbox-submit" type="submit">Request sandbox</button>' +
       '</form>' +
@@ -216,8 +236,10 @@
     modal = wrapper;
     dialog = wrapper.querySelector(".extole-sandbox-dialog");
     form = wrapper.querySelector("form");
-    loadCaptcha();
-    window.setInterval(updateCaptchaTimestamp, 500);
+    if (captchaEnabled) {
+      loadCaptcha();
+      window.setInterval(updateCaptchaTimestamp, 500);
+    }
 
     form.addEventListener("submit", submitToSalesforce);
     wrapper.querySelector(".extole-sandbox-close").addEventListener("click", closeModal);
