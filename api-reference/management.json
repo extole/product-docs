@@ -29289,7 +29289,7 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored filter rows task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "description" : "Stored filter rows task definition. Fields `order`, `script`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
         "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "script", "task_type" ],
         "type" : "object"
       },
@@ -40940,7 +40940,7 @@
         } ]
       },
       "ScriptInBuiltFilterRowsTaskResponse" : {
-        "description" : "JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. It must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header with string values, for example `context.getRow().status === 'active'`. Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+        "description" : "JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. It must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header. CSV and PSV values are strings; JSON values keep their JSON types. For example `context.getRow().status === 'active'`. Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
         "externalDocs" : {
           "description" : "FilterRowsContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
@@ -40972,15 +40972,31 @@
         } ]
       },
       "ScriptInFilterRowsTaskRequest" : {
-        "description" : "JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. It must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header with string values, for example `context.getRow().status === 'active'`. Required on create. Omit on update to keep the existing script. Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
-        "externalDocs" : {
-          "description" : "FilterRowsContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
-        },
+        "description" : "Expression evaluated when the task is built, resolving to a JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. The row expression must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header. CSV and PSV values are strings; JSON values keep their JSON types. For example `context.getRow().status === 'active'`. Required on create. Omit on update to keep the existing script. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts). Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
         "oneOf" : [ {
           "description" : "Static script",
           "title" : "Static Value",
           "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{script}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('script');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
         }, {
           "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
           "example" : "handlebars@runtime:{{script}}",
@@ -41004,15 +41020,31 @@
         } ]
       },
       "ScriptInFilterRowsTaskResponse" : {
-        "description" : "JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. It must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header with string values, for example `context.getRow().status === 'active'`. Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
-        "externalDocs" : {
-          "description" : "FilterRowsContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
-        },
+        "description" : "Expression evaluated when the task is built, resolving to a JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. The row expression must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header. CSV and PSV values are strings; JSON values keep their JSON types. For example `context.getRow().status === 'active'`. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts). Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
         "oneOf" : [ {
           "description" : "Literal script",
           "title" : "Static Value",
           "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{script}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('script');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
         }, {
           "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
           "example" : "handlebars@runtime:{{script}}",
