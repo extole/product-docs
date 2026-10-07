@@ -115,7 +115,27 @@
             "CLIENT_AUTH_QUERY_PARAM": []
           }
         ],
-        "x-extole-component": "template_tracked_business_event"
+        "x-extole-component": "template_tracked_business_event",
+        "x-codeSamples": [
+          {
+            "lang": "bash",
+            "label": "cURL (server)",
+            "source": "curl --request POST \\\n  --url https://events.extole.io/v6/events/template_tracked_business_event \\\n  --header 'Authorization: Bearer CLIENT_ACCESS_TOKEN' \\\n  --header 'Content-Type: application/json' \\\n  --data '{\n    \"email\": \"jane@example.com\",\n    \"partner_user_id\": \"member-1042\"\n  }'\n"
+          },
+          {
+            "lang": "javascript",
+            "label": "Node.js (server)",
+            "source": "const response = await fetch(\n  'https://events.extole.io/v6/events/template_tracked_business_event',\n  {\n    method: 'POST',\n    headers: {\n      Authorization: `Bearer ${process.env.EXTOLE_CLIENT_ACCESS_TOKEN}`,\n      'Content-Type': 'application/json'\n    },\n    body: JSON.stringify({\n      email: 'jane@example.com',\n      partner_user_id: 'member-1042'\n    })\n  }\n);\nconst { event_id, person_id } = await response.json();\n"
+          },
+          {
+            "lang": "html",
+            "label": "Event tag (browser)",
+            "source": "<!-- On the page where the person reaches this step -->\n<script type=\"text/javascript\">\n  /* Start Extole */\n  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,\"extole\",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},[\"createZone\"],0);\n  /* End Extole */\n\n  extole.createZone({\n    name: 'template_tracked_business_event',\n    data: {\n      email: 'jane@example.com',\n      partner_user_id: 'member-1042'\n    }\n  });\n</script>\n"
+          }
+        ],
+        "x-mint": {
+          "content": "<Info>\n**Two ways to send this event.** Send it from your backend with a client access token, as the **cURL** and **Node.js** examples show. Or fire it from the page with an event tag, as the **Event tag** example shows: the JavaScript SDK sends a zone request with the event name, and the platform records it as an event of the same name.\n</Info>\n\n<Warning>\nNever put a client access token in a page. The event tag needs no token: the core tag identifies the person from the browser.\n</Warning>\n\nReplace `template_tracked_business_event` with the event name configured on your component, and pass the person's real email and your own ID for them.\n"
+        }
       }
     }
   },
