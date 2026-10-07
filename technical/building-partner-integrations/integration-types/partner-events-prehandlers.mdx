@@ -150,7 +150,7 @@ A condition returns a boolean; an action returns nothing and mutates through the
 | `context.getVariable(name)` | A component setting | This instance's configuration |
 | `context.getCandidatePerson()` | The person, **or null** | Identity already resolved |
 | `context.log(message)` | — | A line in the event's log messages |
-| `context.getGlobalServices()` | The shared service set | `getJsonService()`, `getStringService()`, `getDateService()`, `getNotificationService()`, and the rest |
+| `context.getGlobalServices()` | The shared service set | `getJsonService()`, `getStringService()`, `getDateService()`, `getNotificationService()`, and the rest. See [Use a Platform Service, Not a Java Class](#use-a-platform-service-not-a-java-class) |
 | `context.getEventBuilder()` | The builder, **actions only** | Every mutation below |
 
 | Builder call | Changes |
@@ -167,6 +167,47 @@ A condition returns a boolean; an action returns nothing and mutates through the
 `getHttpHeaders()` returns each header as an array, so read a single-valued header as `getHttpHeaders().get("x-example-signature")[0]`. `getData()` returns a map; scripts in maintained integrations read it as both `data.get("field_name")` and `data.field_name`, so use `.get(name)`.
 
 Guard every call on `getCandidatePerson()`: it returns null on anonymous and first-touch traffic, and an unguarded call is the most common cause of `prehandler_action_execution_failure` alerts.
+
+### Use a Platform Service, Not a Java Class
+
+The script runtime offers no general Java interop. `Java.type(...)` resolves against a short fixed list of host classes and refuses everything else, and a refused lookup fails when the event arrives, not when you save the prehandler. A script built on `java.time` is therefore a prehandler that creates cleanly and drops live traffic.
+
+<Warning>
+Reshape values through `context.getGlobalServices()` rather than a Java class. Nothing in a prehandler needs `Java.type(...)`, and a prehandler that uses it is validated by neither the create call nor the update call.
+</Warning>
+
+Dates are where this comes up most, because the platform's own handling of them is the part a Java class cannot reproduce: `getDateService()` already knows your account's time zone, which a hardcoded zone identifier only guesses at. Its calls name that zone the client time zone, which is the same thing.
+
+| Call | Returns |
+| :--- | :--- |
+| `now()` | The current time in your account's time zone. |
+| `parse(date)` / `parse(format, date)` | The value parsed with the default date format, or with a format pattern you supply. |
+| `toClientTimezone(dateTime)` | The same instant, expressed in your account's time zone. |
+| `toClientTimezone(dateTime, sameLocal)` | With `sameLocal` true, the same wall-clock reading relabelled into your account's time zone instead of converted into it. |
+| `toClientTimezone(dateTime, format)` | The same instant in your account's time zone, rendered with a format pattern. |
+| `toTimezone(dateTime, timezone)` / `toTimezone(dateTime, timezone, sameLocal)` | The same two conversions, for a named zone such as `America/New_York`. |
+| `toTimezone(dateTime, format, timezone)` | The same instant in a named zone, rendered with a format pattern. |
+
+Every `dateTime` argument is read as ISO 8601 — `2026-10-06`, `2026-10-06T23:59`, `2026-10-06T23:59:59`, each with an optional offset or zone — and a value carrying no zone is read in your account's time zone. A partner's own format is not one of these: `10/06/2026` raises `InvalidDateException`, and so does `10/06/2026 23:59:59`. Reorder the parts into ISO 8601 first, then hand the result to the service.
+
+Setting a `MM/dd/yyyy` value as the event time at the end of that day, in your account's time zone:
+
+```javascript
+javascript@runtime:(function () {
+    var source = context.getProcessedRawEvent().getData().get("date");
+    if (source == null || String(source).trim() === "") {
+        return;
+    }
+    var parts = String(source).trim().split("/");
+    if (parts.length !== 3) {
+        throw new Error("Expected a date in MM/dd/yyyy format");
+    }
+    var endOfDay = parts[2] + "-" + parts[0] + "-" + parts[1] + "T23:59:59";
+    context.getEventBuilder()
+        .withEventTime(context.getGlobalServices().getDateService().toClientTimezone(endOfDay))
+        .removeData("date");
+})();
+```
 
 ## Produce a Name This Integration Owns
 
