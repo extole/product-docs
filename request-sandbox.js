@@ -1,4 +1,6 @@
 (function () {
+  "use strict";
+
   var modal;
   var dialog;
   var form;
@@ -52,17 +54,69 @@
     document.head.appendChild(script);
   }
 
+  function submitToSalesforce(event) {
+    event.preventDefault();
+    setNameFields();
+    setReturnUrl();
+    updateCaptchaTimestamp();
+
+    var captchaResponse = form.querySelector('[name="g-recaptcha-response"]');
+    if (!captchaResponse || !captchaResponse.value.trim()) {
+      showSubmissionError("Complete the reCAPTCHA verification to continue.");
+      return;
+    }
+
+    clearSubmissionError();
+    var formData = new URLSearchParams(new FormData(form));
+    var button = form.querySelector('[type="submit"]');
+    button.disabled = true;
+    button.textContent = "Sending…";
+
+    fetch(form.action, {
+      body: formData,
+      method: "POST",
+      mode: "no-cors",
+    })
+      .then(showSubmissionConfirmation)
+      .catch(function () {
+        showSubmissionError(
+          "We couldn’t confirm that your request was sent. Please wait a few minutes before trying again."
+        );
+      })
+      .finally(resetSubmitButton);
+  }
+
   function showSubmissionConfirmation() {
-    modal.querySelector("#extole-sandbox-title").textContent = "Thanks for your request";
+    modal.querySelector("#extole-sandbox-title").textContent = "Request sent";
     modal.querySelector("#extole-sandbox-description").textContent =
-      "We’ll review your details and email you with next steps.";
+      "We’ve sent your details for review. We’ll email you with next steps.";
     form.hidden = true;
     modal.querySelector(".extole-sandbox-success").hidden = false;
+  }
+
+  function showSubmissionError(message) {
+    var error = modal.querySelector(".extole-sandbox-error");
+    error.textContent = message;
+    error.hidden = false;
+  }
+
+  function clearSubmissionError() {
+    var error = modal.querySelector(".extole-sandbox-error");
+    error.textContent = "";
+    error.hidden = true;
+  }
+
+  function resetSubmitButton() {
+    var button = form.querySelector('[type="submit"]');
+    button.disabled = false;
+    button.textContent = "Request sandbox";
   }
 
   function resetModal() {
     form.reset();
     resetCaptcha();
+    clearSubmissionError();
+    resetSubmitButton();
     form.hidden = false;
     modal.querySelector(".extole-sandbox-success").hidden = true;
     modal.querySelector("#extole-sandbox-title").textContent = "Request a Sandbox";
@@ -153,6 +207,7 @@
       '<div class="extole-sandbox-field"><label for="extole-sandbox-company">Company</label><input id="extole-sandbox-company" name="company" autocomplete="organization" required></div>' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-email">Email</label><input id="extole-sandbox-email" name="email" type="email" autocomplete="email" required></div>' +
       '<div class="extole-sandbox-captcha"><div class="g-recaptcha" data-sitekey="6LecTeItAAAAAJ92rFMWrCosWV7_AWzWpgwIYeIk"></div></div>' +
+      '<p class="extole-sandbox-error" aria-live="assertive" hidden></p>' +
       '<button class="extole-sandbox-submit" type="submit">Request sandbox</button>' +
       '</form>' +
       '<div class="extole-sandbox-success" aria-live="polite" hidden><span class="extole-sandbox-success-icon" aria-hidden="true">✓</span><div class="extole-sandbox-success-copy"><h3>In the meantime</h3><p>Explore the documentation while we prepare your sandbox.</p></div><button class="extole-sandbox-submit" type="button">Return to documentation</button></div>' +
@@ -164,10 +219,7 @@
     loadCaptcha();
     window.setInterval(updateCaptchaTimestamp, 500);
 
-    form.addEventListener("submit", function () {
-      setNameFields();
-      setReturnUrl();
-    });
+    form.addEventListener("submit", submitToSalesforce);
     wrapper.querySelector(".extole-sandbox-close").addEventListener("click", closeModal);
     wrapper.querySelector(".extole-sandbox-success button").addEventListener("click", closeModal);
     wrapper.addEventListener("click", function (event) {
