@@ -24,6 +24,11 @@
     form.querySelector('[name="retURL"]').value = returnUrl();
   }
 
+  function trackAnalyticsEvent(eventName) {
+    if (typeof window.gtag !== "function") return;
+    window.gtag("event", eventName);
+  }
+
   function setNameFields() {
     var fullName = form.querySelector('[name="full_name"]').value.trim();
     var parts = fullName.split(/\s+/);
@@ -90,7 +95,10 @@
       method: "POST",
       mode: "no-cors",
     })
-      .then(showSubmissionConfirmation)
+      .then(function () {
+        trackAnalyticsEvent("request_sandbox_submit");
+        showSubmissionConfirmation();
+      })
       .catch(function () {
         showSubmissionError(
           "We couldn’t confirm that your request was sent. Please wait a few minutes before trying again."
@@ -260,6 +268,7 @@
       links[i].dataset.extoleSandboxTrigger = "true";
       links[i].addEventListener("click", function (event) {
         event.preventDefault();
+        trackAnalyticsEvent("request_sandbox_click");
         openModal(event.currentTarget);
       });
     }
