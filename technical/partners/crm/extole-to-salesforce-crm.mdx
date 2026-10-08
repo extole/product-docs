@@ -7,7 +7,7 @@ description: "Learn how to send Extole real-time referrals, rewards, and custome
 
 Extole integrates with Salesforce Sales Cloud by sending real-time referral, reward, and customer engagement data through outbound webhooks. This server-to-server connection allows Salesforce to ingest and act on Extole events, ensuring accurate attribution, automated follow-ups, and streamlined customer lifecycle management.
 
-This document outlines the ways data can flow from Extole into Salesforce.
+This document outlines the ways data can flow from Extole into Salesforce: the Salesforce CRM integration in My Extole, which works with the Extole app for Salesforce, or an outbound webhook to an endpoint you build yourself.
 
 ## Why Send Data to Salesforce?
 
@@ -46,6 +46,43 @@ To create the key within Extole, create a new Integration from within the [Outbo
 | OAUTH Client ID   | The Client ID from the previous step                          |
 | Scope             | *Not Required*                                                |
 | Description       | A useful description of where this key will be used           |
+
+## Salesforce CRM Integration
+
+The **Salesforce CRM** integration sends an event to the Extole app for Salesforce each time an advocate creates a share link. The app updates the matching Contact or Lead in Salesforce with the fields you map.
+
+The app matches a record by the person's `salesforce_id` in Extole first, and by email when there is no `salesforce_id` or no record with that ID. It updates existing records only; it doesn't create Contacts or Leads.
+
+### Prerequisites
+
+| Requirement | Description |
+| :- | :- |
+| Extole app for Salesforce | The app must be installed in your Salesforce org, with its onboarding complete. Contact your Extole Customer Success Manager to get the app. |
+| Salesforce OAuth key in Extole | An `OAUTH_SFDC` key, created as described in [OAuth Key Creation in Extole](#oauth-key-creation-in-extole). |
+
+### Set Up the Integration
+
+1. In Salesforce, open the Extole app's **Receive Extole Events** tab and copy the **Webhook Endpoint**.
+2. In My Extole, navigate to **Partners**, select **Salesforce CRM**, and click **Install**.
+3. Set **Salesforce Endpoint URL** to the Webhook Endpoint you copied, and set **Salesforce OAuth Credentials** to your `OAUTH_SFDC` key.
+4. Turn on **Enable Salesforce Writeback**. It's off by default, so the integration sends nothing until you turn it on.
+5. In Salesforce, on the **Receive Extole Events** tab, click **Add Rule**. Enter `share_link_created` as the event name, and map the event's fields to Contact or Lead fields. Target fields must be Text fields.
+6. As an advocate, create a share link, then confirm the event appears in the **Event Log** on the **Receive Extole Events** tab.
+
+### Event Payload
+
+Each share link sends one request. `event_id` is unique to the share link event, and the app ignores a repeated `event_id`. `data` holds the share link event's data, plus the person's `email` and `salesforce_id`:
+
+```json
+{
+    "event_id": "1234567890123456789",
+    "event_name": "share_link_created",
+    "data": {
+        "email": "advocate@example.com",
+        "salesforce_id": "003XXXXXXXXXXXXXXX"
+    }
+}
+```
 
 ## Option 1: APEX Rest Endpoint for Extole to Salesforce
 
