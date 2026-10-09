@@ -20298,6 +20298,16 @@
         },
         "type" : "object"
       },
+      "ComponentUpgradeRequest" : {
+        "properties" : {
+          "origin_matching_strategy" : {
+            "description" : "How the upgrade pairs each of the client's copied components with a component of the new library version. `STRICT`, the default, pairs a copy only with the library component it was copied from; a copy whose library component was deleted is removed, with the client's changes to it. `PATH` does the same, and in addition pairs such a copy with the library component that replaced it: one at the same path, with the same primary type as the copy had when it was copied. The copy then keeps its id and the client's changes.",
+            "enum" : [ "PATH", "STRICT" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ConfiguredReportTypeResponse" : {
         "allOf" : [ {
           "$ref" : "#/components/schemas/ReportTypeResponseBase"
@@ -95942,7 +95952,7 @@
     },
     "/v1/components/{component_id}/upgrade" : {
       "post" : {
-        "description" : "Upgrades the component to the latest version of its component type definition.",
+        "description" : "Upgrades the component to the latest version of its component type definition. The request body is optional. Without it, `origin_matching_strategy` is `STRICT`.",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -95951,6 +95961,18 @@
             "type" : "string"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "origin_matching_strategy" : "PATH"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentUpgradeRequest"
+              }
+            }
+          }
+        },
         "responses" : {
           "200" : {
             "content" : {
