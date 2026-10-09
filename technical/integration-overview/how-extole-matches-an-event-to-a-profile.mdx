@@ -1,0 +1,68 @@
+---
+title: "How Extole Matches an Event to a Profile"
+description: "The order Extole uses to decide which profile an event or uploaded file row updates, and what happens when two people share one identifier."
+---
+
+## Overview
+
+Every event you send has to be attached to one person's profile before Extole records it, updates that profile, or uses it for an audience or a reward. The event might come from a tag on your site, an API call, or a row in a file you upload.
+
+Extole chooses the profile by matching identifiers on the event to profiles it already has, and it stops at the first match. This page covers that order, the difference between your account's identity key and a person key, and what happens when two people share one identifier. The shared-identifier case is common for a joint or household account: two email addresses, one account number.
+
+## The Order Extole Checks
+
+Extole checks the identifiers on the event in this order, and stops at the first one that matches an existing profile:
+
+1. **Extole person ID.** The identifier Extole has already assigned to a profile, when the event includes it.
+2. **Identity key.** The one field your account uses to say who a person is. For most accounts that field is the email address, so this step checks the email on the event.
+3. **Email address.** Checked here only when email is not your account's identity key. When email is the identity key, step 2 already checked it.
+4. **Partner user ID.** The identifier your own system uses for this person, when the event includes one.
+5. **Person key.** Any other identifier on the event that one of your campaigns declares as a person key, such as a member number or an account number.
+
+If none of these match an existing profile, Extole creates one.
+
+## Identity Keys and Person Keys
+
+The **identity key** is one field, chosen for the whole account, that identifies the profile as that person. For most accounts it is the email address. One identity key value belongs to exactly one profile, and Extole enforces that. Two events that carry the same identity key value update the same profile.
+
+A **person key** is an additional identifier your campaigns declare so Extole can find a profile by it: a member number, an account number, or a customer identifier from another system. A person key is a lookup convenience. It carries no uniqueness guarantee. Nothing stops your system from sending the same person key value for two people.
+
+<Info>
+  To see which person keys your account has, call the partner keys endpoint described in [List partner keys](/api-reference/persons/list-partner-keys). Person keys come from your campaigns, so the list changes when a campaign that declares one is launched or stopped.
+</Info>
+
+## When Two People Share One Identifier
+
+Extole does not reject a repeated person key value, and it does not create a second profile to hold it. Take two people who each have their own email address and who share one account number, with that account number declared as a person key.
+
+The first row Extole processes creates a profile identified by that person's email, and records the account number as a person key on it. What happens to the second person depends on which earlier identifier Extole can match:
+
+- **Their email already has a profile.** Step 2 matches, so Extole stops. Both people keep separate profiles, and the shared account number does not combine them.
+- **Their email is new to Extole.** Steps 2 and 3 find no profile. Step 4 matches only when the event carries a partner user ID that already belongs to a profile. When it does not, step 5 matches the shared account number, and the event is applied to the first person's profile.
+
+In the second case, the second person's data is written onto the first person's profile. Names and other attributes are overwritten by whichever row was processed most recently, and no profile is created for the second person's email address.
+
+What you then see:
+
+- Searching for the second email address in My Extole returns no profile.
+- Adding that email to an audience adds the shared profile. That profile is usually already a member, so the audience does not grow. The file row was still processed.
+- Email sent for the second person is delivered to the first person's address.
+
+<Warning>
+  This affects people added to an account Extole already knows, so it appears gradually rather than all at once. An integration that worked at launch can accumulate these matches over months as new people are added to existing joint or household accounts.
+</Warning>
+
+## How to Confirm a Shared Identifier
+
+Look up the shared identifier rather than the email address that seems to be missing. [Search for persons](/api-reference/persons/search-for-persons) accepts a person key in `name:value` form: the person key's name, a colon, and the shared value. If the account number returns a profile whose email address is the other person's, both people were matched to that one profile.
+
+For an audience populated from an uploaded file, open the operation on the audience **History** tab and compare **Input Size** with **Members**. A row that matched a profile an earlier row had already matched does not add a distinct member. A large difference between those two numbers that stays about the same on every run points to shared person keys rather than rejected rows.
+
+## What You Can Change
+
+Two changes keep a shared identifier from combining two people onto one profile. Both are account-wide. Discuss either with your Extole contact before you make it.
+
+- **Send a per-person identifier as the person key.** If your system has a member number that is unique to each person, declare that as the person key instead of the account-level number. Each person stays on their own profile, and you can still look a profile up by that number.
+- **Stop declaring the shared identifier as a person key.** Email then identifies each person on its own. You can still send the identifier and store it as profile data. The trade-off is that you can no longer look a profile up by it. Any relationship between people that uses it, and any deduplication that treats them as one person because they share it, has to be rebuilt on another identifier.
+
+If the two people are one participant for your program — a household that earns one reward — leaving the behavior in place is a valid choice. Make it on purpose rather than by default.
