@@ -53725,11 +53725,26 @@
     },
     "/v1/components/{component_id}/selectable-by-references" : {
       "get" : {
-        "description" : "Returns the `COMPONENT_REFERENCE` and `COMPONENT_REFERENCE_LIST` settings across the client that can select the specified component — the reverse of `GET /v1/components/{component_id}/settings/component-reference/{setting_name}/selectable-components`. A reference is listed when it already points at the component (`SELECTED`), or when the component is eligible for it: the component carries the reference's declared component type, sits inside the reference's boundary, and is not excluded by one of its selectable filters. Matching runs entirely on the server, so callers never reproduce match rules. One row per component, setting and variant. The result is computed per request and never persisted.\n\nThe search covers every non-archived campaign of the client at its latest version, so the row count is driven by how those references declare their boundary: campaign-scoped references match only within their own campaign, while an account-scoped reference can match a component anywhere in the client.",
+        "description" : "Returns the `COMPONENT_REFERENCE` and `COMPONENT_REFERENCE_LIST` settings across the client that can select the specified component — the reverse of `GET /v1/components/{component_id}/settings/component-reference/{setting_name}/selectable-components`. A reference is listed when it already points at the component (`SELECTED`), or when the component is eligible for it: the component carries the reference's declared component type, sits inside the reference's boundary, and is not excluded by one of its selectable filters. Matching runs entirely on the server, so callers never reproduce match rules. One row per component, setting and variant. The result is computed per request and never persisted.\n\nThe search covers every non-archived campaign of the client at its latest version, so the row count is driven by how those references declare their boundary: campaign-scoped references match only within their own campaign, while an account-scoped reference can match a component anywhere in the client.\n\n`selection` lists only `SELECTED` or only `SELECTABLE` references; a `SELECTED` listing reads stored values and runs no eligibility check. `within_any_types` keeps only the references held by a component that has one of the given types, or sits below one that does.",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
           "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Lists only the references with this selection: SELECTED for the references that already point at the component, SELECTABLE for the references the component could be selected by. Lists both when omitted.",
+          "in" : "query",
+          "name" : "selection",
+          "schema" : {
+            "enum" : [ "SELECTABLE", "SELECTED" ],
+            "type" : "string"
+          }
+        }, {
+          "description" : "A comma-separated list of component types. Lists only the references held by a component that has at least one of these types, or that sits below a component in its campaign that does. A type matches its subtypes too.",
+          "in" : "query",
+          "name" : "within_any_types",
           "schema" : {
             "type" : "string"
           }
