@@ -1,0 +1,188 @@
+---
+title: "Custom Rewards"
+description: "Use a custom reward when your own systems deliver the reward. Configure it in My Extole, fulfill it by API call or by event, and receive earned rewards through webhooks, reports, or the Rewards API."
+---
+
+# Overview
+
+A custom reward is a reward that Extole tracks and your own systems deliver. Extole decides who earned what and when, based on your program's reward rules. Your systems then apply the reward, for example as an account credit, and tell Extole it has been fulfilled.
+
+Every other reward type, such as coupons or gift cards, is fulfilled by Extole or by a reward partner as soon as it is earned. A custom reward can wait for you instead.
+
+## When to Use a Custom Reward
+
+Use a custom reward when the value lives in a system Extole cannot write to directly:
+
+- **Account credits**: statement credits, a free month of service, a balance top-up, or a bill discount applied in your billing or core banking system.
+- **Loyalty points**: points added in your own loyalty platform.
+- **Anything else you deliver yourself**: physical gifts, gifts with purchase, or a manual payout your team processes.
+
+If the reward is a coupon code, a gift card, or cash through a supported partner, use that reward type instead. Extole then fulfills it for you, and you don't need a fulfillment integration.
+
+## How a Custom Reward Moves Through Its States
+
+| State | What it means for a custom reward |
+|---|---|
+| `EARNED` | The person qualified for the reward. With manual fulfillment, the reward waits here until you fulfill it. |
+| `FULFILLED` | Your system applied the reward and told Extole. |
+| `SENT` | The reward email went out, or you marked the reward as sent. |
+| `REDEEMED` | The person used the reward. |
+| `FAILED` | You marked the reward failed, or it was not fulfilled in time. A failed reward can still be fulfilled later. |
+| `CANCELED`, `REVOKED`, `EXPIRED` | Final states. The reward cannot move again. |
+
+## Configure a Custom Reward
+
+1. In My Extole, navigate to **Rewards** > **Custom Rewards**.
+2. Click **+ New Custom Reward**.
+3. Enter a **Name**.
+4. Under **Reward Details**, set:
+   - **Denomination**: the unit of the value, such as USD, points, months, or percent off.
+   - **Reward Type**: **Account Credit** or **Loyalty Points**.
+   - **Reward Expiration**, if the reward should expire.
+5. Under **Value Calculation**, choose **Fixed Value** for the same amount every time, or **Dynamic Value** for a percentage of the purchase value, with an optional **Minimum reward** and **Maximum reward**.
+6. Under **Fulfillment**, choose how the reward is fulfilled:
+   - **Auto Fulfill**: Extole marks the reward fulfilled as soon as it is earned. Choose this when your system only needs to be told about the reward and never reports back.
+   - **Manual Fulfill**: the reward stays `EARNED` until your system fulfills it. Choose this when you want Extole to know the reward was actually applied. You can also set **Alert if not fulfilled in** and **Fail if not fulfilled in** a number of days.
+7. Under **Rate Limits**, set the hourly and daily counts that should trigger an alert.
+8. Optionally, set a **Partner Reward Supplier ID**. This is your own identifier for the reward, and it is returned on every reward from this supplier, so your system can tell which reward to apply.
+9. Save the reward, then use it in your campaign.
+
+<Warning>
+**Auto Fulfill** is selected by default on a new custom reward. If your system reports each fulfillment back to Extole, select **Manual Fulfill** before you save.
+</Warning>
+
+When you edit a custom reward later, the same choice appears as **Automatic** or **Manual**. The edit screen also has **Send reward email when this reward is fulfilled** under **Notifications**. It controls whether Extole emails the person when the reward is fulfilled.
+
+### Create a Custom Reward with the API
+
+You can also create a custom reward with the Management API's [Create a reward supplier](/api-reference/reward-suppliers/create-a-reward-supplier) endpoint.
+
+```json Create a custom reward
+POST https://api.extole.io/v6/reward-suppliers
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+{
+  "reward_supplier_type": "CUSTOM_REWARD",
+  "type": "ACCOUNT_CREDIT",
+  "name": "Referral Account Credit",
+  "face_value_type": "USD",
+  "face_value_algorithm_type": "FIXED",
+  "face_value": 25,
+  "auto_fulfillment_enabled": false,
+  "reward_email_auto_send_enabled": true,
+  "missing_fulfillment_alert_enabled": true,
+  "missing_fulfillment_alert_delay_ms": 259200000,
+  "missing_fulfillment_auto_fail_enabled": true,
+  "missing_fulfillment_auto_fail_delay_ms": 604800000,
+  "limit_per_hour": 100,
+  "limit_per_day": 1000,
+  "partner_reward_supplier_id": "REFERRAL-CREDIT-25"
+}
+```
+
+- `reward_supplier_type` (required): always `CUSTOM_REWARD` for a custom reward.
+- `type` (required): **Reward Type**, either `ACCOUNT_CREDIT` or `LOYALTY_POINTS`.
+- `name`: the reward's **Name** in My Extole.
+- `face_value_type` (required): **Denomination**, such as `USD`, `POINTS`, `MONTH`, or `PERCENT_OFF`.
+- `face_value_algorithm_type`: **Value Calculation**. `FIXED` is a fixed value. `CASH_BACK` is a dynamic value, a percentage of the purchase value, set with `cash_back_percentage`, `cash_back_min`, and `cash_back_max` in place of `face_value`.
+- `face_value`: the amount of a fixed-value reward.
+- `auto_fulfillment_enabled`: `true` for **Auto Fulfill**, `false` for **Manual Fulfill**. Through the API it defaults to `false`, which is the opposite of the My Extole default.
+- `reward_email_auto_send_enabled`: **Send reward email when this reward is fulfilled**.
+- `missing_fulfillment_alert_enabled` and `missing_fulfillment_alert_delay_ms`: **Alert if not fulfilled in**. The delay is in milliseconds, so `259200000` is 3 days.
+- `missing_fulfillment_auto_fail_enabled` and `missing_fulfillment_auto_fail_delay_ms`: **Fail if not fulfilled in**. `604800000` is 7 days.
+- `limit_per_hour` and `limit_per_day`: the hourly and daily counts under **Rate Limits**.
+- `partner_reward_supplier_id`: **Partner Reward Supplier ID**, your own identifier for the reward.
+
+The response is the new reward supplier. Its `reward_supplier_id` is the ID you use to filter rewards and webhooks. To change the reward later, use [Update a reward supplier](/api-reference/reward-suppliers/update-a-reward-supplier).
+
+## Manually Fulfill Custom Rewards
+
+With **Manual Fulfill**, your system tells Extole when each reward has been applied. Fulfilling a reward stops the missing-fulfillment alert and auto-fail. If reward emails are on, it also sends the reward email.
+
+You can't fulfill a custom reward from the reward's page in My Extole. Use an API call or an event.
+
+### Find the Rewards to Fulfill
+
+Your system learns about an earned reward in one of two ways:
+
+- A [reward webhook](/technical/platform-integrations/webhooks/reward-webhooks) filtered to the **Earned** state, which is the real-time option.
+- A call to the [List rewards](/api-reference/rewards/list-rewards) endpoint, for example `GET https://api.extole.io/v2/rewards?state=EARNED&reward_supplier_id=701e681a98389ae26778f3452`. This list also accepts `partner_reward_supplier_id`, `person_id`, `time_interval`, `limit`, and `offset`.
+
+Each reward carries a `reward_id`, which is what you fulfill, plus the person's `email` and `partner_user_id`, so you know whose account to credit.
+
+### Fulfill with a Direct API Call
+
+Call the custom reward endpoints on the Server to Extole API with a server access token from the [Security Center](https://my.extole.com/security-center). The token needs the `CLIENT_ADMIN` or `USER_SUPPORT` scope.
+
+| Endpoint | Use it to |
+|---|---|
+| [`POST /v2/rewards/custom-reward/{reward_id}/fulfilled`](/api-reference/rewards/mark-custom-reward-fulfilled) | Mark the reward fulfilled. Sends the reward email if **Send reward email when this reward is fulfilled** is on. |
+| [`POST /v2/rewards/custom-reward/{reward_id}/fulfilled_and_sent`](/api-reference/rewards/mark-custom-reward-fulfilled-and-sent) | Mark the reward fulfilled and delivered in one call, when you send your own notification. `partner_reward_id` and `email` are required. Extole does not send a reward email. |
+| [`POST /v2/rewards/custom-reward/{reward_id}/sent`](/api-reference/rewards/mark-custom-reward-sent) | Mark a fulfilled reward as sent. |
+| [`POST /v2/rewards/custom-reward/{reward_id}/redeemed`](/api-reference/rewards/mark-custom-reward-redeemed) | Mark the reward as used. |
+| [`POST /v2/rewards/custom-reward/{reward_id}/failed`](/api-reference/rewards/mark-custom-reward-failed) | Mark the reward failed, with a `message` saying why. |
+
+```json Fulfill a custom reward
+POST https://api.extole.io/v2/rewards/custom-reward/3e2b3f73d1031dbd644b2a7a/fulfilled
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+{
+  "partner_reward_id": "CREDIT-12345600",
+  "cost_code": "REFERRAL-2026",
+  "message": "Credit applied to account"
+}
+```
+
+- `partner_reward_id`: your own identifier for the fulfillment, such as the credit transaction ID. It appears on reward reports and webhooks.
+- `cost_code`: an optional code for reporting on reward cost.
+- `message`: an optional note stored with the fulfillment.
+
+The response is the reward with `"state": "FULFILLED"`. A reward can only move along the states in the table above. For example, a canceled reward can't be fulfilled, and the call returns the error code `reward_illegal_state_transition` with the reward's `current_state`. To see every state a reward has been through, use [Get reward state history](/api-reference/rewards/get-reward-state-history).
+
+### Fulfill with an Event
+
+If your system already sends events to Extole, it can fulfill a reward with an event instead of a separate API call. Your Extole team adds a **Fulfill Reward** action to your campaign. The action runs on an event name you choose and reads the reward ID from the event's data.
+
+Then send that event for the person who earned the reward, carrying the `reward_id`, with the [Submit an event](/api-reference/events/submit-an-event) endpoint:
+
+```json Fulfill a reward with an event
+POST https://api.extole.io/v6/events
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+{
+  "event_name": "account_credit_applied",
+  "data": {
+    "email": "advocate@example.com",
+    "reward_id": "3e2b3f73d1031dbd644b2a7a",
+    "partner_reward_id": "CREDIT-12345600"
+  }
+}
+```
+
+The event name and data fields in the example are placeholders. Use the ones your Extole team configured on the action. The event must identify the person who owns the reward, by `email`, `partner_user_id`, or `person_id`. If it identifies someone else, the reward is not fulfilled. The event can also come from any other event source, such as a [file-based event upload](/technical/platform-integrations/files/file-based-events).
+
+### Fulfill from Your Webhook's Response
+
+A reward webhook can fulfill or fail the reward from your endpoint's response, so that no second call is needed. This takes a response handler on the webhook. See [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment) for how request and response handlers work.
+
+### Rewards That Are Never Fulfilled
+
+Extole checks for unfulfilled custom rewards every hour:
+
+- With **Alert if not fulfilled in** set, users subscribed to reward notifications get "An earned reward has not been fulfilled after X days." See [What to Do When You Get a Notification](/guides/notifications-and-troubleshooting/platform-and-admin/what-to-do-when-you-get-a-notification).
+- With **Fail if not fulfilled in** set, the reward moves to `FAILED`. You can still fulfill it afterwards.
+
+## Receive Custom Rewards in Your Systems
+
+| Option | Best for | How it works |
+|---|---|---|
+| [Reward webhooks](/technical/platform-integrations/webhooks/reward-webhooks) | Applying rewards in real time | Extole posts each reward state change to your endpoint. Filter by state, such as **Earned**, and by reward. Set it up under **Tech Center** > **Outbound Webhooks**. |
+| Rewards API | Scheduled jobs that poll | Your system calls [List rewards](/api-reference/rewards/list-rewards) (`GET /v2/rewards`) or [List person rewards](/api-reference/persons/list-person-rewards) (`GET /v5/persons/{person_id}/rewards`) and fulfills what it finds. |
+| [Reports](/guides/dashboards-and-reporting/report-types/recommended-reports/rewards-reporting) | Batch processing and reconciliation | Schedule a rewards report, such as the [Earned Rewards Report](/guides/dashboards-and-reporting/report-types/rewards-reports/earned-rewards-report), and deliver it to [your SFTP server](/guides/dashboards-and-reporting/integrating-reports/sending-reports-to-an-external-sftp) or [Extole's SFTP server](/guides/dashboards-and-reporting/integrating-reports/using-extole-s-sftp-server). You can also run reports with the [asynchronous reporting API](/technical/platform-integrations/rest-apis/asynchronous-reporting-api), starting from [Create a report](/api-reference/reports/create-a-report). |
+| [Event Streams](/technical/platform-integrations/extensions/event-streams-overview) | Reading reward events alongside other program events | Your system reads a filtered stream of events with [List events from an event stream](/api-reference/event-streams/list-events-from-an-event-stream). |
+| [Partner integrations](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment) | Delivering rewards through a partner platform | A packaged integration sends the reward to the partner and records the result. |
+
+Whichever option you use, fulfill each reward once. The same webhook can arrive more than once, so key your processing on `reward_id`.
