@@ -1,0 +1,766 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Rewardable",
+    "version": "1.0.0",
+    "description": "Operations published by Extole Rewardable components. Generated from the component contracts on my.extole.com."
+  },
+  "servers": [
+    {
+      "description": "Production - Extole events host",
+      "url": "https://events.extole.io"
+    }
+  ],
+  "paths": {
+    "/v6/events/{approve_event_name}": {
+      "post": {
+        "summary": "Force Approve",
+        "description": "Approves a rewardable that is being held for review, by submitting this reward's own approve event. The campaign's rules issue the reward once the event is accepted, so a successful call means the approval was recorded, not that the reward has reached the person.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "ACTION"
+        ],
+        "parameters": [
+          {
+            "name": "approve_event_name",
+            "in": "path",
+            "required": true,
+            "description": "The event that approves a rewardable that is waiting on review. It is named after the journey, which here is reward_core, so the event is reward_core_manual_approve. Rename the journey and this name changes with it, so take it from the approveEventName setting on the reward rather than assembling it yourself.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "reward_core_manual_approve"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForceApproveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "event_id",
+                    "person_id"
+                  ],
+                  "properties": {
+                    "event_id": {
+                      "type": "string",
+                      "description": "Identifier of the event. The outcome follows from the campaign rules, so read the person rewards to see it."
+                    },
+                    "person_id": {
+                      "type": "string",
+                      "description": "Extole person the event resolved to."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "description": "Production - Extole events host",
+            "url": "https://events.extole.io"
+          }
+        ],
+        "security": [
+          {
+            "CLIENT_AUTH_HEADER": []
+          },
+          {
+            "CLIENT_AUTH_QUERY_PARAM": []
+          }
+        ],
+        "x-extole-component": "reward_core"
+      }
+    },
+    "/v6/events/{decline_event_name}": {
+      "post": {
+        "summary": "Decline",
+        "description": "Declines a rewardable that is being held for review, by submitting this reward's own decline event. Nothing is issued, and the note is recorded with the decision.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "ACTION"
+        ],
+        "parameters": [
+          {
+            "name": "decline_event_name",
+            "in": "path",
+            "required": true,
+            "description": "The event that declines a rewardable that is waiting on review. It is named after the journey, which here is reward_core, so the event is reward_core_manual_decline. Rename the journey and this name changes with it, so take it from the declineEventName setting on the reward rather than assembling it yourself.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "reward_core_manual_decline"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeclineRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "event_id",
+                    "person_id"
+                  ],
+                  "properties": {
+                    "event_id": {
+                      "type": "string",
+                      "description": "Identifier of the event. The outcome follows from the campaign rules, so read the person rewards to see it."
+                    },
+                    "person_id": {
+                      "type": "string",
+                      "description": "Extole person the event resolved to."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "description": "Production - Extole events host",
+            "url": "https://events.extole.io"
+          }
+        ],
+        "security": [
+          {
+            "CLIENT_AUTH_HEADER": []
+          },
+          {
+            "CLIENT_AUTH_QUERY_PARAM": []
+          }
+        ],
+        "x-extole-component": "reward_core"
+      }
+    },
+    "/v6/events/{manual_request_event_name}": {
+      "post": {
+        "summary": "Create New",
+        "description": "Issues this reward to a person who did not reach it through the normal flow, by submitting the reward's manual request event. The campaign's rules still decide the outcome, so a successful call means the request was recorded.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "ACTION"
+        ],
+        "parameters": [
+          {
+            "name": "manual_request_event_name",
+            "in": "path",
+            "required": true,
+            "description": "The event that asks for this reward to be issued by hand. It is named after the journey, which here is reward_core, so the event is reward_core_manual_request. Rename the journey and this name changes with it, so take it from the manualRequestEventName setting on the reward rather than assembling it yourself.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "reward_core_manual_request"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRewardRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "event_id",
+                    "person_id"
+                  ],
+                  "properties": {
+                    "event_id": {
+                      "type": "string",
+                      "description": "Identifier of the event. The outcome follows from the campaign rules, so read the person rewards to see it."
+                    },
+                    "person_id": {
+                      "type": "string",
+                      "description": "Extole person the event resolved to."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "description": "Production - Extole events host",
+            "url": "https://events.extole.io"
+          }
+        ],
+        "security": [
+          {
+            "CLIENT_AUTH_HEADER": []
+          },
+          {
+            "CLIENT_AUTH_QUERY_PARAM": []
+          }
+        ],
+        "x-extole-component": "reward_core"
+      }
+    },
+    "/v6/events/{re_evaluation_event_name}": {
+      "post": {
+        "summary": "Re-Evaluate",
+        "description": "Runs this reward's rules over the rewardable again, by submitting its re-evaluation event. Use when the thing that held it has changed - the rules decide the outcome, not the caller.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "ACTION"
+        ],
+        "parameters": [
+          {
+            "name": "re_evaluation_event_name",
+            "in": "path",
+            "required": true,
+            "description": "The event that runs the reward rules over the rewardable again. It is named after the journey, which here is reward_core, so the event is reward_core_manual_re_evaluation. Rename the journey and this name changes with it, so take it from the manualReEvaluationEventName setting on the reward rather than assembling it yourself.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "reward_core_manual_re_evaluation"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReEvaluateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "event_id",
+                    "person_id"
+                  ],
+                  "properties": {
+                    "event_id": {
+                      "type": "string",
+                      "description": "Identifier of the event. The outcome follows from the campaign rules, so read the person rewards to see it."
+                    },
+                    "person_id": {
+                      "type": "string",
+                      "description": "Extole person the event resolved to."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "description": "Production - Extole events host",
+            "url": "https://events.extole.io"
+          }
+        ],
+        "security": [
+          {
+            "CLIENT_AUTH_HEADER": []
+          },
+          {
+            "CLIENT_AUTH_QUERY_PARAM": []
+          }
+        ],
+        "x-extole-component": "reward_core"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "CLIENT_AUTH_HEADER": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
+        "x-bearer-format": "bearer"
+      },
+      "CLIENT_AUTH_QUERY_PARAM": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "access_token",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device."
+      }
+    },
+    "schemas": {
+      "RestExceptionResponse": {
+        "type": "object",
+        "description": "Represents the API error response",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Specific error code for this error type, documented per endpoint"
+          },
+          "http_status_code": {
+            "type": "integer",
+            "description": "HTTP status code that was returned with this error, useful if client get response code"
+          },
+          "message": {
+            "type": "string",
+            "description": "User readable English description of the error"
+          },
+          "parameters": {
+            "type": "object",
+            "description": "Attributes related to the error, varies be error code, documented per endpoint",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Attributes related to the error, varies be error code, documented per endpoint"
+            }
+          },
+          "unique_id": {
+            "type": "string",
+            "description": "Unique id associated with this error, useful for discussions with Extole"
+          }
+        },
+        "required": [
+          "code",
+          "http_status_code",
+          "message",
+          "parameters",
+          "unique_id"
+        ]
+      },
+      "CreateRewardRequest": {
+        "type": "object",
+        "required": [
+          "person_id",
+          "target",
+          "identity_person_id"
+        ],
+        "properties": {
+          "container": {
+            "description": "Container the rewardable sits in, when it has one.",
+            "type": "string"
+          },
+          "identity_person_id": {
+            "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
+            "type": "string"
+          },
+          "other_person_id": {
+            "description": "The other person in the referral relationship, when the reward depends on one.",
+            "type": "string"
+          },
+          "ignore_quality": {
+            "description": "Issue the reward even when the quality rules would hold it.",
+            "type": "boolean"
+          },
+          "note": {
+            "description": "Why the reward is being issued by hand. Recorded alongside it.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person whose rewardable is being rewarded.",
+            "type": "string"
+          },
+          "target": {
+            "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
+            "type": "string",
+            "enum": [
+              "campaign_id:{id}"
+            ]
+          }
+        }
+      },
+      "DeclineRequest": {
+        "type": "object",
+        "required": [
+          "person_id",
+          "target",
+          "note",
+          "identity_person_id"
+        ],
+        "properties": {
+          "container": {
+            "description": "Container the rewardable sits in, when it has one.",
+            "type": "string"
+          },
+          "identity_person_id": {
+            "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
+            "type": "string"
+          },
+          "note": {
+            "description": "Why the rewardable was declined. Required: the campaign drops the event without one, so a call with no note answers with an event id and nothing happens.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person whose rewardable is being declined.",
+            "type": "string"
+          },
+          "target": {
+            "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
+            "type": "string",
+            "enum": [
+              "campaign_id:{id}"
+            ]
+          }
+        }
+      },
+      "ForceApproveRequest": {
+        "type": "object",
+        "required": [
+          "person_id",
+          "target",
+          "note",
+          "identity_person_id"
+        ],
+        "properties": {
+          "container": {
+            "description": "Container the rewardable sits in, when it has one.",
+            "type": "string"
+          },
+          "identity_person_id": {
+            "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
+            "type": "string"
+          },
+          "note": {
+            "description": "Why the approval was made. Required: the campaign drops the event without one, so a call with no note answers with an event id and nothing happens.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person whose rewardable is being approved.",
+            "type": "string"
+          },
+          "target": {
+            "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
+            "type": "string",
+            "enum": [
+              "campaign_id:{id}"
+            ]
+          }
+        }
+      },
+      "ReEvaluateRequest": {
+        "type": "object",
+        "required": [
+          "person_id",
+          "target",
+          "identity_person_id"
+        ],
+        "properties": {
+          "container": {
+            "description": "Container the rewardable sits in, when it has one.",
+            "type": "string"
+          },
+          "identity_person_id": {
+            "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
+            "type": "string"
+          },
+          "note": {
+            "description": "Why it is being re-evaluated. Recorded when supplied.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person whose rewardable is being re-evaluated.",
+            "type": "string"
+          },
+          "target": {
+            "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
+            "type": "string",
+            "enum": [
+              "campaign_id:{id}"
+            ]
+          }
+        }
+      }
+    },
+    "examples": {
+      "binding_error": {
+        "summary": "binding_error",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "binding_error",
+          "message": "Argument is not of the expected type",
+          "parameters": {}
+        }
+      },
+      "invalid_json": {
+        "summary": "invalid_json",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "invalid_json",
+          "message": "JSON is invalid",
+          "parameters": {}
+        }
+      },
+      "invalid_parameter": {
+        "summary": "invalid_parameter",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "invalid_parameter",
+          "message": "Parameter is invalid.",
+          "parameters": {}
+        }
+      },
+      "missing_request_body": {
+        "summary": "missing_request_body",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "missing_request_body",
+          "message": "Missing request body",
+          "parameters": {}
+        }
+      },
+      "access_denied": {
+        "summary": "access_denied",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "access_denied",
+          "message": "The access_token provided is not permitted to access the specified resource.",
+          "parameters": {}
+        }
+      },
+      "method_unauthorized": {
+        "summary": "method_unauthorized",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "method_unauthorized",
+          "message": "Access forbidden to this endpoint",
+          "parameters": {}
+        }
+      },
+      "missing_access_token": {
+        "summary": "missing_access_token",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "missing_access_token",
+          "message": "No access_token was provided with this request.",
+          "parameters": {}
+        }
+      }
+    }
+  }
+}

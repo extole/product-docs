@@ -1,0 +1,92 @@
+name: pr-judge
+
+# Label each pull request `minor` or `needs-human-review`, and say why in a comment.
+#
+# `validate` proves the Mintlify site builds. It cannot see a page missing from `docs.json`, a
+# term used against the glossary, a page in the wrong tab, or a sentence describing behavior the
+# product does not have -- and a merge to `main` publishes docs.extole.com. This sorts the queue
+# so the docs owner reads the changes that need the product open.
+#
+# It merges nothing. `main` still requires a green `validate` and one approving review, and the
+# label is a hint a reviewer is free to drop. Disagreeing with it is how the rubric gets fixed.
+#
+# The check never fails on a `needs-human-review` verdict. A red X would say "this is broken"
+# about a change that is fine and merely needs reading, and it would sit next to the real signal
+# from `validate` looking like the same kind of thing. The verdict is the label and the comment.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: "Pull request number to judge, or `all-open` to backfill the queue"
+        type: string
+        required: true
+        default: all-open
+      dry_run:
+        description: "Classify and print the verdicts; label and comment on nothing"
+        type: boolean
+        required: false
+        default: false
+
+run-name: "judge ${{ github.event.pull_request.number || inputs.pull_request }}"
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: pr-judge-${{ github.event.pull_request.number || inputs.pull_request }}
+  cancel-in-progress: true
+
+jobs:
+  judge:
+    name: Minor or needs human review
+    # A draft is in nobody's queue yet, and it is judged when it is marked ready for review. A
+    # `workflow_dispatch` judges what it was given, draft or not, which is what a backfill needs.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      PR: ${{ github.event.pull_request.number || inputs.pull_request }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the Anthropic SDK
+        run: pip install --quiet 'anthropic>=1.0,<2'
+
+      # The script fails closed on its own -- no key, no SDK, a model error or a diff too large
+      # to read all produce `needs-human-review` -- so this does not gate on the secret. A fork
+      # pull request, which never receives one, gets a label saying exactly that.
+      - name: Judge
+        run: python3 scripts/pr_judge.py --repo "$GITHUB_REPOSITORY" --pr "$PR" --root . $DRY_RUN
+        env:
+          DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Summary
+        if: always()
+        run: cat pr-judge-summary.md >> "$GITHUB_STEP_SUMMARY" || echo "No verdicts produced." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the verdicts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-judge-${{ github.event.pull_request.number || inputs.pull_request }}
+          path: |
+            pr-judge-results.json
+            pr-judge-summary.md
+          if-no-files-found: ignore
