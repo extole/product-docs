@@ -1,0 +1,123 @@
+---
+title: "Send Events from the Partner Platform"
+description: "Deliver a partner platform's lifecycle events to the Extole Events API, with retries, deduplication, and verification."
+---
+
+Stage one of [Sending Partner Events to Extole](/technical/building-partner-integrations/integration-types/partner-events-to-extole).
+
+# Overview
+
+This is the delivery half of a Partner to Extole integration: server-side code in the partner platform posts the platform's own events to the Events API. The other half lives in Extole, where [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events) turns each arriving event into a canonical business event.
+
+Build a sender only when you control the sending code. A platform that emits nothing but its own fixed webhook has no sender to write — a [prehandler](/technical/building-partner-integrations/integration-types/partner-events-prehandlers) reshapes what it sends instead.
+
+<Warning>
+Send events server-side. A token in storefront templates, theme files, or browser code is published to every site visitor. Platforms whose events can only be produced in the browser use the [JavaScript SDK](/technical/platform-integrations/javascript-sdk/index) instead.
+</Warning>
+
+## When You Would Send Events
+
+| Situation | The sender |
+| :-------- | :--------- |
+| A commerce platform reports purchases, shipments, or cancellations | An extension or plugin |
+| A platform with no plugin surface reports account or subscription activity | A middleware service |
+| Records arrive as files (CSV over SFTP or upload) | The [File Integration](/technical/platform-integrations/extensions/file-integration) extension — not this Events API sender |
+| Records arrive in batches from a scheduled job you host | A middleware service |
+| A partner emits only its own fixed webhook | No sender — a [prehandler](/technical/building-partner-integrations/integration-types/partner-events-prehandlers) reshapes it in Extole |
+
+## What the Sender Needs
+
+Hold these as configuration, not constants, so a token or label changes without a code release:
+
+| Setting | Purpose |
+| :------ | :------ |
+| Event endpoint | `https://api.extole.io/v6/events` in production. |
+| Access Token | A server-side token from the [Security Center](https://my.extole.com/security-center), authorized to submit events. Store it encrypted. |
+| Program label | The installed integration's current label, from its configuration view. |
+| Platform identifier | The store URL, site identifier, or tenant that produced the event. |
+| Status or state mapping | The platform's own status identifiers that mean the event happened, read per installation rather than copied from another. |
+| Request timeout | A short network timeout for the delivery worker. |
+| Retry policy | Backoff and maximum attempts for temporary failures. |
+
+## How to Send
+
+Send events from a worker, not the hook that observed them: the hook persists a sanitized record and returns, the worker delivers it. An Extole timeout or network failure must never fail a checkout, block an order-status transition, or slow a page the customer waits on.
+
+### Build the Payload
+
+The event carries the platform's event name and a flat `data` object of the mapped fields:
+
+```json
+{
+  "event_name": "platform_order_created",
+  "data": {
+    "email": "customer@example.com",
+    "first_name": "Alex",
+    "last_name": "Morgan",
+    "order_id": "10042",
+    "total": 42.5,
+    "customer_id": "customer-9001",
+    "store_url": "https://shop.example.com",
+    "labels": "example-integration"
+  }
+}
+```
+
+- `labels` goes inside `data` and holds the integration's current program label, not one copied from another account.
+- Name every source key exactly as the partner page does; data components read keys by name, so a renamed key arrives with that field missing rather than an error.
+- Send what the integration maps and nothing more. Payment-card data, passwords, session identifiers, and unrelated metadata have no mapped destination.
+
+### Choose the Endpoint
+
+Use `/v6/events` for a new sender: it responds synchronously, so the worker can verify what Extole did with each event. For sustained high-volume delivery, evaluate `/v6/async-events`, where acceptance no longer means the event has been processed — update the worker's verification and retry behavior. Some partner pages document `/v5/events`, a still-supported path.
+
+```bash
+curl --request POST "https://api.extole.io/v6/events" \
+  --header "Authorization: Bearer $EVENTS_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data @event.json
+```
+
+<Warning>
+A valid submission returns `200` with a JSON body carrying both `event_id` and `person_id`. Keep the `event_id`: it is how you find the event, and every event it caused, in an event stream. An empty `204 No Content` means the request is not reaching the Events API — check the host.
+</Warning>
+
+### Retry and Deduplicate
+
+Extole answers an accepted submission with a `2xx`. Retry network failures, `429`, and retryable `5xx` responses; authentication and validation failures fail identically on every attempt. Expect the same event more than once, because platforms re-fire hooks and replay status history — Extole deduplicates on the field mapped as the unique partner event key, so a replay resolves to the same outcome rather than a second conversion.
+
+### Protect the Integration
+
+- Restrict sender configuration to platform administrators.
+- Validate and normalize emails, identifiers, URLs, and numeric values before sending.
+- Verify HTTPS certificates.
+- Allow token rotation without reinstalling the extension.
+
+## How to Test
+
+Send one event synchronously and capture the returned `event_id` and `person_id`. Use `person_id` to read the person's events:
+
+```bash
+curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --data-urlencode "campaign_ids=$CAMPAIGN_ID" \
+  --data-urlencode "names=converted"
+```
+
+Confirm the event carries the canonical event name, not the platform's; the transaction identifier and value match the source record; person keys resolve; and resending the same source identifier produces a duplicate outcome, not a second conversion. Repeat for every event. [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events#how-to-test) shows how to use `event_id` to follow the complete processing chain in Event Streams.
+
+### No Business Event Appears
+
+A `2xx` means accepted, not matched. Check in order:
+
+1. The current program label is inside `data.labels`.
+2. The platform event name matches a name on the integration's `input_event` trigger rule. The comparison ignores case, so casing is not the cause.
+3. The integration campaign is published.
+4. The event carries enough identity data to resolve a person.
+5. The source keys match the ones the integration's data components read.
+
+## Related Documentation
+
+- [Sending Partner Events to Extole](/technical/building-partner-integrations/integration-types/partner-events-to-extole)
+- [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events)
+- [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories)

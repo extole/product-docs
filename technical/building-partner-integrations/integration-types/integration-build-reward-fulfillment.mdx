@@ -1,0 +1,402 @@
+---
+title: "Build a Reward Fulfillment Integration"
+description: "Create the supplier type, support campaign, supplier templates, reward webhooks, and reward-specific views for a partner that fulfills rewards."
+---
+
+Part of the [partner integration guide](/technical/building-partner-integrations/integration-lifecycle/management-api-integration).
+
+# Overview
+
+A reward fulfillment integration orders something of value from a partner when a participant earns a reward. It adds a supply side to an Extole to Partner integration: a component type for the partner's reward suppliers, a support campaign of one template per product, and `REWARD` webhooks scoped to those suppliers.
+
+Examples use a generic partner named `example`. [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories) describes the model; this page is the build order.
+
+## When You Would Build One
+
+| You want | Partner platform |
+| :------- | :--------------- |
+| Extole to order a gift card when a participant earns a reward | Gift card provider |
+| Extole to order a virtual or physical prepaid card | Prepaid card provider |
+| Extole to credit points in the partner's own program | Points provider |
+| Extole to send a cash payout | Payout provider |
+
+Each product a client offers becomes a reward supplier, and templates live in their own `CONFIGURATION` support campaign — [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories) explains why the model takes two campaigns.
+
+## The Finished Shape
+
+```text
+root
+└── example                       integration-v10.x
+    ├── rewardSuppliers           MULTI_SOCKET → example-reward-supplier-v10.0
+    │   └── one installed template per product the partner sells
+    └── views                     MULTI_SOCKET
+        ├── configuration         config-view-v10.0           credential and account settings
+        ├── reward-suppliers      config-view-v10.0           the supplier socket
+        ├── report-runner-view    report-runner-view-v10.0    the reward activity chart
+        └── event-streams         event-stream-view-v10.0     the live feed of reward events
+
+Support campaign
+└── one template per product      example-reward-supplier-v10.0
+    └── a reward supplier attached to the template
+
+Resources attached by component_ids
+├── one REWARD webhook per order endpoint, plus the status check → the integration component
+├── a report runner                                           → the report-runner view
+└── an event stream                                           → the event-stream view
+```
+
+**Build all four views.** Their report-runner and event-stream elements come last, after the views exist and the campaign is republished.
+
+**The names above are literal**; only `example` stands in for the partner. Name both campaigns after the partner and generation, as in `Example V10` and `Example V10 Support`. Tab labels come from each view's `title`, so renaming a view stops the build from diffing against the maintained one.
+
+## Before You Start
+
+Install the maintained source when the duplicatable listing has one; the sequence below then becomes the checklist for confirming it against the partner page.
+
+Confirm the source's type first — a pre-v10 type such as `integration-v1` is the partner's legacy integration under the same name. Build the shape below when that is the only source available.
+
+Making the partner installable for every client needs a registered, Extole-owned component — see [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration).
+
+Three orderings are forced:
+
+1. The component type must exist before a template can carry it or the socket can filter on it.
+2. The support campaign and its templates must exist before the integration subscribes.
+3. The integration campaign must have been published once before it subscribes or attaches resources.
+
+## How to Build
+
+### Create the Supplier Component Type
+
+Create a component type parented to the platform reward-supplier type:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v1/component-types" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "example-reward-supplier-v10.0",
+    "display_name": "Example Reward Supplier",
+    "parent": "reward-supplier-v10.0",
+    "schema": "{}"
+  }'
+```
+
+`schema` is required even when the type adds no rules of its own, and it is a JSON string rather than an object. Create the type before any template: an untyped template satisfies no socket filter, and typing it in place afterwards is unreliable.
+
+### Create the Integration and Its Sockets
+
+Create the `INTEGRATION` campaign, root, and model component as described in [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model).
+
+Declare the credential settings under the names the partner page uses — for BHN, `merchantId` (`STRING`) and `clientKeyId` (`CLIENT_KEY`). A prefixed invention such as `bhnMerchantId` is a distinct setting, and webhook `client_key_id` expressions plus request handlers that call `context.getVariable("merchantId")` will read null.
+
+Then add the supplier socket, filtered to the type created above:
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/version/$CAMPAIGN_VERSION/components/$INTEGRATION_COMPONENT_ID/settings" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "rewardSuppliers",
+    "display_name": "Reward Suppliers",
+    "description": "Example reward suppliers for this integration.",
+    "type": "MULTI_SOCKET",
+    "filters": [
+      {
+        "type": "COMPONENT_TYPE",
+        "component_type": "example-reward-supplier-v10.0"
+      }
+    ]
+  }'
+```
+
+Add a `views` socket whose filters accept every view type in use — the configuration type plus the report-runner and event-stream types.
+
+### Create the Support Campaign and Its Supplier Templates
+
+Create a `CONFIGURATION` campaign with program type `campaign-component`, named for the integration it supports:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v2/campaigns" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "Example Support",
+    "description": "Reward supplier templates installed into the Example integration.",
+    "campaign_type": "CONFIGURATION",
+    "program_type": "campaign-component"
+  }'
+```
+
+Create one component per product variant the partner page names — exactly those — typed with the supplier type:
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$SUPPORT_CAMPAIGN_ID/version/$SUPPORT_CAMPAIGN_VERSION/components" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "example-virtual",
+    "display_name": "Example Virtual Prepaid Card",
+    "description": "Send virtual prepaid cards from the Example marketplace.",
+    "types": ["example-reward-supplier-v10.0"],
+    "component_ids": ["'"$SUPPORT_ROOT_COMPONENT_ID"'"],
+    "tags": ["internal:example-virtual"],
+    "variables": [
+      { "name": "rewardSupplierId", "type": "REWARD_SUPPLIER_ID", "values": { "default": null }, "tags": ["importance:expert"] },
+      { "name": "faceValue", "display_name": "Face Value", "type": "STRING", "values": { "default": "0" }, "tags": ["importance:basic"] },
+      { "name": "dynamicValue", "display_name": "Percentage Of Purchase", "type": "BOOLEAN", "values": { "default": false }, "tags": ["importance:basic"] },
+      { "name": "cashBackPercentage", "display_name": "Cash Back Percentage", "type": "INTEGER", "values": { "default": 0 }, "tags": ["importance:basic"] },
+      { "name": "cashBackMin", "display_name": "Minimum Reward Value", "type": "INTEGER", "values": { "default": 0 }, "tags": ["importance:basic"] },
+      { "name": "cashBackMax", "display_name": "Maximum Reward Value", "type": "INTEGER", "values": { "default": 0 }, "tags": ["importance:basic"] },
+      { "name": "clientProgramNumber", "display_name": "Client Program Number", "type": "STRING", "values": { "default": "" }, "tags": ["importance:basic"] },
+      { "name": "financialAccountId", "display_name": "Financial Account ID", "type": "STRING", "values": { "default": "" }, "tags": ["importance:basic"] },
+      { "name": "paymentType", "display_name": "Payment Type", "type": "ENUM", "allowed_values": ["ACH_DEBIT", "DRAW_DOWN"], "values": { "default": "ACH_DEBIT" }, "tags": ["importance:basic"] },
+      { "name": "rewardSupplierLogo", "type": "IMAGE", "values": { "default": null }, "tags": ["importance:expert"] },
+      { "name": "enabled", "type": "BOOLEAN", "values": { "default": false }, "tags": ["importance:expert"] }
+    ]
+  }'
+```
+
+Settings arrive under `variables` on a create — `settings` is the sub-path for adding one later — and every value sits under `values.default`, never a bare `value`.
+
+Declare every setting the supplier below reads — `dynamicValue`, `cashBackPercentage`, `cashBackMin`, `cashBackMax`, `financialAccountId` — plus `rewardSupplierId`, which the platform reward-supplier type requires by name.
+
+Name each template with the same token as its tag, so `example-virtual` carries `internal:example-virtual`; the Rewards page follows that match to offer the product. Give every template a `rewardSupplierLogo`, sourced as [Set a Logo That Resolves](/technical/building-partner-integrations/integration-lifecycle/integration-component-model#set-a-logo-that-resolves) describes.
+
+Default `enabled` to `false`. The rewards list shows enabled suppliers only, so enabling a template is the marketer's act.
+
+#### Attach a Reward Supplier to Each Template
+
+A reward supplier is created with `component_ids` naming its template, the same way a webhook is.
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v6/reward-suppliers" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "reward_supplier_type": "CUSTOM_REWARD",
+    "name": "javascript@buildtime:context.getVariableContext().get(\"component.displayName\")",
+    "type": "LOYALTY_POINTS",
+    "display_type": "Example Virtual Cards",
+    "enabled": "javascript@buildtime:context.getVariableContext().get(\"enabled\")",
+    "tags": ["internal:example-variant"],
+    "face_value_type": "USD",
+    "face_value_algorithm_type": "javascript@buildtime:(context.getVariableContext().get(\"dynamicValue\") ? \"CASH_BACK\" : \"FIXED\")",
+    "face_value": "javascript@buildtime:context.getVariableContext().get(\"faceValue\")",
+    "cash_back_percentage": "javascript@buildtime:context.getVariableContext().get(\"cashBackPercentage\") / 100",
+    "cash_back_min": "javascript@buildtime:context.getVariableContext().get(\"cashBackMin\")",
+    "cash_back_max": "javascript@buildtime:context.getVariableContext().get(\"cashBackMax\")",
+    "data": {
+      "clientProgramNumber": "javascript@buildtime:context.getVariableContext().get(\"clientProgramNumber\")",
+      "financialAccountId": "javascript@buildtime:context.getVariableContext().get(\"financialAccountId\")"
+    },
+    "component_ids": ["'"$TEMPLATE_COMPONENT_ID"'"]
+  }'
+```
+
+A partner fulfilling its own products creates a `CUSTOM_REWARD` supplier, where `type` is the custom reward kind rather than the component type the template carries.
+
+Four parts carry weight beyond their own value:
+
+- The **tag** identifies the product variant: the order webhook's supplier filter and the template's supplier-identifier setting both resolve through it, so a mismatch is a supplier no webhook will fulfill.
+- The **display type** names the product as a marketer sees it — "Example Virtual Cards" rather than the generic kind it falls back to when omitted. Variants of one product share one.
+- The **data map** carries the identifiers the order request needs, because a request handler cannot read a setting on a component it does not own.
+- The **face-value algorithm** resolves from the client's toggle rather than being fixed in the template, with the percentage stored as a fraction.
+
+Create all the templates, publish the support campaign once, then create every supplier.
+
+```bash
+curl --request POST \
+  "$EXTOLE_API_HOST/v2/campaigns/$SUPPORT_CAMPAIGN_ID/version/$SUPPORT_CAMPAIGN_VERSION/publish" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN"
+```
+
+Read `$SUPPORT_CAMPAIGN_VERSION` immediately before publishing.
+
+<Info>
+This version-scoped publish is **missing from the OpenAPI specification**, so you will not find it in the API reference. That is a gap in the specification rather than a sign the operation is unavailable — this page and [Validate and Publish an Integration](/technical/building-partner-integrations/integration-lifecycle/integration-validation) are its documentation. The specification does carry `POST /v2/campaigns/{campaignId}/publish`, the unversioned variant of the same action.
+</Info>
+
+Finally, give each template a `REWARD_SUPPLIER_ID` setting resolving its own element by that tag:
+
+```javascript
+javascript@buildtime: (function() { let filteredElements = Java.from(context.getComponent().createElementsQuery().withType('REWARD_SUPPLIER').withTag('internal:example-variant').list()); return filteredElements && filteredElements.length > 0 ? filteredElements[0].getId() : null; })();
+```
+
+### Subscribe the Integration to the Support Campaign
+
+Subscribe the integration so its templates are installable; without it the socket accepts the right type and has nothing to offer:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v1/component-subscriptions" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "client_id": "'"$CLIENT_ID"'",
+    "component_path": "Example Support:/",
+    "component_ids": ["'"$INTEGRATION_COMPONENT_ID"'"]
+  }'
+```
+
+`CLIENT_ID` is this account's own identifier, from `GET /v2/me`. The integration campaign must also have been published once.
+
+### Give the Reward Activity Tab Its Report and Feed
+
+Build both views from [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views), which carries the view bodies, their elements, and the republish each attachment needs. Three values are reward-specific.
+
+The runner's `mappings` expression counts reward activity and the revenue behind it:
+
+```text
+date=START_DATE(event.eventTime, period:"DAY"); count=group_count(event.id, step_name:"converted"); revenue=GROUP_SUM(event.data.amount, step_name:"converted")
+```
+
+The view's `reportColumnsMapping` names the columns it produces, describing this chart:
+
+```json
+{
+  "chart": { "type": "line" },
+  "xAxis": { "column": "date", "type": "datetime" },
+  "series": [
+    { "name": "Count", "column": "count", "aggregation": "sum" },
+    { "name": "Total Spend", "column": "revenue", "aggregation": "sum" }
+  ]
+}
+```
+
+Put that object into `values.default` serialized as an escaped JSON string:
+
+```text
+"{\"chart\":{\"type\":\"line\"},\"xAxis\":{\"column\":\"date\",\"type\":\"datetime\"},\"series\":[{\"name\":\"Count\",\"column\":\"count\",\"aggregation\":\"sum\"},{\"name\":\"Total Spend\",\"column\":\"revenue\",\"aggregation\":\"sum\"}]}"
+```
+
+Filter the event stream to `INPUT` and `STEP`, the same filter [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views) adds. Do not leave the stream unfiltered, and do not add an application-type filter. `REWARD` and `SEND_REWARD` are other event types, so they do not appear on this stream.
+
+The supplier view's `settingsToDisplay` names the supplier socket. Copy its status expression rather than composing one; it reaches for the suppliers themselves instead of counting children, which breaks as soon as the tree gains a view:
+
+```javascript
+javascript@buildtime:(function () {
+  let children = Java.from(context.getComponent().getParent().getChildren());
+  let rewardSupplierIds = [];
+  children.forEach(function (child) {
+    Java.from(child.createElementsQuery().withType("REWARD_SUPPLIER").list())
+      .forEach(function (rewardSupplier) { rewardSupplierIds.push(rewardSupplier.getId()); });
+  });
+  return rewardSupplierIds.length > 0 ? '' : 'IN_PROGRESS';
+}());
+```
+
+Wrap every Java collection in `Java.from` before iterating it.
+
+### Create the Reward Webhooks
+
+Create one webhook per partner order endpoint plus one status check, all typed `REWARD` and attached to the integration component through `component_ids` after a publish.
+
+Create the webhook without filters — `POST /v6/webhooks` has no filters property:
+
+```json
+{
+  "name": "Example Virtual Prepaid Card Order",
+  "type": "REWARD",
+  "default_method": "POST",
+  "url": "https://api.example.com/rewards/v1/submitOrder",
+  "client_key_id": "javascript@buildtime:context.getVariableContext().get(\"clientKeyId\")",
+  "tags": ["internal:example-variant", "internal:app_type=example", "internal:app_data:event_type=reward"],
+  "retry_intervals": [1800, 3600, 10800],
+  "component_ids": ["INTEGRATION_COMPONENT_ID"]
+}
+```
+
+Add each filter through its own typed endpoint, and give every webhook both.
+
+<Warning>
+A webhook with no supplier filter tries to fulfill every reward in the account through one partner endpoint. A webhook with no state filter re-orders rewards that are already fulfilled.
+</Warning>
+
+The supplier filter resolves the suppliers under the integration's children that carry the variant tag. `POST /v4/webhooks/reward/{webhook_id}/filters/supplier`:
+
+```json
+{
+  "reward_supplier_ids": "javascript@buildtime:(function(){ let children = Java.from(context.getComponent().getChildren()); let allRewardSuppliers = []; children.forEach(function(child) { let rewardSuppliers = Java.from(child.createElementsQuery().withType('REWARD_SUPPLIER').withTag('internal:example-variant').list()); rewardSuppliers.forEach(function(rewardSupplier) { allRewardSuppliers.push(rewardSupplier.getId()); }); }); return allRewardSuppliers; })()"
+}
+```
+
+The state filter takes the reward states the webhook acts on. `POST /v4/webhooks/reward/{webhook_id}/filters/state`:
+
+```json
+{
+  "states": ["EARNED"]
+}
+```
+
+The four filter kinds each have their own path segment — `supplier`, `state`, `tags`, `expression` — and `GET /v4/webhooks/reward/{webhook_id}/filters` lists a webhook's set. Reward states are a closed vocabulary: `EARNED` for order webhooks, `FULFILL_FAILED` for the status check.
+
+#### Write the Request and Response Handlers
+
+The request handler builds the partner order from the reward, the supplier's data map, and the person's profile. Where the partner page publishes that body — BHN does — write it as `request` with a matching `response_handler`, both properties of `POST /v6/webhooks` and `PUT /v6/webhooks/{id}`.
+
+The handler runtime is:
+
+| Need | Call |
+| :-- | :-- |
+| The reward being fulfilled | `context.getReward()` |
+| A setting on the integration | `context.getVariable("merchantId")` |
+| An empty request | `context.createRequestBuilder()` |
+| Headers and JSON | `.addHeader(...)`, `.withBody(JSON.stringify(body))`, `.build()` |
+| Mark processing, not delivered | `context.createFulfillRewardCommandEventBuilder().withSuccess(false).send()` |
+| Mark delivered | `.withSuccess(true).withPartnerRewardId(partnerId).send()` |
+| Mark failed | `context.createFailedRewardCommandEventBuilder().withMessage(...).send()` |
+| Ask the dispatcher to try again | return `"RETRY"` |
+| Finish this attempt | return `"OK"` |
+
+Order webhooks commonly fulfill with `withSuccess(false)` so the status check can close the reward later; always using `withSuccess(true)` reports rewards as delivered when the partner rejected them.
+
+Leave the webhook **disabled** while a required credential or the payload contract is missing, then `PUT` the handlers and set `enabled` to true.
+
+#### The Status-Check Webhook
+
+The status-check webhook filters on every variant's suppliers and on `FULFILL_FAILED`, on a schedule escalating from hours to days out to about a month. The order webhooks' short schedule would exhaust a status check's retries first.
+
+### Attach the Credential
+
+Create the client key only once the partner's secret exists — for certificate authentication, the certificate material rather than a placeholder — then set the credential setting. A missing credential does not block the build: leave it null and track it as outstanding.
+
+## Error Handling
+
+| Response | Cause | What to do |
+| :------- | :---- | :--------- |
+| Schema validation rejects an array item | The template has no `rewardSupplierId` setting, which the platform reward-supplier type requires. | Add it; `GET /v1/component-types/$TYPE_NAME` shows what a type requires. |
+| Malformed JSON on the `variables` property | A setting used a type outside the platform vocabulary, such as `DECIMAL` or `DOUBLE`, or `enum_values` instead of `allowed_values`. | Use a platform type. |
+| Unrecognized property | The create body used `elements` or `webhook_filters`. | Both are build-layer syntax; create those resources separately. |
+| `invalid_component_reference` | A reward supplier, webhook, or subscription referenced a component in an unpublished campaign. | Publish once, then create the resource. |
+| `access_denied` on the subscription | `client_id` names a client the token is not authenticated as. | Read this account's identifier from `GET /v2/me`. |
+| `webhook_missing_name` | The webhook body had no `name`. | Set `name`. It is not defaulted from the URL or the type. |
+| `variable_value_invalid_type` | `reportColumnsMapping` was sent as an object. | Send it serialized to an escaped JSON string. |
+| `campaign_build_failed` naming a variable | A buildtime expression iterated a Java collection without `Java.from`. Settings are evaluated during the create, so the whole component is refused. | Wrap every collection in `Java.from`. |
+| Malformed JSON on a reward state | The state is not in the platform's closed vocabulary. | Use `EARNED` and `FULFILL_FAILED`. `FAILED` also exists, so a near miss is accepted and changes which rewards fire. |
+| A buildtime expression resolves to null | The expression reads a setting the component does not declare. | Declare the setting, or drop the expression. |
+
+## How to Test
+
+Read the built campaign and its resources back:
+
+- The supplier socket filters to the partner's type, whose parent is the platform reward-supplier type.
+- The support campaign holds one correctly typed template per product the partner page names, each with a reward supplier attached, a variant tag, and its data map.
+- Each webhook is type `REWARD`, carries both filters, and resolves a non-empty supplier list.
+- Each webhook's `request` and `response_handler` match the partner page — a default request builder does not — and `enabled` is true once the credential is set.
+- The webhook count matches the partner's order endpoints plus one status check, not the number of products; several products ordered through one endpoint share a webhook.
+- The account identifier is set and the credential is either configured or reported outstanding.
+
+Then confirm the marketer-facing surfaces:
+
+| Read | Expect |
+| :--- | :----- |
+| `GET /v6/reward-suppliers/display-types` | One entry per product the partner sells, alongside the generic custom-reward type |
+| `GET /v6/reward-suppliers` | Each built supplier names a component whose own name matches its `internal:` tag |
+| `GET /v6/reward-suppliers/built` | The partner's products absent by default, present under `include_disabled=true` |
+
+[Validate and Publish an Integration](/technical/building-partner-integrations/integration-lifecycle/integration-validation) covers the views, logos, and display settings.
+
+## Related Documentation
+
+- [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories)
