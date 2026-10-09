@@ -1,0 +1,90 @@
+---
+title: "Stripe"
+---
+
+Extole Offers for Stripe rewards customers directly through their existing Stripe account with either a credit applied to their Stripe balance, or a promotion code redeemable against a Stripe coupon. Both types of rewards are triggered by real-time Stripe events (successful payments, subscription changes, paid invoices).
+
+## Overview
+
+Stripe sends webhook events (e.g. a successful payment or a paid invoice) to Extole. Extole identifies the customer, evaluates campaign logic, and, if a reward is earned, calls the Stripe API directly to issue it as a native Stripe object on the customer's account. No separate payout system or middleware is required; Extole communicates with the Stripe API directly for fulfillment.
+
+## Prerequisites
+
+| Requirement | Description |
+| --- | --- |
+| Stripe account | An active Stripe account with API access. |
+| Stripe Secret Key | A Stripe secret API key (`sk_test_...` or `sk_live_...`), stored as an Extole Client Key. |
+| Stripe Coupon(s) | For Promotion Code rewards, one or more Coupons created in Stripe in advance. |
+| Extole API access token | An access token with permission to post events, used on the Stripe webhook endpoint. |
+
+## Available Products
+
+### Customer Balance
+
+Issues a reward as a credit applied directly to the customer's Stripe balance. Configured with a face value and currency; the credit amount is negative on the Stripe balance transaction, reducing what the customer owes on their next invoice.
+
+### Promotion Code
+
+Issues a reward as a Stripe promotion code, redeemable against a pre-configured Stripe Coupon. Configured with a face value (for display), a Coupon selected from the connected Stripe account, and an optional restriction limiting redemption to the customer's first transaction.
+
+## Integration Model
+
+### Reward fulfillment
+
+When a reward is earned, Extole dispatches a REWARD webhook that calls the Stripe API directly, branching on which reward supplier issued the reward:
+
+| Mechanism | Stripe API call |
+| --- | --- |
+| Customer Balance | `POST /v1/customers/{customer_id}/balance_transactions` |
+| Promotion Code | `POST /v1/promotion_codes` |
+
+Both calls include `metadata[extole_reward_id]` (the Extole reward ID) on the created Stripe object.
+
+### Coupon discovery
+
+A PARTNER webhook calls `GET /v1/coupons` against the connected Stripe account, populating the list of Coupons selectable when configuring a Promotion Code reward supplier.
+
+### Inbound event mapping
+
+The following fields are extracted from each inbound Stripe event onto the corresponding Extole event:
+
+| Field | Source |
+| --- | --- |
+| `partner_user_id` | `stripeObject.customer` |
+| `amount` | `stripeObject.amount` |
+| `currency` | `stripeObject.currency` |
+| `status` | `stripeObject.status` |
+| `email` | `stripeObject.customer_email` |
+| `subscription` | `stripeObject.id` if the object is a subscription, else `stripeObject.subscription` |
+| `previous_status` | `stripeEvent.data.previous_attributes.status`, present only on `.updated` events |
+
+Field presence depends on the Stripe object type. `partner_user_id` is used as the person's identity key; `email`, when present, is used as a secondary identifier.
+
+## Integration
+
+### Step 1: Deploy the integration component
+
+1. In Security Center → Keys, create a Client Key (Type: `WEBHOOK`, Algorithm: `PASSWORD`) containing the Stripe secret key.
+2. In the integration's Configuration tab, set **Stripe Secret Key** to reference that Client Key.
+
+### Step 2: Connect Stripe to Extole
+
+1. Generate an Extole API access token with permission to post events.
+2. In the Stripe Dashboard, under Developers → Webhooks, add an endpoint:
+   ```text
+   https://api.extole.io/v6/events/stripe_event?access_token=<access token>
+   ```
+3. Select the events to send: `payment_intent.succeeded`, `customer.subscription.created`, `customer.subscription.updated`, `invoice.paid`.
+
+### Step 3: Configure rewards
+
+1. In the integration's Rewards tab, add the reward supplier(s) you need (Customer Balance and/or Promotion Code).
+2. For Customer Balance, set the face value and currency.
+3. For Promotion Code, select a Stripe Coupon, set the face value, and optionally restrict redemption to the customer's first transaction.
+4. Attach the reward supplier(s) to the desired step in your Extole campaign.
+
+## FAQs
+
+**Does the customer need a Stripe account before they can receive a reward?** Yes. Rewards are issued to the Stripe customer identified by `partner_user_id` (`stripeObject.customer`) on the triggering event; the customer must already exist in Stripe.
+
+**What happens if the Stripe Secret Key is invalid or missing when a reward is earned?** The fulfillment webhook's Stripe API call fails, and Extole marks the reward as failed.
