@@ -1,179 +1,94 @@
 ---
 title: "Why a Referral Is Credited to the Wrong Program"
-description: "Why a referral link can open the right landing page and still hand the visit, the thank-you page, and the credit to another program, and how to tell it apart from a share experience collision."
+description: "A referral link can open the right landing page and still credit another program. How to tell which of the two causes it is, and what to change."
 ---
 
 # Overview
 
-A customer clicks one program's referral link. The link takes them to that program's landing page,
-which is correct — and then the experience on that page belongs to a different program. They are
-sent on to the other program's thank-you page, and the referral is credited to the other program.
+A friend clicks a referral link and lands on the right page. After they sign up, the thank-you page
+belongs to another program, and that program gets the credit.
 
-This looks like a broken link, and the link is fine. It happens because **where a referral link
-sends someone and which program greets them when they arrive are two separate decisions**, and only
-the first one follows the link.
+The link is working. Either the program cannot receive its own referrals, or the landing page never
+says which program the link belongs to.
 
 <Note>
-This is the friend-side counterpart of
+An advocate who clicks a call to action and gets another program's share experience is a separate
+problem. See
 [Why a CTA Opens a Different Program's Share Experience](/technical/troubleshooting/why-a-cta-opens-a-different-programs-share-experience).
-That page is about an advocate being handed the wrong program's share experience. This page is
-about a friend who received the right link.
 </Note>
 
-## The Two Decisions
+## How to Tell Which Cause It Is
 
-1. **The redirect.** A referral link belongs to one program, and the program it belongs to decides
-   which landing page it opens. This is why the landing page in the address bar is usually right.
-2. **The experience on that landing page.** The page asks Extole for a zone, and Extole chooses
-   between every live campaign that publishes that zone name. That choice is made again, from
-   scratch, and it does not have to agree with the redirect.
+1. Open the referral link in a clean browser. If the address bar is the right program's landing
+   page, the link is fine.
+2. Sign up. The thank-you page is the program that received the referral.
+3. Repeat with a second advocate's link for the same program.
 
-Everything the visitor sees after the redirect — the greeting, the offer, the page they are sent to
-after signing up — comes from whichever campaign won the second decision. So does the referral
-credit.
+| What you see | Cause |
+| --- | --- |
+| Every advocate's link for that program goes to the wrong program | The program cannot receive its own referrals |
+| One advocate's links go to the wrong program, and another's do not | The landing page does not name the program |
 
-## Why the Wrong Program Wins
+A clean browser does not clear either cause.
 
-When a referred visitor arrives carrying a referral, Extole tries to place them in a **friend
-journey**. It looks at the programs the advocate is already enrolled in and, for each one, asks
-which live campaigns could receive a friend for it.
+Until you fix it, the affected program's referral counts and referral rewards are too low. The
+program that received those friends is too high by the same referrals.
 
-There are two ways the wrong program comes out of that, and they need different fixes.
+## The Program Cannot Receive Its Own Referrals
 
-### Cause One: The Campaign Cannot Receive Its Own Referrals
+The friend landing experience has to sit on the campaign's **friend** journey, with the campaign's
+other friend-facing experiences. When it sits on the advocate journey instead, that campaign never
+receives its own referrals. Extole gives the friend to another live program the advocate is in.
 
-A campaign is only in that competition if its friend landing experience belongs to the campaign's
-**friend** journey. A campaign can instead have that experience built on its advocate-side journey —
-the same journey its share experience and advocate pages sit on. When that happens:
+Contact your Extole team and name the programs. They can see which journey the friend landing
+experience is built on and move it.
 
-- the campaign is **never** a candidate to receive its own referrals;
-- Extole falls through to another program the advocate is enrolled in, and picks a live campaign
-  whose friend landing experience *is* on its friend journey;
-- that campaign answers, and its journey, its pages and its reporting take the referral.
+<Note>
+A campaign can have two friend landing experiences: one Extole hosts, and one embedded on your
+site. They are set separately. If one flow is right and the other is wrong, ask your Extole team
+to check both.
+</Note>
 
-A friend-journey match outranks ordinary program-label selection, so the correct campaign losing
-here is not a matter of labels or rules — it never reached the stage where its label would have been
-read.
+## The Landing Page Does Not Name the Program
 
-### Cause Two: The Request Does Not Say Which Program It Is
+This shows up for advocates who are in more than one program. An advocate in a single program is
+credited correctly.
 
-Once every campaign can receive its own referrals, a second problem can remain. The request the
-landing page makes carries the advocate's referral code, but **not the program the referral link
-belonged to**. With nothing to identify the program, Extole works through the programs the advocate
-is enrolled in and takes the first one that can receive a friend.
+The landing page gets the advocate's referral code and no program. Extole then sends the friend to
+whichever of that advocate's programs was updated most recently, which may have nothing to do with
+the link they clicked. Every friend who clicks any of that advocate's links gets the same program.
+Two people testing the same link can each see a consistent result, and those results can disagree.
 
-That list is ordered by which of the advocate's journeys was written to most recently — often a
-difference of a fraction of a second, from activity that has nothing to do with the link the friend
-clicked. So:
-
-- an advocate enrolled in only one program is always routed correctly;
-- an advocate enrolled in several programs is routed to whichever of them their record happened to
-  touch last, and every friend who clicks *any* of that advocate's links gets the same answer;
-- two testers clicking the same program's link can therefore see two different results, and each of
-  them sees their own result consistently.
-
-This is the cause to suspect when a program misroutes for one person and behaves for another, and
-when a clean browser changes nothing for either of them.
-
-<Warning>
-Every referral for an affected program goes to another program. Those referrals do not appear in the
-affected program's reporting, and any reward that depends on them is evaluated under the other
-program's rules rather than its own.
-</Warning>
-
-## Telling It Apart from a Share Experience Collision
-
-The two problems produce similar complaints and need different fixes. Two questions separate them.
-
-| | Referral credited to the wrong program | [Share experience collision](/technical/troubleshooting/why-a-cta-opens-a-different-programs-share-experience) |
-| --- | --- | --- |
-| Who sees it | The friend, after clicking a referral link | The advocate, on a program page |
-| Is the referral link itself correct? | Yes | Often no — the advocate is shown another program's link |
-| Does a clean browser session fix it? | No. It fails on every attempt | A fresh session can clear the case where the person stays on the first program. It does not settle the case where the wrong program comes and goes |
-
-A symptom that reproduces on every attempt from a clean session is this one. On the collision page,
-a fresh session can clear the case where the person stays on the first program, and repeated clicks
-in one session can still open two programs when the wrong program comes and goes.
-
-## How to Confirm It
-
-1. Open the referral link in a clean browser session and check the landing page in the address bar.
-   If that page belongs to the right program, the link and the redirect are working.
-2. Complete the signup and note which program's thank-you page you are sent to. That page names the
-   campaign that actually answered.
-3. Repeat from a second clean session. If the wrong program wins every time, the choice is not being
-   made by chance and a retest will not clear it.
-4. Compare with a program that behaves correctly. Where several programs share one site and only
-   some misroute, the difference is in how those campaigns are built, not in the links.
-5. Repeat the whole test with a **second advocate's** link for the same program. If one advocate's
-   link misroutes and another's does not, it is cause two. If every advocate's link for that program
-   misroutes, it is cause one.
-
-## How to Fix It
-
-Both fixes are on the campaign. Contact your Extole team with the list of programs that misroute.
-
-**For cause one,** the friend landing experience has to belong to the campaign's **friend** journey,
-the way the rest of the campaign's friend-facing experiences already do. Your Extole team can
-confirm which journey each friend landing experience is built on and correct it.
-
-**For cause two,** the referral link's landing page has to be told which program it is serving. Each
-program's referral link is configured by a **Share Link Behavior** on the friend side of the
-campaign, and its **Destination for Clicks on Share Links** is the address the link opens. Adding the
-program's own label to that address as a query parameter pins every visitor who arrives through that
-link to that program, whatever else the advocate is enrolled in:
+Each program's referral link is set by **Share Link Behavior** on the friend side of the campaign.
+**Destination for Clicks on Share Links** is the address the link opens. Add the program's label to
+that address:
 
 ```
 https://www.example.com/your-landing-page?extole_required_labels=your-program-label
 ```
 
-A program label survives a campaign being rebuilt, which a campaign identifier does not, so prefer
-the label.
+Use the program label, not a campaign id. The label still works after the campaign is rebuilt.
 
-That single field is enough because of two things the platform already does:
-
-- The redirect carries the destination's own query string through to the landing page, alongside the
-  advocate code, share channel and UTM parameters it adds itself.
-- On the landing page, any query parameter whose name begins `extole_` is passed to every Extole zone
-  on that page with the prefix removed — so `extole_required_labels` reaches the zone request as a
-  required label.
-
-**Destination for Clicks on Share Links for Mobile Devices** follows the desktop address unless it has
-been given one of its own. Check it, and make the same change there if it has. Publish the campaign
-when the change is in; it applies to the next click.
+**Destination for Clicks on Share Links for Mobile Devices** uses the desktop address unless you
+have entered one of its own. If it has its own address, add the same label there. Publish the
+campaign. The next click uses the new address.
 
 <Warning>
-The desktop field is the one that has to change. The two fields are read separately — by the device
-the link is clicked on — so putting the label only in the mobile field fixes phone clicks and leaves
-desktop clicks exactly as they were. That half-fixed state is easy to sign off by accident: a tester
-on a phone sees the right program and a tester on a laptop sees the old wrong one, which reads as
-the original intermittency rather than as a missed field. Retest on both after publishing.
+Change the desktop field. The two fields are read by the device the friend clicks on. A label only
+in the mobile field fixes phone clicks and leaves desktop clicks wrong. A phone test then looks
+fixed while a laptop still shows the old program. Retest on both after you publish.
 </Warning>
 
 <Warning>
-Three fields in this panel accept something that looks like a web address, and only **Destination for
-Clicks on Share Links** decides where the click goes. **Extole-Hosted Experience to Trigger on URL
-Landing** expects the **name of an experience**, not an address: putting the landing-page address in
-it changes nothing about which program answers, and it stops the hosted experience working, because
-the page then asks for an experience by a name that does not exist. When a fix has been published
-and the desktop behavior has not moved, check which field the value went into before changing
-anything else.
+Only **Destination for Clicks on Share Links** decides where the click goes. **Extole-Hosted
+Experience to Trigger on URL Landing** expects the name of an experience, not a web address.
+Putting the landing-page address there does not change which program answers, and the hosted
+experience stops working, because the page asks for an experience name that does not exist.
 </Warning>
 
 <Note>
-Adding the label as a **requirement** is what pins the program. Supplying it as a preference —
-`extole_labels` rather than `extole_required_labels` — has no effect here, because the journey match
-is made before preferences are read.
+Use `extole_required_labels`. `extole_labels` does not choose the program.
 </Note>
 
-After the change is published, retest with step 1 above from a clean session for each program, and
-retest with at least two different advocates, since cause two can behave for one advocate and fail
-for another. Until then, treat those programs' referral counts and referral-based rewards as
-understated, and the program that is absorbing the traffic as overstated by the same referrals.
-
-<Note>
-A campaign can have more than one friend landing experience — a hosted landing page, and an embedded
-one that runs inside a page on your own site. They are configured separately, so one can be correct
-while the other is not. If the hosted flow behaves and the embedded flow does not, ask for both to be
-checked rather than only the one that failed.
-</Note>
+After you publish, repeat the test above from a clean browser with at least two advocates, on a
+phone and on a laptop.
