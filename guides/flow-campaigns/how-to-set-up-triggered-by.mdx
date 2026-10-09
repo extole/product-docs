@@ -16,7 +16,9 @@ All default programs use Triggered By.
 A campaign will not publish while a Triggered By setting it needs is empty. Declaring your events before you create the campaign is the easiest path: every Triggered By fills itself in, and the campaign publishes on the first try.
 
 <Warning>
-When a step shows a yellow **No Trigger Events are selected.** notice, its **Triggered By** setting is empty. That notice is a warning while you edit. When you publish, Extole turns the same condition into a hard error: *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* Select a trigger event before you publish. If **Triggered By** has nothing you can select, see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select).
+A yellow **No Trigger Events are selected.** notice means that step's **Triggered By** setting is empty. The notice stays while you edit, including when the step is turned off.
+
+For **Signed Up**, **Converted**, a call-to-action, and the other steps that check this on publish, an enabled step will not publish. The error is *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* A turned-off step can still publish, and the notice remains. The next publish after you turn that step on fails until you select a trigger event. A business event you add from the library can publish with the notice showing; it does not run until you select a trigger event. If **Triggered By** has nothing you can select, see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select).
 </Warning>
 
 ## Where Trigger Events Come From
@@ -116,7 +118,7 @@ If your site sends `conversion` from a conversion tag instead, declare it on the
 
 ### Example: Signed Up Shows No Trigger Events Are Selected
 
-**Signed Up** shows a yellow **No Trigger Events are selected.** notice, and publishing fails with *The Triggered By setting on 'signed_up' is not configured.*
+**Signed Up** is turned on and shows a yellow **No Trigger Events are selected.** notice. Publishing fails with *The Triggered By setting on 'signed_up' is not configured.* If **Signed Up** is turned off, the campaign can publish with the notice still showing.
 
 1. Open **Signed Up** and check **Triggered By**.
 2. If an option from **This Campaign** for the landing-page email capture is listed, select it and publish.
@@ -134,7 +136,7 @@ Publishing fails on the `show_reward_banner` call-to-action.
 
 ## When Triggered By Has Nothing to Select
 
-**Triggered By** lists trigger events from this campaign, your extensions and integrations, and your other campaigns. If nothing eligible appears for the event the step needs, publishing fails until something you can select is available.
+**Triggered By** lists trigger events from this campaign, your extensions and integrations, and your other campaigns. If nothing eligible appears for the event an enabled step needs, that step will not publish until something you can select is available. A turned-off step can publish with the list still empty.
 
 - **Trigger event from outside the campaign.** Declare it on the matching extension, then select it yourself. A newly declared event is never added to an existing campaign automatically. Follow [Set Up Triggered By](#set-up-triggered-by).
 - **Trigger event the campaign produces itself**, such as a friend signing up on the landing page. Current themes connect these automatically when the campaign is created. If you add a business event later, for example **Signed Up**, and **Triggered By** has no in-campaign option, the campaign is missing the companion trigger event that declares that signup. Contact your Extole team to add it. Selecting an Event API or SDK declaration does not replace that in-campaign producer.
@@ -143,7 +145,7 @@ Publishing fails on the `show_reward_banner` call-to-action.
 
 | Message or notice | What it means | What to do |
 |---|---|---|
-| Yellow **No Trigger Events are selected.** on the step | **Triggered By** is empty. This is the same condition that blocks publish. | Select a trigger event, or see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select). |
+| Yellow **No Trigger Events are selected.** on the step | **Triggered By** is empty. On an enabled step that requires a trigger event, this is what blocks publish. A turned-off step can still publish. | Select a trigger event, or see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select). |
 | *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* | Nothing is selected. Often the trigger event the step expects has not been declared, or an in-campaign producer is missing. | Follow [Set Up Triggered By](#set-up-triggered-by), or see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select). |
 | *The Triggered By setting on '`step`' points at a component that no longer declares a trigger event (`ids`). Select a trigger event before publishing.* | The selected trigger event was deleted or renamed on its extension. | Declare the trigger event again, or select a different one, then publish. |
 
