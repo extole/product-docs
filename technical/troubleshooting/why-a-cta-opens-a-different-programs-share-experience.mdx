@@ -70,32 +70,25 @@ The result for a customer with more than one program available to them:
 Which program a person is pinned to therefore depends on which CTA they happened to click first,
 which is why the symptom looks intermittent and customer-specific.
 
-## When the Same Zone Name Is Answered Twice
+## When the Wrong Program Comes and Goes
 
-The section above describes one competition between candidates. There is a second shape, and it
-behaves differently enough to be worth telling apart before you test anything.
+The section above is the usual case. The person stays on the first program they opened, and every
+later click shows that same share experience.
 
-Campaigns built in different ways can publish the same zone name and still build it into
-**separately named controllers** — for example one campaign's share experience builds under its
-journey's name and another's does not, even though both answer `share_experience`. Extole then runs
-each controller as its own competition, and each one can produce a winner. Whichever finishes first
-is the one served.
+There is a second case, and you tell them apart by repeating the click. Two programs can answer the
+same share experience name, and Extole shows whichever answer arrives first. Nothing in My Extole
+names this. You see it on the click:
 
-That changes the symptom in a way that matters for how you test:
+- The usual case stays put. Repeat the click and the same wrong program opens every time.
+- This case flips. Two clicks a few seconds apart can open two programs.
 
-- With one controller, the person is **pinned**. The program that answered first keeps answering,
-  and repeating the click gives the same result every time.
-- With two controllers, the person is **not pinned**. Both competitions can return a winner, so two
-  identical requests seconds apart can open different programs.
-
-The program label still works, but only inside one controller's competition. It cannot stop the
-other controller from returning a winner of its own, so a correct label is not enough here.
+A program label does not fix the flipping case. The label can choose a program when only one
+program is answering, and it cannot stop a second program from answering the same name.
 
 <Info>
-The tell is repetition. Repeat the same click ten times in one session: a stable wrong answer is
-the pinning behavior above, and a wrong answer that comes and goes means two controllers are
-answering the zone name. Testing once cannot tell them apart, and a single passing retest is not
-evidence that the problem is gone.
+Repeat the same click ten times in one session. The same wrong program every time is the usual case
+above. A wrong program that comes and goes is this case. One passing click is not evidence the
+problem is gone.
 </Info>
 
 ## What Does Not Fix It
@@ -107,10 +100,9 @@ Three things that look like the fix are not:
   the label leaves them where they are.
 - **Adjusting the program-label rules** on the campaigns. The person is not being excluded by a
   rule — they are being matched by an existing journey, which happens first.
-- **A bare `campaign_id` request parameter.** This is not the same as naming the campaign as a
-  target, and it changes nothing here. It leaves every candidate in the running, so the journey
-  check still matches the journey the person already holds. The form that is decisive is shown in
-  [Option 2](#option-2-name-the-campaign-on-the-request).
+- **A `campaign_id` on its own.** Adding `campaign_id` without the form in
+  [Option 2](#option-2-name-the-campaign-on-the-request) leaves the other programs eligible, so the
+  person stays in the program they already opened.
 
 ## A Second Cause: A Promotion Link Labeled for No Program
 
@@ -177,36 +169,33 @@ for the old name before you publish, or those surfaces will request a zone no ca
 
 ### Option 2: Name the Campaign on the Request
 
-Recommended when changing the campaigns is not practical. Send the intended campaign on the share
-experience request, alongside the program's own label:
+Use this when you cannot give each program its own zone name. This is a change to the tag on your
+site, not a setting in My Extole. The request that opens the share experience names the campaign,
+and it includes the program's label:
 
 ```
 GET /zone/share_experience?labels=<program label>&target=campaign_id:<campaign id>
 ```
 
-`target=campaign_id:` is **required targeting**. It removes every other campaign from the running
-before selection starts, so no competition for that zone name can return a different program —
-including a second controller answering the same name. See
-[Targeting](/guides/platform-overview/targeting) for how this ranks against normal selection.
+`target=campaign_id:` limits the share experience to that campaign, so another program cannot answer
+the same zone name. See [Targeting](/guides/platform-overview/targeting) for how a named campaign
+ranks against the usual selection.
 
 <Warning>
-Send it **with** the program label, not instead of it. Required targeting narrows the candidates to
-the campaign you named, and journey entry then still needs the label to start the journey. A request
-carrying the campaign and no label matches nothing and comes back empty, so the share experience
-does not open at all.
+Send the program label with it. Naming the campaign limits which campaign can answer, and the label
+is still what starts the person's journey. A request that names the campaign and omits the label
+matches nothing, and the share experience does not open.
 </Warning>
 
 <Warning>
-`journey.campaign_id` is a different parameter and it is **not** a substitute here. It is a
-high-priority hint: it decides which candidate wins inside one competition, but it leaves the other
-candidates in the running, so a second controller answering the same zone name can still return its
-own winner. Where two controllers answer the zone name, the hint fixes the symptom only part of the
-time. Use `target=campaign_id:` when you need the request to be decisive.
+`journey.campaign_id` is a different value, and it does not do this job. It prefers one campaign and
+still lets another program answer the same share experience, so the wrong program still appears some
+of the time. Use `target=campaign_id:` when the click has to open one campaign.
 </Warning>
 
-This keeps one shared zone name and moves the work to whatever makes the share experience request —
-each CTA has to send the hint for its own program. Test it on one program before rolling it out; the
-hint has to reach the request that opens the share experience, not only an earlier page view.
+This keeps one shared zone name. Each CTA has to send its own campaign on the request that opens
+the share experience, not only on an earlier page view. Try it on one program before you roll it
+out.
 
 ## How to Confirm the Behavior
 
@@ -216,9 +205,9 @@ Test with a fresh browser session per program, and test the collision deliberate
    to that program.
 2. In the **same** session, click a different program's CTA. Before the fix, the first program's
    share experience opens again. After the fix, the second program's own share experience opens.
-3. Repeat step 2 several times in that same session rather than once. If the wrong program appears
-   on some loads and not others, two controllers are answering the zone name and a single passing
-   attempt proves nothing.
+3. Repeat step 2 ten times in that same session. If the wrong program appears on some loads and not
+   others, more than one program is answering the share experience name, and one passing click
+   proves nothing.
 4. Repeat in a new clean session starting with the other program, to confirm the result follows the
    fix and not the order of clicks.
 
