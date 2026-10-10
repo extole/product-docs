@@ -5,9 +5,15 @@ description: "Set a reward to expire after a delay or on a date, and manage expi
 
 # Overview
 
-Reward expiration is the date and time after which a reward can no longer be redeemed. You can set expiration when you configure a reward, and you can set, change, or clear it on an issued reward from **View Reward**.
+Reward expiration gives a reward a use-by date. Use it to:
 
-When a reward expires, it moves to **Expired** and cannot be redeemed. Expired Reward Bank collectibles are hidden from the Redemption Center.
+- Limit how long unredeemed rewards stay outstanding, so points and credits don't build up indefinitely.
+- Encourage participants to come back and redeem while their reward is still available.
+- Match the terms you already give participants, such as "points expire one year after you earn them" or a coupon's end date.
+
+You set expiration once on a reward, and every reward it issues follows that rule. When one campaign needs a different rule, you can set it in Flow Builder. You can also change the date on any single reward manually from **User Support**.
+
+When a reward expires, it moves to **Expired** and can't be redeemed.
 
 <Info>
 Expiration you set on a reward in Flow Builder is used instead of expiration set on the reward supplier, or on the Reward Bank Collectible Reward.
@@ -15,7 +21,62 @@ Changing reward expiration related settings does not update rewards that have al
 To change the date on an issued reward, use **View Reward**.
 </Info>
 
-# Configure Expiration on a Reward Supplier
+# When to Use Reward Expiration
+
+Expiration changes the reward's state in Extole. It works best for rewards whose value Extole holds, such as Reward Bank collectibles, and for rewards your own system holds, such as account credit, where Extole can tell your system when the reward expires. It does not cancel anything in a gift card partner's system.
+
+| Reward type | Supports Expiration | Where to set it | What happens when it expires |
+| :--- | :--- | :--- | :--- |
+| Reward Bank collectible | Yes | The Collectible Reward, or the reward in Flow Builder for one campaign | The reward leaves the Redemption Center and the balance, and can't be redeemed |
+| Coupon | Yes | Usually nothing: the coupon's own expiration date is used | The reward shows as **Expired** in **User Support**. The code itself is controlled by your commerce platform |
+| Account credit or other custom reward | Yes | The reward directly, or the reward in Flow Builder | The reward shows as **Expired** in Extole, and Extole can notify your system so it removes the credit |
+| Tango gift card | Not supported | — | The card stays valid at Tango, even when the reward shows as **Expired** in Extole |
+| Tremendous or BHN reward | Not supported | — | These rewards can't move to **Expired** |
+
+## Reward Bank Collectibles
+
+The [Reward Bank](/technical/platform-integrations/extensions/reward-bank) lets participants collect rewards as a balance over time and redeem them when they choose, in a Redemption Center, for options such as gift cards or coupons.
+
+Set **Expires After** or **Expiration Date** on the Collectible Reward, so every collectible it issues follows the same rule. **Expires After** suits a policy such as "points last one year from when they're earned." Set expiration on the reward in Flow Builder only when one campaign needs a different rule.
+
+Extole checks for rewards past their expiration date about once an hour. When a collectible expires:
+
+- It no longer appears in the participant's Redemption Center, and its value is removed from their balance. The participant doesn't see it marked as expired. It is no longer listed.
+- It can't be redeemed.
+- **View Reward** in **User Support** shows its state as **Expired**, so your support team can explain where it went.
+
+Collectibles that have already been redeemed don't expire. For how expiration works with points and balances, see [Points and Balances](/technical/platform-integrations/extensions/reward-bank/points-and-balances).
+
+## Coupons
+
+When your coupons carry an expiration date, or the coupon reward supplier has a **Default Expiration Date**, Extole uses that date as the reward's expiration when it issues the code. The date then shows on **View Reward** and the reward moves to **Expired** after it.
+
+Set **Reward Expiration** on the supplier, or expiration on the reward in Flow Builder, only to replace the coupon's date. Either one is used instead of the coupon's date.
+
+Expiring the reward in Extole does not deactivate the code in your commerce platform. Set the code's own expiration there.
+
+## Account Credit and Other Custom Rewards
+
+Account credit is held in your own system, so when the reward expires in Extole, your system needs to remove the credit too. Extole can tell your system when that happens: a campaign step fires when the reward moves to **Expired** and sends an API call to your system through an outbound webhook. Your system receives the call and removes the credit.
+
+To set it up:
+
+1. Create an outbound webhook in **Tech Center** > **Outbound Webhooks**, pointing at the URL in your system that removes the credit. See [Webhooks](/guides/platform-overview/implementing-your-referral-program/technical-items/webhooks).
+2. Ask your Extole team to add a step to the campaign that fires when the reward expires and sends that webhook.
+
+Use this step rather than a reward webhook. Reward webhooks don't send the **Expired** state.
+
+## Gift Cards
+
+Tango gift cards can be marked **Expired** in Extole, but Extole does not cancel the card at Tango, so the participant can still use it. Tremendous and BHN rewards don't support expiration. For gift cards, rely on the card's own terms rather than reward expiration.
+
+The exception is a gift card offered as a redemption option in the Reward Bank. There, set expiration on the collectible the participant earns, not on the gift card.
+
+# Configure an Expiration on a Reward Directly
+
+Set expiration on the reward itself, and every reward it issues follows the same rule. Where you set it depends on the kind of reward.
+
+## Reward Suppliers
 
 Use this when the supplier is not part of a component. Any standalone supplier in **Rewards** can have a **Reward Expiration**.
 
@@ -34,9 +95,9 @@ Use this when the supplier is not part of a component. Any standalone supplier i
 
 Every reward earned from this supplier uses that date, unless the campaign reward sets its own expiration.
 
-# Configure Expiration on a Reward Bank Collectible Reward
+## Reward Bank Collectible Rewards
 
-They use **Expires After** and **Expiration Date** instead of **Reward Expiration**.
+Collectible Rewards use **Expires After** and **Expiration Date** instead of **Reward Expiration**.
 
 1. Navigate to **Rewards**.
 2. Open the Collectible Reward.
@@ -55,7 +116,7 @@ They use **Expires After** and **Expiration Date** instead of **Reward Expiratio
 
 # Configure Expiration on a Reward in Flow Builder
 
-Use this to expire rewards for one campaign reward. This setting is used instead of the supplier's **Reward Expiration**.
+Use this when the same reward needs a different expiration in one campaign than it has everywhere else. For example, your points normally last a year, but points earned in a short promotion should last 30 days. Expiration set here supersedes the expiration set on the reward directly.
 
 1. Go to the [Programs](https://my.extole.com/programs) page and click **Manage Flow** for the campaign, or from the **Campaign Editor** select the **Flow** tab.
 2. Click the reward to open its settings.
@@ -71,9 +132,9 @@ Use this to expire rewards for one campaign reward. This setting is used instead
 4. Click **Apply**.
 5. Publish the campaign.
 
-# View and Manage Expiration on a Reward
+# View and Manage Expiration on a Reward Manually
 
-Open an issued reward to see whether it expires, change that date, or expire it now.
+Open an issued reward to see whether it expires, change that date, or expire it now. A change here applies to that one reward only.
 
 1. Click **User Support** in the sidebar and search for the person.
 2. Open the person's profile and scroll to **Rewards**.
