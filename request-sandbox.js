@@ -24,20 +24,10 @@
     form.querySelector('[name="retURL"]').value = returnUrl();
   }
 
-  function isExternalReferrer(referrer) {
-    try {
-      return referrer && new URL(referrer).host !== window.location.host;
-    } catch (error) {
-      return false;
-    }
-  }
-
   function setAttributionFields() {
-    var referrer = document.referrer;
-    var referringUrl = isExternalReferrer(referrer) ? referrer : "";
     var formUrl = window.location.href.split("#")[0];
 
-    form.querySelector('[name="00N1W000003AeEL"]').value = referringUrl.slice(
+    form.querySelector('[name="00N1W000003AeEL"]').value = document.referrer.slice(
       0,
       1000
     );
