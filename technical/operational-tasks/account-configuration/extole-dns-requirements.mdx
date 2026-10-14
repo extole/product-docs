@@ -146,4 +146,31 @@ xtl2._domainkey.CompanyName.com 86400 IN CNAME CompanyName.xtl2.extole.io
 If you do not add the records and your SPF or DMARC is set to reject mails from unknown providers, your program emails will be sent from `email.referral-mail.com`.
 </Warning>
 
+### Force Send From Email Domain
+
+[//]: # "What does Force Send From Email Domain mean?"
+
+Each email domain has a **Force Send From Email Domain** switch. You set it when you add or edit an email domain in **Tech Center** > **Domains** > **Email Domains**. The switch is off by default.
+
+**When the switch is off**, Extole checks the From address of each email before it sends. Extole keeps your domain in the From address when the domain passes the DMARC check. A domain passes when any of these is true:
+
+* The domain has no DMARC record, and its SPF check does not fail.
+* The domain's DMARC policy is `p=none`.
+* The DKIM records for the domain are in your DNS and Extole has validated them.
+
+If the domain does not pass, Extole sends from the program sending domain described above. Extole keeps the display name and the part of the address before the `@`, and replaces only the domain. Extole also uses the program sending domain when an email goes to the same address it comes from.
+
+**When the switch is on**, Extole skips these checks. Every email from that domain keeps your From address as written, whatever the DMARC and DKIM results are. In the Email Domains list, the domain shows the status **Overridden** instead of a pass or fail result.
+
+The switch does not create DKIM records, add them to your DNS, or validate them. It only stops Extole from replacing your domain in the From address.
+
+<Warning>
+**Deliverability Risk**
+
+
+With the switch on, Extole sends from your domain even when your DNS does not authorize Extole to send for it. Some mail providers may then consider these emails invalid, and reject them or filter them as spam.
+</Warning>
+
+Make your domain pass one of the checks above first, for example by adding the DKIM records. Turn the switch on only when your emails must come from your domain before it passes, and your email team accepts the deliverability risk.
+
 [//]: ___
