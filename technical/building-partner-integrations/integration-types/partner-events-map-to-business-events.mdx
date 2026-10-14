@@ -278,6 +278,14 @@ Give every business event its own data components; a field captured on one is no
 
 Lifecycle events such as `shipped` and `canceled` arrive independently, so repeat the identity set on each: they must resolve to the same person and, through the transaction identifier, the same original transaction.
 
+### The Key Type Sets the Step Value, Not the Field Name
+
+Extole takes a step's value from the data field whose key type is `VALUE`. It does not read the field's name. A field named `cart_value`, `amount`, or `transaction_amount` sets the step's value the same way, and a field named `value` with key type `NONE` does not set it.
+
+- Mark one field on each business event as `VALUE`. When more than one field has that key type, the configuration does not say which amount becomes the step's value.
+- Renaming a field does not change the step's value while its key type stays `VALUE`. Anything that refers to the field by its name, such as another field's `valueExpression` or a report column, needs the new name.
+- When the field holds something Extole cannot read as a number, the step's value is 0 and Extole records an `invalid_step_value` warning.
+
 ## Add the Test Event Payload
 
 The test event payload lets you, and anyone who installs the integration, send a sample partner event from My Extole and watch what it produces. Add it after the business events and input rules exist, because the payload is only useful once there is a rule for it to match.
