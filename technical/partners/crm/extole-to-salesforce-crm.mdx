@@ -24,49 +24,67 @@ All Extole to Salesforce integrations make use of Salesforce OAuth 2.0 client cr
 
 ### OAuth Client Registration in Salesforce
 
-Create a Connected App in Salesforce:
+Create an External Client App in Salesforce that uses the Client Credentials flow:
 
-* OAuth Scopes: Access and manage your data (API)
-* Enable Client Credentials (JWT or OAuth 2.0).
-* Note down the Client ID and Client Secret.
+1. In Salesforce Setup, navigate to **External Client App Manager** and click **New External Client App**.
+2. Under **Basic Information**, enter an **App Name** (for example, `Extole Receive Events`), a matching **API Name**, and a **Contact Email**, and set **Distribution** to **Local**.
+3. Check **Enable OAuth Settings**. Under **OAuth Settings**, add two scopes:
+   * **Manage user data via APIs (api)**
+   * **Perform requests at any time (refresh\_token, offline\_access)**
+4. Under **Flow Enablement**, check **Enable Client Credentials Flow**, then click **Create**.
+5. From the app's row action, select **Edit Policies**. Under **OAuth Policies**:
+   * Set **Permitted Users** to **Admin approved users are pre-authorized**. The Client Credentials flow has no consent step, so with any other value the token exchange fails with `invalid_grant: user hasn't approved this consumer`.
+   * Under **Client Credentials Flow**, set the **Run As** user to a dedicated integration user or an admin. Every request from Extole runs as this user, and Salesforce shows it as the creator, last modifier, and owner of the records Extole writes.
+6. Click **Save**.
+7. On the app's **Settings** tab, under **OAuth Settings**, copy the **Consumer Key** and **Consumer Secret**.
 
 Before sending the webhook, Extole will exchange credentials for an access token.
 
 ### OAuth Key Creation in Extole
 
-To create the key within Extole, create a new Integration from within the [Outbound Webhooks](https://my.extole.com/tech-center/outbound-webhooks) menu. Configure the key with the following options:
+To create the key within Extole, create a new key in the [Security Center](https://my.extole.com/security-center). Configure the key with the following options:
 
 | Field             | Example Value                                                 |
 | :---------------- | :------------------------------------------------------------ |
 | Key Name          | SFDC &lt;environment&gt; Client Credentials Key                     |
+| Key Type          | Webhook                                                       |
 | Partner Key ID    | *Not Required*                                                |
 | Algorithm         | OAUTH\_SFDC                                                   |
-| Key               | The Client Secret from the previous step                      |
+| Key               | The Consumer Secret from the previous step                    |
 | Authorization URL | https\://*yourdomain*.my.salesforce.com/services/oauth2/token |
-| OAUTH Client ID   | The Client ID from the previous step                          |
+| OAUTH Client ID   | The Consumer Key from the previous step                       |
 | Scope             | *Not Required*                                                |
 | Description       | A useful description of where this key will be used           |
 
+Choose `OAUTH_SFDC`, not `OAUTH_SALESFORCE` or `OAUTH_SFDC_PASSWORD`. `OAUTH_SFDC` is the algorithm built for the Salesforce Client Credentials flow.
+
 ## Salesforce CRM Integration
 
-The **Salesforce CRM** integration sends an event to the Extole app for Salesforce each time an advocate creates a share link. The app updates the matching Contact or Lead in Salesforce with the fields you map.
+The **Salesforce CRM** integration sends an event to the Extole app for Salesforce each time an advocate creates a share link. The app writes the fields you map to the matching Contact, Lead, or Person Account in Salesforce.
 
-The app matches a record by the person's `salesforce_id` in Extole first, and by email when there is no `salesforce_id` or no record with that ID. It updates existing records only; it doesn't create Contacts or Leads.
+The app matches a record by the person's `salesforce_id` in Extole first, and by email when there is no `salesforce_id` or no record with that ID. A Person Account is matched by its person email.
+
+When no record matches, the app skips the event, unless the rule has **Create the record if it is not found** turned on:
+
+* The app creates a Lead or Contact from the event's email, and from `first_name` and `last_name` when the event sends them. A missing last name becomes "Unknown", because Salesforce requires one. In an org without Person Accounts, a created Lead's Company is also "Unknown".
+* The app doesn't create a Lead or Contact when the email already belongs to a Contact or Person Account. The **Event Log** shows the event as skipped, with the reason.
+* The app never creates a Person Account.
 
 ### Prerequisites
 
 | Requirement | Description |
 | :- | :- |
-| Extole app for Salesforce | The app must be installed in your Salesforce org, with its onboarding complete. Follow the app's [installation guide](https://github.com/extole/extole-sfdc-app/blob/main/docs/INSTALL.md). |
-| Salesforce OAuth key in Extole | An `OAUTH_SFDC` key, created as described in [OAuth Key Creation in Extole](#oauth-key-creation-in-extole). |
+| Extole app for Salesforce | The app must be installed in your Salesforce org, with its onboarding complete. Follow the app's [installation guide](https://github.com/extole/extole-sfdc-app/blob/main/docs/INSTALL.md). The person who sets up **Receive Extole Events** needs the `Extole_App_Admin` permission set. |
+| External Client App in Salesforce | An External Client App that uses the Client Credentials flow, created as described in [OAuth Client Registration in Salesforce](#oauth-client-registration-in-salesforce). Assign its **Run As** user the `Extole_Webhook_Integration` permission set. |
+| Salesforce OAuth key in Extole | An `OAUTH_SFDC` key with the **Webhook** key type, created as described in [OAuth Key Creation in Extole](#oauth-key-creation-in-extole). |
 
 ### Set Up the Integration
 
-1. In Salesforce, open the Extole app's **Receive Extole Events** tab and copy the **Webhook Endpoint**.
+1. In Salesforce, open the Extole app's **Receive Extole Events** tab and copy the **Webhook Endpoint**. The app builds it from your org's own domain, so it ends in `/services/apexrest/extole/events`.
 2. In My Extole, navigate to **Partners**, select **Salesforce CRM**, and click **Install**.
 3. Set **Salesforce Endpoint URL** to the Webhook Endpoint you copied, and set **Salesforce OAuth Credentials** to your `OAUTH_SFDC` key.
-4. Turn on **Enable Salesforce Writeback**. It's off by default, so the integration sends nothing until you turn it on.
-5. In Salesforce, on the **Receive Extole Events** tab, click **Add Rule**. Enter `share_link_created` as the event name, and map the event's fields to Contact or Lead fields. Target fields must be Text fields.
+4. Turn on **Enable Salesforce Writeback**. It's off by default. While it's off, the integration sends nothing and nothing is logged on either side, so you can use it to pause the integration and keep the endpoint and key filled in.
+5. In Salesforce, on the **Receive Extole Events** tab, click **Add Rule**. Enter `share_link_created` as the event name and choose the **Salesforce Object**: Contact, Lead, or, in an org with Person Accounts, Person Account. For a Contact or Lead, turn on **Create the record if it is not found** if the app should create the record when none matches. Then map the event's fields to the object's fields. Target fields must be Text fields, because the app writes every value as text and a Number or Date field silently stays empty.
 6. As an advocate, create a share link, then confirm the event appears in the **Event Log** on the **Receive Extole Events** tab.
 
 ### Event Payload
@@ -83,6 +101,30 @@ Each share link sends one request. `event_id` is unique to the share link event,
     }
 }
 ```
+
+### Send Other Events
+
+The integration sends share link events (`share_link_created`) only. To send another event to Salesforce, such as a reward, a referral click, or a custom action:
+
+1. In My Extole, add a **Webhook** step to that event's flow, and set **Webhook** to the integration's `salesforce_crm_writeback` webhook.
+2. Set **Webhook Body Data** to the body the app expects: an `event_name` that matches a rule on the **Receive Extole Events** tab, an `event_id` the app uses to skip duplicates, and `email` and `salesforce_id` inside `data`. For example:
+
+   ```javascript
+   javascript@runtime:(function () {
+       const person = context.getPerson();
+       return {
+           event_id: context.getStepEvent().getId(),
+           event_name: "reward_earned",
+           data: {
+               email: person.getEmail(),
+               salesforce_id: person.getData().get("salesforce_id") || null
+           }
+       };
+   })();
+   ```
+
+3. In Salesforce, add a rule on the **Receive Extole Events** tab for that `event_name`.
+4. Save the change in My Extole, trigger a test event, and confirm it appears in the **Event Log** on the **Receive Extole Events** tab.
 
 ## Option 1: APEX Rest Endpoint for Extole to Salesforce
 
