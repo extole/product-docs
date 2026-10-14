@@ -19779,6 +19779,24 @@
         },
         "type" : "object"
       },
+      "ComponentReferenceListAddRequest" : {
+        "properties" : {
+          "component_ids" : {
+            "description" : "The components to add to this reference. Every component already selected stays selected, and naming one that is already selected changes nothing. Every added id must be eligible for this reference: inside the setting's boundary, carrying the required component types, and not excluded by a selectable filter.",
+            "items" : {
+              "description" : "The components to add to this reference. Every component already selected stays selected, and naming one that is already selected changes nothing. Every added id must be eligible for this reference: inside the setting's boundary, carrying the required component types, and not excluded by a selectable filter.",
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "variant" : {
+            "description" : "The setting value variant the selection is added to. Defaults to `default`.",
+            "type" : "string"
+          }
+        },
+        "required" : [ "component_ids" ],
+        "type" : "object"
+      },
       "ComponentReferenceListSelectRequest" : {
         "properties" : {
           "component_ids" : {
@@ -96230,6 +96248,358 @@
           }
         },
         "summary" : "Upgrade a component",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v1/components/{component_id}/settings/component-reference-list/{setting_name}/add" : {
+      "post" : {
+        "description" : "Adds the components in `component_ids` to the named `COMPONENT_REFERENCE_LIST` setting and captures them in the setting value, after the components already selected. Every stored entry is kept as it is, so a caller that sees only part of the selection - one campaign, one page of candidates - adds to it without reading it first and without dropping what it cannot see. Only the added components are checked for eligibility; naming a component that is already selected leaves the stored value unchanged, though the setting is still saved and a campaign version is still written. Returns the setting in the same shape as `GET` and `PUT` on the setting itself.",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "setting_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "component_ids" : [ "component_id" ],
+                "variant" : "variant"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentReferenceListAddRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CampaignComponentComponentReferenceVariableResponse"
+                }
+              }
+            },
+            "description" : "The setting after the components were added, in the same shape `GET` and `PUT` return."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_build_failed" : {
+                    "$ref" : "#/components/examples/campaign_build_failed"
+                  },
+                  "campaign_component_not_found" : {
+                    "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_concurrent_client_change_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_client_change_update"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_stale_version" : {
+                    "$ref" : "#/components/examples/campaign_stale_version"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "component_id_missing" : {
+                    "$ref" : "#/components/examples/component_id_missing"
+                  },
+                  "component_id_not_accessible" : {
+                    "$ref" : "#/components/examples/component_id_not_accessible"
+                  },
+                  "component_ids_missing" : {
+                    "$ref" : "#/components/examples/component_ids_missing"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_not_selectable" : {
+                    "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
+                  "component_operation_path_malformed" : {
+                    "$ref" : "#/components/examples/component_operation_path_malformed"
+                  },
+                  "component_operation_path_missing" : {
+                    "$ref" : "#/components/examples/component_operation_path_missing"
+                  },
+                  "component_operation_schema_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_schema_invalid"
+                  },
+                  "component_operation_schema_too_large" : {
+                    "$ref" : "#/components/examples/component_operation_schema_too_large"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "controller_state_misconfiguration" : {
+                    "$ref" : "#/components/examples/controller_state_misconfiguration"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "default_key_not_allowed" : {
+                    "$ref" : "#/components/examples/default_key_not_allowed"
+                  },
+                  "display_name_has_illegal_character" : {
+                    "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "expression_invalid_syntax" : {
+                    "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "invalid_translatable_value" : {
+                    "$ref" : "#/components/examples/invalid_translatable_value"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "multiple_components_installed_into_single_socket" : {
+                    "$ref" : "#/components/examples/multiple_components_installed_into_single_socket"
+                  },
+                  "non_translatable_variable_can_not_be_updated" : {
+                    "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
+                  },
+                  "rebuild_campaigns_build_failed" : {
+                    "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
+                  },
+                  "reward_supplier_id_list_invalid_configuration" : {
+                    "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
+                  },
+                  "setting_batch_update_missing_request" : {
+                    "$ref" : "#/components/examples/setting_batch_update_missing_request"
+                  },
+                  "setting_display_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_display_name_length_out_of_range"
+                  },
+                  "setting_filter_component_facet_name_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_name_missing"
+                  },
+                  "setting_filter_component_facet_value_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_facet_value_missing"
+                  },
+                  "setting_filter_component_type_missing" : {
+                    "$ref" : "#/components/examples/setting_filter_component_type_missing"
+                  },
+                  "setting_filter_expression_evaluation_failed" : {
+                    "$ref" : "#/components/examples/setting_filter_expression_evaluation_failed"
+                  },
+                  "setting_filter_invalid_component_facet" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_facet"
+                  },
+                  "setting_filter_invalid_component_type" : {
+                    "$ref" : "#/components/examples/setting_filter_invalid_component_type"
+                  },
+                  "setting_name_duplicated" : {
+                    "$ref" : "#/components/examples/setting_name_duplicated"
+                  },
+                  "setting_name_length_out_of_range" : {
+                    "$ref" : "#/components/examples/setting_name_length_out_of_range"
+                  },
+                  "setting_name_missing" : {
+                    "$ref" : "#/components/examples/setting_name_missing"
+                  },
+                  "setting_name_reserved" : {
+                    "$ref" : "#/components/examples/setting_name_reserved"
+                  },
+                  "setting_not_found" : {
+                    "$ref" : "#/components/examples/setting_not_found"
+                  },
+                  "setting_validation_exception" : {
+                    "$ref" : "#/components/examples/setting_validation_exception"
+                  },
+                  "settings_build_failed" : {
+                    "$ref" : "#/components/examples/settings_build_failed"
+                  },
+                  "socket_missing_required_parameter" : {
+                    "$ref" : "#/components/examples/socket_missing_required_parameter"
+                  },
+                  "socket_not_found" : {
+                    "$ref" : "#/components/examples/socket_not_found"
+                  },
+                  "tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/tag_length_out_of_range"
+                  },
+                  "unavailable_referenced_variable" : {
+                    "$ref" : "#/components/examples/unavailable_referenced_variable"
+                  },
+                  "unexpected_setting_type" : {
+                    "$ref" : "#/components/examples/unexpected_setting_type"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  },
+                  "variable_batch_update_has_duplicated_variable_name" : {
+                    "$ref" : "#/components/examples/variable_batch_update_has_duplicated_variable_name"
+                  },
+                  "variable_batch_update_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_invalid_type"
+                  },
+                  "variable_batch_update_missing_type" : {
+                    "$ref" : "#/components/examples/variable_batch_update_missing_type"
+                  },
+                  "variable_circular_reference" : {
+                    "$ref" : "#/components/examples/variable_circular_reference"
+                  },
+                  "variable_description_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_description_length_out_of_range"
+                  },
+                  "variable_value_invalid_type" : {
+                    "$ref" : "#/components/examples/variable_value_invalid_type"
+                  },
+                  "variable_value_key_length_out_of_range" : {
+                    "$ref" : "#/components/examples/variable_value_key_length_out_of_range"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "`component_ids_missing` when `component_ids` is omitted, `component_id_missing` when one of its entries is blank. `component_not_selectable` when a component being added is outside the setting's boundary, does not carry the required component types, or is excluded by one of the setting's selectable filters - call selectable-components to see what is eligible. `unexpected_setting_type` when the named setting is not a `COMPONENT_REFERENCE_LIST` setting."
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Add components to a component reference list",
         "tags" : [ "Components" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
