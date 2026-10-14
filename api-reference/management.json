@@ -20105,6 +20105,14 @@
             "description" : "The name of that campaign, so a list can be grouped without a second request.",
             "type" : "string"
           },
+          "component_description" : {
+            "description" : "The description of the component that declares the reference, absent when it has none.",
+            "type" : "string"
+          },
+          "component_display_name" : {
+            "description" : "The display name of the component that declares the reference, from its built campaign. Absent when the component has no display name.",
+            "type" : "string"
+          },
           "component_id" : {
             "description" : "The component that declares the selectable-by reference setting.",
             "type" : "string"
@@ -20113,9 +20121,28 @@
             "description" : "The name of that component.",
             "type" : "string"
           },
+          "component_types" : {
+            "description" : "The component types of the component that declares the reference.",
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "parent_component_display_name" : {
+            "description" : "The display name of that component's parent, from its built campaign. Absent when the parent has no display name, when the parent is the campaign root, or when the component has no parent.",
+            "type" : "string"
+          },
+          "parent_component_name" : {
+            "description" : "The name of that component's parent. Absent when the parent is the campaign root or the component has no parent.",
+            "type" : "string"
+          },
           "selection" : {
             "description" : "`SELECTED` when the reference already points at the component in this variant, `SELECTABLE` when it does not but would accept it. A `SELECTED` row is reported whether or not the reference would still accept the component today, so a reference whose boundary or filters have since moved away from it is still listed.",
             "enum" : [ "SELECTABLE", "SELECTED" ],
+            "type" : "string"
+          },
+          "setting_display_name" : {
+            "description" : "The display name of the reference setting, absent when it has none.",
             "type" : "string"
           },
           "setting_name" : {
@@ -20136,7 +20163,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "campaign_id", "campaign_name", "component_id", "component_name", "selection", "setting_name", "setting_type", "socket_name", "variant" ],
+        "required" : [ "campaign_id", "campaign_name", "component_description", "component_display_name", "component_id", "component_name", "component_types", "parent_component_display_name", "parent_component_name", "selection", "setting_display_name", "setting_name", "setting_type", "socket_name", "variant" ],
         "type" : "object"
       },
       "ComponentSettingBatchUpdateRequest" : {
@@ -53787,11 +53814,26 @@
     },
     "/v1/components/{component_id}/selectable-by-references" : {
       "get" : {
-        "description" : "Returns the `COMPONENT_REFERENCE` and `COMPONENT_REFERENCE_LIST` settings across the client that can select the specified component — the reverse of `GET /v1/components/{component_id}/settings/component-reference/{setting_name}/selectable-components`. A reference is listed when it already points at the component (`SELECTED`), or when the component is eligible for it: the component carries the reference's declared component type, sits inside the reference's boundary, and is not excluded by one of its selectable filters. Matching runs entirely on the server, so callers never reproduce match rules. One row per component, setting and variant. The result is computed per request and never persisted.\n\nThe search covers every non-archived campaign of the client at its latest version, so the row count is driven by how those references declare their boundary: campaign-scoped references match only within their own campaign, while an account-scoped reference can match a component anywhere in the client.",
+        "description" : "Lists the components that use the specified component, and the components that could use it. Each row is one `COMPONENT_REFERENCE` or `COMPONENT_REFERENCE_LIST` setting on a component in the client, in one variant. `SELECTED` means the setting already points at the specified component. `SELECTABLE` means the setting does not point at it but would accept it: the component carries the setting's declared component type, sits inside the setting's boundary, and is not excluded by one of its selectable filters. This is the reverse of `GET /v1/components/{component_id}/settings/component-reference/{setting_name}/selectable-components`, so a caller does not call that endpoint on every setting that might accept the component. Matching runs entirely on the server. The result is computed per request and never persisted.\n\nThe search covers every non-archived campaign of the client at its latest version, so the row count is driven by how those references declare their boundary: campaign-scoped references match only within their own campaign, while an account-scoped reference can match a component anywhere in the client.",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
           "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Lists only the references with this selection: SELECTED for the references that already point at the component, SELECTABLE for the references the component could be selected by. Lists both when omitted.",
+          "in" : "query",
+          "name" : "selection",
+          "schema" : {
+            "enum" : [ "SELECTABLE", "SELECTED" ],
+            "type" : "string"
+          }
+        }, {
+          "description" : "A comma-separated list of component types. Lists only the references held by a component whose parent, grandparent or any further ancestor in its campaign has at least one of these types. The types of the component that holds the reference are not checked. A type also matches its subtypes.",
+          "in" : "query",
+          "name" : "having_any_ancestor_types",
           "schema" : {
             "type" : "string"
           }
@@ -53964,7 +54006,7 @@
             "description" : "Too Many Requests"
           }
         },
-        "summary" : "List the references a component can be selected by",
+        "summary" : "List the components that use or could use a component",
         "tags" : [ "Components" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
