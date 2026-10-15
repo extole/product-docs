@@ -1,11 +1,13 @@
 ---
 title: "Campaign Build Failed When Publishing"
-description: "An opaque 400 naming a frontend controller means two controllers resolve to the same name in one journey, usually because a component was nested inside a copy of itself."
+description: "A 400 naming a frontend controller means either two controllers resolve to the same name in one journey, or an email's sending and rendering controllers are out of step."
 ---
 
 # Overview
 
 Publishing a component or campaign fails with a generic `campaign build failed` 400 whose payload names a frontend controller and its name expression, and nothing else. This page explains what that combination means and why the entities you were creating are probably still there.
+
+If the error code is `controller_state_misconfiguration` instead, the build failed for a different reason: an email's sending controller and the frontend controller that renders it are out of step. The last section of this page covers that error.
 
 ## The Distinction That Matters
 
@@ -34,6 +36,49 @@ Check the component list before re-creating anything. Building a second copy of 
 3. Publish the component that the failed build already created.
 
 If you cannot find the collision, contact Extole Support with the failed request and the campaign name. The 400 does not carry the underlying error, but Extole can retrieve it.
+
+## When the Error Is controller_state_misconfiguration
+
+This build failure also names a frontend controller, but it carries its own error code, `controller_state_misconfiguration`, with the message "A controller has not properly configured state". Unlike the name collision above, the payload says what is wrong: `controller_id` is the frontend controller, and `details` gives a cause and a message naming both controllers, the trigger, and the actions involved.
+
+### An Email Is Two Controllers
+
+An email in a campaign is sent by two controllers that work as a pair:
+
+- **The sending controller** has an email action. That action names a zone.
+- **The rendering frontend controller** has an input event trigger that listens for that zone name, and an email creative action that produces the message.
+
+When the sending controller fires, Extole renders the email through the frontend controller whose event name matches the zone. It uses only a frontend controller that is enabled and enabled for the campaign's current state. If none qualifies, the email has no creative to render it, and Extole cancels the send.
+
+### What the Build Checks
+
+The build pairs each enabled sending controller — one with an enabled email action and an enabled trigger — with each enabled frontend controller that listens for the email's zone name and has an email creative action. For every pair, it fails with one of these two causes:
+
+| Cause | What it means |
+|---|---|
+| `INCOMPATIBLE_ENABLED_ON_STATES` | The frontend controller's `enabled_on_states` does not include every campaign state in the sending controller's `enabled_on_states`. For example, the sender runs in `LIVE` and `PAUSED`, but the renderer runs only in `LIVE`. The message says the frontend controller "does not include all campaign enabled states as the mapped controller". |
+| `DISABLED_CREATIVE_ACTION` | The frontend controller has a disabled email creative action while the sending controller's email action is enabled. The message says the frontend controller "has disabled creative actions". |
+
+The check runs one way only. A frontend controller can be enabled in more states than its sending controller.
+
+### What to Do
+
+1. Read `details` to find the cause and the IDs of the sending controller, its email action, the frontend controller, and its trigger.
+2. For `INCOMPATIBLE_ENABLED_ON_STATES`, add the missing campaign states to the frontend controller's `enabled_on_states`, or remove them from the sending controller's.
+3. For `DISABLED_CREATIVE_ACTION`, enable the frontend controller's email creative action, or disable the sending controller's email action.
+4. Publish again.
+
+### Turning an Email Off or On
+
+Switch an email on the sending side. Disable the sending controller, or every email action on it, and the build no longer checks the pair.
+
+Do not turn an email off by disabling its creative action on the frontend controller while the sending controller's email action is enabled. The build rejects that change with `DISABLED_CREATIVE_ACTION`.
+
+<Warning>
+**Disabling the rendering frontend controller itself passes the build.** The build skips a disabled frontend controller, so nothing stops the change. The sending controller still fires. If no other enabled frontend controller listens for the zone, nothing can render the email, and Extole cancels every send. Disable the sending controller instead.
+</Warning>
+
+When you change which campaign states an email runs in, change both controllers. Widen the frontend controller's `enabled_on_states` before you widen the sending controller's, and narrow the sending controller's before you narrow the frontend controller's.
 
 ## Related
 
