@@ -3111,6 +3111,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "filter_rows_script_not_javascript" : {
+        "summary" : "filter_rows_script_not_javascript",
+        "value" : {
+          "code" : "filter_rows_script_not_javascript",
+          "http_status_code" : 400,
+          "message" : "Filter rows task script must resolve to a JavaScript expression",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "filter_rows_script_required" : {
         "summary" : "filter_rows_script_required",
         "value" : {
@@ -13398,7 +13408,7 @@
             "type" : "string"
           },
           "job_id" : {
-            "description" : "Id of the job this task belongs to.",
+            "description" : "Id of the job this task belongs to. Absent for a task that is not attached to a job.",
             "readOnly" : true,
             "type" : "string"
           },
@@ -19161,6 +19171,7 @@
         "type" : "object"
       },
       "ColumnMappingRequest" : {
+        "description" : "Column headers to rename in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header. A literal list or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to leave existing mappings unchanged.",
         "properties" : {
           "canonical_column" : {
             "description" : "Column header written to the transformed file in place of the incoming one.",
@@ -19171,7 +19182,6 @@
             "type" : "string"
           }
         },
-        "required" : [ "canonical_column", "incoming_column" ],
         "type" : "object"
       },
       "ColumnMappingResponse" : {
@@ -19187,6 +19197,41 @@
           }
         },
         "type" : "object"
+      },
+      "ColumnMappingsInTransformColumnHeadersTaskRequest" : {
+        "description" : "Column headers to rename in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header. A literal list or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to leave existing mappings unchanged. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static column mappings",
+          "items" : {
+            "$ref" : "#/components/schemas/ColumnMappingRequest"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{columnMappings}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('columnMappings');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
       },
       "ColumnMappingsInTransformColumnHeadersTaskResponse" : {
         "description" : "Column headers renamed in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header. A literal list or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
@@ -43515,6 +43560,7 @@
             "type" : "integer"
           },
           "status" : {
+            "description" : "Outcome of this task execution. SUCCESS when the task completed, FAIL when it failed, and RUNNING when the task started work that finishes later, such as a file transform running as a Spark job; its outcome is reported as a later execution with the same sequence.",
             "enum" : [ "FAIL", "RUNNING", "SUCCESS" ],
             "type" : "string"
           },
@@ -43830,11 +43876,7 @@
         }, {
           "properties" : {
             "column_mappings" : {
-              "description" : "Column headers to rename in the uploaded file, incoming header to canonical header. Columns that are not mapped keep their header. Omit on update to leave existing mappings unchanged.",
-              "items" : {
-                "$ref" : "#/components/schemas/ColumnMappingRequest"
-              },
-              "type" : "array"
+              "$ref" : "#/components/schemas/ColumnMappingsInTransformColumnHeadersTaskRequest"
             },
             "task_type" : {
               "enum" : [ "TRANSFORM_COLUMN_HEADERS" ],
@@ -81447,6 +81489,9 @@
                   "filter_rows_script_invalid" : {
                     "$ref" : "#/components/examples/filter_rows_script_invalid"
                   },
+                  "filter_rows_script_not_javascript" : {
+                    "$ref" : "#/components/examples/filter_rows_script_not_javascript"
+                  },
                   "filter_rows_script_required" : {
                     "$ref" : "#/components/examples/filter_rows_script_required"
                   },
@@ -83037,6 +83082,9 @@
                   "filter_rows_script_invalid" : {
                     "$ref" : "#/components/examples/filter_rows_script_invalid"
                   },
+                  "filter_rows_script_not_javascript" : {
+                    "$ref" : "#/components/examples/filter_rows_script_not_javascript"
+                  },
                   "filter_rows_script_required" : {
                     "$ref" : "#/components/examples/filter_rows_script_required"
                   },
@@ -83506,6 +83554,9 @@
                   },
                   "filter_rows_script_invalid" : {
                     "$ref" : "#/components/examples/filter_rows_script_invalid"
+                  },
+                  "filter_rows_script_not_javascript" : {
+                    "$ref" : "#/components/examples/filter_rows_script_not_javascript"
                   },
                   "filter_rows_script_required" : {
                     "$ref" : "#/components/examples/filter_rows_script_required"
