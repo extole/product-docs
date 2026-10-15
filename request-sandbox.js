@@ -291,9 +291,12 @@
 
   addModal();
   bindTriggers();
-  if (new URLSearchParams(window.location.search).get("sandbox-request") === "submitted") {
-    window.history.replaceState({}, "", window.location.pathname + window.location.hash);
-    showSubmissionConfirmation();
+  var landingUrl = new URL(window.location.href);
+  var sandboxRequest = landingUrl.searchParams.get("sandbox-request");
+  if (sandboxRequest === "submitted" || sandboxRequest === "open") {
+    landingUrl.searchParams.delete("sandbox-request");
+    window.history.replaceState({}, "", landingUrl.pathname + landingUrl.search + landingUrl.hash);
+    if (sandboxRequest === "submitted") showSubmissionConfirmation();
     openModal();
   }
   new MutationObserver(function (mutations) {
