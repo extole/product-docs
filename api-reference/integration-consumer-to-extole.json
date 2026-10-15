@@ -261,6 +261,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "invalid_incoming_url" : {
+        "summary" : "invalid_incoming_url",
+        "value" : {
+          "code" : "invalid_incoming_url",
+          "http_status_code" : 400,
+          "message" : "Incoming URL is an invalid URI",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "invalid_json" : {
         "summary" : "invalid_json",
         "value" : {
@@ -357,6 +367,16 @@
           "code" : "invalid_reward_id",
           "http_status_code" : 400,
           "message" : "Invalid reward id. Reward not found.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "invalid_uri_in_json" : {
+        "summary" : "invalid_uri_in_json",
+        "value" : {
+          "code" : "invalid_uri_in_json",
+          "http_status_code" : 400,
+          "message" : "Invalid URI in JSON",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -1445,6 +1465,10 @@
             "description" : "Id of the direct cause event that triggered this reward.",
             "type" : "string"
           },
+          "code" : {
+            "description" : "The reward code, that could be used in order to redeem the reward.",
+            "type" : "string"
+          },
           "container" : {
             "description" : "Campaign container the reward belongs to.",
             "type" : "string"
@@ -1473,8 +1497,18 @@
             "type" : "number"
           },
           "face_value_type" : {
-            "description" : "Unit type of the face value (e.g. `CASH`, `POINTS`, `PERCENT`).",
+            "description" : "Unit type of the face value (e.g. `POINTS`, `PERCENT_OFF`, `USD`).",
             "enum" : [ "AUD", "BRL", "CAD", "CNY", "EUR", "GBP", "HKD", "INR", "JPY", "KRW", "MONTH", "MXN", "NZD", "PERCENT_OFF", "POINTS", "TRY", "TWD", "USD" ],
+            "type" : "string"
+          },
+          "image" : {
+            "description" : "An image associated with the reward. E.g.: a brand image.",
+            "example" : "https://www.extole.com/wp-content/uploads/2023/07/Extole-logo.svg",
+            "format" : "uri",
+            "type" : "string"
+          },
+          "instructions" : {
+            "description" : "Instructions on how to redeem the reward.",
             "type" : "string"
           },
           "journey_key" : {
@@ -1482,6 +1516,12 @@
           },
           "journey_name" : {
             "description" : "Name of the journey associated with this reward.",
+            "type" : "string"
+          },
+          "link" : {
+            "description" : "A link associated with the reward. E.g.: a reward redemption link.",
+            "example" : "https://www.extole.com",
+            "format" : "uri",
             "type" : "string"
           },
           "partner_reward_id" : {
@@ -1530,7 +1570,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "action_id", "campaign_id", "cause_event_id", "container", "created_at", "data", "email", "expires_at", "face_value", "face_value_type", "journey_key", "journey_name", "partner_reward_id", "partner_reward_key_type", "partner_reward_supplier_id", "partner_user_id", "person_id", "reward_id", "reward_supplier_id", "root_event_id", "sandbox", "state" ],
+        "required" : [ "action_id", "campaign_id", "cause_event_id", "code", "container", "created_at", "data", "email", "expires_at", "face_value", "face_value_type", "image", "instructions", "journey_key", "journey_name", "link", "partner_reward_id", "partner_reward_key_type", "partner_reward_supplier_id", "partner_user_id", "person_id", "reward_id", "reward_supplier_id", "root_event_id", "sandbox", "state" ],
         "type" : "object"
       },
       "ShareResponse" : {
@@ -1771,11 +1811,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -1911,6 +1957,9 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
@@ -1931,6 +1980,9 @@
                   },
                   "invalid_profile_picture_url" : {
                     "$ref" : "#/components/examples/invalid_profile_picture_url"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -2061,11 +2113,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -2343,11 +2401,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -2472,11 +2536,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -2606,11 +2676,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -2738,11 +2814,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -2868,11 +2950,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -2991,11 +3079,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -3129,11 +3223,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -3252,11 +3352,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -3390,11 +3496,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -3531,11 +3643,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -3654,11 +3772,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -3929,11 +4053,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -4057,11 +4187,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -4227,11 +4363,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -4876,11 +5018,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -5119,11 +5267,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -5257,11 +5411,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -5402,11 +5562,17 @@
                   "content_url_length_out_of_range" : {
                     "$ref" : "#/components/examples/content_url_length_out_of_range"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -5561,11 +5727,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -5706,11 +5878,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -5838,11 +6016,17 @@
                   "content_url_length_out_of_range" : {
                     "$ref" : "#/components/examples/content_url_length_out_of_range"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -6015,11 +6199,17 @@
                   "content_url_length_out_of_range" : {
                     "$ref" : "#/components/examples/content_url_length_out_of_range"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -6481,11 +6671,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -6648,11 +6844,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -6794,11 +6996,17 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
