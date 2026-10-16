@@ -37,4 +37,18 @@ Sample Response:
 }
 ```
 
+## How Extole Matches the Email Address
+
+Extole erases by the normalized form of the email address, not the exact text you send. It lowercases the whole address, and for some mailbox providers it also drops parts of the local part (before the `@`) that the provider ignores when it delivers mail:
+
+| Mailbox provider | Removed from the local part |
+| --- | --- |
+| Gmail | Dots, and everything from a `+` onward |
+| Google Workspace and Outlook | Everything from a `+` onward |
+| All other providers | Nothing |
+
+Extole stores a person's email identity in this same normalized form. So a profile can show an address that differs from the one in the request only by those characters, such as `janedoe@gmail.com` for a request about `Jane.Doe+promo@gmail.com`. That profile is the same person, not a different record, and the request erases it. The erasure also covers every other profile in the program with the same normalized address.
+
+An address that differs in any other way, such as different letters before the `@` or a different domain, is a different person.
+
 [//]: ___
