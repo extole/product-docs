@@ -21,15 +21,15 @@ An advocate who clicks a call to action and gets another program's share experie
 
 ## When the Share Link Does Not Name This Program
 
-A request from a referral can name the program in two ways:
+A request can name the program in several ways, such as a promotion link, a coupon code, or a targeting parameter. For a friend arriving from a referral, the most common ways are:
 
 - **A share id.** A share the advocate sent through Extole, such as an email, has a share id, and each share belongs to one campaign. When a request carries the share id, that campaign gets the friend.
-- **The advocate's code.** The advocate's personal referral code has a program label. When a request carries the code and no share id, Extole uses that label.
+- **The advocate's code.** The advocate's personal referral code usually has a program label. It does not have to: a code can be account-wide, with no label. When a request carries the code and no share id, Extole uses the code's label if it has one.
 
-When Extole uses the label:
+When Extole goes by the advocate's code:
 
-- If the label belongs to a program that serves the landing page, that program gets the friend.
-- If no program on the landing page uses the label, Extole prefers the program with the higher journey priority. Between programs with the same priority, it uses the program the advocate was most recently active in. That program may have nothing to do with the link the friend clicked.
+- If the code's label belongs to a program that serves the landing page, that program gets the friend.
+- If the code has no label, or no program on the landing page uses its label, Extole prefers the program with the higher journey priority. Between programs with the same priority, it uses the program the advocate was most recently active in. That program may have nothing to do with the link the friend clicked.
 
 A click on a share link sends Extole the share id when the link has one, together with the advocate's code and its label. Requests that your landing page makes after the click do not carry the share id or the label unless your page passes them on, so they can depend on the advocate's code alone.
 
@@ -54,33 +54,45 @@ Until you fix it, the affected program's referral counts and referral rewards ar
 
 ## Name the Program on the Landing Page Address
 
-This fixes the first cause. Each program's referral link is set by **Share Link Behavior** on the friend side of the campaign. **Destination for Clicks on Share Links** is the address the link opens. Add a parameter that names the program to that address. The parameter depends on which targeting your account uses.
+This fixes the first cause. Each program's referral link is set by **Share Link Behavior** on the friend side of the campaign. **Destination for Clicks on Share Links** is the address the link opens. Add a parameter that names the program to that address.
 
-On legacy targeting, use `extole_required_labels`:
+### Recommended: A Program Hint
+
+Use `extole_journey.label`. It works on both kinds of targeting:
+
+```
+https://www.example.com/your-landing-page?extole_journey.label=your-program-label
+```
+
+The hint is a preference. Extole tries the named program first. If that program turns the friend away, Extole falls back to its usual choice, so the landing page still shows and another program gets the referral. That is the second cause above, and you fix it in the program's targeting.
+
+### Strict: Require the Program
+
+Use a required parameter only when a friend must never be credited to another program. The parameter depends on which targeting your account uses.
+
+On legacy targeting, use `extole_required_labels`. A required label goes through the label setup on your account, such as labels that forward to a program and labels that belong to a program.
 
 ```
 https://www.example.com/your-landing-page?extole_required_labels=your-program-label
 ```
 
-On legacy targeting, a required label goes through the label setup on your account, such as labels that forward to a program and labels that belong to a program. So a label you already use on your links works here.
-
-On upgraded targeting, use `extole_target`. Upgraded targeting ignores `extole_required_labels`.
+On upgraded targeting, use `extole_target`. Upgraded targeting ignores `extole_required_labels`. `extole_target` must name the program label exactly.
 
 ```
 https://www.example.com/your-landing-page?extole_target=program:your-program-label
 ```
 
-`extole_target` must name the program label exactly. Your account's label setup does not apply to it.
+<Warning>
+A required parameter is not a preference. If the named program turns a friend away, nothing shows on the landing page and no program gets the referral. Rule out the second cause before you add one.
+</Warning>
+
+### For Every Option
 
 Use the program label, not a campaign id. The label still works after the campaign is rebuilt. Find the program label on the **Programs** page. `extole_labels` does not choose the program on either kind of targeting.
 
 **Destination for Clicks on Share Links for Mobile Devices** uses the desktop address unless you have entered one of its own. If it has its own address, add the same parameter there. Publish the campaign, then test again.
 
 Extole reads `extole_` parameters in two places. When a friend clicks a share link, Extole passes the `extole_` parameters from the share link's destination address to the click. On your landing page, your Extole tag passes `extole_` parameters from the page address to Extole only when global zone parameters are on for your account. Ask your CSM to confirm this setting before you rely on it.
-
-<Warning>
-Both parameters are requirements, not preferences. If the named program turns a friend away, nothing shows on the landing page and no program gets the referral. Rule out the second cause before you add one.
-</Warning>
 
 <Warning>
 Change the desktop field. The two fields are read by the device the friend clicks on. A parameter only in the mobile field fixes phone clicks and leaves desktop clicks wrong. A phone test then looks fixed while a laptop still shows the old program. Retest on both after you publish.
