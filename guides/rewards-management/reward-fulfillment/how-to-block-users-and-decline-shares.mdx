@@ -11,6 +11,8 @@ It's best to catch bad behavior before it happens, but unfortunately, this is no
 
 # Block a User
 
+A block is set on the person's profile, so it applies across your whole Extole account — every program and every campaign, not only the one where the problem appeared. To stop someone participating in a single program, target that campaign's audience instead.
+
 If a user has violated the terms of your program, you can disable the user by following these steps:
 
 1. Click **User Support** on the sidebar.
@@ -23,6 +25,31 @@ If a user has violated the terms of your program, you can disable the user by fo
     2. All new events are immediately blocked and declined (e.g. shares will not be sent).
     3. Any clicks on that user's share will be declined. This means that any new friends will not receive any rewards.
     4. Any transaction event, such as conversions, account openings, and quote submissions, will be blocked and declined. This means that no one will receive any rewards.
+
+## Choose a Block Type
+
+If your My Extole user has superuser access, the confirmation dialog offers two block types. For everyone else, **Block** applies **Rewards**.
+
+- **Rewards**: the person's activity is still recorded, and the quality engine declines it. Neither the blocked person nor the friends they refer earn rewards. Choose this when the goal is to stop payouts.
+- **Events and Rewards**: Extole stops processing that person's events altogether, so nothing they do afterwards is recorded or reported on.
+
+<Note>
+  Blocking does not invalidate rewards that have already been sent. See the FAQ below.
+</Note>
+
+## Blocking Does Not Notify the Person
+
+Blocking sends no email. Neither **Block** in My Extole nor the [Person Block API](/api-reference/persons/update-person-block-status) tells the person anything, and there is no notification to switch on.
+
+Blocking and unblocking do raise a `profile_block` and a `profile_unblock` event on that person, so a campaign can be built to trigger on one — a removal-from-program notice, for example. That is campaign configuration rather than a setting, so reach out to your CSM if you want blocked people to be told. If your account already has one, check which event it listens for: a campaign built to react to your own inbound event will not fire for a block applied by the button or the API.
+
+<Warning>
+  Send the notice before you block, not after. A blocked person's activity is scored as low quality, and campaign actions that require high quality — sending an email among them — are skipped for them. Sending the event to someone who is already blocked records the step on their profile and sends no email, with no error to tell you. If they are already blocked, unblock them for the moment the event is processed; a campaign that applies the block itself will re-apply it as part of handling the event.
+</Warning>
+
+## Block Users in Bulk
+
+My Extole blocks one person at a time. To work through a list, call the [Person Block API](/api-reference/persons/update-person-block-status) once per person — there is no bulk endpoint. Look each person up first, and treat a lookup that returns nothing as a person with no profile in your account, so misses are visible rather than silently skipped.
 
 # Unblock a User
 
