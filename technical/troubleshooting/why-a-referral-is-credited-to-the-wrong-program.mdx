@@ -1,74 +1,78 @@
 ---
 title: "Why a Referral Is Credited to the Wrong Program"
-description: "A referral link can open the right landing page and still credit another program, because the landing page address does not name the program."
+description: "A referral link can open the right landing page and still credit another program, because the landing page request does not name the program. Find which of two causes you have, then fix it."
 ---
 
 # Overview
 
-A friend clicks a referral link and lands on the right page. After they sign up, the thank-you page
-belongs to another program, and that program gets the credit.
+A friend clicks a referral link and lands on the right page. After they sign up, the thank-you page belongs to another program, and that program gets the credit.
 
-The link is working. The landing page address does not say which program the link belongs to, so
-Extole chooses one of the programs the advocate is already in.
+The link is working. The landing page receives the advocate's referral code but not the program, so Extole works out the program itself. Two things can make it pick the wrong one:
+
+- **The advocate's share link does not name this program.** Extole then uses another program the advocate is in.
+- **This program turned the friend away.** The friend did not pass one of the program's rules for new friends, so another program the advocate is in accepted them.
+
+Both causes behave the same on legacy targeting and on upgraded targeting. One of the fixes differs, and the page says where.
 
 <Note>
-An advocate who clicks a call to action and gets another program's share experience is a separate
-problem. See
+An advocate who clicks a call to action and gets another program's share experience is a separate problem. See
 [Why a CTA Opens a Different Program's Share Experience](/technical/troubleshooting/why-a-cta-opens-a-different-programs-share-experience).
 </Note>
 
-## When It Happens
+## When the Share Link Does Not Name This Program
 
-This shows up for advocates who are in more than one program. An advocate in a single program is
-credited correctly.
+Every share link carries a program label. When the landing page receives only the advocate's referral code, Extole uses that label:
 
-The landing page gets the advocate's referral code and no program. Extole then sends the friend to
-whichever of that advocate's programs was updated most recently, which may have nothing to do with
-the link they clicked. Every friend who clicks any of that advocate's links gets the same program.
-Two people testing the same link can each see a consistent result, and those results can disagree.
-A clean browser does not clear it.
+- If the label belongs to a program that serves the landing page, that program gets the friend.
+- If no program on the landing page uses the label, Extole uses the program the advocate was most recently active in. That program may have nothing to do with the link the friend clicked.
 
-1. Open the referral link in a clean browser. If the address bar is the right program's landing
-   page, the link is fine.
+This shows up only for advocates who are in more than one program. It follows the advocate, not the friend: every friend who uses the same advocate's link gets the same program, every time. A clean browser does not clear it. Two testers who use different advocates' links can each get a consistent result, and the two results can disagree.
+
+## When This Program Turned the Friend Away
+
+Each program can set rules for which friends it accepts, such as an audience, a country, or a domain. When a friend fails one of them, Extole does not stop there. It gives the friend, and the credit, to another program the advocate is in that accepts them.
+
+This one follows the friend, not the advocate. A friend who meets every rule is credited correctly from the same link.
+
+Fix it in the program's targeting. In a Flow Builder campaign, check the targeting scenario on the flow friends enter. See [How to Target a Program](/guides/flow-campaigns/how-to-target-a-program). If the rule is correct and the friend should not qualify, the program is behaving as set up.
+
+## Find Which Cause You Have
+
+1. Open the referral link in a clean browser. If the address bar shows the right program's landing page, the link is fine.
 2. Sign up. The thank-you page is the program that received the referral.
-3. Repeat with an advocate who is only in this program. If that friend is credited correctly, the
-   landing page address is what you change.
+3. Repeat from the same link with a second friend who you know meets every rule of the program.
+4. If the second friend is also credited to the other program, the share link does not name this program. If the second friend is credited correctly, this program turned the first friend away.
 
-Until you fix it, the affected program's referral counts and referral rewards are too low. The
-program that received those friends is too high by the same referrals.
+Until you fix it, the affected program's referral counts and referral rewards are too low. The program that received those friends is too high by the same referrals.
 
 ## Name the Program on the Landing Page Address
 
-Each program's referral link is set by **Share Link Behavior** on the friend side of the campaign.
-**Destination for Clicks on Share Links** is the address the link opens. Add the program's label to
-that address:
+This fixes the first cause. Each program's referral link is set by **Share Link Behavior** on the friend side of the campaign. **Destination for Clicks on Share Links** is the address the link opens. Add the program's label to that address:
 
 ```
-https://www.example.com/your-landing-page?extole_required_labels=your-program-label
+https://www.example.com/your-landing-page?extole_target=program:your-program-label
 ```
 
-Use the program label, not a campaign id. The label still works after the campaign is rebuilt.
+Use the program label, not a campaign id. The label still works after the campaign is rebuilt. Find the program label on the **Programs** page.
 
-**Destination for Clicks on Share Links for Mobile Devices** uses the desktop address unless you
-have entered one of its own. If it has its own address, add the same label there. Publish the
-campaign. The next click uses the new address.
+**Destination for Clicks on Share Links for Mobile Devices** uses the desktop address unless you have entered one of its own. If it has its own address, add the same parameter there. Publish the campaign, then test again.
+
+The landing page passes the parameter to Extole only when your Extole tag forwards `extole_` parameters from the page address. Ask your CSM to confirm this for your account before you rely on it.
 
 <Warning>
-Change the desktop field. The two fields are read by the device the friend clicks on. A label only
-in the mobile field fixes phone clicks and leaves desktop clicks wrong. A phone test then looks
-fixed while a laptop still shows the old program. Retest on both after you publish.
+`extole_target` is a requirement, not a preference. If the program turns a friend away, nothing shows on the landing page and no program gets the referral. Rule out the second cause before you add it.
 </Warning>
 
 <Warning>
-Only **Destination for Clicks on Share Links** decides where the click goes. **Extole-Hosted
-Experience to Trigger on URL Landing** expects the name of an experience, not a web address.
-Putting the landing-page address there does not change which program answers, and the hosted
-experience stops working, because the page asks for an experience name that does not exist.
+Change the desktop field. The two fields are read by the device the friend clicks on. A parameter only in the mobile field fixes phone clicks and leaves desktop clicks wrong. A phone test then looks fixed while a laptop still shows the old program. Retest on both after you publish.
+</Warning>
+
+<Warning>
+Only **Destination for Clicks on Share Links** decides where the click goes. **Extole-Hosted Experience to Trigger on URL Landing** expects the name of an experience, not a web address. Putting the landing-page address there does not change which program answers, and the hosted experience stops working, because the page asks for an experience name that does not exist.
 </Warning>
 
 <Note>
-Use `extole_required_labels`. `extole_labels` does not choose the program.
+On legacy targeting, `extole_required_labels=your-program-label` has the same effect. Upgraded targeting ignores it, so use `extole_target` on either. `extole_labels` does not choose the program on either.
 </Note>
 
-After you publish, repeat the test above from a clean browser with at least two advocates, on a
-phone and on a laptop.
+After you publish, repeat the test above from a clean browser with at least two advocates, on a phone and on a laptop.
