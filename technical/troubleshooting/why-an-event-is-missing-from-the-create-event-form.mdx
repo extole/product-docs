@@ -1,0 +1,54 @@
+---
+title: "Why an Event Is Missing from the Create Event Form"
+description: "The Create Event form sends an event into Extole from outside, so its Event dropdown offers only the events your systems send in. Here is why an enabled business event can be absent from the list, and what to do instead."
+---
+
+<Note>
+**This page covers Flow Builder campaigns that use Triggered By.** If the campaign's steps have no **Triggered By** setting, it was created before that feature was released and builds the **Event** dropdown differently. Contact your Extole team if an event is missing from one of those campaigns.
+</Note>
+
+# Overview
+
+You open [Create Event](https://my.extole.com/create-event), select the program and the campaign, and the event you need is not in the **Event** dropdown. The campaign is live, and the event is enabled in its flow.
+
+An event missing from this dropdown does not mean the event is disabled. The dropdown lists a narrower set than the campaign's enabled events, and this page explains which set, why an enabled business event can fall outside it, and how to record the event anyway.
+
+## What the Dropdown Lists
+
+Submitting the form sends an event into Extole from outside the campaign, exactly as your integration does. So the dropdown offers only events the campaign can **receive**: the trigger events your systems send through the **Event API**, **File Integration**, the **Javascript SDK**, and the **Mobile SDK**, which the campaign's steps select in **Triggered By**. [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) covers where each one is declared.
+
+Two kinds of event are outside that set:
+
+- **Events the campaign raises itself.** A share, a share link click, a landing page sign-up, and a business event further along the flow all happen inside the campaign. The form cannot ask a campaign to raise its own event, so none of them is listed.
+- **A business event with an empty Triggered By.** A business event whose **Triggered By** names no trigger event is started by the **Triggered on Input Event** rule under its **Trigger Rules** instead. That rule matches an incoming event by name and declares no trigger event, so the business event contributes nothing to the dropdown — while still being enabled, and still being created every time your systems send the event it matches.
+
+The second case is the usual cause. A business event added to a campaign by name, with its trigger left to the input event rule, works end to end for your integration and never appears on the Create Event form.
+
+## How to Check Which Case You Are In
+
+1. In My Extole, open the campaign and select the business event you expected to find.
+2. Read its **Triggered By** setting.
+   - **It names a trigger event**: that trigger event is what the dropdown lists, under its own name rather than the business event's. Look for that name in the dropdown.
+   - **It is empty**: open the event's **Trigger Rules** and read the **Triggered on Input Event** rule to find the event name the campaign matches on. That name is what your systems send, and it is not selectable on the form.
+
+## What to Do Instead
+
+Pick the option that matches your goal.
+
+**Record a real event that your systems failed to send.** Send it through the integration that normally carries it, with the event name from the **Triggered on Input Event** rule. The business event, its rules, and any reward run exactly as they do for organic traffic. See [Partner Events to Extole](/technical/building-partner-integrations/integration-types/partner-events-to-extole) for the server-to-server form, and [File Integration](/technical/platform-integrations/extensions/file-integration) for a file.
+
+**Make the event selectable on the form from now on.** Declare a trigger event for it on the extension that carries the event — the **Event API** for a server-to-server event — then select that trigger event in the business event's **Triggered By** and publish the campaign. Selecting a trigger event replaces the **Triggered on Input Event** rule as what starts the business event, so give the trigger event the same name your systems already send, and confirm organic traffic still creates the event after you publish.
+
+**Compensate a participant for a reward the campaign should have produced.** Recording an event is the wrong tool. Issue the reward from the participant's profile instead — see [How to Issue a Manual Reward](/guides/flow-campaigns/how-to-issue-a-manual-reward) — or use the campaign's makegood event if it defines one.
+
+## Still Missing
+
+If the event you need is still not selectable, contact your CSM or Extole's Support team. Include the campaign link, the business event's name, and the event name from its **Triggered on Input Event** rule.
+
+## Related
+
+- [How to Manually Create a Referral or other Event](/guides/rewards-management/reward-fulfillment/how-to-manually-create-a-referral-or-other-event)
+- [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by)
+- [How to Set Up Business Event Rules](/guides/flow-campaigns/how-to-set-up-business-event-rules)
+- [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules)
+- [How to Add a New Business Event](/guides/flow-campaigns/how-to-add-a-new-business-event)
