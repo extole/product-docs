@@ -708,10 +708,12 @@ GROUP_COUNT_DISTINCT(event.personId, step_name:"converted", attribution:"ALL", q
 
 Sums the values of the expression within the group.
 
+A step's amount is in its data, so sum `event.data.amount`. A step record has no top-level `amount` field, and a sum over `event.amount` returns 0 with no error.
+
 ```
 GROUP_SUM(event.data.amount, step_name:"converted")
 GROUP_SUM(reward(event.data.reward_id).faceValue, step_name:"advocate_reward_earned")
-GROUP_SUM(event.amount, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
+GROUP_SUM(event.data.amount, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
 ```
 
 ### GROUP_AVG
@@ -755,9 +757,9 @@ GROUP_FIRST(PERSON(event.personId).email, step_name:"converted", attribution:"AL
 Returns the last occurrence of the expression within the group.
 
 ```
-GROUP_LAST(event.amount, step_name:"converted")
+GROUP_LAST(event.data.amount, step_name:"converted")
 GROUP_LAST(event.data.channel, step_name:"converted", attribution:"ALL")
-GROUP_LAST(event.amount, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
+GROUP_LAST(event.data.amount, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
 ```
 
 ### GROUP_CONCATENATE
