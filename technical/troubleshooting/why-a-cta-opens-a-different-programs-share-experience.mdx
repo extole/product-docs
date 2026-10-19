@@ -21,9 +21,9 @@ There are two causes, and they have different fixes:
   is a single field to correct.
 
 <Info>
-Extole has two kinds of targeting. Upgraded targeting, described on
+Extole has two targeting versions. V4 targeting, described on
 [Targeting](/guides/platform-overview/targeting), is used by new and upgraded accounts on Flow
-Builder. Other accounts use legacy targeting. Your CSM can tell you which one your account uses.
+Builder. Other accounts use V3 targeting. Your CSM can tell you which version your account uses.
 The symptom is the same on both. Where the reason or a fix differs, the page says so.
 </Info>
 
@@ -37,7 +37,7 @@ case. See
 
 A zone is a named place on your site where Extole serves content. When a zone request arrives,
 Extole gathers every live campaign that publishes that zone name — the **candidates** — and then
-decides between them. On legacy targeting it does that in a fixed order:
+decides between them. On V3 targeting it does that in a fixed order:
 
 1. **Explicit hints.** If the request carries a hint that names a program — most commonly the
    program label on a promotion link the visitor followed — Extole narrows the candidates to the
@@ -60,7 +60,7 @@ is only ever one candidate, so the zone always serves that program.** When sever
 publish the same zone name, the journey check runs first — and once the person holds a journey,
 that journey decides, whichever CTA they clicked.
 
-### On Upgraded Targeting
+### On V4 Targeting
 
 The steps differ and the result is the same. A hint that names a program still comes first.
 Without one, Extole ranks the programs by journey priority. Between programs with the same
@@ -120,10 +120,10 @@ problem is gone.
 
 Three things that look like the fix are not:
 
-- **The program label on the share experience request.** On legacy targeting, for campaigns that
+- **The program label on the share experience request.** On V3 targeting, for campaigns that
   target by program label, the label decides which program a new journey can start in. A visitor
   who already holds a journey never reaches that step, so the label leaves them where they are.
-  Upgraded targeting ignores the label.
+  V4 targeting ignores the label.
 - **Adjusting the program-label rules** on the campaigns. The person is not being excluded by a
   rule — they are being matched by an existing journey, which happens first.
 - **A `campaign_id` on its own.** Adding `campaign_id` without the form in
@@ -204,14 +204,14 @@ GET /zone/share_experience?labels=<program label>&target=campaign_id:<campaign i
 ```
 
 `target=campaign_id:` limits the share experience to that campaign, so another program cannot answer
-the same zone name. On upgraded targeting, see [Targeting](/guides/platform-overview/targeting) for
+the same zone name. On V4 targeting, see [Targeting](/guides/platform-overview/targeting) for
 how a named campaign ranks against the usual selection.
 
 <Warning>
-Send the program label with it. On legacy targeting, a campaign that targets by program label still
+Send the program label with it. On V3 targeting, a campaign that targets by program label still
 needs the label to start the person's journey. A request that names such a campaign and omits the
 label matches nothing for a person new to that program, and the share experience does not open.
-Campaigns that do not target by label, and all campaigns on upgraded targeting, ignore the label, so
+Campaigns that do not target by label, and all campaigns on V4 targeting, ignore the label, so
 sending it does no harm there.
 </Warning>
 
