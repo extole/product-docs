@@ -10,7 +10,7 @@ A friend clicks a referral link and lands on the right page. After they sign up,
 The link is working. The landing page receives the advocate's referral code but not the program, so Extole works out the program itself. Two things can make it pick the wrong one:
 
 - **The advocate's share link does not name this program.** Extole then uses another program the advocate is in.
-- **This program turned the friend away.** The friend did not pass one of the program's rules for new friends, so another program the advocate is in accepted them.
+- **This program turned the friend away.** The friend did not pass one of the program's rules for new friends, so another program accepted them.
 
 Both causes behave the same on legacy targeting and on upgraded targeting. One of the fixes differs, and the page says where.
 
@@ -23,7 +23,7 @@ An advocate who clicks a call to action and gets another program's share experie
 
 A request can name the program in several ways, such as a promotion link, a coupon code, or a targeting parameter. For a friend arriving from a referral, the most common ways are:
 
-- **A share id.** A share the advocate sent through Extole, such as an email, has a share id, and each share belongs to one campaign. When a request carries the share id, that campaign gets the friend.
+- **A share id.** A share the advocate sent through Extole, such as an email, has a share id, and each share belongs to one campaign. When a request carries the share id, Extole prefers that campaign, as long as it accepts the friend.
 - **The advocate's code.** The advocate's personal referral code usually has a program label. It does not have to: a code can be account-wide, with no label. When a request carries the code and no share id, Extole uses the code's label if it has one.
 
 When Extole goes by the advocate's code:
@@ -37,7 +37,7 @@ This shows up only for advocates who are in more than one program. It follows th
 
 ## When This Program Turned the Friend Away
 
-Each program can set rules for which friends it accepts, such as an audience, a country, or a domain. When a friend fails one of them, Extole does not stop there. It gives the friend, and the credit, to another program the advocate is in that accepts them.
+Each program can set rules for which friends it accepts, such as an audience, a country, or a domain. When a friend fails one of them, Extole does not stop there. It gives the friend, and the credit, to another program on the landing page that accepts them.
 
 This one follows the friend, not the advocate. A friend who meets every rule is credited correctly from the same link.
 
@@ -70,13 +70,13 @@ The hint is a preference. Extole tries the named program first. If that program 
 
 Use a required parameter only when a friend must never be credited to another program. The parameter depends on which targeting your account uses.
 
-On legacy targeting, use `extole_required_labels`. A required label goes through the label setup on your account, such as labels that forward to a program and labels that belong to a program.
+On legacy targeting, use `extole_required_labels`. It works only for campaigns that target by program label, and it does nothing for other campaigns. Your CSM can tell you whether yours do. A required label goes through the label setup on your account, such as labels that forward to a program and labels that belong to a program.
 
 ```
 https://www.example.com/your-landing-page?extole_required_labels=your-program-label
 ```
 
-On upgraded targeting, use `extole_target`. Upgraded targeting ignores `extole_required_labels`. `extole_target` must name the program label exactly.
+On upgraded targeting, use `extole_target`. Upgraded targeting ignores `extole_required_labels`. `extole_target` must spell the program label exactly. Capital letters do not matter.
 
 ```
 https://www.example.com/your-landing-page?extole_target=program:your-program-label
@@ -92,7 +92,7 @@ Use the program label, not a campaign id. The label still works after the campai
 
 **Destination for Clicks on Share Links for Mobile Devices** uses the desktop address unless you have entered one of its own. If it has its own address, add the same parameter there. Publish the campaign, then test again.
 
-Extole reads `extole_` parameters in two places. When a friend clicks a share link, Extole passes the `extole_` parameters from the share link's destination address to the click. On your landing page, your Extole tag passes `extole_` parameters from the page address to Extole only when global zone parameters are on for your account. Ask your CSM to confirm this setting before you rely on it.
+The parameter reaches Extole in two steps. When a friend clicks a share link, Extole sends them to the destination address with its parameters. On the landing page, your Extole tag always passes the `extole_` parameters from the page address to the experience named in **Extole-Hosted Experience to Trigger on URL Landing**. It passes them to the other zones on the page only when global zone parameters are on for your account. If your landing page does not use that experience, ask your CSM to confirm the setting before you rely on it.
 
 <Warning>
 Change the desktop field. The two fields are read by the device the friend clicks on. A parameter only in the mobile field fixes phone clicks and leaves desktop clicks wrong. A phone test then looks fixed while a laptop still shows the old program. Retest on both after you publish.
