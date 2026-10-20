@@ -14,7 +14,6 @@
   "paths": {
     "/v6/async-events/{event_name}": {
       "post": {
-        "operationId": "send_async",
         "summary": "Send Async",
         "description": "Sends this email to one person without waiting for identity resolution: the event is accepted immediately and resolved afterwards. Call it once per recipient - it takes one person, and exists for sending to many of them at volume from your own backend.",
         "x-extole-type": "SERVER_TO_EXTOLE",
@@ -40,21 +39,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "email"
-                ],
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "Email address of the person the event belongs to."
-                  },
-                  "partner_user_id": {
-                    "type": "string",
-                    "description": "Your own identifier for the person, when you have one."
-                  }
-                }
+                "$ref": "#/components/schemas/SendAsyncRequest"
               }
             }
           }
@@ -133,10 +118,10 @@
         ],
         "security": [
           {
-            "HEADER": []
+            "CLIENT_AUTH_HEADER": []
           },
           {
-            "QUERY_PARAM": []
+            "CLIENT_AUTH_QUERY_PARAM": []
           }
         ],
         "x-extole-component": "generic_promotion_email"
@@ -144,7 +129,6 @@
     },
     "/v6/events/{event_name}": {
       "post": {
-        "operationId": "send_now",
         "summary": "Send Now",
         "description": "Sends this email to one person now, by submitting one of the events that trigger it. Returns once identity resolution has completed, so the send is attributed to a known person - which suits low-volume, interactive sending from an admin or a user interface rather than bulk traffic; use Send Async for that.",
         "x-extole-type": "SERVER_TO_EXTOLE",
@@ -170,21 +154,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "email"
-                ],
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "Email address of the person the event belongs to."
-                  },
-                  "partner_user_id": {
-                    "type": "string",
-                    "description": "Your own identifier for the person, when you have one."
-                  }
-                }
+                "$ref": "#/components/schemas/SendNowRequest"
               }
             }
           }
@@ -268,10 +238,10 @@
         ],
         "security": [
           {
-            "HEADER": []
+            "CLIENT_AUTH_HEADER": []
           },
           {
-            "QUERY_PARAM": []
+            "CLIENT_AUTH_QUERY_PARAM": []
           }
         ],
         "x-extole-component": "generic_promotion_email"
@@ -280,14 +250,14 @@
   },
   "components": {
     "securitySchemes": {
-      "HEADER": {
+      "CLIENT_AUTH_HEADER": {
         "type": "apiKey",
         "in": "header",
         "name": "Authorization",
         "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
         "x-bearer-format": "bearer"
       },
-      "QUERY_PARAM": {
+      "CLIENT_AUTH_QUERY_PARAM": {
         "type": "apiKey",
         "in": "query",
         "name": "access_token",
@@ -331,6 +301,40 @@
           "parameters",
           "unique_id"
         ]
+      },
+      "SendAsyncRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the person the event belongs to."
+          },
+          "partner_user_id": {
+            "type": "string",
+            "description": "Your own identifier for the person, when you have one."
+          }
+        }
+      },
+      "SendNowRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the person the event belongs to."
+          },
+          "partner_user_id": {
+            "type": "string",
+            "description": "Your own identifier for the person, when you have one."
+          }
+        }
       }
     },
     "examples": {

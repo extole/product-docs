@@ -14,7 +14,6 @@
   "paths": {
     "/v6/events/template_transacted_business_event": {
       "post": {
-        "operationId": "create_event",
         "summary": "Create New",
         "description": "Submits a completed transaction from your backend so it can be attributed, counted toward quality, and rewarded. Returns once identity resolution has completed, so it suits low-volume, interactive submission rather than a high-volume transaction feed.",
         "x-extole-type": "SERVER_TO_EXTOLE",
@@ -26,39 +25,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "email",
-                  "partner_conversion_id"
-                ],
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "Email address of the person the event belongs to."
-                  },
-                  "currency": {
-                    "type": "string",
-                    "pattern": "^[A-Z]{3}$",
-                    "description": "ISO 4217 currency code of the transaction value."
-                  },
-                  "cart_value": {
-                    "type": "string",
-                    "description": "Transaction value, as a decimal string in the currency below."
-                  },
-                  "coupon_code": {
-                    "type": "string",
-                    "description": "Coupon redeemed on the transaction, when one was."
-                  },
-                  "partner_user_id": {
-                    "type": "string",
-                    "description": "Your own identifier for the person, when you have one."
-                  },
-                  "partner_conversion_id": {
-                    "type": "string",
-                    "description": "Your own order or transaction identifier. Used to de-duplicate repeat submissions."
-                  }
-                }
+                "$ref": "#/components/schemas/CreateEventRequest"
               }
             }
           }
@@ -142,10 +109,10 @@
         ],
         "security": [
           {
-            "HEADER": []
+            "CLIENT_AUTH_HEADER": []
           },
           {
-            "QUERY_PARAM": []
+            "CLIENT_AUTH_QUERY_PARAM": []
           }
         ],
         "x-extole-component": "template_transacted_business_event"
@@ -154,14 +121,14 @@
   },
   "components": {
     "securitySchemes": {
-      "HEADER": {
+      "CLIENT_AUTH_HEADER": {
         "type": "apiKey",
         "in": "header",
         "name": "Authorization",
         "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
         "x-bearer-format": "bearer"
       },
-      "QUERY_PARAM": {
+      "CLIENT_AUTH_QUERY_PARAM": {
         "type": "apiKey",
         "in": "query",
         "name": "access_token",
@@ -205,6 +172,41 @@
           "parameters",
           "unique_id"
         ]
+      },
+      "CreateEventRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "partner_conversion_id"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the person the event belongs to."
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "ISO 4217 currency code of the transaction value."
+          },
+          "cart_value": {
+            "type": "string",
+            "description": "Transaction value, as a decimal string in the currency below."
+          },
+          "coupon_code": {
+            "type": "string",
+            "description": "Coupon redeemed on the transaction, when one was."
+          },
+          "partner_user_id": {
+            "type": "string",
+            "description": "Your own identifier for the person, when you have one."
+          },
+          "partner_conversion_id": {
+            "type": "string",
+            "description": "Your own order or transaction identifier. Used to de-duplicate repeat submissions."
+          }
+        }
       }
     },
     "examples": {
