@@ -37,13 +37,13 @@ A request can match more than one row. A maintained source covers only what it w
 | Category | Platform types | What you create |
 | :------- | :------------- | :-------------- |
 | Partner to Extole | Commerce, core banking, account opening, subscription, point of sale | Business events, trigger rules, and data capture, in a campaign built from the `custom_integration` template |
-| Extole to Partner | Marketing automation, messaging, customer data platforms, analytics | A reshaped duplicate of the maintained source, with webhooks and a credential |
+| Extole to Partner | Marketing automation, messaging, customer data platforms, analytics | A complete maintained source, or integration-owned controllers and webhook actions when the partner source contains only metadata |
 | Reward fulfillment | Gift card, prepaid card, points, and payout providers | A supplier type, a support campaign of supplier templates, `REWARD` webhooks, and a fourth view |
 | Bidirectional | Commerce and loyalty platforms that also accept rewards or coupons | The Partner to Extole model first, then Extole to Partner resources gated on an approved use case |
 
 Partner to Extole needs no reward supplier, webhook, or client key, unless it receives audience membership from the partner. Extole to Partner needs no business events.
 
-Every category carries the same three views — configuration, report-runner, and event-stream — built from [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views). The category decides what the report counts and what the feed filters to; reward fulfillment adds a fourth.
+Every category carries the same three baseline views — configuration, report-runner, and event-stream — built from [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views). Partner to Extole adds a `testEventPayload` JSON setting and a **Test Event** configuration view that displays it, and reward fulfillment adds a `reward-suppliers` configuration view.
 
 ## Partner to Extole Integrations
 
@@ -61,6 +61,7 @@ root
     │       └── data            → one component per captured field
     └── views                   MULTI_SOCKET → view-v10.0
         ├── configuration       config-view-v10.0
+        ├── test-events         config-view-v10.0 → testEventPayload
         ├── report-runner-view  report-runner-view-v10.0
         └── event-streams       event-stream-view-v10.0
 ```
@@ -87,7 +88,7 @@ root
     └── views                   MULTI_SOCKET → configuration, report-runner, event-stream views
 ```
 
-Most of these platforms ship as maintained sources an account can duplicate — the same action the **Install** button performs on the Partners page. Reshape the install against the partner page's product description, which specifies the children, the webhooks, and any typed data template. The integration component holds a `WEBHOOK_ID` setting per webhook, resolved by the webhook's purpose tag, and marketing campaigns attach partner actions through those settings. [Build an Extole to Partner Integration](/technical/building-partner-integrations/integration-types/integration-build-extole-to-partner) covers the reshape.
+Most of these platforms ship as maintained sources an account can duplicate — the same action the **Install** button performs on the Partners page. Use the complete source when it includes its controllers and webhooks; use a controller-backed build when it contains only partner metadata. [Build an Extole to Partner Integration](/technical/building-partner-integrations/integration-types/integration-build-extole-to-partner) covers both paths.
 
 An Extole to Partner integration reports program activity rather than producing it, so installing one never supersedes a marketing program's own `converted` or `shipped` business event.
 
