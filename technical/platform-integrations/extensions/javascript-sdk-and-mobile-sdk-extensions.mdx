@@ -1,0 +1,87 @@
+---
+title: "Javascript SDK and Mobile SDK Extensions"
+description: "The Javascript SDK and Mobile SDK extensions declare the trigger events your website and apps produce when they request a zone, so a Flow Builder campaign can select them in Triggered By. Here is what each extension holds, what it declares by default, and how to add a trigger event."
+---
+
+<Note>
+**Triggered By may only appear in newly created Flow Builder campaigns.** Campaigns created before this feature was released don't show a **Triggered By** setting and keep working as they did. Contact your Extole team about upgrading an existing campaign.
+</Note>
+
+# Overview
+
+The **Javascript SDK** and **Mobile SDK** extensions declare **trigger events**, the same kind of trigger event the Event API and File Integration declare. A Flow Builder business event or call-to-action selects one in [Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) to decide what starts it.
+
+What sets these two extensions apart is how their trigger events come into existence. They aren't sent server to server. They are produced when your website or app calls Extole, most often to request a **zone**, the named placement where Extole content renders, such as a banner, an overlay, or an embedded share experience. Each trigger event is usually named the same as the zone it calls: a request for the `homepage_banner` zone produces the `homepage_banner` trigger event.
+
+A tag on your website can also send an event, such as a conversion tag that sends `conversion`. Declare that trigger event on the **Javascript SDK** when your site sends it through a tag, and on the [Event API](/guides/flow-campaigns/how-to-set-up-triggered-by#choose-the-extension) when your backend sends it server to server.
+
+- The **Javascript SDK** extension declares the trigger events your website produces.
+- The **Mobile SDK** extension declares the trigger events your iOS and Android apps produce, separately for each platform.
+
+These extensions describe your integration to your campaigns. They don't change the code on your site or in your app. For the code that requests zones, see [JavaScript SDK](/technical/platform-integrations/javascript-sdk/index) and [Mobile SDKs](/technical/platform-integrations/mobile-sdks/index).
+
+Install one copy of each extension. A second copy splits your trigger events and makes the **Triggered By** list harder to read. To install one, open [Partners](https://my.extole.com/integrations) in My Extole, select the **Extensions** tab, click **+ New Extension**, and select **Javascript SDK** or **Mobile SDK**.
+
+## Javascript SDK
+
+The **Javascript SDK** extension declares trigger events in two lists, and they do different jobs.
+
+- **Tagged CTAs**: trigger events your own site code produces, through a marketing tag, an event tag such as a conversion tag, or a `createZone` call. A Tagged CTA only declares the trigger event so a campaign can select it. It does not make your site send it.
+- **Tagless CTAs**: trigger events for zones the SDK requests for you, with no code on your page. Each **Tagless CTA** has a **Zone Name**, a **URL Filter** that limits which pages it appears on (blank means every page), and an optional **Anchor Element ID** that sets where on the page it is added.
+
+If your page already requests the zone or sends the event through a tag, declare its trigger event under **Tagged CTAs**. If you want the zone requested without changing your page, add a **Tagless CTA**.
+
+### Trigger Events Declared by Default
+
+A new **Javascript SDK** extension declares these trigger events under **Tagged CTAs**: `confirmation`, `embedded_share_experience`, `global_footer`, `global_header`, `mobile_footer`, `mobile_header`, `mobile_menu`, `overlay`, `stats_embedded`. They cover the Refer a Friend programs on your website, including your mobile website.
+
+Other programs listen for trigger events beyond this set, such as `homepage_banner` or `show_reward_banner`. [What Each Program Needs](/guides/flow-campaigns/how-to-set-up-triggered-by#what-each-program-needs) lists them.
+
+### App Type
+
+Every trigger event the **Javascript SDK** declares carries the app type `javascript_sdk`, which is what the SDK reports on your website. The value is one expert setting for the whole extension, so changing it changes every trigger event at once. Leave it at `javascript_sdk` unless your Extole team tells you otherwise.
+
+## Mobile SDK
+
+The **Mobile SDK** extension holds its trigger events under **Platforms**, with one platform for each app:
+
+| Platform | App type it reports |
+|---|---|
+| **iOS** | `mobile-sdk-ios` |
+| **Android** | `mobile_sdk_android` |
+
+Each platform has its own **Tagged CTAs**, and every trigger event under a platform takes that platform's app type. When your iOS app and your Android app both request a zone, its trigger event is declared twice, once under each platform.
+
+The extension also has **Experiences**: the mobile zones the app loads, including bootstrap and the call to action. These aren't selected through **Triggered By**.
+
+### Trigger Events Declared by Default
+
+A new **Mobile SDK** extension declares these trigger events under **iOS** and again under **Android**: `advocate_mobile_experience`, `mobile_footer`, `mobile_header`, `mobile_menu`.
+
+## The Same Zone From Your Website and Your Apps
+
+The `mobile_footer`, `mobile_header`, and `mobile_menu` zones are requested from your mobile website and from your apps, so their trigger events are declared in both extensions: on the **Javascript SDK** for your mobile website, and on the **Mobile SDK** under each platform. Each is a distinct trigger event with its own app type, and a call-to-action responds only to the requests whose app type matches a trigger event it has selected.
+
+To show a call-to-action everywhere its zone is requested, select each of those trigger events in **Triggered By**. If it shows in one place and not another, see [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app).
+
+## Add a Trigger Event
+
+1. Open [Partners](https://my.extole.com/integrations) in My Extole, select the **Extensions** tab, and open **Javascript SDK** or **Mobile SDK**.
+2. Add the trigger event, named exactly as the zone your site or app requests, or the event your site's tag sends:
+   - On the **Javascript SDK**, add it under **Tagged CTAs**.
+   - On the **Mobile SDK**, open **Platforms**, then **iOS** or **Android**, and add it under that platform's **Tagged CTAs**. Repeat for the other platform if both apps request the zone.
+3. Publish the extension.
+4. In each campaign that should respond to it, select the trigger event in **Triggered By** and publish the campaign. A campaign created before you declared the trigger event does not pick it up on its own.
+
+## Extensions Installed Before Triggered By
+
+A **Javascript SDK** or **Mobile SDK** extension installed before Triggered By was available may not declare the default trigger events above, so none of its trigger events appear in **Triggered By**. Add the missing ones to that copy, as in [Add a Trigger Event](#add-a-trigger-event), rather than installing a second one. If the extension gives you no way to add them, contact your Extole team.
+
+## Related
+
+- [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by)
+- [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app)
+- [JavaScript SDK](/technical/platform-integrations/javascript-sdk/index), including its [marketing tags](/technical/platform-integrations/javascript-sdk/index#marketing-tags)
+- [The `createZone` Method](/technical/platform-integrations/javascript-sdk/advanced-concepts#createzone-method)
+- [Mobile SDKs](/technical/platform-integrations/mobile-sdks/index)
+- [File Integration](/technical/platform-integrations/extensions/file-integration), for trigger events that arrive in a file
