@@ -68,7 +68,7 @@ The webhook posts each Stripe event to `https://api.extole.io/v6/events/stripe_e
 
 | Stripe event | Extole event | What it means |
 | --- | --- | --- |
-| `payment_intent.succeeded` | `stripe_payment_intent_succeeded` | A one-time payment completed. |
+| `payment_intent.succeeded` | `stripe_payment_intent_succeeded` | A payment succeeded, whether for an invoice, a subscription renewal, a Checkout Session, or a one-time charge. |
 | `checkout.session.completed` | `stripe_checkout_session_completed` | A Checkout Session finished. |
 | `customer.subscription.created` | `stripe_customer_subscription_created` | A customer started a subscription. |
 | `customer.subscription.updated` | `stripe_customer_subscription_updated` | A subscription changed. |
@@ -77,22 +77,29 @@ The webhook posts each Stripe event to `https://api.extole.io/v6/events/stripe_e
 | `charge.refunded` | `stripe_charge_refunded` | A charge was fully or partly refunded. |
 | `customer.discount.created` | `stripe_customer_discount_created` | A promotion code was applied. |
 
-Extole copies these fields onto the event when Stripe sends them: `partner_user_id` from the Stripe customer id, `email` from `customer_email`, `currency`, `status`, `amount`, invoice amounts, the subscription id, and the plan amount. A subscription that moves from `trialing` to `active`, or is created already `active`, is marked as a new activation.
+Extole copies these fields onto the event when Stripe sends them: `partner_user_id` from the Stripe customer id, `email` from `customer_email`, `currency` as an uppercase ISO code, `status`, `amount`, invoice amounts, the subscription id, and the plan amount. Stripe amounts stay in the currency's minor units.
+
+Extole also adds the two fields its transaction events use:
+
+- `cart_value` is the money moved, as a decimal in major units, for example `20.00`. It comes from `amount_received` on a payment, `amount_paid` on an invoice, `amount_total` on a Checkout Session, and `amount_refunded` on a refunded charge. Zero-decimal and three-decimal currencies are converted the same way as for Customer Balance rewards.
+- `partner_conversion_id` is the Stripe payment intent id for payments, Checkout Sessions, and refunded charges, and the invoice id for invoices.
+
+A subscription that moves from `trialing` to `active`, or is created already `active`, is marked as a new activation.
 
 ## Business Events
 
-Installing the integration adds four business events. A campaign selects one of these as the cause of a reward, the same way it selects any other business event. Each event records the Stripe event id as a unique partner event key, so a retried Stripe event is not counted twice.
+Installing the integration adds four business events. A campaign selects one of these as the cause of a reward, the same way it selects any other business event. Each event records a unique partner event key, so a retried Stripe event is not counted twice: the payment intent id for Stripe Purchase, and the Stripe event id for the others.
 
 | Business event | Trigger events | When it is recorded |
 | --- | --- | --- |
-| Stripe Purchase | `stripe_invoice_paid`, `stripe_payment_intent_succeeded` | An invoice was paid or a one-time payment succeeded. |
+| Stripe Purchase | `stripe_payment_intent_succeeded` | A payment succeeded. |
 | Subscription Started | `stripe_customer_subscription_created`, `stripe_customer_subscription_updated` | A subscription became active. A subscription created already active counts, and so does one that moves from trialing to active. Other subscription changes do not. |
 | Subscription Canceled | `stripe_customer_subscription_deleted` | A subscription was canceled. |
 | Stripe Refund | `stripe_charge_refunded` | A charge was fully or partially refunded. |
 
-Stripe Purchase does not listen to `stripe_checkout_session_completed`. A Checkout purchase also emits `invoice.paid` or `payment_intent.succeeded`, and listening to both would count one purchase twice. To count Checkout completions instead, add `stripe_checkout_session_completed` to the Stripe Purchase trigger event names and remove the other trigger event that the same Checkout also emits.
+Stripe Purchase listens to `stripe_payment_intent_succeeded` only. Every paid invoice, subscription renewal, Checkout Session, and one-time charge emits exactly one `payment_intent.succeeded`. The same payment also emits `invoice.paid` and, for Checkout, `checkout.session.completed`, so adding either as a trigger event counts one payment twice. An invoice with a zero total, such as a trial, or one paid entirely from customer balance moves no money and emits no payment intent, so it is not a purchase.
 
-Stripe Purchase records the amount, currency, Stripe customer id, and subscription id. Subscription Started records the plan amount, currency, and subscription id. Subscription Canceled records the subscription id. Stripe Refund records the amount and currency.
+Stripe Purchase records `cart_value`, currency, Stripe customer id, and `partner_conversion_id`. `cart_value` is the step value, so it drives revenue reporting, percentage cash back rewards, and minimum cart value rules. Subscription Started records the plan amount, currency, and subscription id. Subscription Canceled records the subscription id. Stripe Refund records the refunded `cart_value`, currency, and the `partner_conversion_id` of the refunded payment, which matches the Stripe Purchase it reverses.
 
 ## How a Promotion Code Is Redeemed
 
