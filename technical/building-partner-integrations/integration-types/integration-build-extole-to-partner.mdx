@@ -1,13 +1,13 @@
 ---
 title: "Build an Extole to Partner Integration"
-description: "Install a maintained partner source, reshape it to the shape the partner page defines, and attach its webhooks and credential."
+description: "Forward Extole activity to a partner by installing a maintained source or building the controllers and webhooks its API requires."
 ---
 
 Part of the [partner integration guide](/technical/building-partner-integrations/integration-lifecycle/management-api-integration).
 
 # Overview
 
-An Extole to Partner integration forwards Extole program activity out to a partner platform. Extole maintains a source for most partners in this direction, so the build is an install and a reshape rather than a construction.
+An Extole to Partner integration forwards Extole program activity to a partner platform. Start from a maintained source when it includes the required controllers and webhooks. When the source contains only display metadata, add the controller-backed delivery yourself.
 
 Substitute the component name, endpoints, and tag namespace from the partner page throughout. [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration) covers the constraints and shared mechanics every build follows.
 
@@ -29,10 +29,38 @@ Do not add Partner to Extole business-event scaffolding to this install. A partn
 | `TOKEN` | Server-side access token authorized to manage campaigns, components, and webhooks. |
 | `EXTOLE_API_HOST` | Production host for those calls. |
 | `PARTNER_COMPONENT_NAME` | Maintained component name from the partner page. |
-| `SOURCE_COMPONENT_ID` | The Extole-owned maintained source from the duplicatable listing. |
-| `INTEGRATION_COMPONENT_ID` | The installed integration component, for component-scoped webhooks. |
+| `SOURCE_COMPONENT_ID` | The Extole-owned maintained source from the duplicatable listing, when one exists. |
+| `INTEGRATION_COMPONENT_ID` | The installed or newly created integration component, for component-scoped webhooks. |
+| `CAMPAIGN_ID`, `CAMPAIGN_VERSION` | The integration campaign and its current version. Every change creates a new version, so read the version again before each versioned call. |
+| `CONTROLLER_ID` | The controller that listens for one class of Extole activity. |
+| `WEBHOOK_ID` | The outbound connection invoked by a controller action. |
 
-Read the partner page first — it names the finished tree, the endpoints, and the tag namespace — and confirm the duplicatable listing holds a maintained integration component whose name matches the partner. Without one, build from [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model) instead.
+Read the partner page first — it names the finished tree, the endpoints, and the tag namespace — and inspect any matching source before choosing the build path. Without a complete source, create the container from [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model), then add the controller-backed delivery described below.
+
+### Choose the Build Path
+
+List the duplicatable sources whose name matches the partner exactly, accepting every `integration-v10.*` revision — [Install the Maintained Source](#install-the-maintained-source) shows the query — then inspect the integration component and its children.
+
+The integration component's `integration-v10.*` type tells you the version, not whether the source delivers anything. A complete maintained source has all of the following:
+
+- An integration component tagged `internal:self-managed`
+- Child controllers for the activity it forwards
+- Webhook actions with event-specific data
+- The webhooks and credential settings those actions reference
+
+When the source carries only display metadata, use the controller-backed path below.
+
+Choose each controller's trigger by the kind of activity it forwards:
+
+| Activity | Trigger |
+| :------- | :------ |
+| Share-link creation | An event trigger with `event_type` set to `SHAREABLE`. The standard event name is `advocate_code_created`. |
+| A program outcome such as `converted` | An event trigger with `event_type` set to `STEP`. |
+| A fulfilled reward | A reward-event trigger with `reward_states` set to `FULFILLED`, created through `.../controllers/{controller_id}/triggers/reward-events`. |
+
+Share-link creation and `shared` are distinct. The first creates a shareable and exposes its link; the second records a share action.
+
+Forwarding a fulfilled reward to a messaging or analytics partner is not the same as a partner that supplies the reward. A gift card, prepaid card, points, or payout provider uses [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment).
 
 ## How to Build
 
@@ -52,9 +80,61 @@ Read that mapping as exhaustive rather than as a minimum, and apply it to an int
 
 A maintained source may not ship the report-runner and event-stream views every integration carries. Read the installed `views` socket and add whichever is missing from [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views).
 
+### Create Controller-Backed Outbound Delivery
+
+Skip this section when the maintained source already contains the requested controllers and payloads.
+
+Create one controller per event class or payload contract. Attach the controller to the integration component with `component_ids`; do not modify a marketing campaign to host integration behavior.
+
+Create a controller:
+
+```bash
+curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "CONTROLLER",
+    "name": "send_converted_to_partner",
+    "scope": "PRIVATE",
+    "enabled": false,
+    "enabled_on_states": ["LIVE", "PAUSED"],
+    "selectors": ["TARGET"],
+    "journey_names": ["participant"],
+    "component_ids": ["'"${INTEGRATION_COMPONENT_ID}"'"],
+    "data": [
+      {
+        "name": "recipient_email",
+        "value": "spel@runtime:context.person.email",
+        "scope": "PRIVATE",
+        "persist_types": ["STEP"]
+      }
+    ]
+  }' \
+  "${EXTOLE_API_HOST}/v2/campaigns/${CAMPAIGN_ID}/version/${CAMPAIGN_VERSION}/controllers"
+```
+
+Record the returned controller identifier as `CONTROLLER_ID`.
+
+Refresh the campaign version, then add a step-event trigger:
+
+```bash
+curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "trigger_phase": "MATCHING",
+    "trigger_name": "Converted",
+    "event_names": ["converted"],
+    "event_type": "STEP"
+  }' \
+  "${EXTOLE_API_HOST}/v2/campaigns/${CAMPAIGN_ID}/version/${CAMPAIGN_VERSION}/controllers/${CONTROLLER_ID}/triggers/events"
+```
+
+For share-link creation, use the same endpoint with `event_type` set to `SHAREABLE` and read the link from `context.causeEvent.shareable.link`.
+
+Create every controller and trigger while the path is disabled. Then publish and create the component-scoped webhook, as described in [Publish, Then Attach Component-Scoped Webhooks](#publish-then-attach-component-scoped-webhooks), and attach it to the controller through [Attach the Webhook Action](#attach-the-webhook-action). Take field names and identity rules from the partner page.
+
 ### Create Missing Component Types
 
-A typed child needs its component type first, and a partner page can require a type the account has never used:
+A typed child needs its component type first, and a partner page can require a type the account has never used. Read the type, and create it only when the read finds nothing:
 
 ```bash
 curl -s -H "Authorization: Bearer ${TOKEN}" \
@@ -161,16 +241,56 @@ Publishing validates every webhook the campaign already owns, so keep a valid pl
   "url": "javascript@buildtime:context.getVariableContext().get('partnerRestUrl') + '/partner/endpoint/path'",
   "type": "GENERIC",
   "default_method": "POST",
-  "enabled": "javascript@buildtime:context.getVariableContext().get('enabled')",
+  "enabled": false,
   "client_key_id": "javascript@buildtime:context.getVariableContext().get('clientKeyId')",
   "request": "javascript@runtime:context.createRequestBuilderWithDefaults().withUserAgent('partner-Extole-Integration/1.0').build();",
+  "response_handler": "javascript@runtime:(function(){ var statusCode = context.getWebhookDispatchResultEvent().getResponseStatusCode(); if (statusCode >= 200 && statusCode < 300) { return 'OK'; } if (statusCode == null || statusCode === 429 || statusCode >= 500) { return 'RETRY'; } context.log('Partner rejected webhook request with status ' + statusCode); return 'OK'; })()",
   "retry_intervals": [1, 30, 60],
   "tags": ["internal:partner:message-trigger", "internal:partner"],
   "component_ids": ["INTEGRATION_COMPONENT_ID"]
 }
 ```
 
+Record the returned webhook identifier as `WEBHOOK_ID`.
+
 Name each webhook for the endpoint it calls: an ingestion endpoint and a message-trigger endpoint are separate webhooks with separate tags. Keep the broad `internal:partner` tag for listing every webhook the integration owns. Where the account URL setting may lack a scheme, build the URL expression to add `https://`.
+
+### Attach the Webhook Action
+
+Refresh the campaign version after creating the webhook, then attach the action to its controller. Map the complete partner payload here rather than leaving a generic request body for later:
+
+```bash
+curl -s -X POST -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "quality": "HIGH",
+    "enabled": false,
+    "webhook_id": "'"${WEBHOOK_ID}"'",
+    "data": {
+      "person_identifier": "spel@runtime:context.person.email",
+      "activity_name": "extole_converted",
+      "activity_time": "spel@runtime:context.causeEvent.eventTime"
+    }
+  }' \
+  "${EXTOLE_API_HOST}/v2/campaigns/${CAMPAIGN_ID}/version/${CAMPAIGN_VERSION}/controllers/${CONTROLLER_ID}/actions/webhooks"
+```
+
+Keep the controller, action, and webhook disabled until the credential, request handler, payload mapping, and response handling are complete.
+
+### Complete the Request and Response Handlers
+
+The default request handler serializes the webhook action's data as a JSON body, uses the configured method and URL, and applies the client key's default authentication. A `PASSWORD` key adds an `Authorization: Bearer` header.
+
+Write a custom `request` expression when the partner requires a distinct authentication header, body envelope, URL, method, or idempotency key. Build the request from the webhook action data and the client key, following the contract on the partner page. Do not use `createRequestBuilderWithDefaults()` when its default authentication differs from the partner's requirement.
+
+The response handler returns:
+
+- `OK` when processing is complete
+- `RETRY` when Extole should use the configured retry intervals
+
+Without a response handler, Extole retries non-2xx responses. Add one when the partner contract distinguishes retryable responses such as `429` or `5xx` from terminal `4xx` configuration or payload errors. Log the terminal status and the minimum response detail needed to diagnose the rejection; do not log credentials or the full participant payload.
+
+A webhook is ready when its request handler produces the partner's required body and authentication and its response handler follows the partner's retry contract. Keep it disabled until both are verified.
 
 ### Attach the Credential
 
@@ -186,8 +306,10 @@ Create the webhook client key once you have the partner's API secret, then set t
 | `invalid_component_reference` | A webhook calling `context.getComponent()` was created before the campaign was published. | Publish once, then create the webhook with `component_ids`. |
 | Campaign validation rejects the publish | An account-URL setting that feeds a webhook URL is empty or not a valid host. | Keep a valid placeholder host there. |
 | Webhook setting evaluates to `null` | The `WEBHOOK_ID` expression filters on a tag no webhook carries, or several webhooks share the tag and `[0]` is arbitrary. | Give each webhook its own purpose tag. |
-| The first duplicatable result is the wrong source | The listing returns the maintained source plus one copy per account that installed it, in no reliable order, so `head -n 1` can install a client's own configuration. | Choose the Extole-owned source. Stop and ask when two entries are indistinguishable. |
+| The installed component is the wrong source | The listing returns the maintained source plus copies installed in client accounts, in no reliable order. | Choose the Extole-owned source by owner and type. |
 | A typed child is rejected | Its component type does not exist in the account. | Create the component type first; do not fall back to an empty `types` array. |
+| An integration source has a current type but no controllers or webhooks | The source is partner metadata, not a complete outbound implementation. | Build the controller-backed path. |
+| The partner rejects authentication | The default key processor uses a header the partner does not accept. | Build the request explicitly with the partner's required authentication header. |
 
 ## How to Test
 
@@ -195,11 +317,14 @@ A `2xx` on the duplicate call means the source tree was copied, not that the ins
 
 - The tree matches the partner page: one child per activity the page lists, and no child forwarding activity it does not.
 - Every typed child carries its type.
+- Every requested activity has the matching controller trigger: `SHAREABLE`, `STEP`, or a `FULFILLED` reward event.
+- Every controller has a webhook action with the complete partner payload.
 - Each webhook exists with its tags and its resolved URL.
 - Each `WEBHOOK_ID` setting resolves to a webhook identifier rather than `null`.
+- Request and response handlers match the partner's authentication, body, success, and retry contracts.
 - `enabled` is `true` on every webhook whose real URL and credential are both configured, and `false` on the rest.
 
-Then trigger the Extole event the integration forwards and confirm the webhook fired against the partner endpoint. Record the events it forwards and any credential or partner-side permission still outstanding.
+Trigger each Extole event the integration forwards and confirm the partner endpoint receives the expected payload. Enable only the paths whose destination and credential are ready.
 
 ## Related Documentation
 
