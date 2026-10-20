@@ -31,7 +31,8 @@ page. Choose **Custom Reward**, then set **Type** to **Loyalty Points**. Use thi
 credited into your own loyalty system rather than banked in Extole.
 
 In reporting and in API responses, a point-denominated reward carries a face value type of
-`POINTS`. The other face value types are `CREDIT` and `COUPON_CODE`.
+`POINTS`. Other face value types are `PERCENT_OFF`, `MONTH`, and ISO-4217 currency codes, such as
+`USD`, `GBP`, `EUR`, and `JPY`.
 
 ## Reading a Balance
 
@@ -40,23 +41,31 @@ Bank zone on your program domain. The zone name is configurable and is often `ba
 Find the value for your bank in the
 [Tech Center](https://my.extole.com/tech-center).
 
+For a browser or web SDK embed, render the zone with `POST /zones/{zone_name}`. For a server-side
+integration, use the authenticated zone API:
+
 ```bash
-curl --get "https://brand.extole.io/zone/<REWARD_BANK_ZONE>" \
+curl --request POST "https://brand.extole.io/api/v6/zones/bankable_rewards" \
   --header "Content-Type: application/json" \
-  --header "Authorization: Bearer <VERIFIED_CONSUMER_ACCESS_TOKEN>"
+  --header "Authorization: Bearer YOUR_VERIFIED_CONSUMER_ACCESS_TOKEN" \
+  --data '{}'
 ```
 
-A verified consumer access token or JWT is required. The response carries four parts:
+A verified consumer access token or JWT is required. This example uses the commonly configured
+`bankable_rewards` zone; replace it with your own zone name. The response places the Reward Bank
+fields inside `data`:
 
 | Field | Contents |
 | :--- | :--- |
-| `eligible_rewards` | The rewards making up the current balance, each with a `reward_id`, `reward_supplier_id`, `face_value`, and `face_value_type`. |
-| `redemption_suppliers` | The Redemption Options available to this participant, each with a `reward_supplier_id`, `name`, and `type`. |
-| `redemption_history` | Past redemptions, in the denomination they were redeemed into. |
-| `reward_parameters` | The redemption configuration in force: `face_value_type`, `max_amount`, `min_amount`, and `ratio_of_value_to_dollars`. |
+| `data.eligible_rewards` | The rewards making up the current balance, each with a `reward_id`, `reward_supplier_id`, `face_value`, and `face_value_type`. |
+| `data.redemption_suppliers` | The Redemption Options available to this participant, each with a `reward_supplier_id`, `name`, and `type`. |
+| `data.redemption_history` | Past redemptions, in the denomination they were redeemed into. |
+| `data.reward_parameters` | The redemption configuration in force: `face_value_type`, `max_amount`, `min_amount`, and `ratio_of_value_to_dollars`. |
 
-`ratio_of_value_to_dollars` is the Redemption Ratio. Read it rather than hard-coding a ratio in
-your front end, so a change made in My Extole takes effect without a release.
+`data.reward_parameters.ratio_of_value_to_dollars` is the Redemption Ratio. Read it rather than
+hard-coding a ratio in your front end, so a change made in My Extole takes effect without a release.
+For the request and response contract, see
+[Current Balance and Transaction History](/api-reference/feature-specific/reward-bank/view/current-balance-and-transaction-history).
 
 <Warning>
   A participant who is not verified receives an empty bank rather than an error. Confirm
@@ -66,7 +75,8 @@ your front end, so a change made in My Extole takes effect without a release.
 ## Redeeming Over the API
 
 Redeem by sending a `redeem_rewards` event with the rewards to spend and the supplier to redeem
-into.
+into. For the request and response contract, see
+[Redeem Credits](/api-reference/feature-specific/reward-bank/action/redeem-credits).
 
 ```bash
 curl --request POST "https://brand.extole.io/api/v6/events" \
@@ -81,8 +91,9 @@ curl --request POST "https://brand.extole.io/api/v6/events" \
   }'
 ```
 
-The `reward_supplier_id` must be one of the suppliers returned in `redemption_suppliers`. Redeeming
-into a supplier that is not configured as a Redemption Option fails.
+The `reward_supplier_id` must be one of the suppliers returned in
+`data.redemption_suppliers`. Redeeming into a supplier that is not configured as a Redemption
+Option fails.
 
 ## Reward States
 
