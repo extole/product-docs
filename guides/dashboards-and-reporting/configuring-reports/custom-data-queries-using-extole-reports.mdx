@@ -71,6 +71,8 @@ Filters are semicolon-separated boolean expressions. All entries must be satisfi
 expression operator value
 ```
 
+The expression names a field of the report's primary record by its full path from `event`, such as `event.data.source` or `event.quality`. A filter doesn't read the column names your mappings define. In a report that maps `Source=event.data.source`, the filter `source=="email"` doesn't read the recorded source: the report still completes, with a blank **Source** column and zero for every count. Write `event.data.source=="email"` instead.
+
 **Operators:** `==`, `!=`, `>=`, `<=`, `>`, `<`, `like`, `not like`
 
 ### Pattern Matching with `like`
@@ -677,6 +679,8 @@ All aggregation functions share a common set of optional filter parameters in ad
 | `source` | Source filter string |
 | `time_range` | `CURRENT`, `ALL_TIME`, `SAME_PERIOD_PRIOR_TIME_RANGE`, `SAME_PERIOD_PRIOR_YEAR`, `SAME_PERIOD_PRIOR_QUARTER`, `SAME_PERIOD_PRIOR_MONTH`, `SAME_PERIOD_PRIOR_WEEK` |
 
+A step is recorded under its own name and again under each of its aliases, so `step_name` matches an alias as well as a name. In a campaign whose `share_event` step carries the alias `shared`, `step_name:"shared"` counts those shares. A step name that isn't in your campaign's list of step names may still be one of its aliases, so check the aliases before you change a measure.
+
 ### GROUP_COUNT
 
 Counts the number of records matching the group.
@@ -704,10 +708,12 @@ GROUP_COUNT_DISTINCT(event.personId, step_name:"converted", attribution:"ALL", q
 
 Sums the values of the expression within the group.
 
+A step's amount is in its data, so sum `event.data.amount`. A step record has no top-level `amount` field, and a sum over `event.amount` returns 0 with no error.
+
 ```
 GROUP_SUM(event.data.amount, step_name:"converted")
 GROUP_SUM(reward(event.data.reward_id).faceValue, step_name:"advocate_reward_earned")
-GROUP_SUM(event.amount, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
+GROUP_SUM(event.data.amount, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
 ```
 
 ### GROUP_AVG
@@ -751,9 +757,9 @@ GROUP_FIRST(PERSON(event.personId).email, step_name:"converted", attribution:"AL
 Returns the last occurrence of the expression within the group.
 
 ```
-GROUP_LAST(event.amount, step_name:"converted")
+GROUP_LAST(event.data.amount, step_name:"converted")
 GROUP_LAST(event.data.channel, step_name:"converted", attribution:"ALL")
-GROUP_LAST(event.amount, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
+GROUP_LAST(event.data.amount, step_name:"converted", attribution:"ALL", quality:"HIGH", visit_type:"NEW_TO_CLIENT", channel:"email", source:"source", time_range:"ALL_TIME")
 ```
 
 ### GROUP_CONCATENATE
