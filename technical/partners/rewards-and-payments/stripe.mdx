@@ -79,6 +79,21 @@ The webhook posts each Stripe event to `https://api.extole.io/v6/events/stripe_e
 
 Extole copies these fields onto the event when Stripe sends them: `partner_user_id` from the Stripe customer id, `email` from `customer_email`, `currency`, `status`, `amount`, invoice amounts, the subscription id, and the plan amount. A subscription that moves from `trialing` to `active`, or is created already `active`, is marked as a new activation.
 
+## Business Events
+
+Installing the integration adds four business events. A campaign selects one of these as the cause of a reward, the same way it selects any other business event. Each event records the Stripe event id as a unique partner event key, so a retried Stripe event is not counted twice.
+
+| Business event | Trigger events | When it is recorded |
+| --- | --- | --- |
+| Stripe Purchase | `stripe_invoice_paid`, `stripe_payment_intent_succeeded` | An invoice was paid or a one-time payment succeeded. |
+| Subscription Started | `stripe_customer_subscription_created`, `stripe_customer_subscription_updated` | A subscription became active. A subscription created already active counts, and so does one that moves from trialing to active. Other subscription changes do not. |
+| Subscription Canceled | `stripe_customer_subscription_deleted` | A subscription was canceled. |
+| Stripe Refund | `stripe_charge_refunded` | A charge was fully or partially refunded. |
+
+Stripe Purchase does not listen to `stripe_checkout_session_completed`. A Checkout purchase also emits `invoice.paid` or `payment_intent.succeeded`, and listening to both would count one purchase twice. To count Checkout completions instead, add `stripe_checkout_session_completed` to the Stripe Purchase trigger event names and remove the other trigger event that the same Checkout also emits.
+
+Stripe Purchase records the amount, currency, Stripe customer id, and subscription id. Subscription Started records the plan amount, currency, and subscription id. Subscription Canceled records the subscription id. Stripe Refund records the amount and currency.
+
 ## How a Promotion Code Is Redeemed
 
 1. Extole issues the code and stores it as the reward's partner reward id. The reward stays earned.
