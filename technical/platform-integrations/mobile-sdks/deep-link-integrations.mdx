@@ -33,3 +33,45 @@ A typical experience for app-first clients on the friend funnel is as follows:
 ## Extole Attribution via Deep Links
 
 Typically, Extole generates share links in your branded domain like `https://share.yourcompany.com/sharelink"`. These links will redirect to a standard link of your deep link provider (e.g., AppsFlyer) with Extole's attribution information tacked on as parameters. Your SDK integration then passes these parameters back to Extole via events.
+
+### What the Redirect Carries
+
+When the share destination is your deep link, no Extole page renders on any device. The only thing
+that carries the referral across the app store is the query string on the redirect, so it is worth
+knowing exactly what is in it:
+
+- `extole_zone_advocate_code`: the advocate whose link was clicked.
+- `extole_zone_share_channel`: the channel the share was made on.
+- Your UTM parameters, and anything you add to the destination address's own query string. A
+  parameter such as `extole_zone_shareable_code={[shareable.code]}` added there is filled in with
+  the advocate's share code on every redirect.
+
+Your deep link provider holds these parameters across the install and hands them to your app on
+first open. Send them back on the app's first Extole event, and Extole resolves the code to the
+advocate and records the referral.
+
+<Info>
+On a referred friend's profile, this path records the referral at the moment of the app's first
+event, with no click or landing page event before it. That is the expected shape when no Extole
+page rendered, not a sign that tracking was skipped.
+</Info>
+
+To see what a friend receives on each device, open the share link with a desktop, an iPhone, and an
+Android user agent. Expect the destination page, the App Store link, and an Android intent link
+respectively. The parameters are on every one of them.
+
+### QR Codes, Texted Links, and Printed Codes
+
+A hop between devices carries only what is encoded in it. A QR code that encodes your bare app store
+link, or a bare deep link with no Extole parameters, carries no advocate code, so every install that
+comes through it is unattributed. There is no later step that can recover the referral.
+
+Generate the QR code per visitor, at the moment the page renders, from the parameters on the page's
+own URL. The share link redirect put the advocate code on that URL, so a QR code built from it
+carries the same referral the page received. The same rule applies to a "text me the link" button:
+the link you send has to include the parameters the page arrived with.
+
+<Warning>
+Replacing a destination page that friends can sign up on with a page that only shows a QR code
+removes the web conversion path. Decide that as a product change, not as a tracking fix.
+</Warning>

@@ -115,10 +115,8 @@ A referral program sends two types of emails:
 
 In the My Extole [Tech Center](https://my.extole.com/tech-center) you will see an **Email Domains** section where you can add your email domain. Here, we display if emails will send from that domain or if there is an SPF/DMARC error to be corrected:
 
-<Frame>
+<Frame caption="Example of Passing Email DNS">
   <img src="/images/extole/783142b8adb1c6296d5c440c6a697f8a2c66f0ce1e622f1805ef424438d807cf.png" alt="Screenshot showing In the My Extole Tech Center you will see an Email Domains section where you can add your email domain. Here, we display if emails will send from that domain..." />
-
-  Example of Passing Email DNS
 </Frame>
 
 To ensure your emails are delivered, you can add the Extole mail server IP address to your SPF records. You can add `spf.extole.io`.
@@ -131,7 +129,13 @@ mycompany.com.		86400	IN	TXT	"v=spf1 include:spf.extole.io -all"
 
 ### Adding DKIM Keys
 
-In order to set up DMARC/DKIM, you will need to request DKIM keys from Extole and the following will be provided to you to put into your DNS. Once added, Extole will validate and approve the keys.
+[//]: # "How do I get the DKIM records for my sending domain?"
+
+DKIM lets Extole sign program emails with your own domain so that receiving mail servers accept them. Each sending domain needs three CNAME records, and the host names are specific to that domain.
+
+To get the records, go to the My Extole [Tech Center](https://my.extole.com/tech-center), select **Domains**, and open your domain under **Email Domains**. Click **Generate DKIM records** to produce the exact host and value pairs, then give those pairs to your DNS administrator. Once they resolve, Extole validates and approves them, and the domain's **DKIM Status** changes to Pass.
+
+The domain's **CNAME records** table lists the same pairs at any time, so you can copy them again without regenerating. The **Generate DKIM records** control appears while a domain has no DKIM records yet, or while one of them is failing.
 
 **Example DNS update**:
 
@@ -142,10 +146,73 @@ xtl2._domainkey.CompanyName.com 86400 IN CNAME CompanyName.xtl2.extole.io
 ```
 
 <Warning>
+**Use the records Extole generated, not the example**
+
+
+The lines above show the shape of the records. The host prefix differs for every domain, so publish the values from your own domain's page.
+</Warning>
+
+<Warning>
 **Program Sending Domain**
 
 
 If you do not add the records and your SPF or DMARC is set to reject mails from unknown providers, your program emails will be sent from `email.referral-mail.com`.
 </Warning>
+
+[//]: ___
+
+## Checking an Email Domain
+
+[//]: # "How do I check whether my program emails will send from my own domain?"
+
+Go to the My Extole [Tech Center](https://my.extole.com/tech-center) and select **Domains**. **Email Domains** holds the domains your program emails send from; **Program Domains**, on the same page, holds the branded link domains covered earlier on this page. The two are configured separately.
+
+The **Email Domains** table carries one column per DNS check — **SPF Status**, **DMARC Status**, **DKIM Status**, **MX Status**, and **A Status** — plus **Overall send status**. Select a domain to open its page, which repeats each check with the record Extole found and lists the DKIM **CNAME records** to publish.
+
+**Overall send status** answers the question that decides delivery:
+
+| Status | What it means |
+|---|---|
+| **Available** | The domain passes validation. Program emails send from an address on this domain. |
+| **Not allowed** | The domain fails validation. Program emails send from `email.referral-mail.com` instead. |
+| **Overridden** | **Force Send From Email Domain** is on for this domain, so the checks are bypassed. See below. |
+| **Checking** | Extole is still reading your DNS. |
+
+Validation requires a passing DMARC record and either a resolving A record or a resolving MX record. **SPF Status** is reported alongside them and does not by itself change the overall status, but a failing SPF record still costs you deliverability — add `spf.extole.io` to your existing SPF record rather than publishing a second one.
+
+<Info>
+**Adding a domain to the list**
+
+
+Use **+ New Domain** to add a sending domain. If you do not see that control, ask your CSM or [Support](mailto:support@extole.com) to add the domain for you; you can generate its DKIM records and check its status yourself afterwards.
+</Info>
+
+[//]: ___
+
+## Force Send From Email Domain
+
+[//]: # "What does Force Send From Email Domain mean?"
+
+Every email domain carries a **Force Send From Email Domain** switch, shown on the **+ New Domain** form when the domain is created and on the edit form afterwards. The domain's own page shows its state as **Force send**.
+
+With the switch off, Extole checks the From domain on every send and rewrites the From address to `email.referral-mail.com` when that domain does not pass. With it on, Extole skips those checks for this domain and sends from the address you configured, whatever the DNS checks report. The domain's validation then reports as passing and its overall send status reads **Overridden**.
+
+Turn it on only when a seed test has confirmed that mail from the domain reaches the inbox and Extole's automatic checks reject a configuration you know works.
+
+<Warning>
+**An override changes Extole, not the receiving mail server**
+
+
+Forcing the send domain bypasses Extole's checks. It does not change how receiving mail servers treat your messages, and some providers may consider mail from an unverified domain invalid and quarantine or reject it.
+</Warning>
+
+<Info>
+**It is not a step in DKIM setup**
+
+
+Adding a domain, publishing its DKIM records, and validating it are separate from this switch. Leave it off for a normal setup and fix the underlying DNS records instead.
+</Info>
+
+For what Extole does when a domain is not verified, including the From address advocates' friends see on share emails, see [Why Is the From Address @email.referral-mail.com?](/guides/notifications-and-troubleshooting/platform-and-admin/why-is-the-from-email-email-referral-mail-com-gmail-friendly-from-changes).
 
 [//]: ___

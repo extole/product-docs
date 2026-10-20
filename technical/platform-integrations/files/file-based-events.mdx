@@ -9,7 +9,7 @@ Extole supports regular file uploads to receive events that may have happened of
 
 How the file is delivered decides which setup you use:
 
-- A recurring inbound feed: install [File Integration](/technical/platform-integrations/extensions/file-integration). The Event File job that ships with it matches CSV filenames; add **Lands In Directory** if you also need to constrain the folder.
+- A recurring inbound feed: install [File Integration](/technical/platform-integrations/extensions/file-integration). The Event File job that ships with it matches CSV filenames; set **Watch Directory** on **File Name Matches**, or add **Lands In Directory**, if you also need to constrain the folder.
 - A one-off upload: use [General File Uploads](/technical/platform-integrations/files/general-file-uploads) in the Tech Center.
 - The SFTP server the feed uses: [Extole SFTP Server](/technical/platform-integrations/files/extoles-sftp-server).
 
@@ -72,7 +72,7 @@ This page is the event file record shape — column names, required fields, and 
 
 [//]: # "What are Extole's file formatting standards and file naming conventions?"
 
-For a File Integration job, name the file so it matches that job's **Filename Match Pattern** (the library default is any `.csv`). If you added **Lands In Directory**, upload to that job's **Watch Directory** (library default `/incoming`), not necessarily `/events`.
+For a File Integration job, name the file so it matches that job's **Filename Match Pattern** (the default is any `.csv`). If you set **Watch Directory** on **File Name Matches**, or added **Lands In Directory**, upload to that watched SFTP folder (Lands In Directory watches `/incoming` when the folder is empty), not necessarily `/events`.
 
 The legacy SFTP drop for event files that are not run through File Integration is: `clientname@sftp.extole.io:/events`.
 
@@ -288,6 +288,55 @@ purchase,dx0129@akerd.com,AAA125,2013-06-19T12:16:12-0700,0064000000QP7SN,99.99
 ```
 
 For additional details on file requirements, see our docs: [File Conventions](https://docs.extole.com/docs/extoles-sftp-server#file-conventions)
+
+[//]: ___
+
+## Creating Advocate-Friend Relationships
+
+[//]: # "How do I upload referral relationships between advocates and friends in a file?"
+
+An event file can create the relationship between an advocate and a friend. Add a column that identifies the advocate to each row. Extole treats the person who did the event as the friend and links that friend to the advocate.
+
+Upload the file as an **Event** batch job, as described in [Manually Uploading Events to Extole](/guides/platform-overview/manually-uploading-events-to-extole).
+
+### Columns
+
+| Column | Required | Description |
+|---|---|---|
+| `event_name` | Yes | The event to create for the friend. See **Choosing the Event Name** below. |
+| `email` | Yes, or `partner_user_id` | The friend's email address. Without `email` or `partner_user_id`, Extole can't find the friend and creates a new anonymous profile for the row. See [How Extole Matches an Event to a Profile](/technical/integration-overview/how-extole-matches-an-event-to-a-profile). |
+| `partner_user_id` | No | Your unique identifier for the friend. |
+| `advocate.email` | Yes, or another advocate column | The advocate's email address. |
+| `advocate.partner_user_id` | No | Your unique identifier for the advocate. |
+| `advocate.person_id` | No | The advocate's Extole person ID. |
+| `advocate.first_name` | No | The advocate's first name. Extole uses it only when it creates a new advocate profile. |
+| `advocate.last_name` | No | The advocate's last name. Extole uses it only when it creates a new advocate profile. |
+| `partner_event_id` | No | Your unique identifier for the row. Give each row its own value, as the **Event File Records** table above recommends. |
+
+Use one advocate column per row: `advocate.email`, `advocate.partner_user_id`, or `advocate.person_id`.
+
+- If no profile matches `advocate.email` or `advocate.partner_user_id`, Extole creates a new advocate profile with that value.
+- If no profile matches `advocate.person_id`, Extole doesn't create the relationship.
+
+<Warning>
+If the batch job limits which columns it passes on (`event_columns` in the batch job API), include the advocate column in that list. Extole drops every column that isn't listed, so the rows process without error but no relationship is created.
+</Warning>
+
+### Choosing the Event Name
+
+The event name decides whether anything other than the relationship happens.
+
+- **An event name no campaign listens for**: Extole saves the relationship and runs no campaign step, so no reward is earned and no email is sent. Use a name you create for the upload, such as `relationship_upload`.
+- **An event name a live campaign listens for**: Extole saves the relationship, and the event also runs that campaign's steps for the friend when their triggers match. Those steps can earn rewards, send emails, or call webhooks, as the campaign defines them.
+
+### Relationship File Example
+
+```text Relationships
+event_name,email,advocate.email,partner_event_id
+relationship_upload,friend1@example.com,advocate1@example.com,REL-0001
+relationship_upload,friend2@example.com,advocate1@example.com,REL-0002
+relationship_upload,friend3@example.com,advocate2@example.com,REL-0003
+```
 
 [//]: ___
 
