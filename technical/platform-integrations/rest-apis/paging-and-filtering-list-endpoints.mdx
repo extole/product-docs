@@ -70,13 +70,13 @@ version list whose `published_date` is not null.
 
 ## Person Statistics
 
-`GET /v4/persons/{person_id}/stats` and `GET /v4/persons/{person_id}/network-stats` take no date
-range. Start and end parameters are ignored and the lifetime figure comes back. To compute a
-windowed figure, sum the person's steps by `event_date` instead.
+`GET /v5/persons/{person_id}/stats` and `GET /v5/persons/{person_id}/network-stats` take no date
+range and return the lifetime figure. To compute a windowed figure, sum the person's steps by
+`event_date` instead.
 
-Network statistics walk the person's first 100 friends before adding the second-degree tail, so
-a person with more than 100 friends is undercounted there. `GET /v5/persons/{person_id}/relationships?my_roles=ADVOCATE&limit=1000`
-returns every friend; sum their individual statistics when the person's network is large.
+Network statistics count every person the person referred, directly or through the people they
+referred. The person's own steps are not counted, and anonymous persons are left out unless you
+set `exclude_anonymous=false`.
 
 ## Date Fields on Steps
 

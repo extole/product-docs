@@ -24,6 +24,16 @@
     form.querySelector('[name="retURL"]').value = returnUrl();
   }
 
+  function setAttributionFields() {
+    var formUrl = window.location.href.split("#")[0];
+
+    form.querySelector('[name="00N1W000003AeEL"]').value = document.referrer.slice(
+      0,
+      1000
+    );
+    form.querySelector('[name="00NQP000001T4R3"]').value = formUrl.slice(0, 1000);
+  }
+
   function trackAnalyticsEvent(eventName) {
     if (typeof window.gtag !== "function") return;
     window.gtag("event", eventName);
@@ -71,6 +81,7 @@
     event.preventDefault();
     setNameFields();
     setReturnUrl();
+    setAttributionFields();
 
     if (captchaEnabled) {
       updateCaptchaTimestamp();
@@ -225,16 +236,20 @@
       '<p id="extole-sandbox-description">Tell us about yourself and we’ll help you get started.</p>' +
       '<form class="extole-sandbox-form" method="post" action="https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8&orgId=00D400000009iMx">' +
       '<input type="hidden" name="oid" value="00D400000009iMx">' +
-      '<input type="hidden" name="Campaign__c" value="Developer Docs">' +
+      '<input type="hidden" name="Campaign__c" value="Sandbox Request">' +
       '<input type="hidden" name="lead_source" value="Inbound - Organic">' +
       captchaMarkup +
       '<input type="hidden" name="first_name">' +
       '<input type="hidden" name="last_name">' +
       '<input type="hidden" name="retURL">' +
+      '<input type="hidden" name="00N1W000003AeEL">' +
+      '<input type="hidden" name="00NQP000001T4R3">' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-name">Name</label><input id="extole-sandbox-name" name="full_name" autocomplete="name" required></div>' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-title-field">Title</label><input id="extole-sandbox-title-field" name="title" autocomplete="organization-title" required></div>' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-company">Company</label><input id="extole-sandbox-company" name="company" autocomplete="organization" required></div>' +
       '<div class="extole-sandbox-field"><label for="extole-sandbox-email">Email</label><input id="extole-sandbox-email" name="email" type="email" autocomplete="email" required></div>' +
+      '<div class="extole-sandbox-field extole-sandbox-field-full"><label for="extole-sandbox-message">What are you looking to build with Extole?</label><textarea id="extole-sandbox-message" name="00N8Z000003wCnI" rows="3" maxlength="255" required></textarea></div>' +
+      '<p class="extole-sandbox-privacy">We care about your privacy. By submitting this form, you agree to be contacted about your sandbox request and to receive occasional related business insights from Extole. You can unsubscribe at any time. For details, view our <a href="https://www.extole.com/privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</p>' +
       '<p class="extole-sandbox-error" aria-live="assertive" hidden></p>' +
       '<button class="extole-sandbox-submit" type="submit">Request sandbox</button>' +
       '</form>' +
@@ -276,9 +291,12 @@
 
   addModal();
   bindTriggers();
-  if (new URLSearchParams(window.location.search).get("sandbox-request") === "submitted") {
-    window.history.replaceState({}, "", window.location.pathname + window.location.hash);
-    showSubmissionConfirmation();
+  var landingUrl = new URL(window.location.href);
+  var sandboxRequest = landingUrl.searchParams.get("sandbox-request");
+  if (sandboxRequest === "submitted" || sandboxRequest === "open") {
+    landingUrl.searchParams.delete("sandbox-request");
+    window.history.replaceState({}, "", landingUrl.pathname + landingUrl.search + landingUrl.hash);
+    if (sandboxRequest === "submitted") showSubmissionConfirmation();
     openModal();
   }
   new MutationObserver(function (mutations) {
