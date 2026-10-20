@@ -68431,22 +68431,26 @@
         "x-extole-visibility" : "visible"
       },
       "post" : {
-        "description" : "Uploads a new logo image for the client via multipart form upload. Returns the created logo metadata.",
+        "description" : "Uploads a PNG image as the client logo, sent as the multipart form part `file`. The image must be at most 1,000,000 bytes. A client has one active logo, so when one exists this returns `400 logo_already_exists`; archive the current logo with `DELETE /v2/logo` first. Returns the created logo metadata.",
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
               "example" : {
-                "attributes" : {
-                  "fileName" : "fileName",
-                  "size" : 1
-                },
-                "inputStream" : { }
+                "file" : "file"
               },
               "schema" : {
-                "$ref" : "#/components/schemas/FileInputStreamRequest"
+                "properties" : {
+                  "file" : {
+                    "description" : "The PNG logo image.",
+                    "format" : "binary",
+                    "type" : "string"
+                  }
+                },
+                "type" : "object"
               }
             }
-          }
+          },
+          "required" : true
         },
         "responses" : {
           "200" : {
