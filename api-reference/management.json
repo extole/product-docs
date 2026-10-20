@@ -2961,6 +2961,26 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "external_element_not_found" : {
+        "summary" : "external_element_not_found",
+        "value" : {
+          "code" : "external_element_not_found",
+          "http_status_code" : 400,
+          "message" : "External element not found",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "external_element_type_not_supported" : {
+        "summary" : "external_element_type_not_supported",
+        "value" : {
+          "code" : "external_element_type_not_supported",
+          "http_status_code" : 400,
+          "message" : "External element type not supported",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "external_elements_cannot_have_multiple_references" : {
         "summary" : "external_elements_cannot_have_multiple_references",
         "value" : {
@@ -3097,6 +3117,36 @@
           "code" : "file_name_matches_sftp_destination_invalid",
           "http_status_code" : 400,
           "message" : "File name matches trigger sftp destination is not a LOCAL sftp destination of the client",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "filter_rows_script_invalid" : {
+        "summary" : "filter_rows_script_invalid",
+        "value" : {
+          "code" : "filter_rows_script_invalid",
+          "http_status_code" : 400,
+          "message" : "Filter rows task script does not compile",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "filter_rows_script_not_javascript" : {
+        "summary" : "filter_rows_script_not_javascript",
+        "value" : {
+          "code" : "filter_rows_script_not_javascript",
+          "http_status_code" : 400,
+          "message" : "Filter rows task script must resolve to a JavaScript expression",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "filter_rows_script_required" : {
+        "summary" : "filter_rows_script_required",
+        "value" : {
+          "code" : "filter_rows_script_required",
+          "http_status_code" : 400,
+          "message" : "Filter rows task requires a script",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -3447,6 +3497,16 @@
           "code" : "invalid_external_component_reference",
           "http_status_code" : 400,
           "message" : "Unknown external referenced campaign component",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "invalid_external_element_filter" : {
+        "summary" : "invalid_external_element_filter",
+        "value" : {
+          "code" : "invalid_external_element_filter",
+          "http_status_code" : 400,
+          "message" : "Invalid external element filter, expected format: type:id",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -6747,6 +6807,26 @@
           "code" : "too_many_requests",
           "http_status_code" : 429,
           "message" : "The server is unable to process your request at the moment, please retry later.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "transform_column_headers_column_mapping_invalid" : {
+        "summary" : "transform_column_headers_column_mapping_invalid",
+        "value" : {
+          "code" : "transform_column_headers_column_mapping_invalid",
+          "http_status_code" : 400,
+          "message" : "Transform column headers task has an invalid column mapping",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "transform_column_headers_column_mappings_required" : {
+        "summary" : "transform_column_headers_column_mappings_required",
+        "value" : {
+          "code" : "transform_column_headers_column_mappings_required",
+          "http_status_code" : 400,
+          "message" : "Transform column headers task requires at least one column mapping",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -12592,6 +12672,24 @@
         "required" : [ "component_ids", "directory_path", "enabled", "id", "job_id", "match_type", "pattern", "sftp_destination_id", "trigger_type" ],
         "type" : "object"
       },
+      "BuiltFilterRowsTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltTaskResponseBase"
+        }, {
+          "properties" : {
+            "script" : {
+              "$ref" : "#/components/schemas/ScriptInBuiltFilterRowsTaskResponse"
+            },
+            "task_type" : {
+              "enum" : [ "FILTER_ROWS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "component_ids", "enabled", "id", "job_id", "order", "script", "task_type" ],
+        "type" : "object"
+      },
       "BuiltGenericClientKeyResponse" : {
         "allOf" : [ {
           "$ref" : "#/components/schemas/BuiltClientKeyResponseBase"
@@ -13395,17 +13493,23 @@
         "discriminator" : {
           "mapping" : {
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/BuiltFileHeaderValidatorTaskResponse",
+            "FILTER_ROWS" : "#/components/schemas/BuiltFilterRowsTaskResponse",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/BuiltStartAudienceOperationTaskResponse",
-            "START_BATCH_JOB" : "#/components/schemas/BuiltStartBatchJobTaskResponse"
+            "START_BATCH_JOB" : "#/components/schemas/BuiltStartBatchJobTaskResponse",
+            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/BuiltTransformColumnHeadersTaskResponse"
           },
           "propertyName" : "task_type"
         },
         "oneOf" : [ {
           "$ref" : "#/components/schemas/BuiltFileHeaderValidatorTaskResponse"
         }, {
+          "$ref" : "#/components/schemas/BuiltFilterRowsTaskResponse"
+        }, {
           "$ref" : "#/components/schemas/BuiltStartAudienceOperationTaskResponse"
         }, {
           "$ref" : "#/components/schemas/BuiltStartBatchJobTaskResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltTransformColumnHeadersTaskResponse"
         } ],
         "readOnly" : true
       },
@@ -13432,7 +13536,7 @@
             "type" : "string"
           },
           "job_id" : {
-            "description" : "Id of the job this task belongs to.",
+            "description" : "Id of the job this task belongs to. Absent for a task that is not attached to a job.",
             "readOnly" : true,
             "type" : "string"
           },
@@ -13444,11 +13548,33 @@
           },
           "task_type" : {
             "description" : "Discriminator identifying the task type.",
-            "enum" : [ "FILE_HEADER_VALIDATOR", "START_AUDIENCE_OPERATION", "START_BATCH_JOB" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
             "readOnly" : true,
             "type" : "string"
           }
         },
+        "type" : "object"
+      },
+      "BuiltTransformColumnHeadersTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltTaskResponseBase"
+        }, {
+          "properties" : {
+            "column_mappings" : {
+              "description" : "Column headers renamed in the uploaded file, input header to output header.",
+              "items" : {
+                "$ref" : "#/components/schemas/ColumnMappingResponse"
+              },
+              "type" : "array"
+            },
+            "task_type" : {
+              "enum" : [ "TRANSFORM_COLUMN_HEADERS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "column_mappings", "component_ids", "enabled", "id", "job_id", "order", "task_type" ],
         "type" : "object"
       },
       "BuiltTriggerResponse" : {
@@ -19264,6 +19390,104 @@
           },
           "pattern" : "^javascript@runtime:.*",
           "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ColumnMappingRequest" : {
+        "description" : "Column headers to rename in the uploaded file, input header to output header. Columns that are not mapped keep their header. A literal list or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to leave existing mappings unchanged.",
+        "properties" : {
+          "input_column" : {
+            "description" : "Column header as it appears in the uploaded file.",
+            "type" : "string"
+          },
+          "output_column" : {
+            "description" : "Column header written to the transformed file in place of the input column.",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ColumnMappingResponse" : {
+        "description" : "Column headers renamed in the uploaded file, input header to output header. Columns that are not mapped keep their header. A literal list or a buildtime expression resolved from component settings when the task is saved.",
+        "properties" : {
+          "input_column" : {
+            "description" : "Column header as it appears in the uploaded file.",
+            "type" : "string"
+          },
+          "output_column" : {
+            "description" : "Column header written to the transformed file in place of the input column.",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ColumnMappingsInTransformColumnHeadersTaskRequest" : {
+        "description" : "Column headers to rename in the uploaded file, input header to output header. Columns that are not mapped keep their header. A literal list or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to leave existing mappings unchanged. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static column mappings",
+          "items" : {
+            "$ref" : "#/components/schemas/ColumnMappingRequest"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{columnMappings}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('columnMappings');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ColumnMappingsInTransformColumnHeadersTaskResponse" : {
+        "description" : "Column headers renamed in the uploaded file, input header to output header. Columns that are not mapped keep their header. A literal list or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal column mappings",
+          "items" : {
+            "$ref" : "#/components/schemas/ColumnMappingResponse"
+          },
+          "title" : "Static Value",
+          "type" : "array"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{columnMappings}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('columnMappings');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
           "type" : "string"
         } ]
       },
@@ -29409,6 +29633,43 @@
           "title" : "Buildtime - Javascript",
           "type" : "string"
         } ]
+      },
+      "FilterRowsTaskRequest" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskRequestBase"
+        }, {
+          "properties" : {
+            "script" : {
+              "$ref" : "#/components/schemas/ScriptInFilterRowsTaskRequest"
+            },
+            "task_type" : {
+              "enum" : [ "FILTER_ROWS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "task_type" ],
+        "type" : "object"
+      },
+      "FilterRowsTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskResponseBase"
+        }, {
+          "properties" : {
+            "script" : {
+              "$ref" : "#/components/schemas/ScriptInFilterRowsTaskResponse"
+            },
+            "task_type" : {
+              "enum" : [ "FILTER_ROWS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Stored filter rows task definition. Fields `order`, `script`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "script", "task_type" ],
+        "type" : "object"
       },
       "FilterScopeInCampaignControllerTriggerHasPriorRewardResponse" : {
         "description" : "The filter scope as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
@@ -41377,6 +41638,134 @@
           "type" : "string"
         } ]
       },
+      "ScriptInBuiltFilterRowsTaskResponse" : {
+        "description" : "JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. It must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header. CSV and PSV values are strings; JSON values keep their JSON types. For example `context.getRow().status === 'active'`. Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+        "externalDocs" : {
+          "description" : "FilterRowsContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal script",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "handlebars@runtime:{{script}}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('script');}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ScriptInFilterRowsTaskRequest" : {
+        "description" : "Expression evaluated when the task is built, resolving to a JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. The row expression must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header. CSV and PSV values are strings; JSON values keep their JSON types. For example `context.getRow().status === 'active'`. Required on create. Omit on update to keep the existing script. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts). Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+        "oneOf" : [ {
+          "description" : "Static script",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{script}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('script');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "handlebars@runtime:{{script}}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('script');}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ScriptInFilterRowsTaskResponse" : {
+        "description" : "Expression evaluated when the task is built, resolving to a JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. The row expression must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header. CSV and PSV values are strings; JSON values keep their JSON types. For example `context.getRow().status === 'active'`. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts). Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+        "oneOf" : [ {
+          "description" : "Literal script",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{script}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('script');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "handlebars@runtime:{{script}}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('script');}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "SelectorsInCampaignControllerResponse" : {
         "description" : "The selectors as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -43704,7 +44093,8 @@
             "type" : "integer"
           },
           "status" : {
-            "enum" : [ "FAIL", "SUCCESS" ],
+            "description" : "Outcome of this task execution. SUCCESS when the task completed, FAIL when it failed, and RUNNING when the task started work that finishes later, such as a file transform running as a Spark job; its outcome is reported as a later execution with the same sequence.",
+            "enum" : [ "FAIL", "RUNNING", "SUCCESS" ],
             "type" : "string"
           },
           "task_id" : {
@@ -43717,17 +44107,23 @@
         "discriminator" : {
           "mapping" : {
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/FileHeaderValidatorTaskRequest",
+            "FILTER_ROWS" : "#/components/schemas/FilterRowsTaskRequest",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/StartAudienceOperationTaskRequest",
-            "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskRequest"
+            "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskRequest",
+            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/TransformColumnHeadersTaskRequest"
           },
           "propertyName" : "task_type"
         },
         "oneOf" : [ {
           "$ref" : "#/components/schemas/FileHeaderValidatorTaskRequest"
         }, {
+          "$ref" : "#/components/schemas/FilterRowsTaskRequest"
+        }, {
           "$ref" : "#/components/schemas/StartAudienceOperationTaskRequest"
         }, {
           "$ref" : "#/components/schemas/StartBatchJobTaskRequest"
+        }, {
+          "$ref" : "#/components/schemas/TransformColumnHeadersTaskRequest"
         } ],
         "required" : [ "task_type" ]
       },
@@ -43755,7 +44151,7 @@
             "$ref" : "#/components/schemas/ParentJobIdInTaskRequest"
           },
           "task_type" : {
-            "enum" : [ "FILE_HEADER_VALIDATOR", "START_AUDIENCE_OPERATION", "START_BATCH_JOB" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
             "type" : "string"
           }
         },
@@ -43766,17 +44162,23 @@
         "discriminator" : {
           "mapping" : {
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/FileHeaderValidatorTaskResponse",
+            "FILTER_ROWS" : "#/components/schemas/FilterRowsTaskResponse",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/StartAudienceOperationTaskResponse",
-            "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskResponse"
+            "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskResponse",
+            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/TransformColumnHeadersTaskResponse"
           },
           "propertyName" : "task_type"
         },
         "oneOf" : [ {
           "$ref" : "#/components/schemas/FileHeaderValidatorTaskResponse"
         }, {
+          "$ref" : "#/components/schemas/FilterRowsTaskResponse"
+        }, {
           "$ref" : "#/components/schemas/StartAudienceOperationTaskResponse"
         }, {
           "$ref" : "#/components/schemas/StartBatchJobTaskResponse"
+        }, {
+          "$ref" : "#/components/schemas/TransformColumnHeadersTaskResponse"
         } ],
         "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ]
       },
@@ -43809,7 +44211,7 @@
             "$ref" : "#/components/schemas/ParentJobIdInTaskResponse"
           },
           "task_type" : {
-            "enum" : [ "FILE_HEADER_VALIDATOR", "START_AUDIENCE_OPERATION", "START_BATCH_JOB" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
             "type" : "string"
           }
         },
@@ -44000,6 +44402,43 @@
           "title" : "Runtime - Javascript",
           "type" : "string"
         } ]
+      },
+      "TransformColumnHeadersTaskRequest" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskRequestBase"
+        }, {
+          "properties" : {
+            "column_mappings" : {
+              "$ref" : "#/components/schemas/ColumnMappingsInTransformColumnHeadersTaskRequest"
+            },
+            "task_type" : {
+              "enum" : [ "TRANSFORM_COLUMN_HEADERS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "task_type" ],
+        "type" : "object"
+      },
+      "TransformColumnHeadersTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskResponseBase"
+        }, {
+          "properties" : {
+            "column_mappings" : {
+              "$ref" : "#/components/schemas/ColumnMappingsInTransformColumnHeadersTaskResponse"
+            },
+            "task_type" : {
+              "enum" : [ "TRANSFORM_COLUMN_HEADERS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Stored transform column headers task definition. Fields `order`, `column_mappings`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "column_mappings", "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ],
+        "type" : "object"
       },
       "TransitionRuleResponse" : {
         "properties" : {
@@ -50060,6 +50499,13 @@
             "type" : "string"
           }
         }, {
+          "description" : "An external element as type:id, for example AUDIENCE:<audience_id>. Returns only components whose built configuration uses it. The only supported type is AUDIENCE, which matches an audience_id or audience_id_list setting holding the audience, a membership action, membership trigger or event targeting trigger that belongs to the component and names it, one of the audience's own components, or a component_id, component_reference or component_reference_list setting pointing at one of the audience's own components. version_state selects which built campaign version is checked.",
+          "in" : "query",
+          "name" : "external_element",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "description" : "showAll applies only for components from EXTOLE & EXTOLE_BETA ownersfalse (default) shows components from LIVE, `integration` and `campaign-components` program-types.true returns all components regardless of their program-type or state of the campaign.",
           "in" : "query",
           "name" : "show_all",
@@ -50144,6 +50590,15 @@
                   },
                   "display_name_has_illegal_character" : {
                     "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -51144,6 +51599,13 @@
             "type" : "string"
           }
         }, {
+          "description" : "An external element as type:id, for example AUDIENCE:<audience_id>. Returns only components whose built configuration uses it. The only supported type is AUDIENCE, which matches an audience_id or audience_id_list setting holding the audience, a membership action, membership trigger or event targeting trigger that belongs to the component and names it, one of the audience's own components, or a component_id, component_reference or component_reference_list setting pointing at one of the audience's own components. version_state selects which built campaign version is checked.",
+          "in" : "query",
+          "name" : "external_element",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "description" : "showAll applies only for components from EXTOLE & EXTOLE_BETA ownersfalse (default) shows components from LIVE, `integration` and `campaign-components` program-types.true returns all components regardless of their program-type or state of the campaign.",
           "in" : "query",
           "name" : "show_all",
@@ -51228,6 +51690,15 @@
                   },
                   "display_name_has_illegal_character" : {
                     "$ref" : "#/components/examples/display_name_has_illegal_character"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -51618,6 +52089,15 @@
                   "display_name_has_illegal_character" : {
                     "$ref" : "#/components/examples/display_name_has_illegal_character"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -52007,6 +52487,15 @@
                   "display_name_has_illegal_character" : {
                     "$ref" : "#/components/examples/display_name_has_illegal_character"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -52261,6 +52750,12 @@
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -52269,6 +52764,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -52688,6 +53186,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -52732,6 +53236,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -53288,6 +53795,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -53329,6 +53842,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -53707,6 +54223,15 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -53883,6 +54408,12 @@
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -53891,6 +54422,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -54056,6 +54590,15 @@
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -54217,6 +54760,15 @@
                   },
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -54414,6 +54966,15 @@
                   },
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -54655,6 +55216,15 @@
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -54815,6 +55385,15 @@
                   },
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -55089,6 +55668,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -55097,6 +55682,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -55298,6 +55886,15 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -55471,6 +56068,15 @@
                   },
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -55755,6 +56361,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -55763,6 +56375,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -56113,6 +56728,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -56139,6 +56760,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -56362,6 +56986,15 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -56532,6 +57165,15 @@
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -56695,6 +57337,15 @@
                   },
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -57014,6 +57665,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -57037,6 +57694,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -57247,6 +57907,15 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -57420,6 +58089,15 @@
                   },
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -57748,6 +58426,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -57771,6 +58455,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -58088,6 +58775,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -58111,6 +58804,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -58325,6 +59021,15 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -58491,6 +59196,15 @@
                   },
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -58768,6 +59482,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -58776,6 +59496,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -59225,6 +59948,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -59248,6 +59977,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -59560,6 +60292,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -59568,6 +60306,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -59812,6 +60553,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -59820,6 +60567,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -60130,6 +60880,12 @@
                   "display_name_has_illegal_character" : {
                     "$ref" : "#/components/examples/display_name_has_illegal_character"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -60138,6 +60894,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -60469,6 +61228,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -60477,6 +61242,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -60787,6 +61555,12 @@
                   "display_name_has_illegal_character" : {
                     "$ref" : "#/components/examples/display_name_has_illegal_character"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -60795,6 +61569,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -61059,6 +61836,15 @@
                   },
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -61358,6 +62144,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -61366,6 +62158,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -61851,6 +62646,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -61877,6 +62678,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -62199,6 +63003,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -62207,6 +63017,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -62415,6 +63228,12 @@
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -62423,6 +63242,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -62607,6 +63429,12 @@
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -62615,6 +63443,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -62808,6 +63639,15 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
@@ -62991,6 +63831,12 @@
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -62999,6 +63845,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -81580,6 +82429,15 @@
                   "file_name_matches_sftp_destination_invalid" : {
                     "$ref" : "#/components/examples/file_name_matches_sftp_destination_invalid"
                   },
+                  "filter_rows_script_invalid" : {
+                    "$ref" : "#/components/examples/filter_rows_script_invalid"
+                  },
+                  "filter_rows_script_not_javascript" : {
+                    "$ref" : "#/components/examples/filter_rows_script_not_javascript"
+                  },
+                  "filter_rows_script_required" : {
+                    "$ref" : "#/components/examples/filter_rows_script_required"
+                  },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
                   },
@@ -81657,6 +82515,12 @@
                   },
                   "task_validation_failed" : {
                     "$ref" : "#/components/examples/task_validation_failed"
+                  },
+                  "transform_column_headers_column_mapping_invalid" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mapping_invalid"
+                  },
+                  "transform_column_headers_column_mappings_required" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mappings_required"
                   },
                   "trigger_evaluation_failed" : {
                     "$ref" : "#/components/examples/trigger_evaluation_failed"
@@ -83167,6 +84031,15 @@
                   "file_header_validator_on_mismatch_required" : {
                     "$ref" : "#/components/examples/file_header_validator_on_mismatch_required"
                   },
+                  "filter_rows_script_invalid" : {
+                    "$ref" : "#/components/examples/filter_rows_script_invalid"
+                  },
+                  "filter_rows_script_not_javascript" : {
+                    "$ref" : "#/components/examples/filter_rows_script_not_javascript"
+                  },
+                  "filter_rows_script_required" : {
+                    "$ref" : "#/components/examples/filter_rows_script_required"
+                  },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
                   },
@@ -83223,6 +84096,12 @@
                   },
                   "task_validation_failed" : {
                     "$ref" : "#/components/examples/task_validation_failed"
+                  },
+                  "transform_column_headers_column_mapping_invalid" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mapping_invalid"
+                  },
+                  "transform_column_headers_column_mappings_required" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mappings_required"
                   }
                 },
                 "schema" : {
@@ -83625,6 +84504,15 @@
                   "file_header_validator_on_mismatch_required" : {
                     "$ref" : "#/components/examples/file_header_validator_on_mismatch_required"
                   },
+                  "filter_rows_script_invalid" : {
+                    "$ref" : "#/components/examples/filter_rows_script_invalid"
+                  },
+                  "filter_rows_script_not_javascript" : {
+                    "$ref" : "#/components/examples/filter_rows_script_not_javascript"
+                  },
+                  "filter_rows_script_required" : {
+                    "$ref" : "#/components/examples/filter_rows_script_required"
+                  },
                   "invalid_component_installed_into_socket" : {
                     "$ref" : "#/components/examples/invalid_component_installed_into_socket"
                   },
@@ -83684,6 +84572,12 @@
                   },
                   "task_validation_failed" : {
                     "$ref" : "#/components/examples/task_validation_failed"
+                  },
+                  "transform_column_headers_column_mapping_invalid" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mapping_invalid"
+                  },
+                  "transform_column_headers_column_mappings_required" : {
+                    "$ref" : "#/components/examples/transform_column_headers_column_mappings_required"
                   }
                 },
                 "schema" : {
@@ -96099,6 +96993,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -96149,6 +97049,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -96635,6 +97538,12 @@
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -96643,6 +97552,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -96891,6 +97803,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -96899,6 +97817,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -97243,6 +98164,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -97251,6 +98178,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -97595,6 +98525,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -97603,6 +98539,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -97947,6 +98886,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -97955,6 +98900,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -98299,6 +99247,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
                   },
@@ -98307,6 +99261,9 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -98850,6 +99807,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -98900,6 +99863,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -99490,6 +100456,12 @@
                   "external_element_is_referenced_by_active_configuration" : {
                     "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "external_elements_cannot_have_multiple_references" : {
                     "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
@@ -99513,6 +100485,9 @@
                   },
                   "invalid_external_component_reference" : {
                     "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
@@ -110568,6 +111543,12 @@
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
                   },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
                   "face_value_out_of_range" : {
                     "$ref" : "#/components/examples/face_value_out_of_range"
                   },
@@ -110597,6 +111578,9 @@
                   },
                   "invalid_component_reference" : {
                     "$ref" : "#/components/examples/invalid_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
                   },
                   "invalid_file_content" : {
                     "$ref" : "#/components/examples/invalid_file_content"
