@@ -160,6 +160,8 @@ There are four options for the status of the report.
 * Failed: There was an error in the API call.
 * Done: The report is complete and ready to be downloaded.
 
+A report in `IN_PROGRESS` with a null `error_code` has not failed, even when the report page in My Extole still shows it generating. Compare the record's `created_date` with the time you submitted it: a report submitted a few minutes ago is still queued. A failed run carries `EXECUTION_ERROR` or `CONFIGURATION_ERROR` in `error_code`.
+
 To get a report's status, simply make the GET call listed on the report's Get API Call page and look for the `status` parameter in the response.
 
 ## Download a Report
@@ -169,3 +171,25 @@ Once the status of a report is `DONE` you will be able to download your report. 
 ```
 GET https://api.extole.io/v4/reports/<REPORT_ID>/download
 ```
+
+The files a run generated are listed in the `formats` field of `GET /v4/reports/<REPORT_ID>`. They are chosen when the report is submitted and cannot be changed afterwards. A `format` query parameter on the download call does not convert the file: the run's own format comes back whatever you ask for, so read the `Content-Type` header and the `filename` in `Content-Disposition` and parse what arrived.
+
+A paginated download, `download?limit=<N>`, is the preview that My Extole shows on the report page. It is available for the text formats only: CSV, PSV, JSON, JSONL, and the headless CSV and PSV variants. For an XLSX run the paginated call returns `400 report_preview_not_available` while the plain download succeeds, and My Extole shows `Report preview for requested format is not available`. Only the on-screen table is missing; the file is whole.
+
+## Time Ranges
+
+Read a report's `period_start` and `period_end` from the record rather than assuming what a named range covers:
+
+- `LAST_DAY` is the trailing 24 hours from the time the report ran. `PREVIOUS_DAY` is the previous calendar day.
+- `ALL_TIME` starts at your account's own data start, not at the report type's. Check that the window covers the whole life of the record before you read a count as a lifetime total.
+- Aggregate reports, such as the campaign and program summaries, lag the raw event reports by minutes to hours. When two windows over an aggregate disagree with a raw event count, the raw count is current.
+
+## Filters That Drop Every Row
+
+A report whose `filters` expression names a column that its `mappings` no longer define drops every row and still completes with `status: DONE` and a null `error_code`. The runner, the report status, and any SFTP delivery all report success, and an empty file is delivered. When a scheduled report stops returning rows, compare the failing run's `parameters` with the last run that had rows before you look anywhere else. A renamed mapping also changes the CSV header, because the header is the mapping's own identifier, so restoring the original name is usually the better fix.
+
+Pattern parameters, and the `like` operator in mappings and filters, match the whole value rather than searching within it. See [Custom Data Queries](/guides/dashboards-and-reporting/configuring-reports/custom-data-queries-using-extole-reports#pattern-matching-with-like).
+
+## Related Documentation
+
+- [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints)

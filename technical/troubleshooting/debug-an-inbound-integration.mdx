@@ -1,0 +1,124 @@
+---
+title: "Debug an Inbound Integration"
+description: "Follow an event from your site, app, partner, or file into Extole with Event Streams, Event Live View, a person's steps, and the Debugging reports, and find the stage where it stopped."
+---
+
+# Overview
+
+An inbound integration is anything that sends events into Extole: the JavaScript tag on your site, a mobile SDK, a server calling the Events API, a partner platform, or a file dropped on SFTP. When one of those events doesn't produce the outcome you expected — no conversion on the dashboard, no reward, no email — the event stopped at one of a few stages on its way through the platform.
+
+This page is for the product manager or developer who owns that integration. It explains the stages, which tool in My Extole shows each one, and a sequence that finds the stage where your event stopped.
+
+## How an Inbound Event Moves Through Extole
+
+Every inbound event takes the same path, whatever sent it:
+
+1. **Arrival.** Extole receives the event and records it as an **input event**, under the name you sent — `purchase`, `account_opened`, `partner_order_created`.
+2. **Identity.** Extole attaches the event to a person, using the identifiers the event carries, such as an email address or a partner user ID. An event with no identifier stays with an anonymous person.
+3. **Matching.** Each campaign listens for input events by name. When a campaign's trigger matches the name, the event creates a **step** on the person — `converted`, `registered`, `account_opened`. An input event that no campaign listens for is stored and creates no step.
+4. **Evaluation.** The step is scored for quality, attributed to a journey when the person has one, and can go on to issue rewards and send messages.
+5. **Reporting.** Steps in the production container count in dashboards and reports.
+
+Each tool below shows a different part of that path. Most debugging time is lost looking in a tool that can't see the stage where the event stopped.
+
+| Tool | Where to find it | What it shows | Stages it covers |
+| --- | --- | --- | --- |
+| Event Streams | **Tech Center** > **Event Streams** | Every event, of every type, with its full payload, from the moment you start streaming | Arrival through evaluation, live |
+| Event Live View | **Tech Center** > **Event Live View**, also under **Support** | Recent events your campaigns acted on, with campaign, quality score, and review status | Evaluation, historical |
+| A person's steps | **Support** > **Person Search** > the person > **Show Steps** | Every step on one person, with campaign, program, container, quality, and journey | Identity through evaluation, for one person |
+| Debugging reports | **Reports** > **+ New Report**, searched by name | Input events and steps across the whole account, over any time range | Arrival, matching, and reporting, in bulk |
+
+## Event Streams: Watch Events Arrive
+
+An [Event Stream](/technical/platform-integrations/extensions/event-streams-overview) is a live feed of the events your account receives. It is the fastest way to answer "is my event reaching Extole, and what does it look like when it does?"
+
+Use it while you reproduce the problem:
+
+1. Create a stream and narrow it with filters. **Event Name** and **Person ID** are the most useful while testing; **Event Type** set to `INPUT` shows only what arrived, before any campaign acted on it.
+2. Click **Start Streaming**. A stream is not a history: it shows events from the moment it starts, so start it before you send the test event. A running stream stops on its stop date, one hour out by default.
+3. Send the event from your integration, then refresh the stream.
+4. Open the event and read it as JSON. Check the `name`, the `data` fields, the `sandbox` container, and the `event_context` — `app_type` and `input_event_type` tell you which integration sent it.
+
+Because the stream carries every event type, one test shows the whole chain. An `INPUT` event followed by a `STEP` event is an event that arrived and matched a campaign. An `INPUT` event with nothing after it arrived and matched nothing. For expressions that narrow a busy stream further, see [Event Stream Query Language](/technical/platform-integrations/extensions/event-streams-overview/event-stream-query-language).
+
+## Event Live View: Check What Your Campaigns Did
+
+**Event Live View** answers a later question: once an event reached a campaign, how did the campaign treat it? It lists recent events that campaigns acted on — shares, conversions, and your other business events — with the person, time, user agent, campaign, quality score, and review status of each.
+
+- Filter by date range, event type, channel, quality score (**Suspicious** or **Passing**), review status, and campaign.
+- Search by event ID when you already have one, from a stream, a report, or your own logs.
+- Select an event to read its detail as **Pretty** or **Raw** JSON.
+
+Unlike a stream, Event Live View looks back in time, so it's the right tool when the event happened yesterday. It shows only events a campaign acted on. An input event that matched no campaign never appears here — look for it in a stream or in the Debugging reports instead.
+
+## A Person's Steps: Follow One Person
+
+When the problem is about one person — "this customer bought and the advocate got nothing" — start from the person. Find them under **Support** > **Person Search** by email, partner user ID, order number, or Extole person ID, open their profile, and choose **Show Steps** from the actions menu.
+
+The **Steps** list shows every step recorded on that person, with its **Name**, **Campaign**, **Program**, **Container**, **Quality**, **Journey**, and **Date**. Select a step to see its data, and open it as JSON for the full record. Read it for three things:
+
+- **Is the step there at all?** If the step is missing but the input event arrived, no campaign matched the event's name — or the event landed on a different person.
+- **Which container is it in?** Toggle between **All Containers** and **Production Only**. A step that appears only under **All Containers** was routed to a test or other non-production container, and production dashboards and reports won't count it.
+- **What are the quality and journey?** A step with no journey was recorded but not attributed to a referral. A low quality score means a quality rule failed; the person's **Approvals** tab names the rule.
+
+If you can't find the steps you expected, search for the person by every identifier your integration sends. Two profiles for the same customer usually means the event carried a different identifier from the one the share or earlier events used.
+
+## Debugging Reports: Check the Whole Feed
+
+Streams and person lookups test one event at a time. To know whether a feed is working across the account — every event, over a day, a week, or a month — run a report. These are the most useful for inbound integrations. None of them is on a category tile on the **Reports** page, so open **Reports**, click **+ New Report**, and search for the report by name. A Client Admin can find and run every report in this table:
+
+| Report | Answers |
+| --- | --- |
+| **Input event names with triggered steps** | For each input event name received, how many arrived and which step names they created. A name with a high count and no steps is a feed nothing listens to. |
+| **Input Events By Event Time** | The input events themselves, filterable by event name, person ID, email, partner user ID, program, and container. |
+| **Input Records** | A configurable log of input events for the event names you choose, with the columns you map. Use it to check that each event carried the data your campaign reads. |
+| **Step Events By Event Time** | The steps created in a time range, filterable by step, person, partner event ID, and container. |
+| **Event By Event Id** | The full record of one event, by its ID. |
+| **Batch Events By Event Time** | The events produced by batch jobs, such as file uploads, in a time range. |
+
+**Input event names with triggered steps** and **Input Records** read only the `production` container unless you choose another, so a feed that runs only in testing looks empty in them until you set the container to `test` or `all`. Set the container on every report you run, so that you know which events you're counting.
+
+Once the feed is sound, the [Events](/guides/dashboards-and-reporting/report-types/recommended-reports/events-report) report is the one to confirm the business result: one row per event, with the person and the related person, matching what the dashboard counts.
+
+## A Debugging Sequence
+
+Work through these in order and stop at the first check that fails. That check names the stage to fix.
+
+1. **Did the event arrive?** Start an Event Stream filtered to the event name, and send a test event. For past traffic, run **Input event names with triggered steps** for the time range and look for the name and its count. If nothing arrives, the problem is on the sending side: the tag, SDK, API call, partner configuration, or file never reached Extole, or reached it under a different name.
+2. **Did it arrive under the name the campaign expects?** Compare the `name` on the input event with the event name on the campaign's trigger. Matching ignores case, but not spelling — `order_complete` does not match `order_completed`. A partner integration has two vocabularies: the partner's own event name belongs on the trigger, and the Extole name (`converted`, `shipped`) belongs on the step. See [Sending Partner Events to Extole](/technical/building-partner-integrations/integration-types/partner-events-to-extole).
+3. **Did it create a step?** Run **Input event names with triggered steps** for the name. Events with no triggered steps mean no live campaign is listening for that name, or the campaign's trigger rules rejected the event.
+4. **Did the step land on the right person?** Open the person's steps. If the step is on an anonymous or unexpected profile, the event didn't carry the identifier the rest of the journey used.
+5. **Is the step in production?** Check the **Container** column. Test data rules, a test container header, or a test sandbox all route events away from production reporting. See [Exclude Test Data From Analytics](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics).
+6. **Was the step attributed and scored as you expected?** Check the step's quality and journey, and the event's review status in Event Live View. Depending on your program's approval workflow, a suspicious event is declined or waits for someone to approve it — see [Approving and Declining Events Workflow](/guides/rewards-management/reward-fulfillment/approving-and-declining-events-workflow).
+7. **Does the report you're reading count it?** Match the report's time range, container, and program to the step. A step dated in one day in your time zone can fall on the next day in your account's time zone.
+
+## Common Findings
+
+| What you see | What it usually means | Where to confirm |
+| --- | --- | --- |
+| Nothing in the stream when you send the event | The sender didn't reach Extole, or the stream started after the event | Your integration's own request log; restart the stream and resend |
+| An `INPUT` event arrives, with no `STEP` after it | No campaign listens for that event name | **Input event names with triggered steps** |
+| Steps appear under **All Containers** only | The events were routed to a test container | The step's **Container**; your test data rules |
+| The step is on an anonymous person | The event carried no identifier Extole could match | The event's JSON in the stream |
+| The step exists but has no journey | The person wasn't part of a referral journey when the step was recorded | The step's **Journey**; the person's earlier steps |
+| The step is scored **Suspicious** | A quality rule failed | The person's **Approvals** tab |
+| A batch job finished, but nothing happened | The job counts rows it sent in as input events, not steps created | The target person's steps; **Batch Events By Event Time** |
+
+## Before You Contact Extole Support
+
+If you still can't find where the event stopped, send Extole Support what you've gathered so they can start from the same place:
+
+- The event ID, from the stream, Event Live View, or a report.
+- The Extole person ID, or the email and partner user ID the event carried.
+- The event name exactly as your integration sends it.
+- When you sent it, with the time zone.
+- Which of the checks above passed, and the first one that failed.
+
+## Related
+
+- [Event Streams Overview](/technical/platform-integrations/extensions/event-streams-overview)
+- [Sending Partner Events to Extole](/technical/building-partner-integrations/integration-types/partner-events-to-extole)
+- [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration#when-a-test-event-produces-no-step)
+- [File-based Events](/technical/platform-integrations/files/file-based-events)
+- [Leveraging User Support Pages](/guides/platform-overview/leveraging-user-support-pages)
+- [Events Are Recorded but Never Attribute](/technical/troubleshooting/events-are-recorded-but-never-attribute)
