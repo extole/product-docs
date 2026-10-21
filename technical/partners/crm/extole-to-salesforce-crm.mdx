@@ -248,6 +248,25 @@ When no record matches, the app skips the event, unless the rule has **Create th
 * The app doesn't create a Lead or Contact when the email already belongs to a Contact or Person Account. The **Event Log** shows the event as skipped, with the reason.
 * The app never creates a Person Account.
 
+### One Record per Program and Campaign
+
+By default, the app keeps one record for each email. To create a separate Lead or Contact for each program and campaign, such as a referred friend who later sees a welcome offer, mark the fields that decide whether a record is a duplicate:
+
+1. On the rule, map `lead_source` to **Lead Source**, `program_name` to **Extole Program Name**, and `campaign_name` to **Extole Campaign Name**. The app adds the Extole Program Name and Extole Campaign Name text fields to Leads and Contacts.
+2. Turn on **Match** on each of those rows. An existing record now counts as a match only when it has the event's email and the same value in every Match field. Converted Leads count as matches.
+3. Turn on **Leave an existing match unchanged**, so a repeat event doesn't overwrite the record. The **Event Log** shows the event as skipped, with the reason.
+
+An event for the same email with a different Lead Source, program, or campaign creates a new record. An identical event creates nothing.
+
+Keep these in mind:
+
+* The Extole event must send `lead_source`, `program_name`, and `campaign_name` in its data.
+* A Match field must be a Text or picklist field. Long text fields can't be used.
+* The Lead Source value the event sends must be allowed in your Lead Source picklist.
+* The app ignores `salesforce_id` for rules with Match fields.
+* Salesforce Duplicate Rules set to **Allow with alert** don't stop these records. Rules set to **Block** do, so change them to Allow.
+* Match works on Lead and Contact rules, not Person Account rules.
+
 ### Event Payload
 
 Each share link sends one request. `event_id` is unique to the share link event, and the app ignores a repeated `event_id`. `data` holds the share link event's data, plus the person's `email` and `salesforce_id`:
