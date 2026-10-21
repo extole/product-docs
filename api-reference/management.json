@@ -8003,6 +8003,71 @@
           "type" : "string"
         } ]
       },
+      "AudienceIdInStartAudienceOperationTaskRequest" : {
+        "description" : "Id of the audience the operation runs against. A literal value or a buildtime expression resolved from component references when the task is saved. Optional: omit it, or let the expression resolve to an empty value, to take the audience from the audiences/<audience>/<operation> directory the file lands in. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static audience id",
+          "nullable" : true,
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{audienceId}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('audienceId');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "AudienceIdInStartAudienceOperationTaskResponse" : {
+        "description" : "Id of the audience the operation runs against. A literal value or a buildtime expression resolved from component references when the task is saved. Empty when the audience is taken from the audiences/<audience>/<operation> directory the file lands in. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal audience id",
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{audienceId}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('audienceId');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "AudienceIdsInCampaignControllerTriggerAudienceMembershipEventResponse" : {
         "description" : "The audience ids as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -14188,13 +14253,23 @@
           "$ref" : "#/components/schemas/BuiltTaskResponseBase"
         }, {
           "properties" : {
+            "audience_id" : {
+              "description" : "Id of the audience the operation runs against, resolved when the campaign was published. Empty when the audience is taken from the audiences/<audience>/<operation> directory the file lands in.",
+              "type" : "string"
+            },
+            "operation_type" : {
+              "description" : "What the operation does with the file's members, resolved when the campaign was published: ADD adds them to the audience, REMOVE removes them, and REPLACE makes them the audience's only members, removing every current member not in the file. Empty when the operation is taken from the audiences/<audience>/<operation> directory the file lands in.",
+              "enum" : [ "ADD", "REMOVE", "REPLACE" ],
+              "type" : "string"
+            },
             "task_type" : {
               "enum" : [ "START_AUDIENCE_OPERATION" ],
               "type" : "string"
             }
-          }
+          },
+          "type" : "object"
         } ],
-        "required" : [ "component_ids", "enabled", "id", "job_id", "order", "task_type" ],
+        "required" : [ "audience_id", "component_ids", "enabled", "id", "job_id", "operation_type", "order", "task_type" ],
         "title" : "START_AUDIENCE_OPERATION",
         "type" : "object"
       },
@@ -37909,6 +37984,73 @@
           "type" : "string"
         } ]
       },
+      "OperationTypeInStartAudienceOperationTaskRequest" : {
+        "description" : "What the operation does with the file's members: ADD adds them to the audience, REMOVE removes them, and REPLACE makes them the audience's only members, removing every current member not in the file. A literal value or a buildtime expression resolved from component references when the task is saved. Optional: omit it, or let the expression resolve to an empty value, to take the operation from the audiences/<audience>/<operation> directory the file lands in. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static operation type",
+          "enum" : [ "ADD", "REMOVE", "REPLACE" ],
+          "nullable" : true,
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{operationType}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('operationType');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "OperationTypeInStartAudienceOperationTaskResponse" : {
+        "description" : "What the operation does with the file's members: ADD adds them to the audience, REMOVE removes them, and REPLACE makes them the audience's only members, removing every current member not in the file. A literal value or a buildtime expression resolved from component references when the task is saved. Empty when the operation is taken from the audiences/<audience>/<operation> directory the file lands in. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal operation type",
+          "enum" : [ "ADD", "REMOVE", "REPLACE" ],
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{operationType}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('operationType');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "OperatorInCampaignControllerTriggerGroupResponse" : {
         "description" : "The operator as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -45889,11 +46031,18 @@
           "$ref" : "#/components/schemas/TaskRequestBase"
         }, {
           "properties" : {
+            "audience_id" : {
+              "$ref" : "#/components/schemas/AudienceIdInStartAudienceOperationTaskRequest"
+            },
+            "operation_type" : {
+              "$ref" : "#/components/schemas/OperationTypeInStartAudienceOperationTaskRequest"
+            },
             "task_type" : {
               "enum" : [ "START_AUDIENCE_OPERATION" ],
               "type" : "string"
             }
-          }
+          },
+          "type" : "object"
         } ],
         "required" : [ "task_type" ],
         "title" : "START_AUDIENCE_OPERATION",
@@ -45904,14 +46053,21 @@
           "$ref" : "#/components/schemas/TaskResponseBase"
         }, {
           "properties" : {
+            "audience_id" : {
+              "$ref" : "#/components/schemas/AudienceIdInStartAudienceOperationTaskResponse"
+            },
+            "operation_type" : {
+              "$ref" : "#/components/schemas/OperationTypeInStartAudienceOperationTaskResponse"
+            },
             "task_type" : {
               "enum" : [ "START_AUDIENCE_OPERATION" ],
               "type" : "string"
             }
-          }
+          },
+          "type" : "object"
         } ],
-        "description" : "Stored start audience operation task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored start audience operation task definition. Fields `order`, `audience_id`, `operation_type`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "audience_id", "component_ids", "component_references", "enabled", "id", "operation_type", "order", "parent_job_id", "task_type" ],
         "title" : "START_AUDIENCE_OPERATION",
         "type" : "object"
       },
