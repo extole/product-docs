@@ -69,17 +69,77 @@ Approval**, confirm you opened the correct ambassador campaign (use the campaign
 
 # Secondary Option: Create Approval Events
 
-If you prefer not to use the Ambassadors tab, you can approve applicants by creating approval
-events:
+If you prefer not to use the Ambassadors tab, you can approve (or decline) applicants by submitting
+an **Application Reviewed** event with `application_status` set to `approved` or `declined`. Use
+**Create Event** for one person, or upload an event file for many.
 
-1. For one person, go to **User Support** > **Create Event**, select the Ambassador program and
-   campaign, choose the approval event your campaign uses, enter the applicant's email, and submit.
-2. For multiple people, upload a file through **Tech Center** > **File Transfer**.
+Once that event is accepted, the applicant moves out of the pending list (when approved) and receives
+the Application Approval or Application Declined email your campaign is configured to send.
 
-Once the approval event is created, the applicant receives the Application Approval Email and moves
-into the approved Ambassadors list.
+## Approve One Applicant with Create Event
+
+1. In My Extole, open **User Support** > [**Create Event**](https://my.extole.com/create-event).
+2. Select the **Program** (your Ambassador or Influencer program) and the live **Campaign** that
+   received the application.
+3. For **Event**, select **Application Reviewed** (or the review event name your campaign shows in
+   that dropdown). If the event does not appear, it is not enabled for that campaign — contact your
+   Extole team.
+4. Enter the applicant's **Email**.
+5. Under **Additional Event Data**, add:
+
+   | Key | Value |
+   | --- | --- |
+   | `application_status` | `approved` (or `declined`) |
+   | `person_id` | The applicant's person id from their profile (recommended when you have it) |
+
+6. Submit the event.
+
+For field-by-field help on the Create Event form, see
+[How to Manually Create a Referral or other Event](/guides/rewards-management/reward-fulfillment/how-to-manually-create-a-referral-or-other-event).
+
+<Tip>
+  Find the person id on the applicant's profile URL or in **User Support** > **Person Search**.
+  Including `person_id` helps Extole attach the review to the pending applicant.
+</Tip>
+
+## Approve Many Applicants with a File Upload
+
+1. Build a CSV with one row per applicant. Include at least:
+
+   | Column | Required | Example |
+   | --- | --- | --- |
+   | `event_name` | Yes | `application_reviewed` |
+   | `email` | Yes | `applicant@example.com` |
+   | `application_status` | Yes | `approved` or `declined` |
+   | `person_id` | Recommended | The applicant's person id |
+
+   Example:
+
+   ```csv
+   event_name,email,person_id,application_status
+   application_reviewed,applicant@example.com,1234567890123456789,approved
+   ```
+
+2. In My Extole, open **Tech Center** > **Batch Jobs** (File Transfer).
+3. Click **+ New Batch Job**.
+4. Give the job a **Name**, upload your CSV, and set **Batch Jobs Type** to **Event**.
+5. Leave **Override event names in the source file** off when each row already has `event_name`, or
+   set **Event Name** to `application_reviewed` and turn override on if every row should use that
+   name.
+6. Create the job and wait for it to finish. Open the job detail and confirm **Event Names** shows
+   `application_reviewed`, not `unknown`.
+
+<Warning>
+  Do not choose **Approve** as the batch jobs type. That option approves existing events already
+  waiting in review. For ambassador applications, create **Event** rows for `application_reviewed`.
+</Warning>
+
+For upload UI details, see [General File Uploads](/technical/platform-integrations/files/general-file-uploads).
+For event file columns in general, see
+[File-based Events](/technical/platform-integrations/files/file-based-events).
 
 <Warning>
   The edit or remove control on an Ambassadors row removes someone from a list. It does not approve
-  their application.
+  their application. Approving an event on a person's profile (**Approvals**) reviews that event and
+  does not admit them as an ambassador.
 </Warning>
