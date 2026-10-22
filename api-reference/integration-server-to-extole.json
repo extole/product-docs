@@ -996,11 +996,16 @@
             "nullable" : true,
             "type" : "string"
           },
+          "read_only" : {
+            "description" : "Set to `true` to make the new token read only. A read-only token keeps its `scopes` for reads, and every request it makes with a method other than `GET`, `HEAD` or `OPTIONS` returns `403 access_denied`. Defaults to `false`.",
+            "nullable" : true,
+            "type" : "boolean"
+          },
           "scopes" : {
             "description" : "Subset of the calling identity's scopes to grant on the new token. Must be a strict subset; requesting a privilege the caller does not hold returns `403 scopes_denied` with the offending scopes in `denied_scopes`. Omit to mirror the caller's scopes.",
             "items" : {
               "description" : "Subset of the calling identity's scopes to grant on the new token. Must be a strict subset; requesting a privilege the caller does not hold returns `403 scopes_denied` with the offending scopes in `denied_scopes`. Omit to mirror the caller's scopes.",
-              "enum" : [ "BACKEND", "CLIENT_ADMIN", "CLIENT_REPORT_DOWNLOAD", "CLIENT_SUPERUSER", "LOCAL_PROFILE", "ONE_TIME", "PASSWORD_RESET", "READ_ONLY", "UPDATE_PROFILE", "USER_SUPPORT", "VERIFIED_CONSUMER" ],
+              "enum" : [ "BACKEND", "CLIENT_ADMIN", "CLIENT_REPORT_DOWNLOAD", "CLIENT_SUPERUSER", "LOCAL_PROFILE", "ONE_TIME", "PASSWORD_RESET", "UPDATE_PROFILE", "USER_SUPPORT", "VERIFIED_CONSUMER" ],
               "type" : "string"
             },
             "nullable" : true,
@@ -1036,11 +1041,15 @@
             "description" : "Deprecated alias for `identity_id`. New integrations should use `identity_id`.",
             "type" : "string"
           },
+          "read_only" : {
+            "description" : "`true` when this token is read only: requests it makes with a method other than `GET`, `HEAD` or `OPTIONS` return `403 access_denied`, whatever its `scopes`.",
+            "type" : "boolean"
+          },
           "scopes" : {
             "description" : "Authorization scopes granted to this token. Determines which API operations the token may invoke.",
             "items" : {
               "description" : "Authorization scopes granted to this token. Determines which API operations the token may invoke.",
-              "enum" : [ "BACKEND", "CLIENT_ADMIN", "CLIENT_REPORT_DOWNLOAD", "CLIENT_SUPERUSER", "LOCAL_PROFILE", "ONE_TIME", "PASSWORD_RESET", "READ_ONLY", "UPDATE_PROFILE", "USER_SUPPORT", "VERIFIED_CONSUMER" ],
+              "enum" : [ "BACKEND", "CLIENT_ADMIN", "CLIENT_REPORT_DOWNLOAD", "CLIENT_SUPERUSER", "LOCAL_PROFILE", "ONE_TIME", "PASSWORD_RESET", "UPDATE_PROFILE", "USER_SUPPORT", "VERIFIED_CONSUMER" ],
               "type" : "string"
             },
             "type" : "array",
@@ -5434,6 +5443,7 @@
                 "duration_seconds" : 1,
                 "email" : "email",
                 "password" : "password",
+                "read_only" : true,
                 "scopes" : [ "BACKEND" ]
               },
               "schema" : {
