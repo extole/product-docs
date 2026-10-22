@@ -40920,8 +40920,10 @@
           },
           "parameters" : {
             "additionalProperties" : {
+              "description" : "Parameter values to change, keyed by parameter name. Merged into the stored parameters key by key: a key with a value sets that parameter, a key with a `null` or empty-string value removes it, and a stored parameter whose key is left out keeps its value. Changing `report_type` keeps stored parameters the new report type does not declare until they are removed this way.",
               "type" : "string"
             },
+            "description" : "Parameter values to change, keyed by parameter name. Merged into the stored parameters key by key: a key with a value sets that parameter, a key with a `null` or empty-string value removes it, and a stored parameter whose key is left out keeps its value. Changing `report_type` keeps stored parameters the new report type does not declare until they are removed this way.",
             "type" : "object"
           },
           "pause_info" : {
@@ -99083,7 +99085,7 @@
         "x-extole-visibility" : "visible"
       },
       "put" : {
-        "description" : "Applies a partial update to the supplied report runner. Only the fields present in the body are changed; omitted fields are left intact. Returns the persisted report runner after the update. Returns `404 report_runner_not_found` if the id does not exist. Locked runners (`report_runner_locked`) must be updated via deployment tooling.",
+        "description" : "Applies a partial update to the supplied report runner. Only the fields present in the body are changed; omitted fields are left intact.\n\n`parameters` is merged into the stored parameters key by key rather than replacing them. A key supplied with a value sets that parameter, and a stored parameter whose key is left out keeps its value. To remove a parameter, supply its key with a `null` or empty-string value. Changing `report_type` does not remove stored parameters that the new report type does not declare, so remove those by name in the same request. Returns the persisted report runner after the update. Returns `404 report_runner_not_found` if the id does not exist. Locked runners (`report_runner_locked`) must be updated via deployment tooling.",
         "parameters" : [ {
           "description" : "The Extole unique report runner identifier.",
           "in" : "path",
