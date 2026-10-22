@@ -256,7 +256,7 @@ When no record matches, the app skips the event, unless the rule has **Create th
 
 ### One Lead per Program and Campaign
 
-When a sign-up event includes `program_name` and `campaign_name` and the rule has **Create the record if it is not found** turned on, the app creates one Lead for each program and campaign. A repeat of the same program and campaign creates nothing, and a different program or campaign creates a new Lead. Each Lead gets Lead Source **Extole** and both names, in the **Extole Program Name** and **Extole Campaign Name** fields.
+When a sign-up event includes `program_name` and a campaign (`campaign_id` or `campaign_name`) and the rule has **Create the record if it is not found** turned on, the app creates one Lead for each program and campaign. A repeat of the same program and campaign creates nothing, and a different program or campaign creates a new Lead. Each Lead gets Lead Source **Extole** and both names, in the **Extole Program Name** and **Extole Campaign Name** fields. When the event sends only a `campaign_id`, the app looks up the campaign's name from Extole, so the Run As user of the Receive Extole Events app also needs the `Extole_API_Access` permission set. If the lookup fails, the campaign ID is stored instead.
 
 This applies to Lead rules only. Add **Extole** to your Lead Source values so it appears in the list and in reports. If the list is restricted and doesn't include it, the Lead is created without a Lead Source. Salesforce Duplicate Rules set to **Block** also stop these Leads, so set them to **Allow**.
 
@@ -301,7 +301,7 @@ The integration installs with `share_link_created`. Any other Extole event can b
 3. In Salesforce, add a rule on the **Receive Extole Events** tab for that `event_name`.
 4. Save the change in My Extole, trigger a test event, and confirm it appears in the **Event Log** on the **Receive Extole Events** tab.
 
-To create one Lead per program and campaign from a sign-up, also add `program_name` and `campaign_name` to `data`. Take the program label from `context.getCampaign().getProgramLabel()`. The campaign name isn't available at run time, so add a setting named `campaignName` to the step with the default `javascript@buildtime:context.getCampaignName()` and read it with `context.getVariable("campaignName")`.
+The integration's **Events to Send** setting does this for you. It sends the events you list, `signed_up` by default, with the person's email and the program and campaign that produced each one. If you send an event with your own Webhook step instead, add `program_name` and `campaign_id` to `data`: the program label is `context.getCampaign().getProgramLabel()` and the campaign ID is `context.getCampaign().getId()`.
 
 ## Add the Person Card to Record Pages
 
