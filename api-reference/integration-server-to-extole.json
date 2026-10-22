@@ -5557,6 +5557,129 @@
         "tags" : [ "Authentication" ],
         "x-extole-bundle" : "integration-server-to-extole",
         "x-extole-visibility" : "visible"
+      },
+      "delete" : {
+        "description" : "Invalidates the access token used to authenticate the request. Equivalent to `DELETE /v4/tokens/{token}` but without putting the token in the URL path. Subsequent requests using the same token return `403 access_denied`. Returns `204` with an empty body on success. A token issued by the Extole identity provider cannot be invalidated: the call succeeds and the token stays valid until it expires. When the request carries the `admin_token` cookie for the same token, the response expires that cookie.",
+        "responses" : {
+          "204" : {
+            "description" : "Logged out. A stored token is invalidated. A token issued by the Extole identity provider stays valid until it expires."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Invalidate current access token",
+        "tags" : [ "Authentication" ],
+        "x-extole-bundle" : "integration-server-to-extole",
+        "x-extole-visibility" : "visible"
       }
     },
     "/v4/tokens/{token}" : {
@@ -5699,7 +5822,8 @@
         "x-extole-visibility" : "visible"
       },
       "delete" : {
-        "description" : "Invalidates the supplied access token immediately. Subsequent requests using the same token return `401 invalid_access_token`. Returns `200` with an empty body on success.",
+        "deprecated" : true,
+        "description" : "Deprecated. Use `DELETE /v4/tokens`, which keeps the token out of the URL. Invalidates the supplied access token immediately. Subsequent requests using the same token return `403 access_denied`. Returns `204` with an empty body on success. A token issued by the Extole identity provider cannot be invalidated: the call succeeds and the token stays valid until it expires. When the request carries the `admin_token` cookie for the same token, the response expires that cookie.",
         "parameters" : [ {
           "in" : "path",
           "name" : "token",
@@ -5709,8 +5833,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "Token invalidated."
+          "204" : {
+            "description" : "Logged out. A stored token is invalidated. A token issued by the Extole identity provider stays valid until it expires."
           },
           "400" : {
             "content" : {
