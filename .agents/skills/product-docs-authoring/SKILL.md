@@ -71,15 +71,12 @@ publishes docs.extole.com.
   `url-map.json` — points at a path that exists nowhere and 404s, and nothing catches it:
   `mint validate` does not resolve redirect destinations. Name an API group after the tag the
   bundle already carries, and `curl -L` any redirect destination you typed by hand.
-- **The API navigation is generated too, so regenerate it rather than editing groups by
-  hand:** `python3 scripts/convert_from_product_docs.py --out . --sync-api-navigation` rebuilds
-  the three API groups from the bundles, one group per tag, in spec order. The bundle sync from
-  [`extole/openapi`](https://github.com/extole/openapi) touches only `api-reference/*.json`, so
-  the navigation drifts on its own every time pluribus renames a subcategory or adds an
-  endpoint: the old group name stays behind as a heading no page is served under, and the new
-  endpoint gets no page at all. On 2026-09-22 that was three stale groups covering 20
-  operations, 46 redirects pointing at paths that existed nowhere, and 11 endpoints published
-  in the bundles with no page in the site.
+- **The API navigation is generated too.** Every bundle sync from
+  [`extole/openapi`](https://github.com/extole/openapi) rewrites the API Reference groups in
+  `docs.json` with its `scripts/generate-navigation.py`, so a hand edit to those groups is
+  overwritten by the next sync. To rename a group, move a bundle, or tag a group, change
+  [`specs/navigation.json`](https://github.com/extole/openapi/blob/main/specs/navigation.json)
+  in that repository. Getting Started is the one API Reference group the sync leaves alone.
 - **Published vs. not:** the content directories are customer-visible. `.agents/` and
   `.claude/` are excluded by Mintlify's built-in ignores, `.mintlify/` is never served, and
   `.cursor/` plus the repo-root agent files are excluded by
