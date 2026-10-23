@@ -11,6 +11,8 @@ For most clients who have high volumes of live data and low volumes of test data
 
 Test events will still display in [Event Live View](https://my.extole.com/events/live) of My Extole's User Support center. These events will also be fully processed for rewards so you can ensure that events are still coming in while testing your program and that rewards are being properly distributed.
 
+The test container changes how events are reported, not what they trigger. For events in `test`, Extole still sends emails and still dispatches webhooks, including webhooks on reward states, and it can still issue rewards. Before you test a live program, check which emails, webhooks, and rewards the test events can reach, so that a test doesn't email a real person or send test data to a partner's system.
+
 [//]: ___
 
 ## Using Test Containers
@@ -111,5 +113,30 @@ You cannot add the "container" data element into your marketing tags. The initia
 ### Include A Test Container in Your Batch Files
 
 When uploading batch event files, you can add a column with a header of "container" and value of "test". Read more in our article about [Uploading Batch Jobs](https://developer.extole.com/docs/file-based-events).
+
+[//]: ___
+
+## How Extole Picks an Event's Container
+
+[//]: # "Why did a live event not count toward a journey that started in test?"
+
+Extole picks the container for each event from the request that carries that event. It uses the first of these that applies:
+
+1. The request names a container, with the `container` cookie, the `X-Extole-Container` header, or a `container` parameter. The event goes to that container.
+2. The request's origin is a site that the program lists as a test site. The event goes to `test`.
+3. Extole identifies the request as automated, for example a blocked user agent or a page-preview request. The event goes to `bot`.
+4. Otherwise, the event goes to `production`.
+
+A prehandler set up on your account can also set an event's container.
+
+The cookie and the header apply to requests that a browser or a consumer API client sends to your program domain. An event your own server sends through the client API ignores them. To put that event in `test`, include `container` in the event's data, as in **Include a Test Container in the Parameters of Your API Call** above.
+
+### A Container Does Not Carry Over to Later Events
+
+Extole does not look at a person's earlier events or journeys when it picks a container. A person's journeys, and the referrals between an advocate and a friend, are kept separately for each container. An event continues a journey or credits a referral only in its own container.
+
+So if a person qualifies through a test experience and then converts on your live site, the conversion arrives in `production`. It does not continue the person's `test` journey, and Extole does not attribute it to that journey.
+
+To test a whole journey, send every event in it to the same container. For example, set the `container` cookie at the start of the test, as described in **Visit a Specific URL** above.
 
 [//]: ___
