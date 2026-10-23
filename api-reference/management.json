@@ -23095,11 +23095,11 @@
       "ComponentOriginRequest" : {
         "properties" : {
           "component_id" : {
-            "description" : "Id of the library component to connect to, usually the component this one was copied from.",
+            "description" : "Id of the origin component to connect to, usually the component this one was copied from.",
             "type" : "string"
           },
           "component_version" : {
-            "description" : "Version of the library component to connect to. Use the version this component's structure was copied from, because a later upgrade treats every difference from that version as a client change.",
+            "description" : "Version of the origin component to connect to. Use the version this component's structure was copied from, because a later upgrade treats every difference from that version as a client change.",
             "format" : "int32",
             "type" : "integer"
           }
@@ -100993,7 +100993,7 @@
     },
     "/v1/components/{component_id}/origin" : {
       "post" : {
-        "description" : "Sets the origin of a component, and of each of its descendant components, to a library component at a given version, so the component can take that library's upgrades again. The component's hierarchy of child components must match the origin's, by component name, at every level; otherwise the request is refused and the error lists each difference. Each descendant gets the matching descendant of the origin as its own origin. Nothing else on the component changes.",
+        "description" : "Sets the origin of a component, and of each of its descendant components, to another component at a given version, so the component can take that origin's upgrades. The component's hierarchy of child components must match the origin's, by component name, at every level; otherwise the request is refused and the error lists each difference. Each descendant gets the matching descendant of the origin as its own origin. Nothing else on the component changes.",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -101033,6 +101033,18 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
@@ -101060,11 +101072,23 @@
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
                   },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
                   "external_element_not_found" : {
                     "$ref" : "#/components/examples/external_element_not_found"
                   },
                   "external_element_type_not_supported" : {
                     "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
                   },
                   "invalid_external_element_filter" : {
                     "$ref" : "#/components/examples/invalid_external_element_filter"
@@ -101084,11 +101108,17 @@
                   "invalid_uri_in_json" : {
                     "$ref" : "#/components/examples/invalid_uri_in_json"
                   },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
                   }
                 },
                 "schema" : {
