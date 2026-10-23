@@ -34165,7 +34165,7 @@
       "JourneyKeyResponse" : {
         "properties" : {
           "name" : {
-            "$ref" : "#/components/schemas/NameInCampaignStepResponse"
+            "$ref" : "#/components/schemas/NameInCampaignJourneyEntryResponse"
           },
           "value" : {
             "$ref" : "#/components/schemas/ValueInCampaignJourneyEntryResponse"
@@ -35369,6 +35369,7 @@
         "type" : "object"
       },
       "MergingConfigurationRequest" : {
+        "nullable" : true,
         "properties" : {
           "deliverable_type" : {
             "type" : "string"
@@ -36216,7 +36217,7 @@
           "type" : "string"
         } ]
       },
-      "NameInCampaignStepResponse" : {
+      "NameInCampaignJourneyEntryResponse" : {
         "description" : "The name as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "CampaignBuildtimeContext",
@@ -39001,6 +39002,7 @@
         "type" : "object"
       },
       "PauseInfoRequest" : {
+        "nullable" : true,
         "properties" : {
           "description" : {
             "nullable" : true,
@@ -39752,48 +39754,11 @@
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts"
         },
         "oneOf" : [ {
+          "allOf" : [ {
+            "$ref" : "#/components/schemas/Duration"
+          } ],
           "description" : "Literal profile risk update interval",
-          "properties" : {
-            "nano" : {
-              "format" : "int32",
-              "type" : "integer"
-            },
-            "negative" : {
-              "type" : "boolean"
-            },
-            "positive" : {
-              "type" : "boolean"
-            },
-            "seconds" : {
-              "format" : "int64",
-              "type" : "integer"
-            },
-            "units" : {
-              "items" : {
-                "properties" : {
-                  "dateBased" : {
-                    "type" : "boolean"
-                  },
-                  "duration" : {
-                    "$ref" : "#/components/schemas/Duration"
-                  },
-                  "durationEstimated" : {
-                    "type" : "boolean"
-                  },
-                  "timeBased" : {
-                    "type" : "boolean"
-                  }
-                },
-                "type" : "object"
-              },
-              "type" : "array"
-            },
-            "zero" : {
-              "type" : "boolean"
-            }
-          },
-          "title" : "Static Value",
-          "type" : "object"
+          "title" : "Static Value"
         }, {
           "description" : "Handlebars expression with [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
           "example" : "handlebars@buildtime:{{profileRiskUpdateInterval}}",
@@ -39877,7 +39842,6 @@
             "type" : "object"
           },
           "description" : {
-            "nullable" : true,
             "type" : "string"
           },
           "key" : {
