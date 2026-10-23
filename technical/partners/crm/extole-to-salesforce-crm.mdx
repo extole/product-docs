@@ -14,7 +14,7 @@ The app has seven tabs and one record page component:
 | **Program Analytics** | Shows each program's funnel, a chart over time, and a breakdown by promotion and channel. |
 | **KPI Dashboard** | Shows metric tiles from the Extole reports you choose, synced hourly, daily, or weekly. |
 | **Send Extole Events** | Sends an event to Extole when a Salesforce record changes, such as a Lead being created or an Opportunity closing. The app builds and deploys the Salesforce Flow for you, so no code is needed. |
-| **Receive Extole Events** | Receives events from Extole, such as an advocate creating a share link, and writes them to the matching Contact, Lead, or Person Account. My Extole calls this the **Salesforce CRM** integration. |
+| **Receive Extole Events** | Receives any Extole event, such as a share link, a sign-up, or a reward, and creates or updates a Contact, Lead, or Person Account based on rules you set. My Extole calls this the **Salesforce CRM** integration. |
 | **Manage Share Links** | Creates Extole share links for existing Contacts, Leads, or Person Accounts and writes each link to a field on the record. |
 | **Manage Audiences** | Adds the people in a Salesforce report to an Extole audience by email, on a schedule. |
 | **Configure KPIs** | Chooses the Extole reports behind the KPI Dashboard and how often they sync. |
@@ -194,7 +194,13 @@ Running it again for the same person returns their existing share link instead o
 
 ## Salesforce CRM Integration
 
-The **Salesforce CRM** integration in My Extole sends an event to the app's **Receive Extole Events** tab each time an advocate creates a share link. The app writes the fields you map to the matching Contact, Lead, or Person Account in Salesforce.
+The **Salesforce CRM** integration in My Extole sends Extole events to the app's **Receive Extole Events** tab. You choose which events to send. For each one, you add a rule that names the event, picks the Salesforce object, and maps the event's data to fields. The app then updates the matching Contact, Lead, or Person Account, or creates one.
+
+Some examples:
+
+* `share_link_created` writes an advocate's share link to their record. The integration sends this event when you install it.
+* `signed_up` creates a Lead when someone signs up through a referral.
+* `reward_earned` updates a field on the person's record.
 
 Extole calls into Salesforce in this direction, so Salesforce needs a second External Client App that uses the Client Credentials flow, and Extole needs a key that holds its credentials.
 
@@ -235,8 +241,8 @@ The person who sets up **Receive Extole Events** needs the `Extole_App_Admin` pe
 2. In My Extole, navigate to **Partners**, select **Salesforce CRM**, and click **Install**.
 3. Set **Salesforce Endpoint URL** to the Webhook Endpoint you copied, and set **Salesforce OAuth Credentials** to your `OAUTH_SFDC` key.
 4. Turn on **Enable Salesforce Writeback**. It's off by default. While it's off, the integration sends nothing and nothing is logged on either side, so you can use it to pause the integration and keep the endpoint and key filled in.
-5. In Salesforce, on the **Receive Extole Events** tab, click **Add Rule**. Enter `share_link_created` as the event name and choose the **Salesforce Object**: Contact, Lead, or, in an org with Person Accounts, Person Account. For a Contact or Lead, turn on **Create the record if it is not found** if the app should create the record when none matches. Then map the event's fields to the object's fields. Target fields must be Text fields, because the app writes every value as text and a Number or Date field silently stays empty.
-6. As an advocate, create a share link, then confirm the event appears in the **Event Log** on the **Receive Extole Events** tab.
+5. In Salesforce, on the **Receive Extole Events** tab, click **Add Rule**. Enter the event name, for example `share_link_created`, and choose the **Salesforce Object**: Contact, Lead, or, in an org with Person Accounts, Person Account. For a Contact or Lead, turn on **Create the record if it is not found** if the app should create the record when none matches. Then map the event's fields to the object's fields. Target fields must be Text fields, because the app writes every value as text and a Number or Date field silently stays empty.
+6. Trigger the event, for example by creating a share link as an advocate, and confirm it appears in the **Event Log** on the **Receive Extole Events** tab.
 
 ### How Records Are Matched and Created
 
@@ -248,9 +254,15 @@ When no record matches, the app skips the event, unless the rule has **Create th
 * The app doesn't create a Lead or Contact when the email already belongs to a Contact or Person Account. The **Event Log** shows the event as skipped, with the reason.
 * The app never creates a Person Account.
 
+### One Lead per Program and Campaign
+
+When a sign-up event includes `program_name` and `campaign_name` and the rule has **Create the record if it is not found** turned on, the app creates one Lead for each program and campaign. A repeat of the same program and campaign creates nothing, and a different program or campaign creates a new Lead. Each Lead gets Lead Source **Extole** and both names, in the **Extole Program Name** and **Extole Campaign Name** fields.
+
+This applies to Lead rules only. Add **Extole** to your Lead Source values so it appears in the list and in reports. If the list is restricted and doesn't include it, the Lead is created without a Lead Source. Salesforce Duplicate Rules set to **Block** also stop these Leads, so set them to **Allow**.
+
 ### Event Payload
 
-Each share link sends one request. `event_id` is unique to the share link event, and the app ignores a repeated `event_id`. `data` holds the share link event's data, plus the person's `email` and `salesforce_id`:
+Each event sends one request. `event_id` is unique to the event, and the app ignores a repeated `event_id`. `event_name` is matched to a rule. `data` holds the event's data, plus the person's `email` and `salesforce_id`. For a share link:
 
 ```json
 {
@@ -263,9 +275,11 @@ Each share link sends one request. `event_id` is unique to the share link event,
 }
 ```
 
-### Send Other Events
+Any other event has the same shape, with its own `event_name` and whatever other values you add to `data`.
 
-The integration sends share link events (`share_link_created`) only. To send another event to Salesforce, such as a reward, a referral click, or a custom action:
+### Send Any Event
+
+The integration installs with `share_link_created`. Any other Extole event can be sent the same way, such as a sign-up, a reward, a referral click, or a custom action:
 
 1. In My Extole, add a **Webhook** step to that event's flow, and set **Webhook** to the integration's `salesforce_crm_writeback` webhook.
 2. Set **Webhook Body Data** to the body the app expects: an `event_name` that matches a rule on the **Receive Extole Events** tab, an `event_id` the app uses to skip duplicates, and `email` and `salesforce_id` inside `data`. For example:
@@ -286,6 +300,8 @@ The integration sends share link events (`share_link_created`) only. To send ano
 
 3. In Salesforce, add a rule on the **Receive Extole Events** tab for that `event_name`.
 4. Save the change in My Extole, trigger a test event, and confirm it appears in the **Event Log** on the **Receive Extole Events** tab.
+
+To create one Lead per program and campaign from a sign-up, also add `program_name` and `campaign_name` to `data`. Take the program label from `context.getCampaign().getProgramLabel()`. The campaign name isn't available at run time, so add a setting named `campaignName` to the step with the default `javascript@buildtime:context.getCampaignName()` and read it with `context.getVariable("campaignName")`.
 
 ## Add the Person Card to Record Pages
 
