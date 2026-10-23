@@ -16,10 +16,11 @@ noindex: true
 1. **Read the account.** `extole_client_summary` for the account guard, then `GET /v6/reward-suppliers` to get the supplier id `prep` created. If there is no supplier, stop and run `prep`.
 2. **Pick one starter per program type.** Use the latest published Flow Builder starter that the account is subscribed to for that program type. The `extole_campaign_duplicate_skill` owns the template choice.
 3. **Duplicate every program type before you publish any.** `POST /v2/campaigns/{templateId}/duplicate` with a `program_label` per program. The duplicates run in parallel. Each response carries the new `campaign_id`.
-4. **Wire the supplier.** For each new campaign, find the advocate reward component with `GET /v2/campaigns/{id}/components` and write `PUT /v1/components/{rewardId}/settings/rewardSupplierId` with `{"type": "REWARD_SUPPLIER_ID", "source": "LOCAL", "values": {"default": "b8a5c4637b7ad1cac1a9e8d0"}}`. The id shown is an example. Use the real supplier id.
-5. **Publish.** `POST /v2/campaigns/{id}/publish` with `{"launch": true}` and a message.
-6. **Set live.** `POST /v2/campaigns/{id}/live`.
-7. **Send the follow message** for each campaign, as the overview says.
+4. **Configure the conversion trigger.** A current starter ships its `converted` event with an empty Triggered By setting, and publishing fails with `campaign_build_failed`. Find the library trigger event with `GET /v1/components/built?having_any_types=event-api-trigger-event-v10.0&include_subscribed=true` and take the row named `conversion`. Install it with `POST /v1/components/{friendLandingId}/settings/eventSources/add-component` and `{"source_component_id": "7693118256924135371", "component_display_name": "Conversion"}`. The id shown is an example. Then write `PUT /v1/components/{convertedId}/settings/triggerEvent` with `{"type": "COMPONENT_REFERENCE_LIST", "source": "LOCAL", "values": {"default": [{"component.id": "7699722033091300620"}]}}`, using the id the install returned.
+5. **Wire the supplier.** For each new campaign, find the advocate reward component with `GET /v2/campaigns/{id}/components` and write `PUT /v1/components/{rewardId}/settings/rewardSupplierId` with `{"type": "REWARD_SUPPLIER_ID", "source": "LOCAL", "values": {"default": "b8a5c4637b7ad1cac1a9e8d0"}}`. The id shown is an example. Use the real supplier id.
+6. **Publish.** `POST /v2/campaigns/{id}/publish` with `{"launch": true}` and a message.
+7. **Set live.** `POST /v2/campaigns/{id}/live`.
+8. **Send the follow message** for each campaign, as the overview says.
 
 ## Read-backs
 
@@ -34,5 +35,6 @@ Report the LIVE programs by name, each with its microsite link, share link and d
 - A duplicated template ships `rewardSupplierId` as null. With a null supplier every rule passes and no reward is issued. This is the most common silent failure.
 - `INHERITED` settings need `source: LOCAL` on the write, and a read of the built value afterwards.
 - The reward issuer carries its supplier through a binding. Write the supplier on the reward component only, and confirm through the built controllers.
+- `POST /v2/campaigns/{id}/live` answers `200` even when the program did not go live, so the response is not proof. Read the state from `GET /v2/campaign-summaries`.
 - Publishing can answer `400 campaign_concurrent_update` while a build settles. Retry that code and `campaign_stale_version`.
 - Do not duplicate a component inside a campaign. The call duplicates the whole campaign unless it names a target campaign.

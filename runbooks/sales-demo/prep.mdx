@@ -14,7 +14,7 @@ noindex: true
 ## Steps
 
 1. **Check for the name first.** `GET /v4/clients` and look for the short name. Report a near match instead of creating a second account.
-2. **Create the account.** `POST /v4/clients` with the name and short name, then `PUT /v4/clients/{id}` with `{"client_type": "TEST"}`. The short name cannot be changed later and becomes the program domain, for example `a1garage.extole.io`.
+2. **Create the account.** `POST /v4/clients` with the name and short name, then mint a client token for the new client with `POST /v4/tokens` and call `PUT /v4/clients/{id}` with `{"client_type": "TEST"}` using that token. The super key answers `403` on this call. The short name cannot be changed later and becomes the program domain, for example `a1garage.extole.io`.
 3. **Read it back.** `GET /v4/clients` shows one more client. Mint a client token with `POST /v4/tokens` and the new client id. Then `GET /v1/component-subscriptions` lists the automatic subscriptions. This proves the account is usable, not only present.
 4. **Take the brand from the prospect's own stylesheet.** Find it through the `<link rel="stylesheet">` names on the home page and read the literal colors and font family, not the screenshot. Fetch the logo and the favicon from the same page.
 5. **Write the brand on the global campaign's root.** Every program inherits from it, so never write to a program. Find the global campaign with `GET /v2/campaigns`. Write each token with `PUT /v1/components/{rootId}/settings/{name}` for `accentColor`, `buttonColor`, `buttonBorderRadius`, `headerFontFamily` and their siblings. A fresh account's global is already `LOCAL`.
