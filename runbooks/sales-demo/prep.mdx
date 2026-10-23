@@ -1,0 +1,47 @@
+---
+title: "Sales Demo: Prep"
+description: "Create a branded prospect account with a reward supplier, a whitelisted test domain and a launch date."
+noindex: true
+---
+
+`prep` creates the account and everything a program needs before `build` runs. It writes no programs. Run it at booking, because the brand and artwork work takes longer than a call.
+
+## Inputs
+
+- The prospect's site, for example `a1garage.com`.
+- An account short name that starts with the seller's prefix, for example `bsmith-a1garage`.
+
+## Steps
+
+1. **Check for the name first.** `GET /v4/clients` and look for the short name. Report a near match instead of creating a second account.
+2. **Create the account.** `POST /v4/clients` with the name and short name, then `PUT /v4/clients/{id}` with `{"client_type": "TEST"}`. The short name cannot be changed later and becomes the program domain, for example `a1garage.extole.io`.
+3. **Read it back.** `GET /v4/clients` shows one more client. Mint a client token with `POST /v4/tokens` and the new client id. Then `GET /v1/component-subscriptions` lists the automatic subscriptions. This proves the account is usable, not only present.
+4. **Take the brand from the prospect's own stylesheet.** Find it through the `<link rel="stylesheet">` names on the home page and read the literal colors and font family, not the screenshot. Fetch the logo and the favicon from the same page.
+5. **Write the brand on the global campaign's root.** Every program inherits from it, so never write to a program. Find the global campaign with `GET /v2/campaigns`. Write each token with `PUT /v1/components/{rootId}/settings/{name}` for `accentColor`, `buttonColor`, `buttonBorderRadius`, `headerFontFamily` and their siblings. A fresh account's global is already `LOCAL`.
+6. **Upload the logo and favicon.** Send multipart `PUT /v1/components/{rootId}/assets/{assetId}` over the placeholder assets `company-logo` and `company-icon`. SVG is accepted. Upload to the root, because `context.getAsset` resolves only assets owned by the component the expression sits on.
+7. **Create the reward supplier.** `POST /v6/reward-suppliers` with `reward_supplier_type` set to `CUSTOM_REWARD`, a name, a `face_value` such as 5, `face_value_type` of `USD`, `type` of `ACCOUNT_CREDIT`, `auto_fulfillment_enabled` true and `reward_email_auto_send_enabled` false.
+8. **Whitelist the test domain.** `POST /v2/blocks` with `{"filter_type": "WHITE", "list_type": "EMAIL_DOMAIN", "value": "example.com"}`. Current programs reject `example.com` at journey entry until this exists.
+9. **Set the launch date.** `PUT /v2/timeline-entries/client_launched` so named report ranges are not clamped to today.
+10. **Publish once** with `POST /v2/campaigns/{globalId}/publish`.
+
+## Read-backs
+
+- `GET /v2/campaigns/{globalId}` shows the brand tokens as `LOCAL` with the values you wrote.
+- `GET /v2/campaigns/{programId}/components/{rootId}/settings/{name}/built` on any program root resolves to the same values.
+- The logo URL on a rendered zone page opens. The favicon `href` on the page matches the file you uploaded.
+- `GET /v6/reward-suppliers` lists the supplier with the face value you set.
+
+## Readiness checklist
+
+Report each line as green or red, from a read, not from the write:
+
+1. Zones serve: a zone page answers `200` with a browser user agent.
+2. Fonts load: the written font family appears in the served page.
+3. Friend page reachable: the friend landing zone answers `200`.
+4. Sender placeholder named: say which sender name the emails carry and that a person must set the real one.
+
+## Traps
+
+- A settings `PUT` that omits `source` can store the value and still serve the parent's value. Send `source: LOCAL` where the setting reads `INHERITED`, and read the built value back.
+- The brand tokens belong on the global root. A value written on a program root is not inherited by other programs.
+- Do not use a real consumer domain for synthetic people. Those addresses send live email.

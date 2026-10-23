@@ -1,0 +1,34 @@
+---
+title: "Sales Demo: Walkthrough"
+description: "Drive one referral through a demo program and read the proof back from the platform."
+noindex: true
+---
+
+`walk through` runs one referral end to end on a built program and reads the result back. The seller can then show the advocate page, the share link, the friend page and the reward.
+
+## Inputs
+
+- A `LIVE` program in a prepped `TEST` or `PROSPECT` account.
+
+## Steps
+
+1. **Create the synthetic advocate.** Use an `example.com` address. `POST /v5/persons` with `identity_key_value` set to that address, then use the person id that `GET /v2/persons` with the same email returns. Rewards land on whoever owns the share code, so both calls must agree.
+2. **Mint a share link.** `POST /v3/persons/{id}/shareables` with a label and a code, such as `jane`. A `403 shareable_key_taken` means it already exists.
+3. **Click the link as a friend.** `GET https://acme.extole.io/jane` with `curl`, without following redirects, and with a browser user agent. Capture the `x-extole-token` response header.
+4. **Resolve the friend.** `GET /api/v4/me` with that token returns the friend's person id.
+5. **Enter the friend journey.** Fetch the friend landing zone with `campaign_id` and `access_token`.
+6. **Convert.** `POST /v5/events` with `event_name` `conversion` and data that includes the friend's `person_id`, an `example.com` email, a `cart_value`, `container` set to `production` and a unique `partner_conversion_id`. Bind `person_id`, or the event can land on a different person.
+7. **Render the emails** with `POST /v5/zones/...` when the seller wants to show them.
+
+## Read-backs
+
+- `GET /v5/persons/{friendId}/steps` shows `signed_up`, `converted` and `transacted` at quality `HIGH`.
+- `GET /v5/persons/{advocateId}/rewards` shows one reward in state `SENT` or `FULFILLED`. Allow a short wait, because the reward arrives asynchronously.
+
+Report the share link, the friend page link and the reward, each from its read.
+
+## Traps
+
+- With a default tool user agent the platform logs a bot request and creates no journey, so the steps come back empty.
+- A person earns one reward per program. A second run on the same advocate stops at the reward limit. Use a new advocate for each run.
+- Funnel dashboards lag new data by about two hours. Quote the step and reward records, not a dashboard tile.

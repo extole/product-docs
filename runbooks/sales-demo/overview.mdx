@@ -1,0 +1,35 @@
+---
+title: "Sales Demo: Overview"
+description: "Prepare a prospect account, build demo programs live, and walk through a program on a TEST or PROSPECT account."
+noindex: true
+---
+
+Use these runbooks to stand up a demo account for a prospect and to show it in a sales call. There are three commands, and each has its own page.
+
+| Command | Page | When it runs |
+|---|---|---|
+| `prep` a site | [Prep](/runbooks/sales-demo/prep) | At booking, before the call |
+| `build` program types | [Build](/runbooks/sales-demo/build) | In the call, under three minutes |
+| `walk through` a program | [Walkthrough](/runbooks/sales-demo/walkthrough) | In or after the call |
+
+<Info>
+  **Audience**
+
+  These runbooks are written for AI agents and for the sellers who run them. Keep calls, order and read-backs exact.
+</Info>
+
+## Account guard
+
+Run `extole_client_summary` before the first write in a conversation. Continue only when `client_type` is `TEST` or `PROSPECT`. For any other type, name the type and stop. Never write to a `CUSTOMER`, `EX_CUSTOMER` or `COMPONENT_LIBRARY` account.
+
+## Rules for every command
+
+1. Read each result back through a second call before you report it. A `200` is not proof that a write took effect.
+2. Report what you wrote and what you read back.
+3. Use `example.com` addresses for every synthetic person. The domain has no mail server, so no email is sent.
+4. Do not load demo data. Data loading and backdating are a separate step.
+5. Fetch zone pages with a real browser user agent. With a default tool agent, the platform treats the request as a bot and creates no journey.
+
+## Follow mode
+
+After each campaign write, send a data message so the page can follow: `{"ui": {"navigate": "/go/CAMPAIGN/7649829692402948660"}}`. The number shown is an example. Put the real campaign id in the message.
