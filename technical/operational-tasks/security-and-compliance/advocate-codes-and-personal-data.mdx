@@ -1,0 +1,94 @@
+---
+title: "Advocate Codes and Personal Data"
+description: "Where an advocate share code comes from, how to move a program to random opaque codes, and what changes when you issue a replacement share link."
+---
+
+# Overview
+
+[//]: # "Can Extole generate random advocate codes instead of codes derived from an email address?"
+
+Every advocate has a share link, and the end of that link is their advocate code. Extole also passes the code into the friend landing experience as a request parameter, so the code travels into your page URLs, your web analytics, and your logs. When the code is derived from personal data — the part of an email address before the `@`, for example — that personal data travels with it.
+
+This page covers where an advocate code comes from, how to move a program to random opaque codes, and what happens to the codes that already exist.
+
+[//]: ___
+
+## Where an Advocate Code Comes From
+
+[//]: # "Why does my advocate code look like part of the advocate's email address?"
+
+Extole generates a code for each advocate when their share link is created. A generated code is random rather than derived from anything in the person's profile.
+
+A code that contains personal data reaches Extole one of two ways:
+
+- **Your integration supplies it.** `POST /v5/persons/{person_id}/shareables` accepts an optional `code`. Supply it and that value becomes the share code; omit it and Extole generates one. The same applies to an advocate code you send in a person or audience file.
+- **Your share experience asks for a prefix.** `POST /api/v6/me/shareables` and its `get-or-create` and `get-create-or-update` variants accept `preferred_code_prefixes`. Extole tries each prefix in turn and falls back to a random code when none is available, so a prefix built from a profile field produces codes that start with that field's value.
+
+Establish which of the two applies before you change anything:
+
+- If your integration supplies the code, the change is in your system. Stop sending the personal value and let Extole generate the code.
+- If the prefixes come from your share experience, ask your Extole team to change that configuration.
+
+<Warning>
+New codes stop further exposure; they do not clean up exposure that has already happened. Links already sent, bookmarked, or recorded in your analytics and logs keep the old code.
+</Warning>
+
+[//]: ___
+
+## An Existing Code Cannot Be Changed
+
+[//]: # "Can Extole regenerate or rename an advocate's existing share code?"
+
+A share code is fixed when the share link is created. `PUT /v5/persons/{person_id}/shareables/{code}` updates a share link's `content`, `data`, `key`, `label`, and `program_url`. It does not update the code — the code identifies the link in the request path rather than appearing in the body.
+
+Updating `advocate_code` on a person profile does not change an existing share link either. The profile value and the share link then disagree, and the share link keeps attributing referrals to its original code.
+
+To move an advocate onto an opaque code, issue a replacement share link.
+
+[//]: ___
+
+## Issue a Replacement Share Link
+
+[//]: # "How do I give an advocate a new share link with a different code?"
+
+For one advocate over the API:
+
+1. List the advocate's existing share links with `GET /v5/persons/{person_id}/shareables` and note the `label` and `program_url` of the one you are replacing.
+2. Create the replacement with `POST /v5/persons/{person_id}/shareables`, reusing that `label` and `program_url` and omitting `code` so Extole generates a random one.
+3. Publish the new link everywhere the advocate's link appears — your emails, your CRM, and your app.
+
+For one advocate in My Extole, go to **User Support**, open the person's profile, and select **+ New Share Link**.
+
+For a whole audience, ask your Extole team to run a bulk creation. This is the same batch process used to backfill share links before launch — see [Create Share Link on an Event](/technical/platform-integrations/extensions/create-share-link-on-an-event).
+
+[//]: ___
+
+## What a Replacement Does to Attribution
+
+[//]: # "What happens to referral tracking when an advocate gets a new share code?"
+
+- **The original share link keeps working.** Creating a replacement does not disable the old link, and clicks on it are still attributed to the advocate.
+- **Referral history stays with the link that earned it.** The replacement starts with no history, and reports do not move earlier events onto it.
+- **Both links belong to the same advocate.** Extole recognizes the advocate through either one — see [How Does Extole Recognize Advocates?](/guides/platform-overview/key-concepts/how-does-extole-recognize-advocates).
+
+[//]: ___
+
+## Retiring an Old Code
+
+[//]: # "How do I invalidate or retire an advocate's old share code?"
+
+Retiring a code is a request to your Extole team, not a self-service operation: none of the published APIs delete a share link. Tell your team which codes to retire and the date from which the old links should stop working, and confirm with them what a friend sees when an old link is opened after that date.
+
+Blocking the advocate is a distinct action with a much wider effect — it declines every event for that person, including events on their replacement link. See [How to Block Users and Decline Shares](/guides/rewards-management/reward-fulfillment/how-to-block-users-and-decline-shares) for what blocking does.
+
+<Tip>
+Run replacement and retirement as two phases. Issue opaque codes and publish the new links first, keep the old links live long enough for referrals in flight to land, then retire the old codes on an agreed date.
+</Tip>
+
+[//]: ___
+
+## Related
+
+- [Create Share Link on an Event](/technical/platform-integrations/extensions/create-share-link-on-an-event) — creating share links in bulk and pushing them to your CRM or ESP
+- [Data Erasure Requests](/technical/operational-tasks/security-and-compliance/data-erasure-requests) — erasing a person's profile
+- [Right to Access Requests](/technical/operational-tasks/security-and-compliance/right-to-access-requests) — returning the data Extole holds about a person
