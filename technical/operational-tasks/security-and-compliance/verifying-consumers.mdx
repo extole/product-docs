@@ -43,12 +43,39 @@ JSON Web Tokens are an open, industry standard RFC 7519 method for representing 
 
 There are many popular libraries that can be used to generate your JWT. A JWT contains a header section, a payload section, and then signature section.
 
-If you are generating a x509 Key Pair, you will need to upload the public key as DER base64 encoded.  You can use OpenSSL to do this:
+With a shared key such as `HS256`, you and Extole sign and verify with the same secret, and you upload that secret as the key.
+
+With a key pair, you sign the JWT with a private key that stays on your servers, and you upload only the public key to Extole. You can use OpenSSL to generate both keys.
+
+For an RSA key pair:
 
 ```shell
-$ openssl rsa -in rsa.private -out rsa.public -pubout -outform DER
-$ base64 rsa.public
+$ openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out private.pem
+$ openssl rsa -in private.pem -pubout -out public.pem
 ```
+
+For an EC key pair on the P-256 curve:
+
+```shell
+$ openssl ecparam -name prime256v1 -genkey -noout -out private.pem
+$ openssl ec -in private.pem -pubout -out public.pem
+```
+
+Paste the whole of `public.pem` into the **Key** field in the Security Center, including the `-----BEGIN PUBLIC KEY-----` and `-----END PUBLIC KEY-----` lines.
+
+<Warning>
+Upload the public key in PEM format, as shown above. Don't convert it to DER and then Base64-encode it. Extole rejects a Base64-encoded DER key as an invalid key.
+</Warning>
+
+Choose the **Algorithm** that matches the `alg` you sign with, and set the same value in the JWT header:
+
+| You sign with | Key you upload | **Algorithm** to choose | `alg` in the JWT header |
+| :------------ | :------------- | :---------------------- | :---------------------- |
+| A shared secret | The secret | `HS256` | `HS256` |
+| An RSA private key | The RSA public key | `RS256_PUBLIC` | `RS256` |
+| An EC P-256 private key | The EC public key | `ES256_PUBLIC` | `ES256` |
+
+The same pattern applies to the other key sizes Extole supports, such as `RS384_PUBLIC` for `RS384` and `ES384_PUBLIC` for `ES384`.
 
 ### JWT Header
 
