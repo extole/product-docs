@@ -31652,7 +31652,8 @@
             "$ref" : "#/components/schemas/FileAttributes"
           },
           "inputStream" : {
-            "type" : "object"
+            "format" : "binary",
+            "type" : "string"
           }
         },
         "required" : [ "attributes", "inputStream" ],
@@ -32963,42 +32964,6 @@
           "type" : "string"
         } ]
       },
-      "FormDataContentDisposition" : {
-        "properties" : {
-          "creationDate" : {
-            "format" : "date-time",
-            "type" : "string"
-          },
-          "fileName" : {
-            "type" : "string"
-          },
-          "modificationDate" : {
-            "format" : "date-time",
-            "type" : "string"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "parameters" : {
-            "additionalProperties" : {
-              "type" : "string"
-            },
-            "type" : "object"
-          },
-          "readDate" : {
-            "format" : "date-time",
-            "type" : "string"
-          },
-          "size" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "type" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
       "FormatReportInfoResponse" : {
         "properties" : {
           "content_length" : {
@@ -34221,7 +34186,7 @@
       "JourneyKeyResponse" : {
         "properties" : {
           "name" : {
-            "$ref" : "#/components/schemas/NameInCampaignStepResponse"
+            "$ref" : "#/components/schemas/NameInCampaignJourneyEntryResponse"
           },
           "value" : {
             "$ref" : "#/components/schemas/ValueInCampaignJourneyEntryResponse"
@@ -35425,6 +35390,7 @@
         "type" : "object"
       },
       "MergingConfigurationRequest" : {
+        "nullable" : true,
         "properties" : {
           "deliverable_type" : {
             "type" : "string"
@@ -36272,7 +36238,7 @@
           "type" : "string"
         } ]
       },
-      "NameInCampaignStepResponse" : {
+      "NameInCampaignJourneyEntryResponse" : {
         "description" : "The name as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [CampaignBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/CampaignBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "CampaignBuildtimeContext",
@@ -39057,6 +39023,7 @@
         "type" : "object"
       },
       "PauseInfoRequest" : {
+        "nullable" : true,
         "properties" : {
           "description" : {
             "nullable" : true,
@@ -39808,48 +39775,11 @@
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts"
         },
         "oneOf" : [ {
+          "allOf" : [ {
+            "$ref" : "#/components/schemas/Duration"
+          } ],
           "description" : "Literal profile risk update interval",
-          "properties" : {
-            "nano" : {
-              "format" : "int32",
-              "type" : "integer"
-            },
-            "negative" : {
-              "type" : "boolean"
-            },
-            "positive" : {
-              "type" : "boolean"
-            },
-            "seconds" : {
-              "format" : "int64",
-              "type" : "integer"
-            },
-            "units" : {
-              "items" : {
-                "properties" : {
-                  "dateBased" : {
-                    "type" : "boolean"
-                  },
-                  "duration" : {
-                    "$ref" : "#/components/schemas/Duration"
-                  },
-                  "durationEstimated" : {
-                    "type" : "boolean"
-                  },
-                  "timeBased" : {
-                    "type" : "boolean"
-                  }
-                },
-                "type" : "object"
-              },
-              "type" : "array"
-            },
-            "zero" : {
-              "type" : "boolean"
-            }
-          },
-          "title" : "Static Value",
-          "type" : "object"
+          "title" : "Static Value"
         }, {
           "description" : "Handlebars expression with [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
           "example" : "handlebars@buildtime:{{profileRiskUpdateInterval}}",
@@ -39933,7 +39863,6 @@
             "type" : "object"
           },
           "description" : {
-            "nullable" : true,
             "type" : "string"
           },
           "key" : {
@@ -59065,32 +58994,14 @@
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
-              "example" : {
-                "asset" : {
-                  "description" : "description",
-                  "name" : "name",
-                  "tags" : [ "tag" ]
-                },
-                "file" : {
-                  "creationDate" : "2025-10-24T09:00:00.000Z",
-                  "fileName" : "fileName",
-                  "modificationDate" : "2025-10-24T09:00:00.000Z",
-                  "name" : "name",
-                  "parameters" : {
-                    "parameters_key" : "parameters_key"
-                  },
-                  "readDate" : "2025-10-24T09:00:00.000Z",
-                  "size" : 1,
-                  "type" : "type"
-                }
-              },
               "schema" : {
                 "properties" : {
                   "asset" : {
                     "$ref" : "#/components/schemas/ComponentAssetCreateRequest"
                   },
                   "file" : {
-                    "$ref" : "#/components/schemas/FormDataContentDisposition"
+                    "format" : "binary",
+                    "type" : "string"
                   }
                 },
                 "type" : "object"
@@ -59755,32 +59666,14 @@
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
-              "example" : {
-                "asset" : {
-                  "description" : "description",
-                  "name" : "name",
-                  "tags" : [ "tag" ]
-                },
-                "file" : {
-                  "creationDate" : "2025-10-24T09:00:00.000Z",
-                  "fileName" : "fileName",
-                  "modificationDate" : "2025-10-24T09:00:00.000Z",
-                  "name" : "name",
-                  "parameters" : {
-                    "parameters_key" : "parameters_key"
-                  },
-                  "readDate" : "2025-10-24T09:00:00.000Z",
-                  "size" : 1,
-                  "type" : "type"
-                }
-              },
               "schema" : {
                 "properties" : {
                   "asset" : {
                     "$ref" : "#/components/schemas/ComponentAssetUpdateRequest"
                   },
                   "file" : {
-                    "$ref" : "#/components/schemas/FormDataContentDisposition"
+                    "format" : "binary",
+                    "type" : "string"
                   }
                 },
                 "type" : "object"
@@ -71973,13 +71866,6 @@
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
-              "example" : {
-                "attributes" : {
-                  "fileName" : "fileName",
-                  "size" : 1
-                },
-                "inputStream" : { }
-              },
               "schema" : {
                 "$ref" : "#/components/schemas/FileInputStreamRequest"
               }
@@ -73123,24 +73009,11 @@
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
-              "example" : {
-                "file" : {
-                  "creationDate" : "2025-10-24T09:00:00.000Z",
-                  "fileName" : "fileName",
-                  "modificationDate" : "2025-10-24T09:00:00.000Z",
-                  "name" : "name",
-                  "parameters" : {
-                    "parameters_key" : "parameters_key"
-                  },
-                  "readDate" : "2025-10-24T09:00:00.000Z",
-                  "size" : 1,
-                  "type" : "type"
-                }
-              },
               "schema" : {
                 "properties" : {
                   "file" : {
-                    "$ref" : "#/components/schemas/FormDataContentDisposition"
+                    "format" : "binary",
+                    "type" : "string"
                   }
                 },
                 "type" : "object"
@@ -104525,24 +104398,11 @@
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
-              "example" : {
-                "file" : {
-                  "creationDate" : "2025-10-24T09:00:00.000Z",
-                  "fileName" : "fileName",
-                  "modificationDate" : "2025-10-24T09:00:00.000Z",
-                  "name" : "name",
-                  "parameters" : {
-                    "parameters_key" : "parameters_key"
-                  },
-                  "readDate" : "2025-10-24T09:00:00.000Z",
-                  "size" : 1,
-                  "type" : "type"
-                }
-              },
               "schema" : {
                 "properties" : {
                   "file" : {
-                    "$ref" : "#/components/schemas/FormDataContentDisposition"
+                    "format" : "binary",
+                    "type" : "string"
                   }
                 },
                 "type" : "object"
@@ -111310,29 +111170,6 @@
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
-              "example" : {
-                "clientKeyCreateRequest" : {
-                  "algorithm" : "SSL_PKCS_12",
-                  "component_ids" : [ "component_id" ],
-                  "component_references" : [ {
-                    "component_id" : "component_id",
-                    "socket_names" : [ "socket_name" ]
-                  } ],
-                  "description" : "description",
-                  "name" : "name",
-                  "partner_key_id" : "partner_key_id",
-                  "password" : "password",
-                  "tags" : [ "tag" ],
-                  "type" : "JWT"
-                },
-                "fileInputStreamRequest" : {
-                  "attributes" : {
-                    "fileName" : "fileName",
-                    "size" : 1
-                  },
-                  "inputStream" : { }
-                }
-              },
               "schema" : {
                 "$ref" : "#/components/schemas/FileClientKeyRequest_FileBasedClientKeyCreateRequest"
               }
@@ -114921,13 +114758,6 @@
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
-              "example" : {
-                "attributes" : {
-                  "fileName" : "fileName",
-                  "size" : 1
-                },
-                "inputStream" : { }
-              },
               "schema" : {
                 "$ref" : "#/components/schemas/FileInputStreamRequest"
               }
@@ -115721,24 +115551,11 @@
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
-              "example" : {
-                "file" : {
-                  "creationDate" : "2025-10-24T09:00:00.000Z",
-                  "fileName" : "fileName",
-                  "modificationDate" : "2025-10-24T09:00:00.000Z",
-                  "name" : "name",
-                  "parameters" : {
-                    "parameters_key" : "parameters_key"
-                  },
-                  "readDate" : "2025-10-24T09:00:00.000Z",
-                  "size" : 1,
-                  "type" : "type"
-                }
-              },
               "schema" : {
                 "properties" : {
                   "file" : {
-                    "$ref" : "#/components/schemas/FormDataContentDisposition"
+                    "format" : "binary",
+                    "type" : "string"
                   }
                 },
                 "type" : "object"
