@@ -11,9 +11,6 @@ Usage:
       --out .
 
 It writes .mdx pages, copies the OpenAPI specs, and regenerates docs.json.
-
-To update only the generated API navigation from the local OpenAPI bundles:
-  python scripts/convert_from_product_docs.py --out . --sync-api-navigation
 """
 from __future__ import annotations
 
@@ -1159,7 +1156,7 @@ def openapi_navigation_groups(spec: dict) -> list[dict]:
     Mintlify's automatic OpenAPI navigation follows JSON insertion order. Group
     endpoints alphabetically by tag while preserving the source order of the
     operations within each tag. Explicit page references make that behavior
-    stable in both the generated docs and the standalone sync command below.
+    stable in the generated docs.
     """
     operations_by_tag: dict[str, list[tuple[str, str]]] = {}
     for path, path_item in (spec.get("paths") or {}).items():
@@ -1199,41 +1196,11 @@ def api_reference_group(label: str, filename: str, spec: dict) -> dict:
     }
 
 
-def sync_api_navigation(out: Path) -> int:
-    """Refresh the API Reference tab from the OpenAPI bundles already in ``out``."""
-    docs_path = out / "docs.json"
-    docs = json.loads(docs_path.read_text(encoding="utf-8"))
-    api_tab = next(
-        (tab for tab in docs.get("navigation", {}).get("tabs", []) if tab.get("tab") == "API Reference"),
-        None,
-    )
-    if not api_tab:
-        raise ValueError("docs.json does not define an API Reference tab")
-
-    getting_started = next(
-        (group for group in api_tab.get("groups", []) if group.get("group") == "Getting Started"),
-        None,
-    )
-    groups = [getting_started] if getting_started else []
-    for label, filename in SPEC_TABS:
-        spec_path = out / API_TAB_SLUG / filename
-        if spec_path.exists():
-            groups.append(api_reference_group(label, filename, json.loads(spec_path.read_text(encoding="utf-8"))))
-    api_tab["groups"] = groups
-    docs_path.write_text(json.dumps(docs, indent=2) + "\n", encoding="utf-8")
-    return len(groups) - (1 if getting_started else 0)
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--product-docs", type=Path)
     ap.add_argument("--specification", type=Path)
     ap.add_argument("--out", required=True, type=Path)
-    ap.add_argument(
-        "--sync-api-navigation",
-        action="store_true",
-        help="rewrite the API Reference navigation from local api-reference OpenAPI bundles",
-    )
     ap.add_argument(
         "--migrate-images",
         action="store_true",
@@ -1247,10 +1214,6 @@ def main():
     args = ap.parse_args()
 
     out = args.out.resolve()
-
-    if args.sync_api_navigation:
-        print(f"API specs synchronized: {sync_api_navigation(out)}")
-        return
 
     if not args.product_docs and not args.specification:
         if not args.migrate_images:
