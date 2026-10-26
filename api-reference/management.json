@@ -23033,14 +23033,18 @@
         "type" : "object"
       },
       "ComponentOriginResponse" : {
+        "description" : "The component this one was copied from, at the version it had at the copy. A duplicate sets it. A copy of a copy in the same client keeps the first copy's origin. A change to the component's types, its install, its first-level elements other than child components, or the account-level elements it uses clears it. The component upgrade does not clear it. A component with no origin is offered no upgrade.",
         "properties" : {
           "client_id" : {
+            "description" : "Id of the client that owns the origin component.",
             "type" : "string"
           },
           "component_id" : {
+            "description" : "Id of the origin component.",
             "type" : "string"
           },
           "component_version" : {
+            "description" : "Version the origin component had when this component was copied from it, or when an upgrade last brought this component to it.",
             "format" : "int32",
             "type" : "integer"
           }
@@ -100827,7 +100831,7 @@
     },
     "/v1/components/{component_id}/upgrade" : {
       "post" : {
-        "description" : "Upgrades the component to the latest version of its component type definition.",
+        "description" : "Brings the component, and every component under it, to the latest published version of its `origin`, the component it was copied from, while it keeps the client's own changes. The upgrade keeps the name, display name, description and tags the client changed, the values the client set on settings the origin still has, the settings the client added, and the assets the client changed or added. It drops a setting the origin no longer has. It leaves a child component that has no origin as it is. References from outside the component into it point at the same components after the upgrade, as long as the origin kept them. The component needs an origin, and the upgrade is refused when the component or a component under it uses an audience, a client key, a client domain pattern, a prehandler or another restricted account-level element. The upgrade has no preview. It saves the campaign's draft several times and can take several minutes. `GET /v1/components/{component_id}/available-upgrades` lists what an upgrade would bring.",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
