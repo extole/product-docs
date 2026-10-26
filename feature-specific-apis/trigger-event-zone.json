@@ -1,0 +1,488 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Trigger Event Zone",
+    "version": "1.0.0",
+    "description": "Operations published by Extole Trigger Event Zone components. Generated from the component contracts on my.extole.com."
+  },
+  "servers": [
+    {
+      "description": "Production - Extole events host",
+      "url": "https://events.extole.io"
+    },
+    {
+      "description": "Production - your program domain",
+      "url": "https://{brand}.extole.io",
+      "variables": {
+        "brand": {
+          "default": "yourcompany",
+          "description": "Your Extole client subdomain (e.g. 'mycompany' for mycompany.extole.io)"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/v6/events": {
+      "post": {
+        "summary": "Trigger Event",
+        "description": "Sends this trigger event for one person, so the campaigns that listen for it run for that person. Rewards and emails follow from their rules. To keep the event out of analytics, set data.container to test.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "ACTION"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriggerEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "event_id",
+                    "person_id"
+                  ],
+                  "properties": {
+                    "event_id": {
+                      "type": "string",
+                      "description": "Identifier of the event. What it caused follows from the campaign rules."
+                    },
+                    "person_id": {
+                      "type": "string",
+                      "description": "Extole person the event resolved to."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "description": "Production - Extole events host",
+            "url": "https://events.extole.io"
+          }
+        ],
+        "security": [
+          {
+            "CLIENT_AUTH_HEADER": []
+          },
+          {
+            "CLIENT_AUTH_QUERY_PARAM": []
+          }
+        ],
+        "x-extole-component": "zone_event"
+      }
+    },
+    "/events": {
+      "post": {
+        "summary": "Trigger Event From Consumer",
+        "description": "Sends this trigger event from a consumer's browser or app, through the program domain, so the campaigns that listen for it run for that consumer. The call always answers 200. To find out if the event failed, read the X-Extole-Error-Message response header.",
+        "x-extole-type": "CONSUMER_TO_EXTOLE",
+        "tags": [
+          "ACTION"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriggerEventFromConsumerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Identifier of the event. It is absent when the event failed."
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "Access token of the consumer. Send it on the next call to keep the same consumer."
+                    },
+                    "cookie_consent": {
+                      "type": "string",
+                      "description": "Cookie consent string that the event set. It is absent when the event set none."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  },
+                  "missing_request_body": {
+                    "$ref": "#/components/examples/missing_request_body"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "expired_access_token": {
+                    "$ref": "#/components/examples/expired_access_token"
+                  },
+                  "invalid_access_token": {
+                    "$ref": "#/components/examples/invalid_access_token"
+                  },
+                  "jwt_authentication_error": {
+                    "$ref": "#/components/examples/jwt_authentication_error"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "description": "Production - your program domain",
+            "url": "https://{brand}.extole.io",
+            "variables": {
+              "brand": {
+                "default": "yourcompany",
+                "description": "Your Extole client subdomain (e.g. 'mycompany' for mycompany.extole.io)"
+              }
+            }
+          }
+        ],
+        "security": [
+          {
+            "CONSUMER_AUTH_HEADER": []
+          },
+          {
+            "CONSUMER_AUTH_QUERY_PARAM": []
+          },
+          {
+            "CONSUMER_AUTH_COOKIE": []
+          }
+        ],
+        "x-extole-component": "zone_event"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "CLIENT_AUTH_HEADER": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
+        "x-bearer-format": "bearer"
+      },
+      "CLIENT_AUTH_QUERY_PARAM": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "access_token",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device."
+      },
+      "CONSUMER_AUTH_HEADER": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "A consumer access token, issued to a single person in the browser or app. Not a client access token - never send a client token from a consumer device.",
+        "x-bearer-format": "bearer"
+      },
+      "CONSUMER_AUTH_QUERY_PARAM": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "access_token",
+        "description": "A consumer access token, issued to a single person in the browser or app. Not a client access token - never send a client token from a consumer device."
+      },
+      "CONSUMER_AUTH_COOKIE": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "extole_token",
+        "description": "A consumer access token, issued to a single person in the browser or app. Not a client access token - never send a client token from a consumer device."
+      }
+    },
+    "schemas": {
+      "RestExceptionResponse": {
+        "type": "object",
+        "description": "Represents the API error response",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Specific error code for this error type, documented per endpoint"
+          },
+          "http_status_code": {
+            "type": "integer",
+            "description": "HTTP status code that was returned with this error, useful if client get response code"
+          },
+          "message": {
+            "type": "string",
+            "description": "User readable English description of the error"
+          },
+          "parameters": {
+            "type": "object",
+            "description": "Attributes related to the error, varies be error code, documented per endpoint",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Attributes related to the error, varies be error code, documented per endpoint"
+            }
+          },
+          "unique_id": {
+            "type": "string",
+            "description": "Unique id associated with this error, useful for discussions with Extole"
+          }
+        },
+        "required": [
+          "code",
+          "http_status_code",
+          "message",
+          "parameters",
+          "unique_id"
+        ]
+      },
+      "TriggerEventRequest": {
+        "type": "object",
+        "required": [
+          "event_name",
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "description": "To name the person, send person_id, or the identity key of the client with its value, for example email when email is the identity key.",
+            "type": "object",
+            "properties": {
+              "container": {
+                "description": "Container the event goes to, for example test to keep it out of analytics. Without it, a request from your backend goes to production.",
+                "type": "string"
+              },
+              "person_id": {
+                "description": "Extole person the event is for, when you have the id.",
+                "type": "string"
+              }
+            }
+          },
+          "event_name": {
+            "description": "The event this trigger event listens for.",
+            "type": "string",
+            "enum": [
+              "zone_event"
+            ]
+          }
+        }
+      },
+      "TriggerEventFromConsumerRequest": {
+        "type": "object",
+        "required": [
+          "event_name"
+        ],
+        "properties": {
+          "data": {
+            "description": "To name the consumer, add the identity key of the client with its value, for example email when email is the identity key. Without one, the access token or cookie names the consumer.",
+            "type": "object",
+            "properties": {
+              "container": {
+                "description": "Container the event goes to, for example test to keep it out of analytics. Without it, the event goes to production.",
+                "type": "string"
+              }
+            }
+          },
+          "event_name": {
+            "description": "The event this trigger event listens for.",
+            "type": "string",
+            "enum": [
+              "zone_event"
+            ]
+          }
+        }
+      }
+    },
+    "examples": {
+      "binding_error": {
+        "summary": "binding_error",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "binding_error",
+          "message": "Argument is not of the expected type",
+          "parameters": {}
+        }
+      },
+      "invalid_json": {
+        "summary": "invalid_json",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "invalid_json",
+          "message": "JSON is invalid",
+          "parameters": {}
+        }
+      },
+      "invalid_parameter": {
+        "summary": "invalid_parameter",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "invalid_parameter",
+          "message": "Parameter is invalid.",
+          "parameters": {}
+        }
+      },
+      "missing_request_body": {
+        "summary": "missing_request_body",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 400,
+          "code": "missing_request_body",
+          "message": "Missing request body",
+          "parameters": {}
+        }
+      },
+      "access_denied": {
+        "summary": "access_denied",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "access_denied",
+          "message": "The access_token provided is not permitted to access the specified resource.",
+          "parameters": {}
+        }
+      },
+      "method_unauthorized": {
+        "summary": "method_unauthorized",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "method_unauthorized",
+          "message": "Access forbidden to this endpoint",
+          "parameters": {}
+        }
+      },
+      "missing_access_token": {
+        "summary": "missing_access_token",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "missing_access_token",
+          "message": "No access_token was provided with this request.",
+          "parameters": {}
+        }
+      },
+      "expired_access_token": {
+        "summary": "expired_access_token",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "expired_access_token",
+          "message": "The access_token provided with this request has expired.",
+          "parameters": {}
+        }
+      },
+      "invalid_access_token": {
+        "summary": "invalid_access_token",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "invalid_access_token",
+          "message": "The access_token provided with this request is invalid.",
+          "parameters": {}
+        }
+      },
+      "jwt_authentication_error": {
+        "summary": "jwt_authentication_error",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "jwt_authentication_error",
+          "message": "The jwt authentication failed.",
+          "parameters": {}
+        }
+      }
+    }
+  }
+}
