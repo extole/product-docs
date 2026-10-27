@@ -12,13 +12,27 @@
     }
   ],
   "paths": {
-    "/v6/events": {
+    "/v6/events/{event_name}": {
       "post": {
         "summary": "Trigger Event",
         "description": "Triggers this event for one person. It is a real event: campaigns that listen for it can issue rewards and send emails.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "ACTION"
+        ],
+        "parameters": [
+          {
+            "name": "event_name",
+            "in": "path",
+            "required": true,
+            "description": "The event this trigger event listens for.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "event_api_trigger_event"
+              ]
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -174,32 +188,20 @@
         ]
       },
       "TriggerEventRequest": {
+        "description": "To name the person, send person_id or email.",
         "type": "object",
-        "required": [
-          "event_name",
-          "data"
-        ],
         "properties": {
-          "data": {
-            "description": "To name the person, send person_id, or the identity key of the client with its value, for example email when email is the identity key.",
-            "type": "object",
-            "properties": {
-              "container": {
-                "description": "Container the event goes to, for example test to keep it out of analytics. Without it, a request from your backend goes to production.",
-                "type": "string"
-              },
-              "person_id": {
-                "description": "Extole person the event is for, when you have the id.",
-                "type": "string"
-              }
-            }
+          "container": {
+            "description": "Container the event goes to, for example test to keep it out of analytics. Without it, a request from your backend goes to production.",
+            "type": "string"
           },
-          "event_name": {
-            "description": "The event this trigger event listens for.",
-            "type": "string",
-            "enum": [
-              "event_api_trigger_event"
-            ]
+          "email": {
+            "description": "The email of the person the event is for. It is the identity key of the client.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person the event is for, when you have the id.",
+            "type": "string"
           }
         }
       }
