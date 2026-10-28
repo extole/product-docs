@@ -2081,6 +2081,66 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "component_origin_component_id_missing" : {
+        "summary" : "component_origin_component_id_missing",
+        "value" : {
+          "code" : "component_origin_component_id_missing",
+          "http_status_code" : 400,
+          "message" : "The id of the origin component is required.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "component_origin_component_not_found" : {
+        "summary" : "component_origin_component_not_found",
+        "value" : {
+          "code" : "component_origin_component_not_found",
+          "http_status_code" : 400,
+          "message" : "The origin component was not found.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "component_origin_is_component" : {
+        "summary" : "component_origin_is_component",
+        "value" : {
+          "code" : "component_origin_is_component",
+          "http_status_code" : 400,
+          "message" : "A component cannot be its own origin.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "component_origin_restricted_external_elements" : {
+        "summary" : "component_origin_restricted_external_elements",
+        "value" : {
+          "code" : "component_origin_restricted_external_elements",
+          "http_status_code" : 400,
+          "message" : "The component uses external elements that the client added, so it cannot take an origin's upgrades.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "component_origin_structure_mismatch" : {
+        "summary" : "component_origin_structure_mismatch",
+        "value" : {
+          "code" : "component_origin_structure_mismatch",
+          "http_status_code" : 400,
+          "message" : "The component's structure differs from the origin component.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "component_origin_upgrade_available" : {
+        "summary" : "component_origin_upgrade_available",
+        "value" : {
+          "code" : "component_origin_upgrade_available",
+          "http_status_code" : 400,
+          "message" : "The component already has this origin at an older version. Upgrade the component instead.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "component_owner_not_supported" : {
         "summary" : "component_owner_not_supported",
         "value" : {
@@ -23096,6 +23156,16 @@
             "type" : "string"
           }
         },
+        "type" : "object"
+      },
+      "ComponentOriginRequest" : {
+        "properties" : {
+          "component_id" : {
+            "description" : "Id of the origin component to connect to, usually the component this one was copied from. The component connects to the origin's current version.",
+            "type" : "string"
+          }
+        },
+        "required" : [ "component_id" ],
         "type" : "object"
       },
       "ComponentOriginResponse" : {
@@ -116073,6 +116143,371 @@
           }
         },
         "summary" : "Upload translatable component variables",
+        "tags" : [ "Components" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v1/components/{component_id}/origin" : {
+      "put" : {
+        "description" : "Sets the origin of a component, and of each matching descendant component, to the current version of another component, so the component can take that origin's later upgrades. The current version is the latest one for a component of the same client, and the published one for a component of another client. An origin the component already has is replaced. When the component already has the same origin at an older version, the request is refused; upgrade the component instead. Each child component of the origin must be present, by component name, at every level, and each matched component must have the same types, install and elements, such as controllers, triggers and flow steps, as its origin component; otherwise the request is refused and the error lists each difference. A component that would become its own origin is refused too. A child component that the origin does not have is allowed, and its own origin does not change. The request is also refused when the component uses an external element that the client added, such as an audience or a reward supplier. Settings, assets, sockets and facets are not compared. The connect records them as matching the origin's current version, so bring them to that version before you connect; otherwise the next upgrade keeps their old values as client changes. The connect saves the campaign's draft, so publish the campaign for the published version to carry the new origin. Nothing else on the component changes.\n\nFields omitted from the body are left unchanged, except `component_id`, which the request schema marks required and which every request must send.",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "component_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "component_id" : "component_id"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentOriginRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ComponentResponse"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "campaign_build_failed" : {
+                    "$ref" : "#/components/examples/campaign_build_failed"
+                  },
+                  "campaign_component_absolute_name_missing" : {
+                    "$ref" : "#/components/examples/campaign_component_absolute_name_missing"
+                  },
+                  "campaign_component_description_out_of_range" : {
+                    "$ref" : "#/components/examples/campaign_component_description_out_of_range"
+                  },
+                  "campaign_component_display_name_contains_illegal_character" : {
+                    "$ref" : "#/components/examples/campaign_component_display_name_contains_illegal_character"
+                  },
+                  "campaign_component_display_name_out_of_range" : {
+                    "$ref" : "#/components/examples/campaign_component_display_name_out_of_range"
+                  },
+                  "campaign_component_id_missing" : {
+                    "$ref" : "#/components/examples/campaign_component_id_missing"
+                  },
+                  "campaign_component_name_already_in_use" : {
+                    "$ref" : "#/components/examples/campaign_component_name_already_in_use"
+                  },
+                  "campaign_component_name_contains_illegal_character" : {
+                    "$ref" : "#/components/examples/campaign_component_name_contains_illegal_character"
+                  },
+                  "campaign_component_name_out_of_range" : {
+                    "$ref" : "#/components/examples/campaign_component_name_out_of_range"
+                  },
+                  "campaign_component_type_operation_missing" : {
+                    "$ref" : "#/components/examples/campaign_component_type_operation_missing"
+                  },
+                  "campaign_component_type_validation_failed" : {
+                    "$ref" : "#/components/examples/campaign_component_type_validation_failed"
+                  },
+                  "campaign_concurrent_client_change_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_client_change_update"
+                  },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_stale_version" : {
+                    "$ref" : "#/components/examples/campaign_stale_version"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "circular_component_reference" : {
+                    "$ref" : "#/components/examples/circular_component_reference"
+                  },
+                  "client_key_name_already_in_use" : {
+                    "$ref" : "#/components/examples/client_key_name_already_in_use"
+                  },
+                  "component_facets_not_found" : {
+                    "$ref" : "#/components/examples/component_facets_not_found"
+                  },
+                  "component_ids_and_references_both_provided" : {
+                    "$ref" : "#/components/examples/component_ids_and_references_both_provided"
+                  },
+                  "component_not_found" : {
+                    "$ref" : "#/components/examples/component_not_found"
+                  },
+                  "component_operation_method_missing" : {
+                    "$ref" : "#/components/examples/component_operation_method_missing"
+                  },
+                  "component_operation_name_already_in_use" : {
+                    "$ref" : "#/components/examples/component_operation_name_already_in_use"
+                  },
+                  "component_operation_name_contains_illegal_character" : {
+                    "$ref" : "#/components/examples/component_operation_name_contains_illegal_character"
+                  },
+                  "component_operation_name_missing" : {
+                    "$ref" : "#/components/examples/component_operation_name_missing"
+                  },
+                  "component_operation_name_out_of_range" : {
+                    "$ref" : "#/components/examples/component_operation_name_out_of_range"
+                  },
+                  "component_operation_name_reserved" : {
+                    "$ref" : "#/components/examples/component_operation_name_reserved"
+                  },
+                  "component_operation_parameter_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_parameter_invalid"
+                  },
+                  "component_operation_path_malformed" : {
+                    "$ref" : "#/components/examples/component_operation_path_malformed"
+                  },
+                  "component_operation_path_missing" : {
+                    "$ref" : "#/components/examples/component_operation_path_missing"
+                  },
+                  "component_operation_schema_invalid" : {
+                    "$ref" : "#/components/examples/component_operation_schema_invalid"
+                  },
+                  "component_operation_schema_too_large" : {
+                    "$ref" : "#/components/examples/component_operation_schema_too_large"
+                  },
+                  "component_operation_tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/component_operation_tag_length_out_of_range"
+                  },
+                  "component_operation_type_missing" : {
+                    "$ref" : "#/components/examples/component_operation_type_missing"
+                  },
+                  "component_origin_component_id_missing" : {
+                    "$ref" : "#/components/examples/component_origin_component_id_missing"
+                  },
+                  "component_origin_component_not_found" : {
+                    "$ref" : "#/components/examples/component_origin_component_not_found"
+                  },
+                  "component_origin_is_component" : {
+                    "$ref" : "#/components/examples/component_origin_is_component"
+                  },
+                  "component_origin_restricted_external_elements" : {
+                    "$ref" : "#/components/examples/component_origin_restricted_external_elements"
+                  },
+                  "component_origin_structure_mismatch" : {
+                    "$ref" : "#/components/examples/component_origin_structure_mismatch"
+                  },
+                  "component_origin_upgrade_available" : {
+                    "$ref" : "#/components/examples/component_origin_upgrade_available"
+                  },
+                  "component_owner_not_supported" : {
+                    "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_reference_still_pinned" : {
+                    "$ref" : "#/components/examples/component_reference_still_pinned"
+                  },
+                  "component_reference_unmatched_on_publish" : {
+                    "$ref" : "#/components/examples/component_reference_unmatched_on_publish"
+                  },
+                  "component_state_not_supported" : {
+                    "$ref" : "#/components/examples/component_state_not_supported"
+                  },
+                  "component_type_not_found" : {
+                    "$ref" : "#/components/examples/component_type_not_found"
+                  },
+                  "controller_state_misconfiguration" : {
+                    "$ref" : "#/components/examples/controller_state_misconfiguration"
+                  },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
+                  "excessive_component_reference" : {
+                    "$ref" : "#/components/examples/excessive_component_reference"
+                  },
+                  "expression_invalid_syntax" : {
+                    "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "external_element_is_referenced_by_active_configuration" : {
+                    "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
+                  },
+                  "external_element_not_found" : {
+                    "$ref" : "#/components/examples/external_element_not_found"
+                  },
+                  "external_element_type_not_supported" : {
+                    "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "external_elements_cannot_have_multiple_references" : {
+                    "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_component_installed_into_socket" : {
+                    "$ref" : "#/components/examples/invalid_component_installed_into_socket"
+                  },
+                  "invalid_component_reference" : {
+                    "$ref" : "#/components/examples/invalid_component_reference"
+                  },
+                  "invalid_component_reference_socket_name" : {
+                    "$ref" : "#/components/examples/invalid_component_reference_socket_name"
+                  },
+                  "invalid_external_component_reference" : {
+                    "$ref" : "#/components/examples/invalid_external_component_reference"
+                  },
+                  "invalid_external_element_filter" : {
+                    "$ref" : "#/components/examples/invalid_external_element_filter"
+                  },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_setting_filter" : {
+                    "$ref" : "#/components/examples/invalid_setting_filter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
+                  },
+                  "invalid_uri_in_query_parameter" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_query_parameter"
+                  },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "orphan_external_component_reference" : {
+                    "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
+                  "rebuild_campaigns_build_failed" : {
+                    "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
+                  },
+                  "redundant_component_reference" : {
+                    "$ref" : "#/components/examples/redundant_component_reference"
+                  },
+                  "self_component_reference" : {
+                    "$ref" : "#/components/examples/self_component_reference"
+                  },
+                  "unknown_source_clients" : {
+                    "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Connect a component to an origin",
         "tags" : [ "Components" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
