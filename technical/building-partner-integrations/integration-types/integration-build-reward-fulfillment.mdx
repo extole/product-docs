@@ -345,11 +345,14 @@ The handler runtime is:
 | Headers and JSON | `.addHeader(...)`, `.withBody(JSON.stringify(body))`, `.build()` |
 | Mark processing, not delivered | `context.createFulfillRewardCommandEventBuilder().withSuccess(false).send()` |
 | Mark delivered | `.withSuccess(true).withPartnerRewardId(partnerId).send()` |
+| Record what the participant redeems | `.withCode(code)`, `.withInstructions(text)`, before `.send()` |
 | Mark failed | `context.createFailedRewardCommandEventBuilder().withMessage(...).send()` |
 | Ask the dispatcher to try again | return `"RETRY"` |
 | Finish this attempt | return `"OK"` |
 
 Order webhooks commonly fulfill with `withSuccess(false)` so the status check can close the reward later; always using `withSuccess(true)` reports rewards as delivered when the partner rejected them.
+
+`withPartnerRewardId` records the partner's reference for the order. Put the value the participant redeems, such as a gift card code, in `withCode` instead. Extole stores it on the reward as `code` and sends it in reward webhooks. If the reward supplier's `partner_reward_key_type` is `LINK`, a successful fulfillment still needs a valid URL in `withPartnerRewardId`. Without one, Extole fails the reward.
 
 Leave the webhook **disabled** while a required credential or the payload contract is missing, then `PUT` the handlers and set `enabled` to true.
 
