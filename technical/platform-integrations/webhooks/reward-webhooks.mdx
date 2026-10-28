@@ -35,12 +35,12 @@ When you are filtering your events, you will likely want to only include rewards
 * Canceled
 * Revoked
 
-For definitions of each of these states, please see the Additional Attributes table below.
+For definitions of each of these states, see the Additional Attributes table below.
 
 #### Use cases
 
 * If you want to fulfill account credits in real time, you will call for the **Earned** state. 
-* If you want to apply coupon codes to an account, you will call for the **Fulfilled** state. 
+* If you want to apply coupon codes to an account, you will call for the **Fulfilled** state. The coupon code is in the `code` attribute. 
 * If you want to make a coupon code active when Extole distributes it, you will call for the **Fulfilled** state. 
 
 [//]: ___
@@ -84,13 +84,29 @@ Certain reward events may have additional attributes.
 | Event Name                   | Definition                                                                                                                                                            | Extra Attributes                                                                                                                   |
 | :--------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
 | `EarnedRewardEvent`          | Fired every time a customer earns a reward. For coupon codes, this event contains the earned code.                                                                    | No extra attributes                                                                                                                |
-| `FulfilledRewardEvent`       | Fired every time a reward is fulfilled. This may be when a coupon is allocated, a gift card is allocated, or an account is credited.                                  | `partner_reward_id`- partner's ID for the fulfilled reward, often the coupon code, sometimes the account credit ID or gift card ID |
+| `FulfilledRewardEvent`       | Fired every time a reward is fulfilled. This may be when a coupon is allocated, a gift card is allocated, or an account is credited.                                  | `partner_reward_id` - the reward supplier's reference for the fulfilled reward: the coupon code for a coupon, the order ID for a gift card, or the ID you set for an account credit. The values the recipient redeems are in the [redeemable reward fields](#redeemable-reward-fields). |
 | `FailedFulfilledRewardEvent` | Fired every time a reward fulfillment fails. This may be because a supplier is out of coupons, there are insufficient funds, or services are temporarily unavailable. | No extra attributes                                                                                                                |
 | `SentRewardEvent`            | Fired every time a reward is sent to the customer                                                                                                                     | `email` - optional email to which the reward was delivered                                                                         |
 | `RedeemedRewardEvent`        | Fired every time a reward is redeemed by the customer                                                                                                                 | `partner_event_id` - partner ID associated with redemption (e.g., `order_id`)                                                      |
 | `CanceledRewardEvent`        | Fired every time a reward is canceled                                                                                                                                 | No extra attributes                                                                                                                |
 | `RevokedRewardEvent`         | Fired every time a reward is revoked                                                                                                                                  | No extra attributes                                                                                                                |
 | `FailedRewardEvent`          | Fired when Extole stops attempting to deliver the reward or the reward system informs of failure                                                                      | No extra attributes                                                                                                                |
+
+### Redeemable Reward Fields
+
+[//]: # "Which webhook attributes hold the coupon code or gift card link?"
+
+When a reward is fulfilled, Extole records what the recipient uses to redeem it. Every reward event payload carries these attributes once they have a value. An attribute with no value is left out of the payload.
+
+| Attribute      | Description                                                                                             |
+| :------------- | :------------------------------------------------------------------------------------------------------ |
+| `code`         | The code the recipient redeems, such as a coupon code or a gift card's security code, PIN, or card number. |
+| `link`         | A URL the recipient opens to redeem the reward, such as a gift card redemption link.                    |
+| `instructions` | Instructions for redeeming the reward.                                                                  |
+| `image`        | The URL of an image for the reward, such as the gift card brand's logo.                                 |
+| `expiry_date`  | When the reward expires.                                                                                |
+
+Use `code` or `link` for the value you show or apply to the recipient. `partner_reward_id` is the reward supplier's reference for the reward. For a coupon, `partner_reward_id` and `code` hold the same coupon code. For a gift card, `partner_reward_id` is the order ID, which the recipient can't redeem.
 
 [//]: ___
 
@@ -261,6 +277,7 @@ Content-Type: application/json
 Authorization: Bearer XXXXX
 {
   "partner_reward_id" : "12345600",
+  "code" : "CREDIT-7Q4M2",
   "cost_code":"AGENT",
   "message": "fulfilled"
 }
@@ -275,6 +292,7 @@ RESPONSE:
   "email":"qzrqxuq@gurumail.xyz",
   "state":"FULFILLED",
   "partner_reward_id":"12345600",
+  "code":"CREDIT-7Q4M2",
   "created_at":"2020-05-28T13:53:02.175-05:00"
 }
 ```
@@ -313,7 +331,51 @@ RESPONSE:
       </td>
 
       <td>
-        An optional unique reward identifier for the reward on your side such as a confirmation code or number. **This is often the coupon code, and sometimes the account credit ID or gift card ID**.
+        Your reference for the reward, such as a confirmation or order number. Put the value the recipient redeems in `code` or `link` instead.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `code`\
+        *optional*
+      </td>
+
+      <td>
+        The code the recipient redeems, such as a coupon code or an account credit code.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `link`\
+        *optional*
+      </td>
+
+      <td>
+        A URL the recipient opens to redeem the reward.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `instructions`\
+        *optional*
+      </td>
+
+      <td>
+        Instructions for redeeming the reward.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `image`\
+        *optional*
+      </td>
+
+      <td>
+        The URL of an image for the reward, such as a brand logo.
       </td>
     </tr>
 
@@ -412,7 +474,17 @@ RESPONSE:
       </td>
 
       <td>
-        The partner ID, if set. **This is often the coupon code, and sometimes the account credit ID or gift card ID**.
+        Your reference for the reward, if you set one.
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        `code`, `link`, `instructions`, `image`
+      </td>
+
+      <td>
+        The values you set for the recipient to redeem the reward.
       </td>
     </tr>
 
