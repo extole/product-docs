@@ -110,17 +110,14 @@ The hold follows the event name, not the job. Use a different name on each File 
 | **Future Limit** | 365 days | How far in the future a date can be and still wait. Later dates are not sent, and a warning is raised. |
 | **Columns to Exclude** | Empty | Columns left off the event. Leave empty to include every column. |
 
-## Test the Job With a Sample File
+## Test With a Real Feed File
 
-A test of a file feed proves two things: the job accepts your file, and the campaign acts on the events the job creates. Only a file that goes through the job tests the first.
+A File Integration job is built around the files your feed already sends. To test the feed, use a real file with test data and confirm the configured job picks it up and processes it. Only a file that goes through the job tests the integration; a campaign-only upload does not.
 
-Build the test file from the job's own settings:
-
-1. Name the file so it matches the job's **Filename Match Pattern**.
-2. Use the job's **Expected File Headers** as the header row, with no columns added or left out.
-3. Fill each column in the format your feed sends. Copy a row from a recently delivered file and change only the values that identify the person and the account. Campaign rules compare these values, so a value in a different format can pass a test and fail on the real feed.
-
-Deliver the file the same way, and to the same place, as your feed's files. Then open **Job History**. The run for your file shows the trigger match, the **Validate Column Headers** result, and the events **Create Events** created. If no run appears, the filename or directory did not match, or the job is not enabled. When the run succeeds, check the test person's events and rewards.
+1. Start from a recently delivered feed file, or another file in the same format your feed sends. Keep the filename and the header row as the feed sends them — those are what the job's **Filename Match Pattern** and **Expected File Headers** were set to match.
+2. Replace only the values that identify the person and the account with your test person's identifiers. Leave formats unchanged (dates, IDs, amounts, and other column shapes) so campaign rules see the same values the live feed will send.
+3. Deliver the file the same way, and to the same place, as your feed's files.
+4. Open **Job History**. Confirm a run appeared for your file, the trigger matched, **Validate Column Headers** passed, and **Create Events** created the expected events. If no run appears, the filename or directory did not match, or the job is not enabled. When the run succeeds, check the test person's events and rewards.
 
 A file built for [Manually Uploading Events](/guides/platform-overview/manually-uploading-events-to-extole), with `email` and `event_name` columns, tests the campaign's rules. It does not test this job's filename match, its header check, or the values your feed sends.
 
