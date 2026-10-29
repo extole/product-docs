@@ -8073,6 +8073,71 @@
           "type" : "string"
         } ]
       },
+      "AudienceIdInStartAudienceOperationTaskRequest" : {
+        "description" : "Id of the audience the operation runs against. A literal value or a buildtime expression resolved from component references when the task is saved. Optional: omit it, or let the expression resolve to an empty value, to take the audience from the audiences/<audience>/<operation> directory the file lands in. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static audience id",
+          "nullable" : true,
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{audienceId}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('audienceId');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "AudienceIdInStartAudienceOperationTaskResponse" : {
+        "description" : "Id of the audience the operation runs against. A literal value or a buildtime expression resolved from component references when the task is saved. Empty when the audience is taken from the audiences/<audience>/<operation> directory the file lands in. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal audience id",
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{audienceId}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('audienceId');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "AudienceIdsInCampaignControllerTriggerAudienceMembershipEventResponse" : {
         "description" : "The audience ids as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -14272,13 +14337,23 @@
           "$ref" : "#/components/schemas/BuiltTaskResponseBase"
         }, {
           "properties" : {
+            "audience_id" : {
+              "description" : "Id of the audience the operation runs against, resolved when the campaign was published. Empty when the audience is taken from the audiences/<audience>/<operation> directory the file lands in.",
+              "type" : "string"
+            },
+            "operation_type" : {
+              "description" : "What the operation does with the file's members, resolved when the campaign was published: ADD adds them to the audience, REMOVE removes them, and REPLACE makes them the audience's only members, removing every current member not in the file. Used only when audience_id is set: without it, the audience and the operation both come from the audiences/<audience>/<operation> directory the file lands in.",
+              "enum" : [ "ADD", "REMOVE", "REPLACE" ],
+              "type" : "string"
+            },
             "task_type" : {
               "enum" : [ "START_AUDIENCE_OPERATION" ],
               "type" : "string"
             }
-          }
+          },
+          "type" : "object"
         } ],
-        "required" : [ "component_ids", "enabled", "id", "job_id", "order", "task_type" ],
+        "required" : [ "audience_id", "component_ids", "enabled", "id", "job_id", "operation_type", "order", "task_type" ],
         "title" : "START_AUDIENCE_OPERATION",
         "type" : "object"
       },
@@ -38015,6 +38090,72 @@
           "type" : "string"
         } ]
       },
+      "OperationTypeInStartAudienceOperationTaskRequest" : {
+        "description" : "What the operation does with the file's members: ADD adds them to the audience, REMOVE removes them, and REPLACE makes them the audience's only members, removing every current member not in the file. A literal value or a buildtime expression resolved from component references when the task is saved. Defaults to ADD when omitted on create. Omit on update to keep the existing value. Used only when audience_id is set: without it, the audience and the operation both come from the audiences/<audience>/<operation> directory the file lands in. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static operation type",
+          "enum" : [ "ADD", "REMOVE", "REPLACE" ],
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{operationType}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('operationType');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "OperationTypeInStartAudienceOperationTaskResponse" : {
+        "description" : "What the operation does with the file's members: ADD adds them to the audience, REMOVE removes them, and REPLACE makes them the audience's only members, removing every current member not in the file. A literal value or a buildtime expression resolved from component references when the task is saved. Used only when audience_id is set: without it, the audience and the operation both come from the audiences/<audience>/<operation> directory the file lands in. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal operation type",
+          "enum" : [ "ADD", "REMOVE", "REPLACE" ],
+          "title" : "Static Value",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{operationType}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('operationType');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "OperatorInCampaignControllerTriggerGroupResponse" : {
         "description" : "The operator as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -45958,11 +46099,18 @@
           "$ref" : "#/components/schemas/TaskRequestBase"
         }, {
           "properties" : {
+            "audience_id" : {
+              "$ref" : "#/components/schemas/AudienceIdInStartAudienceOperationTaskRequest"
+            },
+            "operation_type" : {
+              "$ref" : "#/components/schemas/OperationTypeInStartAudienceOperationTaskRequest"
+            },
             "task_type" : {
               "enum" : [ "START_AUDIENCE_OPERATION" ],
               "type" : "string"
             }
-          }
+          },
+          "type" : "object"
         } ],
         "required" : [ "task_type" ],
         "title" : "START_AUDIENCE_OPERATION",
@@ -45973,14 +46121,21 @@
           "$ref" : "#/components/schemas/TaskResponseBase"
         }, {
           "properties" : {
+            "audience_id" : {
+              "$ref" : "#/components/schemas/AudienceIdInStartAudienceOperationTaskResponse"
+            },
+            "operation_type" : {
+              "$ref" : "#/components/schemas/OperationTypeInStartAudienceOperationTaskResponse"
+            },
             "task_type" : {
               "enum" : [ "START_AUDIENCE_OPERATION" ],
               "type" : "string"
             }
-          }
+          },
+          "type" : "object"
         } ],
-        "description" : "Stored start audience operation task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ],
+        "description" : "Stored start audience operation task definition. Fields `order`, `audience_id`, `operation_type`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "audience_id", "component_ids", "component_references", "enabled", "id", "operation_type", "order", "parent_job_id", "task_type" ],
         "title" : "START_AUDIENCE_OPERATION",
         "type" : "object"
       },
@@ -65723,8 +65878,38 @@
                   "campaign_build_failed" : {
                     "$ref" : "#/components/examples/campaign_build_failed"
                   },
+                  "campaign_component_absolute_name_missing" : {
+                    "$ref" : "#/components/examples/campaign_component_absolute_name_missing"
+                  },
+                  "campaign_component_description_out_of_range" : {
+                    "$ref" : "#/components/examples/campaign_component_description_out_of_range"
+                  },
+                  "campaign_component_display_name_contains_illegal_character" : {
+                    "$ref" : "#/components/examples/campaign_component_display_name_contains_illegal_character"
+                  },
+                  "campaign_component_display_name_out_of_range" : {
+                    "$ref" : "#/components/examples/campaign_component_display_name_out_of_range"
+                  },
+                  "campaign_component_id_missing" : {
+                    "$ref" : "#/components/examples/campaign_component_id_missing"
+                  },
+                  "campaign_component_name_already_in_use" : {
+                    "$ref" : "#/components/examples/campaign_component_name_already_in_use"
+                  },
+                  "campaign_component_name_contains_illegal_character" : {
+                    "$ref" : "#/components/examples/campaign_component_name_contains_illegal_character"
+                  },
+                  "campaign_component_name_out_of_range" : {
+                    "$ref" : "#/components/examples/campaign_component_name_out_of_range"
+                  },
                   "campaign_component_not_found" : {
                     "$ref" : "#/components/examples/campaign_component_not_found"
+                  },
+                  "campaign_component_type_operation_missing" : {
+                    "$ref" : "#/components/examples/campaign_component_type_operation_missing"
+                  },
+                  "campaign_component_type_validation_failed" : {
+                    "$ref" : "#/components/examples/campaign_component_type_validation_failed"
                   },
                   "campaign_concurrent_client_change_update" : {
                     "$ref" : "#/components/examples/campaign_concurrent_client_change_update"
@@ -65743,6 +65928,12 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "circular_component_reference" : {
+                    "$ref" : "#/components/examples/circular_component_reference"
+                  },
+                  "client_key_name_already_in_use" : {
+                    "$ref" : "#/components/examples/client_key_name_already_in_use"
                   },
                   "component_asset_content_length_out_of_range" : {
                     "$ref" : "#/components/examples/component_asset_content_length_out_of_range"
@@ -65777,11 +65968,17 @@
                   "component_asset_name_missing" : {
                     "$ref" : "#/components/examples/component_asset_name_missing"
                   },
+                  "component_facets_not_found" : {
+                    "$ref" : "#/components/examples/component_facets_not_found"
+                  },
                   "component_id_missing" : {
                     "$ref" : "#/components/examples/component_id_missing"
                   },
                   "component_id_not_accessible" : {
                     "$ref" : "#/components/examples/component_id_not_accessible"
+                  },
+                  "component_ids_and_references_both_provided" : {
+                    "$ref" : "#/components/examples/component_ids_and_references_both_provided"
                   },
                   "component_ids_missing" : {
                     "$ref" : "#/components/examples/component_ids_missing"
@@ -65791,6 +65988,24 @@
                   },
                   "component_not_selectable" : {
                     "$ref" : "#/components/examples/component_not_selectable"
+                  },
+                  "component_operation_method_missing" : {
+                    "$ref" : "#/components/examples/component_operation_method_missing"
+                  },
+                  "component_operation_name_already_in_use" : {
+                    "$ref" : "#/components/examples/component_operation_name_already_in_use"
+                  },
+                  "component_operation_name_contains_illegal_character" : {
+                    "$ref" : "#/components/examples/component_operation_name_contains_illegal_character"
+                  },
+                  "component_operation_name_missing" : {
+                    "$ref" : "#/components/examples/component_operation_name_missing"
+                  },
+                  "component_operation_name_out_of_range" : {
+                    "$ref" : "#/components/examples/component_operation_name_out_of_range"
+                  },
+                  "component_operation_name_reserved" : {
+                    "$ref" : "#/components/examples/component_operation_name_reserved"
                   },
                   "component_operation_parameter_invalid" : {
                     "$ref" : "#/components/examples/component_operation_parameter_invalid"
@@ -65807,8 +66022,20 @@
                   "component_operation_schema_too_large" : {
                     "$ref" : "#/components/examples/component_operation_schema_too_large"
                   },
+                  "component_operation_tag_length_out_of_range" : {
+                    "$ref" : "#/components/examples/component_operation_tag_length_out_of_range"
+                  },
+                  "component_operation_type_missing" : {
+                    "$ref" : "#/components/examples/component_operation_type_missing"
+                  },
                   "component_owner_not_supported" : {
                     "$ref" : "#/components/examples/component_owner_not_supported"
+                  },
+                  "component_reference_still_pinned" : {
+                    "$ref" : "#/components/examples/component_reference_still_pinned"
+                  },
+                  "component_reference_unmatched_on_publish" : {
+                    "$ref" : "#/components/examples/component_reference_unmatched_on_publish"
                   },
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
@@ -65825,14 +66052,23 @@
                   "display_name_has_illegal_character" : {
                     "$ref" : "#/components/examples/display_name_has_illegal_character"
                   },
+                  "excessive_component_reference" : {
+                    "$ref" : "#/components/examples/excessive_component_reference"
+                  },
                   "expression_invalid_syntax" : {
                     "$ref" : "#/components/examples/expression_invalid_syntax"
+                  },
+                  "external_element_is_referenced_by_active_configuration" : {
+                    "$ref" : "#/components/examples/external_element_is_referenced_by_active_configuration"
                   },
                   "external_element_not_found" : {
                     "$ref" : "#/components/examples/external_element_not_found"
                   },
                   "external_element_type_not_supported" : {
                     "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "external_elements_cannot_have_multiple_references" : {
+                    "$ref" : "#/components/examples/external_elements_cannot_have_multiple_references"
                   },
                   "invalid_campaign_id" : {
                     "$ref" : "#/components/examples/invalid_campaign_id"
@@ -65842,6 +66078,18 @@
                   },
                   "invalid_campaign_version" : {
                     "$ref" : "#/components/examples/invalid_campaign_version"
+                  },
+                  "invalid_component_installed_into_socket" : {
+                    "$ref" : "#/components/examples/invalid_component_installed_into_socket"
+                  },
+                  "invalid_component_reference" : {
+                    "$ref" : "#/components/examples/invalid_component_reference"
+                  },
+                  "invalid_component_reference_socket_name" : {
+                    "$ref" : "#/components/examples/invalid_component_reference_socket_name"
+                  },
+                  "invalid_external_component_reference" : {
+                    "$ref" : "#/components/examples/invalid_external_component_reference"
                   },
                   "invalid_external_element_filter" : {
                     "$ref" : "#/components/examples/invalid_external_element_filter"
@@ -65879,11 +66127,20 @@
                   "non_translatable_variable_can_not_be_updated" : {
                     "$ref" : "#/components/examples/non_translatable_variable_can_not_be_updated"
                   },
+                  "orphan_external_component_reference" : {
+                    "$ref" : "#/components/examples/orphan_external_component_reference"
+                  },
                   "rebuild_campaigns_build_failed" : {
                     "$ref" : "#/components/examples/rebuild_campaigns_build_failed"
                   },
+                  "redundant_component_reference" : {
+                    "$ref" : "#/components/examples/redundant_component_reference"
+                  },
                   "reward_supplier_id_list_invalid_configuration" : {
                     "$ref" : "#/components/examples/reward_supplier_id_list_invalid_configuration"
+                  },
+                  "self_component_reference" : {
+                    "$ref" : "#/components/examples/self_component_reference"
                   },
                   "setting_batch_update_missing_request" : {
                     "$ref" : "#/components/examples/setting_batch_update_missing_request"
