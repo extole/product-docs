@@ -256,9 +256,11 @@ When no record matches, the app skips the event, unless the rule has **Create th
 
 ### One Lead per Program and Campaign
 
-When a sign-up event includes `program_name` and `campaign_name` and the rule has **Create the record if it is not found** turned on, the app creates one Lead for each program and campaign. A repeat of the same program and campaign creates nothing, and a different program or campaign creates a new Lead. Each Lead gets Lead Source **Extole** and both names, in the **Extole Program Name** and **Extole Campaign Name** fields.
+When a sign-up event includes `program_name` and `campaign_name` and the rule has **Create the record if it is not found** turned on, the app creates one Lead for each program and campaign. A repeat of the same program and campaign creates nothing, even after the Lead has been converted, and a different program or campaign creates a new Lead. Each Lead gets Lead Source **Extole** and both names, in the **Extole Program Name** and **Extole Campaign Name** fields.
 
-This applies to Lead rules only. Add **Extole** to your Lead Source values so it appears in the list and in reports. If the list is restricted and doesn't include it, the Lead is created without a Lead Source. Salesforce Duplicate Rules set to **Block** also stop these Leads, so set them to **Allow**.
+This applies to Lead rules only. Add **Extole** to your Lead Source values so it appears in the list and in reports. Without it, the Lead still saves with that value, but it shows as inactive. To see the program and campaign on a record, add **Extole Program Name** and **Extole Campaign Name** to your Lead page layout. Salesforce Duplicate Rules set to **Block** also stop these Leads, so set them to **Allow**.
+
+If a Contact or Person Account already has the email, the event is skipped. To still create a Lead when a person joins a new program or campaign, turn on **Create a Lead even if a Contact or Person Account has this email** on the rule.
 
 ### Event Payload
 
@@ -301,7 +303,22 @@ The integration installs with `share_link_created`. Any other Extole event can b
 3. In Salesforce, add a rule on the **Receive Extole Events** tab for that `event_name`.
 4. Save the change in My Extole, trigger a test event, and confirm it appears in the **Event Log** on the **Receive Extole Events** tab.
 
-To create one Lead per program and campaign from a sign-up, also add `program_name` and `campaign_name` to `data`. Take the program label from `context.getCampaign().getProgramLabel()`. The campaign name isn't available at run time, so add a setting named `campaignName` to the step with the default `javascript@buildtime:context.getCampaignName()` and read it with `context.getVariable("campaignName")`.
+To create one Lead per program and campaign, send the sign-up with `program_name` and `campaign_name`. The campaign name isn't available at run time, so add a setting named `campaignName` to the Webhook step with the default `javascript@buildtime:context.getCampaignName()`. The name is then set when the campaign is built. Set **Webhook Body Data** to:
+
+```javascript
+javascript@runtime:(function () {
+    const campaign = context.getCampaign();
+    return {
+        event_id: context.getStepEvent().getId(),
+        event_name: context.getStepName(),
+        data: {
+            email: context.getPerson().getEmail(),
+            program_name: campaign.getProgramLabel(),
+            campaign_name: context.getVariable("campaignName")
+        }
+    };
+})();
+```
 
 ## Add the Person Card to Record Pages
 
