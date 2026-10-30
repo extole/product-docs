@@ -436,7 +436,7 @@
         "value" : {
           "code" : "block_duplicate",
           "http_status_code" : 400,
-          "message" : "Block duplicate",
+          "message" : "A fraud-control rule with this filter type, list type, and value already exists",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -9074,12 +9074,15 @@
         } ]
       },
       "BlockCheckRequest" : {
+        "description" : "Body of a `POST /v2/blocks/test` request. Checks a value against Fraud Control rules without creating a rule.",
         "properties" : {
           "list_type" : {
+            "description" : "What the Fraud Control rule matches. USER_AGENT matches a substring of the event user-agent header (regex is not supported). EMAIL_DOMAIN matches the profile email domain on the event (for example example.com). NORMALIZED_EMAIL matches the full profile email, including plus-address variants of the same mailbox. CIDR matches the event IP with CIDR notation (for example 192.168.1.0/24). Duplicate detection is an exact match of filter type, list type, and value — overlapping CIDRs are not duplicates.",
             "enum" : [ "CIDR", "EMAIL_DOMAIN", "NORMALIZED_EMAIL", "USER_AGENT" ],
             "type" : "string"
           },
           "value" : {
+            "description" : "Value to test against existing Fraud Control rules.",
             "type" : "string"
           }
         },
@@ -9087,12 +9090,15 @@
         "type" : "object"
       },
       "BlockCheckResponse" : {
+        "description" : "Result of testing a value against Fraud Control rules.",
         "properties" : {
           "block_Id" : {
+            "description" : "Identifier of the matching Fraud Control rule, when one matched.",
             "nullable" : true,
             "type" : "string"
           },
           "result" : {
+            "description" : "Outcome of testing a value against Fraud Control rules. BLACKLISTED means a blocked (BLACK) rule matched. WHITELISTED means a permitted (WHITE) rule matched. NOT_LISTED means no rule matched.",
             "enum" : [ "BLACKLISTED", "NOT_LISTED", "WHITELISTED" ],
             "type" : "string"
           }
@@ -9101,17 +9107,20 @@
         "type" : "object"
       },
       "BlockCreateRequest" : {
-        "description" : "Body of a `POST /v2/blocks` request.",
+        "description" : "Body of a `POST /v2/blocks` request. Creates one Fraud Control rule on the permitted or blocked events list.",
         "properties" : {
           "filter_type" : {
+            "description" : "Which Fraud Control events list the rule belongs to. WHITE is the permitted events list (overrides a blocked match when other quality rules pass). BLACK is the blocked events list (matching events are marked suspicious and are not eligible for rewards).",
             "enum" : [ "BLACK", "WHITE" ],
             "type" : "string"
           },
           "list_type" : {
+            "description" : "What the Fraud Control rule matches. USER_AGENT matches a substring of the event user-agent header (regex is not supported). EMAIL_DOMAIN matches the profile email domain on the event (for example example.com). NORMALIZED_EMAIL matches the full profile email, including plus-address variants of the same mailbox. CIDR matches the event IP with CIDR notation (for example 192.168.1.0/24). Duplicate detection is an exact match of filter type, list type, and value — overlapping CIDRs are not duplicates.",
             "enum" : [ "CIDR", "EMAIL_DOMAIN", "NORMALIZED_EMAIL", "USER_AGENT" ],
             "type" : "string"
           },
           "value" : {
+            "description" : "Value to match for the chosen `list_type`. For CIDR, use CIDR notation such as `203.0.113.0/24`. Creating a rule that already exists with the same filter type, list type, and value returns `block_duplicate`.",
             "type" : "string"
           }
         },
@@ -9119,11 +9128,14 @@
         "type" : "object"
       },
       "BlockResponse" : {
+        "description" : "A Fraud Control rule on the client's permitted or blocked events list.",
         "properties" : {
           "block_id" : {
+            "description" : "Server-assigned identifier of the Fraud Control rule.",
             "type" : "string"
           },
           "client_id" : {
+            "description" : "Client that owns the rule, when the rule is client-scoped.",
             "nullable" : true,
             "type" : "string"
           },
@@ -9131,21 +9143,26 @@
             "$ref" : "#/components/schemas/ZonedDateTime"
           },
           "filter_type" : {
+            "description" : "Which Fraud Control events list the rule belongs to. WHITE is the permitted events list (overrides a blocked match when other quality rules pass). BLACK is the blocked events list (matching events are marked suspicious and are not eligible for rewards).",
             "enum" : [ "BLACK", "WHITE" ],
             "type" : "string"
           },
           "list_type" : {
+            "description" : "What the Fraud Control rule matches. USER_AGENT matches a substring of the event user-agent header (regex is not supported). EMAIL_DOMAIN matches the profile email domain on the event (for example example.com). NORMALIZED_EMAIL matches the full profile email, including plus-address variants of the same mailbox. CIDR matches the event IP with CIDR notation (for example 192.168.1.0/24). Duplicate detection is an exact match of filter type, list type, and value — overlapping CIDRs are not duplicates.",
             "enum" : [ "CIDR", "EMAIL_DOMAIN", "NORMALIZED_EMAIL", "USER_AGENT" ],
             "type" : "string"
           },
           "source" : {
+            "description" : "Where the rule came from (for example client or global).",
             "type" : "string"
           },
           "user_id" : {
+            "description" : "My Extole user who created the rule, when known.",
             "nullable" : true,
             "type" : "string"
           },
           "value" : {
+            "description" : "Matched value for the rule's `list_type`.",
             "type" : "string"
           }
         },
@@ -68168,7 +68185,7 @@
     },
     "/v2/blocks" : {
       "get" : {
-        "description" : "Returns all content blocks for the client.",
+        "description" : "Returns the client's Fraud Control rules (permitted and blocked events lists). Use `search_query` to find a value such as a CIDR. These rules are managed in My Extole under Security Center > Quality Control (Fraud Control).",
         "parameters" : [ {
           "in" : "query",
           "name" : "search_query",
@@ -68330,13 +68347,13 @@
             "description" : "Too Many Requests"
           }
         },
-        "summary" : "List blocks",
-        "tags" : [ "Blocks" ],
+        "summary" : "List Fraud Control rules",
+        "tags" : [ "Fraud Control" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
       },
       "post" : {
-        "description" : "Creates a new named content block used as a reusable fragment in campaign experiences. Returns the created block with its server-assigned id.",
+        "description" : "Creates a Fraud Control (Quality Control) rule for the client. Rules live on the permitted (`filter_type` WHITE) or blocked (`filter_type` BLACK) events list and match by `list_type` (CIDR, user agent, email domain, or normalized email) and `value`. This is the Security Center Fraud Control API, not campaign content blocks or campaign Blocked Subnetworks targeting. A create that matches an existing rule exactly returns `block_duplicate`.",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -68483,15 +68500,15 @@
             "description" : "Too Many Requests"
           }
         },
-        "summary" : "Create a block",
-        "tags" : [ "Blocks" ],
+        "summary" : "Create a Fraud Control rule",
+        "tags" : [ "Fraud Control" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
       }
     },
     "/v2/blocks/global" : {
       "get" : {
-        "description" : "Returns all globally available content blocks that can be shared across clients.",
+        "description" : "Returns Extole's global Fraud Control rules that apply across clients.",
         "parameters" : [ {
           "in" : "query",
           "name" : "search_query",
@@ -68653,15 +68670,15 @@
             "description" : "Too Many Requests"
           }
         },
-        "summary" : "List global blocks",
-        "tags" : [ "Blocks" ],
+        "summary" : "List global Fraud Control rules",
+        "tags" : [ "Fraud Control" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
       }
     },
     "/v2/blocks/{blockId}" : {
       "get" : {
-        "description" : "Returns the content block for the specified id.",
+        "description" : "Returns the Fraud Control rule for the specified `block_id`.",
         "parameters" : [ {
           "in" : "path",
           "name" : "blockId",
@@ -68802,13 +68819,13 @@
             "description" : "Too Many Requests"
           }
         },
-        "summary" : "Get a block",
-        "tags" : [ "Blocks" ],
+        "summary" : "Get a Fraud Control rule",
+        "tags" : [ "Fraud Control" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
       },
       "delete" : {
-        "description" : "Removes the content block for the specified id. Returns the deleted block.",
+        "description" : "Removes the Fraud Control rule for the specified `block_id`. Returns the deleted rule.",
         "parameters" : [ {
           "in" : "path",
           "name" : "blockId",
@@ -68949,8 +68966,8 @@
             "description" : "Too Many Requests"
           }
         },
-        "summary" : "Delete a block",
-        "tags" : [ "Blocks" ],
+        "summary" : "Delete a Fraud Control rule",
+        "tags" : [ "Fraud Control" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
       }
@@ -105307,7 +105324,7 @@
     },
     "/v2/blocks/test" : {
       "post" : {
-        "description" : "Evaluates the block configuration against a test payload without persisting any changes. Returns the rendered output and any validation errors.",
+        "description" : "Checks whether a `list_type` and `value` match an existing Fraud Control rule without creating or changing any rules. Returns whether the value is blacklisted, whitelisted, or not listed.",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -105453,8 +105470,8 @@
             "description" : "Too Many Requests"
           }
         },
-        "summary" : "Test a block",
-        "tags" : [ "Blocks" ],
+        "summary" : "Test a value against Fraud Control rules",
+        "tags" : [ "Fraud Control" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
       }
@@ -119435,8 +119452,6 @@
   }, {
     "name" : "Batch Jobs (Legacy)"
   }, {
-    "name" : "Blocks"
-  }, {
     "name" : "Campaigns"
   }, {
     "name" : "Components"
@@ -119450,6 +119465,8 @@
     "name" : "Erasure"
   }, {
     "name" : "Event Streams"
+  }, {
+    "name" : "Fraud Control"
   }, {
     "name" : "Optout"
   }, {
