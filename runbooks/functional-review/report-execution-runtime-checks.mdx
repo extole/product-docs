@@ -272,7 +272,7 @@ When a shared attribute is a unique partner event key, two failure modes follow:
 
 Confirm a suspected bad key against the reports already in the queue:
 
-- Input Records — the same unique-key value appears across multiple distinct person ids. A genuine unique key maps one value to one person.
+- Input Records — the same unique-key value appears across multiple distinct person ids, or across distinct events of one person. A genuine unique key maps one value to one event of one person. Run the [Unique Partner Event Key Collisions](/runbooks/functional-review/input-runtime-event-validation#unique-partner-event-key-collisions) check on every keyed event, whether or not the key looked suspect in configuration.
 - Input Records / Input Events — anonymous or email-less events resolve onto profiles that already have an email, or a small set of profiles absorbs a disproportionate share of events.
 - Conversion Audit — attribution or profile merges that only make sense if separate people were identified as one.
 
@@ -321,6 +321,7 @@ Before producing output, verify:
 - Event Data Rule Alignment attempted (after Input Records)
 - Partner event key consistency checked (config only, Event Data Rule Alignment)
 - Profile identity / unique-key hygiene checked (built campaign `key_type = UNIQUE_PARTNER_EVENT_KEY`)
+- Unique partner event key collisions checked on Input Records samples for every keyed in-scope event (or recorded as not applicable or as an evidence gap)
 - Conversion Audit attempted with `step_names` that pass the V8 / V10 test in [Conversion & Reward Validation](/runbooks/functional-review/conversion-reward-validation) (V10: enabled `earn-reward` or `qualify` only — bare `incentivize` is not enough; V8: enabled purchase `incentivize` only; disabled qualifying reward actions omitted from `step_names` and listed in the review output)
 - CONFIGURABLE_REWARDS attempted
 - TOP_PROMOTION_SOURCES_V2 attempted
