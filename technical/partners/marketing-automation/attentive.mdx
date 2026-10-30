@@ -89,11 +89,110 @@ Campaigns that do not have the updated phone number capture variable necessary f
 
 Getting a campaign updated is a quick process. Just reach out to your Extole Customer Success Manager and they will be happy to help you enable the required variable for your campaigns.
 
+<Note>
+  **Check That Both Experiences Capture a Phone Number**
+
+  Extole sends a subscription to Attentive only for a person who already has a phone number on their profile. The advocate share experience and the friend landing experience collect that number separately, and either one can be switched off — so a campaign can be selectable here while one or both of its experiences never ask for a number, and Attentive hears nothing from that part of the program.
+
+  Ask your Customer Success Manager to confirm both experiences capture a phone number and an SMS opt-in before you set a launch date. On some campaigns this is a setting. On an older custom-built creative it is an edit to the creative itself, which is scoped work rather than a quick update.
+</Note>
+
+<Warning>
+  **Publish each campaign you select**
+
+  Selecting a campaign adds the Attentive integration to that campaign as an unpublished change. The integration does not send or receive anything for that campaign until you open it and publish it. Publishing also ships any other unpublished changes the campaign is holding, so review them first.
+</Warning>
+
 ### Finish Your Configuration
 
 Once you’ve selected your campaigns for the integration, proceed to the Configurations tab. Here you will need to enter the Extole Sign Up Source ID that you collected from your Attentive account. The custom events webhook and subscriptions webhook are automatically created and do not require any configuration on your end.
 
 <img src="/images/extole/33292feea92c88f9e468fdb15a67daaad2ad71699a0e7846ac285f0fe12463d5.png" alt="Screenshot showing Once you’ve selected your campaigns for the integration, proceed to the Configurations tab. Here you will need to enter the Extole Sign Up Source ID that you..." />
+
+Without a Sign Up Source ID, Extole cannot tell Attentive which sign-up unit a captured phone number belongs to, so subscriptions are not created.
+
+### Confirm the Integration Is Live
+
+Check all three before you treat the integration as connected:
+
+1. Every campaign on the **Campaigns** tab that you selected has been published, with no unpublished changes outstanding.
+2. The **Configurations** tab shows your Attentive Sign Up Source ID.
+3. A test phone capture in one of those campaigns produces a new subscriber in Attentive. Test the advocate and the friend paths separately — they capture the number in different experiences.
+
+### Send a Sample Event Without Publishing
+
+[//]: # "How do I send a test event to Attentive before publishing the campaign?"
+
+Attentive's journey builder only offers an event's properties as macros once it has seen that event, so teams often want a sample of each event before the referral program goes live.
+
+Real referral activity cannot produce those calls yet. The Attentive steps live inside the campaign, so they run only in that campaign's published version — until you publish, no share, sign-up or earned reward reaches Attentive no matter how the campaign is exercised.
+
+Send the sample straight through the webhook instead, which needs no campaign change:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v6/webhooks/events/send" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "type": "CONSUMER",
+    "client_id": "'"$CLIENT_ID"'",
+    "webhook_id": "'"$WEBHOOK_ID"'",
+    "event": {
+      "type": "CONSUMER",
+      "client_id": "'"$CLIENT_ID"'",
+      "webhook_id": "'"$WEBHOOK_ID"'",
+      "event_id": "sample00000000000001",
+      "root_event_id": "0",
+      "cause_event_id": "0",
+      "cause_event_sequence": 1,
+      "device_profile_id": "'"$TEST_PERSON_ID"'",
+      "campaign_id": "'"$CAMPAIGN_ID"'",
+      "program_label": "refer-a-friend",
+      "journey_name": "everyone",
+      "client_domain": "'"$PROGRAM_DOMAIN"'",
+      "client_domain_id": "'"$CLIENT_DOMAIN_ID"'",
+      "sandbox": "production-production",
+      "variant": "en",
+      "schema_version": 6,
+      "data": {
+        "type": "Advocate Rewarded",
+        "user": { "email": "sample@example.com", "phone": "+15125550123" },
+        "properties": { "funnel": "Advocate", "coupon_code": "SAMPLE20" }
+      }
+    }
+  }'
+```
+
+`event.data` is delivered to Attentive as the request body, unchanged. It is the same object the campaign step would have built, so copy the shape from the step's webhook action: a dotted key there, such as `user.phone`, arrives nested.
+
+Use the subscriptions webhook id for a subscribe and the custom events webhook id for `Advocate Rewarded` or `Friend Rewarded`; both ids are on the **Configurations** tab. Each call is a real call to Attentive and creates a real subscriber or event, so use test identities.
+
+`device_profile_id` has to be an existing profile in the account — the dispatcher looks it up — so use a test person's id rather than a placeholder. The other ids in the envelope are free-form.
+
+### Confirm the Sample Arrived
+
+[//]: # "How do I check that a sample event reached Attentive?"
+
+The `200` from the send endpoint means Extole queued the event, not that Attentive accepted it. Attentive's own reply is recorded in the **Webhook Dispatch Result Events** report, which carries the exact request body sent, the response status code and the response body for every dispatch:
+
+```bash
+curl --request POST "$EXTOLE_API_HOST/v4/reports" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "report_type": "WEBHOOK_DISPATCH_RESULT_EVENTS",
+    "formats": ["JSON"],
+    "parameters": { "time_range": "LAST_DAY", "webhook_id": "'"$WEBHOOK_ID"'", "limit": "50" }
+  }'
+```
+
+That report is built from stored event data rather than read live, so a dispatch from the last few minutes will not be in it yet. To see a sample immediately, look in Attentive — a subscribe appears against the sign-up unit, and a custom event appears in the journey builder's event list, which is what makes its properties available as macros.
+
+<Note>
+  **A subscribe still needs a Sign Up Source ID**
+
+  Attentive requires every opt-in request to carry either a sign-up source id, or both a locale and a subscription type. Extole's subscription payload sends the Sign Up Source ID from the **Configurations** tab, so while that field is empty a sample subscribe is rejected. The two reward events do not use it.
+</Note>
 
 [//]: ___
 
