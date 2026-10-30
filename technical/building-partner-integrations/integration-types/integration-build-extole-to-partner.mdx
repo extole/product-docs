@@ -56,9 +56,13 @@ Choose each controller's trigger by the kind of activity it forwards:
 | :------- | :------ |
 | Share-link creation | An event trigger with `event_type` set to `SHAREABLE`. The standard event name is `advocate_code_created`. |
 | A program outcome such as `converted` | An event trigger with `event_type` set to `STEP`. |
+| A marketing opt-in | An event trigger with `event_type` set to `STEP` and the event name `opted_in`. |
+| A marketing opt-out | An event trigger with `event_type` set to `STEP` and the event name `opted_out`. |
 | A fulfilled reward | A reward-event trigger with `reward_states` set to `FULFILLED`, created through `.../controllers/{controller_id}/triggers/reward-events`. |
 
 Share-link creation and `shared` are distinct. The first creates a shareable and exposes its link; the second records a share action.
+
+Every account's global campaign already records opt-ins and opt-outs. Its `extole_opted_in` controller turns each `list_optin` input event into the `opted_in` event, and its `extole_opted_out` controller turns each `list_optout` input event into the `opted_out` event. Each event carries `key` (the email address), `list_name`, `list_type`, and `source`. Listen for those two events, as Extole's maintained marketing integrations do. Do not listen for input events such as `signed_up` or `extole.profile_data` and test them for consent, and do not copy opt-in controllers from another integration in the account.
 
 Forwarding a fulfilled reward to a messaging or analytics partner is not the same as a partner that supplies the reward. A gift card, prepaid card, points, or payout provider uses [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment).
 
@@ -317,7 +321,7 @@ A `2xx` on the duplicate call means the source tree was copied, not that the ins
 
 - The tree matches the partner page: one child per activity the page lists, and no child forwarding activity it does not.
 - Every typed child carries its type.
-- Every requested activity has the matching controller trigger: `SHAREABLE`, `STEP`, or a `FULFILLED` reward event.
+- Every requested activity has the matching controller trigger: `SHAREABLE`, `STEP`, or a `FULFILLED` reward event. Opt-ins and opt-outs use the `STEP` events `opted_in` and `opted_out`.
 - Every controller has a webhook action with the complete partner payload.
 - Each webhook exists with its tags and its resolved URL.
 - Each `WEBHOOK_ID` setting resolves to a webhook identifier rather than `null`.
