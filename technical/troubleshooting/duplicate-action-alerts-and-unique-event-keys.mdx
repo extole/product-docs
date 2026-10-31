@@ -1,0 +1,66 @@
+---
+title: "Duplicate Action Alerts and Unique Event Keys"
+description: "What the duplicate action notifications mean, the two places Extole de-duplicates an event, why two controllers can collide on one action id, and how a unique event key decides what is a repeat."
+---
+
+# Overview
+
+Extole sends two notifications when it refuses to create an action because one already exists: `duplicate_action_by_action_id` and `duplicate_action_by_partner_id`. Both land in the **Technical** category and both say "This usually indicates a problem": the first with the campaign's configuration, the second with the integration. This page explains the two layers that decide what counts as a repeat, the configuration that produces each alert, and what a customer developer can change.
+
+## Two Layers of De-duplication
+
+**The step layer is silent.** When an event carries a data item whose key type is `UNIQUE_PARTNER_EVENT_KEY`, Extole refuses to write a second step for the same person, step name, container, and key name and value. The event is still accepted and recorded with `duplicate` set to true, the execution log says "Duplicate step for step name=... It will not be added to the person.", no actions run, and no notification is sent. The campaign is not part of this key, so the same key value on two campaigns' steps of the same name is still one step.
+
+**The action layer alerts.** When a step does run its actions, the key value is copied onto the reward or incentive action as its partner id. A second action of the same type for the same partner id anywhere on the account is refused, and that refusal is `duplicate_action_by_partner_id`. The alert is **Error** when the existing action belongs to the same campaign and **Warning** when it belongs to another campaign.
+
+Because the step layer silences most repeats before they reach an action, the number of alerts is a floor on the number of repeated events, not a count of them. Notifications to one subscriber are also de-duplicated within the subscription's dedupe window.
+
+## The Action Id Collision
+
+Every controller with an incentivize action carries a `legacy_action_id` data item, and Extole adds it when it is missing. Its default expression is:
+
+```
+javascript@runtime:context.getCauseEvent().getRootEventId()
+```
+
+Two controllers that fire from the same root event and both keep the default compute the same action id. The second one to run is refused with `duplicate_action_by_action_id`: "Was unable to create action with ID: ... Another action with this ID already exists. This usually indicates a problem with the configuration."
+
+The fix is to give the downstream controller an id of its own:
+
+```
+javascript@runtime:context.getStepEventId()
+```
+
+You cannot remove `legacy_action_id` from a controller that has an incentivize action. Change its expression instead.
+
+## Unique Event Keys
+
+A business event's data items carry a key type. Three of them do more than store a value:
+
+| Key type | De-duplicates | Identifies the person |
+|---|---|---|
+| `UNIQUE_PARTNER_EVENT_KEY` | Yes, at the step layer and then at the action layer | Yes |
+| `PARTNER_EVENT_KEY` | No | Yes |
+| `PARTNER_PROFILE_KEY` | No | Yes |
+
+Identification works by name: an inbound event field whose name matches the data item's name becomes a person key, across every running campaign on the account. A field that identifies a transaction, such as an order id, is a correct unique event key. A field that identifies a person, such as an account id, is not, because the second order from the same account is then refused as a repeat.
+
+Only one `UNIQUE_PARTNER_EVENT_KEY` is allowed on a journey entry, and a step that declares more than one uses the first. When the inbound event does not carry the key's source field, the step is written with no key and nothing is logged, unless the data item has a default value, in which case the default becomes the key.
+
+## A Purchase Recorded Twice
+
+An integration that reports the same purchase from the shopper's browser and again from a server-side order webhook produces two events for one purchase. The two arrive with different credentials, which the event records in `event_context.api_type` as `CONSUMER` and `CLIENT`. If both carry the same key value, one is silenced at the step layer, or refused at the action layer with a `duplicate_action_by_partner_id` alert. Changing the key expression so the two values differ stops the alert and double-counts the order. The fix is to keep one route as the record of the purchase and stop the other from writing the same step.
+
+## Reading the Alert
+
+The alert's data carries `action_type`, `partner_id`, `partner_user_id`, `person_id`, `campaign_id`, `step_event_id`, `step_event_name`, `cause_event_id` and `event_id`. Use `campaign_id` and the level together: an **Error** names a collision inside one campaign, which is configuration; a **Warning** names a collision with another campaign, which is often the same event reaching two programs.
+
+## What Cannot Be Undone
+
+A person's steps are not deleted. An action can be deleted only by Extole. If a repeat was refused and the first record is the wrong one, ask Extole Support with the `action_id` from the alert.
+
+## Related
+
+- [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events)
+- [How Extole Matches an Event to a Profile](/technical/integration-overview/how-extole-matches-an-event-to-a-profile)
+- [What to Do When You Get a Notification](/guides/notifications-and-troubleshooting/platform-and-admin/what-to-do-when-you-get-a-notification)

@@ -1,0 +1,85 @@
+---
+title: "Gift Card Reward Fails With a Partner Error"
+description: "What each Tango fulfillment failure message means, how many times Extole retries, what Failed to make Tango Api request and Unexpected software error cover, and how a retired catalog item or a recipient's name causes a failure that no message explains."
+---
+
+# Overview
+
+A gift card reward that fails records one row per attempt in its history, with a message that says why. Most messages name the cause. Two of them, `Unexpected software error` and `Failed to make Tango Api request`, are what Extole writes when the partner refused in a way Extole has no specific message for, and the partner's own reason is not kept on the reward. This page lists every message, explains the retry schedule, and shows how to find the cause behind the two generic ones.
+
+## Every Message a Fulfillment Attempt Can Write
+
+| Message on the reward | Cause |
+|---|---|
+| `Person could not be identified` | Extole could not load the recipient's profile. |
+| `An email address is required to complete the fulfillment` | The recipient has no email address. |
+| `Tango account not defined` | The account has no gift card account configured. |
+| `The account associated with this transaction has been disabled` | The gift card account is frozen in Extole. See [Freeze Your Gift Card Account](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-tango-gift-cards#freeze-your-gift-card-account). |
+| `Daily account spending limit reached. Has exceeded the daily limit of: 1,000` | Extole's own daily limit check, before the partner is called. |
+| `Hourly account spending limit reached. Has exceeded the hourly limit of: 500` | Extole's own hourly limit check, before the partner is called. |
+| `Gift card template id is not specified and has no configured default` | No email template is set on the reward or as the account default. |
+| `Gift card template id is invalid` | The partner rejected the template id. |
+| `The domain of the email address associated with this reward is unserviceable` | The partner does not deliver to that email domain. |
+| `Your reward balance with Extole is too low to issue this reward. It is likely that an invoice has already been sent requesting additional funds. Once you add more reward funds, this reward will automatically be issued.` | The partner answered that the balance is too low. |
+| `Unexpected software error` | The partner answered 400 for a reason other than the template or the email domain. |
+| `Failed to make Tango Api request` | Any other partner response, a network failure, or a failure to read the catalog. |
+
+The two limit messages show the configured amount in place of the example numbers above. Hitting a limit counts as a failed attempt, so a burst of rewards over the limit can use up a reward's attempts.
+
+## Retries and the Final State
+
+Extole tries a gift card reward five times in total: the first attempt, then retries 1 hour, 1 day, 3 days and 3 days after each failure, so about seven days end to end. The retry job runs hourly, so each retry can land up to an hour after its scheduled time. A reward whose latest state is older than ten days is not picked up.
+
+After the fifth failure the reward moves to **Failed** with the message `Automatically failed after 5 unsuccessful fulfillment attempts.` and a fulfillment-failed notification is sent. The automatic job never retries a **Failed** reward.
+
+<Warning>
+"This reward will automatically be issued" in the low-balance message holds only inside that window. If funds arrive after the fifth attempt, the reward is **Failed** and needs a manual retry.
+</Warning>
+
+Two things in the history are easy to misread:
+
+- Each failed attempt is a row with state **Fulfilled** and `success` false. The final **Failed** row has `success` true, because it describes the state change, not an attempt. Count attempts from the **Fulfilled** rows.
+- A catalog outage at fulfillment time skips the retries. The reward goes straight to **Failed** with `Reward fulfillment failed, because Tango service was unavailable.` and the error.
+
+A manual retry, from **Retry** on the reward or [Retry a Reward](/api-reference/rewards/retry-a-reward), accepts rewards in the **Earned**, **Failed**, **Fulfilled** and **Sent** states, does not count toward the five automatic attempts, and is refused for a claimed reward.
+
+## The Two Messages That Name No Cause
+
+`Unexpected software error` and `Failed to make Tango Api request` mean the partner refused a request it received, or the request did not complete, and the partner's own response is in Extole's service logs rather than on the reward. Before asking Extole Support for that response, rule out the three causes below, because none of them produces a specific message.
+
+### A Retired Catalog Item
+
+A gift card reward points at one item in the partner's catalog: a card product in a currency for a set of countries. Extole checks that the item exists when you create the reward and when you edit it, and never at fulfillment. When the partner withdraws the item, the reward stays enabled, keeps its name under **Rewards**, and every order for it fails.
+
+Two reads show it:
+
+- The reward's **brand name**, description and image are read from the partner's live catalog each time the reward is shown, and come back empty when the item is gone. The catalog is cached for 15 minutes, and the same fields are empty when the partner is unreachable, so an empty brand is a lead rather than proof.
+- Editing the reward fails with the item not found.
+
+The item on an existing gift card reward cannot be changed. Create a new gift card reward on the replacement item and point the campaign's reward steps at it, as [How to Reward With Tango Gift Cards](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-tango-gift-cards#what-happens-if-tango-stops-selling-a-gift-card) describes. Rewards already created against the old item stay bound to it.
+
+### An Amount the Item Does Not Accept
+
+A catalog item carries a value range, or a single fixed value. Extole checks the reward's face value against it when you create or edit the reward, with the error `Face value is not within brand item specified limits`, and never at fulfillment. When the partner later changes the range, a reward created inside the old range starts failing with no message about amounts. Test and demo rewards built at token amounts are the first to fail when a minimum rises.
+
+### A Recipient With No First Name
+
+Extole sends the recipient's first name with the order. When the profile has no first name, or a first name made only of characters outside ASCII, Extole sends the part of the email address before the `@` instead, accents included. Whether the partner accepts that is the partner's decision, and a refusal is recorded as `Unexpected software error`. Give the profile a first name, or correct the address, then retry the same reward: a reward with no partner reward id has no successful order behind it, and a retry re-reads the profile.
+
+## What to Do
+
+1. Read the reward's history and find the message on the **Fulfilled** rows with `success` false.
+2. For a named cause, act on it: funds, limits, the template, the recipient's address, or the frozen account.
+3. For the two generic messages, check the three causes above. Compare the failure boundary too: a retired item or a changed range fails every order on that reward from one date on, while a partner outage fails orders across rewards for a window and then stops.
+4. Count the attempts. A reward that is already **Failed** needs a manual retry once the cause is fixed. One still in **Earned** or **Fulfilled** with attempts left retries on its own.
+5. If the cause is still unknown, ask Extole Support with the reward id and the time of the failed attempt. Support can read the partner's response in the service logs.
+
+<Info>
+Rewards fulfilled by other gift card partners through a custom reward integration follow that integration's own messages and retry rules, not the ones on this page.
+</Info>
+
+## Related
+
+- [How to Resend Tango Rewards](/guides/rewards-management/reward-fulfillment/how-to-resend-tango-rewards)
+- [How to Reward With Tango Gift Cards](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-tango-gift-cards)
+- [How to Resend a Reward](/guides/rewards-management/reward-fulfillment/how-to-resend-a-reward)
