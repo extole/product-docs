@@ -1,0 +1,88 @@
+---
+title: "Webhook Alerts and the Live View"
+description: "What each webhook alert means, how Extole retries a failed delivery, and how to read the Webhook Live View to find the cause."
+---
+
+# Overview
+
+When a webhook delivery fails, Extole sends a notification in the **Technical** category and records the attempt in the webhook's **Live View** under **Tech Center** > **Outbound Webhooks**. Four of the alerts share one message text, so the alert's name is what tells you which part of the delivery failed. This page explains how one delivery attempt works, what each alert means, how retries are scheduled, and how to read the Live View.
+
+## How a Delivery Attempt Works
+
+Every attempt runs the same four steps:
+
+1. **Build the request.** Extole evaluates the webhook's `request` expression, builds the HTTP request, and checks the URL. A failure here sends an alert and no request is sent.
+2. **Send it.** Extole sends the request and waits up to 20 seconds for a response.
+3. **Run the response handler.** If the webhook has a `response_handler` expression, Extole evaluates it. This step runs even when no request was sent. A response handler can return only `OK` or `RETRY`.
+4. **Decide the outcome.**
+   - If the handler returned `OK`, the attempt succeeds. The HTTP status is not checked, so a handler that returns `OK` for a 500 response hides that failure.
+   - If the handler returned `RETRY`, the attempt is retried.
+   - If the handler returned nothing, because there is no handler or because it failed, only a 2xx status counts as success. A 3xx status is a failure here too.
+
+A failed attempt is retried, whatever step it failed in. One failed attempt can therefore raise two alerts: the alert from the step that failed, and `webhook_missing_status_failure` from step 4, because no status was recorded.
+
+## The Retry Schedule
+
+Extole tries a delivery up to four times: right away, then 30 seconds, 1 hour, and 3 hours after each failure. After the fourth failure the event is set aside and is not retried. A webhook can carry its own `retry_intervals` in place of this schedule.
+
+The `attempt_count` on a dispatch result starts at 0, so the four attempts are numbered 0 to 3.
+
+<Info>
+An edit to a webhook's `request` or `response_handler` expression has no draft and no publish step. The next attempt uses the new expression, and that includes retries of events that failed before the edit.
+</Info>
+
+## The Alerts
+
+| Alert | When it fires | Level |
+|---|---|---|
+| `webhook_request_expression_failed` | The `request` expression failed to compile or run, or it produced an invalid URL, URL template parameter, or HTTP method. No request was sent. | Warning, then Error on the last attempt |
+| `webhook_request_url_internal_or_local` | The URL resolved to a local or internal address. Extole refuses to send to it. | Warning, then Error on the last attempt |
+| `webhook_dispatch_failed` | The request could not be sent: a connection, DNS, or TLS failure, the 20-second timeout, or a failure to set up the client key's certificate. | Warning, then Error on the last attempt |
+| `webhook_response_handler_expression_failed` | The `response_handler` expression failed to compile or run. | Error |
+| `webhook_response_handler_retrying_request` | The response handler returned `RETRY`. | Info, then Error on the last attempt |
+| `webhook_response_handler_invalid_status_failure` | The response handler returned a value other than `OK` or `RETRY`. | Warning, then Error on the last attempt |
+| `webhook_missing_status_failure` | No HTTP status was recorded for the attempt, and the handler gave no usable value. | Warning, then Error on the last attempt |
+| `webhook_invalid_status_failure` | The destination answered with a status outside 2xx, and the handler gave no usable value. | Warning, then Error on the last attempt |
+| `webhook_filter_expression_failed` | A reward webhook's expression filter failed to run. | Error |
+
+The first four alerts in the table, plus `webhook_invalid_status_failure`, carry the same message: "We couldn't send an event for the *webhook name* webhook. Please see here for more information", followed by a link to the webhook's page. Read the alert name, not the message, to tell them apart. On the final attempt the retrying alert still says "retrying", but nothing further is retried.
+
+Every webhook alert carries the tags `technical` and `webhook:` followed by the webhook's id, which places it in the **Technical** category of [My Extole notifications](/guides/notifications-and-troubleshooting/platform-and-admin/subscribing-to-my-extole-notifications).
+
+## Reading the Live View
+
+Open **Tech Center** > **Outbound Webhooks**, select the webhook, and find **Webhook Live View**. The **Dispatch Results** tab lists recent attempts with their **Time**, **Response Code** and **Response Message**, and a filter for **All Response Codes**, one entry per code, and **No Response** for attempts with no status. Select a row to see the whole dispatch result:
+
+- `url`, `method`, `request_body` and `request_headers`: what was sent, or what would have been sent when the send itself failed. `Authorization` headers and bearer or basic tokens in the body are hashed before they are stored. Other headers, such as an API key header, are stored as sent.
+- `response_status_code`, `response_body` and `response_headers`: what came back. All three are empty when no response arrived.
+- `attempt_count`: 0 for the first attempt.
+- `webhook_event_id`: the same for every attempt at one event. Group by it to count failures as events rather than attempts.
+- `log_messages`: the errors from that attempt.
+
+The list shows the 50 most recent results by default. The same results are available from the API at `/v6/webhooks/`, the webhook's id, `/dispatch-results/recent`, with `limit` and `offset` parameters, and the request is logged even when it failed to send.
+
+## What the Log Messages Mean
+
+| Log message contains | Meaning |
+|---|---|
+| `Failed to compile expression` or `Unable to get compiled evaluatable from cache` | A syntax error in the expression. The message includes the expression source. |
+| `Failed to evaluate expression` | The expression compiled and failed at run time: an undefined variable, a method that does not exist on the object, or a null value. |
+| `Error occurred while trying to get an access token for client key=` | Extole could not get an access token for the stored client key the expression names. A revoked or expired key, a wrong secret, or an outage at the token provider all look the same here. The provider's own response follows `Cause=` or `Response body=`. |
+| `Could not perform HTTP request` | The send failed: a network failure, or the destination took longer than 20 seconds to answer. |
+
+A webhook's `client_key_id` is its default key, used for the default request and for a client certificate. An empty `client_key_id` does not mean the expression uses no stored key, because an expression can name any stored key by id.
+
+## What to Do
+
+- **A compile or run-time error in `request` or `response_handler`:** fix the expression. The next attempt, including the retries already queued, uses the new expression.
+- **`webhook_invalid_status_failure` with a 4xx status:** the destination rejected the request. Read `response_body` for the field or rule it names, and compare `request_body` with what the destination expects.
+- **A 5xx status or `webhook_dispatch_failed`:** see [Handling 5xx Responses](/technical/platform-integrations/webhooks/webhook-creation#handling-5xx-responses). Keep your endpoint's response under 20 seconds, and return 2xx as soon as the event is stored.
+- **`webhook_response_handler_retrying_request` on every attempt:** the handler's `RETRY` condition matches a permanent failure. Narrow the condition so a permanent error is reported instead of retried.
+- **A `client key=` error:** check the key under **Security Center**, and the credentials at the provider it points at.
+- **Alerts with no matching dispatch result:** a busy webhook can push the failing attempt past the first page. Page further back with `offset`, or filter by response code.
+
+## Related
+
+- [Webhook Creation](/technical/platform-integrations/webhooks/webhook-creation)
+- [Reward Webhooks](/technical/platform-integrations/webhooks/reward-webhooks)
+- [What to Do When You Get a Notification](/guides/notifications-and-troubleshooting/platform-and-admin/what-to-do-when-you-get-a-notification)
