@@ -1,0 +1,76 @@
+---
+title: "Campaign States Over REST"
+description: "Change a campaign's state with the REST API: pause, end, stop, and schedule a campaign, archive and restore it, and understand which controllers run in each state."
+---
+
+# Overview
+
+The [Pausing, Ending, and Scheduling Campaigns](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns)
+guide describes each campaign state from a participant's point of view. This page covers the
+same transitions through the REST API, including the fields each one updates alongside `state`.
+After each call, read the campaign back to confirm `state`, `start_date`, `pause_date`, and
+`is_published`.
+
+## Pause, End, and Stop Now or at a Scheduled Time
+
+`POST /v2/campaigns/{campaign_id}/pause`, `/end`, and `/stop` each accept an optional request
+body of the form `{"date": "<ISO 8601>"}`.
+
+- Send no body to make the transition now.
+- Send a `date` to schedule the transition. The campaign keeps its current state until then.
+- The `date` must be on or after the campaign's start date. An earlier date returns
+  `date_before_start_date`.
+
+## Schedule a Start
+
+`POST /v2/campaigns/{campaign_id}/schedule` with a `start_date` sets the start date and clears the
+campaign's pause date in the same update. A campaign with a start date and no pause date is in the
+Not Launched state, and the platform serves a Not Launched campaign as live: its live controllers
+serve traffic and its journeys continue.
+
+To hand over from one campaign to another at a fixed time, schedule the end of the current campaign
+with `POST /end {"date": ...}` and set the new campaign live at that time. Use `/schedule` for a
+campaign that has not yet launched.
+
+A scheduled start applies to a published campaign. Publish the campaign before its start date
+arrives; see the [guide](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns)
+for how the Programs page shows a campaign that still needs publishing.
+
+## Pause Keeps the Draft
+
+A pause applies to both the published version and the draft, so an unpublished draft is still in
+place when the campaign goes live again. Read `is_published` before you pause a campaign that
+somebody is editing, so you know whether a draft is waiting.
+
+## Archive and Restore
+
+`POST /v2/campaigns/{campaign_id}/archive` removes the campaign's components, flow steps, and
+transition, reward, and quality rules, and keeps its name, description, tags, theme, and labels.
+Reads of an archived campaign, including `GET /v2/campaigns?include_archived=true`, return this
+form. The campaign's content as it stood before archiving is available through the version
+immediately before the archive, listed by `GET /v2/campaigns/{campaign_id}/versions`.
+
+`POST /v2/campaigns/{campaign_id}/unarchive` restores the campaign with its content and clears its
+`start_date`. Set a new start date, or set the campaign live, after you restore it.
+
+## Bursts Set the Sibling's Pause Date
+
+Launching a limited-time burst campaign in a program sets a pause date on each live campaign in the
+same program equal to the burst's start date. To find the campaigns a burst paused, match a
+campaign's `pause_date` to a sibling's `start_date` within the program. A later burst updates the
+pause date, so the match finds the most recent burst.
+
+## Controllers Run in the States You Enable
+
+Every controller carries its own list of campaign states it runs in, visible in
+`GET /v2/campaigns/{campaign_id}/controllers/built` as `enabled_on_states`. A reward action
+enabled on `LIVE`, `PAUSED`, and `ENDED` issues rewards for an ended campaign, and an email
+controller enabled on `LIVE` sends while the campaign is live. Journeys stay on the campaign they
+joined, so when you end one campaign and start another, read each controller's states to confirm
+the ended campaign still sends the emails you expect alongside its rewards.
+
+## Related Documentation
+
+- [Pausing, Ending, and Scheduling Campaigns](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns)
+- [What Happens When a Campaign Is Paused](/guides/programs-and-campaigns/managing-campaigns/what-happens-when-a-campaign-is-paused)
+- [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints)

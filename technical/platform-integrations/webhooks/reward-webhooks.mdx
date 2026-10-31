@@ -125,6 +125,15 @@ A webhook will attempt to deliver events for up to 4 attempts.
 
 Due to the asynchronous nature of the webhooks, the delivery order of events is not guaranteed.
 
+These retries deliver the event. The reward itself is retried by Extole for coupon and gift card
+suppliers only. A reward paid through your reward webhook stays **Earned** until you mark it
+fulfilled, and **Retry** in My Extole does not apply to it; a retry request through the API answers
+`reward_retry_not_supported`. To send such a reward to your endpoint again, resend the event.
+
+The intervals a webhook uses are its own `retry_intervals` setting, which the REST API returns with
+the webhook. Each retry writes a row to the reward's history whose message begins
+`status set by webhook retry`.
+
 **Recommendations** :  
 
 * It is generally advised to not process the event in the same flow it was received in order to avoid timeouts. Instead, save the event as quickly as possible and return 200, proceeding with event processing later in a separate flow.
