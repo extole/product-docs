@@ -36,9 +36,24 @@ list filters by `campaign_ids`, not `campaign_id`.
 | `GET /v1/components/built` | 1000 components, sorted by name | `offset` is honored; page until a short page. An unpaged read stops partway through the alphabet. |
 | `GET /v2/emails` | Honors `limit` | `offset` and `zone_name` are not filters. Fetch one page with a large `limit`, then filter by zone and de-duplicate on `email_id` yourself. |
 | `GET /v7/report-runners` | All runners | Filter by tag with `having_all_tags` or `having_any_tags`. The `tags` field on a runner can read as empty while the tag filter still matches it. |
+| `GET /v2/schedules` | 100 rows, 1000 at most | A `limit` above 1000 falls back to the default. There is no `offset`. `scheduled_execution_date_from` defaults to now, so pass an explicit window for anything in the past. |
+| `GET /v2/campaigns` | Active campaigns | Archived campaigns appear only with `include_archived=true`, and in their emptied form. See [Campaign States Over REST](/technical/platform-integrations/rest-apis/campaign-states-over-rest). |
 
 A count that is the same round number for every record you fetched, such as exactly 20 or exactly
 1000, is the sign that you read a default page rather than the end of the data.
+
+## Ids Encode Their Creation Time
+
+Every Extole id stores the second it was created in its high 32 bits. `id >> 32` is the creation
+time as seconds since the Unix epoch, for any record and for the `unique_id` in an error response.
+Use it to date a record that carries no timestamp, and to date a failure against the moment it was
+reported.
+
+## Listing Accounts
+
+`GET /v4/clients` lists every account the token can see, with a `client_type` of `CUSTOMER`,
+`EX_CUSTOMER`, `TEST`, `PROSPECT`, `UNCLASSIFIED`, or `COMPONENT_LIBRARY`. A count of customers is
+a count of `CUSTOMER` only; the other types are demonstration, test, and library accounts.
 
 ## Rewards List Parameters
 
@@ -53,6 +68,10 @@ A count that is the same round number for every record you fetched, such as exac
   `time_interval=<from>/<to>`. Separate start and end parameters are ignored.
 - `success_only` defaults to `true`, so an unqualified count is the count of successfully
   fulfilled rewards, not of all rewards. Pass `success_only=false` to include the rest.
+- `rewardee_role` in a reward's `data` is set from the reward action's tags when the action does
+  not set it. A non-internal tag that contains `friend` makes it `friend`; anything else makes it
+  `advocate`. Group a report on the journey name rather than on `rewardee_role` when the roles
+  matter.
 
 ## Campaign Versions
 
@@ -102,3 +121,5 @@ write. Read `client_id` back off the token response to confirm which account the
 
 - [Asynchronous Reporting API](/technical/platform-integrations/rest-apis/asynchronous-reporting-api)
 - [Errors](/technical/platform-integrations/rest-apis/errors)
+- [Campaign States Over REST](/technical/platform-integrations/rest-apis/campaign-states-over-rest)
+- [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest)

@@ -1,0 +1,79 @@
+---
+title: "Campaign States Over REST"
+description: "What the pause, end, stop, schedule, archive, and unarchive endpoints do to a campaign's state, its draft, and its start date, and which controllers keep running in each state."
+---
+
+# Overview
+
+The [Pausing, Ending, and Scheduling Campaigns](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns)
+guide describes each campaign state from a participant's point of view. This page describes the
+same transitions as the REST API performs them, because several of them change more than the
+`state` field, and nothing in the response says so. Read `state`, `start_date`, `pause_date`, and
+`is_published` back after every call on this page.
+
+## Pause, End, and Stop Take an Optional Date
+
+`POST /v2/campaigns/{campaign_id}/pause`, `/end`, and `/stop` each accept an optional request body
+of the form `{"date": "<ISO 8601>"}`.
+
+- With no body, the transition happens now.
+- With a `date`, the transition is scheduled for that time and the campaign keeps its current
+  state until then.
+- A `date` earlier than the campaign's start date is refused with `date_before_start_date`.
+
+Send no body when you mean now. A body that carries no `date` is not an instruction, so read
+`state` back before you report that the campaign ended.
+
+## Scheduling a Start Clears a Pause
+
+`POST /v2/campaigns/{campaign_id}/schedule` with a `start_date` sets the start date and clears the
+campaign's pause date in the same write. A campaign with a start date and no pause date is in the
+Not Launched state, and the platform runs a Not Launched campaign as live: its live controllers
+serve traffic, and its journeys continue.
+
+So a scheduled start on a paused campaign is not a resume at that date. It is an immediate go-live.
+To hand over from one campaign to another at a fixed time, schedule the old campaign's end with
+`POST /end {"date": ...}` and set the new campaign live at that time, rather than scheduling a start
+on a paused campaign.
+
+A scheduled start also needs a published campaign. A campaign that was never published stays in
+Not Launched when its start date arrives; see the warning on the
+[guide](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns).
+
+## Pause Keeps the Draft, Archive Empties the Campaign
+
+A pause is applied to both the draft and the published version, so an unpublished draft survives a
+pause and is still waiting when the campaign goes live again. Read `is_published` before you pause
+a campaign that somebody is editing.
+
+Archiving empties the campaign. Components, flow steps, and transition, reward, and quality rules
+are removed, while name, description, tags, theme, and labels are kept. Every later read of the
+campaign, direct or with `include_archived=true` on the list, returns this emptied form. The
+content as it stood before archiving is reachable only through the version immediately before the
+archive, listed by `GET /v2/campaigns/{campaign_id}/versions`. `POST /v2/campaigns/{campaign_id}/unarchive`
+restores the campaign with its content, and clears its `start_date`, so a blank start date on a
+restored campaign means unknown rather than never launched.
+
+## A Burst Launch Writes the Sibling's Pause Date
+
+Launching a limited-time burst campaign in a program writes a pause date on each live campaign in
+the same program, equal to the burst's start date. The campaign record carries no flag that marks
+a burst, so a live campaign whose `pause_date` equals a sibling's `start_date` in the same program
+is how a burst shows in the API. A later burst overwrites the pause date, so the match finds the
+most recent burst only.
+
+## Rewards and Emails Are Gated on Different States
+
+Every controller carries its own list of campaign states it runs in. A reward action enabled on
+`LIVE`, `PAUSED`, and `ENDED` pays a reward on an ended campaign, while the earned-reward email
+controller beside it, enabled on `LIVE` only, sends nothing. The person's journey then shows a paid
+reward followed by a reward-email step with no campaign and no quality. Journeys stay on the
+campaign they joined, so this shape appears after every switch from one campaign to another. Read
+each controller's enabled states from `GET /v2/campaigns/{campaign_id}/controllers/built` before
+you promise that an ended campaign's participants will receive an email.
+
+## Related Documentation
+
+- [Pausing, Ending, and Scheduling Campaigns](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns)
+- [What Happens When a Campaign Is Paused](/guides/programs-and-campaigns/managing-campaigns/what-happens-when-a-campaign-is-paused)
+- [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints)

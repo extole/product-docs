@@ -1,0 +1,56 @@
+---
+title: "Component Settings Over REST"
+description: "How to read a component setting's effective value, and how to change an inherited setting so that the value you wrote is the value that renders."
+---
+
+# Overview
+
+A campaign component's settings are read and written at
+`/v2/campaigns/{campaign_id}/components/{component_id}/settings/{setting_name}`. Two things about
+that endpoint produce a confident wrong answer unless you know them: the raw read of an inherited
+setting does not show the value that renders, and a one-request edit of an inherited setting
+stores the old value and answers `200`.
+
+## Read the Built Value, Not the Raw Value
+
+Every setting carries a `source`: `LOCAL`, `INHERITED`, or `PARAMETER`. In the raw listing from
+`GET /v2/campaigns/{campaign_id}/components`, a setting with `source: INHERITED` still shows the
+library template's default in `values`. That is not the value the campaign renders.
+
+Resolve the setting with `GET /v2/campaigns/{campaign_id}/components/{component_id}/settings/{setting_name}/built`
+before you report it. Search the raw values to find candidates, then resolve each hit through the
+built endpoint; a `LOCAL` hit counts on its own.
+
+The built value resolves build-time expressions only. A value written as a runtime template keeps
+its `{{variable}}` form in the built view, so a sweep for a changed amount also has to read the raw
+`values` for the template.
+
+## Changing an Inherited Setting Takes Two Requests
+
+To give an `INHERITED` setting a value of its own, send two `PUT` requests to the setting:
+
+1. The setting with `"source": "LOCAL"` and no `values`, which promotes it to a local setting.
+2. The full setting body with `values`, which stores the value.
+
+One request that carries both `"source": "LOCAL"` and `values` answers `200` and stores the
+inherited value, so the setting reads back unchanged. My Extole sends the two requests in that
+order; send them the same way.
+
+Send the sibling fields back from the `GET` on the second request. A field you leave out is
+dropped, not kept.
+
+Where the setting holds locales, write the value under the locale key, such as `en`. A translatable
+setting refuses a `default` key with `default_key_not_allowed`.
+
+An `IMAGE` setting inherited from a parent component points at an asset the parent owns. Upload the
+image to the child component first, then promote the setting and point it at the child's asset.
+
+## A Root Component Keeps Its Name
+
+A campaign's root component refuses a change to its `display_name` with
+`campaign_component_root_rename`. Only its `description` can be changed.
+
+## Related Documentation
+
+- [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints)
+- [Integration Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model)
