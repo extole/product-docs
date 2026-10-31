@@ -115,6 +115,29 @@ programs. Use industry language — event tracking, audience segmentation, real-
 streams — without slipping into internal jargon. Don't oversell, and don't hunt for
 problems the reader didn't ask about.
 
+## Write how it works, never how it fails
+
+A page tells the reader how the product behaves and what to do. It does not warn the reader
+about the mistake they might make, narrate a trap, or describe a request that "answers `200`
+and stores the old value". That register comes from internal investigation notes and agent
+lessons, where a paragraph is written from the failure that taught it. A customer page is
+written from the behavior.
+
+- State the behavior and the procedure. "To change an inherited setting, send two requests in
+  this order", not "a one-request edit stores the old value and answers `200`".
+- Describe what a response contains, not what it hides. "The built endpoint returns the value
+  that renders", not "the raw read does not show the value that renders".
+- Delete framing that addresses a reader who is about to be wrong: "confident wrong answer",
+  "unless you know", "nothing tells you", "silently", "looks complete", "proves nothing",
+  "the trap", "worse". If the sentence has no content left without that framing, it was a
+  warning and not a fact; delete the sentence.
+- A platform defect is not product behavior. Describe the supported procedure; the defect goes
+  to the engineering ticket, not to the page.
+
+Text promoted from an internal source (an agent's lessons, an investigation, a support thread)
+is rewritten under this rule before it is placed, sentence by sentence. The source's facts
+carry over; its register does not.
+
 ## Voice and grammar
 
 - **Second person, direct.** Address the reader as "you" (391 of 461 corpus pages do).

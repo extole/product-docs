@@ -161,6 +161,10 @@ item checks conformance to `.mintlify/AGENTS.md` rather than restating it.
 - [ ] **Terminology** matches the glossary, and is consistent throughout — the same concept
       is never spelled or cased two ways on one page.
 - [ ] **No hedging or filler** — swept against the de-hedge list.
+- [ ] **Written from the behavior, not the failure** — no pitfall framing ("confident wrong
+      answer", "unless you know", "nothing tells you", "silently", "answers `200` and"), per
+      **Write how it works, never how it fails** in `.mintlify/AGENTS.md`. Text promoted from an
+      internal source is rewritten sentence by sentence before placement.
 - [ ] **Title and headings** in Title Case; real `##` headings, not bold lines.
 - [ ] **Imperative** how-to steps; reader addressed as "you".
 - [ ] **Navigation paths and UI elements** bolded, not quoted.
