@@ -1,0 +1,43 @@
+---
+title: "Event Dated Before the Referral Is Unattributed"
+description: "Why an uploaded event can reach a referred friend and still be recorded unattributed when the time it carries is earlier than the friend's referral."
+---
+
+# Overview
+
+An event reaches the right person and is saved, but it is recorded unattributed, and no reward follows. The person was referred, and the referral is valid. Other steps for the same person, sent in the same file, may even have been attributed. This page covers one cause: the event carries a time from before the person's referral existed.
+
+## Why the Event Time Matters
+
+Extole attributes an event using the time the event carries, not the time it arrived. In a file upload, that time comes from the `event_time` column. If the column is empty, Extole uses the time the file was processed. See [File-Based Events](/technical/platform-integrations/files/file-based-events).
+
+So an event can arrive weeks after the date it carries. A file that sends a qualification on the day it is earned, but dates it to the day the account opened, does this on every row.
+
+Extole compares the event time with the moment the friend's referral journey was created. If the event time is earlier, the event happened before the friend was referred, and it is recorded unattributed. A date with no time of day makes this likely: a row dated to the start of the day is earlier than a referral made later that same day.
+
+## Why a Sibling Step Can Still Attribute
+
+A step that has an eligibility window credits an event dated within that window before the referral. A step without one does not. So the same person's account opening, with the same date, can be attributed while their qualification is not. An attributed sibling step does not rule this cause out. Check which steps in the campaign have an eligibility window.
+
+## How to Confirm It
+
+For each unattributed event, compare two times:
+
+1. The event time recorded for the event.
+2. The time the friend's referral journey was created.
+
+If the event time is earlier in every unattributed case, and later in the attributed cases, this is the cause.
+
+## What to Do
+
+Whoever sets the event's date can fix it:
+
+- **The file's sender:** send the actual time of the event in `event_time`. If only the date is known, send the end of that day, `23:59:59`, rather than its start.
+- **The campaign owner:** ask Extole Support to add an eligibility window to the step, if events for that step are expected to carry dates before the referral.
+
+Ask Extole Support what can be done for the people already affected before you resend their events.
+
+## Related
+
+- [File-Based Events](/technical/platform-integrations/files/file-based-events)
+- [Events Are Recorded but Never Attribute](/technical/troubleshooting/events-are-recorded-but-never-attribute)
