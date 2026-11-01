@@ -43,6 +43,10 @@ Two things in the history are easy to misread:
 
 A manual retry, from **Retry** on the reward or [Retry a Reward](/api-reference/rewards/retry-a-reward), accepts rewards in the **Earned**, **Failed**, **Fulfilled** and **Sent** states, does not count toward the five automatic attempts, and is refused for a claimed reward.
 
+Each row a manual retry writes carries `operator_user_id`, the id of the user who ran it, so the history shows who retried. Rows from the automatic job leave it empty, and only those rows count toward the five attempts.
+
+When the gift card reward itself is archived or deleted, the rewards issued from it can't be fulfilled again, by a manual retry or by the automatic job. A manual retry returns `software_error`, or `reward_supplier_not_found` when the reward's latest **Earned** row failed. The automatic job's attempts fail without adding a row to the history.
+
 ## The Two Messages That Name No Cause
 
 `Unexpected software error` and `Failed to make Tango Api request` mean the partner refused a request it received, or the request did not complete, and the partner's own response is in Extole's service logs rather than on the reward. Before asking Extole Support for that response, rule out the three causes below, because none of them produces a specific message.
