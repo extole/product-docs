@@ -11,7 +11,7 @@ Extole sends two notifications when it refuses to create an action because one a
 
 **The step layer is silent.** When an event carries a data item whose key type is `UNIQUE_PARTNER_EVENT_KEY`, Extole refuses to write a second step for the same person, step name, container, and key name and value. The event is still accepted and recorded with `duplicate` set to true, the execution log says "Duplicate step for step name=... It will not be added to the person.", no actions run, and no notification is sent. The campaign is not part of this key, so the same key value on two campaigns' steps of the same name is still one step.
 
-**The action layer alerts.** When a step does run its actions, the key value is copied onto the reward or incentive action as its partner id. A second action of the same type for the same partner id anywhere on the account is refused, and that refusal is `duplicate_action_by_partner_id`. The alert is **Error** when the existing action belongs to the same campaign and **Warning** when it belongs to another campaign.
+**The action layer alerts.** When a step does run its actions, the key value is copied onto the reward or incentive action as its partner id. A second action of the same type for the same partner id anywhere on the account is refused, and that refusal is `duplicate_action_by_partner_id`.
 
 Because the step layer silences most repeats before they reach an action, the number of alerts is a floor on the number of repeated events, not a count of them. Notifications to one subscriber are also de-duplicated within the subscription's dedupe window.
 
@@ -45,7 +45,9 @@ A business event's data items carry a key type. Three of them do more than store
 
 Identification works by name: an inbound event field whose name matches the data item's name becomes a person key, across every running campaign on the account. A field that identifies a transaction, such as an order id, is a correct unique event key. A field that identifies a person, such as an account id, is not, because the second order from the same account is then refused as a repeat.
 
-Only one `UNIQUE_PARTNER_EVENT_KEY` is allowed on a journey entry, and a step that declares more than one uses the first. When the inbound event does not carry the key's source field, the step is written with no key and nothing is logged, unless the data item has a default value, in which case the default becomes the key.
+Only one `UNIQUE_PARTNER_EVENT_KEY` is allowed on a journey entry, and a step that declares more than one uses the first.
+
+In a Flow Builder campaign, a business event's data item reads the inbound event field that has the same name as the data item, unless its value expression names another field. Renaming or recreating a data item therefore changes the field it reads. When the inbound event does not carry the key's source field, the step is written with no key and nothing is logged, unless the data item has a default value, in which case the default becomes the key.
 
 ## A Purchase Recorded Twice
 
@@ -53,7 +55,7 @@ An integration that reports the same purchase from the shopper's browser and aga
 
 ## Reading the Alert
 
-The alert's data carries `action_type`, `partner_id`, `partner_user_id`, `person_id`, `campaign_id`, `step_event_id`, `step_event_name`, `cause_event_id` and `event_id`. Use `campaign_id` and the level together: an **Error** names a collision inside one campaign, which is configuration; a **Warning** names a collision with another campaign, which is often the same event reaching two programs.
+Both alerts carry the same data: `action_id`, `action_type`, `partner_id`, `partner_user_id`, `person_id`, `campaign_id`, `step_event_id`, `step_event_name`, `cause_event_id` and `event_id`. Both use the same level: **Error** when the existing action belongs to the same campaign, and **Warning** when it belongs to another campaign or Extole cannot find it. Use `campaign_id` and the level together: an **Error** names a collision inside one campaign, which is configuration; a **Warning** names a collision with another campaign, which is often the same event reaching two programs.
 
 ## What Cannot Be Undone
 
