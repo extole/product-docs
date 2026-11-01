@@ -1,11 +1,11 @@
 ---
 title: "Scheduled Report Is Empty or Missing a Period"
-description: "Why a scheduled report can deliver a file with no rows and still show as complete, why a period can stay Not run, and how to fill it from My Extole or the API."
+description: "Why a scheduled report can deliver a file with no rows and still show as complete, why a cleared filter can still apply, why a period can stay Not run, and how to fill it from My Extole or the API."
 ---
 
 # Overview
 
-A scheduled report reports success for each run, so a delivered file with no rows, or a period that never ran, has no error to start from. This page covers the three shapes: a file with no rows, or with rows a filter should have removed; a period that shows as **Not run**; and a schedule that generates the same report every few minutes.
+A scheduled report reports success for each run, so a delivered file with no rows, or a period that never ran, has no error to start from. This page covers four shapes: a file with no rows, or with rows a filter should have removed; a filter that still applies after you cleared it; a period that shows as **Not run**; and a schedule that generates the same report every few minutes.
 
 ## A Delivered File With No Rows
 
@@ -17,6 +17,12 @@ A filter on a configurable report compares a column by name. When a mapping that
 In both cases the run completes normally, the schedule shows it as executed, and the delivery succeeds. Read the row count from the file, not from the status.
 
 To find the cause, compare the newest run's parameters with the newest run that still had rows, and look for a mapping whose name changed. Restore the mapping's original name rather than renaming the filter: the delivered file's column header is the mapping's name, so a renamed mapping also changes the header that whatever consumes the file is parsing.
+
+## A Cleared Filter That Still Applies
+
+Saving a scheduled report drops every parameter left blank. Each run then uses the report type's own default for that parameter. Some report types default their filter to a subset of rows, so clearing that filter does not widen the report: the runs keep returning the default subset and still complete normally.
+
+To change what a schedule returns, write the value you want explicitly, for example a filter that names every value you want to keep. Then read the rows of the next run before you rely on the change.
 
 ## A Period That Shows as Not Run
 
