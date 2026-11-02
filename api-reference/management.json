@@ -41465,6 +41465,36 @@
         },
         "type" : "object"
       },
+      "ReportTypePerformanceProfileResponse" : {
+        "properties" : {
+          "p90_duration_per_range_hour" : {
+            "description" : "The p90 run duration normalized to seconds per hour of the report's requested time range. Absent when the report type takes no range parameter or no range could be resolved from the sampled runs.",
+            "format" : "double",
+            "type" : "number"
+          },
+          "p90_duration_seconds" : {
+            "description" : "The p90 run duration in seconds across the sampled runs. Zero when there are no measurable runs.",
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "report_type" : {
+            "description" : "Name of the report type this profile describes.",
+            "type" : "string"
+          },
+          "sample_count" : {
+            "description" : "Number of completed runs with a measurable duration observed in the last three months and used to compute this profile. Runs that failed or never produced a duration are excluded.",
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "tier" : {
+            "description" : "Performance tier assigned to the report type. `VERY_FAST` through `VERY_SLOW` rank measured cost; `UNKNOWN` means there were fewer than 3 completed runs in the window to rank.",
+            "enum" : [ "FAST", "MEDIUM", "SLOW", "UNKNOWN", "VERY_FAST", "VERY_SLOW" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "p90_duration_seconds", "report_type", "sample_count", "tier" ],
+        "type" : "object"
+      },
       "ReportTypeResponse" : {
         "description" : "Report type definition. Polymorphic on `type`: SQL, SPARK, DASHBOARD, and CONFIGURED share the common metadata below (display name, description, scopes, parameters, formats, tags, data sources) and add their own type-specific fields.",
         "discriminator" : {
@@ -80934,6 +80964,315 @@
           }
         },
         "summary" : "Download the latest report",
+        "tags" : [ "Reports" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v4/reports/performance-profiles" : {
+      "get" : {
+        "description" : "Returns per-report-type performance profiles derived from this client's report execution history over the last three months. Each profile carries a performance tier, the p90 run duration, and an optional per-range-hour normalized duration. SQL-backed report types are tiered VERY_FAST regardless of their execution history. Any other report type with at least 3 runs and more than 30% of them failing on memory or interrupt errors is tiered VERY_SLOW. Report types with fewer than 3 completed runs in the window are tiered UNKNOWN. VERY_FAST is also assigned outright to any other report type whose p90 duration is under a minute, regardless of its relative rank. Remaining report types are ranked relative to their peers, with range-parameterized types ranked by per-range-hour duration and rangeless types ranked by absolute p90 duration in separate peer groups. Results are ordered fastest first, by tier and then by p90 duration, and UNKNOWN report types come last. The list is paged: pass offset to read the next page, and a page with fewer profiles than limit is the last one. Use this to bias automated report runs toward faster report types.",
+        "parameters" : [ {
+          "description" : "Optional maximum number of profiles to return, defaults to 100.",
+          "in" : "query",
+          "name" : "limit",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Optional number of profiles to skip before the page starts, defaults to 0.",
+          "in" : "query",
+          "name" : "offset",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ReportTypePerformanceProfileResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_limit" : {
+                    "$ref" : "#/components/examples/invalid_limit"
+                  },
+                  "invalid_offset" : {
+                    "$ref" : "#/components/examples/invalid_offset"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
+                  },
+                  "invalid_uri_in_query_parameter" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_query_parameter"
+                  },
+                  "max_fetch_size_1000" : {
+                    "$ref" : "#/components/examples/max_fetch_size_1000"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "List report type performance profiles",
+        "tags" : [ "Reports" ],
+        "x-extole-bundle" : "management",
+        "x-extole-visibility" : "visible"
+      }
+    },
+    "/v4/reports/performance-profiles/{report_type}" : {
+      "get" : {
+        "description" : "Returns the performance profile for a single named report type, derived from this client's report execution history over the last three months. Tiering rules match `GET /v4/reports/performance-profiles`: SQL-backed types are always VERY_FAST; types with at least 3 runs and more than 30% of them failing on memory or interrupt errors are VERY_SLOW; other types are UNKNOWN below 3 completed runs, VERY_FAST outright under a minute of p90 duration, otherwise ranked relative to this client's other report types within their range-parameterized or rangeless peer group. If the report type has never run in the window, a placeholder profile is returned with a zero sample count.",
+        "parameters" : [ {
+          "description" : "The report type name.",
+          "in" : "path",
+          "name" : "report_type",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReportTypePerformanceProfileResponse"
+                }
+              }
+            },
+            "description" : "The performance profile for the named report type."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
+                  },
+                  "invalid_uri_in_query_parameter" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_query_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No report type with the given name exists for this client. Error code: `report_type_not_found`."
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Get report type performance profile",
         "tags" : [ "Reports" ],
         "x-extole-bundle" : "management",
         "x-extole-visibility" : "visible"
