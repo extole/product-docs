@@ -1,0 +1,38 @@
+---
+title: "Traffic Changed After a Campaign Upgrade"
+description: "When counts move after a campaign upgrade, compare each input event name and each step on both sides of the publish. The pattern of what moved tells you whether the cause is in the campaign or in what your systems send."
+---
+
+# Overview
+
+An upgrade can change what starts a business event in a Flow Builder campaign: a **Triggered By** selection replaces a rule that matched event names. If your counts move after the upgrade, compare what arrived and what it created on both sides of the publish that carried the upgrade. Each pattern below points to a different cause.
+
+## Compare Both Sides of the Upgrade
+
+1. Find the date the upgraded campaign was published.
+2. Take the same number of whole days before and after that date, and leave the publish day out. Use seven days on each side when the upgrade is at least a week old.
+3. Run **Input event names with triggered steps** once, over one range that spans both sides, by day. For each input event name, it shows how many arrived and which steps they created. [Debug an Inbound Integration](/technical/troubleshooting/debug-an-inbound-integration#debugging-reports-check-the-whole-feed) says how to find it and which container it reads.
+4. Compare every name and every step, not only the ones the upgrade changed. A change in one campaign can move traffic in another.
+
+Some event names come from automated security scans of your site, such as names that contain quotes or brackets. Leave those out of the comparison.
+
+## What Each Pattern Means
+
+| What you see | Cause |
+|---|---|
+| A name still arrives, but the step it started no longer follows it | The trigger event is not declared, or the business event's **Triggered By** does not select it. Declare it on the extension that sends it, as in [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by), and select it. |
+| A step dropped, but the names that start it held steady | A quality rule now stops events it used to pass, such as **Self Referral Prevention** or **Bot Click Prevention**. See [Default Business Event Quality Rules](/guides/flow-campaigns/default-business-event-quality-rules). |
+| A name stopped arriving | The cause is on your side, not in the upgrade: the tag, app, API call, or file that sent it stopped. Start at [Debug an Inbound Integration](/technical/troubleshooting/debug-an-inbound-integration). |
+
+## An Old Event-Name Rule Beside Triggered By
+
+A business event can keep its old **Input Event Matches Event Names** rule beside its new **Triggered By** selection. When it does, the business event fires only when an event matches both. An event that **Triggered By** selects, but that the old rule doesn't name, creates no step.
+
+Remove the old rule once **Triggered By** selects every event that should start the business event.
+
+## Related
+
+- [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by)
+- [Javascript SDK and Mobile SDK Extensions](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions)
+- [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules)
+- [Debug an Inbound Integration](/technical/troubleshooting/debug-an-inbound-integration)
