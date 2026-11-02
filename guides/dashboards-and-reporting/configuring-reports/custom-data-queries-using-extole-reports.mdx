@@ -425,7 +425,7 @@ Loads a specific consumer event by ID.
 **Returns:** `api.ConsumerEvent` (or subtype: `StepConsumerEvent`, `RewardConsumerEvent`, `InputConsumerEvent`)
 
 ```
-event(event.rootEventId).name
+event(event.rootEventId).type
 EVENT(event.id).person.email
 EVENT(event.id).selectedCampaignContext.triggerResults
 ```
@@ -433,6 +433,10 @@ EVENT(event.id).selectedCampaignContext.triggerResults
 Key ConsumerEvent properties: `id`, `rootEventId`, `type`, `eventTime`, `person`, `data`, `sandbox`, `clientContext`.
 
 Additional StepConsumerEvent properties: `name`, `stepName`, `campaignId`, `personId`, `visitType`, `quality`, `attribution`.
+
+<Tip>
+To read the name or the `data` payload of the input event behind a step or reward, use [INPUT_RECORD](#input_record) with `event.rootEventId` instead of `event()`. `input_record()` loads only the inbound request, so it reads far less data and the report runs faster. Use `event()` for properties that exist only on the processed event, such as `person`, `selectedCampaignContext`, `referralContext`, and `causeEventId`.
+</Tip>
 
 ### REWARD
 
@@ -491,17 +495,20 @@ Finds the input record corresponding to an input consumer event.
 **Parameters:**
 - `(anonymous)` — column with input consumer event ID
 - `event_name` *(optional)* — column with event name; omit to match any name
-- `event_time_name` *(required)* — column with event time
+- `event_time_name` *(optional)* — column with event time; omit to find the input record by its ID alone
 
 **Returns:** `api.InputRecord` properties
 
 ```
-input_record(event.rootEventId, event_time_name:event.eventTime).name
-input_record(event.rootEventId, event_name:"conversion", event_time_name:event.eventTime).apiType
+input_record(event.rootEventId).name
+input_record(event.rootEventId).data.amount
+input_record(event.rootEventId, event_name:"conversion").apiType
 INPUT_RECORD(event.rootEventId, event_time_name:event.eventTime).userAgent
 ```
 
 Key InputRecord properties: `id`, `clientId`, `eventTime`, `personId`, `name`, `locale`, `apiType`, `appType`, `deviceType`, `userAgent`, `data`.
+
+From a step or reward event, `input_record(event.rootEventId)` is the fastest way to read the name and `data` of the input event behind it. The keys in an input record's `data` are the keys the client sent, and they can differ from the keys on the steps that event produced. Run an **Input Records** report for the event name first to see which keys it carries.
 
 ### DEVICE_TYPE
 
