@@ -1,0 +1,56 @@
+---
+title: "Separating Two People Who Share One Profile"
+description: "Give the second person their own profile, move their keys onto it, and leave recorded activity on the shared profile."
+noindex: true
+---
+
+Use this runbook when two different people sit on one Extole profile and Support must separate them — usually so one of them can be paid. The customer-facing description of what separates them and what does not is in [How Extole Matches an Event to a Profile](/technical/integration-overview/how-extole-matches-an-event-to-a-profile#separating-two-people-who-already-share-one-profile).
+
+<Info>
+**Audience**
+
+Extole Support operators and agents. Creating the second profile and moving person keys requires account write access. Do not publish these steps to the customer.
+</Info>
+
+## When This Applies
+
+- Two people (for example a spouse, child, or joint account holder) have activity on one profile.
+- Each person has, or will have, their own email address and their own partner user ID or person key.
+- The requester asks to split the profiles, or a reward owed to the second person cannot be paid on the shared profile's address.
+
+This is not a merge of two profiles that belong to one person, and it is not a one-member email change. Those cases have their own paths.
+
+## Confirm the Shared Profile First
+
+1. Look up every email address and partner user ID the requester gave for each person.
+2. Confirm both people's identifiers resolve to one shared identity profile, or that one person's unused email reaches no profile while their partner user ID reaches the other person's profile.
+3. Read that profile's rewards, relationships, and steps. Attribute each item to one person from the requester's account of who did what. Name what you cannot attribute. That list is what you reconcile after the separation.
+
+A lookup can return a person id that differs from the identity profile it belongs to. That id is a **device** linked to the shared identity. The shared history sits on the identity. Read the identity too. A forwarded source looks different: its own id comes back as the survivor's id.
+
+## Do Not Do These
+
+- **Do not edit the email on the shared profile or on a linked device.** The profile keeps its id. On a linked device, the edit rewrites the shared identity's address, so both people move together. See [Changing the Email on a Profile](/technical/integration-overview/how-extole-matches-an-event-to-a-profile#changing-the-email-on-a-profile).
+- **Do not forward or merge the profiles.** A forward consolidates two profiles of one person in one direction and cannot be undone. It never divides one profile into two.
+- **Do not issue or promise a reward for the person being separated on the shared profile.** That pays the person who stays.
+
+## Separate Them
+
+The end state: the first person stays on the shared profile under their own email and keys; the second person has a new profile under their own email, with their partner user ID and person keys moved onto it.
+
+1. **Confirm the second person's email resolves to no profile.** If it already belongs to another profile, stop and resolve that ownership conflict before creating anything.
+2. **Create a profile for the second person** with their email address, name, and partner user ID (and any other person keys that belong only to them).
+3. **Leave the first person's partner user ID and person keys on the shared profile.** A non-identity key takes over its lookup when written onto a profile, so writing the second person's keys onto the new profile re-points those lookups away from the shared profile. Confirm each key now resolves to the profile that should own it.
+4. **Sweep the shared profile for leftover person keys** that still resolve the second person back onto it (for example a member number stored as a unique partner event key). Remove the lookup for any key that should no longer point at the shared profile. If you cannot remove it with the client's own token, escalate to Engineering rather than using a super-key path that answers against the wrong account.
+5. **Verify.** Look up each person's email and partner user ID. The second person's identifiers must reach only their new profile. The first person's identifiers must still reach the shared profile.
+
+## After the Separation
+
+- **History stays on the shared profile.** Events, journeys, and rewards already recorded do not move, including those the second person earned. Use the attribution list from the confirmation step to agree which recorded rewards belong to which person.
+- **Issue any reward still owed to the second person on their new profile**, after it exists, as a separate reward. A new profile does not move a reward already issued on the shared profile.
+- **Stop the identifier that combined them.** If the client is still sending a shared person key for both people, point them at [What You Can Change](/technical/integration-overview/how-extole-matches-an-event-to-a-profile#what-you-can-change). Without that change, the next event can combine them again.
+
+## Related
+
+- [How Extole Matches an Event to a Profile](/technical/integration-overview/how-extole-matches-an-event-to-a-profile)
+- [How to Change a Person's Email](/guides/rewards-management/reward-fulfillment/how-to-change-a-persons-email)
