@@ -435,7 +435,7 @@ Key ConsumerEvent properties: `id`, `rootEventId`, `type`, `eventTime`, `person`
 Additional StepConsumerEvent properties: `name`, `stepName`, `campaignId`, `personId`, `visitType`, `quality`, `attribution`.
 
 <Tip>
-To read the name or the `data` payload of the input event behind a step or reward, use [INPUT_RECORD](#input_record) with `event.rootEventId` instead of `event()`. `input_record()` loads only the inbound request, so it reads far less data and the report runs faster. Use `event()` for properties that exist only on the consumer event, such as `person`, `selectedCampaignContext`, `referralContext`, and `causeEventId`.
+To read the name or the `data` payload of the input event behind a step or reward, use [INPUT_RECORD](#input_record) with `event.rootEventId` instead of `event()`. `input_record()` loads only the inbound request, so it reads far less data and the report runs faster. `event()` searches the raw events around each ID's event time, so over a long report range it can read most of the client's events in that range. Use `event()` for properties that exist only on the consumer event, such as `person`, `selectedCampaignContext`, `referralContext`, and `causeEventId`.
 </Tip>
 
 ### REWARD
@@ -506,7 +506,7 @@ input_record(event.rootEventId, event_name:"conversion").apiType
 INPUT_RECORD(event.rootEventId, event_time_name:event.eventTime).userAgent
 ```
 
-Key InputRecord properties: `id`, `clientId`, `eventTime`, `personId`, `name`, `locale`, `apiType`, `appType`, `deviceType`, `userAgent`, `data`.
+Key InputRecord properties: `id`, `clientId`, `eventTime`, `personId`, `name`, `locale`, `apiType`, `appType`, `deviceType`, `userAgent`, `ipAddress`, `httpHeaders`, `data`.
 
 From a step or reward event, `input_record(event.rootEventId)` is the fastest way to read the name and `data` of the input event behind it. The keys in an input record's `data` are the keys the client sent, and they can differ from the keys on the steps that event produced. Run an **Input Records** report for the event name first to see which keys it carries.
 
