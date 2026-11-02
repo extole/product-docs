@@ -7,9 +7,7 @@ description: "A 400 naming a frontend controller means either two controllers re
 
 Publishing a component or campaign fails with a generic `campaign build failed` 400 whose payload names a frontend controller and its name expression, and nothing else. This page explains what that combination means and why the entities you were creating are probably still there.
 
-If the error code is `controller_state_misconfiguration` instead, the build failed for a different reason: an email's sending controller and the frontend controller that renders it are out of step. A later section of this page covers that error.
-
-If a save or an upgrade fails with `setting_filter_invalid_component_type`, a socket in the campaign names a component type that no longer exists. The last section of this page covers that error.
+If the error code is `controller_state_misconfiguration` instead, the build failed for a different reason: an email's sending controller and the frontend controller that renders it are out of step. The last section of this page covers that error.
 
 ## The Distinction That Matters
 
@@ -81,14 +79,6 @@ Do not turn an email off by disabling its creative action on the frontend contro
 </Warning>
 
 When you change which campaign states an email runs in, change both controllers. Widen the frontend controller's `enabled_on_states` before you widen the sending controller's, and narrow the sending controller's before you narrow the frontend controller's.
-
-## When the Error Is setting_filter_invalid_component_type
-
-A save or an upgrade fails with the error code `setting_filter_invalid_component_type`, the message "Setting filter component type is invalid", and a `component_type` value. A socket in the campaign accepts only components of that type, and the type no longer exists in your account. Extole checks the filter on every socket each time it saves a campaign, so every save of that campaign fails, an upgrade included, until the socket is gone.
-
-Remove the socket whose filter names the missing type, then save again.
-
-Don't create a component type with that name to get past the error. A component type belongs to your account, not to one campaign, so creating one changes your account to fix one campaign.
 
 ## Related
 
