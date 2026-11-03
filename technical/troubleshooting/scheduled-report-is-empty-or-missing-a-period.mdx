@@ -1,0 +1,36 @@
+---
+title: "Scheduled Report Is Empty or Missing a Period"
+description: "Why a scheduled report can deliver a file with no rows and still show as complete, why a period can stay Not run, and how to fill it from My Extole or the API."
+---
+
+# Overview
+
+A scheduled report reports success for each run, so a delivered file with no rows, or a period that never ran, has no error to start from. This page covers the three shapes: a file with no rows, or with rows a filter should have removed; a period that shows as **Not run**; and a schedule that generates the same report every few minutes.
+
+## A Delivered File With No Rows
+
+A filter on a configurable report compares a column by name. When a mapping that defined that column is renamed or removed, the column is not an error: it becomes empty on every row. The filter then compares against nothing:
+
+- A filter that uses `=`, `<`, `>`, `<=`, `>=` or `LIKE` against a value matches no row, and the file is delivered with a header and nothing under it.
+- A filter that uses `!=` matches every row, so the file arrives with rows the filter was meant to remove.
+
+In both cases the run completes normally, the schedule shows it as executed, and the delivery succeeds. Read the row count from the file, not from the status.
+
+To find the cause, compare the newest run's parameters with the newest run that still had rows, and look for a mapping whose name changed. Restore the mapping's original name rather than renaming the filter: the delivered file's column header is the mapping's name, so a renamed mapping also changes the header that whatever consumes the file is parsing.
+
+## A Period That Shows as Not Run
+
+The scheduler fills one period per pass: the most recently completed one. If that period's report is deleted, the next pass regenerates it. A production pass runs every five minutes, after the previous pass across all schedules has finished, so allow at least five minutes. An older period that was never run, or whose report was deleted after a newer period existed, stays empty, because the scheduler does not look back past the newest period. Paused and disabled schedules are skipped.
+
+In the schedule's report list, filter to **Not run** to see the empty periods. Each **Not run** row has a **Generate** button, which asks "Generate report?" and starts that one period. The button shows only while the schedule is not paused. **Run now** in the schedule's menu does not fill a gap: it produces a fresh report for the period ending now.
+
+To fill more than one period at once, use [Generate Missing Reports](/api-reference/report-schedules/generate-missing-reports-for-a-schedule) on the schedule. It starts one report by default. Pass `slot` with the schedule's start date to fill every empty period from that date, or `limit` for a number of them. Periods fill newest first, and each report runs against the data available now, not the data as it was when the period closed.
+
+## A Schedule That Runs Every Few Minutes
+
+If a schedule produces the same report on every pass, the scheduler is failing to match its newest report to the newest period, so it treats the period as empty each time. The usual cause is a report that was duplicated into the schedule and carried internal tags from another schedule. Those tags are hidden in My Extole, so this is one for Extole Support: give them the schedule's name and when the repeats started.
+
+## Related
+
+- [Scheduled Reports](/guides/dashboards-and-reporting/configuring-reports/scheduled-reports)
+- [Custom Data Queries Using Extole Reports](/guides/dashboards-and-reporting/configuring-reports/custom-data-queries-using-extole-reports)
