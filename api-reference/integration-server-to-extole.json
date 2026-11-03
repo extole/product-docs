@@ -791,6 +791,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "reward_delivery_not_supported" : {
+        "summary" : "reward_delivery_not_supported",
+        "value" : {
+          "code" : "reward_delivery_not_supported",
+          "http_status_code" : 400,
+          "message" : "Delivery status is only available for a fulfilled Tango reward",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "reward_expiration_before_reward_creation_not_allowed" : {
         "summary" : "reward_expiration_before_reward_creation_not_allowed",
         "value" : {
@@ -847,6 +857,16 @@
           "code" : "reward_not_found",
           "http_status_code" : 400,
           "message" : "Reward not found",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "reward_resend_email_missing" : {
+        "summary" : "reward_resend_email_missing",
+        "value" : {
+          "code" : "reward_resend_email_missing",
+          "http_status_code" : 400,
+          "message" : "An email address is required to resend a reward",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -947,6 +967,16 @@
           "code" : "shareable_not_found",
           "http_status_code" : 400,
           "message" : "Shareable not found",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "tango_service_unavailable" : {
+        "summary" : "tango_service_unavailable",
+        "value" : {
+          "code" : "tango_service_unavailable",
+          "http_status_code" : 503,
+          "message" : "Tango service unavailable",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -2588,6 +2618,17 @@
         "required" : [ "cause_event_id", "created_at", "event_name", "message", "operator_user_id", "partner_event_id", "partner_reward_redeem_id", "reward_id" ],
         "type" : "object"
       },
+      "ResendRewardRequest" : {
+        "properties" : {
+          "email" : {
+            "description" : "Email address to resend the reward to, in place of the one on file. Tango requires the address to belong to the same recipient and allows one resend of an order every 30 seconds.",
+            "nullable" : true,
+            "type" : "string"
+          }
+        },
+        "required" : [ "email" ],
+        "type" : "object"
+      },
       "RestExceptionResponse" : {
         "description" : "Represents the API error response",
         "properties" : {
@@ -2649,6 +2690,27 @@
           }
         },
         "required" : [ "created_at", "message", "operator_user_id", "reward_id" ],
+        "type" : "object"
+      },
+      "RewardDeliveryResponse" : {
+        "properties" : {
+          "delivery_status" : {
+            "description" : "Status of the reward delivery as reported by the reward partner.",
+            "type" : "string"
+          },
+          "email_status" : {
+            "description" : "Status of the reward email as reported by the reward partner, for example sent, delivered, bounced, blocked or dropped.",
+            "type" : "string"
+          },
+          "views" : {
+            "description" : "Each time the recipient opened the reward, oldest first.",
+            "items" : {
+              "$ref" : "#/components/schemas/RewardViewResponse"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "delivery_status", "email_status", "views" ],
         "type" : "object"
       },
       "RewardResponse" : {
@@ -2858,6 +2920,19 @@
             "type" : "string"
           }
         },
+        "type" : "object"
+      },
+      "RewardViewResponse" : {
+        "properties" : {
+          "status" : {
+            "description" : "Status the reward partner recorded for this view.",
+            "type" : "string"
+          },
+          "viewed_date" : {
+            "$ref" : "#/components/schemas/ZonedDateTime"
+          }
+        },
+        "required" : [ "status", "viewed_date" ],
         "type" : "object"
       },
       "SentRewardRequest" : {
@@ -3491,6 +3566,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -3502,6 +3580,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -3693,6 +3774,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -3704,6 +3788,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -3879,6 +3966,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -3890,6 +3980,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -4005,6 +4098,204 @@
         "x-extole-visibility" : "visible"
       }
     },
+    "/v2/rewards/{reward_id}/delivery" : {
+      "get" : {
+        "description" : "Returns the email status and the open history of a fulfilled Tango gift card, read live from Tango.",
+        "parameters" : [ {
+          "description" : "Extole-assigned unique identifier for the reward.",
+          "in" : "path",
+          "name" : "reward_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RewardDeliveryResponse"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "expired_reward_expiration_date_clearing_not_allowed" : {
+                    "$ref" : "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
+                  "expired_state_unreachable" : {
+                    "$ref" : "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward" : {
+                    "$ref" : "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
+                  },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
+                  },
+                  "invalid_uri_in_query_parameter" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_query_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "retry_claimed_reward_not_allowed" : {
+                    "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed" : {
+                    "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
+                  },
+                  "reward_illegal_state_transition" : {
+                    "$ref" : "#/components/examples/reward_illegal_state_transition"
+                  },
+                  "reward_in_not_retryable_state" : {
+                    "$ref" : "#/components/examples/reward_in_not_retryable_state"
+                  },
+                  "reward_not_found" : {
+                    "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
+                  },
+                  "reward_retry_not_supported" : {
+                    "$ref" : "#/components/examples/reward_retry_not_supported"
+                  },
+                  "reward_supplier_not_found" : {
+                    "$ref" : "#/components/examples/reward_supplier_not_found"
+                  },
+                  "sandbox_not_found" : {
+                    "$ref" : "#/components/examples/sandbox_not_found"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          },
+          "503" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "tango_service_unavailable" : {
+                    "$ref" : "#/components/examples/tango_service_unavailable"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Service Unavailable"
+          }
+        },
+        "summary" : "Get reward delivery status",
+        "tags" : [ "Rewards" ],
+        "x-extole-bundle" : "integration-server-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
     "/v2/rewards/{reward_id}/expirations" : {
       "get" : {
         "description" : "Returns the expiration records for the specified reward.",
@@ -4074,6 +4365,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -4085,6 +4379,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -4269,6 +4566,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -4280,6 +4580,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -4464,6 +4767,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -4475,6 +4781,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -4659,6 +4968,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -4670,6 +4982,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -4854,6 +5169,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -4865,6 +5183,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -5049,6 +5370,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -5060,6 +5384,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -5244,6 +5571,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -5255,6 +5585,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -12713,6 +13046,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -12724,6 +13060,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -12923,6 +13262,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -12940,6 +13282,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -13140,6 +13485,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -13157,6 +13505,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -13350,6 +13701,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -13361,6 +13715,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -13555,6 +13912,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -13566,6 +13926,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -13759,6 +14122,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -13770,6 +14136,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -13963,6 +14332,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -13974,6 +14346,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -14089,6 +14464,203 @@
         "x-extole-visibility" : "visible"
       }
     },
+    "/v2/rewards/{reward_id}/resend" : {
+      "post" : {
+        "description" : "Resends a sent Tango gift card to a different email address than the one on file. The reward gets a new send record for that address, failed if Tango refused the resend. Returns the updated reward.",
+        "parameters" : [ {
+          "description" : "Extole-assigned unique identifier for the reward.",
+          "in" : "path",
+          "name" : "reward_id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "example" : {
+                "email" : "email"
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ResendRewardRequest"
+              }
+            }
+          },
+          "description" : "Reward resend request.",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RewardResponse"
+                }
+              }
+            },
+            "description" : "Successful response"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "binding_error" : {
+                    "$ref" : "#/components/examples/binding_error"
+                  },
+                  "expired_reward_expiration_date_clearing_not_allowed" : {
+                    "$ref" : "#/components/examples/expired_reward_expiration_date_clearing_not_allowed"
+                  },
+                  "expired_state_unreachable" : {
+                    "$ref" : "#/components/examples/expired_state_unreachable"
+                  },
+                  "future_expiration_date_not_allowed_for_expired_reward" : {
+                    "$ref" : "#/components/examples/future_expiration_date_not_allowed_for_expired_reward"
+                  },
+                  "invalid_incoming_url" : {
+                    "$ref" : "#/components/examples/invalid_incoming_url"
+                  },
+                  "invalid_json" : {
+                    "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter" : {
+                    "$ref" : "#/components/examples/invalid_parameter"
+                  },
+                  "invalid_uri_in_json" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_json"
+                  },
+                  "invalid_uri_in_query_parameter" : {
+                    "$ref" : "#/components/examples/invalid_uri_in_query_parameter"
+                  },
+                  "missing_request_body" : {
+                    "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "retry_claimed_reward_not_allowed" : {
+                    "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
+                  },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
+                  "reward_expiration_before_reward_creation_not_allowed" : {
+                    "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
+                  },
+                  "reward_illegal_state_transition" : {
+                    "$ref" : "#/components/examples/reward_illegal_state_transition"
+                  },
+                  "reward_in_not_retryable_state" : {
+                    "$ref" : "#/components/examples/reward_in_not_retryable_state"
+                  },
+                  "reward_not_found" : {
+                    "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
+                  },
+                  "reward_retry_not_supported" : {
+                    "$ref" : "#/components/examples/reward_retry_not_supported"
+                  },
+                  "reward_supplier_not_found" : {
+                    "$ref" : "#/components/examples/reward_supplier_not_found"
+                  },
+                  "sandbox_not_found" : {
+                    "$ref" : "#/components/examples/sandbox_not_found"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized"
+          },
+          "402" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "payment_required" : {
+                    "$ref" : "#/components/examples/payment_required"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Payment Required"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "access_denied" : {
+                    "$ref" : "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized" : {
+                    "$ref" : "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token" : {
+                    "$ref" : "#/components/examples/missing_access_token"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "unsupported_media_type" : {
+                    "$ref" : "#/components/examples/unsupported_media_type"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Unsupported Media Type"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "too_many_requests" : {
+                    "$ref" : "#/components/examples/too_many_requests"
+                  }
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/RestExceptionResponse"
+                }
+              }
+            },
+            "description" : "Too Many Requests"
+          }
+        },
+        "summary" : "Resend a reward to a new email",
+        "tags" : [ "Rewards" ],
+        "x-extole-bundle" : "integration-server-to-extole",
+        "x-extole-visibility" : "visible"
+      }
+    },
     "/v2/rewards/{reward_id}/retry" : {
       "post" : {
         "description" : "Retries fulfilment of a previously failed reward. Returns the updated reward.",
@@ -14155,6 +14727,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -14166,6 +14741,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
@@ -14359,6 +14937,9 @@
                   "retry_claimed_reward_not_allowed" : {
                     "$ref" : "#/components/examples/retry_claimed_reward_not_allowed"
                   },
+                  "reward_delivery_not_supported" : {
+                    "$ref" : "#/components/examples/reward_delivery_not_supported"
+                  },
                   "reward_expiration_before_reward_creation_not_allowed" : {
                     "$ref" : "#/components/examples/reward_expiration_before_reward_creation_not_allowed"
                   },
@@ -14370,6 +14951,9 @@
                   },
                   "reward_not_found" : {
                     "$ref" : "#/components/examples/reward_not_found"
+                  },
+                  "reward_resend_email_missing" : {
+                    "$ref" : "#/components/examples/reward_resend_email_missing"
                   },
                   "reward_retry_not_supported" : {
                     "$ref" : "#/components/examples/reward_retry_not_supported"
