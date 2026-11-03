@@ -38,7 +38,7 @@ Don't have an Extole account? Contact support@extole.com or [request a demo](htt
 | Extole account | A My Extole user who can install and publish integrations. |
 | Stripe account | An active Stripe account. Use a Stripe sandbox to test. |
 | Stripe coupon | Required only for promotion-code rewards. Create the coupon in Stripe before you configure the supplier. |
-| Extole access token | Used in the webhook destination URL. Create it in **Security Center**. See [Generate Long-lived Access Tokens](/technical/operational-tasks/account-configuration/generate-long-lived-access-tokens). |
+| Extole access token | An access token with the **User Support** scope, used only in the webhook destination URL. Create it in **Security Center**. See [Generate Long-lived Access Tokens](/technical/operational-tasks/account-configuration/generate-long-lived-access-tokens). |
 
 ## Install the Integration
 
@@ -66,9 +66,7 @@ To disconnect, open the integration's **Configuration** tab in My Extole and dis
 
 Stripe sends events to Extole through a webhook destination you create in your Stripe account. Extole doesn't create it for you.
 
-[//]: # "TODO(creative session): name the least-privileged access token type that POST /v6/events/stripe_event accepts, once verified in iteration 0, and replace the generic access token wording in step 1 and in the Prerequisites table."
-
-1. Create an access token in **Security Center**.
+1. In **Security Center**, create an access token with the **User Support** scope. Use it for this webhook only.
 2. In the Stripe Dashboard, open **Developers** > **Webhooks** and add a destination. Use the endpoint URL below, with your token in place of `YOUR_ACCESS_TOKEN`.
 3. Select the seven events in the table below. The app's settings page lists them with a copy button for each.
 4. Save the destination. In Extole Offers, the destination check marks each event as found or missing.
@@ -87,7 +85,9 @@ https://api.extole.io/v6/events/stripe_event?access_token=YOUR_ACCESS_TOKEN
 | `charge.refunded` | A charge was fully or partly refunded. |
 | `customer.discount.created` | A customer applied a promotion code, so Extole can mark the matching reward redeemed. |
 
-To replace the token, create a new access token, update the destination URL in Stripe, and then delete the old token in **Security Center**.
+The token is part of the URL, so anyone who sees the URL can send events to your account. **User Support** is the lowest scope the events endpoint accepts. Don't reuse a token that has a higher scope or serves another integration.
+
+To rotate the token, or if the URL leaks, create a new **User Support** access token, update the destination URL in Stripe, and then delete the old token in **Security Center**.
 
 ## Events Extole Receives
 
@@ -110,6 +110,7 @@ Each payment becomes one Conversion:
 - **Checkout and Payment Links.** A paid one-time Checkout Session is the purchase. A Checkout Session for a subscription is counted from its first paid invoice instead.
 - **Subscriptions.** `invoice.paid` carries the subscription id as `partner_conversion_id`, and Converted keeps only the first event per id. So a subscription counts once, when it first pays: after a trial, or on the first invoice. Renewals don't count again.
 - **Payment Intent Purchases.** Leave this setting off if you take payments through Checkout, Payment Links, or Billing. Those payments also emit `payment_intent.succeeded`, so turning it on counts them twice. Turn it on only when you create payment intents yourself.
+- **One-off invoices.** An invoice that isn't part of a subscription isn't a Conversion. To count those payments, turn on **Payment Intent Purchases**, with the caution above.
 
 `cart_value` is the money moved, as a decimal in major units, for example `20.00`. It comes from `amount_total` on a Checkout Session, `amount_received` on a payment intent, `amount_paid` on an invoice, and `amount_refunded` on a refund. It drives revenue reporting, percentage rewards, and minimum cart value rules.
 
@@ -136,6 +137,8 @@ Every Stripe event also carries the app type `extole-stripe-app`.
 Extole matches a Stripe event to a person by `partner_user_id`, which is the Stripe customer id (`cus_`), and by `email` when the event has one.
 
 A friend who buys through Stripe Checkout is usually matched by email. To match an advocate before they buy, copy the advocate lookup controller into your marketing campaign. On a share, it looks up Stripe customers by the person's email. One match writes `partner_user_id`. Several matches use the earliest customer Stripe returns. No match leaves the person without a Stripe customer id.
+
+Stripe's customer search can lag about a minute behind a new customer. A lookup for someone who became a Stripe customer moments earlier can find no match.
 
 ## Reward Types
 
@@ -165,7 +168,7 @@ Dynamic value isn't available. A Stripe coupon's amount is fixed when you create
 
 ### Retries and Idempotency
 
-Every request to Stripe carries the Extole reward id as its idempotency key. A retried reward replays the first request instead of issuing a second credit or code. Extole retries when Stripe is unavailable or rate-limits the request. When Stripe rejects the request, Extole marks the reward failed with Stripe's error message.
+Every request to Stripe carries an idempotency key built from the Extole reward id. A retried reward replays the first request instead of issuing a second credit or code. Extole retries when Stripe is unavailable or rate-limits the request, and marks the reward failed if the last retry fails too. When Stripe rejects the request, Extole marks the reward failed with Stripe's error message.
 
 ## How a Promotion Code Is Redeemed
 
@@ -185,6 +188,10 @@ If Stripe can't find the code, or the code wasn't issued by Extole, nothing chan
 - **Invoices with no payment aren't purchases.** A zero-total invoice, such as a trial, moves no money and doesn't count.
 - **Customer Balance needs a Stripe customer.** The person must have a `cus_` id when the reward is fulfilled.
 - **Promotion codes use fixed coupons.** The discount is the coupon's amount in Stripe.
+- **The coupon list shows 100 coupons.** **Stripe Coupon** lists the first 100 coupons in your Stripe account.
+- **One-off invoices aren't purchases.** Only subscription invoices become a Conversion. Turn on **Payment Intent Purchases** to count payments made outside Checkout and subscriptions.
+- **Redelivered Refund and Subscription Canceled events aren't deduplicated.** Stripe can deliver an event more than once, and Extole records each delivery. A business event triggered by Refund should be unique by `partner_conversion_id`, and one triggered by Subscription Canceled by `subscription`.
+- **The advocate lookup can lag.** Stripe's customer search can take about a minute to find a new customer.
 
 ## FAQs
 
