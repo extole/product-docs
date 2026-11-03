@@ -711,6 +711,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "person_keys_conflict" : {
+        "summary" : "person_keys_conflict",
+        "value" : {
+          "code" : "person_keys_conflict",
+          "http_status_code" : 400,
+          "message" : "Search keys match different persons",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "person_not_found" : {
         "summary" : "person_not_found",
         "value" : {
@@ -6045,7 +6055,7 @@
     },
     "/v5/persons" : {
       "get" : {
-        "description" : "Searches for persons by identity key value or client-defined person keys (supply in `name:value` format, e.g. `partner_conversion_id:abc123`). Returns an array because the same key may resolve to multiple Extole profiles. Supply at least one search criterion via query parameters.",
+        "description" : "Searches for the person matching an identity key value and client-defined person keys (supply in `name:value` format, e.g. `partner_conversion_id:abc123`). Every supplied key is looked up, and keys that match no one are skipped. When all matches belong to the same person, returns an array holding that person, preferring the identity profile over a device profile. When the keys match different persons, returns `400 person_keys_conflict`. Returns an empty array when no key matches anyone or no search criterion is supplied.",
         "parameters" : [ {
           "description" : "The identity key value of the person.",
           "in" : "query",
@@ -6101,11 +6111,26 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "forward_to_profile_is_device" : {
+                    "$ref" : "#/components/examples/forward_to_profile_is_device"
+                  },
+                  "forwarding_profile_is_device" : {
+                    "$ref" : "#/components/examples/forwarding_profile_is_device"
+                  },
+                  "identity_key_value_already_taken" : {
+                    "$ref" : "#/components/examples/identity_key_value_already_taken"
+                  },
+                  "invalid_block_reason" : {
+                    "$ref" : "#/components/examples/invalid_block_reason"
+                  },
                   "invalid_incoming_url" : {
                     "$ref" : "#/components/examples/invalid_incoming_url"
                   },
                   "invalid_json" : {
                     "$ref" : "#/components/examples/invalid_json"
+                  },
+                  "invalid_key_value" : {
+                    "$ref" : "#/components/examples/invalid_key_value"
                   },
                   "invalid_parameter" : {
                     "$ref" : "#/components/examples/invalid_parameter"
@@ -6118,6 +6143,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "person_keys_conflict" : {
+                    "$ref" : "#/components/examples/person_keys_conflict"
                   }
                 },
                 "schema" : {
@@ -6280,6 +6308,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "person_keys_conflict" : {
+                    "$ref" : "#/components/examples/person_keys_conflict"
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
@@ -6749,6 +6780,9 @@
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
                   },
+                  "person_keys_conflict" : {
+                    "$ref" : "#/components/examples/person_keys_conflict"
+                  },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
                   }
@@ -7070,6 +7104,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "person_keys_conflict" : {
+                    "$ref" : "#/components/examples/person_keys_conflict"
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
@@ -14561,6 +14598,9 @@
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
+                  },
+                  "person_keys_conflict" : {
+                    "$ref" : "#/components/examples/person_keys_conflict"
                   },
                   "person_not_found" : {
                     "$ref" : "#/components/examples/person_not_found"
