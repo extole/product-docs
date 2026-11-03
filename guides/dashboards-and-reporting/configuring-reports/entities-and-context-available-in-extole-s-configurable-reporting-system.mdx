@@ -428,7 +428,7 @@ Salesforce ID=support().salesforceAccountId; CSM=concatenate(support().csmFirstN
 
 **Function:** `event(eventId)` · e.g. `event(event.rootEventId).type`
 
-The raw event object. Most reports use `StepRecord` or `InputRecord` as the primary row record; load the raw event when you need the full person sub-object or properties not available on the record.
+The raw event object. Most reports use `StepRecord` or `InputRecord` as the primary row record; load the raw event when you need the full person sub-object or properties that exist only on it, such as `referralContext`, `selectedCampaignContext`, or `causeEventId`. To read the name or `data` of the input event behind a step or reward, load its input record with `input_record(event.rootEventId)` instead. It reads far less data than `event()`, so the report runs faster.
 
 | Field | Description |
 | --- | --- |
@@ -453,8 +453,8 @@ The raw event object. Most reports use `StepRecord` or `InputRecord` as the prim
 **Mapping examples:**
 
 ```
-# Load the root event to get its type or name
-Root Event Type=event(event.rootEventId).type; Root Event Name=event(event.rootEventId).name;
+# Load the root event to get its type
+Root Event Type=event(event.rootEventId).type;
 
 # Access the person sub-object via the raw event
 Person Email=event(event.id).person.email;
@@ -462,11 +462,13 @@ Person Email=event(event.id).person.email;
 
 Two common cross-entity lookups worth knowing:
 
-**From a step event, load the originating input record** (gives you `apiType`, `userAgent`, etc.):
+**From a step or reward event, load the originating input record** (gives you its `name`, `data`, `apiType`, `userAgent`, etc.):
 
 ```
-API Type=input_record(event.rootEventId, event_time_name:event.eventTime).apiType; User Agent=input_record(event.rootEventId, event_time_name:event.eventTime).userAgent;
+Input Event Name=input_record(event.rootEventId).name; Amount=input_record(event.rootEventId).data.amount; API Type=input_record(event.rootEventId).apiType; User Agent=input_record(event.rootEventId).userAgent;
 ```
+
+For which `data` keys an input record carries, see [INPUT_RECORD](/guides/dashboards-and-reporting/configuring-reports/custom-data-queries-using-extole-reports#input_record).
 
 **From a reward event, load the step record that earned the reward** (gives you `visitType`, `quality`, etc.):
 
