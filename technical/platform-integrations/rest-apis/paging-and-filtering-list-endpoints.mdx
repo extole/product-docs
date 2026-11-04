@@ -36,19 +36,42 @@ list filters by `campaign_ids`, not `campaign_id`.
 | `GET /v1/components/built` | 1000 components, sorted by name | `offset` is honored; page until a short page. An unpaged read stops partway through the alphabet. |
 | `GET /v2/emails` | Honors `limit` | `offset` and `zone_name` are not filters. Fetch one page with a large `limit`, then filter by zone and de-duplicate on `email_id` yourself. |
 | `GET /v7/report-runners` | All runners | Filter by tag with `having_all_tags` or `having_any_tags`. The `tags` field on a runner can read as empty while the tag filter still matches it. |
+| `GET /v2/schedules` | 100 rows | `limit` accepts up to 1000. `scheduled_execution_date_from` defaults to now, so set the window explicitly to read past schedules. Narrow by `schedule_name` to page a large set. |
+| `GET /v2/campaigns` | Active campaigns | Pass `include_archived=true` to include archived campaigns. See [Campaign States Over REST](/technical/platform-integrations/rest-apis/campaign-states-over-rest) for what an archived campaign contains. |
 
 A count that is the same round number for every record you fetched, such as exactly 20 or exactly
 1000, is the sign that you read a default page rather than the end of the data.
 
+## Ids Encode Their Creation Time
+
+Every Extole id stores its creation time in its high 32 bits. `id >> 32` gives the creation time
+as seconds since the Unix epoch, for any record and for the `unique_id` in an error response. Use
+it to date a record that carries no timestamp.
+
+## Listing Accounts
+
+`GET /v4/clients` lists every account the token can see. Each account carries a `client_type` of
+`CUSTOMER`, `EX_CUSTOMER`, `TEST`, `PROSPECT`, `UNCLASSIFIED`, or `COMPONENT_LIBRARY`. To count
+customers, count the `CUSTOMER` accounts; the other types are demonstration, test, and library
+accounts.
+
 ## Rewards List Parameters
 
 `GET /v2/rewards` filters on `reward_supplier_id`, `state`, `person_id`, `partner_reward_id`,
-`reward_type`, `time_interval`, and `success_only`. It has no campaign or program filter.
+`code`, `link`, `reward_type`, `time_interval`, and `success_only`. It has no campaign or program filter.
+
+- `code` and `link` match the value the recipient redeems, such as a coupon code or a gift card
+  redemption link. To match several values, repeat the parameter: `code=A1B2&code=C3D4`. This
+  differs from `partner_reward_id`, which takes one comma-separated list.
 
 - `time_interval` is one parameter carrying both ends of the window, in the form
   `time_interval=<from>/<to>`. Separate start and end parameters are ignored.
 - `success_only` defaults to `true`, so an unqualified count is the count of successfully
   fulfilled rewards, not of all rewards. Pass `success_only=false` to include the rest.
+- `rewardee_role` in a reward's `data` comes from the reward action. When the action sets no
+  role, the platform derives it from the action's tags: a tag that contains `friend` gives
+  `friend`, and any other tag gives `advocate`. To report by role, group on the journey name, which
+  names the role directly.
 
 ## Campaign Versions
 
@@ -70,13 +93,13 @@ version list whose `published_date` is not null.
 
 ## Person Statistics
 
-`GET /v4/persons/{person_id}/stats` and `GET /v4/persons/{person_id}/network-stats` take no date
-range. Start and end parameters are ignored and the lifetime figure comes back. To compute a
-windowed figure, sum the person's steps by `event_date` instead.
+`GET /v5/persons/{person_id}/stats` and `GET /v5/persons/{person_id}/network-stats` take no date
+range and return the lifetime figure. To compute a windowed figure, sum the person's steps by
+`event_date` instead.
 
-Network statistics walk the person's first 100 friends before adding the second-degree tail, so
-a person with more than 100 friends is undercounted there. `GET /v5/persons/{person_id}/relationships?my_roles=ADVOCATE&limit=1000`
-returns every friend; sum their individual statistics when the person's network is large.
+Network statistics count every person the person referred, directly or through the people they
+referred. The person's own steps are not counted, and anonymous persons are left out unless you
+set `exclude_anonymous=false`.
 
 ## Date Fields on Steps
 
@@ -98,3 +121,5 @@ write. Read `client_id` back off the token response to confirm which account the
 
 - [Asynchronous Reporting API](/technical/platform-integrations/rest-apis/asynchronous-reporting-api)
 - [Errors](/technical/platform-integrations/rest-apis/errors)
+- [Campaign States Over REST](/technical/platform-integrations/rest-apis/campaign-states-over-rest)
+- [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest)

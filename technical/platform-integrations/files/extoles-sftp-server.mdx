@@ -32,24 +32,89 @@ Navigate to the Tech Center and click the "+ New Server" button. Make sure you h
 Some clients may have user names in our previous format "c123456..." which is still supported.  
 </Warning>
 
-### Add a login key
+### Add a Login Key
 
-**Login Key**: The key used to access the SFTP server.
+A login key is an **SSH key pair**. It's how you sign in to Extole's SFTP server, which doesn't use passwords. The pair has two halves:
 
-Click on the "Create Login Key" button to create a new SSH key and fill out the required fields (see below).
+* **Public key**: the half you give Extole. You paste it into My Extole, and the SFTP server uses it to recognize you. It's safe to share.
+* **Private key**: the half you keep. Your SFTP client uses it to prove who you are each time it connects. Never send it to Extole or anyone else, and store it where only you, or the system that uploads your files, can read it.
 
-* Key Name: How we'll refer to the key in your My Extole account.
-* Partner Key Id: Your unique identifier for the key.
-* Key: The key itself, formatted according to the following requirements.
-  * Starts with `ssh-rsa`
-  * Ends with email address
-  * Does not contain line breaks
-  * [View more information on SSH key formatting](https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key)
-* Description: An optional description for the key.
+Extole accepts **RSA** keys in OpenSSH public key format only. Other key types, such as Ed25519, are rejected when you save the server.
+
+You can create the key pair yourself with `ssh-keygen`, or let My Extole generate one in your browser. Use `ssh-keygen` when the private key will live on a server that uploads files automatically, or when your IT team manages your keys.
+
+#### Create a Key Pair with ssh-keygen
+
+`ssh-keygen` is built in to macOS, Linux, and Windows 10 and 11.
+
+1. Open **Terminal** on macOS or Linux, or **PowerShell** on Windows.
+2. Run the following command, replacing the email address with your own:
+
+   ```bash
+   ssh-keygen -t rsa -b 4096 -C "jane.doe@example.com" -f extole_sftp
+   ```
+
+   `-t rsa -b 4096` creates a 4096-bit RSA key, `-C` adds a comment to the public key so you can tell keys apart, and `-f` names the files.
+3. When prompted for a passphrase, enter one to protect the private key, or press Enter twice to leave it empty. Your SFTP client asks for the passphrase each time it connects, so a job that uploads files automatically usually uses a key without one.
+4. The command creates two files in the current folder, which is your home folder in a new terminal window:
+   * `extole_sftp`: your **private key**. Keep it.
+   * `extole_sftp.pub`: your **public key**. You add this one to My Extole.
+5. Display the public key so you can copy it. On macOS or Linux, run `cat extole_sftp.pub`. In PowerShell, run `Get-Content extole_sftp.pub`.
+
+The public key is one long line that looks like this:
+
+```text
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCy...truncated...Q0== jane.doe@example.com
+```
+
+Before you paste it, check that it:
+
+* Starts with `ssh-rsa`.
+* Is on a single line, with no line breaks. Copy it straight from the terminal, because some editors and email clients wrap long lines.
+* Ends with the comment you set with `-C`. An email address is conventional, but the comment is optional.
+
+If you already have an RSA key pair you want to use, paste the contents of its `.pub` file instead.
+
+#### Add the Key to Your Server
+
+1. In My Extole, navigate to [**Tech Center** > **SFTP Servers**](https://my.extole.com/tech-center/sftp) and click **+ New Extole Server**. To add a key to a server you already have, click the edit icon on that server instead.
+2. Next to **Login Key**, click **Create Login Key**. The **Create New SSH Key** panel opens.
+
+   <Frame caption="The **Create New Server** page, with **Create Login Key** next to the **Login Key** list.">
+     <img src="/images/extole/sftp-create-new-server-login-key.png" alt="Create New Server page showing the Name, Username, and Login Key fields and the Create Login Key button" />
+   </Frame>
+3. Fill out the panel:
+   * **Key Name**: How the key appears in My Extole. Name it after the person or system that holds the private key, such as `Jane Doe laptop` or `Nightly upload job`.
+   * **Algorithm**: Always **RSA**. You can't change it.
+   * **Key**: Leave **Use Existing Key** selected and paste your whole public key line. Never paste the private key here.
+   * **Description**: Optional. Up to 2,048 characters.
+   * **Partner Key ID**: Optional, under **Advanced**. Your own identifier for the key. You can leave it blank.
+
+   <Frame caption="The **Create New SSH Key** panel with a public key pasted into **Key**.">
+     <img src="/images/extole/sftp-create-ssh-key-paste.png" alt="Create New SSH Key panel showing Key Name, Algorithm set to RSA, a pasted ssh-rsa public key, Description, and the Partner Key ID field under Advanced" />
+   </Frame>
+4. Click **Save Key**. The panel closes, and your new key is selected in the **Login Key** list.
+5. To let more than one person or system sign in to the same server, click **+** next to the **Login Key** list to add the selected key, then create or select the next key.
+6. Fill out the rest of the server and click **Save**. Extole checks the key format when you save the server. If the key isn't an RSA public key on one line, you'll see an error saying the key must start with `ssh-rsa` and be base64 encoded.
+
+#### Let My Extole Generate the Key Instead
+
+In step 3 above, select **Generate a Key** instead of **Use Existing Key**:
+
+1. In **Email or Comment**, enter your email address or another label for the key, and click **Generate**. Your browser creates a 2048-bit RSA key pair and shows both halves.
+2. Fill out **Key Name** and the other fields as above.
+3. Click **Download and Save Key**. My Extole saves the public key, and your browser downloads the private key as a file whose name ends in `-extole-ssh-key`.
+4. Move that file somewhere safe. It's the private key your SFTP client uses to connect.
+
+The private key is created in your browser and isn't saved to Extole. If you lose the file, create a new login key and remove the old one from the server.
+
+<Frame caption="**Generate a Key** selected. Click **Generate**, then **Download and Save Key**.">
+  <img src="/images/extole/sftp-create-ssh-key-generate.png" alt="Create New SSH Key panel with Generate a Key selected, the Email or Comment field, the Generate button, and the Download and Save Key button" />
+</Frame>
+
+Next, point your SFTP client at the private key. See [Configure and Test Your SFTP Client](#configure-and-test-your-sftp-client).
 
 [//]: ___
-
-![Screenshot showing Description: An optional description for the key.](/images/extole/87593e457e50468c2d63c33ae31d7ed26c90f2abdc3acff8780b9fe7a28aa754.png "Screen Shot 2022-05-17 at 2.34.22 PM.png")
 
 ### Use PGP Encryption with Extole (Optional)
 
@@ -80,7 +145,7 @@ You must also download Extole's public PGP encryption key, which you can do from
 
 Using your own SFTP program, follow its instructions to configure your private key.
 
-Extole recommends [FileZilla](https://filezilla-project.org/download.php), as it is free and works on multiple operating systems. [Learn how to configure FileZilla with your private key](https://docs.extole.com/docs/extoles-sftp-server#how-do-i-configure-filezilla-with-my-private-key).
+Extole recommends [FileZilla](https://filezilla-project.org/download.php), as it is free and works on multiple operating systems. [Learn how to configure FileZilla with your private key](#how-do-i-configure-filezilla-with-my-private-key).
 
 [//]: ___
 
@@ -141,7 +206,7 @@ Once you've downloaded and installed FileZilla for your operating system, comple
 * Protocol: SFTP - SSH File Transfer Protocol
 * Logon Type: Key File
 * User: Found in the SFTP section of the Settings page of your My Extole account.
-* Key file: click the Browse button and look for the key file you saved in Step #1.
+* Key file: click the Browse button and select your private key file, such as `extole_sftp` or the `-extole-ssh-key` file My Extole downloaded. See [Add a Login Key](#add-a-login-key).
 
 3. Click the Connect button to establish your connection.
 

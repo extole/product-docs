@@ -64,6 +64,8 @@ The `mobile_footer`, `mobile_header`, and `mobile_menu` zones are requested from
 
 To show a call-to-action everywhere its zone is requested, select each of those trigger events in **Triggered By**. If it shows in one place and not another, see [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app).
 
+A zone request that arrives with an app type neither SDK reports, such as `Web`, matches none of these trigger events. Declare the zone name on the **Event API** as an **API Event** under **Integration Events**, and select it in **Triggered By** beside the SDK trigger events. An **Event API** trigger event responds to the zone request whatever its app type.
+
 ## Add a Trigger Event
 
 1. Open [Partners](https://my.extole.com/integrations) in My Extole, select the **Extensions** tab, and open **Javascript SDK** or **Mobile SDK**.
@@ -72,6 +74,18 @@ To show a call-to-action everywhere its zone is requested, select each of those 
    - On the **Mobile SDK**, open **Platforms**, then **iOS** or **Android**, and add it under that platform's **Tagged CTAs**. Repeat for the other platform if both apps request the zone.
 3. Publish the extension.
 4. In each campaign that should respond to it, select the trigger event in **Triggered By** and publish the campaign. A campaign created before you declared the trigger event does not pick it up on its own.
+
+## Add a Trigger Event Through the API
+
+Each trigger event is a copy of an Extole template. To add one through the REST API, copy the template with [Add Component to Setting](/api-reference/components/add-component-to-setting) into the socket setting that holds it:
+
+| Where the event comes from | Template | Socket setting |
+|---|---|---|
+| Your website | **SDK Zone Event** (`sdk_zone_event`) | `zoneEvents` on the **Javascript SDK**, shown as **Tagged CTAs** |
+| Your iOS or Android app | **SDK Zone Event** (`sdk_zone_event`) | `ctas` on the **iOS** or **Android** platform of the **Mobile SDK**, shown as **Tagged CTAs** |
+| Your backend, through the Event API | **API Event** (`event_api_trigger_event`) | `integrationEvents` on the **Event API**, shown as **Integration Events** |
+
+Name an SDK zone event after the zone. Its name becomes its event name. Name an API event after the event, which also becomes its event name. An API event sets no app type, so it matches the event whatever app type it arrives with.
 
 ## Extensions Installed Before Triggered By
 

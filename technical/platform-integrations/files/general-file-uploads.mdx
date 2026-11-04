@@ -90,6 +90,32 @@ The required fields include the name of your job, the source type, and the file 
   </tbody>
 </table>
 
+### Advanced Fields
+
+Click **Advanced** in the drawer to open the optional fields.
+
+| Field | Description |
+| :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Event Name | The event name to use for the rows in your file. Leave it empty to take the event name from each row's `event_name` value. |
+| Override event names in the source file | Turn this on to send every row as the name in **Event Name**. Leave it off and **Event Name** applies only to rows that carry no `event_name` value of their own. |
+| Event Data | Name and value pairs added to every event the job creates. |
+| Tags | Labels for finding and grouping the job later. |
+
+### How Extole Names Each Event
+
+Extole chooses the event name for each row in this order:
+
+1. **Event Name**, when **Override event names in the source file** is on. Every row creates this event, and any `event_name` column in the file is ignored.
+2. The row's own `event_name` value, when your file has an `event_name` column.
+3. **Event Name**, when the override is off. These rows carry no `event_name` value of their own.
+4. `unknown`, when you left **Event Name** empty and the row carries no `event_name` value.
+
+<Warning>
+A job created with no **Event Name**, from a file with no `event_name` column, sends every row as `unknown`. The job still completes with every row valid and no errors, because `unknown` is a real event name — it is one that no campaign listens for, so no journey starts and no reward is sent. Open the job's detail view and read **Event Names**: if it reads `unknown`, add an `event_name` column to your file or set **Event Name** on the job, then upload the file again under a new name.
+</Warning>
+
+For the columns an event file carries, see [File-based Events](/technical/platform-integrations/files/file-based-events).
+
 [//]: ___
 
 ## Searching for a Job
