@@ -1,0 +1,60 @@
+---
+title: "Fraud Control"
+description: "Use Security Center Fraud Control (Quality Control) to permit or block events by CIDR, user agent, email domain, or normalized email. Distinct from campaign Blocked Subnetworks targeting."
+---
+
+# Overview
+
+**Fraud Control** (also labeled **Quality Control** in My Extole) is the account-level list of rules that mark events as permitted or blocked before rewards. You manage it in [Security Center](https://my.extole.com/security-center) under **Fraud Control**.
+
+Fraud Control is **not**:
+
+- Campaign **Blocked Subnetworks** (or other campaign targeting rules under Flow Campaigns). Those filter traffic for a single program. See [How to Target a Program](/guides/flow-campaigns/how-to-target-a-program).
+- Campaign quality rules on the campaign **Rules** tab. See [Configuring the Rules of Your Program](/guides/rewards-management/rules-configuration/configuring-the-rules-of-your-program).
+- Blocking a person in User Support. That action is scoped to a person profile, not an IP, user agent, or email pattern.
+
+# Permitted and blocked events lists
+
+Fraud Control has two lists:
+
+| List | API `filter_type` | What it does |
+| --- | --- | --- |
+| **Permitted Events List** | `WHITE` | Overrides a match on Extole’s blocked events list when the event still passes other quality rules. Matching events stay eligible for rewards. |
+| **Blocked Events List** | `BLACK` | Marks matching events as suspicious so they are not eligible for rewards. |
+
+Each rule has a **Matching Entity** (`list_type`) and a **Value**:
+
+| Matching Entity | API `list_type` | Value format |
+| --- | --- | --- |
+| User Agent | `USER_AGENT` | Substring of the event user-agent header (for example `BotName`). Regex is not supported. |
+| Email Domain | `EMAIL_DOMAIN` | Domain of the profile email on the event (for example `example.com`). |
+| Normalized Email | `NORMALIZED_EMAIL` | Full profile email. Plus-address variants of the same mailbox match (for example `test@example.com` also matches `test+anything@example.com`). |
+| CIDR | `CIDR` | CIDR notation for event IPs (for example `203.0.113.0/24`). |
+
+# Add a rule in My Extole
+
+1. Open [Security Center](https://my.extole.com/security-center) and go to **Fraud Control** (Quality Control).
+2. Open the **Permitted Events List** or the **Blocked Events List**.
+3. Select **+ New Rule**.
+4. Enter the **Value**, choose the **Matching Entity**, and save.
+
+# Duplicate rules
+
+Extole stores one rule per exact combination of list (permitted or blocked), matching entity, and value. Adding the same combination again fails with error code `block_duplicate` and a message that a fraud-control rule with that filter type, list type, and value already exists.
+
+Overlapping CIDR ranges are **not** treated as duplicates. Only an identical value on the same list and matching entity is a duplicate. If you see `block_duplicate`, list the existing rules (in My Extole or with `GET /v2/blocks`) and reuse or delete the existing rule instead of creating another.
+
+# Manage rules with the API
+
+Fraud Control rules are the `/v2/blocks` Management API (OpenAPI tag **Fraud Control**), not campaign content blocks.
+
+| Method and path | What it does |
+| --- | --- |
+| `GET /v2/blocks` | Lists the client's Fraud Control rules. Use `search_query` to find a value such as a CIDR. |
+| `POST /v2/blocks` | Creates a rule (`filter_type`, `list_type`, `value`). |
+| `GET /v2/blocks/{block_id}` | Returns one rule. |
+| `DELETE /v2/blocks/{block_id}` | Deletes a rule. |
+| `POST /v2/blocks/test` | Checks whether a value matches an existing rule without creating one. |
+| `GET /v2/blocks/global` | Lists Extole global Fraud Control rules. |
+
+Call `https://api.extole.io` with an access token from Security Center. Full operation details are in the [API Reference](/api-reference).
