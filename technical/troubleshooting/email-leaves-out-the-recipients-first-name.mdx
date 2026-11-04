@@ -1,0 +1,46 @@
+---
+title: "Email Leaves Out the Recipient's First Name"
+description: "A dynamic field in an email fills from the values that email supplies for its recipient when it is sent. A reward email names its recipient participant, so its greeting uses participant.firstName."
+---
+
+# Overview
+
+An email's copy greets the recipient by first name, but a test email arrives with nothing after "Hi". Two things decide whether the name appears: the field in the copy, and the first name on the recipient's profile. Check the field first, because a field that names the wrong value leaves the name out for every recipient.
+
+## How a Name Field Fills
+
+A dynamic field written in `{[ ]}` fills when each email is sent. It reads from the values that email supplies for the person it is sent to. A field that names a value the email does not supply renders as nothing.
+
+A reward email, and its reminder, names its recipient `participant`. The recipient's first name is `participant.firstName`. The email's own default copy uses that field, for example in its **Heading Text (leave blank to suppress)** setting.
+
+To greet the recipient by name, and to read "Hi," when the profile has no first name, write the greeting like this:
+
+```
+Hi{[# participant.firstName]} {[participant.firstName]}{[/ participant.firstName]},
+```
+
+The section between `{[# participant.firstName]}` and `{[/ participant.firstName]}` renders only when the first name has a value.
+
+## Check the Field
+
+1. Open the email in My Extole and read the greeting in its **Email Message (leave blank to suppress)** setting.
+2. Compare the field after "Hi" with the field the email's default copy uses for the recipient's first name. In a reward email, that is `participant.firstName`.
+3. If the greeting names something else, such as `person.firstName`, replace it with the field above.
+
+If the campaign serves more than one language, check the greeting in each language. Each language holds its own copy.
+
+## Check the Profile
+
+The field fills only when the recipient's profile has a first name.
+
+- A plain `first_name` key in event data, such as a `first_name` column in an event upload, sets the profile's first name. See [Set Person Profile Data from an Event](/technical/integration-overview/set-person-profile-data-from-an-event).
+- To confirm it, open the person's **View Person** page from **User Support** > **Search For People**, or read `GET /v5/persons/{person_id}/data`.
+
+## Confirm the Change
+
+Send a test to a person whose profile has a first name, and read the greeting in the email that arrives.
+
+## Related
+
+- [Using Extole's Campaign Editor](/guides/programs-and-campaigns/campaign-creation-and-editing/using-extole-s-campaign-editor) — dynamic fields in campaign copy
+- [Earned Reward Emails](/guides/programs-and-campaigns/asset-guides/earned-reward-emails-asset-guide)
