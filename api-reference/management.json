@@ -2941,36 +2941,6 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
-      "evaluate_new_rows_state_column_required" : {
-        "summary" : "evaluate_new_rows_state_column_required",
-        "value" : {
-          "code" : "evaluate_new_rows_state_column_required",
-          "http_status_code" : 400,
-          "message" : "Evaluate new rows task requires a state column",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "evaluate_new_rows_state_duplicated" : {
-        "summary" : "evaluate_new_rows_state_duplicated",
-        "value" : {
-          "code" : "evaluate_new_rows_state_duplicated",
-          "http_status_code" : 400,
-          "message" : "Evaluate new rows task lists the same state more than once in state_events",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "evaluate_new_rows_state_required" : {
-        "summary" : "evaluate_new_rows_state_required",
-        "value" : {
-          "code" : "evaluate_new_rows_state_required",
-          "http_status_code" : 400,
-          "message" : "Every state_events entry of an evaluate new rows task requires a state",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
       "event_stream_filter_not_found" : {
         "summary" : "event_stream_filter_not_found",
         "value" : {
@@ -13650,31 +13620,16 @@
         }, {
           "properties" : {
             "families" : {
-              "description" : "File families the task compares deliveries within. Each delivery is compared with the previous successful deliveries of the one family whose folder and filename pattern it matches; a delivery matching no family, or more than one, fails the run.",
+              "description" : "File families the task compares files within. The file the task receives is compared with the files it received in the earlier successful runs of the one family whose folder and filename pattern the delivered file matches; a delivery matching no family, or more than one, fails the run.",
               "items" : {
                 "$ref" : "#/components/schemas/FileFamilyResponse"
               },
               "type" : "array"
             },
             "key_columns" : {
-              "description" : "Columns whose values together identify a record across deliveries, such as an order id.",
+              "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged.",
               "items" : {
                 "type" : "string"
-              },
-              "type" : "array"
-            },
-            "ordering_column" : {
-              "description" : "Column whose values order a record's changes, such as a status timestamp. When set, a row is new when its ordering value is later than the latest one for its key in the compared deliveries. When absent, a row is new when its key and state pair is in none of them.",
-              "type" : "string"
-            },
-            "state_column" : {
-              "description" : "Column holding the record's state, such as an order status.",
-              "type" : "string"
-            },
-            "state_events" : {
-              "description" : "States and the event a new row in each state fires. A listed state without an event fires nothing; a row whose state is not listed fires nothing and is counted as an unknown state.",
-              "items" : {
-                "$ref" : "#/components/schemas/StateEventResponse"
               },
               "type" : "array"
             },
@@ -13685,7 +13640,7 @@
           },
           "type" : "object"
         } ],
-        "required" : [ "component_ids", "enabled", "families", "id", "job_id", "key_columns", "order", "ordering_column", "state_column", "state_events", "task_type" ],
+        "required" : [ "component_ids", "enabled", "families", "id", "job_id", "key_columns", "order", "task_type" ],
         "title" : "EVALUATE_NEW_ROWS",
         "type" : "object"
       },
@@ -29253,15 +29208,6 @@
             "key_columns" : {
               "$ref" : "#/components/schemas/KeyColumnsInEvaluateNewRowsTaskRequest"
             },
-            "ordering_column" : {
-              "$ref" : "#/components/schemas/OrderingColumnInEvaluateNewRowsTaskRequest"
-            },
-            "state_column" : {
-              "$ref" : "#/components/schemas/StateColumnInEvaluateNewRowsTaskRequest"
-            },
-            "state_events" : {
-              "$ref" : "#/components/schemas/StateEventsInEvaluateNewRowsTaskRequest"
-            },
             "task_type" : {
               "enum" : [ "EVALUATE_NEW_ROWS" ],
               "type" : "string"
@@ -29284,15 +29230,6 @@
             "key_columns" : {
               "$ref" : "#/components/schemas/KeyColumnsInEvaluateNewRowsTaskResponse"
             },
-            "ordering_column" : {
-              "$ref" : "#/components/schemas/OrderingColumnInEvaluateNewRowsTaskResponse"
-            },
-            "state_column" : {
-              "$ref" : "#/components/schemas/StateColumnInEvaluateNewRowsTaskResponse"
-            },
-            "state_events" : {
-              "$ref" : "#/components/schemas/StateEventsInEvaluateNewRowsTaskResponse"
-            },
             "task_type" : {
               "enum" : [ "EVALUATE_NEW_ROWS" ],
               "type" : "string"
@@ -29300,8 +29237,8 @@
           },
           "type" : "object"
         } ],
-        "description" : "Stored evaluate new rows task definition. Fields `order`, `key_columns`, `state_column`, `state_events`, `families`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "enabled", "families", "id", "key_columns", "order", "ordering_column", "parent_job_id", "state_column", "state_events", "task_type" ],
+        "description" : "Stored evaluate new rows task definition. Fields `order`, `key_columns`, `families`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "families", "id", "key_columns", "order", "parent_job_id", "task_type" ],
         "title" : "EVALUATE_NEW_ROWS",
         "type" : "object"
       },
@@ -31970,7 +31907,7 @@
         } ]
       },
       "FamiliesInEvaluateNewRowsTaskRequest" : {
-        "description" : "File families the task compares deliveries within. Each delivery is compared with the previous successful deliveries of the one family whose folder and filename pattern it matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing families. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "description" : "File families the task compares files within. The file the task receives is compared with the files it received in the earlier successful runs of the one family whose folder and filename pattern the delivered file matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing families. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "JobBuildtimeContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
@@ -32005,7 +31942,7 @@
         } ]
       },
       "FamiliesInEvaluateNewRowsTaskResponse" : {
-        "description" : "File families the task compares deliveries within. Each delivery is compared with the previous successful deliveries of the one family whose folder and filename pattern it matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "description" : "File families the task compares files within. The file the task receives is compared with the files it received in the earlier successful runs of the one family whose folder and filename pattern the delivered file matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "JobBuildtimeContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
@@ -32206,7 +32143,7 @@
         "type" : "object"
       },
       "FileFamilyRequest" : {
-        "description" : "File families the task compares deliveries within. Each delivery is compared with the previous successful deliveries of the one family whose folder and filename pattern it matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing families.",
+        "description" : "File families the task compares files within. The file the task receives is compared with the files it received in the earlier successful runs of the one family whose folder and filename pattern the delivered file matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing families.",
         "properties" : {
           "directory_path" : {
             "description" : "SFTP folder the family's files are delivered to. A file belongs to the family when its path is inside this folder. Required.",
@@ -32233,7 +32170,7 @@
         "type" : "object"
       },
       "FileFamilyResponse" : {
-        "description" : "File families the task compares deliveries within. Each delivery is compared with the previous successful deliveries of the one family whose folder and filename pattern it matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved.",
+        "description" : "File families the task compares files within. The file the task receives is compared with the files it received in the earlier successful runs of the one family whose folder and filename pattern the delivered file matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved.",
         "properties" : {
           "directory_path" : {
             "description" : "SFTP folder the family's files are delivered to. A file belongs to the family when its path is inside this folder.",
@@ -35011,7 +34948,7 @@
         "type" : "object"
       },
       "KeyColumnsInEvaluateNewRowsTaskRequest" : {
-        "description" : "Columns whose values together identify a record across deliveries, such as an order id. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing columns. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing columns. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "JobBuildtimeContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
@@ -35019,7 +34956,7 @@
         "oneOf" : [ {
           "description" : "Static key columns",
           "items" : {
-            "description" : "Columns whose values together identify a record across deliveries, such as an order id. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing columns.",
+            "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing columns.",
             "type" : "string"
           },
           "title" : "Static Value",
@@ -35047,7 +34984,7 @@
         } ]
       },
       "KeyColumnsInEvaluateNewRowsTaskResponse" : {
-        "description" : "Columns whose values together identify a record across deliveries, such as an order id. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "JobBuildtimeContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
@@ -35055,7 +34992,7 @@
         "oneOf" : [ {
           "description" : "Literal key columns",
           "items" : {
-            "description" : "Columns whose values together identify a record across deliveries, such as an order id. A literal value or a buildtime expression resolved from component settings when the task is saved.",
+            "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. A literal value or a buildtime expression resolved from component settings when the task is saved.",
             "type" : "string"
           },
           "title" : "Static Value",
@@ -38868,84 +38805,6 @@
         }, {
           "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
           "example" : "javascript@buildtime:function() { return context.getVariableContext().get('order');}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        } ]
-      },
-      "OrderingColumnInEvaluateNewRowsTaskRequest" : {
-        "description" : "Column whose values order a record's changes, such as a status timestamp. When set, a row is new when its ordering value is later than the latest one for its key in the compared deliveries. When absent, a row is new when its key and state pair is in none of them. A literal value or a buildtime expression resolved from component settings when the task is saved. Optional. Null clears it on update. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-        "externalDocs" : {
-          "description" : "JobBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-        },
-        "oneOf" : [ {
-          "description" : "Static ordering column",
-          "nullable" : true,
-          "title" : "Static Value",
-          "type" : "string"
-        }, {
-          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{orderingColumn}}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('orderingColumn');}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        } ]
-      },
-      "OrderingColumnInEvaluateNewRowsTaskResponse" : {
-        "description" : "Column whose values order a record's changes, such as a status timestamp. When set, a row is new when its ordering value is later than the latest one for its key in the compared deliveries. When absent, a row is new when its key and state pair is in none of them. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-        "externalDocs" : {
-          "description" : "JobBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-        },
-        "oneOf" : [ {
-          "allOf" : [ {
-            "type" : "string"
-          }, {
-            "not" : {
-              "anyOf" : [ {
-                "pattern" : "^handlebars@buildtime:.*",
-                "type" : "string"
-              }, {
-                "pattern" : "^javascript@buildtime:.*",
-                "type" : "string"
-              } ]
-            },
-            "type" : "string"
-          } ],
-          "description" : "Literal ordering column",
-          "title" : "Static Value"
-        }, {
-          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{orderingColumn}}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('orderingColumn');}",
           "externalDocs" : {
             "description" : "JobBuildtimeContext",
             "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
@@ -46870,194 +46729,6 @@
         "required" : [ "component_ids", "component_references", "data_source_type", "enabled", "event_name", "id", "order", "parent_job_id", "task_type" ],
         "title" : "START_BATCH_JOB",
         "type" : "object"
-      },
-      "StateColumnInEvaluateNewRowsTaskRequest" : {
-        "description" : "Column holding the record's state, such as an order status. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing column. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-        "externalDocs" : {
-          "description" : "JobBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-        },
-        "oneOf" : [ {
-          "allOf" : [ {
-            "type" : "string"
-          }, {
-            "not" : {
-              "anyOf" : [ {
-                "pattern" : "^handlebars@buildtime:.*",
-                "type" : "string"
-              }, {
-                "pattern" : "^javascript@buildtime:.*",
-                "type" : "string"
-              } ]
-            },
-            "type" : "string"
-          } ],
-          "description" : "Static state column",
-          "title" : "Static Value"
-        }, {
-          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{stateColumn}}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('stateColumn');}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        } ]
-      },
-      "StateColumnInEvaluateNewRowsTaskResponse" : {
-        "description" : "Column holding the record's state, such as an order status. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-        "externalDocs" : {
-          "description" : "JobBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-        },
-        "oneOf" : [ {
-          "allOf" : [ {
-            "type" : "string"
-          }, {
-            "not" : {
-              "anyOf" : [ {
-                "pattern" : "^handlebars@buildtime:.*",
-                "type" : "string"
-              }, {
-                "pattern" : "^javascript@buildtime:.*",
-                "type" : "string"
-              } ]
-            },
-            "type" : "string"
-          } ],
-          "description" : "Literal state column",
-          "title" : "Static Value"
-        }, {
-          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{stateColumn}}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('stateColumn');}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        } ]
-      },
-      "StateEventRequest" : {
-        "description" : "States and the event a new row in each state fires. A listed state without an event fires nothing; a row whose state is not listed fires nothing and is counted as an unknown state. A literal value or a buildtime expression resolved from component settings when the task is saved. Omit on update to keep the existing list.",
-        "properties" : {
-          "event_name" : {
-            "description" : "Event fired for a new row in this state. Omit to list the state without firing anything for it.",
-            "type" : "string"
-          },
-          "state" : {
-            "description" : "Value of the state column this entry applies to, compared exactly. Required, and listed once per task.",
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "StateEventResponse" : {
-        "description" : "States and the event a new row in each state fires. A listed state without an event fires nothing; a row whose state is not listed fires nothing and is counted as an unknown state. A literal value or a buildtime expression resolved from component settings when the task is saved.",
-        "properties" : {
-          "event_name" : {
-            "description" : "Event fired for a new row in this state. Absent when the state is listed without firing anything for it.",
-            "type" : "string"
-          },
-          "state" : {
-            "description" : "Value of the state column this entry applies to, compared exactly.",
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "StateEventsInEvaluateNewRowsTaskRequest" : {
-        "description" : "States and the event a new row in each state fires. A listed state without an event fires nothing; a row whose state is not listed fires nothing and is counted as an unknown state. A literal value or a buildtime expression resolved from component settings when the task is saved. Omit on update to keep the existing list. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-        "externalDocs" : {
-          "description" : "JobBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-        },
-        "oneOf" : [ {
-          "description" : "Static state events",
-          "items" : {
-            "$ref" : "#/components/schemas/StateEventRequest"
-          },
-          "title" : "Static Value",
-          "type" : "array"
-        }, {
-          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{stateEvents}}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('stateEvents');}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        } ]
-      },
-      "StateEventsInEvaluateNewRowsTaskResponse" : {
-        "description" : "States and the event a new row in each state fires. A listed state without an event fires nothing; a row whose state is not listed fires nothing and is counted as an unknown state. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-        "externalDocs" : {
-          "description" : "JobBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-        },
-        "oneOf" : [ {
-          "description" : "Literal state events",
-          "items" : {
-            "$ref" : "#/components/schemas/StateEventResponse"
-          },
-          "title" : "Static Value",
-          "type" : "array"
-        }, {
-          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{stateEvents}}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('stateEvents');}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        } ]
       },
       "StaticReportTypeParameterDetailsRequest" : {
         "allOf" : [ {
@@ -87805,13 +87476,7 @@
                   } ],
                   "key_columns" : [ "key_column" ],
                   "order" : 1,
-                  "ordering_column" : "ordering_column",
                   "parent_job_id" : "parent_job_id",
-                  "state_column" : "state_column",
-                  "state_events" : [ {
-                    "event_name" : "event_name",
-                    "state" : "state"
-                  } ],
                   "task_type" : "EVALUATE_NEW_ROWS"
                 } ],
                 "triggers" : [ {
@@ -87951,15 +87616,6 @@
                   },
                   "evaluate_new_rows_result_type_unsupported" : {
                     "$ref" : "#/components/examples/evaluate_new_rows_result_type_unsupported"
-                  },
-                  "evaluate_new_rows_state_column_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_state_column_required"
-                  },
-                  "evaluate_new_rows_state_duplicated" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_state_duplicated"
-                  },
-                  "evaluate_new_rows_state_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_state_required"
                   },
                   "excessive_component_reference" : {
                     "$ref" : "#/components/examples/excessive_component_reference"
@@ -88761,13 +88417,7 @@
                   } ],
                   "key_columns" : [ "key_column" ],
                   "order" : 1,
-                  "ordering_column" : "ordering_column",
                   "parent_job_id" : "parent_job_id",
-                  "state_column" : "state_column",
-                  "state_events" : [ {
-                    "event_name" : "event_name",
-                    "state" : "state"
-                  } ],
                   "task_type" : "EVALUATE_NEW_ROWS"
                 } ],
                 "triggers" : [ {
@@ -89515,13 +89165,7 @@
                 } ],
                 "key_columns" : [ "key_column" ],
                 "order" : 1,
-                "ordering_column" : "ordering_column",
                 "parent_job_id" : "parent_job_id",
-                "state_column" : "state_column",
-                "state_events" : [ {
-                  "event_name" : "event_name",
-                  "state" : "state"
-                } ],
                 "task_type" : "EVALUATE_NEW_ROWS"
               },
               "schema" : {
@@ -89646,15 +89290,6 @@
                   },
                   "evaluate_new_rows_result_type_unsupported" : {
                     "$ref" : "#/components/examples/evaluate_new_rows_result_type_unsupported"
-                  },
-                  "evaluate_new_rows_state_column_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_state_column_required"
-                  },
-                  "evaluate_new_rows_state_duplicated" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_state_duplicated"
-                  },
-                  "evaluate_new_rows_state_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_state_required"
                   },
                   "excessive_component_reference" : {
                     "$ref" : "#/components/examples/excessive_component_reference"
@@ -90038,13 +89673,7 @@
                 } ],
                 "key_columns" : [ "key_column" ],
                 "order" : 1,
-                "ordering_column" : "ordering_column",
                 "parent_job_id" : "parent_job_id",
-                "state_column" : "state_column",
-                "state_events" : [ {
-                  "event_name" : "event_name",
-                  "state" : "state"
-                } ],
                 "task_type" : "EVALUATE_NEW_ROWS"
               },
               "schema" : {
@@ -90169,15 +89798,6 @@
                   },
                   "evaluate_new_rows_result_type_unsupported" : {
                     "$ref" : "#/components/examples/evaluate_new_rows_result_type_unsupported"
-                  },
-                  "evaluate_new_rows_state_column_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_state_column_required"
-                  },
-                  "evaluate_new_rows_state_duplicated" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_state_duplicated"
-                  },
-                  "evaluate_new_rows_state_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_state_required"
                   },
                   "excessive_component_reference" : {
                     "$ref" : "#/components/examples/excessive_component_reference"
