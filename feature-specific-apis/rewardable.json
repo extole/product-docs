@@ -132,24 +132,24 @@
         "x-extole-component": "reward_core"
       }
     },
-    "/v6/events/{decline_event_name}": {
+    "/v6/events/{manual_request_event_name}": {
       "post": {
-        "summary": "Decline",
-        "description": "Declines a rewardable that is being held for review, by submitting this reward's own decline event. Nothing is issued, and the note is recorded with the decision.",
+        "summary": "Create New",
+        "description": "Issues this reward to a person who did not reach it through the normal flow, by submitting the reward's manual request event. The campaign's rules still decide the outcome, so a successful call means the request was recorded.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "ACTION"
         ],
         "parameters": [
           {
-            "name": "decline_event_name",
+            "name": "manual_request_event_name",
             "in": "path",
             "required": true,
-            "description": "The event that declines a rewardable that is waiting on review. It is named after the journey, which here is reward_core, so the event is reward_core_manual_decline. Rename the journey and this name changes with it, so take it from the declineEventName setting on the reward rather than assembling it yourself.",
+            "description": "The event that asks for this reward to be issued by hand. It is named after the journey, which here is reward_core, so the event is reward_core_manual_request. Rename the journey and this name changes with it, so take it from the manualRequestEventName setting on the reward rather than assembling it yourself.",
             "schema": {
               "type": "string",
               "enum": [
-                "reward_core_manual_decline"
+                "reward_core_manual_request"
               ]
             }
           }
@@ -159,7 +159,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DeclineRequest"
+                "$ref": "#/components/schemas/CreateRewardRequest"
               }
             }
           }
@@ -252,24 +252,24 @@
         "x-extole-component": "reward_core"
       }
     },
-    "/v6/events/{manual_request_event_name}": {
+    "/v6/events/{decline_event_name}": {
       "post": {
-        "summary": "Create New",
-        "description": "Issues this reward to a person who did not reach it through the normal flow, by submitting the reward's manual request event. The campaign's rules still decide the outcome, so a successful call means the request was recorded.",
+        "summary": "Decline",
+        "description": "Declines a rewardable that is being held for review, by submitting this reward's own decline event. Nothing is issued, and the note is recorded with the decision.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "ACTION"
         ],
         "parameters": [
           {
-            "name": "manual_request_event_name",
+            "name": "decline_event_name",
             "in": "path",
             "required": true,
-            "description": "The event that asks for this reward to be issued by hand. It is named after the journey, which here is reward_core, so the event is reward_core_manual_request. Rename the journey and this name changes with it, so take it from the manualRequestEventName setting on the reward rather than assembling it yourself.",
+            "description": "The event that declines a rewardable that is waiting on review. It is named after the journey, which here is reward_core, so the event is reward_core_manual_decline. Rename the journey and this name changes with it, so take it from the declineEventName setting on the reward rather than assembling it yourself.",
             "schema": {
               "type": "string",
               "enum": [
-                "reward_core_manual_request"
+                "reward_core_manual_decline"
               ]
             }
           }
@@ -279,7 +279,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateRewardRequest"
+                "$ref": "#/components/schemas/DeclineRequest"
               }
             }
           }
@@ -547,6 +547,40 @@
           "unique_id"
         ]
       },
+      "ForceApproveRequest": {
+        "type": "object",
+        "required": [
+          "person_id",
+          "target",
+          "note",
+          "identity_person_id"
+        ],
+        "properties": {
+          "container": {
+            "description": "Container the rewardable sits in, when it has one.",
+            "type": "string"
+          },
+          "identity_person_id": {
+            "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
+            "type": "string"
+          },
+          "note": {
+            "description": "Why the approval was made. Required: the campaign drops the event without one, so a call with no note answers with an event id and nothing happens.",
+            "type": "string"
+          },
+          "person_id": {
+            "description": "Extole person whose rewardable is being approved.",
+            "type": "string"
+          },
+          "target": {
+            "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
+            "type": "string",
+            "enum": [
+              "campaign_id:{id}"
+            ]
+          }
+        }
+      },
       "CreateRewardRequest": {
         "type": "object",
         "required": [
@@ -611,40 +645,6 @@
           },
           "person_id": {
             "description": "Extole person whose rewardable is being declined.",
-            "type": "string"
-          },
-          "target": {
-            "description": "Which campaign this applies to. Here that is campaign_id:{id}.",
-            "type": "string",
-            "enum": [
-              "campaign_id:{id}"
-            ]
-          }
-        }
-      },
-      "ForceApproveRequest": {
-        "type": "object",
-        "required": [
-          "person_id",
-          "target",
-          "note",
-          "identity_person_id"
-        ],
-        "properties": {
-          "container": {
-            "description": "Container the rewardable sits in, when it has one.",
-            "type": "string"
-          },
-          "identity_person_id": {
-            "description": "Which rewardable this is, when the reward can be earned more than once. The key is named identity_person_id on this reward, and it is how a caller says which one.",
-            "type": "string"
-          },
-          "note": {
-            "description": "Why the approval was made. Required: the campaign drops the event without one, so a call with no note answers with an event id and nothing happens.",
-            "type": "string"
-          },
-          "person_id": {
-            "description": "Extole person whose rewardable is being approved.",
             "type": "string"
           },
           "target": {
