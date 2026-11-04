@@ -26,6 +26,7 @@ If you installed Extole Offers from the Stripe App Marketplace, Stripe sent you 
 2. On the integration's **Configuration** tab, click **Connect to Stripe**, sign in to Stripe, and approve Extole Offers.
 3. [Create the webhook destination](#create-the-webhook-destination) in Stripe.
 4. [Add a reward supplier](#reward-types) and attach it to your campaign.
+5. On the campaign's Converted step, set **Triggered By** to **Conversion**. See [Reward on Stripe Purchases](#reward-on-stripe-purchases).
 
 Then open Extole Offers in the Stripe Dashboard and click **Sign in with Extole** to see the setup checklist.
 
@@ -48,6 +49,7 @@ Don't have an Extole account? Contact support@extole.com or [request a demo](htt
 2. On the **Configuration** tab, click **Connect to Stripe**. Stripe asks you to sign in, choose the account, and approve the permissions Extole Offers requests. Stripe installs the app on that account and returns you to My Extole.
 3. [Create the webhook destination](#create-the-webhook-destination).
 4. Open the **Rewards** tab and add a supplier. Then open **Programs**, edit the campaign, and attach that supplier to the reward.
+5. On the campaign's Converted step, set **Triggered By** to **Conversion**. See [Reward on Stripe Purchases](#reward-on-stripe-purchases).
 
 ### Start From the Stripe App Marketplace
 
@@ -91,7 +93,7 @@ To rotate the token, or if the URL leaks, create a new **User Support** access t
 
 ## Events Extole Receives
 
-Extole turns each Stripe event into an Extole input event. Purchases become **Conversion**, so a Flow Builder campaign's Converted event works without editing **Triggered By**. Cancellations and refunds become integration events you can pick as **Triggered By** for your own business events.
+Extole turns each Stripe event into an Extole input event. Purchases become **Conversion**. Cancellations and refunds become the integration events **Subscription Canceled** and **Refund**, which you can pick as **Triggered By** for your own business events.
 
 | Stripe event | When | Extole input event | `partner_conversion_id` |
 | --- | --- | --- | --- |
@@ -102,6 +104,14 @@ Extole turns each Stripe event into an Extole input event. Purchases become **Co
 | `charge.refunded` | Always | `stripe_charge_refunded` (**Refund**) | The refunded payment intent id |
 | `customer.discount.created` | Always | `stripe_customer_discount_created`, read by the integration's redemption controller | — |
 | Any other event, or a row above when its condition isn't met | — | `stripe_` plus the Stripe type with dots as underscores | — |
+
+### Reward on Stripe Purchases
+
+A Flow Builder campaign's Converted step has no trigger by default, and the campaign doesn't publish until **Triggered By** names one. The Stripe integration offers only **Refund** and **Subscription Canceled** there, so Stripe purchases reach Converted only when you select **Conversion** yourself:
+
+1. Open the campaign and edit its Converted step.
+2. Set **Triggered By** to the **Conversion** trigger event. It comes with the Event API extension. If **Conversion** isn't in the list, install the Event API extension first.
+3. Publish the campaign.
 
 ### Purchases
 
@@ -177,6 +187,8 @@ Every request to Stripe carries an idempotency key built from the Extole reward 
 3. When the code's metadata holds an Extole reward id, Extole redeems that reward. Emails and reports then show it as redeemed.
 
 If Stripe can't find the code, or the code wasn't issued by Extole, nothing changes and the reward stays earned.
+
+The redemption can take a few minutes to show in Extole after the customer applies the code. In testing, the lookup ran about four minutes after Stripe recorded the discount.
 
 ## Limits
 
