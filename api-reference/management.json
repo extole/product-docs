@@ -2211,6 +2211,16 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "component_upgrade_single_socket_conflict" : {
+        "summary" : "component_upgrade_single_socket_conflict",
+        "value" : {
+          "code" : "component_upgrade_single_socket_conflict",
+          "http_status_code" : 400,
+          "message" : "Component upgrade blocked: a single socket would hold both the client's component and a different one from the origin",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "component_upgrade_upgrade_failed" : {
         "summary" : "component_upgrade_upgrade_failed",
         "value" : {
@@ -102471,7 +102481,7 @@
     },
     "/v1/components/{component_id}/upgrade" : {
       "post" : {
-        "description" : "Brings the component, and every component under it, to the latest published version of its `origin`, the component it was copied from, while it keeps the client's own changes. The upgrade keeps the name, display name, description and tags the client changed, the values the client set on settings the origin still has, the settings the client added, and the assets the client changed or added. A value is the client's when it differs from the origin's state at the moment the component took that origin: the state the client copied, or the one its last upgrade or connect read. If the upgrade cannot find that state, it compares with the origin's last state at the version the copy records. A setting the client added under a name the origin has since added takes the origin's values. The upgrade drops a setting the origin no longer has. It leaves a child component that has no origin as it is. References from outside the component into it point at the same components after the upgrade, as long as the origin kept them. If the upgrade removes a component that a reference points at, the reference loses that entry. A `COMPONENT_ID` setting that points at it fails the upgrade instead, with `component_upgrade_upgrade_failed`. The component needs an origin, and the upgrade is refused when the component or a component under it uses an audience, a client key, a client domain pattern, a prehandler or another restricted account-level element. The upgrade has no preview. It can take several minutes, and it keeps running after a call that times out. To tell whether it finished, read the campaign versions. Each save of the upgrade adds a version whose message starts with `Upgrade <upgrade id> -`. The last one says `upgrade completed`. The saves commit together, so they appear only when the upgrade ends. A failed upgrade adds no version. For up to 15 minutes while it runs, any other save of the campaign is refused with `campaign_concurrent_update`, another upgrade included. The upgrade gets the same error when the campaign is being saved, or was saved after the call started. `GET /v1/components/{component_id}/available-upgrades` lists what an upgrade would bring.",
+        "description" : "Brings the component, and every component under it, to the latest published version of its `origin`, the component it was copied from, while it keeps the client's own changes. The upgrade keeps the name, display name, description and tags the client changed, the values the client set on settings the origin still has, the settings the client added, and the assets the client changed or added. A value is the client's when it differs from the origin's state at the moment the component took that origin: the state the client copied, or the one its last upgrade or connect read. If the upgrade cannot find that state, it compares with the origin's last state at the version the copy records. A setting the client added under a name the origin has since added takes the origin's values. The upgrade drops a setting the origin no longer has. It leaves a child component that has no origin as it is. References from outside the component into it point at the same components after the upgrade, as long as the origin kept them. If the upgrade removes a component that a reference points at, the reference loses that entry. A `COMPONENT_ID` setting that points at it fails the upgrade instead, with `component_upgrade_upgrade_failed`. The component needs an origin, and the upgrade is refused when the component or a component under it uses an audience, a client key, a client domain pattern, a prehandler or another restricted account-level element. A socket that holds one component is resolved on its own: a component the client put there stays, a component the client removed stays removed unless the origin replaced its own, and a replacement the origin made for the component the client kept takes the client's changes with it. When the client and the origin each put a different component there, the upgrade is refused with `component_upgrade_single_socket_conflict`, which names each such socket and both components. The same error refuses an upgrade when the origin moved the component the client copied out of a socket that holds one component and put another component there, because the upgrade keeps each of the client's components where the client placed it. To get past the refusal, remove the client's component from that socket and upgrade again: the origin's component then fills the socket. After a move, the upgrade treats the moved component as one the client removed and does not install it; copy it in again with `POST /v1/components/{component_id}/duplicate` if it is still wanted. The upgrade has no preview. It can take several minutes, and it keeps running after a call that times out. To tell whether it finished, read the campaign versions. Each save of the upgrade adds a version whose message starts with `Upgrade <upgrade id> -`. The last one says `upgrade completed`. The saves commit together, so they appear only when the upgrade ends. A failed upgrade adds no version. For up to 15 minutes while it runs, any other save of the campaign is refused with `campaign_concurrent_update`, another upgrade included. The upgrade gets the same error when the campaign is being saved, or was saved after the call started. `GET /v1/components/{component_id}/available-upgrades` lists what an upgrade would bring.",
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
@@ -102521,6 +102531,9 @@
                   },
                   "component_upgrade_restricted_external_elements" : {
                     "$ref" : "#/components/examples/component_upgrade_restricted_external_elements"
+                  },
+                  "component_upgrade_single_socket_conflict" : {
+                    "$ref" : "#/components/examples/component_upgrade_single_socket_conflict"
                   },
                   "component_upgrade_upgrade_failed" : {
                     "$ref" : "#/components/examples/component_upgrade_upgrade_failed"
