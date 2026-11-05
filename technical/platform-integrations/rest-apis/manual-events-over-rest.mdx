@@ -1,0 +1,75 @@
+---
+title: "Manual Events Over REST"
+description: "Create the event that My Extole's Create Event form creates, with the REST API: target one campaign, name the friend and the advocate, and add event data."
+---
+
+# Overview
+
+The [How to Manually Create a Referral or Other Event](/guides/rewards-management/reward-fulfillment/how-to-manually-create-a-referral-or-other-event)
+guide creates an event from **User Support** > **Create Event** in My Extole. That form submits
+`POST /v6/events`, the same Server to Extole operation your backend uses. This page lists what the
+form puts in that request, so you can create the same event from your own system: for one
+campaign, for a friend, and with the advocate who referred them.
+
+## The Request the Form Sends
+
+The form sends `event_name`, an optional `event_time`, and a `data` object. Send the same body to
+`POST /v6/events` with a Server to Extole access token:
+
+```json
+{
+  "event_name": "account_opened",
+  "data": {
+    "email": "friend@example.com",
+    "advocate.email": "advocate@example.com",
+    "target": "campaign_id:<campaign id>",
+    "journey.campaign_id": "<campaign id>",
+    "channel": "MANUAL",
+    "container": "production",
+    "account_type": "Checking"
+  }
+}
+```
+
+| `data` key | Form field | What it does |
+| --- | --- | --- |
+| `target` | **Campaign** | `campaign_id:<campaign id>` limits the event to that campaign. Only that campaign can take the event. |
+| `journey.campaign_id` | **Campaign** | The same campaign ID. The event enters that campaign's journey. |
+| `email` | **User: Email** | The person the event belongs to. For a referred event, such as an account opening, this is the friend. |
+| `first_name`, `last_name`, `partner_user_id` | **User** fields | The same person's name and your own identifier for them. |
+| `advocate.email` | **Advocate: Email** | The advocate who referred the friend. |
+| `advocate.first_name`, `advocate.last_name` | **Advocate** fields | The advocate's name. |
+| `channel` | Set by the form | `MANUAL`, which marks the event as created by hand. |
+| `container` | Set by the form | `production`, or `test` for a test event. |
+| Any other key | **Additional Event Data** | Recorded as data on the event, with the key and value you enter. |
+
+The **Program** field narrows the campaign list in the form and adds no key of its own. Use the
+campaign's ID, not its name, in `target` and `journey.campaign_id`. `GET /v2/campaigns` lists each
+campaign with its `campaign_id`.
+
+## Target One Campaign
+
+Without `target`, Extole picks the campaign for the event the same way it does for any event from
+your site or backend. With `target` set to `campaign_id:<campaign id>`, only that campaign is a
+candidate. If that campaign does not have the event, no campaign takes it. See
+[Targeting](/guides/platform-overview/targeting) for how Extole picks a campaign.
+
+Use an event name that the campaign has. The **Event** list in the form shows the events the
+selected campaign has.
+
+## Record the Referral
+
+An event that names the friend in `email` and the advocate in `advocate.email` records the
+referral between them. Copy any value that the campaign's rules read, such as an account type, as
+a key in `data`.
+
+To check the result, read the friend's events with `GET /v5/persons/{person_id}/steps` and the
+advocate's relationships with `GET /v5/persons/{person_id}/relationships`. The advocate's
+relationships list the friend once the referral is recorded.
+
+## Related Documentation
+
+- [How to Manually Create a Referral or Other Event](/guides/rewards-management/reward-fulfillment/how-to-manually-create-a-referral-or-other-event)
+- [Targeting](/guides/platform-overview/targeting)
+- [Set Person Profile Data from an Event](/technical/integration-overview/set-person-profile-data-from-an-event)
+- [REST APIs](/technical/platform-integrations/rest-apis/index)
