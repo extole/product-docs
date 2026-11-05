@@ -76,12 +76,16 @@ For all other endpoints, errors return non-200 status codes with the standard er
 
 ## Rate Limiting
 
-A `429` response with code `too_many_requests` indicates that the caller has sent too many requests in a window. Extole applies two limits:
+A `429` response with code `too_many_requests` indicates that the caller has sent too many requests in a window. Extole applies two general limits:
 
 - 100 requests per minute per IP address or token.
 - 10 requests per second per identified person.
 
-The `/v6/async-events` endpoint is not rate-limited and is the recommended path for high-volume event ingestion.
+### Event Submission Limits
+
+The synchronous event endpoints, `POST /v6/events` and `POST /v6/events/{event_name}`, have a lower limit of their own: 30 requests per client per minute. The count starts again at the beginning of each UTC minute, and every integration that sends events under your client shares the same 30. From the 31st request in a minute until that minute ends, these endpoints return `429`.
+
+The asynchronous endpoints, `POST /v6/async-events` and `POST /v6/async-events/{event_name}`, have no per-request rate limit and are the recommended path for high-volume event ingestion. They take the same request body and return the `event_id`; Extole identifies the person after the request returns, so the response has no `person_id`. Use `/v6/events` for low-volume calls that need the `person_id` in the response.
 
 Typical causes of rate limiting:
 
@@ -93,6 +97,7 @@ When implementing retry logic:
 
 - Use **exponential backoff** with jitter. A reasonable starting pattern: 1s, 2s, 4s, 8s, capped at 30s.
 - Avoid retrying immediately. Even a 100 ms retry can keep the limit tripped.
+- For `/v6/events`, retry after the next UTC minute starts, or send the event to `/v6/async-events` instead.
 - Distinguish retryable from non-retryable errors. `429` and `500` are retryable; `400`, `401`, `403`, `415` are not (the request is the problem, not the platform).
 
 If your integration encounters rate limiting that does not match these patterns, contact [support@extole.com](mailto:support@extole.com).
