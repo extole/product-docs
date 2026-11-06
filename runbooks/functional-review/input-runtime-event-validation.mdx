@@ -173,6 +173,7 @@ For each expected `triggerEventName`:
 
 - Are the data fields required by the flow present on raw client payloads?
 - Are those fields compatible with flow-builder rules (type, format, non-empty where required)?
+- Does a unique partner event key value repeat across distinct events or distinct people?
 
 ### Report
 
@@ -241,6 +242,42 @@ Distinguish in findings:
 - wrong type
 - unexpected format
 
+### Unique Partner Event Key Collisions
+
+Run this check for every in-scope event that feeds a business-event / targetable-step with a data field whose `key_type` is `UNIQUE_PARTNER_EVENT_KEY` in the built campaign. Take those fields from the key manifest in [Profile identity and unique-key validation](/runbooks/functional-review/report-execution-runtime-checks#profile-identity-and-unique-key-validation). When no in-scope step has such a field, record the check as not applicable.
+
+The platform rejects a new step as a duplicate when the same person already has a step with the same step name, container, and key value. It also uses the key to look up the person an event belongs to. So a key value shared by events that are not the same event drops legitimate events, and a value shared by different people can attach one person's event to another person's profile.
+
+1. Read each key field's value from the `data` column of every sampled row of the events that feed that step. The required mapping already carries it, so do not replace `data=event.data` with a key column.
+2. If the key's value is computed by an expression rather than read from a payload field, it cannot be checked from Input Records. Record it under Evidence gaps and name the expression.
+3. Group the in-scope rows by event name, container, and key value. Apply the campaign scope boundary first: another program's rows are not part of any group.
+4. Classify every group that holds more than one distinct `Id`:
+
+| Pattern | Meaning |
+|---|---|
+| Same `Person Id`, same business values in `data` | **Redelivery** — the client sent the same event again, and de-duplication works as designed |
+| Same `Person Id`, different business values in `data` (for example a different amount, product, or date) | **Collision** — distinct events share the key, so every one after the first is rejected as a duplicate |
+| Different `Person Id` values | **Cross-person collision** — the value is not unique to one person, so events can merge onto the wrong profile |
+| A placeholder value such as `0`, `none`, or `empty` repeated across rows | **Collision** — the client sends a constant instead of an identifier |
+
+A missing or blank key field is already a field-validation finding above. Do not count it again here.
+
+#### Flag if
+
+- Any group is a collision or a cross-person collision
+
+#### Severity
+
+| Finding | Severity |
+|---|---|
+| Cross-person collision on any in-scope event | **Issue** |
+| Collision on an earning/reward-path event | **Issue** |
+| Collision on an event outside the earning/reward path | **Watch** |
+| Redeliveries only | **Pass** for this check — report the count as context |
+| Key computed by an expression, or no sampled rows for a keyed event | **Evidence gap** or **Empty/Inconclusive** |
+
+This check is sample-based. A collision in the sample is proof that the key collides. No collision in the sample proves only that none appears in the rows you read, so write `no collision in <n> sampled rows`, never `no collisions`. Report the key field and the counts. Do not quote the colliding values, because a key such as a phone number or an email address is personal data.
+
 ### Required sample summary
 
 Findings are sample-based; say so in the summary.
@@ -253,6 +290,7 @@ For each sampled event type, report:
 - missing fields
 - malformed fields
 - confidence level
+- unique partner event key collisions, for each keyed event: the key field, the distinct values checked, and the number of redelivery, collision, and cross-person collision groups
 
 ### Sample coverage
 
