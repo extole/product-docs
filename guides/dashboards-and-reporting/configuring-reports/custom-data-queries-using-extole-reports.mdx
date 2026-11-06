@@ -109,11 +109,13 @@ Null checks:
 event.data.amount!="null"
 ```
 
-Within a `collection(...)` filter parameter, filters use `and`/`or`:
+In the **Filters** parameter, `and` and `or` join two filter statements wherever they appear, including inside a function's own `filter:` argument. To filter on a collection with more than one condition, give each condition its own `filter:` argument. Separate `filter:` arguments must all match:
 
 ```
-collection(person(event.personId).steps, filter:stepName=="converted" and quality=="HIGH")
+count(collection(person(event.personId).steps, filter:stepName=="converted", filter:quality=="HIGH"))>"0"
 ```
+
+In a mapping, one `filter:` argument can join its conditions with `and` or `or`, as shown under [COLLECTION](#collection).
 
 # Sort Order
 
@@ -539,7 +541,7 @@ Filters and optionally extracts fields from a collection.
 
 **Parameters:**
 - `(anonymous)` — source collection expression
-- `filter` *(optional, repeatable)* — filter predicate; use `and`/`or` within one `filter:` parameter, or supply multiple separate `filter:` parameters (all must match)
+- `filter` *(optional, repeatable)* — filter predicate; in a mapping, use `and`/`or` within one `filter:` parameter, or supply multiple separate `filter:` parameters (all must match). In the **Filters** parameter, supply one condition per `filter:` parameter
 - `extracting` *(optional)* — extract a single field from each element
 
 ```
@@ -1004,6 +1006,22 @@ Device=device_type(user_agent:event.userAgent); OS=device_type(user_agent:event.
 ```
 count_converted=person_collection(person(event.personId).id, collection:"steps", filter:stepName=="converted", extracting:eventId, reduce:"count")
 ```
+
+## People With More Than One Reward
+
+List every reward paid to a person whose profile carries more than one sent reward of the same name, then count those rewards by month. Both reports use the same filter, so the monthly count covers exactly the people the list shows. Replace `<reward name>` with the reward's name on the profile.
+
+In a **Rewards** report, one row per reward sent:
+
+- `mappings`: `Reward ID=event.rewardId; Sent Date=date_format(event.eventTime); Month=date_format(event.eventTime, format:"yyyy-MM"); Person ID=person(event.personId).id; Email=person(event.personId).email; Sent Rewards On Profile=count(collection(person(event.personId).rewards, filter:state=="SENT", filter:name=="<reward name>"));`
+- `filters`: `event.type=="reward_sent";count(collection(person(event.personId).rewards, filter:state=="SENT", filter:name=="<reward name>"))>"1"`
+
+In a **Reward Metrics** report, one row per month:
+
+- `mappings`: `Month=date_format(event.eventTime, format:"yyyy-MM"); Rewards Sent=group_count_distinct(event.rewardId); People=group_count_distinct(person(event.personId).id);`
+- `filters`: `event.type=="reward_sent";count(collection(person(event.personId).rewards, filter:state=="SENT", filter:name=="<reward name>"))>"1"`
+
+The count reads every reward on the profile, including rewards earned outside the report's time range.
 
 ## Sum Total Rewards Issued
 
