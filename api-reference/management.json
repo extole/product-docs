@@ -8813,7 +8813,7 @@
         } ]
       },
       "BaseUrlInProxyClientKeyCreateRequest" : {
-        "description" : "HTTPS URL that every request sent through this key must start with. The credential is never sent to any other URL. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+        "description" : "HTTPS URL that every request sent through this key must start with. The token is never sent to any other URL. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "ClientKeyBuildtimeContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
@@ -14302,28 +14302,39 @@
               "enum" : [ "PROXY" ],
               "type" : "string"
             },
-            "base_url" : {
-              "description" : "HTTPS URL that every request sent through this key must start with.",
+            "authorization_url" : {
               "type" : "string"
             },
-            "credential_client_key_id" : {
-              "description" : "Id of the key in the same client whose value is sent as the credential.",
+            "base_url" : {
+              "description" : "HTTPS URL that every request sent through this key must start with.",
               "type" : "string"
             },
             "id" : {
               "readOnly" : true,
               "type" : "string"
             },
+            "oauth_client_id" : {
+              "type" : "string"
+            },
+            "proxy_request" : {
+              "$ref" : "#/components/schemas/ProxyRequestInBuiltProxyClientKeyResponse"
+            },
+            "proxy_response_handler" : {
+              "$ref" : "#/components/schemas/ProxyResponseHandlerInBuiltProxyClientKeyResponse"
+            },
             "request" : {
-              "$ref" : "#/components/schemas/RequestInBuiltProxyClientKeyResponse"
+              "$ref" : "#/components/schemas/RequestInBuiltOAuthGenericClientKeyResponse"
             },
             "response_handler" : {
-              "$ref" : "#/components/schemas/ResponseHandlerInBuiltProxyClientKeyResponse"
+              "$ref" : "#/components/schemas/ResponseHandlerInBuiltOAuthGenericClientKeyResponse"
+            },
+            "scope" : {
+              "type" : "string"
             }
           },
           "type" : "object"
         } ],
-        "required" : [ "algorithm", "base_url", "component_ids", "component_references", "created_at", "credential_client_key_id", "description", "id", "key", "name", "partner_key_id", "request", "response_handler", "tags", "type", "updated_at" ],
+        "required" : [ "algorithm", "authorization_url", "base_url", "component_ids", "component_references", "created_at", "description", "id", "key", "name", "oauth_client_id", "partner_key_id", "proxy_request", "proxy_response_handler", "request", "response_handler", "scope", "tags", "type", "updated_at" ],
         "title" : "PROXY",
         "type" : "object"
       },
@@ -40544,23 +40555,37 @@
               "enum" : [ "PROXY" ],
               "type" : "string"
             },
+            "authorization_url" : {
+              "$ref" : "#/components/schemas/AuthorizationUrlInOAuthClientKeyCreateRequest"
+            },
             "base_url" : {
               "$ref" : "#/components/schemas/BaseUrlInProxyClientKeyCreateRequest"
             },
-            "credential_client_key_id" : {
-              "description" : "Id of the key in the same client whose value is sent as the credential, for example an `OAUTH_GENERIC` key whose token the proxy sends as a bearer token. The proxy key holds no secret itself.",
+            "oauth_client_id" : {
+              "description" : "OAuth 2.0 client identifier registered with the authorization server.",
               "type" : "string"
+            },
+            "proxy_request" : {
+              "$ref" : "#/components/schemas/ProxyRequestInProxyClientKeyCreateRequest"
+            },
+            "proxy_response_handler" : {
+              "$ref" : "#/components/schemas/ProxyResponseHandlerInProxyClientKeyCreateRequest"
             },
             "request" : {
               "$ref" : "#/components/schemas/RequestInProxyClientKeyCreateRequest"
             },
             "response_handler" : {
               "$ref" : "#/components/schemas/ResponseHandlerInProxyClientKeyCreateRequest"
+            },
+            "scope" : {
+              "description" : "Optional space-delimited OAuth scopes to request during authorization.",
+              "nullable" : true,
+              "type" : "string"
             }
           },
           "type" : "object"
         } ],
-        "required" : [ "algorithm", "base_url", "credential_client_key_id", "description", "key", "name", "type" ],
+        "required" : [ "algorithm", "authorization_url", "base_url", "description", "key", "name", "oauth_client_id", "type" ],
         "title" : "PROXY",
         "type" : "object"
       },
@@ -40573,29 +40598,43 @@
               "enum" : [ "PROXY" ],
               "type" : "string"
             },
+            "authorization_url" : {
+              "$ref" : "#/components/schemas/AuthorizationUrlInOAuthClientKeyResponse"
+            },
             "base_url" : {
               "$ref" : "#/components/schemas/BaseUrlInProxyClientKeyResponse"
-            },
-            "credential_client_key_id" : {
-              "description" : "Id of the key in the same client whose value is sent as the credential.",
-              "type" : "string"
             },
             "id" : {
               "description" : "Stable Extole identifier for the client key.",
               "readOnly" : true,
               "type" : "string"
             },
+            "oauth_client_id" : {
+              "description" : "OAuth 2.0 client identifier registered with the authorization server.",
+              "type" : "string"
+            },
+            "proxy_request" : {
+              "$ref" : "#/components/schemas/ProxyRequestInProxyClientKeyResponse"
+            },
+            "proxy_response_handler" : {
+              "$ref" : "#/components/schemas/ProxyResponseHandlerInProxyClientKeyResponse"
+            },
             "request" : {
-              "$ref" : "#/components/schemas/RequestInProxyClientKeyResponse"
+              "$ref" : "#/components/schemas/RequestInOAuthGenericClientKeyResponse"
             },
             "response_handler" : {
-              "$ref" : "#/components/schemas/ResponseHandlerInProxyClientKeyResponse"
+              "$ref" : "#/components/schemas/ResponseHandlerInOAuthGenericClientKeyResponse"
+            },
+            "scope" : {
+              "description" : "Space-delimited OAuth scopes requested during authorization.",
+              "nullable" : true,
+              "type" : "string"
             }
           },
           "type" : "object"
         } ],
-        "description" : "Stored proxy client key definition. Fields `name`, `description`, `base_url`, `request`, and `response_handler` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "algorithm", "base_url", "component_ids", "component_references", "created_at", "credential_client_key_id", "description", "id", "key", "name", "partner_key_id", "request", "response_handler", "tags", "type", "updated_at" ],
+        "description" : "Stored proxy client key definition. Fields `name`, `description`, `authorization_url`, `request`, `response_handler`, `base_url`, `proxy_request`, and `proxy_response_handler` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "algorithm", "authorization_url", "base_url", "component_ids", "component_references", "created_at", "description", "id", "key", "name", "oauth_client_id", "partner_key_id", "proxy_request", "proxy_response_handler", "request", "response_handler", "scope", "tags", "type", "updated_at" ],
         "title" : "PROXY",
         "type" : "object"
       },
@@ -40608,21 +40647,39 @@
               "enum" : [ "PROXY" ],
               "type" : "string"
             },
+            "authorization_url" : {
+              "$ref" : "#/components/schemas/AuthorizationUrlInOAuthClientKeyUpdateRequest"
+            },
             "base_url" : {
               "$ref" : "#/components/schemas/BaseUrlInProxyClientKeyUpdateRequest"
             },
-            "credential_client_key_id" : {
-              "description" : "Id of the key in the same client whose value is sent as the credential. Omit to leave unchanged.",
-              "type" : "string"
-            },
             "description" : {
               "$ref" : "#/components/schemas/DescriptionInClientKeyUpdateRequest"
+            },
+            "key" : {
+              "description" : "Plain-text OAuth 2.0 client secret. Omit to leave unchanged.",
+              "type" : "string"
+            },
+            "oauth_client_id" : {
+              "description" : "New OAuth 2.0 client identifier. Omit to leave unchanged.",
+              "type" : "string"
+            },
+            "proxy_request" : {
+              "$ref" : "#/components/schemas/ProxyRequestInProxyClientKeyUpdateRequest"
+            },
+            "proxy_response_handler" : {
+              "$ref" : "#/components/schemas/ProxyResponseHandlerInProxyClientKeyUpdateRequest"
             },
             "request" : {
               "$ref" : "#/components/schemas/RequestInProxyClientKeyUpdateRequest"
             },
             "response_handler" : {
               "$ref" : "#/components/schemas/ResponseHandlerInProxyClientKeyUpdateRequest"
+            },
+            "scope" : {
+              "description" : "New space-delimited OAuth scopes. Omit to leave unchanged.",
+              "nullable" : true,
+              "type" : "string"
             }
           },
           "type" : "object"
@@ -40630,6 +40687,570 @@
         "required" : [ "algorithm" ],
         "title" : "PROXY",
         "type" : "object"
+      },
+      "ProxyRequestInBuiltProxyClientKeyResponse" : {
+        "description" : "Evaluatable that turns the calling client's request into the request sent to the partner, or refuses it. Runtime expressions use [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+        "externalDocs" : {
+          "description" : "ProxyClientKeyRequestContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal proxy request",
+          "properties" : {
+            "bearerCredential" : {
+              "type" : "boolean"
+            },
+            "body" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "headers" : {
+              "additionalProperties" : {
+                "items" : {
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "type" : "object"
+            },
+            "method" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "refusalReason" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "url" : {
+              "nullable" : true,
+              "type" : "string"
+            }
+          },
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "example" : "handlebars@runtime:{{proxyRequest}}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyRequestContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('proxyRequest');}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyRequestContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ProxyRequestInProxyClientKeyCreateRequest" : {
+        "description" : "Evaluatable that turns the calling client's request into the request sent to the partner, or refuses it. It receives the calling client's id from the platform. Omit to refuse every request. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+        "oneOf" : [ {
+          "description" : "Static proxy request",
+          "properties" : {
+            "bearerCredential" : {
+              "type" : "boolean"
+            },
+            "body" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "headers" : {
+              "additionalProperties" : {
+                "items" : {
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "type" : "object"
+            },
+            "method" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "refusalReason" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "url" : {
+              "nullable" : true,
+              "type" : "string"
+            }
+          },
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{proxyRequest}}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('proxyRequest');}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "example" : "handlebars@runtime:{{proxyRequest}}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyRequestContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('proxyRequest');}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyRequestContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ProxyRequestInProxyClientKeyResponse" : {
+        "description" : "Evaluatable that turns the calling client's request into the request sent to the partner, or refuses it. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+        "oneOf" : [ {
+          "description" : "Literal proxy request",
+          "properties" : {
+            "bearerCredential" : {
+              "type" : "boolean"
+            },
+            "body" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "headers" : {
+              "additionalProperties" : {
+                "items" : {
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "type" : "object"
+            },
+            "method" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "refusalReason" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "url" : {
+              "nullable" : true,
+              "type" : "string"
+            }
+          },
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{proxyRequest}}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('proxyRequest');}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "example" : "handlebars@runtime:{{proxyRequest}}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyRequestContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('proxyRequest');}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyRequestContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ProxyRequestInProxyClientKeyUpdateRequest" : {
+        "description" : "Evaluatable that turns the calling client's request into the request sent to the partner, or refuses it. Omit to leave unchanged. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+        "oneOf" : [ {
+          "description" : "Static proxy request",
+          "properties" : {
+            "bearerCredential" : {
+              "type" : "boolean"
+            },
+            "body" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "headers" : {
+              "additionalProperties" : {
+                "items" : {
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "type" : "object"
+            },
+            "method" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "refusalReason" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "url" : {
+              "nullable" : true,
+              "type" : "string"
+            }
+          },
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{proxyRequest}}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('proxyRequest');}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "example" : "handlebars@runtime:{{proxyRequest}}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyRequestContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('proxyRequest');}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyRequestContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ProxyResponseHandlerInBuiltProxyClientKeyResponse" : {
+        "description" : "Evaluatable that turns the partner's response into the response the calling client receives, or refuses it. Runtime expressions use [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+        "externalDocs" : {
+          "description" : "ProxyClientKeyResponseContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal proxy response handler",
+          "properties" : {
+            "body" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "headers" : {
+              "additionalProperties" : {
+                "items" : {
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "type" : "object"
+            },
+            "refusalReason" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "statusCode" : {
+              "format" : "int32",
+              "type" : "integer"
+            }
+          },
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "example" : "handlebars@runtime:{{proxyResponseHandler}}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('proxyResponseHandler');}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ProxyResponseHandlerInProxyClientKeyCreateRequest" : {
+        "description" : "Evaluatable that turns the partner's response into the response the calling client receives, or refuses it. Omit to return the partner's status code and body. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+        "oneOf" : [ {
+          "description" : "Static proxy response handler",
+          "properties" : {
+            "body" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "headers" : {
+              "additionalProperties" : {
+                "items" : {
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "type" : "object"
+            },
+            "refusalReason" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "statusCode" : {
+              "format" : "int32",
+              "type" : "integer"
+            }
+          },
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{proxyResponseHandler}}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('proxyResponseHandler');}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "example" : "handlebars@runtime:{{proxyResponseHandler}}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('proxyResponseHandler');}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ProxyResponseHandlerInProxyClientKeyResponse" : {
+        "description" : "Evaluatable that turns the partner's response into the response the calling client receives, or refuses it. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+        "oneOf" : [ {
+          "description" : "Literal proxy response handler",
+          "properties" : {
+            "body" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "headers" : {
+              "additionalProperties" : {
+                "items" : {
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "type" : "object"
+            },
+            "refusalReason" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "statusCode" : {
+              "format" : "int32",
+              "type" : "integer"
+            }
+          },
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{proxyResponseHandler}}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('proxyResponseHandler');}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "example" : "handlebars@runtime:{{proxyResponseHandler}}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('proxyResponseHandler');}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ProxyResponseHandlerInProxyClientKeyUpdateRequest" : {
+        "description" : "Evaluatable that turns the partner's response into the response the calling client receives, or refuses it. Omit to leave unchanged. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+        "oneOf" : [ {
+          "description" : "Static proxy response handler",
+          "properties" : {
+            "body" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "headers" : {
+              "additionalProperties" : {
+                "items" : {
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "type" : "object"
+            },
+            "refusalReason" : {
+              "nullable" : true,
+              "type" : "string"
+            },
+            "statusCode" : {
+              "format" : "int32",
+              "type" : "integer"
+            }
+          },
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{proxyResponseHandler}}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('proxyResponseHandler');}",
+          "externalDocs" : {
+            "description" : "ClientKeyBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "example" : "handlebars@runtime:{{proxyResponseHandler}}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('proxyResponseHandler');}",
+          "externalDocs" : {
+            "description" : "ProxyClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
       },
       "PublicReportResponse" : {
         "properties" : {
@@ -42127,68 +42748,6 @@
           "type" : "string"
         } ]
       },
-      "RequestInBuiltProxyClientKeyResponse" : {
-        "description" : "Evaluatable that turns the calling client's request into the request sent to the partner, or refuses it. Runtime expressions use [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
-        "externalDocs" : {
-          "description" : "ProxyClientKeyRequestContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
-        },
-        "oneOf" : [ {
-          "description" : "Literal request",
-          "properties" : {
-            "bearerCredential" : {
-              "type" : "boolean"
-            },
-            "body" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "headers" : {
-              "additionalProperties" : {
-                "items" : {
-                  "type" : "string"
-                },
-                "type" : "array"
-              },
-              "type" : "object"
-            },
-            "method" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "refusalReason" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "url" : {
-              "nullable" : true,
-              "type" : "string"
-            }
-          },
-          "title" : "Static Value",
-          "type" : "object"
-        }, {
-          "description" : "Handlebars expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
-          "example" : "handlebars@runtime:{{request}}",
-          "externalDocs" : {
-            "description" : "ProxyClientKeyRequestContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
-          },
-          "pattern" : "^handlebars@runtime:.*",
-          "title" : "Runtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
-          "example" : "javascript@runtime:function() { return context.get('request');}",
-          "externalDocs" : {
-            "description" : "ProxyClientKeyRequestContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
-          },
-          "pattern" : "^javascript@runtime:.*",
-          "title" : "Runtime - Javascript",
-          "type" : "string"
-        } ]
-      },
       "RequestInBuiltWebhookResponse" : {
         "description" : "The request as configured: a literal value, or an expression (type:string) when defined dynamically. Runtime expressions use [WebhookRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/WebhookRuntimeContext.d.ts).",
         "externalDocs" : {
@@ -42422,13 +42981,10 @@
         } ]
       },
       "RequestInProxyClientKeyCreateRequest" : {
-        "description" : "Evaluatable that turns the calling client's request into the request sent to the partner, or refuses it. It receives the calling client's id from the platform. Omit to refuse every request. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+        "description" : "Evaluatable that builds the token request, as on an `OAUTH_GENERIC` key. Omit for the default client credentials request. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [OAuthClientKeyRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/OAuthClientKeyRuntimeContext.d.ts).",
         "oneOf" : [ {
           "description" : "Static request",
           "properties" : {
-            "bearerCredential" : {
-              "type" : "boolean"
-            },
             "body" : {
               "nullable" : true,
               "type" : "string"
@@ -42442,16 +42998,7 @@
               },
               "type" : "object"
             },
-            "method" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "refusalReason" : {
-              "nullable" : true,
-              "type" : "string"
-            },
             "url" : {
-              "nullable" : true,
               "type" : "string"
             }
           },
@@ -42478,99 +43025,21 @@
           "title" : "Buildtime - Javascript",
           "type" : "string"
         }, {
-          "description" : "Handlebars expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "description" : "Handlebars expression with [OAuthClientKeyRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/OAuthClientKeyRuntimeContext.d.ts).",
           "example" : "handlebars@runtime:{{request}}",
           "externalDocs" : {
-            "description" : "ProxyClientKeyRequestContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+            "description" : "OAuthClientKeyRuntimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/OAuthClientKeyRuntimeContext.d.ts"
           },
           "pattern" : "^handlebars@runtime:.*",
           "title" : "Runtime - Handlebars",
           "type" : "string"
         }, {
-          "description" : "Javascript expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "description" : "Javascript expression with [OAuthClientKeyRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/OAuthClientKeyRuntimeContext.d.ts).",
           "example" : "javascript@runtime:function() { return context.get('request');}",
           "externalDocs" : {
-            "description" : "ProxyClientKeyRequestContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
-          },
-          "pattern" : "^javascript@runtime:.*",
-          "title" : "Runtime - Javascript",
-          "type" : "string"
-        } ]
-      },
-      "RequestInProxyClientKeyResponse" : {
-        "description" : "Evaluatable that turns the calling client's request into the request sent to the partner, or refuses it. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
-        "oneOf" : [ {
-          "description" : "Literal request",
-          "properties" : {
-            "bearerCredential" : {
-              "type" : "boolean"
-            },
-            "body" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "headers" : {
-              "additionalProperties" : {
-                "items" : {
-                  "type" : "string"
-                },
-                "type" : "array"
-              },
-              "type" : "object"
-            },
-            "method" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "refusalReason" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "url" : {
-              "nullable" : true,
-              "type" : "string"
-            }
-          },
-          "title" : "Static Value",
-          "type" : "object"
-        }, {
-          "description" : "Handlebars expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{request}}",
-          "externalDocs" : {
-            "description" : "ClientKeyBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('request');}",
-          "externalDocs" : {
-            "description" : "ClientKeyBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        }, {
-          "description" : "Handlebars expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
-          "example" : "handlebars@runtime:{{request}}",
-          "externalDocs" : {
-            "description" : "ProxyClientKeyRequestContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
-          },
-          "pattern" : "^handlebars@runtime:.*",
-          "title" : "Runtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
-          "example" : "javascript@runtime:function() { return context.get('request');}",
-          "externalDocs" : {
-            "description" : "ProxyClientKeyRequestContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+            "description" : "OAuthClientKeyRuntimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/OAuthClientKeyRuntimeContext.d.ts"
           },
           "pattern" : "^javascript@runtime:.*",
           "title" : "Runtime - Javascript",
@@ -42578,13 +43047,10 @@
         } ]
       },
       "RequestInProxyClientKeyUpdateRequest" : {
-        "description" : "Evaluatable that turns the calling client's request into the request sent to the partner, or refuses it. Omit to leave unchanged. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+        "description" : "Evaluatable that builds the token request, as on an `OAUTH_GENERIC` key. Omit for the default client credentials request. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [OAuthClientKeyRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/OAuthClientKeyRuntimeContext.d.ts).",
         "oneOf" : [ {
           "description" : "Static request",
           "properties" : {
-            "bearerCredential" : {
-              "type" : "boolean"
-            },
             "body" : {
               "nullable" : true,
               "type" : "string"
@@ -42598,16 +43064,7 @@
               },
               "type" : "object"
             },
-            "method" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "refusalReason" : {
-              "nullable" : true,
-              "type" : "string"
-            },
             "url" : {
-              "nullable" : true,
               "type" : "string"
             }
           },
@@ -42634,21 +43091,21 @@
           "title" : "Buildtime - Javascript",
           "type" : "string"
         }, {
-          "description" : "Handlebars expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "description" : "Handlebars expression with [OAuthClientKeyRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/OAuthClientKeyRuntimeContext.d.ts).",
           "example" : "handlebars@runtime:{{request}}",
           "externalDocs" : {
-            "description" : "ProxyClientKeyRequestContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+            "description" : "OAuthClientKeyRuntimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/OAuthClientKeyRuntimeContext.d.ts"
           },
           "pattern" : "^handlebars@runtime:.*",
           "title" : "Runtime - Handlebars",
           "type" : "string"
         }, {
-          "description" : "Javascript expression with [ProxyClientKeyRequestContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts).",
+          "description" : "Javascript expression with [OAuthClientKeyRuntimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/OAuthClientKeyRuntimeContext.d.ts).",
           "example" : "javascript@runtime:function() { return context.get('request');}",
           "externalDocs" : {
-            "description" : "ProxyClientKeyRequestContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyRequestContext.d.ts"
+            "description" : "OAuthClientKeyRuntimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/OAuthClientKeyRuntimeContext.d.ts"
           },
           "pattern" : "^javascript@runtime:.*",
           "title" : "Runtime - Javascript",
@@ -43145,61 +43602,6 @@
           "type" : "string"
         } ]
       },
-      "ResponseHandlerInBuiltProxyClientKeyResponse" : {
-        "description" : "Evaluatable that turns the partner's response into the response the calling client receives, or refuses it. Runtime expressions use [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
-        "externalDocs" : {
-          "description" : "ProxyClientKeyResponseContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
-        },
-        "oneOf" : [ {
-          "description" : "Literal response handler",
-          "properties" : {
-            "body" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "headers" : {
-              "additionalProperties" : {
-                "items" : {
-                  "type" : "string"
-                },
-                "type" : "array"
-              },
-              "type" : "object"
-            },
-            "refusalReason" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "statusCode" : {
-              "format" : "int32",
-              "type" : "integer"
-            }
-          },
-          "title" : "Static Value",
-          "type" : "object"
-        }, {
-          "description" : "Handlebars expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
-          "example" : "handlebars@runtime:{{responseHandler}}",
-          "externalDocs" : {
-            "description" : "ProxyClientKeyResponseContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
-          },
-          "pattern" : "^handlebars@runtime:.*",
-          "title" : "Runtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
-          "example" : "javascript@runtime:function() { return context.get('responseHandler');}",
-          "externalDocs" : {
-            "description" : "ProxyClientKeyResponseContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
-          },
-          "pattern" : "^javascript@runtime:.*",
-          "title" : "Runtime - Javascript",
-          "type" : "string"
-        } ]
-      },
       "ResponseHandlerInBuiltWebhookResponse" : {
         "description" : "if no webhook response status is provided, we will retry non 2xx webhook requests. Runtime expressions use [WebhookResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/webhook/response/WebhookResponseContext.d.ts).",
         "externalDocs" : {
@@ -43404,29 +43806,15 @@
         } ]
       },
       "ResponseHandlerInProxyClientKeyCreateRequest" : {
-        "description" : "Evaluatable that turns the partner's response into the response the calling client receives, or refuses it. Omit to return the partner's status code and body. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+        "description" : "Evaluatable that reads the token from the token response, as on an `OAUTH_GENERIC` key. Omit for the default, which reads `access_token` and `expires_in`. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [OAuthClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/response/OAuthClientKeyResponseContext.d.ts).",
         "oneOf" : [ {
           "description" : "Static response handler",
           "properties" : {
-            "body" : {
-              "nullable" : true,
+            "accessToken" : {
               "type" : "string"
             },
-            "headers" : {
-              "additionalProperties" : {
-                "items" : {
-                  "type" : "string"
-                },
-                "type" : "array"
-              },
-              "type" : "object"
-            },
-            "refusalReason" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "statusCode" : {
-              "format" : "int32",
+            "expiresIn" : {
+              "format" : "int64",
               "type" : "integer"
             }
           },
@@ -43453,92 +43841,21 @@
           "title" : "Buildtime - Javascript",
           "type" : "string"
         }, {
-          "description" : "Handlebars expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "description" : "Handlebars expression with [OAuthClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/response/OAuthClientKeyResponseContext.d.ts).",
           "example" : "handlebars@runtime:{{responseHandler}}",
           "externalDocs" : {
-            "description" : "ProxyClientKeyResponseContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+            "description" : "OAuthClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/response/OAuthClientKeyResponseContext.d.ts"
           },
           "pattern" : "^handlebars@runtime:.*",
           "title" : "Runtime - Handlebars",
           "type" : "string"
         }, {
-          "description" : "Javascript expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "description" : "Javascript expression with [OAuthClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/response/OAuthClientKeyResponseContext.d.ts).",
           "example" : "javascript@runtime:function() { return context.get('responseHandler');}",
           "externalDocs" : {
-            "description" : "ProxyClientKeyResponseContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
-          },
-          "pattern" : "^javascript@runtime:.*",
-          "title" : "Runtime - Javascript",
-          "type" : "string"
-        } ]
-      },
-      "ResponseHandlerInProxyClientKeyResponse" : {
-        "description" : "Evaluatable that turns the partner's response into the response the calling client receives, or refuses it. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
-        "oneOf" : [ {
-          "description" : "Literal response handler",
-          "properties" : {
-            "body" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "headers" : {
-              "additionalProperties" : {
-                "items" : {
-                  "type" : "string"
-                },
-                "type" : "array"
-              },
-              "type" : "object"
-            },
-            "refusalReason" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "statusCode" : {
-              "format" : "int32",
-              "type" : "integer"
-            }
-          },
-          "title" : "Static Value",
-          "type" : "object"
-        }, {
-          "description" : "Handlebars expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{responseHandler}}",
-          "externalDocs" : {
-            "description" : "ClientKeyBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('responseHandler');}",
-          "externalDocs" : {
-            "description" : "ClientKeyBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        }, {
-          "description" : "Handlebars expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
-          "example" : "handlebars@runtime:{{responseHandler}}",
-          "externalDocs" : {
-            "description" : "ProxyClientKeyResponseContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
-          },
-          "pattern" : "^handlebars@runtime:.*",
-          "title" : "Runtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
-          "example" : "javascript@runtime:function() { return context.get('responseHandler');}",
-          "externalDocs" : {
-            "description" : "ProxyClientKeyResponseContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+            "description" : "OAuthClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/response/OAuthClientKeyResponseContext.d.ts"
           },
           "pattern" : "^javascript@runtime:.*",
           "title" : "Runtime - Javascript",
@@ -43546,29 +43863,15 @@
         } ]
       },
       "ResponseHandlerInProxyClientKeyUpdateRequest" : {
-        "description" : "Evaluatable that turns the partner's response into the response the calling client receives, or refuses it. Omit to leave unchanged. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+        "description" : "Evaluatable that reads the token from the token response, as on an `OAUTH_GENERIC` key. Omit for the default, which reads `access_token` and `expires_in`. Buildtime expressions use [ClientKeyBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/built/ClientKeyBuildtimeContext.d.ts). Runtime expressions use [OAuthClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/response/OAuthClientKeyResponseContext.d.ts).",
         "oneOf" : [ {
           "description" : "Static response handler",
           "properties" : {
-            "body" : {
-              "nullable" : true,
+            "accessToken" : {
               "type" : "string"
             },
-            "headers" : {
-              "additionalProperties" : {
-                "items" : {
-                  "type" : "string"
-                },
-                "type" : "array"
-              },
-              "type" : "object"
-            },
-            "refusalReason" : {
-              "nullable" : true,
-              "type" : "string"
-            },
-            "statusCode" : {
-              "format" : "int32",
+            "expiresIn" : {
+              "format" : "int64",
               "type" : "integer"
             }
           },
@@ -43595,21 +43898,21 @@
           "title" : "Buildtime - Javascript",
           "type" : "string"
         }, {
-          "description" : "Handlebars expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "description" : "Handlebars expression with [OAuthClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/response/OAuthClientKeyResponseContext.d.ts).",
           "example" : "handlebars@runtime:{{responseHandler}}",
           "externalDocs" : {
-            "description" : "ProxyClientKeyResponseContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+            "description" : "OAuthClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/response/OAuthClientKeyResponseContext.d.ts"
           },
           "pattern" : "^handlebars@runtime:.*",
           "title" : "Runtime - Handlebars",
           "type" : "string"
         }, {
-          "description" : "Javascript expression with [ProxyClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts).",
+          "description" : "Javascript expression with [OAuthClientKeyResponseContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/response/OAuthClientKeyResponseContext.d.ts).",
           "example" : "javascript@runtime:function() { return context.get('responseHandler');}",
           "externalDocs" : {
-            "description" : "ProxyClientKeyResponseContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/proxy/ProxyClientKeyResponseContext.d.ts"
+            "description" : "OAuthClientKeyResponseContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/client/security/key/response/OAuthClientKeyResponseContext.d.ts"
           },
           "pattern" : "^javascript@runtime:.*",
           "title" : "Runtime - Javascript",
