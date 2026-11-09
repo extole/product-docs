@@ -12,10 +12,10 @@
     }
   ],
   "paths": {
-    "/v6/async-events/{event_name}": {
+    "/v6/events/{event_name}": {
       "post": {
-        "summary": "Send Async",
-        "description": "Sends this email to one person without waiting for identity resolution: the event is accepted immediately and resolved afterwards. Call it once per recipient - it takes one person, and exists for sending to many of them at volume from your own backend.",
+        "summary": "Send Now",
+        "description": "Sends this email to one person now, by submitting one of the events that trigger it. Returns once identity resolution has completed, so the send is attributed to a known person - which suits low-volume, interactive sending from an admin or a user interface rather than bulk traffic; use Send Async for that.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "ACTION"
@@ -39,7 +39,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SendAsyncRequest"
+                "$ref": "#/components/schemas/SendNowRequest"
               }
             }
           }
@@ -52,12 +52,17 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "event_id"
+                    "event_id",
+                    "person_id"
                   ],
                   "properties": {
                     "event_id": {
                       "type": "string",
-                      "description": "Unique identifier for the accepted event. Identity is resolved later, so no person is returned."
+                      "description": "Unique identifier for the submitted event."
+                    },
+                    "person_id": {
+                      "type": "string",
+                      "description": "Extole person the event resolved to."
                     }
                   }
                 }
@@ -127,10 +132,10 @@
         "x-extole-component": "generic_promotion_email"
       }
     },
-    "/v6/events/{event_name}": {
+    "/v6/async-events/{event_name}": {
       "post": {
-        "summary": "Send Now",
-        "description": "Sends this email to one person now, by submitting one of the events that trigger it. Returns once identity resolution has completed, so the send is attributed to a known person - which suits low-volume, interactive sending from an admin or a user interface rather than bulk traffic; use Send Async for that.",
+        "summary": "Send Async",
+        "description": "Sends this email to one person without waiting for identity resolution: the event is accepted immediately and resolved afterwards. Call it once per recipient - it takes one person, and exists for sending to many of them at volume from your own backend.",
         "x-extole-type": "SERVER_TO_EXTOLE",
         "tags": [
           "ACTION"
@@ -154,7 +159,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SendNowRequest"
+                "$ref": "#/components/schemas/SendAsyncRequest"
               }
             }
           }
@@ -167,17 +172,12 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "event_id",
-                    "person_id"
+                    "event_id"
                   ],
                   "properties": {
                     "event_id": {
                       "type": "string",
-                      "description": "Unique identifier for the submitted event."
-                    },
-                    "person_id": {
-                      "type": "string",
-                      "description": "Extole person the event resolved to."
+                      "description": "Unique identifier for the accepted event. Identity is resolved later, so no person is returned."
                     }
                   }
                 }
@@ -302,7 +302,7 @@
           "unique_id"
         ]
       },
-      "SendAsyncRequest": {
+      "SendNowRequest": {
         "type": "object",
         "required": [
           "email"
@@ -319,7 +319,7 @@
           }
         }
       },
-      "SendNowRequest": {
+      "SendAsyncRequest": {
         "type": "object",
         "required": [
           "email"

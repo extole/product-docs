@@ -1,0 +1,51 @@
+---
+title: "Component Settings Over REST"
+description: "Read a campaign component setting's effective value and change an inherited setting with the REST API."
+---
+
+# Overview
+
+Campaign component settings are read and written at
+`/v2/campaigns/{campaign_id}/components/{component_id}/settings/{setting_name}`. Each setting
+carries a `source`: `LOCAL` for a value set on this component, `INHERITED` for a value that comes
+from the component's library template, or `PARAMETER`. This page covers how to read the value
+that renders and how to give an inherited setting a value of its own.
+
+## Read the Built Value
+
+`GET /v2/campaigns/{campaign_id}/components/{component_id}/settings/{setting_name}/built` returns
+the value the campaign renders, with build-time expressions resolved. For a setting with
+`source: INHERITED`, the raw listing from `GET /v2/campaigns/{campaign_id}/components` shows the
+library template's default in `values`, so use the built endpoint when you need the effective
+value. Use the raw listing to find candidate settings, then read each one's built value.
+
+A value written as a runtime template, such as `{{variable}}`, keeps that form in the built view
+and resolves when the page renders.
+
+## Change an Inherited Setting
+
+To give an `INHERITED` setting a value of its own, send two `PUT` requests to the setting, in
+this order:
+
+1. The setting with `"source": "LOCAL"` and no `values`. This promotes the setting to a local
+   setting on the component.
+2. The full setting body with `values`. This stores the value.
+
+This is the order My Extole uses. Include the setting's other fields from the `GET` response in the
+second request, so the stored setting carries them.
+
+For a setting that holds locales, write the value under the locale key, such as `en`. A
+translatable setting takes locale keys only; a `default` key returns `default_key_not_allowed`.
+
+An `IMAGE` setting inherited from a parent component points at an asset the parent owns. Upload the
+image to the child component first, then promote the setting and point it at the child's asset.
+
+## The Root Component's Name
+
+A campaign's root component keeps its `display_name`. A request to change it returns
+`campaign_component_root_rename`. Update the root component's `description` instead.
+
+## Related Documentation
+
+- [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints)
+- [Integration Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model)

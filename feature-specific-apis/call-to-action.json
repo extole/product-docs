@@ -22,96 +22,6 @@
     }
   ],
   "paths": {
-    "/v5/zones/call_to_action": {
-      "get": {
-        "summary": "Preview Draft",
-        "description": "Previews the latest content. Use to test changes prior to publishing them for live traffic. Rendered through the client zone API with the campaign preview sandbox, so it needs a client access token rather than a consumer one, and it renders against an anonymous profile rather than a named person.",
-        "x-extole-type": "SERVER_TO_EXTOLE",
-        "tags": [
-          "VIEW"
-        ],
-        "parameters": [
-          {
-            "name": "sandbox",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "const": "CAMPAIGN_PREVIEW-{campaign_id}"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/javascript": {
-                "schema": {
-                  "description": "The preview content, which renders the draft of the zone in the campaign preview sandbox."
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "binding_error": {
-                    "$ref": "#/components/examples/binding_error"
-                  },
-                  "invalid_json": {
-                    "$ref": "#/components/examples/invalid_json"
-                  },
-                  "invalid_parameter": {
-                    "$ref": "#/components/examples/invalid_parameter"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RestExceptionResponse"
-                },
-                "examples": {
-                  "access_denied": {
-                    "$ref": "#/components/examples/access_denied"
-                  },
-                  "method_unauthorized": {
-                    "$ref": "#/components/examples/method_unauthorized"
-                  },
-                  "missing_access_token": {
-                    "$ref": "#/components/examples/missing_access_token"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "servers": [
-          {
-            "description": "Production - Extole API host",
-            "url": "https://api.extole.io"
-          }
-        ],
-        "security": [
-          {
-            "CLIENT_AUTH_HEADER": []
-          },
-          {
-            "CLIENT_AUTH_QUERY_PARAM": []
-          }
-        ],
-        "x-extole-component": "call_to_action"
-      }
-    },
     "/zones/call_to_action": {
       "get": {
         "summary": "Render",
@@ -331,23 +241,100 @@
         ],
         "x-extole-component": "call_to_action"
       }
+    },
+    "/v5/zones/call_to_action": {
+      "get": {
+        "summary": "Preview Draft",
+        "description": "Previews the latest content. Use to test changes prior to publishing them for live traffic. Rendered through the client zone API with the campaign preview sandbox, so it needs a client access token rather than a consumer one, and it renders against an anonymous profile rather than a named person.",
+        "x-extole-type": "SERVER_TO_EXTOLE",
+        "tags": [
+          "VIEW"
+        ],
+        "parameters": [
+          {
+            "name": "sandbox",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "CAMPAIGN_PREVIEW-{campaign_id}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/javascript": {
+                "schema": {
+                  "description": "The preview content, which renders the draft of the zone in the campaign preview sandbox."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "binding_error": {
+                    "$ref": "#/components/examples/binding_error"
+                  },
+                  "invalid_json": {
+                    "$ref": "#/components/examples/invalid_json"
+                  },
+                  "invalid_parameter": {
+                    "$ref": "#/components/examples/invalid_parameter"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestExceptionResponse"
+                },
+                "examples": {
+                  "access_denied": {
+                    "$ref": "#/components/examples/access_denied"
+                  },
+                  "method_unauthorized": {
+                    "$ref": "#/components/examples/method_unauthorized"
+                  },
+                  "missing_access_token": {
+                    "$ref": "#/components/examples/missing_access_token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "description": "Production - Extole API host",
+            "url": "https://api.extole.io"
+          }
+        ],
+        "security": [
+          {
+            "CLIENT_AUTH_HEADER": []
+          },
+          {
+            "CLIENT_AUTH_QUERY_PARAM": []
+          }
+        ],
+        "x-extole-component": "call_to_action"
+      }
     }
   },
   "components": {
     "securitySchemes": {
-      "CLIENT_AUTH_HEADER": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization",
-        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
-        "x-bearer-format": "bearer"
-      },
-      "CLIENT_AUTH_QUERY_PARAM": {
-        "type": "apiKey",
-        "in": "query",
-        "name": "access_token",
-        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device."
-      },
       "CONSUMER_AUTH_HEADER": {
         "type": "apiKey",
         "in": "header",
@@ -366,6 +353,19 @@
         "in": "cookie",
         "name": "extole_token",
         "description": "A consumer access token, issued to a single person in the browser or app. Not a client access token - never send a client token from a consumer device."
+      },
+      "CLIENT_AUTH_HEADER": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device.",
+        "x-bearer-format": "bearer"
+      },
+      "CLIENT_AUTH_QUERY_PARAM": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "access_token",
+        "description": "A client access token, issued to your Extole account and used from your own backend. Never send a client token from a consumer device."
       }
     },
     "schemas": {
@@ -468,26 +468,6 @@
           "parameters": {}
         }
       },
-      "method_unauthorized": {
-        "summary": "method_unauthorized",
-        "value": {
-          "unique_id": "00000000-0000-0000-0000-000000000000",
-          "http_status_code": 403,
-          "code": "method_unauthorized",
-          "message": "Access forbidden to this endpoint",
-          "parameters": {}
-        }
-      },
-      "missing_access_token": {
-        "summary": "missing_access_token",
-        "value": {
-          "unique_id": "00000000-0000-0000-0000-000000000000",
-          "http_status_code": 403,
-          "code": "missing_access_token",
-          "message": "No access_token was provided with this request.",
-          "parameters": {}
-        }
-      },
       "expired_access_token": {
         "summary": "expired_access_token",
         "value": {
@@ -515,6 +495,26 @@
           "http_status_code": 403,
           "code": "jwt_authentication_error",
           "message": "The jwt authentication failed.",
+          "parameters": {}
+        }
+      },
+      "method_unauthorized": {
+        "summary": "method_unauthorized",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "method_unauthorized",
+          "message": "Access forbidden to this endpoint",
+          "parameters": {}
+        }
+      },
+      "missing_access_token": {
+        "summary": "missing_access_token",
+        "value": {
+          "unique_id": "00000000-0000-0000-0000-000000000000",
+          "http_status_code": 403,
+          "code": "missing_access_token",
+          "message": "No access_token was provided with this request.",
           "parameters": {}
         }
       },
