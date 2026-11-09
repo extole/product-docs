@@ -1,7 +1,7 @@
 ---
 title: "Stripe"
 sidebarTitle: "Stripe"
-description: "Connect Stripe to Extole with Extole Offers, send Stripe events to Extole as conversions, and issue customer-balance credits or single-use promotion codes."
+description: "Connect Stripe to Extole with Extole Offers, and issue customer-balance credits or single-use promotion codes as rewards."
 keywords:
   - "Payments"
   - "Integration"
@@ -9,26 +9,18 @@ keywords:
 
 ## Overview
 
-Extole Offers for Stripe rewards people through the Stripe account you already use. A reward is either a credit on the Stripe customer's balance or a single-use promotion code for a coupon you already created in Stripe. Stripe sends your payment and subscription events to Extole, Extole decides whether a reward is earned, and Extole calls Stripe to issue it. There is no separate payout system.
+Extole Offers for Stripe rewards people through the Stripe account you already use. A reward is either a credit on the Stripe customer's balance or a single-use promotion code for a coupon you already created in Stripe. Extole decides whether a reward is earned, and Extole calls Stripe to issue it. There is no separate payout system.
+
+Stripe is where Extole issues rewards, not where it learns about purchases. Conversions keep coming from your program's existing Extole integration: the JavaScript tag, server-to-server events, or another integration. Extole doesn't read payments, refunds, or cancellations from Stripe.
 
 The integration has two sides:
 
-- **The Extole Stripe integration** in My Extole. Its **Connect to Stripe** button signs you in to Stripe and approves Extole Offers, so Extole can call Stripe for your account. Extole keeps that connection current; you don't paste a Stripe key.
-- **The Extole Offers app** in Stripe. **Sign in with Extole** links the app to your Extole account, and its settings page walks you through the rest of setup and checks your webhook destination.
-
-You can start from either side.
+- **The Extole Offers app** in Stripe. **Sign in with Extole** on its settings page links the app to your Extole account.
+- **The Extole Stripe integration** in My Extole. Its Connect setting signs you in to Stripe and approves Extole Offers, so Extole can call Stripe for your account. Extole keeps that connection current; you don't paste a Stripe key.
 
 ## Finish Setup
 
-If you installed Extole Offers from the Stripe App Marketplace, Stripe sent you here. The app is installed, but Extole can't issue rewards or receive events until you finish these steps:
-
-1. In My Extole, open **Partners** > **Stripe**. Click **Install** if the integration isn't installed yet.
-2. On the integration's **Configuration** tab, click **Connect to Stripe**, sign in to Stripe, and approve Extole Offers.
-3. [Create the webhook destination](#create-the-webhook-destination) in Stripe.
-4. [Add a reward supplier](#reward-types) and attach it to your campaign.
-5. On the campaign's Converted step, set **Triggered By** to **Conversion**. See [Reward on Stripe Purchases](#reward-on-stripe-purchases).
-
-Then open Extole Offers in the Stripe Dashboard and click **Sign in with Extole** to see the setup checklist.
+If you installed Extole Offers from the Stripe App Marketplace, Stripe sent you here. The app is installed, but Extole can't issue rewards until you finish [setting up the integration](#set-up-the-integration): sign in with Extole in the app, connect Stripe in My Extole, and add a reward supplier to your program.
 
 Don't have an Extole account? Contact support@extole.com or [request a demo](https://www.extole.com/demo).
 
@@ -37,122 +29,41 @@ Don't have an Extole account? Contact support@extole.com or [request a demo](htt
 | Requirement | Description |
 | --- | --- |
 | Extole account | A My Extole user who can install and publish integrations. |
-| Stripe account | An active Stripe account. Use a Stripe sandbox to test. |
+| Extole program | A program that already receives conversions from an Extole integration, such as the JavaScript tag or server-to-server events. |
+| Stripe account | An active Stripe account. Use test mode or a Stripe sandbox to test. |
 | Stripe coupon | Required only for promotion-code rewards. Create the coupon in Stripe before you configure the supplier. |
-| Extole access token | An access token with the **User Support** scope, used only in the webhook destination URL. Create it in **Security Center**. See [Generate Long-lived Access Tokens](/technical/operational-tasks/account-configuration/generate-long-lived-access-tokens). |
 
-## Install the Integration
+## Set Up the Integration
 
-### Start From Extole
-
-1. In My Extole, open **Partners** > **Stripe** and click **Install**.
-2. On the **Configuration** tab, click **Connect to Stripe**. Stripe asks you to sign in, choose the account, and approve the permissions Extole Offers requests. Stripe installs the app on that account and returns you to My Extole.
-3. [Create the webhook destination](#create-the-webhook-destination).
-4. Open the **Rewards** tab and add a supplier. Then open **Programs**, edit the campaign, and attach that supplier to the reward.
-5. On the campaign's Converted step, set **Triggered By** to **Conversion**. See [Reward on Stripe Purchases](#reward-on-stripe-purchases).
-
-### Start From the Stripe App Marketplace
-
-1. Install [Extole Offers](https://marketplace.stripe.com/apps/com.extole.stripe-offers-v4) from the Stripe App Marketplace and approve its permissions.
+1. Install [Extole Offers](https://marketplace.stripe.com/apps/com.extole.stripe-offers-v4) in Stripe from the Stripe App Marketplace, and approve its permissions. Install it where you want rewards issued: your live account, its test mode, or a sandbox.
 2. Open the app's settings page in the Stripe Dashboard and click **Sign in with Extole**. Sign in with your My Extole user. The app keeps only your email and Extole client id; it never holds an Extole API token.
-3. Click **Connect**. My Extole opens your Stripe integration. Click **Connect to Stripe** there to finish the connection.
-4. Follow the rest of the checklist on the settings page: create the webhook destination, then wait for the destination check to turn green.
+3. In My Extole, open **Partners** > **Stripe**, and click **Install** if the integration isn't installed yet. On the **Configuration** tab, click the Connect setting that matches where you installed the app:
+   - **Connect a live Stripe account**
+   - **Connect a Stripe test mode account**
+   - **Connect a Stripe sandbox**
 
-**Sign out** on the settings page removes the Extole sign-in from the app. It doesn't disconnect Stripe from Extole.
+   Stripe asks you to sign in and approve Extole Offers, then returns you to My Extole.
+4. Open the integration's **Rewards** tab and add a [Stripe reward supplier](#reward-types). For promotion codes, pick the **Stripe Coupon**. Then open **Programs**, edit the program, and attach the supplier to the reward.
+
+Connect only the one that matches where you installed Extole Offers. If more than one is connected, Extole uses the live account first, then test mode, then the sandbox.
+
+**Sign out** on the app's settings page removes the Extole sign-in from the app. It doesn't disconnect Stripe from Extole.
 
 ### Disconnect or Uninstall
 
-To disconnect, open the integration's **Configuration** tab in My Extole and disconnect the Stripe connection. Removing Extole Offers in Stripe also ends Extole's access. Either way, rewards fail until you click **Connect to Stripe** again. Delete the Extole destination in Stripe so Stripe stops sending events.
-
-## Create the Webhook Destination
-
-Stripe sends events to Extole through a webhook destination you create in your Stripe account. Extole doesn't create it for you.
-
-1. In **Security Center**, create an access token with the **User Support** scope. Use it for this webhook only.
-2. In the Stripe Dashboard, open **Developers** > **Webhooks** and add a destination. Use the endpoint URL below, with your token in place of `YOUR_ACCESS_TOKEN`.
-3. Select the seven events in the table below. The app's settings page lists them with a copy button for each.
-4. Save the destination. In Extole Offers, the destination check marks each event as found or missing.
-
-```
-https://api.extole.io/v6/events/stripe_event?access_token=YOUR_ACCESS_TOKEN
-```
-
-| Stripe event | Why Extole needs it |
-| --- | --- |
-| `checkout.session.completed` | A paid one-time Checkout Session counts as a purchase. |
-| `checkout.session.async_payment_succeeded` | A delayed Checkout payment, such as a bank debit, succeeded and counts as a purchase. |
-| `invoice.paid` | A subscription's first paid invoice counts as a purchase. |
-| `payment_intent.succeeded` | A payment made without Checkout or Billing. It counts only when **Payment Intent Purchases** is on. |
-| `customer.subscription.deleted` | A subscription was canceled. |
-| `charge.refunded` | A charge was fully or partly refunded. |
-| `customer.discount.created` | A customer applied a promotion code, so Extole can mark the matching reward redeemed. |
-
-The token is part of the URL, so anyone who sees the URL can send events to your account. **User Support** is the lowest scope the events endpoint accepts. Don't reuse a token that has a higher scope or serves another integration.
-
-To rotate the token, or if the URL leaks, create a new **User Support** access token, update the destination URL in Stripe, and then delete the old token in **Security Center**.
-
-## Events Extole Receives
-
-Extole turns each Stripe event into an Extole input event. Purchases become **Conversion**. Cancellations and refunds become the integration events **Subscription Canceled** and **Refund**, which you can pick as **Triggered By** for your own business events.
-
-| Stripe event | When | Extole input event | `partner_conversion_id` |
-| --- | --- | --- | --- |
-| `checkout.session.completed`, `checkout.session.async_payment_succeeded` | The session is a one-time payment (`mode` is `payment`) and is paid | `conversion` | The payment intent id |
-| `payment_intent.succeeded` | **Payment Intent Purchases** is on | `conversion` | The payment intent id |
-| `invoice.paid` | The invoice belongs to a subscription and `amount_paid` is more than zero | `conversion` | The subscription id |
-| `customer.subscription.deleted` | Always | `stripe_customer_subscription_deleted` (**Subscription Canceled**) | — |
-| `charge.refunded` | Always | `stripe_charge_refunded` (**Refund**) | The refunded payment intent id |
-| `customer.discount.created` | Always | `stripe_customer_discount_created`, read by the integration's redemption controller | — |
-| Any other event, or a row above when its condition isn't met | — | `stripe_` plus the Stripe type with dots as underscores | — |
-
-### Reward on Stripe Purchases
-
-A Flow Builder campaign's Converted step has no trigger by default, and the campaign doesn't publish until **Triggered By** names one. The Stripe integration offers only **Refund** and **Subscription Canceled** there, so Stripe purchases reach Converted only when you select **Conversion** yourself:
-
-1. Open the campaign and edit its Converted step.
-2. Set **Triggered By** to the **Conversion** trigger event. It comes with the Event API extension. If **Conversion** isn't in the list, install the Event API extension first.
-3. Publish the campaign.
-
-### Purchases
-
-Each payment becomes one Conversion:
-
-- **Checkout and Payment Links.** A paid one-time Checkout Session is the purchase. A Checkout Session for a subscription is counted from its first paid invoice instead.
-- **Subscriptions.** `invoice.paid` carries the subscription id as `partner_conversion_id`, and Converted keeps only the first event per id. So a subscription counts once, when it first pays: after a trial, or on the first invoice. Renewals don't count again.
-- **Payment Intent Purchases.** Leave this setting off if you take payments through Checkout, Payment Links, or Billing. Those payments also emit `payment_intent.succeeded`, so turning it on counts them twice. Turn it on only when you create payment intents yourself.
-- **One-off invoices.** An invoice that isn't part of a subscription isn't a Conversion. To count those payments, turn on **Payment Intent Purchases**, with the caution above.
-
-`cart_value` is the money moved, as a decimal in major units, for example `20.00`. It comes from `amount_total` on a Checkout Session, `amount_received` on a payment intent, `amount_paid` on an invoice, and `amount_refunded` on a refund. It drives revenue reporting, percentage rewards, and minimum cart value rules.
-
-### Subscription Canceled and Refund
-
-**Subscription Canceled** is recorded when a subscription ends, at period end or immediately.
-
-**Refund** is recorded for every `charge.refunded`, full or partial. Its `refund_full` field is `true` when the whole charge was refunded and `false` for a partial refund. To trigger a business event on full refunds only, add an **Event Data Comparison** trigger rule: event parameter `refund_full`, comparison equals, value `true`. Its `partner_conversion_id` is the refunded payment intent, which matches the Conversion of a one-time purchase. A subscription's Conversion carries the subscription id instead.
-
-### Event Data
-
-Extole copies these fields onto every event when Stripe sends them:
-
-- `partner_user_id`: the Stripe customer id, when it starts with `cus_`.
-- `email`: from the Checkout customer details, `customer_email`, the billing details, or `receipt_email`, in that order.
-- `currency`: as an uppercase ISO code.
-- `status`, `subscription`, `stripe_event_id`, `stripe_event_type`, and `stripe_object_id`.
-- `promotion_code_id`: on a Checkout Session or discount that used a promotion code.
-
-Every Stripe event also carries the app type `extole-stripe-app`.
+To stop rewards, disconnect the Stripe connection on the integration's **Configuration** tab in My Extole. Uninstalling Extole Offers in Stripe also ends Extole's access and stops rewards. Either way, rewards fail until you connect again.
 
 ## Identity
 
-Extole matches a Stripe event to a person by `partner_user_id`, which is the Stripe customer id (`cus_`), and by `email` when the event has one.
+Extole issues a Stripe reward to a Stripe customer, identified by `partner_user_id`, the Stripe customer id (`cus_`). Your existing Extole integration can send it with the person's events.
 
-A friend who buys through Stripe Checkout is usually matched by email. To match an advocate before they buy, copy the advocate lookup controller into your marketing campaign. On a share, it looks up Stripe customers by the person's email. One match writes `partner_user_id`. Several matches use the earliest customer Stripe returns. No match leaves the person without a Stripe customer id.
+To find an advocate's Stripe customer without sending it, copy the advocate lookup controller into your marketing campaign. On a share, it looks up Stripe customers by the person's email. One match writes `partner_user_id`. Several matches use the earliest customer Stripe returns. No match leaves the person without a Stripe customer id.
 
 Stripe's customer search can lag about a minute behind a new customer. A lookup for someone who became a Stripe customer moments earlier can find no match.
 
 ## Reward Types
 
-Add a supplier from the integration's **Rewards** tab, then attach it to the reward in your campaign.
+Add a supplier from the integration's **Rewards** tab, then attach it to the reward in your program.
 
 ### Customer Balance
 
@@ -180,37 +91,23 @@ Dynamic value isn't available. A Stripe coupon's amount is fixed when you create
 
 Every request to Stripe carries an idempotency key built from the Extole reward id. A retried reward replays the first request instead of issuing a second credit or code. Extole retries when Stripe is unavailable or rate-limits the request, and marks the reward failed if the last retry fails too. When Stripe rejects the request, Extole marks the reward failed with Stripe's error message.
 
-## How a Promotion Code Is Redeemed
-
-1. Extole issues the code and stores it as the reward's partner reward id. The reward is earned.
-2. Stripe sends `customer.discount.created`, or a Checkout Session completes with a promotion code. Extole reads `promotion_code_id` and asks Stripe for that code.
-3. When the code's metadata holds an Extole reward id, Extole redeems that reward. Emails and reports then show it as redeemed.
-
-If Stripe can't find the code, or the code wasn't issued by Extole, nothing changes and the reward stays earned.
-
-The redemption can take a few minutes to show in Extole after the customer applies the code. In testing, the lookup ran about four minutes after Stripe recorded the discount.
-
 ## Limits
 
-- **One Stripe account per integration.** Each connection is for the Stripe account you approve in **Connect to Stripe**, in test or live mode.
-- **No automatic events.** Extole doesn't create the webhook destination. Until you create it, no purchases, refunds, or redemptions reach Extole.
-- **Two conversion sources count twice.** If another source, such as Shopify or the JavaScript SDK, also sends `conversion` for the same purchase, both count. Add a trigger rule on `stripe_event_type` or the app type `extole-stripe-app` to narrow Converted to one source.
-- **First payment only.** A subscription counts once, on its first paid invoice. Renewals don't create a Conversion.
-- **Refunds don't reverse rewards.** Refund is an event you can act on in your campaign. Extole doesn't take back a credit or a code on its own.
-- **Invoices with no payment aren't purchases.** A zero-total invoice, such as a trial, moves no money and doesn't count.
+- **Rewards only.** Extole doesn't read purchases, refunds, or cancellations from Stripe. Conversions come from your program's existing Extole integration.
+- **One Stripe account per integration.** Extole issues rewards in the account you connect: live, test mode, or a sandbox.
+- **Refunds don't reverse rewards.** Extole doesn't take back a credit or a code on its own.
+- **Redemptions aren't tracked.** Extole doesn't mark a promotion code redeemed when a customer uses it. Stripe shows the code's redemptions.
 - **Customer Balance needs a Stripe customer.** The person must have a `cus_` id when the reward is fulfilled.
 - **Promotion codes use fixed coupons.** The discount is the coupon's amount in Stripe.
 - **The coupon list shows 100 coupons.** **Stripe Coupon** lists the first 100 coupons in your Stripe account.
-- **One-off invoices aren't purchases.** Only subscription invoices become a Conversion. Turn on **Payment Intent Purchases** to count payments made outside Checkout and subscriptions.
-- **Redelivered Refund and Subscription Canceled events aren't deduplicated.** Stripe can deliver an event more than once, and Extole records each delivery. A business event triggered by Refund should be unique by `partner_conversion_id`, and one triggered by Subscription Canceled by `subscription`.
 - **The advocate lookup can lag.** Stripe's customer search can take about a minute to find a new customer.
 
 ## FAQs
 
-**Does the person need to exist in Stripe before they can receive a reward?** For Customer Balance, yes. Create the customer in Stripe first, or resolve them with the advocate lookup before the reward is earned. A promotion code can be issued without one.
+**Does the person need to exist in Stripe before they can receive a reward?** For Customer Balance, yes. Send their `partner_user_id` from your Extole integration, or resolve them with the advocate lookup before the reward is earned. A promotion code can be issued without one.
 
-**What happens if the Stripe connection stops working?** Rewards fail with Stripe's error. Open the integration's **Configuration** tab and click **Connect to Stripe** again.
+**Do I need a webhook in Stripe?** No. Extole doesn't receive Stripe events. It only calls Stripe to issue rewards.
 
-**Why isn't the destination check green?** The webhook destination is missing, its URL is different, or one of the seven events isn't selected. Compare the destination in Stripe with [Create the Webhook Destination](#create-the-webhook-destination).
+**What happens if the Stripe connection stops working?** Rewards fail with Stripe's error. Open the integration's **Configuration** tab and connect again.
 
 **Can a promotion code be a percentage of the cart?** Only if the coupon is a percentage coupon in Stripe. For a percentage of the cart as credit, use Customer Balance with dynamic value.
