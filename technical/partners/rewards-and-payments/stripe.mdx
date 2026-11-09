@@ -55,15 +55,28 @@ To stop rewards, disconnect the Stripe connection on the integration's **Configu
 
 ## Identity
 
-Extole issues a Stripe reward to a Stripe customer, identified by `partner_user_id`, the Stripe customer id (`cus_`). Your existing Extole integration can send it with the person's events.
+A Customer Balance credit goes to a Stripe customer, identified by `partner_user_id`, the Stripe customer id (`cus_…`). Send it on the Extole event that earns the reward, usually the conversion your existing integration already sends. A promotion code doesn't need one. See [Advocates and Friends](#advocates-and-friends).
 
-To find an advocate's Stripe customer without sending it, copy the advocate lookup controller into your marketing campaign. On a share, it looks up Stripe customers by the person's email. One match writes `partner_user_id`. Several matches use the earliest customer Stripe returns. No match leaves the person without a Stripe customer id.
+To find an advocate's Stripe customer without sending it, copy the advocate lookup controller into your marketing campaign and set its **Journey Names** to the campaign's advocate journey. When the advocate creates a share link, it looks up Stripe customers by the advocate's email. One match writes `partner_user_id`. Several matches use the earliest customer Stripe returns. No match leaves the person without a Stripe customer id.
 
 Stripe's customer search can lag about a minute behind a new customer. A lookup for someone who became a Stripe customer moments earlier can find no match.
 
 ## Reward Types
 
 Add a supplier from the integration's **Rewards** tab, then attach it to the reward in your program.
+
+### Advocates and Friends
+
+Either Stripe reward can go to advocates or friends:
+
+| Reward | Who can receive it | Needs a Stripe customer id |
+| --- | --- | --- |
+| **Stripe Promotion Code** | Anyone | No |
+| **Stripe Customer Balance** | Anyone with a Stripe customer | Yes: `partner_user_id` (`cus_…`) on the person |
+
+A balance credit gets the person's Stripe customer id from `partner_user_id` on the Extole event that earns the reward, usually the conversion your existing integration already sends. For advocates, the [advocate lookup](#identity) also finds it by email when they create a share link. Without a Stripe customer id, the credit fails with a reward message saying the person has no Stripe customer id.
+
+A typical setup is a balance credit for the advocate and a promotion code for the friend. A friend credit also works when the conversion event carries the friend's `cus_` id.
 
 ### Customer Balance
 
@@ -75,7 +88,7 @@ Extole posts a negative balance transaction on the customer, in the currency's m
 - Zero-decimal currencies, such as Japanese yen, Korean won, and Chilean peso, are not scaled.
 - Three-decimal currencies, such as Kuwaiti dinar, are scaled by 1,000, as Stripe requires.
 
-The Stripe balance transaction id becomes the reward's partner reward id. The person must have a Stripe customer id. Without one, the reward fails.
+The Stripe balance transaction id becomes the reward's partner reward id. The person must have a Stripe customer id. Without one, the reward fails with a message saying the person has no Stripe customer id.
 
 ### Promotion Code
 
@@ -104,7 +117,9 @@ Every request to Stripe carries an idempotency key built from the Extole reward 
 
 ## FAQs
 
-**Does the person need to exist in Stripe before they can receive a reward?** For Customer Balance, yes. Send their `partner_user_id` from your Extole integration, or resolve them with the advocate lookup before the reward is earned. A promotion code can be issued without one.
+**Does the person need to exist in Stripe before they can receive a reward?** For Customer Balance, yes. Send their `partner_user_id` on the event that earns the reward, or, for an advocate, resolve them with the advocate lookup before the reward is earned. A promotion code can be issued to anyone, with no Stripe customer.
+
+**Can friends get a balance credit?** Yes, when the conversion event carries the friend's `cus_` id as `partner_user_id`. Otherwise give friends a promotion code.
 
 **Do I need a webhook in Stripe?** No. Extole doesn't receive Stripe events. It only calls Stripe to issue rewards.
 
