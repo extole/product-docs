@@ -550,6 +550,14 @@ collection(event(event.id).selectedCampaignContext.triggerResults, filter:passed
 COLLECTION(PERSON(event.personId).steps, filter:stepName=="transacted" AND campaignId!="null")
 ```
 
+Within one `filter:` argument, conditions combine from left to right. Each `and` or `or` joins everything before it with the next condition, and parentheses aren't supported. This filter matches a step whose name is `converted` or `shared` and whose quality is `HIGH`:
+
+```
+collection(person(event.personId).steps, filter:stepName=="converted" or stepName=="shared" and quality=="HIGH")
+```
+
+List the alternatives first, and the conditions that apply to all of them after. [PERSON_COLLECTION](#person_collection) reads its `filter:` argument the same way.
+
 Multiple separate `filter:` arguments (implicit AND between them):
 
 ```
