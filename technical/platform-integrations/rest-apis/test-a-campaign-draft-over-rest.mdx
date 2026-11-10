@@ -66,6 +66,25 @@ curl -X POST "https://api.extole.io/v6/events" \
 A consumer event can carry `sandbox` in its data too. Extole ignores a value that does not match a
 sandbox format above and processes the event as if it named no sandbox.
 
+### See How Extole Processed an Event
+
+To see each decision Extole made for a test event, such as which sandbox and campaign it used and
+which rules passed, ask for the processing log:
+
+- On the consumer API, add the `X-Extole-Debug` header or the `debug` query parameter with any
+  value other than `false` or `0`. The response returns the log in `X-Extole-Log` headers. The
+  value `trace` adds timing and trace detail.
+- On a server call, add the `X-Extole-Debug` header with a level from `1` to `3`, as
+  [Common Errors](/api-reference/getting-started/common-errors) describes.
+
+```bash
+curl -i -X POST "https://<your program domain>/api/v6/events?debug=true" \
+     -H "Authorization: Bearer <access token>" \
+     -H "Content-Type: application/json" \
+     -H "X-Extole-Sandbox: campaign-<campaign id>-test" \
+     -d '{"event_name": "share_destination", "data": {"advocate_code": "<advocate code>"}}'
+```
+
 ## What a Test Event Does
 
 A sandbox changes which campaign version handles the event and which container records it. The
