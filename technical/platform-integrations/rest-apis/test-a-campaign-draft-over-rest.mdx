@@ -1,0 +1,66 @@
+---
+title: "Test a Campaign Draft Over REST"
+description: "Send consumer events to a campaign sandbox to test a campaign's unpublished changes before you publish them, and to compare them with the published version."
+---
+
+# Overview
+
+A campaign sandbox runs a campaign's latest version, including changes you have not published
+yet. Live traffic keeps the published version. To test a draft before you publish it, send the
+events of a test journey, such as a share, a share click, a signup, and a conversion, to a
+campaign sandbox. To see what the published version does with the same events, send them to a
+production sandbox.
+
+## Choose a Sandbox
+
+| Sandbox | Value | Campaign version | Container |
+|---|---|---|---|
+| Campaign preview | `campaign_preview-<campaign id>` or `campaign_preview-<campaign id>-<journey name>` | Latest, including unpublished changes | `test` |
+| Campaign | `campaign-<campaign id>-<container>` or `campaign-<campaign id>-<container>-<journey name>` | Latest, including unpublished changes | The container you name, such as `test` |
+| Production | `production-<container>`, such as `production-test` | Published | The container you name |
+
+The two campaign sandboxes differ in who can enter a journey:
+
+- **Campaign preview**: a person can enter a journey without a referral, so you can test a friend
+  journey without an advocate. A journey name in the value, such as `FRIEND`, gives that journey
+  the highest priority.
+- **Campaign**: journey entry follows the campaign's own rules. A friend enters the friend journey
+  only through a referral, as on your live site.
+
+Use the campaign preview sandbox to check that each part of a journey runs and renders. Use the
+campaign sandbox to check who enters a journey, and send the same events to a production sandbox to
+compare the draft with the published version.
+
+## Send an Event to a Sandbox
+
+On the consumer API, pass the sandbox in the `X-Extole-Sandbox` header. Send every request of one
+test journey with the same header.
+
+```bash
+curl -X POST "https://<your program domain>/api/v6/events" \
+     -H "Authorization: Bearer <access token>" \
+     -H "Content-Type: application/json" \
+     -H "X-Extole-Sandbox: campaign_preview-<campaign id>-FRIEND" \
+     -d '{"event_name": "signed_up",
+          "data": {"email": "friend@example.com", "shareable_code": "<advocate code>"}}'
+```
+
+For an event sent another way, put the same value in the event's data as `sandbox`. Extole ignores
+a value that does not match a sandbox format above and processes the event as live traffic.
+
+## What a Test Event Does
+
+A sandbox changes which campaign version handles the event and which container records it. The
+event is processed in full:
+
+- Rewards, emails, and webhooks run as they do for a live event. Use test email addresses that
+  you control. See [Exclude Test Data from Analytics](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics)
+  for how test containers are reported.
+- An event can start schedules, such as a reward's pending period or a reminder email, which run
+  later. After a test, cancel the schedules it started and check that each test person has no
+  reward.
+- Your account's prehandlers still apply, so a prehandler can record an event in another
+  container than the one the sandbox names.
+
+To check a test, read each test person's events and rewards. A person's steps show the container
+each event was recorded in.
