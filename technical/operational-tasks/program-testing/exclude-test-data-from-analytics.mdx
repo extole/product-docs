@@ -122,14 +122,15 @@ When uploading batch event files, you can add a column with a header of "contain
 
 Extole picks the container for each event from the request that carries that event. It uses the first of these that applies:
 
-1. The request names a container, with the `container` cookie, the `X-Extole-Container` header, or a `container` parameter. The event goes to that container.
-2. The request's origin is a site that the program lists as a test site. The event goes to `test`.
-3. Extole identifies the request as automated, for example a blocked user agent or a page-preview request. The event goes to `bot`.
-4. Otherwise, the event goes to `production`.
+1. The request names a sandbox, with the `X-Extole-Sandbox` header or a `sandbox` value in the event's data. The event goes to that sandbox's container. See [Send Test Events to a Draft Campaign](#send-test-events-to-a-draft-campaign).
+2. The request names a container, with the `container` cookie, the `X-Extole-Container` header, or a `container` parameter. The event goes to that container.
+3. The request's origin is a site that the program lists as a test site. The event goes to `test`.
+4. Extole identifies the request as automated, for example a blocked user agent or a page-preview request. The event goes to `bot`.
+5. Otherwise, the event goes to `production`.
 
 A prehandler set up on your account can also set an event's container.
 
-The cookie and the header apply to requests that a browser or a consumer API client sends to your program domain. An event your own server sends through the client API ignores them. To put that event in `test`, include `container` in the event's data, as in **Include a Test Container in the Parameters of Your API Call** above.
+The cookie and the headers apply to requests that a browser or a consumer API client sends to your program domain. An event your own server sends through the client API ignores them. To put that event in `test`, include `container` in the event's data, as in **Include a Test Container in the Parameters of Your API Call** above. To put it in a sandbox, include `sandbox` in the event's data.
 
 ### A Container Does Not Carry Over to Later Events
 
@@ -138,5 +139,50 @@ Extole does not look at a person's earlier events or journeys when it picks a co
 So if a person qualifies through a test experience and then converts on your live site, the conversion arrives in `production`. It does not continue the person's `test` journey, and Extole does not attribute it to that journey.
 
 To test a whole journey, send every event in it to the same container. For example, set the `container` cookie at the start of the test, as described in **Visit a Specific URL** above.
+
+[//]: ___
+
+## Send Test Events to a Draft Campaign
+
+[//]: # "How do I send test events to a campaign's unpublished draft?"
+
+An event in the `test` container runs your published campaigns. To test a campaign's draft before you publish it, send its events to a campaign sandbox. A campaign sandbox runs the latest version of each campaign in your account, including unpublished changes, and records every event in the sandbox's container.
+
+| Sandbox | What Runs | Container |
+| --- | --- | --- |
+| `campaign-<campaign_id>-test` | The latest version of each campaign | `test` |
+| `campaign_preview-<campaign_id>` | The latest version of each campaign, including disabled journeys | `test` |
+
+Replace `<campaign_id>` with the ID of the campaign you're testing. It's the number after `/campaigns/` in the campaign's URL in My Extole.
+
+### Name the Sandbox on Each Event
+
+- **From your server**: add `sandbox` to the event's data when you [submit the event](/api-reference/events/submit-an-event).
+- **From a browser or the consumer API**: send the `X-Extole-Sandbox` header with the sandbox name, or add `sandbox` to the event's data, the same way you add `container` in **Include A Test Container in your Event Tags** above.
+
+```bash
+curl -X POST "https://api.extole.io/v6/events" \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name": "conversion",
+    "data": {
+      "email": "friend@example.com",
+      "partner_conversion_id": "test-conversion-0001",
+      "cart_value": "150.00",
+      "sandbox": "campaign-<campaign_id>-test"
+    }
+  }'
+```
+
+A sandbox comes before a container, a test site, and the automated-request check. Send every event of the test, the advocate's and the friend's, with the same sandbox.
+
+### Check Where the Test Events Landed
+
+[List each test person's steps](/api-reference/persons/list-person-steps) (`GET /v5/persons/{person_id}/steps`) with `containers=test` and `campaign_ids=<campaign_id>`. Each step shows its `container`, its `campaign_id`, and the data attached to it.
+
+### Clean Up After a Test
+
+[List each test person's rewards](/api-reference/persons/list-person-rewards) (`GET /v5/persons/{person_id}/rewards`) with `containers=test`. [Cancel](/api-reference/rewards/cancel-a-reward) (`POST /v2/rewards/{reward_id}/cancel`) each reward you don't want to keep.
 
 [//]: ___
