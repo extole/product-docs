@@ -5,7 +5,7 @@ description: "Use Security Center Fraud Control (Quality Control) to permit or b
 
 # Overview
 
-**Fraud Control** (also labeled **Quality Control** in My Extole) is the account-level list of rules that mark events as permitted or blocked before rewards. You manage it in [Security Center](https://my.extole.com/security-center) under **Fraud Control**.
+**Fraud Control** (also labeled **Quality Control** in My Extole) is the account-level list of Fraud Control rules that mark events as permitted or blocked before rewards. You manage it in [Security Center](https://my.extole.com/security-center) under **Fraud Control**.
 
 Fraud Control is **not**:
 
@@ -22,7 +22,7 @@ Fraud Control has two lists:
 | **Permitted Events List** | `WHITE` | Overrides a match on Extole’s blocked events list when the event still passes other quality rules. Matching events stay eligible for rewards. |
 | **Blocked Events List** | `BLACK` | Marks matching events as suspicious so they are not eligible for rewards. |
 
-Each rule has a **Matching Entity** (`list_type`) and a **Value**:
+Each Fraud Control rule has a **Matching Entity** (`list_type`) and a **Value**:
 
 | Matching Entity | API `list_type` | Value format |
 | --- | --- | --- |
@@ -31,30 +31,30 @@ Each rule has a **Matching Entity** (`list_type`) and a **Value**:
 | Normalized Email | `NORMALIZED_EMAIL` | Full profile email, normalized for its email provider. For Gmail, Google Workspace, and Outlook addresses, plus-address variants of the same mailbox match (for example `test@gmail.com` also matches `test+anything@gmail.com`). For other providers, a plus-address variant is a distinct email. |
 | CIDR | `CIDR` | CIDR notation for event IPs (for example `203.0.113.0/24`). |
 
-# Add a rule in My Extole
+# Add a Fraud Control Rule in My Extole
 
 1. Open [Security Center](https://my.extole.com/security-center) and go to **Fraud Control** (Quality Control).
 2. Open the **Permitted Events List** or the **Blocked Events List**.
 3. Select **+ New Rule**.
 4. Enter the **Value**, choose the **Matching Entity**, and save.
 
-# Duplicate rules
+# Duplicate Fraud Control Rules
 
-Extole stores one rule per combination of list (permitted or blocked), matching entity, and value. Extole stores each value in lowercase, and stores a normalized email after normalizing it for its email provider. Adding a rule whose stored value matches an existing rule on the same list and matching entity fails with error code `block_duplicate` and a message that a fraud-control rule with that filter type, list type, and value already exists. This happens even when the text you entered differs, for example only in letter case.
+Extole stores one Fraud Control rule per combination of list (permitted or blocked), matching entity, and value. Extole stores each value in lowercase, and stores a normalized email after normalizing it for its email provider. Adding a Fraud Control rule whose stored value matches an existing Fraud Control rule on the same list and matching entity fails with error code `block_duplicate` and a message that a Fraud Control rule with that filter type, list type, and value already exists. This happens even when the text you entered differs, for example only in letter case.
 
-Overlapping CIDR ranges are **not** treated as duplicates. Only the same stored value on the same list and matching entity is a duplicate. If you see `block_duplicate`, list the existing rules (in My Extole or with `GET /v2/blocks`) and reuse or delete the existing rule instead of creating another.
+Overlapping CIDR ranges are **not** treated as duplicates. Only the same stored value on the same list and matching entity is a duplicate. If you see `block_duplicate`, list the existing Fraud Control rules (in My Extole or with `GET /v2/blocks`) and reuse or delete the existing Fraud Control rule instead of creating another.
 
-# Manage rules with the API
+# Manage Fraud Control Rules with the API
 
 Fraud Control rules are the `/v2/blocks` Management API (OpenAPI tag **Fraud Control**), not campaign content blocks.
 
 | Method and path | What it does |
 | --- | --- |
-| `GET /v2/blocks` | Lists the client's Fraud Control rules. Use `search_query` to find a value such as a CIDR. |
-| `POST /v2/blocks` | Creates a rule (`filter_type`, `list_type`, `value`). |
-| `GET /v2/blocks/{block_id}` | Returns one rule. |
-| `DELETE /v2/blocks/{block_id}` | Deletes a rule. |
-| `POST /v2/blocks/test` | Checks whether a value matches an existing rule without creating one. |
+| `GET /v2/blocks` | Lists the client's Fraud Control rules. |
+| `POST /v2/blocks` | Creates a Fraud Control rule (`filter_type`, `list_type`, `value`). |
+| `GET /v2/blocks/{block_id}` | Returns one Fraud Control rule. |
+| `DELETE /v2/blocks/{block_id}` | Deletes a Fraud Control rule. |
+| `POST /v2/blocks/test` | Checks whether a value matches an existing Fraud Control rule without creating one. |
 | `GET /v2/blocks/global` | Lists Extole global Fraud Control rules. |
 
 Call `https://api.extole.io` with an access token from Security Center. Full operation details are in the [API Reference](/api-reference).
