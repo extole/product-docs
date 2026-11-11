@@ -67,7 +67,7 @@ The OAuth Generic client key has its own `request` and `response_handler` for th
 
 An OAuth Generic client key (algorithm `OAUTH_GENERIC`) gets an access token with the client credentials grant and attaches it to each webhook request as `Authorization: Bearer`. Its default token request sends `grant_type`, `client_id`, and `client_secret` as a form, with no `scope`.
 
-When the token endpoint needs more form fields, give the key a `request` expression that builds the token call. This example adds `resource` and `authorization_details`, the two fields Databricks Zerobus Ingest requires. `authorization_details` is a JSON string, so the expression builds it with `JSON.stringify`. The expression sends no `scope`.
+When the token endpoint needs more form fields, give the key a `request` expression that builds the token call. This example adds `resource` and `authorization_details`, two standard OAuth parameters ([RFC 8707](https://www.rfc-editor.org/rfc/rfc8707) and [RFC 9396](https://www.rfc-editor.org/rfc/rfc9396)) that some token endpoints require. `authorization_details` is a JSON string, so the expression builds it with `JSON.stringify`. The expression sends no `scope`. The examples on this page use a placeholder service at `api.example.com`. Replace its URLs and values with your destination's.
 
 ```javascript
 javascript@runtime:(function () {
@@ -76,11 +76,9 @@ javascript@runtime:(function () {
     grant_type: 'client_credentials',
     client_id: credentials.getOAuthClientId(),
     client_secret: credentials.getOAuthClientSecret(),
-    resource: 'api://databricks/workspaces/WORKSPACE_ID/zerobusDirectWriteApi',
+    resource: 'https://api.example.com/',
     authorization_details: JSON.stringify([
-      { type: 'unity_catalog_privileges', privileges: ['USE CATALOG'], object_type: 'CATALOG', object_full_path: 'CATALOG' },
-      { type: 'unity_catalog_privileges', privileges: ['USE SCHEMA'], object_type: 'SCHEMA', object_full_path: 'CATALOG.SCHEMA' },
-      { type: 'unity_catalog_privileges', privileges: ['SELECT', 'MODIFY'], object_type: 'TABLE', object_full_path: 'CATALOG.SCHEMA.TABLE', operations: ['zerobuswrite'] }
+      { type: 'event_write', locations: ['https://api.example.com/v1/events'], actions: ['write'] }
     ])
   };
   return context.createRequestBuilder()
@@ -97,10 +95,10 @@ Create the key with that expression as the `request` value, sent as one JSON str
 {
   "type": "WEBHOOK",
   "algorithm": "OAUTH_GENERIC",
-  "name": "Databricks Zerobus",
-  "authorization_url": "https://WORKSPACE_HOST/oidc/v1/token",
-  "oauth_client_id": "SERVICE_PRINCIPAL_APPLICATION_ID",
-  "key": "SERVICE_PRINCIPAL_OAUTH_SECRET",
+  "name": "Example Events API",
+  "authorization_url": "https://auth.example.com/oauth2/token",
+  "oauth_client_id": "CLIENT_ID",
+  "key": "CLIENT_SECRET",
   "request": "javascript@runtime:(function () { ... })();"
 }
 ```
@@ -121,7 +119,7 @@ If all four tries fail, the webhook attempt fails before its request is sent. Th
 
 A webhook's `request` expression builds the request from the data the webhook action sends. `context.createRequestBuilderWithDefaults()` starts from the webhook's URL and method, the action data as a JSON body, and the client key's authentication. For an OAuth Generic key, that is the `Authorization: Bearer` header with the token. Replace the body with `withBody`.
 
-This example sends one event as a JSON array of one row, adds the Extole client id as `client_id`, and converts `event_time` from an ISO 8601 time to epoch microseconds:
+This example sends one event as a JSON array that holds that event, adds the Extole client id as `client_id`, and converts `event_time` from an ISO 8601 time to epoch microseconds:
 
 ```javascript
 javascript@runtime:(function () {
@@ -142,7 +140,7 @@ javascript@runtime:(function () {
 - The fields in `context.getData()` are the ones the webhook action maps. Add or rename them in the action's `data`.
 - A `POST` request gets `Content-Type: application/json` unless the expression sets another one.
 
-For Databricks Zerobus Ingest, set the webhook URL to the table's insert endpoint, `https://WORKSPACE_ID.zerobus.REGION.cloud.databricks.com/zerobus/v1/tables/CATALOG.SCHEMA.TABLE/insert`, and choose the OAuth Generic key above as its client key.
+For the example service, set the webhook URL to its events endpoint, `https://api.example.com/v1/events`, and choose the OAuth Generic key above as its client key.
 
 ### Decide Which Responses to Retry
 
