@@ -23,9 +23,11 @@ A failed attempt is retried, whatever step it failed in. One failed attempt can 
 
 ## The Retry Schedule
 
-Extole tries a delivery up to four times: right away, then 30 seconds, 1 hour, and 3 hours after each failure. After the fourth failure the event is set aside and is not retried. A webhook can carry its own `retry_intervals` in place of this schedule.
+A webhook's `retry_intervals` sets its schedule: one value per attempt, in seconds. Extole makes as many attempts as the list has values. Each value is the wait after that attempt fails, and after the last attempt fails the event is set aside and is not retried.
 
-The `attempt_count` on a dispatch result starts at 0, so the four attempts are numbered 0 to 3.
+A webhook created without `retry_intervals`, in My Extole or over the API, gets `[1, 30, 60]`: three attempts, right away and then 1 second and 30 seconds after each failure. You set your own schedule when you create the webhook. See [Set the Retry Schedule](/technical/platform-integrations/webhooks/webhook-creation#set-the-retry-schedule).
+
+The `attempt_count` on a dispatch result starts at 0, so a webhook with three intervals numbers its attempts 0 to 2.
 
 <Info>
 An edit to a webhook's `request` or `response_handler` expression has no draft and no publish step. The next attempt uses the new expression, and that includes retries of events that failed before the edit.
@@ -68,7 +70,7 @@ The list shows the 50 most recent results by default. The same results are avail
 |---|---|
 | `Failed to compile expression` or `Unable to get compiled evaluatable from cache` | A syntax error in the expression. The message includes the expression source. |
 | `Failed to evaluate expression` | The expression compiled and failed at run time: an undefined variable, a method that does not exist on the object, or a null value. |
-| `Error occurred while trying to get an access token for client key=` | Extole could not get an access token for the stored client key the expression names. A revoked or expired key, a wrong secret, or an outage at the token provider all look the same here. The provider's own response follows `Cause=` or `Response body=`. |
+| `Error occurred while trying to get an access token for client key=` | Extole could not get an access token for the stored client key the expression names. When an OAuth Generic key's token endpoint answers 4xx or 5xx, Extole sends the token request four times, two seconds apart, before this message appears. A revoked or expired key, a wrong secret, or an outage at the token provider all look the same here. The provider's own response follows `Cause=` or `Response body=`. |
 | `Could not perform HTTP request` | The send failed: a network failure, or the destination took longer than 20 seconds to answer. |
 
 A webhook's `client_key_id` is its default key, used for the default request and for a client certificate. An empty `client_key_id` does not mean the expression uses no stored key, because an expression can name any stored key by id.
