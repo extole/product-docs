@@ -28,7 +28,7 @@ Each rule has a **Matching Entity** (`list_type`) and a **Value**:
 | --- | --- | --- |
 | User Agent | `USER_AGENT` | Substring of the event user-agent header (for example `BotName`). Regex is not supported. |
 | Email Domain | `EMAIL_DOMAIN` | Domain of the profile email on the event (for example `example.com`). |
-| Normalized Email | `NORMALIZED_EMAIL` | Full profile email. Plus-address variants of the same mailbox match (for example `test@example.com` also matches `test+anything@example.com`). |
+| Normalized Email | `NORMALIZED_EMAIL` | Full profile email, normalized for its email provider. For Gmail, Google Workspace, and Outlook addresses, plus-address variants of the same mailbox match (for example `test@gmail.com` also matches `test+anything@gmail.com`). For other providers, a plus-address variant is a distinct email. |
 | CIDR | `CIDR` | CIDR notation for event IPs (for example `203.0.113.0/24`). |
 
 # Add a rule in My Extole
@@ -40,9 +40,9 @@ Each rule has a **Matching Entity** (`list_type`) and a **Value**:
 
 # Duplicate rules
 
-Extole stores one rule per exact combination of list (permitted or blocked), matching entity, and value. Adding the same combination again fails with error code `block_duplicate` and a message that a fraud-control rule with that filter type, list type, and value already exists.
+Extole stores one rule per combination of list (permitted or blocked), matching entity, and value. Extole stores each value in lowercase, and stores a normalized email after normalizing it for its email provider. Adding a rule whose stored value matches an existing rule on the same list and matching entity fails with error code `block_duplicate` and a message that a fraud-control rule with that filter type, list type, and value already exists. This happens even when the text you entered differs, for example only in letter case.
 
-Overlapping CIDR ranges are **not** treated as duplicates. Only an identical value on the same list and matching entity is a duplicate. If you see `block_duplicate`, list the existing rules (in My Extole or with `GET /v2/blocks`) and reuse or delete the existing rule instead of creating another.
+Overlapping CIDR ranges are **not** treated as duplicates. Only the same stored value on the same list and matching entity is a duplicate. If you see `block_duplicate`, list the existing rules (in My Extole or with `GET /v2/blocks`) and reuse or delete the existing rule instead of creating another.
 
 # Manage rules with the API
 
