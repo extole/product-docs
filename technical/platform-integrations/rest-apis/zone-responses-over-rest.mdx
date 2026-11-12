@@ -1,0 +1,66 @@
+---
+title: "Zone Responses Over REST"
+description: "Change the JSON a zone returns, such as the content a headless or mobile integration reads, by updating the display action on the zone's frontend controller with the REST API."
+---
+
+# Overview
+
+A zone request, such as `POST /api/v6/zones` from a [headless or mobile integration](/technical/platform-integrations/rest-apis/mobile-api),
+is answered by a frontend controller in the campaign. The controller's trigger matches the zone's
+name, and its display action builds the response. The action's `response` field holds a
+`javascript@runtime` script that assembles the payload and returns it through the response
+builder, with its status, headers, and body.
+
+This page covers how to find that action, change the JSON it returns, and put the change live.
+
+## Find the Display Action
+
+1. List the campaign's frontend controllers with `GET /v2/campaigns/{campaign_id}/controllers/built`,
+   and find the controller whose trigger targets the zone's name as its event name.
+2. Read that controller with `GET /v2/campaigns/{campaign_id}/controllers/{controller_id}`. Its
+   `actions` list holds the display action, with `action_type` `DISPLAY`, its `action_id`, and the
+   current `response` script.
+
+The controller read returns the script as it is stored, before the campaign is built. Edit that
+form, not the built one.
+
+## Change the Response
+
+Before you edit the script, check whether the value already comes from a setting. A response
+script reads the experience's settings by name, as in `context.get("emailSubject")`. To change a value
+that a setting supplies, change the setting instead; see
+[Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest).
+
+To add a field, remove one, or change the payload's shape, update the display action:
+
+```http
+PUT /v2/campaigns/{campaign_id}/controllers/{controller_id}/actions/displays/{action_id}
+Content-Type: application/json
+
+{
+  "response": "javascript@runtime:(function () { ... })();"
+}
+```
+
+The request changes only the fields it carries, so send `response` alone to leave the action's
+quality, enabled state, and component references as they are. The `response` value replaces the
+whole script, so send the current script with your change made to it. The call returns the
+updated action.
+
+To make sure nobody changed the campaign since you read it, put the version you read in the path:
+`/v2/campaigns/{campaign_id}/version/{version}/controllers/{controller_id}/actions/displays/{action_id}`.
+If the campaign has changed since then, the update returns `campaign_stale_version`.
+
+## Publish and Check the Response
+
+The update changes the campaign's draft. The zone keeps returning the published response until you
+publish the campaign with `POST /v2/campaigns/{campaign_id}/publish`.
+
+After you publish, request the zone the same way your integration does and confirm that the JSON
+carries the new fields.
+
+## Related Documentation
+
+- [Headless and Mobile API](/technical/platform-integrations/rest-apis/mobile-api)
+- [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest)
+- [Campaign States Over REST](/technical/platform-integrations/rest-apis/campaign-states-over-rest)
