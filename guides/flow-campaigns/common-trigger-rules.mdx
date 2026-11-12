@@ -179,6 +179,36 @@ before the rule runs. To put it there from an event you send, prefix the event d
 - **Reward Rules:** If the event doesn't satisfy this rule, don't send a reward
 - **Targeting Scenario:** If the event satisfies this rule, target to a specific program
 
+### A Person With No Value for the Parameter
+
+A person whose profile has no value for the parameter satisfies **Is blank** and fails every
+other comparison, including **Does not equal** and **Does not match Regex**. For example, a
+rule that `status` does not equal `T` passes a person whose `status` is `A` and fails a
+person who has no `status`.
+
+To pass a person who has no value as well as anyone whose value is not `T`:
+
+- **In Trigger Rules**, add a **Rule Group**, turn off **All rules must match**, and add two
+  Person Data Comparison rules inside it: one with **Is blank**, and one with **Does not
+  equal** `T`.
+- **In Reward Rules**, which combine with AND and have no Rule Group, add an **Expression
+  Reward Rule** in place of the Person Data Comparison rule. Set its `customExpression` to an
+  expression that reads the parameter from the profile of the person being rewarded:
+
+```javascript
+javascript@runtime:(function () {
+    let status = context.getPerson().getData()["status"];
+    if (status !== null && status !== undefined && typeof status.getValue === "function") {
+        status = status.getValue();
+    }
+    return status === null || status === undefined || String(status).trim().toUpperCase() !== "T";
+})();
+```
+
+Replace `status` and `T` with your parameter and value. Before you publish, test the rule
+with a person who has no value, a person with another value, and a person with the excluded
+value.
+
 ## **Audience Membership Event**
 
 > Triggers when a person **joins** or **leaves** an audience.
