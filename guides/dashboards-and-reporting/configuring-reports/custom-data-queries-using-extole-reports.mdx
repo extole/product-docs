@@ -969,6 +969,16 @@ Share Link Clickers=GROUP_COUNT_DISTINCT(event.personId, step_name:"share_clicke
 name=event.name; app_type=event.appType; api_type=event.apiType; count=group_count_distinct(event.id, name:"all");
 ```
 
+## Count Input Events by the Page and URL That Requested Them
+
+App type and API type name the channel an input event arrived on. To see what sent it, group by the request's headers. `referer` is the page or site the browser reported for the request. `x-extole-incoming-url` is the full URL Extole received, such as a zone request or a promotion link. A header can hold several values, so `FIRST(COLLECTION(...))` reads the first one. When the request carried no `referer`, that column is empty and `incoming_url` names what was requested.
+
+```
+name=event.name; referer=FIRST(COLLECTION(event.httpHeaders.referer)); incoming_url=FIRST(COLLECTION(event.httpHeaders.x-extole-incoming-url)); count=group_count_distinct(event.id, name:"all");
+```
+
+To count the requests for specific zones, add a filter on `event.name`, such as `event.name == "share_experience" or event.name == "confirmation"`.
+
 ## Daily Bucketing
 
 ```
