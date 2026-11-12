@@ -333,11 +333,50 @@ When running a cross-client report from the Extole account, filter to real custo
 client(event.clientId).clientType=="CUSTOMER"
 ```
 
+# RewardEvent
+
+**Used in:** Reward Metrics reports · **Access:** `event.*`
+
+One state change of one reward. A reward that was earned, fulfilled, and sent has three reward events. A Reward Metrics report counts a `reward_earned` event only for a reward that was issued, so an earn that a reward supplier's limit stopped is not counted.
+
+| Field | Description |
+| --- | --- |
+| `id` | Reward event ID |
+| `type` | The state the reward entered: `reward_earned`, `reward_fulfilled`, `reward_sent`, `reward_redeemed`, `reward_failed`, `reward_fulfillment_failed`, `reward_canceled`, `reward_revoked`, `reward_expired` |
+| `eventTime` | When the reward entered the state |
+| `rewardId` | Platform reward ID |
+| `rewardName` | Reward name |
+| `rewardSupplierId` | Supplier that issued this reward |
+| `rewardSupplierName` | Supplier name |
+| `rewardSupplierType` | Supplier type |
+| `personId` | Person who earned the reward |
+| `partnerUserId` | Your ID for the person (may be null) |
+| `faceValue` | Reward face value |
+| `faceValueType` | Face value type |
+| `campaignId` | Campaign context |
+| `programLabel` | Program label |
+| `rootEventId` | Root event in the causal chain |
+| `causeEventId` | The event that caused this state change |
+| `tags` | Classification tags |
+| `data` | Custom reward data |
+
+A reward event has no `name` field. Filter on `event.type`, and load the rest of the reward's lifecycle with `reward(event.rewardId)`.
+
+**Mapping example:**
+
+```
+# Rewards earned, by program and the reward's current state
+Program=event.programLabel; Current State=reward(event.rewardId).currentState; Rewards=group_count(event.rewardId);
+
+# Filters parameter
+event.type=="reward_earned"
+```
+
 # RewardSummary
 
-**Function:** `reward(rewardId)` · e.g. `reward(event.data.reward_id).currentState`
+**Function:** `reward(rewardId)` · e.g. `reward(event.rewardId).currentState` from a Reward Metrics report, or `reward(event.data.reward_id).currentState` from a step record
 
-The full lifecycle of one reward instance, built from all known reward state-change events.
+The full lifecycle of one reward instance, built from all known reward state-change events. Each row of a **Rewards** report is a RewardSummary, so its mappings read these fields as `event.*`.
 
 | Field | Description |
 | --- | --- |
@@ -345,7 +384,7 @@ The full lifecycle of one reward instance, built from all known reward state-cha
 | `personId` | Person who earned the reward |
 | `faceValue` | Reward face value |
 | `faceValueType` | `POINTS`, `CREDIT`, `COUPON_CODE`, etc. |
-| `currentState` | `EARNED`, `FULFILLED`, `SENT`, `REDEEMED`, `FAILED`, `CANCELED`, `REVOKED` |
+| `currentState` | The latest state the reward entered, as a [RewardEvent](#rewardevent) `type` value: `reward_earned`, `reward_fulfilled`, `reward_sent`, `reward_redeemed`, `reward_failed`, `reward_canceled`, and so on |
 | `rewardSupplierId` | Supplier that issued this reward |
 | `campaignId` | Campaign context |
 | `program` | Program label |
@@ -370,8 +409,11 @@ The full lifecycle of one reward instance, built from all known reward state-cha
 **Mapping examples:**
 
 ```
-# From a Rewards report — reward_id is on the event data
-State=reward(event.data.reward_id).currentState; Face Value=reward(event.data.reward_id).faceValue; Value Type=reward(event.data.reward_id).faceValueType; Earned On=reward(event.data.reward_id).rewardEarnedDate; Earning Step=reward(event.data.reward_id).earnedStepEventContext.name;
+# From a Rewards report, where the row is the reward
+State=event.currentState; Face Value=event.faceValue; Value Type=event.faceValueType; Earned On=event.rewardEarnedDate; Earning Step=event.earnedStepEventContext.name;
+
+# From a step record, where reward_id is on the step data
+State=reward(event.data.reward_id).currentState; Face Value=reward(event.data.reward_id).faceValue; Earned On=reward(event.data.reward_id).rewardEarnedDate;
 ```
 
 To sum total reward value issued across a step in a **Metrics** report:
@@ -470,7 +512,7 @@ Input Event Name=input_record(event.rootEventId).name; Amount=input_record(event
 
 For which `data` keys an input record carries, see [INPUT_RECORD](/guides/dashboards-and-reporting/configuring-reports/custom-data-queries-using-extole-reports#input_record).
 
-**From a reward event, load the step record that earned the reward** (gives you `visitType`, `quality`, etc.):
+**From a Rewards report row, load the step record that earned the reward** (gives you `visitType`, `quality`, etc.):
 
 ```
 Visit Type=step_record(event.earnedStepEventContext.id, step_name:event.earnedStepEventContext.name, event_time_name:event.earnedStepEventContext.eventTime).visitType;
