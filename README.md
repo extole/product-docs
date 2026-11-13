@@ -29,3 +29,4 @@ python scripts/convert_from_product_docs.py \
 Mintlify's GitHub App deploys the default branch to production and builds a
 **preview deployment for every PR**. This canary was landed as a PR so it could
 be previewed without touching `main`.
+
