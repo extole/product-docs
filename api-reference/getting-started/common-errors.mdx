@@ -85,7 +85,7 @@ A `429` response with code `too_many_requests` indicates that the caller has sen
 
 The synchronous event endpoints, `POST /v6/events` and `POST /v6/events/{event_name}`, have a lower limit of their own: 30 requests per client per minute. The count starts again at the beginning of each UTC minute, and every integration that sends events under your client shares the same 30. From the 31st request in a minute until that minute ends, these endpoints return `429`.
 
-The asynchronous endpoints, `POST /v6/async-events` and `POST /v6/async-events/{event_name}`, have no per-request rate limit and are the recommended path for high-volume event ingestion. They take the same request body and return the `event_id`; Extole identifies the person after the request returns, so the response has no `person_id`. Use `/v6/events` for low-volume calls that need the `person_id` in the response.
+The asynchronous endpoints, `POST /v6/async-events` and `POST /v6/async-events/{event_name}`, have no per-request rate limit and are the recommended path for high-volume event ingestion. They take the same request body and return only the `event_id`. Extole checks the request before it responds, then identifies the person and processes the event after the response, so the response has no `person_id` and an error during processing is not returned to the caller. Use `/v6/events` for low-volume calls that need the `person_id` or a processing error in the response.
 
 Typical causes of rate limiting:
 
