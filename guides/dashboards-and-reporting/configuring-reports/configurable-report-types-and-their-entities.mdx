@@ -20,8 +20,8 @@ A report type is either a **records** report (one row per entity) or a **metrics
 | Input Records | Records | InputRecord | — |
 | Input Record Metrics | Metrics | InputRecord | `name` |
 | Person | Records | Person | — |
-| Rewards | Records | Reward event | — |
-| Reward Metrics | Metrics | Reward event | — |
+| Rewards | Records | RewardSummary | — |
+| Reward Metrics | Metrics | RewardEvent | — |
 | Audience Memberships | Records | AudienceMembershipRecord | — |
 | Audience Memberships Metrics | Metrics | AudienceMembershipRecord | — |
 | Client Event Metrics | Metrics | ClientEvent | — |
@@ -33,7 +33,9 @@ A report type is either a **records** report (one row per entity) or a **metrics
 
 A blank metrics property key means the report type's `GROUP_*` mapping functions don't require a data-source property argument (unlike `step_name` for Metrics or `name` for Input Record Metrics) — see [Aggregation Functions](/guides/dashboards-and-reporting/configuring-reports/custom-data-queries-using-extole-reports) for the full syntax.
 
-**Rewards and Reward Metrics** report types run against the raw reward event, not the aggregated `RewardSummary` object — most reward questions are answered by joining to the full reward lifecycle with `reward(event.data.reward_id)`, documented under [RewardSummary](/guides/dashboards-and-reporting/configuring-reports/entities-and-context-available-in-extole-s-configurable-reporting-system).
+A **Rewards** report returns one row per reward, and each row is that reward's full lifecycle, so its mappings read fields such as `event.currentState` and `event.program` directly. A **Reward Metrics** report counts reward events, one for each state a reward entered. On a reward event, `event.type` is the state, such as `reward_earned` or `reward_sent`, and `event.rewardId` is the reward. Load the reward's lifecycle from a Reward Metrics row with `reward(event.rewardId)`. Both entities are documented under [RewardEvent](/guides/dashboards-and-reporting/configuring-reports/entities-and-context-available-in-extole-s-configurable-reporting-system#rewardevent) and [RewardSummary](/guides/dashboards-and-reporting/configuring-reports/entities-and-context-available-in-extole-s-configurable-reporting-system#rewardsummary).
+
+The **Programs** parameter of both report types matches whole program labels, so `refer-a-friend` does not include `refer-a-friend-35`. To count across several programs, list each label, or leave **Programs** at **All** and group by program in the mappings.
 
 # Accessing Other Entities From a Report
 
