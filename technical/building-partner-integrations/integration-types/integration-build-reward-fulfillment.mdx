@@ -202,7 +202,7 @@ Four parts carry weight beyond their own value:
 - The **tag** identifies the product variant: the order webhook's supplier filter and the template's supplier-identifier setting both resolve through it, so a mismatch is a supplier no webhook will fulfill.
 - The **display type** names the product as a marketer sees it — "Example Virtual Cards" rather than the generic kind it falls back to when omitted. Variants of one product share one.
 - The **data map** carries the identifiers the order request needs, because a request handler cannot read a setting on a component it does not own.
-- The **face-value algorithm** resolves from the client's toggle rather than being fixed in the template, with the percentage stored as a fraction.
+- The **face-value algorithm** resolves from the client's toggle rather than being fixed in the template, with the percentage stored as a fraction: `cash_back_percentage` of `1` is 100%, and `0.1` is 10%. Divide a whole-number setting by 100, as the template above does.
 
 Create all the templates, publish the support campaign once, then create every supplier.
 
@@ -345,11 +345,14 @@ The handler runtime is:
 | Headers and JSON | `.addHeader(...)`, `.withBody(JSON.stringify(body))`, `.build()` |
 | Mark processing, not delivered | `context.createFulfillRewardCommandEventBuilder().withSuccess(false).send()` |
 | Mark delivered | `.withSuccess(true).withPartnerRewardId(partnerId).send()` |
+| Record what the participant redeems | `.withCode(code)`, `.withInstructions(text)`, before `.send()` |
 | Mark failed | `context.createFailedRewardCommandEventBuilder().withMessage(...).send()` |
 | Ask the dispatcher to try again | return `"RETRY"` |
 | Finish this attempt | return `"OK"` |
 
 Order webhooks commonly fulfill with `withSuccess(false)` so the status check can close the reward later; always using `withSuccess(true)` reports rewards as delivered when the partner rejected them.
+
+`withPartnerRewardId` records the partner's reference for the order. Put the value the participant redeems, such as a gift card code, in `withCode` instead. Extole stores it on the reward as `code` and sends it in reward webhooks. If the reward supplier's `partner_reward_key_type` is `LINK`, a successful fulfillment still needs a valid URL in `withPartnerRewardId`. Without one, Extole fails the reward.
 
 Leave the webhook **disabled** while a required credential or the payload contract is missing, then `PUT` the handlers and set `enabled` to true.
 

@@ -9,7 +9,9 @@ description: "We support various methods for preventing test data from displayin
 
 For most clients who have high volumes of live data and low volumes of test data, there is not enough test data to have a significant impact on program performance. However, it is possible to flag interactions with Extole as "test" events, which causes Extole to not summarize the data in your program summary analytics. 
 
-Test events will still display in [Event Live View](https://my.extole.com/events/live) of My Extole's User Support center. These events will also be fully processed for rewards so you can ensure that events are still coming in while testing your program and that rewards are being properly distributed.
+Test events will still display in [Event Live View](https://my.extole.com/events/live) of My Extole's User Support center. These events are also processed for rewards, so you can check that events still arrive while you test your program and that people earn the rewards you expect. A test reward comes from your account's **Default Test Reward**, as described in **Rewards in the Test Container** below.
+
+The test container changes how events are reported, not what they trigger. For events in `test`, Extole still sends emails and still dispatches webhooks, including webhooks on reward states, and it can still issue test rewards. Before you test a live program, check which emails, webhooks, and rewards the test events can reach, so that a test doesn't email a real person or send test data to a partner's system.
 
 [//]: ___
 
@@ -127,6 +129,8 @@ Extole picks the container for each event from the request that carries that eve
 
 A prehandler set up on your account can also set an event's container.
 
+The cookie and the header apply to requests that a browser or a consumer API client sends to your program domain. An event your own server sends through the client API ignores them. To put that event in `test`, include `container` in the event's data, as in **Include a Test Container in the Parameters of Your API Call** above.
+
 ### A Container Does Not Carry Over to Later Events
 
 Extole does not look at a person's earlier events or journeys when it picks a container. A person's journeys, and the referrals between an advocate and a friend, are kept separately for each container. An event continues a journey or credits a referral only in its own container.
@@ -134,5 +138,20 @@ Extole does not look at a person's earlier events or journeys when it picks a co
 So if a person qualifies through a test experience and then converts on your live site, the conversion arrives in `production`. It does not continue the person's `test` journey, and Extole does not attribute it to that journey.
 
 To test a whole journey, send every event in it to the same container. For example, set the `container` cookie at the start of the test, as described in **Visit a Specific URL** above.
+
+[//]: ___
+
+## Rewards in the Test Container
+
+[//]: # "Which reward does a test person get?"
+
+When an event in the `test` container earns a reward, Extole issues it from your account's **Default Test Reward**, not from the reward the campaign names. The same applies to rewards earned in a campaign preview.
+
+So a test shows whether a person earns a reward. It does not show your real reward being delivered.
+
+- **The Default Test Reward:** Extole creates one when it creates your account. As created, it is an account credit with a value of \$0, it is fulfilled automatically, and it sends its reward email automatically. If your account has none, create a reward with that name to receive test rewards.
+- **How Extole finds it:** by its name, `Default Test Reward`, ignoring case. Only one reward in your account that is not archived can have that name. Whatever type and value you give it is what a test person receives.
+- **When your account has none:** a test event that earns a reward gets no reward. Extole sends your account a warning [notification](/guides/notifications-and-troubleshooting/platform-and-admin/subscribing-to-my-extole-notifications) instead.
+- **In production:** Extole does not issue the Default Test Reward to a person in the `production` container. Before a campaign goes live, set each of its rewards to your live reward, as described in [How to Push Your Test Campaign Live](/guides/programs-and-campaigns/managing-campaigns/how-to-push-your-test-campaign-live).
 
 [//]: ___
