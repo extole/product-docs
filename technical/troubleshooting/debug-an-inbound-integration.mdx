@@ -63,6 +63,27 @@ The **Steps** list shows every step recorded on that person, with its **Name**, 
 
 If you can't find the steps you expected, search for the person by every identifier your integration sends. Two profiles for the same customer usually means the event carried a different identifier from the one the share or earlier events used.
 
+## When the Friend's Click and Purchase Are on Two Profiles
+
+A friend who clicks a share link on a browser Extole hasn't identified is recorded as an anonymous person. The referral is saved between the advocate and that anonymous profile, which has no email address.
+
+An event your server or a file sends is attached to a profile by its Extole person ID, identity key, email address, partner user ID, or a person key — never by the browser. See [How Extole Matches an Event to a Profile](/technical/integration-overview/how-extole-matches-an-event-to-a-profile). A purchase row that carries only the friend's email lands on the friend's email profile, which holds no referral. Its step is recorded with no campaign, program, or journey, at quality `NONE`, and no reward rule evaluates it.
+
+You're looking at this case when all three hold:
+
+- The advocate's referrals are with profiles that have no email address. List them with [List Person Relationships](/api-reference/persons/list-person-relationships), and note when each was created.
+- The friend's qualifying step has no journey, and the friend's profile has no relationship to the advocate.
+- The qualifying event's record, from **Event By Event Id**, shows the person identified by email and the event arriving from your server or a file. It carries no advocate and no coupon code.
+
+An anonymous referral created around the time the friend says they used the link is consistent with their story. Nothing in Extole proves which anonymous profile is theirs.
+
+To connect future referrals, give Extole an identifier on both sides:
+
+- Capture the friend's email on the landing page, or tag your sign-up and purchase pages so the browser that clicked sends the event. See [Tracking Referrals via Tags vs. Email Capture](/guides/platform-overview/tracking-referrals-via-tags-vs-email-capture).
+- Include the advocate, or the coupon code the friend redeemed, in each file row. See [File-based Events](/technical/platform-integrations/files/file-based-events#creating-advocate-friend-relationships).
+
+Attribution isn't retroactive, so the purchases already recorded stay unattributed. When you've verified the friend was referred, create the reward manually, as [Investigating Missing Rewards and Attribution](/guides/rewards-management/reward-fulfillment/how-to-investigate-a-wismr-request) describes.
+
 ## Debugging Reports: Check the Whole Feed
 
 Streams and person lookups test one event at a time. To know whether a feed is working across the account — every event, over a day, a week, or a month — run a report. These are the most useful for inbound integrations. None of them is on a category tile on the **Reports** page, so open **Reports**, click **+ New Report**, and search for the report by name. A Client Admin can find and run every report in this table:
@@ -101,6 +122,7 @@ Work through these in order and stop at the first check that fails. That check n
 | Steps appear under **All Containers** only | The events were routed to a test container | The step's **Container**; your test data rules |
 | The step is on an anonymous person | The event carried no identifier Extole could match | The event's JSON in the stream |
 | The step exists but has no journey | The person wasn't part of a referral journey when the step was recorded | The step's **Journey**; the person's earlier steps |
+| The advocate's referrals are all with anonymous profiles, and the friend's purchase has no journey | The friend's click and their purchase landed on two profiles | [When the Friend's Click and Purchase Are on Two Profiles](#when-the-friends-click-and-purchase-are-on-two-profiles) |
 | The step is scored **Suspicious** | A quality rule failed | The person's **Approvals** tab |
 | A batch job finished, but nothing happened | The job counts rows it sent in as input events, not steps created | The target person's steps; **Batch Events By Event Time** |
 
