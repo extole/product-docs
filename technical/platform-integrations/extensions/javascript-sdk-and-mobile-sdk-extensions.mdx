@@ -75,6 +75,18 @@ A zone request that arrives with an app type neither SDK reports, such as `Web`,
 3. Publish the extension.
 4. In each campaign that should respond to it, select the trigger event in **Triggered By** and publish the campaign. A campaign created before you declared the trigger event does not pick it up on its own.
 
+## Add a Trigger Event Through the API
+
+Each trigger event is a copy of an Extole template. To add one through the REST API, copy the template with [Add Component to Setting](/api-reference/components/add-component-to-setting) into the socket setting that holds it:
+
+| Where the event comes from | Template | Socket setting |
+|---|---|---|
+| Your website | **SDK Zone Event** (`sdk_zone_event`) | `zoneEvents` on the **Javascript SDK**, shown as **Tagged CTAs** |
+| Your iOS or Android app | **SDK Zone Event** (`sdk_zone_event`) | `ctas` on the **iOS** or **Android** platform of the **Mobile SDK**, shown as **Tagged CTAs** |
+| Your backend, through the Event API | **API Event** (`event_api_trigger_event`) | `integrationEvents` on the **Event API**, shown as **Integration Events** |
+
+Name an SDK zone event after the zone. Its name becomes its event name. Name an API event after the event, which also becomes its event name. An API event sets no app type, so it matches the event whatever app type it arrives with.
+
 ## Extensions Installed Before Triggered By
 
 A **Javascript SDK** or **Mobile SDK** extension installed before Triggered By was available may not declare the default trigger events above, so none of its trigger events appear in **Triggered By**. Add the missing ones to that copy, as in [Add a Trigger Event](#add-a-trigger-event), rather than installing a second one. If the extension gives you no way to add them, contact your Extole team.

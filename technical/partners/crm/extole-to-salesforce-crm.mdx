@@ -1,26 +1,26 @@
 ---
 title: "Salesforce CRM"
-description: "Install the Extole app for Salesforce to see program results in Salesforce, send Salesforce record events to Extole, create share links for existing records, and write Extole events back to Contacts, Leads, and Person Accounts."
+description: "Use the Extole app to power and manage your campaigns in Salesforce. Personalize campaigns and trigger rewards by sending events and audiences from your Salesforce data, and bring Extole data back into Salesforce to trigger workflows like creating leads or updating records.  Then, manage your program within Salesforce with visibility into campaign and reward activity on individual person records in addition to full funnel reporting and analytics. "
 ---
 
 ## Overview
 
-The Extole app for Salesforce connects Salesforce Sales Cloud to your Extole programs in both directions. It runs inside your Salesforce org as a Lightning app named **Extole**, and it is installed from Extole's public [extole-sfdc-app](https://github.com/extole/extole-sfdc-app) repository.
+The Extole app for Salesforce connects your Salesforce Sales Cloud instance to your Extole programs in both directions. The app runs in your Salesforce org as a Lightning app named **Extole**, and can be installed from Extole's public [extole-sfdc-app](https://github.com/extole/extole-sfdc-app) repository.
 
 The app has seven tabs and one record page component:
 
-| Feature | What It Does |
-| :- | :- |
-| **Program Analytics** | Shows each program's funnel, a chart over time, and a breakdown by promotion and channel. |
-| **KPI Dashboard** | Shows metric tiles from the Extole reports you choose, synced hourly, daily, or weekly. |
-| **Send Extole Events** | Sends an event to Extole when a Salesforce record changes, such as a Lead being created or an Opportunity closing. The app builds and deploys the Salesforce Flow for you, so no code is needed. |
-| **Receive Extole Events** | Receives any Extole event, such as a share link, a sign-up, or a reward, and creates or updates a Contact, Lead, or Person Account based on rules you set. My Extole calls this the **Salesforce CRM** integration. |
+| Tab | Capability |
+| :-- | :-- |
+| **Program Analytics** | Shows each program's funnel, a chart over time, and a breakdown by promotion and channel. Pulled directly from your Extole dashboard. |
+| **KPI Dashboard** | Shows metric tiles from the Extole reports you configure in the Extole platform, synced hourly, daily, or weekly. |
+| **Send Extole Events** | Sends an event to Extole when a Salesforce record changes, such as a Lead being created or an Opportunity closing. The app builds and deploys the Salesforce Flow for you with no-code. |
+| **Receive Extole Events** | Receives events from Extole, such as an advocate creating a share link, and writes them to the matching Contact, Lead, or Person Account.  You can configure the app to Receive any Extole event, such as a share link, a sign-up, or a reward, and creates or updates a Contact, Lead, or Person Account based on rules you set. |
 | **Manage Share Links** | Creates Extole share links for existing Contacts, Leads, or Person Accounts and writes each link to a field on the record. |
 | **Manage Audiences** | Adds the people in a Salesforce report to an Extole audience by email, on a schedule. |
 | **Configure KPIs** | Chooses the Extole reports behind the KPI Dashboard and how often they sync. |
 | **Person Card** | A component for Lead, Contact, and Person Account record pages that shows the person's share links, the friends they referred, and who referred them. |
 
-Each feature is controlled by its own permission set or toggle, so you can pause or remove one without affecting the others. Uninstalling the app is a standard Salesforce package removal.
+Each feature is controlled by its own permission set or toggle, so you can pause or remove one without affecting the others. The app isn't a Salesforce package, so it doesn't appear in **Installed Packages** and can't be uninstalled there. To remove it, delete its components from your org.
 
 ## How Installation Works
 
@@ -33,7 +33,7 @@ Installation takes about 20–30 minutes, in two phases, followed by the feature
 
 ## Prerequisites
 
-* **Git**, with SSH access to GitHub configured. See GitHub's [SSH setup documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
+* **Git**.
 * The **Salesforce CLI** (`sf`). See Salesforce's [install guide](https://developer.salesforce.com/tools/salesforcecli).
 * **jq** and **python3**.
 * An **Extole access token**, created in the [Security Center](https://my.extole.com/security-center). See [Get a Token from My Extole](/api-reference/getting-started/authentication-overview#get-a-token-from-my-extole).
@@ -47,7 +47,7 @@ Installation takes about 20–30 minutes, in two phases, followed by the feature
 In your terminal, clone the app and log the Salesforce CLI in to your org:
 
 ```bash
-git clone git@github.com:extole/extole-sfdc-app.git
+git clone https://github.com/extole/extole-sfdc-app.git
 cd extole-sfdc-app
 sf org login web --instance-url https://yourdomain.my.salesforce.com --alias extole-org
 sf org list
@@ -55,7 +55,7 @@ sf org list
 
 `sf org list` should show the org under the alias you chose. The examples below use `extole-org`.
 
-### Step 2: Deploy the Package
+### Step 2: Deploy the App
 
 ```bash
 sf project deploy start --target-org extole-org
@@ -63,18 +63,22 @@ sf project deploy start --target-org extole-org
 
 This deploys the app's Apex classes, Lightning components, custom objects, permission sets, and the **Extole** app.
 
+<Note>
+On a first install, this deploy fails unless the credential files are included. The repository excludes the `Extole API` credentials in `.forceignore` so later deploys don't overwrite the token, but the permission sets reference them. Comment out the `**/namedCredentials/**` and `**/externalCredentials/**` lines in `.forceignore`, run the deploy, then restore both lines. After Step 3, don't deploy the credential files again, because a deploy resets the token to a placeholder.
+</Note>
+
 ### Step 3: Configure the Extole API Credential
 
-1. In My Extole, open the [Security Center](https://my.extole.com/security-center). In the **Access Token** section, click **+ New Access Token**, give it a descriptive name such as `Salesforce Integration`, and copy the token. You can't see it again later.
+1. In My Extole, open the [Security Center](https://my.extole.com/security-center). In the **Access Token** section, click **\+ New Access Token**, give it a descriptive name such as `Salesforce Integration`, and copy the token. Paste the token in a safe place, as you won't be able to access it beyond this point. 
 2. In Salesforce Setup, navigate to **Named Credentials** > **External Credentials**.
-3. Click the **Extole API** name to open its detail page. Don't click **Edit**, which opens a modal instead.
+3. Click the **Extole API** name to open its detail page. 
 4. In the **Custom Headers** section, find the `Authorization` row, open the dropdown under **Actions**, and click **Edit**.
 5. Replace `REPLACE_WITH_BEARER_TOKEN` with the word `Bearer`, a space, and your token, for example `Bearer 1A2B3C4D`.
 6. Click **Save**.
 
 ### Step 4: Create the External Client App
 
-Skip Steps 4–6 if you won't use **Send Extole Events**.
+You can skip steps 4–6 if you don't plan to **Send Extole Events**.
 
 **Send Extole Events** creates Salesforce Flows that send events to Extole when records change. Creating Flows requires an OAuth app in your org. The app signs in with the OAuth 2.0 **JWT Bearer Flow**, which needs no interactive sign-in and isn't affected by Salesforce's PKCE requirement for the authorization code flow.
 
@@ -163,10 +167,10 @@ Either permission set makes the **Extole** app appear in the App Launcher.
 In a production org, create a dedicated integration user (a non-human Salesforce user with a full license), assign it `Extole_App_Admin`, and use its username as the **Subject (sub)** on the `Extole Tooling Cred` External Credential. **Send Extole Events** then keeps working if the admin who set it up leaves.
 </Tip>
 
-### Step 8: Launch the App and Complete Onboarding
+### Step 8: Launch the App and Configure Each Applicable Tab
 
 1. Open the **Extole** app from the App Launcher. The **Getting Started** screen appears the first time.
-2. Open the **Send Extole Events** tab and click **Test Connection**. It should show that the app is connected.
+2. If you're using Send Extole events, open the **Send Extole Events** tab and click **Test Connection**. It should show that the app is connected.
 3. Open the **Configure KPIs** tab, click **Add KPI**, and set up your first KPI. The report must already exist and be scheduled in Extole. A report that hasn't run yet syncs no data.
 4. Click **Sync Now** on the **Configure KPIs** tab. The KPI Dashboard fills in when the first sync finishes.
 
@@ -192,17 +196,17 @@ To create share links:
 
 Running it again for the same person returns their existing share link instead of creating a second one.
 
-## Salesforce CRM Integration
+## Receive Extole Events
 
-The **Salesforce CRM** integration in My Extole sends Extole events to the app's **Receive Extole Events** tab. You choose which events to send. For each one, you add a rule that names the event, picks the Salesforce object, and maps the event's data to fields. The app then updates the matching Contact, Lead, or Person Account, or creates one.
+Send events from your Extole campaigns to create or update certain Salesforce Records. In the apps **Receive Extole Events** tab you can choose which events to receive and then set rules that maps the event and its data to a Salesforce object and fields. 
 
-Some examples:
+Some use cases:
 
 * `share_link_created` writes an advocate's share link to their record. The integration sends this event when you install it.
 * `signed_up` creates a Lead when someone signs up through a referral.
 * `reward_earned` updates a field on the person's record.
 
-Extole calls into Salesforce in this direction, so Salesforce needs a second External Client App that uses the Client Credentials flow, and Extole needs a key that holds its credentials.
+In order for Extole to make calls to Salesforce, Salesforce needs a second External Client App that uses the Client Credentials flow, and Extole needs a key that holds its credentials.
 
 ### Create the External Client App for Receiving Events
 
@@ -233,12 +237,14 @@ In My Extole, create a new key in the [Security Center](https://my.extole.com/se
 
 Choose `OAUTH_SFDC`, not `OAUTH_SALESFORCE` or `OAUTH_SFDC_PASSWORD`. `OAUTH_SFDC` is the algorithm built for the Salesforce Client Credentials flow.
 
-### Set Up the Integration
+### Set Up Extole Webhooks in order to Receive Extole Events
 
 The person who sets up **Receive Extole Events** needs the `Extole_App_Admin` permission set.
 
 1. In Salesforce, open the Extole app's **Receive Extole Events** tab and copy the **Webhook Endpoint**. The app builds it from your org's own domain, so it ends in `/services/apexrest/extole/events`.
-2. In My Extole, navigate to **Partners**, select **Salesforce CRM**, and click **Install**.
+2. In My Extole, navigate to **Partners**, select **Salesforce CRM**, and click **Install**. 
+   1. If you do not see Salesforce CRM, contact your Extole team who will subscribe your account to the Salesforce CRM component. 
+   1. If you do not see Salesforce CRM, contact your Extole team who will subscribe your account to the Salesforce CRM component. 
 3. Set **Salesforce Endpoint URL** to the Webhook Endpoint you copied, and set **Salesforce OAuth Credentials** to your `OAUTH_SFDC` key.
 4. Turn on **Enable Salesforce Writeback**. It's off by default. While it's off, the integration sends nothing and nothing is logged on either side, so you can use it to pause the integration and keep the endpoint and key filled in.
 5. In Salesforce, on the **Receive Extole Events** tab, click **Add Rule**. Enter the event name, for example `share_link_created`, and choose the **Salesforce Object**: Contact, Lead, or, in an org with Person Accounts, Person Account. For a Contact or Lead, turn on **Create the record if it is not found** if the app should create the record when none matches. Then map the event's fields to the object's fields. Target fields must be Text fields, because the app writes every value as text and a Number or Date field silently stays empty.
@@ -246,21 +252,13 @@ The person who sets up **Receive Extole Events** needs the `Extole_App_Admin` pe
 
 ### How Records Are Matched and Created
 
-The app matches a record by the person's `salesforce_id` in Extole first, and by email when there is no `salesforce_id` or no record with that ID. A Person Account is matched by its person email.
+By default, before creating any new Contact or Lead records, the app first checks to see if a record already exists with either the person’s Salesforce ID (if available) or their email address. If you want the app to create new records, provided no duplicate exists, tick the **Create the record if it is not found** box when setting up your rule in **Receive Extole Events**.
 
-When no record matches, the app skips the event, unless the rule has **Create the record if it is not found** turned on:
+New Leads created by the app get a **Lead Source** of **Extole**. If the event contains the Extole `program_name` and `campaign_name`, the app also saves them in the `Extole_Program_Name__c` and `Extole_Campaign_Name__c` fields on the Lead.
 
-* The app creates a Lead or Contact from the event's email, and from `first_name` and `last_name` when the event sends them. A missing last name becomes "Unknown", because Salesforce requires one. In an org without Person Accounts, a created Lead's Company is also "Unknown".
-* The app doesn't create a Lead or Contact when the email already belongs to a Contact or Person Account. The **Event Log** shows the event as skipped, with the reason.
-* The app never creates a Person Account.
+When those are included, the app will only create a new Lead provided no identical Lead with the same email, Extole Program Name, and Extole Campaign Name already exists. The app also won’t create a new Lead if a Contact or Person Account already exists with that email address. If you still want a Lead created for a new program or campaign, tick the **Create a Lead even if the person is already a Contact or Person Account** box in your rule.
 
-### One Lead per Program and Campaign
-
-Before creating a Lead, the app checks for an existing Lead with the same email, program name, and campaign name, and for a Contact or Person Account with the same email. If a Contact or Person Account exists and you still want a new Lead for a new program or campaign, turn on **Create a Lead even if the person is already a Contact or Person Account** on the rule in the **Receive Extole Events** tab.
-
-Each new Lead gets Lead Source **Extole** and the program and campaign in the **Extole Program Name** and **Extole Campaign Name** fields. These checks apply to Lead rules, and to events that include `program_name` or `campaign_name`. Add **Extole** to your Lead Source values and the two fields to your Lead page layout, and set any Salesforce Duplicate Rule that blocks same-email Leads to **Allow**.
-
-### Event Payload
+### Sample Event Payload
 
 Each event sends one request. `event_id` is unique to the event, and the app ignores a repeated `event_id`. `event_name` is matched to a rule. `data` holds the event's data, plus the person's `email` and `salesforce_id`. For a share link:
 
@@ -279,7 +277,7 @@ Any other event has the same shape, with its own `event_name` and whatever other
 
 ### Send Any Event
 
-The integration installs with `share_link_created`. Any other Extole event can be sent the same way, such as a sign-up, a reward, a referral click, or a custom action:
+The integration installs with `share_link_created`. Any other Extole event can be sent the same way, such as a sign-up, a reward, or a custom action:
 
 1. In My Extole, add a **Webhook** step to that event's flow, and set **Webhook** to the integration's `salesforce_crm_writeback` webhook.
 2. Set **Webhook Body Data** to the body the app expects: an `event_name` that matches a rule on the **Receive Extole Events** tab, an `event_id` the app uses to skip duplicates, and `email` and `salesforce_id` inside `data`. For example:
