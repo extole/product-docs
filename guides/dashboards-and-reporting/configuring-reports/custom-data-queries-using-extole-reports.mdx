@@ -395,6 +395,22 @@ CLIENT().shortName
 CLIENT().clientType
 ```
 
+### CLIENT_DOMAIN
+
+Loads a program domain by its ID. A shareable's `clientDomainId` is the program domain its share link belongs to.
+
+**Parameters:**
+- `(anonymous)` — column with program domain ID
+
+**Returns:** `api.ClientDomain` properties
+
+```
+CLIENT_DOMAIN(FIRST(COLLECTION(PERSON(event.personId).shareables, filter:label==event.programLabel)).clientDomainId).shareUri
+CLIENT_DOMAIN(FIRST(COLLECTION(PERSON(event.personId).shareables, filter:label==event.programLabel)).clientDomainId).domain
+```
+
+Key ClientDomain properties: `id`, `name`, `domain`, `shareUri`, `scheme`. To build a share link from `shareUri`, see [Advocate Share Link](#advocate-share-link).
+
 ### CLIENT_PROPERTIES
 
 Loads the property map associated with the current client. No join column required.
@@ -980,6 +996,26 @@ Day=end_date(event.eventTime, period:"DAY"); Count=group_count_distinct(event.id
 ```
 Email=person(event.personId).email; First Name=person(event.personId).firstName; Last Name=person(event.personId).lastName; Campaign Name=campaign(event.campaignId).campaignName;
 ```
+
+## Advocate Share Link
+
+An advocate's share link is their program domain's share URI, a `/`, and their share code. A shareable holds the code and the program domain ID, and `CLIENT_DOMAIN` loads the share URI. Select the advocate's shareable by its `label`, then join the two parts.
+
+The examples below select the shareable whose label matches the event's program with `filter:label==event.programLabel`. If the advocate's shareables carry a different label from the events in the report, name that label instead, for example `filter:label=="refer-a-friend"`, in each place the filter appears.
+
+On friend-side rows such as `share_clicked`, `signup`, or `converted`, the advocate is `event.data.related_person_id`:
+
+```
+Advocate Share Code=FIRST(COLLECTION(PERSON(event.data.related_person_id).shareables, filter:label==event.programLabel)).code; Advocate Share Link=CONCATENATE(CLIENT_DOMAIN(FIRST(COLLECTION(PERSON(event.data.related_person_id).shareables, filter:label==event.programLabel)).clientDomainId).shareUri, "/", FIRST(COLLECTION(PERSON(event.data.related_person_id).shareables, filter:label==event.programLabel)).code);
+```
+
+On advocate-side rows such as `shared`, the advocate is `event.personId`:
+
+```
+Advocate Share Link=CONCATENATE(CLIENT_DOMAIN(FIRST(COLLECTION(PERSON(event.personId).shareables, filter:label==event.programLabel)).clientDomainId).shareUri, "/", FIRST(COLLECTION(PERSON(event.personId).shareables, filter:label==event.programLabel)).code);
+```
+
+Which side a step belongs to is set by the campaign's journeys. **Advocate vs. Friend Funnel** under [Aggregation Functions](#aggregation-functions-metrics-reports-only) lists examples of each.
 
 ## Conditional Column (Boolean Format)
 
