@@ -1,0 +1,119 @@
+---
+title: "Configuration Concepts"
+description: "What the Management API configures: components, their types and sockets, the four kinds of campaign, and how a campaign is a tree of components."
+---
+
+# Overview
+
+The words on this site have two faces. At **runtime**, a campaign is the thing that accepted an event, a reward is one a person earned, and a journey is the path that person took. The [Integration APIs](/api-reference/getting-started/api-overview#the-apis) touch that face, and [Key Concepts](/technical/integration-overview/key-concepts) explains it.
+
+In **configuration**, a campaign is a tree of components, a reward is a reward component with its rules and supplier, and a journey is a component that groups business events. The [Management API](/api-reference/getting-started/api-overview#management-api) and My Extole touch that face. This page explains it.
+
+## Components
+
+A component is the unit of configuration. Everything you set up in a campaign is one: a role, a journey, a business event, a reward, an experience, a rule. A component has a name, one or more types, settings, and child components. Together, the components of a campaign form a tree whose root is the campaign.
+
+[List components](/api-reference/components/list-components) returns the components of an account. [Get a built component](/api-reference/components/get-a-built-component) returns one with every setting evaluated.
+
+## Types
+
+A component's type decides which settings it carries and which child components it can hold. Type names carry a generation suffix, such as `business-event-v10.0`. The pages on this site drop the suffix when they name a type in prose.
+
+A type can specialize another. `reward-email-v10.0` is a kind of `reward-send-action-v10.0`, which is a kind of `action-v10.0`. A socket that accepts the general type accepts each specialized one.
+
+## Sockets
+
+A socket is a setting that holds child components. A `SOCKET` holds one. A `MULTI_SOCKET` holds many. Each socket declares the types it accepts, so a `businessEvents` socket on a journey holds business events and nothing else.
+
+You add to a campaign by duplicating a component into a socket. [List duplicatable components](/api-reference/components/list-duplicatable-components) returns the components you can copy. Pass a target component and setting to see only the ones that fit that socket. [Duplicate a component](/api-reference/components/duplicate-a-component) installs the copy. The sources are the components Extole maintains and the ones your account already has.
+
+## Variables
+
+A variable is a setting with a value. Each has a type, such as `STRING`, `COLOR`, `BOOLEAN`, `REWARD_SUPPLIER_ID` or `TRIGGER_CONFIGURATION`, and a map of values that can differ by locale. [List component settings](/api-reference/components/list-component-settings) returns the variables and sockets of a component.
+
+A duplicated component keeps the values of its source until you set your own. Values are evaluated when the campaign is built, which is why [Get a built component](/api-reference/components/get-a-built-component) and the component as configured can differ.
+
+Some variable types reference configuration that lives outside any campaign. `REWARD_SUPPLIER_ID` names a reward supplier, `AUDIENCE_ID` an audience, `WEBHOOK_ID` a webhook. The campaign refers to them; the Management API's [Reward Suppliers](/api-reference/reward-suppliers/list-reward-suppliers), [Audiences](/api-reference/audiences/list-audiences) and [Webhooks](/api-reference/webhooks/list-webhooks) groups manage them.
+
+## The Four Kinds of Campaign
+
+An account's campaign list holds four kinds. The Management API carries the kind as `campaign_type`.
+
+| `campaign_type` | What it is |
+|---|---|
+| `MARKETING` | A program a participant meets: roles, journeys, business events, rewards, and the content served on zones. The campaigns on the My Extole **Programs** page. |
+| `CONFIGURATION` | Account configuration, not a participant-facing program. The account's `global` campaign is one. It holds variables and components that the account's other campaigns use. |
+| `INTEGRATION` | A connection to an outside platform: partner events mapped onto business events, outbound webhooks, and the reward suppliers a partner fulfills through. The tiles on the **Integrations** page. See [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration). |
+| `EXTENSION` | A capability added to the account: views in My Extole, scheduled jobs, mobile SDK platforms, tagless calls to action, and monitoring. |
+
+[Create a campaign](/api-reference/campaigns/create-a-campaign) takes the kind. [List campaigns](/api-reference/campaigns/list-campaigns) returns all four.
+
+## A Marketing Campaign as a Tree
+
+The socket names below are the ones the API returns, and the type names drop their suffix.
+
+```
+campaign
+└─ roles: role                        advocate, friend
+   ├─ journeys: journey
+   │  ├─ targetingScenario: targeting-scenario
+   │  │     entryRules, ongoingRules: rule
+   │  ├─ businessEvents: business-event
+   │  │     triggerRules, qualificationRules, qualityRules: rule
+   │  │     actions, lowQualityActions: action
+   │  │     experiences, onsitePromotions, clickBehavior: content
+   │  │     emailPromotions: email-promotion ── actions: action
+   │  │     data: data
+   │  ├─ rules: rule
+   │  ├─ shareLinkActions: content
+   │  ├─ authenticationActions: authentication-action
+   │  └─ data: data
+   └─ rewards: reward
+         triggerRules: rule
+         rewardRules: reward-rule
+         rewardIssuer: reward-issuer
+            sendActions: reward-send-action ── reward-email
+            fulfillmentActions: action
+         data: data
+```
+
+Flow Builder shows the same tree. Its columns are the roles, its flows are the journeys, its white boxes are the business events, and the promotions, experiences, quality rules, actions and rewards on each business event are the children of that component. [Flow Campaigns](/guides/flow-campaigns/index) describes each element as a marketer sees it.
+
+The leaf types have structure of their own:
+
+- **content** is a creative, a page or an experience. It holds content blocks in layout sockets, nested experiences, and the trigger events that show it.
+- **action** is what a business event does: send an email, publish an event, send a reward. It holds data and a person identification that says which person the action is about.
+- **rule** is a condition. A group rule holds rules. A targetable event listener is a rule that listens for a step.
+- **business-event** declares the event a campaign listens for. Once a campaign accepts an event that matches one, the person's journey records a step with that name.
+- **reward** holds the rules that decide whether one is owed and the issuer that sends and fulfills it.
+- **data** declares the fields a component captures or carries.
+
+## Extensions and Integrations as Trees
+
+```
+extension                              integration
+├─ views: view                         ├─ views: event-stream-view
+├─ jobs: job                           └─ rewardSuppliers: reward-supplier
+│    triggers: job-trigger
+│    tasks: job-task ── events: job-event
+├─ integrationEvents: event-api-trigger-event
+├─ platforms: mobile-sdk-platform ── ctas: sdk-zone-event
+├─ zoneEvents: sdk-zone-event
+├─ taglessCtas: tagless-cta
+├─ experiences: content
+└─ monitoringElements: monitoring-element
+```
+
+An extension's `integrationEvents` are the events an outside system can send to the account. A marketing campaign's business event is triggered by one of them, which is what **Triggered By** selects in Flow Builder. [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) covers that choice.
+
+## Programs, Labels, Versions and State
+
+A **program** is a label. Every campaign carries one `PROGRAM` label, and the campaigns that share a label are one program. A campaign can also carry `CAMPAIGN` and `JOURNEY` labels. An integration's events name the program label they are for, and that label is what targets them at the campaign. [Programs vs. Campaigns](/guides/platform-overview/programs-vs-campaigns) explains when to make a new one of each.
+
+A campaign has **versions**. Editing creates a draft, and publishing makes the draft the published version. Building evaluates every variable of a version into the built campaign the runtime uses.
+
+A campaign has a **state**: `NOT_LAUNCHED`, `LIVE`, `PAUSED`, `ENDED`, `STOPPED` or `ARCHIVED`. The state decides whether the runtime considers the campaign for an event. [Pausing, Ending, and Scheduling Campaigns](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns) covers the transitions in My Extole.
+
+## Configuration Outside Campaigns
+
+Some configuration belongs to the account, not to any campaign: users and their roles, program domains, email sending domains, security keys, reward suppliers, audiences, webhooks, event streams, and report schedules. Each is a group of the Management API. A campaign refers to them through its variables, so the same reward supplier can serve many campaigns and a change to it reaches all of them.
