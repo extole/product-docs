@@ -221,6 +221,16 @@ Apply the boundary before drawing any conclusion about this campaign:
 - Row-level `labels` / `target` on raw payloads are **client-optional and often absent**, so use them only as a secondary confirmation when present — never as the primary attribution.
 - Do **not** attribute another program's traffic to this campaign just because it shares an event name. A shared name is in scope only when triggered-step evidence ties it to this campaign.
 
+### Other Live Campaigns on This Program
+
+Targeting chooses one campaign for each event, so another LIVE campaign on the same program label can receive this program's traffic and pay its rewards. This review reads one campaign, so name the others it did not read:
+
+1. From the client's campaign list (`extole_programs`, state `LIVE`), list every other LIVE campaign that carries this campaign's program label, with its name and id.
+2. Also list every LIVE campaign in the client whose name contains `test`, whatever its program label.
+3. Put both lists in the review header under **Other live campaigns, not reviewed**. Write "None" when both are empty.
+
+These are context, not findings. Do not rate them **Watch** or **Issue** and do not change the verdict for them. The reader decides whether they are intended.
+
 ## Report reuse window
 
 Before submitting a new report, reuse an existing report of the same type with the same parameters when one was created in the last **2 days**, unless the requester explicitly asks for fresh data. Note in the review header when reused reports contributed evidence.
@@ -259,7 +269,8 @@ For every business-event / targetable-step, read each data field's `key_type` fr
   - plan / product descriptors: product, plan, tier, package, speed, product combination
   - dates: event date, day
   - demographic / classification: customer class, segment, type, status
-- Borderline — an account-level identifier (customer account number, loyalty id) used as the per-event key. It is unique to an account but not to an event, so when one account legitimately produces repeated events, de-duplication drops the repeats.
+- Shared account — an account-level identifier (customer account number, loyalty id) that more than one person can hold: a joint or household bank account, a business account with several users, a family plan. Every holder of the account becomes one profile, so treat it as a shared attribute. Assume an account can have more than one holder unless the client has confirmed it cannot.
+- Borderline — an account-level identifier that only one person can hold, used as the per-event key. This includes a key that joins the holder's own id to the account number, such as `member_id` + `account_id`. It is unique to an account but not to an event, so when one account legitimately produces repeated events, de-duplication drops the repeats.
 
 ### Why a bad unique key is serious
 
@@ -273,13 +284,15 @@ When a shared attribute is a unique partner event key, two failure modes follow:
 Confirm a suspected bad key against the reports already in the queue:
 
 - Input Records — the same unique-key value appears across multiple distinct person ids. A genuine unique key maps one value to one person.
+- Input Records — the same unique-key value arrives with more than one distinct email address or name in `event.data`. Once a shared key has merged its holders, they share one person id, so this is the check that still shows it.
 - Input Records / Input Events — anonymous or email-less events resolve onto profiles that already have an email, or a small set of profiles absorbs a disproportionate share of events.
 - Conversion Audit — attribution or profile merges that only make sense if separate people were identified as one.
 
 ### Severity guide
 
 - A shared or low-cardinality attribute (address, city, state, zip, phone number, name, date, plan/product descriptor, demographic/class) configured as a unique partner event key → **Issue**. Report the step, the field, and the runtime corroboration when available.
-- An account-level identifier used as the per-event unique key on a step where one account can produce repeated events → **Watch**.
+- An account-level identifier that more than one person can hold (for example a bank account number where joint accounts exist) configured as a unique partner event key → **Issue**. Report the step, the field, and whether Input Records shows one key value with more than one email address or name. It stays an **Issue** until the client confirms each account has exactly one holder.
+- An account-level identifier that only one person can hold, including a holder id joined to an account number, used as the per-event unique key on a step where one account can produce repeated events → **Watch**.
 - Every unique key is a genuinely per-event or per-person identifier → **Pass** for this check.
 
 Record identity-key findings under Anomalies and concerns, and list the fields inspected under Evidence.
@@ -358,9 +371,10 @@ Also list these as **Execution Errors** (not campaign findings) when they occurr
 
 Deliver a short report with:
 
-- **Header** — client, program, review window, start and end dates, campaign id, V10 confirmed
+- **Header** — client, program, review window, start and end dates, campaign id, V10 confirmed, and **Other live campaigns, not reviewed** (see [Campaign scope boundary](#campaign-scope-boundary))
 - **Legacy disclaimer** — required when the campaign is V8/legacy (see [Overview](/runbooks/functional-review/overview))
 - **Summary** — review verdict and one paragraph
+- **Re-run date** — required when the verdict is **Needs investigation** for lack of traffic, or when any section is Empty/Inconclusive because the window holds too little volume. Name the date to run the review again: 60 days after launch, or 30 days after this review, whichever is later. A review that ends in "too early to tell" without a date leaves the program unreviewed.
 - **Findings by section** — observation, report links, flags, recommended next step
 - **Evidence gaps** — anything not checked, failed, pending, or not available from reports
 - **Execution errors** — assistant/tool execution mistakes, invalid parameters, missing required mappings, omitted graph-derived parameters, or incorrect rerun handling

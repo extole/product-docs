@@ -51,6 +51,8 @@ Only one `UNIQUE_PARTNER_EVENT_KEY` is allowed on a journey entry, and a step th
 
 An integration that reports the same purchase from the shopper's browser and again from a server-side order webhook produces two events for one purchase. The two arrive with different credentials, which the event records in `event_context.api_type` as `CONSUMER` and `CLIENT`. If both carry the same key value, one is silenced at the step layer, or refused at the action layer with a `duplicate_action_by_partner_id` alert. Changing the key expression so the two values differ stops the alert and double-counts the order. The fix is to keep one route as the record of the purchase and stop the other from writing the same step.
 
+While both routes write the step, the step Extole keeps is the one from the event that arrived first, with that event's data. A field that only one route sends is on the step only when that route arrived first. A rule that ties a later event to the purchase, such as a cancellation that must name the order it cancels, compares a field that every route sends, such as the order id used as the unique event key, and the later event carries the same value in the same format.
+
 ## Reading the Alert
 
 The alert's data carries `action_type`, `partner_id`, `partner_user_id`, `person_id`, `campaign_id`, `step_event_id`, `step_event_name`, `cause_event_id` and `event_id`. Use `campaign_id` and the level together: an **Error** names a collision inside one campaign, which is configuration; a **Warning** names a collision with another campaign, which is often the same event reaching two programs.
