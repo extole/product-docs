@@ -2881,86 +2881,6 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
-      "evaluate_new_rows_families_required" : {
-        "summary" : "evaluate_new_rows_families_required",
-        "value" : {
-          "code" : "evaluate_new_rows_families_required",
-          "http_status_code" : 400,
-          "message" : "Evaluate new rows task requires at least one file family",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "evaluate_new_rows_family_directory_path_required" : {
-        "summary" : "evaluate_new_rows_family_directory_path_required",
-        "value" : {
-          "code" : "evaluate_new_rows_family_directory_path_required",
-          "http_status_code" : 400,
-          "message" : "Every file family of an evaluate new rows task requires a directory_path",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "evaluate_new_rows_family_id_duplicated" : {
-        "summary" : "evaluate_new_rows_family_id_duplicated",
-        "value" : {
-          "code" : "evaluate_new_rows_family_id_duplicated",
-          "http_status_code" : 400,
-          "message" : "Evaluate new rows task uses the same family_id for more than one file family",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "evaluate_new_rows_family_id_required" : {
-        "summary" : "evaluate_new_rows_family_id_required",
-        "value" : {
-          "code" : "evaluate_new_rows_family_id_required",
-          "http_status_code" : 400,
-          "message" : "Every file family of an evaluate new rows task requires a family_id",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "evaluate_new_rows_family_lookback_out_of_range" : {
-        "summary" : "evaluate_new_rows_family_lookback_out_of_range",
-        "value" : {
-          "code" : "evaluate_new_rows_family_lookback_out_of_range",
-          "http_status_code" : 400,
-          "message" : "File family lookback of an evaluate new rows task must be between 1 and 30",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "evaluate_new_rows_family_pattern_required" : {
-        "summary" : "evaluate_new_rows_family_pattern_required",
-        "value" : {
-          "code" : "evaluate_new_rows_family_pattern_required",
-          "http_status_code" : 400,
-          "message" : "Every file family of an evaluate new rows task requires a pattern",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "evaluate_new_rows_key_columns_required" : {
-        "summary" : "evaluate_new_rows_key_columns_required",
-        "value" : {
-          "code" : "evaluate_new_rows_key_columns_required",
-          "http_status_code" : 400,
-          "message" : "Evaluate new rows task requires at least one key column",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
-      "evaluate_new_rows_result_type_unsupported" : {
-        "summary" : "evaluate_new_rows_result_type_unsupported",
-        "value" : {
-          "code" : "evaluate_new_rows_result_type_unsupported",
-          "http_status_code" : 400,
-          "message" : "A buildtime expression on an evaluate new rows task resolved to an unsupported type",
-          "parameters" : { },
-          "unique_id" : "00000000-0000-0000-0000-000000000000"
-        }
-      },
       "event_stream_filter_not_found" : {
         "summary" : "event_stream_filter_not_found",
         "value" : {
@@ -4187,6 +4107,26 @@
           "code" : "job_no_triggers",
           "http_status_code" : 400,
           "message" : "An enabled job requires at least one trigger",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "keep_new_rows_key_column_blank" : {
+        "summary" : "keep_new_rows_key_column_blank",
+        "value" : {
+          "code" : "keep_new_rows_key_column_blank",
+          "http_status_code" : 400,
+          "message" : "Keep new rows task key_columns must not contain a blank column",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "keep_new_rows_lookback_deliveries_out_of_range" : {
+        "summary" : "keep_new_rows_lookback_deliveries_out_of_range",
+        "value" : {
+          "code" : "keep_new_rows_lookback_deliveries_out_of_range",
+          "http_status_code" : 400,
+          "message" : "Keep new rows task lookback_deliveries must be between 1 and 30",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -13789,36 +13729,6 @@
         "title" : "CUSTOM_REWARD",
         "type" : "object"
       },
-      "BuiltEvaluateNewRowsTaskResponse" : {
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/BuiltTaskResponseBase"
-        }, {
-          "properties" : {
-            "families" : {
-              "description" : "File families the task compares files within. The file the task receives is compared with the files it received in the earlier successful runs of the one family whose folder and filename pattern the delivered file matches; a delivery matching no family, or more than one, fails the run.",
-              "items" : {
-                "$ref" : "#/components/schemas/FileFamilyResponse"
-              },
-              "type" : "array"
-            },
-            "key_columns" : {
-              "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged.",
-              "items" : {
-                "type" : "string"
-              },
-              "type" : "array"
-            },
-            "task_type" : {
-              "enum" : [ "EVALUATE_NEW_ROWS" ],
-              "type" : "string"
-            }
-          },
-          "type" : "object"
-        } ],
-        "required" : [ "component_ids", "enabled", "families", "id", "job_id", "key_columns", "order", "task_type" ],
-        "title" : "EVALUATE_NEW_ROWS",
-        "type" : "object"
-      },
       "BuiltEventStreamResponse" : {
         "description" : "event stream after buildtime evaluation. Fields `name` and `description` are already evaluated.",
         "properties" : {
@@ -14059,6 +13969,34 @@
             "$ref" : "#/components/schemas/ValueInBuiltCampaignJourneyEntryResponse"
           }
         },
+        "type" : "object"
+      },
+      "BuiltKeepNewRowsTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltTaskResponseBase"
+        }, {
+          "properties" : {
+            "key_columns" : {
+              "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged.",
+              "items" : {
+                "type" : "string"
+              },
+              "type" : "array"
+            },
+            "lookback_deliveries" : {
+              "description" : "How many of the job's earlier successful deliveries the file is compared with, newest first, from 1 to 30. Defaults to 1. Every file the job's triggers deliver is compared with the earlier deliveries of the same job.",
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "task_type" : {
+              "enum" : [ "KEEP_NEW_ROWS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "component_ids", "enabled", "id", "job_id", "key_columns", "lookback_deliveries", "order", "task_type" ],
+        "title" : "KEEP_NEW_ROWS",
         "type" : "object"
       },
       "BuiltLandsInDirectoryTriggerResponse" : {
@@ -14826,9 +14764,9 @@
         "description" : "Built tasks belonging to this job.",
         "discriminator" : {
           "mapping" : {
-            "EVALUATE_NEW_ROWS" : "#/components/schemas/BuiltEvaluateNewRowsTaskResponse",
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/BuiltFileHeaderValidatorTaskResponse",
             "FILTER_ROWS" : "#/components/schemas/BuiltFilterRowsTaskResponse",
+            "KEEP_NEW_ROWS" : "#/components/schemas/BuiltKeepNewRowsTaskResponse",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/BuiltStartAudienceOperationTaskResponse",
             "START_BATCH_JOB" : "#/components/schemas/BuiltStartBatchJobTaskResponse",
             "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/BuiltTransformColumnHeadersTaskResponse"
@@ -14836,11 +14774,11 @@
           "propertyName" : "task_type"
         },
         "oneOf" : [ {
-          "$ref" : "#/components/schemas/BuiltEvaluateNewRowsTaskResponse"
-        }, {
           "$ref" : "#/components/schemas/BuiltFileHeaderValidatorTaskResponse"
         }, {
           "$ref" : "#/components/schemas/BuiltFilterRowsTaskResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltKeepNewRowsTaskResponse"
         }, {
           "$ref" : "#/components/schemas/BuiltStartAudienceOperationTaskResponse"
         }, {
@@ -14885,7 +14823,7 @@
           },
           "task_type" : {
             "description" : "Discriminator identifying the task type.",
-            "enum" : [ "EVALUATE_NEW_ROWS", "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "KEEP_NEW_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
             "readOnly" : true,
             "type" : "string"
           }
@@ -29012,51 +28950,6 @@
         "required" : [ "created_date", "note", "status" ],
         "type" : "object"
       },
-      "EvaluateNewRowsTaskRequest" : {
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/TaskRequestBase"
-        }, {
-          "properties" : {
-            "families" : {
-              "$ref" : "#/components/schemas/FamiliesInEvaluateNewRowsTaskRequest"
-            },
-            "key_columns" : {
-              "$ref" : "#/components/schemas/KeyColumnsInEvaluateNewRowsTaskRequest"
-            },
-            "task_type" : {
-              "enum" : [ "EVALUATE_NEW_ROWS" ],
-              "type" : "string"
-            }
-          },
-          "type" : "object"
-        } ],
-        "required" : [ "task_type" ],
-        "title" : "EVALUATE_NEW_ROWS",
-        "type" : "object"
-      },
-      "EvaluateNewRowsTaskResponse" : {
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/TaskResponseBase"
-        }, {
-          "properties" : {
-            "families" : {
-              "$ref" : "#/components/schemas/FamiliesInEvaluateNewRowsTaskResponse"
-            },
-            "key_columns" : {
-              "$ref" : "#/components/schemas/KeyColumnsInEvaluateNewRowsTaskResponse"
-            },
-            "task_type" : {
-              "enum" : [ "EVALUATE_NEW_ROWS" ],
-              "type" : "string"
-            }
-          },
-          "type" : "object"
-        } ],
-        "description" : "Stored evaluate new rows task definition. Fields `order`, `key_columns`, `families`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
-        "required" : [ "component_ids", "component_references", "enabled", "families", "id", "key_columns", "order", "parent_job_id", "task_type" ],
-        "title" : "EVALUATE_NEW_ROWS",
-        "type" : "object"
-      },
       "EventNameInCampaignControllerActionDataIntelligenceResponse" : {
         "description" : "The event name as configured: a literal value, or an expression (type:string) when defined dynamically. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -31721,76 +31614,6 @@
           "type" : "string"
         } ]
       },
-      "FamiliesInEvaluateNewRowsTaskRequest" : {
-        "description" : "File families the task compares files within. The file the task receives is compared with the files it received in the earlier successful runs of the one family whose folder and filename pattern the delivered file matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing families. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-        "externalDocs" : {
-          "description" : "JobBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-        },
-        "oneOf" : [ {
-          "description" : "Static families",
-          "items" : {
-            "$ref" : "#/components/schemas/FileFamilyRequest"
-          },
-          "title" : "Static Value",
-          "type" : "array"
-        }, {
-          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{families}}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('families');}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        } ]
-      },
-      "FamiliesInEvaluateNewRowsTaskResponse" : {
-        "description" : "File families the task compares files within. The file the task receives is compared with the files it received in the earlier successful runs of the one family whose folder and filename pattern the delivered file matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-        "externalDocs" : {
-          "description" : "JobBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-        },
-        "oneOf" : [ {
-          "description" : "Literal families",
-          "items" : {
-            "$ref" : "#/components/schemas/FileFamilyResponse"
-          },
-          "title" : "Static Value",
-          "type" : "array"
-        }, {
-          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{families}}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('families');}",
-          "externalDocs" : {
-            "description" : "JobBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        } ]
-      },
       "FileAssetAudienceOperationDataSourceRequest" : {
         "allOf" : [ {
           "$ref" : "#/components/schemas/AudienceOperationDataSourceRequestBase"
@@ -31955,60 +31778,6 @@
           }
         },
         "required" : [ "clientKeyCreateRequest", "fileInputStreamRequest" ],
-        "type" : "object"
-      },
-      "FileFamilyRequest" : {
-        "description" : "File families the task compares files within. The file the task receives is compared with the files it received in the earlier successful runs of the one family whose folder and filename pattern the delivered file matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing families.",
-        "properties" : {
-          "directory_path" : {
-            "description" : "SFTP folder the family's files are delivered to. A file belongs to the family when its path is inside this folder. Required.",
-            "type" : "string"
-          },
-          "family_id" : {
-            "description" : "Stable identifier of the family, unique within the task. Deliveries are compared only with earlier deliveries tagged with the same id, so keep it when the folder or pattern changes and change it to start the comparison over. Required.",
-            "type" : "string"
-          },
-          "lookback" : {
-            "description" : "How many previous successful deliveries of the family each delivery is compared with, from 1 to 30. Defaults to 1.",
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "pattern" : {
-            "description" : "Regular expression the whole filename must match for the file to belong to the family. Required.",
-            "type" : "string"
-          },
-          "sftp_destination_id" : {
-            "description" : "SFTP destination the family's files arrive through. Omit to match files from any destination.",
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "FileFamilyResponse" : {
-        "description" : "File families the task compares files within. The file the task receives is compared with the files it received in the earlier successful runs of the one family whose folder and filename pattern the delivered file matches; a delivery matching no family, or more than one, fails the run. A literal value or a buildtime expression resolved from component settings when the task is saved.",
-        "properties" : {
-          "directory_path" : {
-            "description" : "SFTP folder the family's files are delivered to. A file belongs to the family when its path is inside this folder.",
-            "type" : "string"
-          },
-          "family_id" : {
-            "description" : "Stable identifier of the family, unique within the task. Deliveries are compared only with earlier deliveries tagged with the same id.",
-            "type" : "string"
-          },
-          "lookback" : {
-            "description" : "How many previous successful deliveries of the family each delivery is compared with, from 1 to 30.",
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "pattern" : {
-            "description" : "Regular expression the whole filename must match for the file to belong to the family.",
-            "type" : "string"
-          },
-          "sftp_destination_id" : {
-            "description" : "SFTP destination the family's files arrive through. Absent when files from any destination match.",
-            "type" : "string"
-          }
-        },
         "type" : "object"
       },
       "FileHeaderValidatorTaskRequest" : {
@@ -34762,8 +34531,53 @@
       "JsonNode" : {
         "type" : "object"
       },
-      "KeyColumnsInEvaluateNewRowsTaskRequest" : {
-        "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing columns. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+      "KeepNewRowsTaskRequest" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskRequestBase"
+        }, {
+          "properties" : {
+            "key_columns" : {
+              "$ref" : "#/components/schemas/KeyColumnsInKeepNewRowsTaskRequest"
+            },
+            "lookback_deliveries" : {
+              "$ref" : "#/components/schemas/LookbackDeliveriesInKeepNewRowsTaskRequest"
+            },
+            "task_type" : {
+              "enum" : [ "KEEP_NEW_ROWS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "task_type" ],
+        "title" : "KEEP_NEW_ROWS",
+        "type" : "object"
+      },
+      "KeepNewRowsTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskResponseBase"
+        }, {
+          "properties" : {
+            "key_columns" : {
+              "$ref" : "#/components/schemas/KeyColumnsInKeepNewRowsTaskResponse"
+            },
+            "lookback_deliveries" : {
+              "$ref" : "#/components/schemas/LookbackDeliveriesInKeepNewRowsTaskResponse"
+            },
+            "task_type" : {
+              "enum" : [ "KEEP_NEW_ROWS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Stored keep new rows task definition. Fields `order`, `key_columns`, `lookback_deliveries`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "id", "key_columns", "lookback_deliveries", "order", "parent_job_id", "task_type" ],
+        "title" : "KEEP_NEW_ROWS",
+        "type" : "object"
+      },
+      "KeyColumnsInKeepNewRowsTaskRequest" : {
+        "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. When empty or omitted on create, every column of the row is the key. A literal value or a buildtime expression resolved from component settings when the task is saved. Omit on update to keep the existing columns. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "JobBuildtimeContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
@@ -34771,7 +34585,7 @@
         "oneOf" : [ {
           "description" : "Static key columns",
           "items" : {
-            "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. A literal value or a buildtime expression resolved from component settings when the task is saved. Required on create. Omit on update to keep the existing columns.",
+            "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. When empty or omitted on create, every column of the row is the key. A literal value or a buildtime expression resolved from component settings when the task is saved. Omit on update to keep the existing columns.",
             "type" : "string"
           },
           "title" : "Static Value",
@@ -34798,7 +34612,7 @@
           "type" : "string"
         } ]
       },
-      "KeyColumnsInEvaluateNewRowsTaskResponse" : {
+      "KeyColumnsInKeepNewRowsTaskResponse" : {
         "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "JobBuildtimeContext",
@@ -35404,6 +35218,72 @@
         },
         "required" : [ "created_date", "logo_id", "updated_date" ],
         "type" : "object"
+      },
+      "LookbackDeliveriesInKeepNewRowsTaskRequest" : {
+        "description" : "How many of the job's earlier successful deliveries the file is compared with, newest first, from 1 to 30. Defaults to 1 when omitted on create. Every file the job's triggers deliver is compared with the earlier deliveries of the same job. A literal value or a buildtime expression resolved from component settings when the task is saved. Omit on update to keep the existing lookback_deliveries. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Static lookback deliveries",
+          "format" : "int32",
+          "title" : "Static Value",
+          "type" : "integer"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{lookbackDeliveries}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('lookbackDeliveries');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "LookbackDeliveriesInKeepNewRowsTaskResponse" : {
+        "description" : "How many of the job's earlier successful deliveries the file is compared with, newest first, from 1 to 30. Defaults to 1. Every file the job's triggers deliver is compared with the earlier deliveries of the same job. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal lookback deliveries",
+          "format" : "int32",
+          "title" : "Static Value",
+          "type" : "integer"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{lookbackDeliveries}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('lookbackDeliveries');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
       },
       "ManagedAccessTokenCreationRequest" : {
         "properties" : {
@@ -49334,9 +49214,9 @@
       "TaskRequest" : {
         "discriminator" : {
           "mapping" : {
-            "EVALUATE_NEW_ROWS" : "#/components/schemas/EvaluateNewRowsTaskRequest",
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/FileHeaderValidatorTaskRequest",
             "FILTER_ROWS" : "#/components/schemas/FilterRowsTaskRequest",
+            "KEEP_NEW_ROWS" : "#/components/schemas/KeepNewRowsTaskRequest",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/StartAudienceOperationTaskRequest",
             "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskRequest",
             "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/TransformColumnHeadersTaskRequest"
@@ -49344,11 +49224,11 @@
           "propertyName" : "task_type"
         },
         "oneOf" : [ {
-          "$ref" : "#/components/schemas/EvaluateNewRowsTaskRequest"
-        }, {
           "$ref" : "#/components/schemas/FileHeaderValidatorTaskRequest"
         }, {
           "$ref" : "#/components/schemas/FilterRowsTaskRequest"
+        }, {
+          "$ref" : "#/components/schemas/KeepNewRowsTaskRequest"
         }, {
           "$ref" : "#/components/schemas/StartAudienceOperationTaskRequest"
         }, {
@@ -49382,7 +49262,7 @@
             "$ref" : "#/components/schemas/ParentJobIdInTaskRequest"
           },
           "task_type" : {
-            "enum" : [ "EVALUATE_NEW_ROWS", "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "KEEP_NEW_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
             "type" : "string"
           }
         },
@@ -49392,9 +49272,9 @@
         "description" : "Stored task definition. Fields `order` and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
         "discriminator" : {
           "mapping" : {
-            "EVALUATE_NEW_ROWS" : "#/components/schemas/EvaluateNewRowsTaskResponse",
             "FILE_HEADER_VALIDATOR" : "#/components/schemas/FileHeaderValidatorTaskResponse",
             "FILTER_ROWS" : "#/components/schemas/FilterRowsTaskResponse",
+            "KEEP_NEW_ROWS" : "#/components/schemas/KeepNewRowsTaskResponse",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/StartAudienceOperationTaskResponse",
             "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskResponse",
             "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/TransformColumnHeadersTaskResponse"
@@ -49402,11 +49282,11 @@
           "propertyName" : "task_type"
         },
         "oneOf" : [ {
-          "$ref" : "#/components/schemas/EvaluateNewRowsTaskResponse"
-        }, {
           "$ref" : "#/components/schemas/FileHeaderValidatorTaskResponse"
         }, {
           "$ref" : "#/components/schemas/FilterRowsTaskResponse"
+        }, {
+          "$ref" : "#/components/schemas/KeepNewRowsTaskResponse"
         }, {
           "$ref" : "#/components/schemas/StartAudienceOperationTaskResponse"
         }, {
@@ -49445,7 +49325,7 @@
             "$ref" : "#/components/schemas/ParentJobIdInTaskResponse"
           },
           "task_type" : {
-            "enum" : [ "EVALUATE_NEW_ROWS", "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "KEEP_NEW_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
             "type" : "string"
           }
         },
@@ -88564,17 +88444,12 @@
                     "socket_names" : [ "socket_name" ]
                   } ],
                   "enabled" : true,
-                  "families" : [ {
-                    "directory_path" : "directory_path",
-                    "family_id" : "family_id",
-                    "lookback" : 1,
-                    "pattern" : "pattern",
-                    "sftp_destination_id" : "sftp_destination_id"
-                  } ],
-                  "key_columns" : [ "key_column" ],
+                  "expected_headers" : [ "expected_header" ],
+                  "match_mode" : "EXACT_SET",
+                  "on_mismatch" : "FAIL",
                   "order" : 1,
                   "parent_job_id" : "parent_job_id",
-                  "task_type" : "EVALUATE_NEW_ROWS"
+                  "task_type" : "FILE_HEADER_VALIDATOR"
                 } ],
                 "triggers" : [ {
                   "component_ids" : [ "component_id" ],
@@ -88690,30 +88565,6 @@
                   "component_reference_unmatched_on_publish" : {
                     "$ref" : "#/components/examples/component_reference_unmatched_on_publish"
                   },
-                  "evaluate_new_rows_families_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_families_required"
-                  },
-                  "evaluate_new_rows_family_directory_path_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_directory_path_required"
-                  },
-                  "evaluate_new_rows_family_id_duplicated" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_id_duplicated"
-                  },
-                  "evaluate_new_rows_family_id_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_id_required"
-                  },
-                  "evaluate_new_rows_family_lookback_out_of_range" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_lookback_out_of_range"
-                  },
-                  "evaluate_new_rows_family_pattern_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_pattern_required"
-                  },
-                  "evaluate_new_rows_key_columns_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_key_columns_required"
-                  },
-                  "evaluate_new_rows_result_type_unsupported" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_result_type_unsupported"
-                  },
                   "excessive_component_reference" : {
                     "$ref" : "#/components/examples/excessive_component_reference"
                   },
@@ -88800,6 +88651,12 @@
                   },
                   "job_no_triggers" : {
                     "$ref" : "#/components/examples/job_no_triggers"
+                  },
+                  "keep_new_rows_key_column_blank" : {
+                    "$ref" : "#/components/examples/keep_new_rows_key_column_blank"
+                  },
+                  "keep_new_rows_lookback_deliveries_out_of_range" : {
+                    "$ref" : "#/components/examples/keep_new_rows_lookback_deliveries_out_of_range"
                   },
                   "lands_in_directory_path_required" : {
                     "$ref" : "#/components/examples/lands_in_directory_path_required"
@@ -89505,17 +89362,12 @@
                     "socket_names" : [ "socket_name" ]
                   } ],
                   "enabled" : true,
-                  "families" : [ {
-                    "directory_path" : "directory_path",
-                    "family_id" : "family_id",
-                    "lookback" : 1,
-                    "pattern" : "pattern",
-                    "sftp_destination_id" : "sftp_destination_id"
-                  } ],
-                  "key_columns" : [ "key_column" ],
+                  "expected_headers" : [ "expected_header" ],
+                  "match_mode" : "EXACT_SET",
+                  "on_mismatch" : "FAIL",
                   "order" : 1,
                   "parent_job_id" : "parent_job_id",
-                  "task_type" : "EVALUATE_NEW_ROWS"
+                  "task_type" : "FILE_HEADER_VALIDATOR"
                 } ],
                 "triggers" : [ {
                   "component_ids" : [ "component_id" ],
@@ -90253,17 +90105,12 @@
                   "socket_names" : [ "socket_name" ]
                 } ],
                 "enabled" : true,
-                "families" : [ {
-                  "directory_path" : "directory_path",
-                  "family_id" : "family_id",
-                  "lookback" : 1,
-                  "pattern" : "pattern",
-                  "sftp_destination_id" : "sftp_destination_id"
-                } ],
-                "key_columns" : [ "key_column" ],
+                "expected_headers" : [ "expected_header" ],
+                "match_mode" : "EXACT_SET",
+                "on_mismatch" : "FAIL",
                 "order" : 1,
                 "parent_job_id" : "parent_job_id",
-                "task_type" : "EVALUATE_NEW_ROWS"
+                "task_type" : "FILE_HEADER_VALIDATOR"
               },
               "schema" : {
                 "$ref" : "#/components/schemas/TaskRequest"
@@ -90364,30 +90211,6 @@
                   "component_reference_unmatched_on_publish" : {
                     "$ref" : "#/components/examples/component_reference_unmatched_on_publish"
                   },
-                  "evaluate_new_rows_families_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_families_required"
-                  },
-                  "evaluate_new_rows_family_directory_path_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_directory_path_required"
-                  },
-                  "evaluate_new_rows_family_id_duplicated" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_id_duplicated"
-                  },
-                  "evaluate_new_rows_family_id_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_id_required"
-                  },
-                  "evaluate_new_rows_family_lookback_out_of_range" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_lookback_out_of_range"
-                  },
-                  "evaluate_new_rows_family_pattern_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_pattern_required"
-                  },
-                  "evaluate_new_rows_key_columns_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_key_columns_required"
-                  },
-                  "evaluate_new_rows_result_type_unsupported" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_result_type_unsupported"
-                  },
                   "excessive_component_reference" : {
                     "$ref" : "#/components/examples/excessive_component_reference"
                   },
@@ -90441,6 +90264,12 @@
                   },
                   "invalid_uri_in_query_parameter" : {
                     "$ref" : "#/components/examples/invalid_uri_in_query_parameter"
+                  },
+                  "keep_new_rows_key_column_blank" : {
+                    "$ref" : "#/components/examples/keep_new_rows_key_column_blank"
+                  },
+                  "keep_new_rows_lookback_deliveries_out_of_range" : {
+                    "$ref" : "#/components/examples/keep_new_rows_lookback_deliveries_out_of_range"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
@@ -90761,17 +90590,12 @@
                   "socket_names" : [ "socket_name" ]
                 } ],
                 "enabled" : true,
-                "families" : [ {
-                  "directory_path" : "directory_path",
-                  "family_id" : "family_id",
-                  "lookback" : 1,
-                  "pattern" : "pattern",
-                  "sftp_destination_id" : "sftp_destination_id"
-                } ],
-                "key_columns" : [ "key_column" ],
+                "expected_headers" : [ "expected_header" ],
+                "match_mode" : "EXACT_SET",
+                "on_mismatch" : "FAIL",
                 "order" : 1,
                 "parent_job_id" : "parent_job_id",
-                "task_type" : "EVALUATE_NEW_ROWS"
+                "task_type" : "FILE_HEADER_VALIDATOR"
               },
               "schema" : {
                 "$ref" : "#/components/schemas/TaskRequest"
@@ -90872,30 +90696,6 @@
                   "component_reference_unmatched_on_publish" : {
                     "$ref" : "#/components/examples/component_reference_unmatched_on_publish"
                   },
-                  "evaluate_new_rows_families_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_families_required"
-                  },
-                  "evaluate_new_rows_family_directory_path_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_directory_path_required"
-                  },
-                  "evaluate_new_rows_family_id_duplicated" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_id_duplicated"
-                  },
-                  "evaluate_new_rows_family_id_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_id_required"
-                  },
-                  "evaluate_new_rows_family_lookback_out_of_range" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_lookback_out_of_range"
-                  },
-                  "evaluate_new_rows_family_pattern_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_family_pattern_required"
-                  },
-                  "evaluate_new_rows_key_columns_required" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_key_columns_required"
-                  },
-                  "evaluate_new_rows_result_type_unsupported" : {
-                    "$ref" : "#/components/examples/evaluate_new_rows_result_type_unsupported"
-                  },
                   "excessive_component_reference" : {
                     "$ref" : "#/components/examples/excessive_component_reference"
                   },
@@ -90952,6 +90752,12 @@
                   },
                   "invalid_uri_in_query_parameter" : {
                     "$ref" : "#/components/examples/invalid_uri_in_query_parameter"
+                  },
+                  "keep_new_rows_key_column_blank" : {
+                    "$ref" : "#/components/examples/keep_new_rows_key_column_blank"
+                  },
+                  "keep_new_rows_lookback_deliveries_out_of_range" : {
+                    "$ref" : "#/components/examples/keep_new_rows_lookback_deliveries_out_of_range"
                   },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
