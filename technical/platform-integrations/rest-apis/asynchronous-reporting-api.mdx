@@ -38,24 +38,94 @@ There are 2 endpoints that can be used for getting report information. /`{report
 
 ```json JSON
 {
-"report_id": "660227271228629029",
-"name": "list_of_successful_advocates",
-"executor_type": "spark",
-"format": "JSON",
-"status": "PENDING",
-"user_id": "6458996259994687201",
-"parameters": {
-  "end_date": "2024-09-17",
-  "client_id": "1990234113",
-  "start_date": "2024-9-11"
+  "report_id": "<REPORT_ID>",
+  "name": "AOV",
+  "report_type": "AOV",
+  "display_name": "Average Order Value-2026-11-13",
+  "executor_type": "SPARK",
+  "format": "CSV",
+  "formats": [
+    "CSV",
+    "XLSX",
+    "JSONL",
+    "JSON"
+  ],
+  "status": "DONE",
+  "user_id": "<USER_ID>",
+  "parameters": {
+    "container": {
+      "value": "production"
+    },
+    "visit_type": {
+      "value": "ALL"
+    },
+    "filters": {
+      "value": "\"1\"==\"1\""
+    },
+    "time_range": {
+      "value": "2026-11-12T00:00:00.000+02:00[Europe/Bucharest]/2026-11-13T00:00:00.000+02:00[Europe/Bucharest]",
+      "details": {
+        "name": "time_range",
+        "display_name": "time_range",
+        "category": "filter",
+        "type": {
+          "name": "TIME_RANGE",
+          "value_type": "STATIC",
+          "values": [
+            "LAST_WEEK",
+            "PREVIOUS_QUARTER",
+            "LAST_QUARTER",
+            "PREVIOUS_YEAR",
+            "LAST_4_HOURS",
+            "LAST_2_HOURS",
+            "LAST_8_HOURS",
+            "FROM_TIME",
+            "PREVIOUS_MONTH",
+            "YEAR_TO_DATE",
+            "PREVIOUS_WEEK_START_MONDAY",
+            "PREVIOUS_DAY",
+            "LAST_MONTH",
+            "LAST_DAY",
+            "ALL_TIME",
+            "MONTH_TO_DATE",
+            "WEEK_TO_DATE",
+            "CUSTOM_TIME",
+            "LAST_HOUR",
+            "LAST_YEAR",
+            "LAST_SIX_MONTHS",
+            "Forward slash-separated ISO8601 dates",
+            "QUARTER_TO_DATE",
+            "PREVIOUS_WEEK_START_SUNDAY"
+          ]
+        },
+        "is_required": true,
+        "order": 1
+      }
+    },
+    "quality": {
+      "value": "ALL"
+    }
   },
-"visible": null,
-"source": null,
-"created_date": "2024-9-17T19:10:05.695Z",
-"started_date": null,
-"completed_Date": null,
-"error_code": null,
-"dounload_url": null
+  "tags": [
+    "internal:category:Performance & Metrics:3",
+    "internal:category:Performance & Metrics",
+    "internal:schedule:<REPORT_RUNNER_ID>",
+    "internal:scheduled-2026-11-05T22:00:00Z/2026-11-12T22:00:00Z",
+    "User-Generated",
+    "internal:report-runner:<REPORT_RUNNER_ID>"
+  ],
+  "created_date": "2026-11-13T00:03:38.292+02:00",
+  "started_date": "2026-11-13T00:16:23.602+02:00",
+  "completed_date": "2026-11-13T00:17:31.002+02:00",
+  "error_code": null,
+  "download_uri": "https://api.extole.io/v4/reports/<REPORT_ID>/download",
+  "sftp_report_name": null,
+  "visible": true,
+  "scopes": [
+    "CLIENT_ADMIN",
+    "CLIENT_SUPERUSER"
+  ],
+  "sftp_server_id": null
 }
 ```
 
@@ -92,13 +162,14 @@ Content-Type: application/json
 
 3. Include this body with your values filled in:
 
-```
-{   
-   "name":"<REPORT_NAME>",  
-   "format":"<FORMAT>",  
-   "parameters":{   
-      "date_range":"<DATE_RANGE.START>/<DATE_RANGE.END>"  
-   }  
+```json
+{
+  "name": "<REPORT_NAME>",
+  "report_type": "<REPORT_TYPE>",
+  "format": "<FORMAT>",
+  "parameters": {
+    "time_range": "<TIME_RANGE.START>/<TIME_RANGE.END>"
+  }
 }
 ```
 
@@ -126,6 +197,14 @@ Options for the parameters above:
     </tr>
     <tr>
       <td>
+        &lt;REPORT_TYPE&gt;
+      </td>
+      <td>
+        The report type to run, for example <code>AOV</code>. The Get API Call page shows the value for a report you have already run.
+      </td>
+    </tr>
+    <tr>
+      <td>
         &lt;FORMAT&gt;
       </td>
       <td>
@@ -134,22 +213,24 @@ Options for the parameters above:
     </tr>
     <tr>
       <td>
-        &lt;DATE_RANGE.START&gt;
+        &lt;TIME_RANGE.START&gt;
       </td>
       <td>
-        Any start date for the report range in the format YYYY-MM-DD.
+        The start of the report range, as an ISO 8601 date (<code>2026-11-12</code>) or date and time (<code>2026-11-12T09:30:00.000Z</code>). A date with no time means 00:00 at the start of that day, in your account's timezone.
       </td>
     </tr>
     <tr>
       <td>
-        &lt;DATE_RANGE.END&gt;
+        &lt;TIME_RANGE.END&gt;
       </td>
       <td>
-        Any end date for the report range in the format YYYY-MM-DD.
+        The end of the report range, which the report does not include, in the same form as the start. To include a whole last day, use the day after it.
       </td>
     </tr>
   </tbody>
 </table>
+
+Instead of `<start>/<end>`, `time_range` also takes a named range, such as `PREVIOUS_DAY` or `LAST_MONTH`. The `details` of `time_range` in a report's record list the names its report type accepts. A few older report types take `date_range` instead of `time_range`, and the Get API Call page shows which one a report uses. See [Time Ranges](#time-ranges).
 
 ## Check the Status of a Report
 

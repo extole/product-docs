@@ -28,21 +28,26 @@ Content-Type: application/json
 
 With this Body:
 
-```
-{    
-   "name":"<REPORT_NAME>",  
-   "format":"<FORMAT>",  
-   "parameters":{    
-      "date_range":"<DATE_RANGE.START>/<DATE_RANGE.END>"   }  
+```json
+{
+  "name": "<REPORT_NAME>",
+  "report_type": "<REPORT_TYPE>",
+  "format": "<FORMAT>",
+  "parameters": {
+    "time_range": "<TIME_RANGE.START>/<TIME_RANGE.END>"
+  }
 }
 ```
 
 Options for parameters above:
 
 - **&lt;REPORT_NAME>**: Name of report you want to download. Available reports are listed here: [How to Run Data Reports](/guides/dashboards-and-reporting/how-to-run-a-report)
+- **&lt;REPORT_TYPE>**: The report type to run, for example `AOV`. The Get API Call page shows the value for a report you have already run.
 - **&lt;FORMAT>**: JSON, CSV
-- **&lt;DATE_RANGE.START>**: Any start date for the report range. Takes format YYYY-MM-DD
-- **&lt;DATE_RANGE.END>**: The end of the report range, which the report does not include. Takes format YYYY-MM-DD. To include a whole last day, use the day after it. See [Time Ranges](/technical/platform-integrations/rest-apis/asynchronous-reporting-api#time-ranges).
+- **&lt;TIME_RANGE.START>**: The start of the report range, as an ISO 8601 date (`2026-11-12`) or date and time (`2026-11-12T09:30:00.000Z`). A date with no time means 00:00 at the start of that day, in your account's timezone.
+- **&lt;TIME_RANGE.END>**: The end of the report range, which the report does not include, in the same form as the start. To include a whole last day, use the day after it.
+
+Instead of `<start>/<end>`, `time_range` also takes a named range, such as `PREVIOUS_DAY` or `LAST_MONTH`. The `details` of `time_range` in a report's record list the names its report type accepts. A few older report types take `date_range` instead of `time_range`, and the Get API Call page shows which one a report uses. See [Time Ranges](/technical/platform-integrations/rest-apis/asynchronous-reporting-api#time-ranges).
 
 **Note:** Different reports require different parameters. To find out exactly how your API call should look, first run the report in [My Extole](https://my.extole.com/reports). Then, you can click the three dots from the reports listing page and select "GET API Call":
 
@@ -56,9 +61,7 @@ For scheduled reports, the "Get API Call" button on the schedules page will give
 
  ![Screenshot showing For scheduled reports, the "Get API Call" button on the schedules page will give you the latest version of the scheduled report](/images/extole/7cb0a8ea7ecdcb2f314733bb10606b760fa1f6a5633512d99176f4aca958784f.png)![Screenshot showing For scheduled reports, the "Get API Call" button on the schedules page will give you the latest version of the scheduled report](/images/extole/4741fbee7c45b96c4c597a8c910aac282f63fd873dea4f50651f33b7242e83ab.png)
 
-A successful output will look like this:
-
-![Screenshot showing A successful output will look like this](/images/extole/e82068446dc0785cf4529dc263fa1768363d88a9de17ee79814df9b5e76e9fa7.png)
+A successful response is the report's record, in the same shape as the status response below, with the report's current `status`.
 
 ## Check the Status of a Report
 
@@ -75,9 +78,100 @@ From the output above, copy and paste the report ID. Remove the quotes.
 GET https://api.extole.io/v4/reports/<REPORT_ID>
 ```
 
-A successful output will look like this:
+A successful output looks like this:
 
-![Screenshot showing A successful output will look like this](/images/extole/a7fb7ef0f9237151d9a882a7532b2a7a93a05f11d87d8c90ede43eb35ee82fb0.png)
+```json
+{
+  "report_id": "<REPORT_ID>",
+  "name": "AOV",
+  "report_type": "AOV",
+  "display_name": "Average Order Value-2026-11-13",
+  "executor_type": "SPARK",
+  "format": "CSV",
+  "formats": [
+    "CSV",
+    "XLSX",
+    "JSONL",
+    "JSON"
+  ],
+  "status": "DONE",
+  "user_id": "<USER_ID>",
+  "parameters": {
+    "container": {
+      "value": "production"
+    },
+    "visit_type": {
+      "value": "ALL"
+    },
+    "filters": {
+      "value": "\"1\"==\"1\""
+    },
+    "time_range": {
+      "value": "2026-11-12T00:00:00.000+02:00[Europe/Bucharest]/2026-11-13T00:00:00.000+02:00[Europe/Bucharest]",
+      "details": {
+        "name": "time_range",
+        "display_name": "time_range",
+        "category": "filter",
+        "type": {
+          "name": "TIME_RANGE",
+          "value_type": "STATIC",
+          "values": [
+            "LAST_WEEK",
+            "PREVIOUS_QUARTER",
+            "LAST_QUARTER",
+            "PREVIOUS_YEAR",
+            "LAST_4_HOURS",
+            "LAST_2_HOURS",
+            "LAST_8_HOURS",
+            "FROM_TIME",
+            "PREVIOUS_MONTH",
+            "YEAR_TO_DATE",
+            "PREVIOUS_WEEK_START_MONDAY",
+            "PREVIOUS_DAY",
+            "LAST_MONTH",
+            "LAST_DAY",
+            "ALL_TIME",
+            "MONTH_TO_DATE",
+            "WEEK_TO_DATE",
+            "CUSTOM_TIME",
+            "LAST_HOUR",
+            "LAST_YEAR",
+            "LAST_SIX_MONTHS",
+            "Forward slash-separated ISO8601 dates",
+            "QUARTER_TO_DATE",
+            "PREVIOUS_WEEK_START_SUNDAY"
+          ]
+        },
+        "is_required": true,
+        "order": 1
+      }
+    },
+    "quality": {
+      "value": "ALL"
+    }
+  },
+  "tags": [
+    "internal:category:Performance & Metrics:3",
+    "internal:category:Performance & Metrics",
+    "internal:schedule:<REPORT_RUNNER_ID>",
+    "internal:scheduled-2026-11-05T22:00:00Z/2026-11-12T22:00:00Z",
+    "User-Generated",
+    "internal:report-runner:<REPORT_RUNNER_ID>"
+  ],
+  "created_date": "2026-11-13T00:03:38.292+02:00",
+  "started_date": "2026-11-13T00:16:23.602+02:00",
+  "completed_date": "2026-11-13T00:17:31.002+02:00",
+  "error_code": null,
+  "download_uri": "https://api.extole.io/v4/reports/<REPORT_ID>/download",
+  "sftp_report_name": null,
+  "visible": true,
+  "scopes": [
+    "CLIENT_ADMIN",
+    "CLIENT_SUPERUSER"
+  ],
+  "sftp_server_id": null
+}
+```
 
 ## Download the Report
 
