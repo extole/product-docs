@@ -4126,7 +4126,7 @@
         "value" : {
           "code" : "keep_new_rows_lookback_deliveries_out_of_range",
           "http_status_code" : 400,
-          "message" : "Keep new rows task lookback_deliveries must be between 1 and 30",
+          "message" : "Keep new rows task lookback_deliveries is out of range",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -13977,14 +13977,14 @@
         }, {
           "properties" : {
             "key_columns" : {
-              "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged.",
+              "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the earlier deliveries compared with, and every column passes through unchanged. When key columns are set, a row with a blank key is dropped. When a key repeats in the same file, only its first row is kept. With no key columns, every column of the row is the key, and earlier deliveries are compared on the columns they all have.",
               "items" : {
                 "type" : "string"
               },
               "type" : "array"
             },
             "lookback_deliveries" : {
-              "description" : "How many of the job's earlier successful deliveries the file is compared with, newest first, from 1 to 30. Defaults to 1. Every file the job's triggers deliver is compared with the earlier deliveries of the same job.",
+              "description" : "How many of the job's earlier successful deliveries the file is compared with, newest first. A value out of range is rejected with keep_new_rows_lookback_deliveries_out_of_range, which names the allowed range.",
               "format" : "int32",
               "type" : "integer"
             },
@@ -34577,7 +34577,7 @@
         "type" : "object"
       },
       "KeyColumnsInKeepNewRowsTaskRequest" : {
-        "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. When empty or omitted on create, every column of the row is the key. A literal value or a buildtime expression resolved from component settings when the task is saved. Omit on update to keep the existing columns. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the earlier deliveries compared with, and every column passes through unchanged. When key columns are set, a row with a blank key is dropped. When a key repeats in the same file, only its first row is kept. With no key columns, every column of the row is the key, and earlier deliveries are compared on the columns they all have. Empty or omitted on create means no key columns. A literal value or a buildtime expression resolved from component references when the task is saved. Omit on update to keep the existing columns. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "JobBuildtimeContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
@@ -34585,7 +34585,7 @@
         "oneOf" : [ {
           "description" : "Static key columns",
           "items" : {
-            "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. When empty or omitted on create, every column of the row is the key. A literal value or a buildtime expression resolved from component settings when the task is saved. Omit on update to keep the existing columns.",
+            "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the earlier deliveries compared with, and every column passes through unchanged. When key columns are set, a row with a blank key is dropped. When a key repeats in the same file, only its first row is kept. With no key columns, every column of the row is the key, and earlier deliveries are compared on the columns they all have. Empty or omitted on create means no key columns. A literal value or a buildtime expression resolved from component references when the task is saved. Omit on update to keep the existing columns.",
             "type" : "string"
           },
           "title" : "Static Value",
@@ -34613,7 +34613,7 @@
         } ]
       },
       "KeyColumnsInKeepNewRowsTaskResponse" : {
-        "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the earlier deliveries compared with, and every column passes through unchanged. When key columns are set, a row with a blank key is dropped. When a key repeats in the same file, only its first row is kept. With no key columns, every column of the row is the key, and earlier deliveries are compared on the columns they all have. A literal value or a buildtime expression resolved from component references when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "JobBuildtimeContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
@@ -34621,7 +34621,7 @@
         "oneOf" : [ {
           "description" : "Literal key columns",
           "items" : {
-            "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the files compared with, and every column passes through unchanged. A literal value or a buildtime expression resolved from component settings when the task is saved.",
+            "description" : "Columns whose values together identify a record. A row is kept only when its key is in none of the earlier deliveries compared with, and every column passes through unchanged. When key columns are set, a row with a blank key is dropped. When a key repeats in the same file, only its first row is kept. With no key columns, every column of the row is the key, and earlier deliveries are compared on the columns they all have. A literal value or a buildtime expression resolved from component references when the task is saved.",
             "type" : "string"
           },
           "title" : "Static Value",
@@ -35220,7 +35220,7 @@
         "type" : "object"
       },
       "LookbackDeliveriesInKeepNewRowsTaskRequest" : {
-        "description" : "How many of the job's earlier successful deliveries the file is compared with, newest first, from 1 to 30. Defaults to 1 when omitted on create. Every file the job's triggers deliver is compared with the earlier deliveries of the same job. A literal value or a buildtime expression resolved from component settings when the task is saved. Omit on update to keep the existing lookback_deliveries. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "description" : "How many of the job's earlier successful deliveries the file is compared with, newest first. A value out of range is rejected with keep_new_rows_lookback_deliveries_out_of_range, which names the allowed range. Defaults to 1 when omitted on create. A literal value or a buildtime expression resolved from component references when the task is saved. Omit on update to keep the existing lookback_deliveries. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "JobBuildtimeContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
@@ -35253,7 +35253,7 @@
         } ]
       },
       "LookbackDeliveriesInKeepNewRowsTaskResponse" : {
-        "description" : "How many of the job's earlier successful deliveries the file is compared with, newest first, from 1 to 30. Defaults to 1. Every file the job's triggers deliver is compared with the earlier deliveries of the same job. A literal value or a buildtime expression resolved from component settings when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "description" : "How many of the job's earlier successful deliveries the file is compared with, newest first. A value out of range is rejected with keep_new_rows_lookback_deliveries_out_of_range, which names the allowed range. A literal value or a buildtime expression resolved from component references when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
         "externalDocs" : {
           "description" : "JobBuildtimeContext",
           "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
