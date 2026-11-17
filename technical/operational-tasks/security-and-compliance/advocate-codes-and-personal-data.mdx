@@ -27,9 +27,9 @@ A code that contains personal data reaches Extole one of three ways:
 
 Establish which of the three applies before you change anything:
 
-- If Extole's default generation is producing the personal value, stopping is not enough: omit `code` and Extole personalizes again. Create new links with an opaque code, or ask your Extole team to configure the share experience for random codes.
-- If your integration supplies the code, the change is in your system. Stop sending the personal value and start sending an opaque code — or ask Extole to generate random codes for you.
-- If the prefixes come from your share experience, ask your Extole team to change that configuration.
+- If advocates get codes through your share experience, turn off personalized codes in that campaign — see [Turn Off Personalized Codes in the Share Experience](#turn-off-personalized-codes-in-the-share-experience).
+- If your integration supplies the code, the change is in your system. Stop sending the personal value and start sending an opaque code.
+- If Extole's default generation is producing the personal value outside a share experience (for example an API create that omits `code`), omitting the field is not enough: supply an opaque `code` on create.
 
 <Warning>
 New codes stop further exposure; they do not clean up exposure that has already happened. Links already sent, bookmarked, or recorded in your analytics and logs keep the old code.
@@ -41,11 +41,26 @@ New codes stop further exposure; they do not clean up exposure that has already 
 
 [//]: # "How do I make new advocate codes random instead of personalized?"
 
+### Turn Off Personalized Codes in the Share Experience
+
+[//]: # "How do I turn off Enable Personalized Share Code/Link in My Extole?"
+
+For a Flow Builder campaign, change the share experience settings and publish:
+
+1. Open the campaign in My Extole.
+2. Go to **Assets**, or open the **Share Experience** from Flow Builder under the promotion-clicked path.
+3. On **Share Link**, set **Code Creation Algorithm** to **Random**. This is what makes new share codes random instead of profile-derived.
+4. On **Share Experience**, turn off **Enable Personalized Share Code/Link**. That stops the experience from requesting a code built from the advocate's profile.
+5. Publish the campaign.
+
+New advocates who open the share experience after publish get a random code. Advocates who already have a share link keep their existing code — see [Issue a Replacement Share Link](#issue-a-replacement-share-link).
+
+### Other Surfaces
+
 | Surface | How to get a random or opaque code |
 |---|---|
 | Person API (`POST /v5/persons/{person_id}/shareables`) | Supply an opaque `code` you generated. The person create request has no random-code flag; omitting `code` personalizes from the profile. |
 | Me shareable API (`POST /api/v6/me/shareables` and variants) | Pass an empty `preferred_code_prefixes` list for a random code, or pass opaque prefixes you control. Omitting the field personalizes from the profile. |
-| Share experience | Ask your Extole team to turn off personalized share codes so new advocates receive random codes. |
 | My Extole (**User Support** > **+ New Share Link**) | Enter an opaque value in the **Code** field. Leaving it blank or accepting the suggested value keeps a profile-derived code. |
 | Bulk / existing population | Ask your Extole team to run a bulk creation with opaque or random codes. |
 
