@@ -14,9 +14,9 @@ components, types, and sockets, and draws the tree you are building.
 
 ## Start from the Custom Campaign Template
 
-The Custom Campaign Template is the starter whose `program_type` is `empty-campaign`.
-[List duplicatable campaigns](/api-reference/campaigns/list-duplicatable-campaigns) returns it
-with the other templates your account can copy.
+[List duplicatable campaigns](/api-reference/campaigns/list-duplicatable-campaigns) returns the
+templates your account can copy. Select the row whose `name` is `Custom Campaign Template`. Its
+`program_type` is `empty-campaign`, and other templates can share that `program_type`.
 
 [Duplicate a campaign](/api-reference/campaigns/duplicate-a-campaign) creates your copy as a
 draft. Send the `name` of the new campaign and the `program_label` of the program it belongs to.
@@ -53,17 +53,23 @@ components in this order:
 For each component:
 
 1. Call [List duplicatable components](/api-reference/components/list-duplicatable-components)
-   for the parent component and the socket. The response lists the sources that fit that socket.
-2. Call [Duplicate a component](/api-reference/components/duplicate-a-component) on the source
-   you chose. Send `target_campaign_id`, `target_component_absolute_name` for the parent,
-   `target_socket_name` for the socket, and a `component_name` and `component_display_name` for
-   the copy.
-3. Call [List component settings](/api-reference/components/list-component-settings) on the
+   with `target_component_id` set to the id of the parent and `target_setting_name` set to the
+   socket. The response lists only the sources that fit that socket.
+2. Choose the source. The template sources are `template_role`, `template_journey`,
+   `template_tracked_business_event`, and `reward_core`. When two rows have the same name, take
+   the row whose `owner` is `EXTOLE`, which is the source that Extole maintains.
+3. Call [Duplicate a component](/api-reference/components/duplicate-a-component) on the source.
+   Send `target_campaign_id`, `target_component_absolute_name` for the parent,
+   `target_setting_name` for the socket, and `component_display_name` for the copy. The copy
+   takes its name from the display name: `Member Joined` becomes `member_joined`.
+4. Call [List component settings](/api-reference/components/list-component-settings) on the
    copy, and set the values your program needs.
    [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest)
    covers how to change a value the copy inherited.
 
-The copy keeps the settings of its source until you change them.
+The copy keeps the settings of its source until you change them. It also brings the children
+of its source: `reward_core` arrives with two reward rules, and **Publish Event Data** arrives
+with a person identification.
 
 ## Declare a Business Event for Each Action
 
@@ -112,10 +118,21 @@ each friend's event must first reach the advocate:
 occurs, and **Has Taken Action** counts each one. A friend who takes the action twice adds two
 to the count.
 
-The action finds the advocate through the referral relationship between the two people. A share
-link creates that relationship. An event can also name its advocate, as
+The **Person Identification** socket on the action decides who receives the event. The action
+arrives with **Person Identified by Referral Relationship**, which sends the event to the
+friend's referrer. A share link creates that relationship, and an event can also name its
+advocate, as
 [Creating Advocate-Friend Relationships](/technical/platform-integrations/files/file-based-events#creating-advocate-friend-relationships)
 describes.
+
+To send the event to a person that the event data names, replace the person identification
+with one of these:
+
+| Person identification | Who receives the event |
+|---|---|
+| **Person Identified by Identity Key** | The person with the identity key, such as an email, in the event data. |
+| **Person Identified By Alternate Person Key** | The person with the person key, such as a partner user ID, in the event data. |
+| **Person Identified by Extole Person ID** | The person with the Extole person ID in the event data. |
 
 [How to Set Up Bonus Rewards on a Specific Referral Count](/guides/flow-campaigns/how-to-set-up-bonus-rewards-on-a-specific-referral-count-2nd-3rd-5th-etc)
 shows the same pattern in Flow Builder.
@@ -123,8 +140,8 @@ shows the same pattern in Flow Builder.
 ## Remove the Components You Do Not Use
 
 [Delete a component](/api-reference/components/delete-a-component) removes a component and its
-children. Delete the placeholder role, journey, and business event once your own components
-replace them. Deleting the root component archives the campaign.
+children. Delete the placeholder role once your own role replaces it, and its journey and
+business event go with it. Deleting the root component archives the campaign.
 
 ## Read the Campaign Back and Test It
 
