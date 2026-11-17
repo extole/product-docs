@@ -7,7 +7,15 @@ Every error returned by an Extole API follows a consistent JSON structure with a
 
 ## Quickstart
 
-`code`
+```json
+{
+  "unique_id": "6941049359794271324",
+  "http_status_code": 403,
+  "code": "missing_access_token",
+  "message": "No access_token was provided with this request.",
+  "parameters": {}
+}
+```
 
 When handling errors:
 
@@ -30,7 +38,17 @@ When handling errors:
 
 For example, a validation error often carries `parameters.description` with the specific field and condition that failed:
 
-`code`
+```json
+{
+  "unique_id": "6941047907334948670",
+  "http_status_code": 400,
+  "code": "validation_error",
+  "message": "Validation failed",
+  "parameters": {
+    "description": "must not be null"
+  }
+}
+```
 
 ## Asynchronous Error Handling
 
@@ -44,18 +62,30 @@ To detect processing errors on these endpoints, inspect the response headers:
 | `X-Extole-Token`          | The current access token value (which may have rotated during the call). |
 | `X-Extole-Cookie-Consent` | Cookie consent status.                                                   |
 
-`switch`
+```bash
+curl -i https://acme.extole.io/events \
+  -H "Content-Type: application/json" \
+  -d '{"event_name":"purchase","data":{"email":"customer@example.com"}}'
+
+HTTP/1.1 200 OK
+X-Extole-Token: EXAMPLE_ACCESS_TOKEN
+X-Extole-Error-Message: invalid_email
+```
 
 For all other endpoints, errors return non-200 status codes with the standard error body.
 
 ## Rate Limiting
 
-A `429` response with code `too_many_requests` indicates that the caller has sent too many requests in a window. Extole applies two limits:
+A `429` response with code `too_many_requests` indicates that the caller has sent too many requests in a window. Extole applies two general limits:
 
 - 100 requests per minute per IP address or token.
 - 10 requests per second per identified person.
 
-The `/v6/async-events` endpoint is not rate-limited and is the recommended path for high-volume event ingestion.
+### Event Submission Limits
+
+The synchronous event endpoints, `POST /v6/events` and `POST /v6/events/{event_name}`, have a lower limit of their own: 30 requests per client per minute. The count starts again at the beginning of each UTC minute, and every integration that sends events under your client shares the same 30. From the 31st request in a minute until that minute ends, these endpoints return `429`.
+
+The asynchronous endpoints, `POST /v6/async-events` and `POST /v6/async-events/{event_name}`, have no per-request rate limit and are the recommended path for high-volume event ingestion. They take the same request body and return only the `event_id`. Extole checks the request before it responds, then identifies the person and processes the event after the response, so the response has no `person_id` and an error during processing is not returned to the caller. Use `/v6/events` for low-volume calls that need the `person_id` or a processing error in the response.
 
 Typical causes of rate limiting:
 
@@ -67,6 +97,7 @@ When implementing retry logic:
 
 - Use **exponential backoff** with jitter. A reasonable starting pattern: 1s, 2s, 4s, 8s, capped at 30s.
 - Avoid retrying immediately. Even a 100 ms retry can keep the limit tripped.
+- For `/v6/events`, retry after the next UTC minute starts, or send the event to `/v6/async-events` instead.
 - Distinguish retryable from non-retryable errors. `429` and `500` are retryable; `400`, `401`, `403`, `415` are not (the request is the problem, not the platform).
 
 If your integration encounters rate limiting that does not match these patterns, contact [support@extole.com](mailto:support@extole.com).
@@ -89,7 +120,12 @@ For state-changing operations (`POST`, `PATCH`, `PUT`, `DELETE`), be cautious ab
 
 Set the `X-Extole-Debug` header to a value between `1` and `3` on any request to receive expanded diagnostic information in the response. Higher levels return more detail.
 
-`message`
+```bash
+curl https://api.extole.io/v6/async-events \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "X-Extole-Debug: 2" \
+  -d '{...}'
+```
 
 Debug responses can be verbose; use level `1` in routine logging and reserve `2` or `3` for active troubleshooting.
 

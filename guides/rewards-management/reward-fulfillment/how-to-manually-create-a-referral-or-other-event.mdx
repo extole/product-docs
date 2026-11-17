@@ -11,6 +11,17 @@ In the course of supporting customers and running your referral campaign, you an
 
 A primary use case for manual event creation is when a customer reaches out to you about a missing reward. You may be unable to find the referral, sign-up, etc. that would have triggered the reward in your My Extole account, however, you can see in your own system that the event occurred. In this case, you can manually create the event in My Extole.
 
+# Choosing the Right Event: Makegood Events
+
+Before creating an event, check whether the campaign defines a dedicated **makegood event** — its name usually ends in "Makegood", such as an "Account Funded Makegood". When your goal is to compensate a participant for a reward the campaign should have produced but did not, select the campaign's makegood event instead of the standard outcome event. Makegood events are wired to issue the missing reward while keeping manual compensations separate from your organic funnel and analytics data.
+
+Use the standard outcome event when you are recreating a real business event that your systems failed to send — for example, a conversion your integration missed — and you want it to flow through the campaign exactly as if it had arrived normally.
+
+Two more checks before you create anything:
+
+- **Confirm the reward doesn't already exist.** If the participant's reward was created but never arrived, resend or recover the existing reward rather than creating a new event; creating another event can produce a duplicate reward.
+- **Confirm the campaign supports this path.** Campaigns built with Flow Builder issue manual rewards from the participant's profile using the **New Reward** action — selecting program, campaign, and reward, and recording the related person — instead of the Create Event form. If the makegood event you expect does not appear in the **Event** dropdown, the campaign likely uses the profile-based path. See [How to Issue a Manual Reward](/guides/flow-campaigns/how-to-issue-a-manual-reward).
+
 # How to Create an Event
 
 1. **Go to User Support**. In the left-hand side bar of your My Extole account, open the User Support dropdown and click on [Create Event](https://my.extole.com/create-event).
@@ -36,9 +47,18 @@ A primary use case for manual event creation is when a customer reaches out to y
 | Advocate: Partner User ID | The unique identifier (e.g. account ID, member ID) for the advocate if this is a referred event (such as a registration, conversion, account opening, etc.). |
 | Advocate: First Name | The first name of the advocate if this is a referred event (such as a registration, conversion, account opening, etc.). |
 | Advocate: Last Name | The last name of the advocate if this is a referred event (such as a registration, conversion, account opening, etc.). |
-| Additional Event Data | A list of optional parameters to include with the referral. The most common parameter is coupon_code, used to indicate the coupon a friend used on their purchase event. |
+| Additional Event Data | A list of optional parameters to include with the referral. The most common parameter is `coupon_code`, used to indicate the coupon a friend used on their purchase event. A key entered here is recorded as data on the event; to write a value onto the person's profile instead, prefix the key as described below. |
 
-1. **Approve the Event**. If the event you've created has a pending period (most common for conversion events), the event will be placed in a pending state. If a reward is issued on the event and you are ready to send the reward, you need to approve the event. To do this, in the sidebar, expand the User Support category and click [Approvals](https://my.extole.com/events/approvals).   
+<Info>
+**Writing to the person's profile.** A key you type into **Additional Event Data** is stored on
+the event, so a reward rule that reads the person's profile does not see it. To set a profile
+attribute, prefix the key with `me.public.` or `me.private.` — entering `me.public.country` with
+the value `US` writes `country` onto the profile, where a rule such as
+`context.getPerson().getData().get('country')` reads it. See
+[Set Person Profile Data from an Event](/technical/integration-overview/set-person-profile-data-from-an-event).
+</Info>
+
+3. **Approve the Event**. If the event you've created has a pending period (most common for conversion events), the event will be placed in a pending state. If a reward is issued on the event and you are ready to send the reward, you need to approve the event. To do this, in the sidebar, expand the User Support category and click [Approvals](https://my.extole.com/events/approvals).   
 ​  
 You can approve events one at a time by clicking Approve to the right of an event in the table, or you can approve multiple events at once by clicking the checkbox next to the events you want to approve and clicking Approve Selected at the top of the table.
 

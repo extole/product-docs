@@ -109,11 +109,40 @@ The basic structure of an error response from Extole is that it will return a di
 
 Each endpoint has unique errors, but below are several of the most common error conditions that are returned.
 
-`unique_id`
+```json
+{
+  "unique_id": "6941047907334948670",
+  "http_status_code": 400,
+  "code": "validation_error",
+  "message": "Validation failed",
+  "parameters": {
+    "description": "must not be null"
+  }
+}
 
-`http_status_code`
+```
 
-`code `
+```json
+{
+  "unique_id": "6941049359794271324",
+  "http_status_code": 403,
+  "code": "missing_access_token",
+  "message": "No access_token was provided with this request.",
+  "parameters": {}
+}
+
+```
+
+```json
+{
+  "unique_id": "6928128588868954308",
+  "http_status_code": 400,
+  "code": "invalid_json",
+  "message": "JSON is invalid",
+  "parameters": {}
+}
+
+```
 
 ## 429 Too Many Requests
 
@@ -123,3 +152,5 @@ Each endpoint has unique errors, but below are several of the most common error 
 | :----------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Admin API    | If you are making too many requests too quickly we will start returning 429 requests. It is up to the API caller to retry these requests.                                                                                                         |
 | Customer API | A 429 will be returned if more than 100 requests are made in one minute by a single IP address or token. We also cannot guarantee support above 10 requests per second per identified person. It is up to the API caller to retry these requests. |
+
+The synchronous event endpoint, `POST /v6/events`, has a lower limit of 30 requests per client per minute. See [Event Submission Limits](/api-reference/getting-started/common-errors#event-submission-limits) for that limit and the endpoint to use for high-volume events.

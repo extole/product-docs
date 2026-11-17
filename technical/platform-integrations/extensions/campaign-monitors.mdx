@@ -1,0 +1,158 @@
+---
+title: "Campaign Monitors"
+description: "What the Campaign Monitors extension checks, how each monitor decides to send an alert, what its settings mean, and how to read an alert before you act on it."
+---
+
+# Overview
+
+Campaign Monitors is an Extole extension that checks the health of your referral programs on a schedule and sends a notification when a metric moves in a way the monitor considers unusual. It catches tracking breaks, stopped feeds, reward failures, and sudden shifts in participation, but it works from arithmetic on report data, so some alerts describe a change in what is being counted rather than a change in what your customers did. This page explains what each monitor measures, when it alerts, and what to check when one fires.
+
+Extole installs Campaign Monitors on your account under **Partners** > **Extensions**, where it appears as **Campaign Monitors** in the **Utilities** category. Each monitor is a component of the extension with its own settings. The default values below apply unless your Extole team or an admin on your account changed them.
+
+Alerts arrive as My Extole notifications. See [Subscribing to My Extole Notifications](/guides/notifications-and-troubleshooting/platform-and-admin/subscribing-to-my-extole-notifications) to choose who receives them and through which channels. Extole's support team receives the same alerts and may contact you about one.
+
+## How a Monitor Works
+
+Every monitor is a scheduled report plus an evaluation of that report's results:
+
+1. A report runner builds a series for each metric over the trailing quarter, one value per period. The period is a week for weekly monitors and a day for daily monitors.
+2. When the report completes, the monitor evaluates every series against its checks and settings.
+3. For each metric that fails a check, the monitor sends one notification naming the metric, the period, the values it compared, and the check that fired.
+
+Two consequences follow from the window:
+
+- **The whole quarter is re-evaluated on every run.** A spike or a stall that happened weeks ago stays in the series, and some checks fire again on each run until that period ages out of the window. A repeat alert for a condition you already understand is the same condition, not a new one.
+- **A condition that persists re-fires.** A metric that dropped and stayed low alerts again on the next run where the check still holds.
+
+The report behind each monitor is a scheduled report on your account named for the monitor, for example **Program Performance Overview V3**, so the values in an alert can be checked against its latest run under **Reports**.
+
+## Program Performance Overview
+
+The Program Performance Overview monitor watches the referral funnel. It runs weekly, and also daily when **Enable Daily Monitoring** is on, which is the default. It reads production events on your live, paused, ended, and stopped campaigns, and skips campaigns tagged `staging`, `makegood`, or `snoozed`.
+
+It evaluates two scopes:
+
+- **Program level:** every metric on each program's dashboard funnel, such as promotion clicks, shares, share clicks, signups, and conversions. This includes metrics that count unwanted activity, such as blocked or test users, because the program level has no exclusions.
+- **Account level:** metrics computed across all programs. The monitor alerts on a decrease in **Outcomes** or **NTF Customer Contribution Rate (%)**, and weekly on an increase in **Non-Production Steps** or **Bot Steps Rate (%)**. It never alerts on **All Steps**, **All Production Steps**, **Production Steps Rate (%)**, **All New Customers**, **New Attributed Customers**, **All Blocked Steps**, **Blocked Steps Rate (%)**, **All Bot Steps**, **All Test Steps**, or **Test Steps Rate (%)**, which it reads only as context.
+
+Two account-level metrics deserve a definition:
+
+- **Outcomes** counts the attributed events that the campaign marks as outcome events. Which events carry that mark is campaign configuration. When a campaign is replaced or republished and the outcome mark moves to a different event, the Outcomes series changes on the publish date even though customer behavior did not.
+- **NTF Customer Contribution Rate (%)** is **New Attributed Customers** as a percentage of **All New Customers**. On a period with no new customers at all, the rate reads 0%.
+
+### The Checks
+
+| Check | What it does | Alert wording |
+| --- | --- | --- |
+| Significant change | Compares the latest period with a baseline built from the previous periods (the **Trend Baseline Window**) and flags a drop or an increase larger than the matching **Sensitivity** setting. A flagged change is then dropped when it is smaller than the **Absolute Change Threshold** or smaller than the **Percentage Change Threshold**, so a small movement never alerts on its own. | "have an anomalous drop in regard to the program funnel" or "have an anomalous raise in regard to the program funnel" |
+| Stalled | Flags a metric whose value has been identical for the number of consecutive periods in **Stalled Metric Threshold**. The weekly monitor alerts again on every later run while the metric stays stalled. The daily monitor alerts again only when the streak reaches a multiple of the threshold. | "have been stalled" |
+| Dropped to zero | Flags a metric that fell to zero. Weekly: alerts on the first zero period after a non-zero one, unless **Allowed Zero Periods (Weekly)** is raised. Daily: see the tiers below. | "have dropped to zero" |
+| Minimum contribution rate | Account level only. Flags the contribution rate when it falls to or below **Minimum Contribution Rate** from a period that was above it. | "have fallen under the configured threshold of N%" |
+
+Before the checks run, the monitor prepares each series:
+
+- A series whose average is below the **Low Data Volume Threshold** is combined into larger buckets of **Periods Combined for Low Volume** periods, so a few events in a quiet week do not read as noise.
+- A series with fewer periods than **Minimum Data History** is not evaluated.
+- When **Enable Seasonal Adjustment** is on, a repeating pattern of the expected length is removed before the significant-change check. It is on for daily runs, which have a weekly pattern, and off for weekly runs.
+
+### Daily Monitoring Differences
+
+The daily monitor uses the same settings with their daily values, plus two behaviors of its own:
+
+- **Dropped to zero is tiered by volume.** The monitor averages the days before the zeros began. If that average is five or less, zeros never alert. If it is between six and 20, the monitor alerts once, on the third consecutive zero day. If it is 21 or more, it alerts once, on the second consecutive zero day.
+- **A long zero streak is treated as expected.** A metric that has been at zero for more than 14 consecutive days is left out of evaluation, so a step you stopped using does not alert every day.
+
+### Settings
+
+Settings marked basic appear on the monitor by default; the others appear under its advanced settings.
+
+| Setting | Default | What it controls |
+| --- | --- | --- |
+| Enable Daily Monitoring (basic) | On | Runs the daily monitor as well as the weekly one. |
+| Significant Decrease Sensitivity (basic) | −25 | The score a drop in a count metric must reach before it alerts, in tenths (−25 is −2.5). A value closer to zero alerts on smaller drops. Applies to weekly and daily runs. |
+| Significant Increase Sensitivity (Daily) (basic) | 15 | How large a daily increase in a count metric must be before it alerts. |
+| Significant Increase Sensitivity (Weekly) | 999 | The weekly counterpart. The default is high enough that weekly increases do not alert. |
+| Significant Rate Decrease Sensitivity (basic) | −8 | The score a drop in a rate metric must reach before it alerts. A value closer to zero alerts on smaller drops. |
+| Significant Rate Increase Sensitivity (Daily) (basic) | 15 | How large a daily increase in a rate metric must be before it alerts. |
+| Significant Rate Increase Sensitivity (Weekly) | 999 | The weekly counterpart, off by default. |
+| Percentage Change Threshold (Counts) (basic) | 50 | A flagged change in a count metric smaller than this percentage is not reported. |
+| Percentage Change Threshold (Rates) (basic) | 50 | The same filter for rate metrics. |
+| Absolute Change Threshold (Counts) | 5 | A flagged change in a count metric smaller than this many events is not reported. |
+| Absolute Change Threshold (Rates) | 5 | A flagged change in a rate metric smaller than this many hundredths of a point is not reported. |
+| Stalled Metric Threshold (basic) | 4 | Consecutive periods with an identical value before the stalled check alerts. |
+| Allowed Zero Periods (Weekly) | 0 | Weekly periods a metric can stay at zero before the dropped-to-zero check alerts. |
+| Allowed Zero Periods (Daily) (basic) | 1 | Shown for the daily monitor. The daily dropped-to-zero check uses the volume tiers above instead. |
+| Zero-Level Change Tolerance (%) | 50 | Allowed variation when evaluating values near zero. |
+| Minimum Contribution Rate (basic) | 1 | The contribution rate, in percent, at or below which the account-level check alerts. |
+| Minimum Data History (Weekly) | 3 | Weekly periods required before a series is evaluated. |
+| Minimum Data History (Daily) | 6 | Daily periods required before a series is evaluated. |
+| Low Data Volume Threshold | 25 | A series averaging fewer events than this per period is treated as low volume. |
+| Periods Combined for Low Volume | 2 | How many periods are combined for a low-volume series. |
+| Ignored Most Recent Periods | 0 | Most recent periods to leave out, for data that may still be arriving. |
+| Trend Baseline Window (Weekly) | 3 | Previous weeks used to build the baseline for the significant-change check. |
+| Trend Baseline Window (Daily) | 7 | Previous days used to build the baseline. |
+| Baseline Stability Adjustment | 3 | How much new data moves the baseline, in tenths. Lower values keep the baseline steadier. |
+| Enable Seasonal Adjustment (Daily) | On | Removes a repeating daily pattern before alerting. |
+| Enable Seasonal Adjustment (Weekly) | Off | Removes a repeating weekly pattern before alerting. |
+| Seasonality Detection Sensitivity | 5 | How strong a repeating pattern must be before it is adjusted for, in tenths. |
+| Expected Seasonal Pattern Length (Daily) | 7 | Days in the repeating cycle. |
+| Expected Seasonal Pattern Length (Weekly) | 4 | Weeks in the repeating cycle. |
+
+### What a Program Performance Alert Looks Like
+
+A notification is named `<account>: Unusual traffic decrease alert for <program>` or `<account>: Unusual traffic increase alert for <program>`. An account-level alert has no program suffix. The message names the metric, the check that fired, the period that ended, and the series the monitor compared, for example a list of the previous weekly values followed by the latest value.
+
+## Reward Rates
+
+The Reward Rates monitor watches reward volume and reward health weekly. For each period it reads the counts of production rewards earned, fulfilled, sent, failed, and canceled, and the same counts for non-production (test and bot) rewards.
+
+| Check | What it does | Default |
+| --- | --- | --- |
+| Large decrease | Compares the latest period's **Production Rewards Earned**, **Production Rewards Fulfilled**, and **Production Rewards Sent** with the average of all earlier periods in the report window, and alerts when the latest value is lower by at least the **Large Decrease Threshold (%)**. | 80% |
+| Large increase | The same comparison for an increase, against the **Large Increase Threshold (%)**. | 300% |
+| Non-production vs production | Alerts when rewards earned in non-production exceed the **Non-Production vs Production Rewards Threshold (%)** of production rewards, subject to the low-volume guards below. | 80% |
+| Failed vs earned | Alerts when failed production rewards reach the **Failed vs Earned Production Rewards Threshold (%)** of earned production rewards, or when the failed count reaches the **Failed Production Rewards Count Threshold** regardless of the percentage. | 10% and 20 |
+| Low quality steps | Alerts when any production reward was earned on a step that the quality rules flagged as low quality. | 0 |
+
+Because the baseline is the average of the earlier periods, a decline that happened gradually over several weeks still trips the large-decrease check once the latest period is far enough below that average, and it trips again every week while the level persists. Reward volume follows the funnel, so a drop in rewards earned usually traces back to a drop in shares or conversions that began earlier.
+
+| Setting | Default | What it controls |
+| --- | --- | --- |
+| Large Decrease Threshold (%) (basic) | 80 | Percentage below the earlier average at which the decrease check alerts. |
+| Large Increase Threshold (%) (basic) | 300 | Percentage above the earlier average at which the increase check alerts. |
+| Non-Production vs Production Rewards Threshold (%) (basic) | 80 | Maximum acceptable non-production rewards as a percentage of production rewards. |
+| Failed vs Earned Production Rewards Threshold (%) (basic) | 10 | Maximum acceptable failed rewards as a percentage of earned production rewards. |
+| Failed Production Rewards Count Threshold (basic) | 20 | Maximum acceptable number of failed production rewards in a period. |
+| Low Production Volume Threshold | 10 | A period with fewer production rewards than this is treated as low volume, and periods may be combined. |
+| Minimum Non-Production Rewards (Low Volume Alert) | 6 | Non-production rewards required before the non-production check alerts on combined low-volume periods. |
+| Minimum Non-Production Rewards (Single Period Alert) | 3 | Non-production rewards required before the non-production check alerts on a single period. |
+
+## Other Monitors
+
+The extension carries five more monitors. Each has a short description and its settings on its own page in the extension.
+
+| Monitor | What it checks | Settings |
+| --- | --- | --- |
+| Rewards per Day | Daily. Alerts when a day's production rewards exceed the greater of **Rewards Per Day Alert Floor** (default 100) and three times the highest earlier complete day in the trailing quarter. | Rewards Per Day Alert Floor |
+| Rewards by Event | Alerts when any single event earns more than **Maximum Rewards Per Event** (default 2). Reward issuance is not stopped. | Maximum Rewards Per Event |
+| Person Rewards | Alerts when one person's rewards in the current year exceed the **Annual Reward Value Threshold** (default 600), the **Annual Reward Count Threshold** (default 10), or the **Annual Failed Reward Count Threshold** (default 10). | Annual Reward Value Threshold, Annual Reward Count Threshold, Annual Failed Reward Count Threshold, Value Type Thresholds (JSON) |
+| Manual Reward Rate | Alerts when manual rewards exceed the **Manual Reward Rate Threshold (%)** (default 30) of all rewards for **Alert After Consecutive Periods** (default 2) weekly periods in a row. | Manual Reward Rate Threshold (%), Alert After Consecutive Periods |
+| Reward Limit Coverage | Daily. Reports reward suppliers that have no daily reward cap, so a misconfiguration or a bad import cannot issue rewards all day unchecked. A supplier with only an hourly cap is reported as partially covered. | Minimum Uncapped Suppliers, Include Suppliers That Issued Nothing Yesterday, Reward Suppliers Deliberately Left Uncapped, Reward Value Types To Ignore, Maximum Suppliers Listed |
+
+## Reading an Alert
+
+Start from the report the alert links to, and compare the values in the alert with the metric's own dashboard before you change anything. These patterns account for most alerts that do not need a fix:
+
+- **A repeat of a known condition.** Check the alert's history for the same program and metric. If the same condition has alerted before and was already explained, nothing new happened. The alert stops when the period that caused it leaves the trailing quarter.
+- **A program-level alert on blocked, bot, or test counts.** A metric such as users blocked can stall at zero or spike after one week of blocked traffic. The monitor treats it like any other program metric. Your referral traffic is unaffected.
+- **A rate at 0% because both counts were zero.** On a day with no new customers at all, **NTF Customer Contribution Rate (%)** reads 0%. The question is whether your customer events reached Extole that day. Compare your source system's count for that period with the Events report.
+- **A metric whose definition changed.** When a campaign was replaced or republished near the first bad period, compare which events carry the outcome mark in the old and new versions. An **Outcomes** series that moves on a publish date is a definition change. Check the conversion counts directly to see what customers did.
+- **A stalled metric.** Identical values period after period usually mean nothing new is being recorded: an upload that stopped, an integration that froze, or a step the program no longer uses.
+
+When the alert is real, the first bad period tells you where to look: a site or app change, a promotion that ended, a feed that stopped, or a reward supplier that ran out of funds or coupons. The [Quick Troubleshooting Guide](/guides/notifications-and-troubleshooting/troubleshooting/quick-troubleshooting-guide) covers the common causes.
+
+## Changing a Monitor's Settings
+
+Open **Partners** > **Extensions**, select **Campaign Monitors**, and select the monitor. Each setting is listed with its description. A change applies on the monitor's next scheduled run; monitors do not re-run immediately.
+
+Raising a threshold or a sensitivity makes the monitor quieter and can hide a real problem. Prefer tuning one setting at a time and reviewing the next few alerts before tuning further. If an alert keeps firing on a condition you understand, your Extole team can adjust the monitor for that program.

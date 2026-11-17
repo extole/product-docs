@@ -1,0 +1,72 @@
+---
+title: "Troubleshooting Audience File Processing"
+description: "Find and interpret errors from audience add, replace, and remove file processing, and resolve the most common failures yourself."
+---
+
+# Overview
+
+When an audience file you upload over SFTP does not produce the membership you expect, Extole records why. This page covers where that record is, what the most common failures mean, and which ones clear on their own.
+
+For how audience files are structured and where they are uploaded, see [Audience Files](/technical/platform-integrations/files/audience-files).
+
+# Where to Look First
+
+Every processed file produces a **results file** in the `results` folder on your SFTP server, and the original file moves to the `archive` folder once Extole has processed it. The results file is the first place to check:
+
+- A file that processed but rejected individual rows has one result line per input line, with success or failure columns at the front of each row.
+- A file that could not be processed at all has a single metadata row explaining why — a missing header row, a duplicate file, an encoding problem, or incorrect file permissions.
+
+For the full convention, see [SFTP and Batch File Conventions](/guides/dashboards-and-reporting/integrating-reports/sftp-and-batch-file-conventions).
+
+Audience replace files are read from:
+
+```text
+/audiences/{audience_id}/replace
+```
+
+In my.extole, open the audience and select **History**. Each upload appears as an operation with its own status, so a failed run shows as **Failed** there even when the file itself looks fine.
+
+<Tip>
+The Management API reports the machine-readable reason for a failed operation. `GET /v1/audiences/{audience_id}/operations/{operation_id}/state` returns an `error_code` such as `MEMBERS_COUNT_VALIDATION_RETRIES_EXHAUSTED`. See the [API Reference](/api-reference).
+</Tip>
+
+# Count Validation Failures
+
+An audience operation that finished processing but did not reconcile fails with one of two error codes:
+
+| Error code | What Extole compared |
+| --- | --- |
+| `MEMBERS_COUNT_VALIDATION_RETRIES_EXHAUSTED` | The number of people the file identified against the number of memberships the audience now holds |
+| `ROW_COUNT_VALIDATION_RETRIES_EXHAUSTED` | The number of rows processed against the number of rows the file contained |
+
+**What it means.** After the upload is processed, Extole validates the result before activating it. When the two counts do not reconcile — often by a single person — Extole does not activate the change. This is a safety check that keeps a partially or incorrectly processed file from replacing a live audience.
+
+**Most common cause.** Duplicate or colliding identifiers in the file. When two rows resolve to the same person, the distinct membership count comes out lower than the row count.
+
+**Impact.** That run's change did not complete, so the audience holds the membership from its last successful run until the next one succeeds. A person affected by the collision is not in the audience for that period.
+
+**What to do:**
+
+1. Check the next day's results file. This condition frequently clears on the following successful file with no action from you.
+2. If it persists, inspect the file for duplicate or colliding identifiers — the same `email` or `member_id` mapping to one person across rows.
+3. Confirm the file is the full current list. A replace expects the complete audience each time, correctly formatted and encoded as UTF-8.
+
+# Other Common Full-File Failures
+
+| Symptom in the results file | Likely cause | Fix |
+| --- | --- | --- |
+| File rejected with a missing-headers message | Required column headers absent | Add the header row, for example `first_name,last_name,email,member_id` |
+| File not processed, reported as a duplicate | The same file name was submitted twice | Use a unique, timestamped name: `clientid_filetype_YYYYMMDDHHMMSS.csv` |
+| Encoding or parsing errors | The file is not UTF-8, or a field is quoted incorrectly | Re-export as UTF-8 and quote any field containing a comma or a quotation mark |
+| File ignored entirely | The file was uploaded to the wrong path | Place audience replace files in `/audiences/{audience_id}/replace` |
+
+# When to Contact Extole
+
+Contact Extole support when the results file does not explain the failure, or when a count validation failure does not clear on the next run. Include the audience ID, the file name, and the approximate upload time so the batch job can be located.
+
+# Related Articles
+
+- [Audience Files](/technical/platform-integrations/files/audience-files)
+- [Uploading an Eligibility Audience File via SFTP](/guides/platform-overview/uploading-an-eligibility-audience-file-via-sftp)
+- [SFTP and Batch File Conventions](/guides/dashboards-and-reporting/integrating-reports/sftp-and-batch-file-conventions)
+- [Set Up Dynamic Eligible Audience Files](/guides/platform-overview/set-up-dynamic-eligible-audience-files)

@@ -1,6 +1,6 @@
 ---
 name: mintlify-branch-preview
-description: Prove an Extole docs change builds, and see it rendered, before it merges to the live site. Use before opening any branch or PR in extole/product-docs, and whenever someone needs to see how a page will look. Covers the `npx mint@latest validate` gate and what it does and does not catch, the CI check that enforces it on every PR, local `npx mint@latest dev`, why the per-PR Mintlify preview cannot be relied on, branch naming (no prefix requirement here — unlike the ReadMe repo), and the fact that merging publishes docs.extole.com.
+description: Must be read before opening a branch or pull request in this repo, and whenever someone needs to see how a page will render.
 ---
 
 # Mintlify preview & validation
@@ -15,7 +15,7 @@ Mintlify pages are **MDX** — JSX-strict. A bare `<`, an unclosed tag, a stray 
 npx mint@latest validate    # target: 0 errors, 0 warnings
 ```
 
-The migration landed at 0/0 (see [`MIGRATION.md`](../../../MIGRATION.md)), so treat anything else as something you introduced. `validate` fails on **warnings** as well as errors, so there is no "it's only a warning" tier here.
+The migration landed at 0/0, so treat anything else as something you introduced. `validate` fails on **warnings** as well as errors, so there is no "it's only a warning" tier here.
 
 The nav failure it catches is a `docs.json` entry pointing at a file that does not exist — most often a path with the `.mdx` extension left on:
 
@@ -25,7 +25,11 @@ docs.json navigation but the file does not exist.
 error Build validation failed with 1 warning(s).
 ```
 
-**The reverse is not caught.** A page file that is valid MDX but appears in no `docs.json` group passes validation with exit 0 — it simply ships unreachable, with no build signal and no CI failure. Measured 2026-08-21 against `mint@latest`. Adding the page to `docs.json` is on you and on the reviewer; the build will not remind you.
+**The reverse is not caught.** A page file that is valid MDX but appears in no `docs.json` group passes validation with exit 0 — it simply ships unreachable, with no build signal and no CI failure. Measured 2026-08-21 against `mint@latest`, and six troubleshooting pages then shipped exactly that way. `python3 scripts/check_navigation.py` reports it, along with paths that do not mirror their navigation group; run it alongside `validate`.
+
+**And a page can pass `validate`, render in `mint dev`, and still 404 on the hosted preview.** The hosted build is stricter than both local tools, and it fails one page rather than the run — so `validate` is green, **Mintlify Deployment** is green, and the page you edited is the only one missing. Measured 2026-09-21: adding a `<Warning>` containing an indented markdown bullet list and a `×` (U+00D7) to `creative-image-asset-guide.mdx` left that one path 404 on `https://extole-<branch>.mintlify.site` while every unedited sibling in the same group answered 200; `npx mint@latest validate` reported `success build validation passed` and `npx mint@latest dev` served the page with the callout rendered. Rewriting the callout as plain paragraphs with ASCII `x` fixed it on the next push. So **curl the preview path of every page you touched** — a green deployment check is not the same claim, and the failure signature is indistinguishable from a page you forgot to add to `docs.json`.
+
+**An angle-bracket placeholder can drop the page from the deployed build.** A page carrying `` `<reward name>_reward_earned` `` — a placeholder inside an inline code span — passed `validate` with 0/0 and rendered at 200 under `mint dev`, and the deployed preview served 404 for that one page while every sibling in the group served 200. Replacing the placeholder with a concrete example was the only change; the preview returned 200 about a minute later, after the 404 had held for ten (measured 2026-09-16 on `reward-name-vs-label`). Write the example value rather than a `<placeholder>`, and open the preview on the page you edited — a green `validate` and a local render both miss this.
 
 ## Local preview
 
@@ -34,6 +38,20 @@ npx mint@latest dev        # http://localhost:3000
 ```
 
 Renders the whole site from the working tree — the fastest way to check heading structure, the on-page TOC, callout components, image paths, and where a page landed in the sidebar.
+
+### `dev` is also the only way to census a rendering defect
+
+`validate` proves the MDX parses, not that the page says what it says. Nothing in CI reads the rendered HTML, so a defect that is legal MDX ships silently and is only visible to someone who opens the page. Drive the dev server over every page and grep the HTML for the defect's own marker:
+
+```bash
+npx mint@latest dev &                     # wait for / to answer 200
+find guides product technical news runbooks -name '*.mdx' | sed 's/\.mdx$//' \
+  | xargs -P 4 -I{} sh -c 'echo "$(curl -s --max-time 180 http://localhost:3000/{} | grep -c "katex-mathml") {}"'
+```
+
+Three things that bite. Count the rows against the file count and check every page returned 200 — a sweep against a dead server reports zero of everything, which reads exactly like a clean result. Do not wrap `mint dev` in `timeout`; it dies mid-sweep. And `curl` it once per page with a couple of retries, because the server compiles each page on first request.
+
+Measured 2026-09-21 on `docs/dollar-amounts-render-as-math`: 432 pages swept in about six minutes, 22 of them publishing accidental LaTeX (see the `\$` rule in [`.mintlify/AGENTS.md`](../../../.mintlify/AGENTS.md)), 0 after the fix. `validate` was green throughout, before and after.
 
 ## CI runs the gate on every PR
 
@@ -73,11 +91,106 @@ same for `main`, forcing a publish of docs.extole.com.
 
 The branch name becomes a DNS label in that host, so it must be lowercase
 `[a-z0-9-]` and the whole `extole-<branch>` subdomain must stay under 63
-characters.
+characters. A `/` in the branch name becomes a `-`:
+`docs/loyalty-content-gaps` is served at
+`extole-docs-loyalty-content-gaps.mintlify.site`.
+
+### A preview URL in a request names a branch that already exists
+
+Review feedback usually arrives as the preview link the reviewer was reading
+("here are some updates to make to this doc: extole-docs-…mintlify.site/…").
+That link is not a page on the live site — it is somebody's open branch, so the
+edits belong as a commit on that branch, not on a new one off `main`. A second
+PR against the same pages splits the review and races the first one to merge.
+
+Map the host back before you plan. Strip the `extole-` prefix, then resolve the
+rest against the real branch list rather than assuming — the `/` collapse above
+means `docs/loyalty-content-gaps` and `docs-loyalty-content-gaps` are the same
+host:
+
+```bash
+git ls-remote --heads origin | grep -i loyalty-content-gaps
+gh pr list --repo extole/product-docs --state open --head docs/loyalty-content-gaps
+```
+
+Then `git fetch origin <branch>`, commit, push, and say on the PR what you
+changed. The preview host is unchanged, so the reviewer's own link shows the
+edits once **Mintlify Deployment** goes green — about 90 seconds after
+`validate`.
+
+**Read that branch's newest commits before you plan, and fetch it again before
+you push.** A reviewer going through a large branch sends several rounds of
+feedback within a few minutes, and each one is worked separately, so the page
+you were sent can already carry somebody else's fix. On 2026-09-17 the
+`docs/loyalty-content-gaps` branch took five commits between 22:03 and 22:15,
+and the sentence flagged at 22:05 was rewritten at 22:13 by the round before
+it:
+
+```bash
+git log --format='%h %ad %s' --date=iso -5 origin/<branch>
+git show origin/<branch>:<path/to/page.mdx>
+```
+
+Read the page at the branch tip, not the preview HTML the reviewer linked —
+the deployed copy lags the branch. Then rebase onto the tip and push; what is
+left to do is usually smaller and more specific than the request implies.
 
 `MINTLIFY_API_KEY` and `MINTLIFY_PROJECT_ID` come from the Mintlify dashboard's
 API keys page; `extole/openapi` holds them as repository secrets for the
 pipeline above.
+
+### Read the host backwards when somebody sends you one
+
+A request that arrives as a preview URL — "updates to this doc: `extole-<something>.mintlify.site/…`"
+— is feedback on a **branch**, and the host names it. Strip the `extole-` prefix; what is left is
+the branch with its slashes flattened to hyphens, so more than one branch name can produce it.
+`git ls-remote --heads origin` and pick the one that exists:
+`extole-docs-loyalty-content-gaps` is `docs/loyalty-content-gaps`, not `loyalty-content-gaps`.
+
+Then check `main` before you plan. The page may not be there at all — a preview host serves pages
+that have never been published, so `git grep` on `main` returns nothing and the page is neither
+missing nor deleted. Read it with `git show origin/<branch>:<path>`.
+
+Feedback on a page in that state is a commit onto that branch, and a comment on its open pull
+request saying what changed. A second pull request off `main` for the same page duplicates work
+that is already in somebody's review queue, and it cannot be previewed at the URL the request
+came from.
+
+### What the comment costs you in time, and where its link actually points
+
+Measured over the 25 pull requests #20 and #24–#50 (2026-08-20 → 2026-08-25), by
+comparing each PR's `created_at` against its `mintlify[bot]` comment's
+`created_at` and `updated_at`:
+
+| | |
+|---|---|
+| Comment appears after the PR opens | **2–7 seconds**, on all 20 PRs outside the outage window below |
+| Same comment is then **edited in place** to 🟢 Ready | 1m42s–4m02s later, median **2m19s** |
+| Inside the 19-hour App outage (#24, #25, #26, #27, #31) | 1h23m–3h10m |
+| Build ended 🔴 Failed, `Preview` cell `–`, no link at all | 5 of 25 (#26, #31, #40, #48, #49) |
+
+Two consequences. The comment's arrival is not the signal you want — it is there
+almost instantly, carrying a status that is stale within a minute; the second
+timestamp is the one that means the link works, so re-read the comment rather
+than trusting the notification email. And a 🔴 Failed build still posts a
+comment, so "the bot commented" is not "there is a preview". Paul Davidson's
+rule of thumb on the #dreams thread — "the Mintlify build process runs and adds a
+preview link to the comments after about 15 minutes" — is the safe way to wait,
+and the numbers above say the usual cost is nearer two and a half minutes with
+the outage window as the long tail.
+
+**The View Preview link deep-links the first changed page in path order, which
+is usually not the page the PR is for.** On
+[#34](https://github.com/extole/product-docs/pull/34) — a new 117-line page plus
+four small cross-link edits — the bot linked
+`.../technical-items/managing-your-branded-urls` (4 added lines) rather than
+`.../technical-items/migrating-to-a-new-program-domain`, the page the PR exists
+for; #46 and #50 pick their alphabetically-first changed page the same way, and
+#42 and #45, which change only `docs.json` and the API bundles, link the site
+root with no path at all. When you are sending someone a page to read, build the
+URL yourself — the host is `extole-` plus the branch with slashes as hyphens, the
+path is the page's path with `.mdx` dropped — and check it returns 200 before you
+send it.
 
 ### A missing preview comment is a signal, not the norm
 
@@ -102,9 +215,71 @@ do not wait it out. Check
 above to unblock yourself, and say so, because while it is stalled **merging does
 not publish**.
 
+### A preview can 404 on the one page the branch changed — or on the whole host
+
+Measured on [#43](https://github.com/extole/product-docs/pull/43) (2026-08-24): the
+bot reported the build 🟢 Ready and the **View Preview** link it posted — the
+changed page — answered `404` for the next half hour, across two builds. Nothing
+was wrong with the page:
+
+| On the same preview host | Status |
+|---|---|
+| the changed page, HTML | **404** |
+| the same path with `.md` appended | 200, serving the new copy |
+| `/llms.txt` | lists the page |
+| every unchanged sibling page, and the group index | 200 |
+| another open PR's **changed** page, on its own preview host | 200 |
+
+So this is not "changed pages cannot be previewed", and the cause is unproven. An
+empty commit produced no new deployment, so retrying is not the move.
+
+**A commit that changes a file is, though.** Measured on
+[#140](https://github.com/extole/product-docs/pull/140) (2026-09-17), the same
+shape again: deployment of `c3a0bb6` at 17:40:09Z, bot 🟢 Ready, `Mintlify
+Deployment` check green, and the one changed page 404 on roughly twenty probes
+over the next ten minutes while every sibling page, the site root, and the same
+path on two other open PRs' preview hosts all answered 200. A second commit
+touching the same file deployed at 17:50:40Z and the page answered 200 about
+ninety seconds later, carrying every new heading. That is one observation, not a
+mechanism — but it is cheap, and it beats the alternative, which is to go hunting
+for an MDX fault that `npx mint@latest validate` and `npx mint@latest dev` both
+say is not there. Do that local render first so you know which you are looking
+at: a page that renders locally and 404s on the preview is this bug, and the next
+push is the fix to try before any edit to the page.
+
+It also happens to the **entire host**, not just the changed page, so a 404 at
+`/` is not evidence that the branch failed to deploy. Measured on
+[#88](https://github.com/extole/product-docs/pull/88) (2026-09-09), 40 minutes
+after a 🟢 Ready comment and a passing `Mintlify Deployment` check, and still
+404 on six probes over two minutes:
+
+| On `extole-newsletters-june-august-2026.mintlify.site` | Status |
+|---|---|
+| `/` | **404** |
+| the changed page, HTML | **404** |
+| the same path with `.md` appended | 200, carrying the new entries |
+| `/llms.txt` | 200 |
+| `extole-sup-68406-prefer-journey-campaign-id`, another branch, same paths | 200 |
+
+`gh api repos/extole/product-docs/deployments` listed the branch as the newest
+deployment, at the timestamp the bot reported. So the deployment is real, the
+build contains the edit, and only the HTML route is dead — the cause is still
+unproven and there is nothing to retry.
+
+What to do: prove the page a different way and say the link is lying rather than
+letting a reviewer read the 404 as a broken page. `npx mint@latest dev` renders
+the branch locally, and appending `.md` to the preview URL returns the built copy
+of that page — enough to confirm the deployment really contains your edit. When a
+reviewer needs to *see* it, screenshot the local render and put the picture in the
+pull request: `nix-shell -p chromium` supplies a browser, `liberation_ttf` plus a
+`fonts.conf` under `FONTCONFIG_FILE` supplies the fonts the pod does not have, and
+`npx mint@latest dev` must be driven with puppeteer rather than chromium's own
+`--screenshot --virtual-time-budget`, which never settles against the dev server's
+live-reload socket.
+
 ## Branch naming: no constraint here
 
-Name branches however the tech repo's `tech-worktree-workflow` skill says — a bare ticket id (`ENG-12345`) or a short kebab-case slug. Nothing about the name affects the preview.
+Use a bare ticket id (`ENG-12345`) or a short kebab-case slug, matching the convention the tech repo uses. Nothing about the name affects the preview.
 
 > **Do not carry the `v4.0.0_` prefix over from `extole/product-docs-readme`.** That prefix existed solely because ReadMe only mirrored branches named `<version>_<slug>`. This repo's default branch is `main` and has no versioning, so a `v4.0.0_` prefix here buys nothing and misdescribes the repo.
 
@@ -116,7 +291,7 @@ Name branches however the tech repo's `tech-worktree-workflow` skill says — a 
 
 ## Scope
 
-- Applies to the content tabs (`guides/`, `product/`, `technical/`, `news/`) and `docs.json`.
+- Applies to the customer-visible content directories (`guides/`, `product/`, `technical/`, `news/`, `runbooks/`) and `docs.json`.
 - The **API Reference** tab is generated by Mintlify from the OpenAPI bundles in `api-reference/`, which are **written by CI and must not be hand-edited**. `sync-to-mintlify.yml` in [extole/openapi](https://github.com/extole/openapi) copies them here after pluribus `master` changes the REST layer, opens a PR, waits for `validate`, merges it, and publishes the site. The bundles originate in pluribus; `extole/openapi` extracts them and is the direct upstream of this directory.
 - Branches named **`openapi-preview-*`** belong to that same pipeline: a pluribus pull request that changes the REST layer gets one, carrying its bundles, so its API reference can be previewed before it merges. The preview link is posted on the pluribus PR. Do not push to, rename, or merge those branches by hand — they are deleted when their pluribus PR closes.
 - Applies no matter what opens the branch/PR: a human, Cursor, Codex, Claude Code, or an automated agent. Any tool that changes a page here owes a clean `validate`.

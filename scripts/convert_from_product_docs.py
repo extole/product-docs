@@ -11,9 +11,6 @@ Usage:
       --out .
 
 It writes .mdx pages, copies the OpenAPI specs, and regenerates docs.json.
-
-To update only the generated API navigation from the local OpenAPI bundles:
-  python scripts/convert_from_product_docs.py --out . --sync-api-navigation
 """
 from __future__ import annotations
 
@@ -148,6 +145,14 @@ def has_substantive_index_body(body: str) -> bool:
 
 FENCE_RE = re.compile(r"(```.*?```|~~~.*?~~~)", re.DOTALL)
 INLINE_CODE_RE = re.compile(r"(`[^`\n]+`)")
+
+# One control character per _protect store. They must stay distinct from each
+# other because escape_braces protects tag spans inside a body whose fences and
+# inline code are already protected -- three stores live at once.
+FENCE_MARK = "\x01"
+TAG_MARK = "\x02"
+INLINE_MARK = "\x03"
+
 MARKDOWN_IMAGE_RE = re.compile(
     r"!\[[^\]]*\]\(\s*(?P<url>https?://[^\s)]+)(?:\s+(?:\"[^\"]*\"|'[^']*'))?\s*\)"
 )
@@ -180,7 +185,17 @@ IMAGE_EXTENSION_BY_CONTENT_TYPE = {
 }
 
 
-def _protect(text: str, pattern: re.Pattern, store: list, mark: str = "\x00") -> str:
+def _protect(text: str, pattern: re.Pattern, store: list, mark: str) -> str:
+    """Swap every match for a `mark`-delimited index so later passes leave it alone.
+
+    `mark` has no default and must be unused in `text`: two stores sharing one
+    mark produce the same placeholder for their first entries, and whichever is
+    restored first claims both -- which is how every fenced code block on 81
+    pages was overwritten with an inline code span from elsewhere on the page.
+    """
+    if mark in text:
+        raise ValueError(f"placeholder mark {mark!r} is already in use in this text")
+
     def repl(m):
         store.append(m.group(0))
         return f"{mark}{len(store) - 1}{mark}"
@@ -188,7 +203,7 @@ def _protect(text: str, pattern: re.Pattern, store: list, mark: str = "\x00") ->
     return pattern.sub(repl, text)
 
 
-def _restore(text: str, store: list, mark: str = "\x00") -> str:
+def _restore(text: str, store: list, mark: str) -> str:
     for i, chunk in enumerate(store):
         text = text.replace(f"{mark}{i}{mark}", chunk)
     return text
@@ -197,9 +212,9 @@ def _restore(text: str, store: list, mark: str = "\x00") -> str:
 def remote_image_urls(text: str) -> set[str]:
     """Return remote URLs used as rendered images, excluding code examples."""
     fences: list = []
-    text = _protect(text, FENCE_RE, fences, mark="\x01")
+    text = _protect(text, FENCE_RE, fences, mark=FENCE_MARK)
     inlines: list = []
-    text = _protect(text, INLINE_CODE_RE, inlines, mark="\x02")
+    text = _protect(text, INLINE_CODE_RE, inlines, mark=INLINE_MARK)
     return {
         m.group("url")
         for pattern in (MARKDOWN_IMAGE_RE, HTML_IMAGE_RE)
@@ -210,9 +225,9 @@ def remote_image_urls(text: str) -> set[str]:
 def rewrite_remote_images(text: str, local_paths: dict[str, str]) -> str:
     """Replace only rendered remote image URLs with mapped local asset paths."""
     fences: list = []
-    text = _protect(text, FENCE_RE, fences, mark="\x01")
+    text = _protect(text, FENCE_RE, fences, mark=FENCE_MARK)
     inlines: list = []
-    text = _protect(text, INLINE_CODE_RE, inlines, mark="\x02")
+    text = _protect(text, INLINE_CODE_RE, inlines, mark=INLINE_MARK)
 
     def repl(match):
         url = match.group("url")
@@ -221,8 +236,8 @@ def rewrite_remote_images(text: str, local_paths: dict[str, str]) -> str:
 
     text = MARKDOWN_IMAGE_RE.sub(repl, text)
     text = HTML_IMAGE_RE.sub(repl, text)
-    text = _restore(text, inlines, mark="\x02")
-    return _restore(text, fences, mark="\x01")
+    text = _restore(text, inlines, mark=INLINE_MARK)
+    return _restore(text, fences, mark=FENCE_MARK)
 
 
 def _plain_image_context(text: str) -> str:
@@ -669,10 +684,10 @@ def escape_braces(text: str) -> str:
     """Escape literal braces in prose so MDX doesn't read them as expressions,
     but leave braces inside HTML/JSX tags alone (valid style={{...}} etc.)."""
     tags: list = []
-    text = _protect(text, TAG_SPAN_RE, tags, mark="\x02")
+    text = _protect(text, TAG_SPAN_RE, tags, mark=TAG_MARK)
     text = re.sub(r"(?<!\\)\{", r"\\{", text)
     text = re.sub(r"(?<!\\)\}", r"\\}", text)
-    text = _restore(text, tags, mark="\x02")
+    text = _restore(text, tags, mark=TAG_MARK)
     return text
 
 
@@ -774,9 +789,9 @@ def convert_callout_components(text: str) -> str:
 def convert_body(body: str, slug_to_path: dict) -> str:
     body = convert_callouts(body)
     fences: list = []
-    body = _protect(body, FENCE_RE, fences)
+    body = _protect(body, FENCE_RE, fences, mark=FENCE_MARK)
     inlines: list = []
-    body = _protect(body, INLINE_CODE_RE, inlines)
+    body = _protect(body, INLINE_CODE_RE, inlines, mark=INLINE_MARK)
 
     body = convert_html_block(body)
     body = convert_callout_components(body)
@@ -787,8 +802,8 @@ def convert_body(body: str, slug_to_path: dict) -> str:
     body = rewrite_links(body, slug_to_path)
     body = sanitize_mdx(body)
 
-    body = _restore(body, inlines)
-    body = _restore(body, fences)
+    body = _restore(body, inlines, mark=INLINE_MARK)
+    body = _restore(body, fences, mark=FENCE_MARK)
     return body
 
 
@@ -1141,7 +1156,7 @@ def openapi_navigation_groups(spec: dict) -> list[dict]:
     Mintlify's automatic OpenAPI navigation follows JSON insertion order. Group
     endpoints alphabetically by tag while preserving the source order of the
     operations within each tag. Explicit page references make that behavior
-    stable in both the generated docs and the standalone sync command below.
+    stable in the generated docs.
     """
     operations_by_tag: dict[str, list[tuple[str, str]]] = {}
     for path, path_item in (spec.get("paths") or {}).items():
@@ -1181,41 +1196,11 @@ def api_reference_group(label: str, filename: str, spec: dict) -> dict:
     }
 
 
-def sync_api_navigation(out: Path) -> int:
-    """Refresh the API Reference tab from the OpenAPI bundles already in ``out``."""
-    docs_path = out / "docs.json"
-    docs = json.loads(docs_path.read_text(encoding="utf-8"))
-    api_tab = next(
-        (tab for tab in docs.get("navigation", {}).get("tabs", []) if tab.get("tab") == "API Reference"),
-        None,
-    )
-    if not api_tab:
-        raise ValueError("docs.json does not define an API Reference tab")
-
-    getting_started = next(
-        (group for group in api_tab.get("groups", []) if group.get("group") == "Getting Started"),
-        None,
-    )
-    groups = [getting_started] if getting_started else []
-    for label, filename in SPEC_TABS:
-        spec_path = out / API_TAB_SLUG / filename
-        if spec_path.exists():
-            groups.append(api_reference_group(label, filename, json.loads(spec_path.read_text(encoding="utf-8"))))
-    api_tab["groups"] = groups
-    docs_path.write_text(json.dumps(docs, indent=2) + "\n", encoding="utf-8")
-    return len(groups) - (1 if getting_started else 0)
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--product-docs", type=Path)
     ap.add_argument("--specification", type=Path)
     ap.add_argument("--out", required=True, type=Path)
-    ap.add_argument(
-        "--sync-api-navigation",
-        action="store_true",
-        help="rewrite the API Reference navigation from local api-reference OpenAPI bundles",
-    )
     ap.add_argument(
         "--migrate-images",
         action="store_true",
@@ -1229,10 +1214,6 @@ def main():
     args = ap.parse_args()
 
     out = args.out.resolve()
-
-    if args.sync_api_navigation:
-        print(f"API specs synchronized: {sync_api_navigation(out)}")
-        return
 
     if not args.product_docs and not args.specification:
         if not args.migrate_images:

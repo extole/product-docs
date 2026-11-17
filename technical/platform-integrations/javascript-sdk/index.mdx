@@ -23,22 +23,43 @@ Extole's JavaScript library must be placed on all of your pages using the core t
 
 ### Find and place your core tag
 
-The Extole core tag may be placed anywhere on the page. This tags uses the `async` keyword to ensure fast page loading.
+The core tag is a single script element that loads `core.js` from the root of your program domain. For the program domain `share.brand.com`, the core tag loads `https://share.brand.com/core.js`.
 
-The core tag can be found under your program’s branded domain (`share.brand.com`). If you haven't set up your branded domain yet, you can load the tag from the Extole unbranded domain.
+To build it, find your active program domain and put `/core.js` directly after it. The domain looks like `share.brand.com` (branded) or `brand.extole.io` (unbranded). If you haven't set up your branded domain yet, load the tag from the unbranded domain.
+
+The fastest way to get the finished tag is in My Extole: navigate to **Tech Center** > **Tag Generator** and copy the core tag shown there. It already carries your program domain.
+
+<Warning>
+`core.js` sits at the root of the program domain, not under the `/s/` path your share pages and zones use. `https://share.brand.com/core.js` is the core tag. `https://share.brand.com/s/core.js` does not exist and returns an error.
+</Warning>
+
+The core tag is distinct from the **core version**. A value such as `6.0` is the version of Extole's JavaScript library that your core tag loads. It is not the tag, and you never place it on a page.
 
 <Info>
 **Related Content**
 
 
+* [Generate your tags in the Tag Generator](https://my.extole.com/tech-center/tag-generator)
 * [Find your domain in the settings page of My Extole](https://my.extole.com/settings)
 * [How to set up your program domain](https://docs.extole.com/docs/program-domain-setup)
 </Info>
 
-Find your active referral domain and use that for your core tag. It will look like `brand.extole.io` (unbranded) or `share.brand.com` (branded).
+The Extole core tag may be placed anywhere on the page. It uses the `async` keyword to ensure fast page loading.
 
-`async`
-`share.brand.com`
+```javascript
+<!-- BRANDED -->
+<script type="text/javascript" src="https://share.brand.com/core.js" fetchpriority="high" async></script>
+
+<!-- UNBRANDED -->
+<script type="text/javascript" src="https://brand.extole.io/core.js" fetchpriority="high" async></script>
+```
+```text Injection
+var extoleScript = document.createElement('script');
+extoleScript.setAttribute('type', 'text/javascript');
+extoleScript.setAttribute('async', 'async');
+extoleScript.setAttribute('src', 'https://brand.extole.io/core.js');
+document.getElementsByTagName('body')[0].appendChild(extoleScript);
+```
 
 [//]: ___
 
@@ -133,6 +154,10 @@ A few marketing tag examples are:
 * `confirmation`
 * `overlay`
 
+<Info>
+In newly created Flow Builder campaigns, each zone a marketing tag requests produces a trigger event with the same name. A call-to-action serves the zone only when that trigger event is declared on the **Javascript SDK** extension and selected in its **Triggered By**. See [Javascript SDK and Mobile SDK Extensions](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions).
+</Info>
+
 It's easy to create additional marketing tags if you want to add CTAs to additional pages like your blog, help pages, and so on. As you're getting started, contact your Customer Success Manager to learn how to create these additional tags.
 
 ### Global header
@@ -141,7 +166,19 @@ The global header tag is placed in the header on all pages of your site, both de
 
 #### Example global header tag
 
-`brand.extole.io`
+```javascript
+<span id="extole_zone_global_header"></span>
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'global_header',
+     element_id: 'extole_zone_global_header'
+  });
+</script>
+```
 
 ### Global footer
 
@@ -149,7 +186,19 @@ The global footer tag is placed in the footer on all pages of your site, both de
 
 #### Example global footer tag
 
-`share.brand.com`
+```javascript
+<span id="extole_zone_global_footer"></span>
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'global_footer',
+     element_id: 'extole_zone_global_footer'
+  });
+</script>
+```
 
 ### Product
 
@@ -157,7 +206,19 @@ The product tag is placed on your category page and product page to allow your c
 
 #### Example product tag
 
-`/zones`
+```javascript
+<span id="extole_zone_product"></span>
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'product',
+     element_id: 'extole_zone_product'
+  });
+</script>
+```
 
 ### Confirmation
 
@@ -165,7 +226,25 @@ The confirmation tag is placed on the order confirmation page. Since the custome
 
 #### Example confirmation tag
 
-`ERR_CONNECTION_TIMED_OUT`
+```javascript
+<span id="extole_zone_confirmation"></span>
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'confirmation',
+     element_id: 'extole_zone_confirmation',
+     data: {
+       "partner_user_id": INSERT_DYNAMIC_DATA,
+       "email": INSERT_DYNAMIC_DATA,
+       "first_name": INSERT_DYNAMIC_DATA,
+       "last_name": INSERT_DYNAMIC_DATA,
+     }     
+  });
+</script>
+```
 
 The following table details the customer information that should be passed into the confirmation tag.
 
@@ -235,7 +314,19 @@ In addition to CTAs, Extole also provides placements that will directly embed a 
 
 #### Example embedded share experience tag
 
-`ERR_CERT_COMMON_NAME_INVALID`
+```javascript
+<span id="extole_zone_embedded_share_experience"></span>
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'embedded_share_experience',
+     element_id: 'extole_zone_embedded_share_experience'
+  });
+</script>
+```
 
 [//]: ___
 
@@ -263,7 +354,23 @@ Partner user ID is used to uniquely identify the user. This way when a conversio
 
 #### Example registration tag
 
-`global_header`
+```html
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'registration',
+     data: {
+       "first_name": INSERT_DYNAMIC_DATA,
+       "last_name": INSERT_DYNAMIC_DATA,
+       "email": INSERT_DYNAMIC_DATA,
+       "partner_user_id": INSERT_DYNAMIC_DATA
+     }
+  });
+</script>
+```
 
 The following table details the customer information that should be passed into the registration tag.
 
@@ -351,7 +458,26 @@ By passing in order ID, this identifier can be used at the time of approval or c
 
 #### Example conversion tag
 
-`global_footer`
+```html
+<script type="text/javascript">
+  /* Start Extole */
+  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,"extole",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},["createZone"],0);
+  /* End Extole */
+
+   extole.createZone({
+     name: 'conversion',
+     data: {
+       "first_name":INSERT_DYNAMIC_DATA,
+       "last_name":INSERT_DYNAMIC_DATA,
+       "email":INSERT_DYNAMIC_DATA,
+       "partner_user_id":INSERT_DYNAMIC_DATA,
+       "order_id":INSERT_DYNAMIC_DATA,
+       "cart_value":INSERT_DYNAMIC_DATA,
+       "coupon_code":INSERT_DYNAMIC_DATA
+     }
+  });
+</script>
+```
 
 <Warning>
 **Retail: Email in guest checkout**

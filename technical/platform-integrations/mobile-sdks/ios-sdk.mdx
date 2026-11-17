@@ -31,7 +31,13 @@ The Extole iOS SDK supports iOS 13.0 and later.
 
 In your `AppDelegate` class, initialize Extole. You’ll need to provide your Extole program domain.
 
-`AppDelegate`
+```swift
+class AppDelegate: UIResponder, UIApplicationDelegate, ObservableObject {
+    ...
+    @Published var extole: Extole = ExtoleImpl(programDomain: "<your-program-domain>")
+    ...
+}
+```
 
 _For a working example, please reference our[Github documentation](https://github.com/extole/ios/blob/master/iOSDemo/iOSDemo/ExtoleCampaign.swift). For more detailed configuration options, see the Advanced Usage section._
 
@@ -39,13 +45,39 @@ _For a working example, please reference our[Github documentation](https://githu
 
 In your `main` method, pass Extole to your view.
 
-`main`
+```swift
+@main
+struct ExtoleApp: App {
+    ...
+    @UIApplicationDelegateAdaptor var delegate: AppDelegate
+    ...
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environmentObject(delegate.extole)
+        }
+    }
+    ....
+}
+```
 
 _For a working example, please reference our[Github documentation](https://github.com/extole/ios/blob/master/iOSDemo/iOSDemo/iOSDemoApp.swift)._
 
 Initialize the `View` provided by Extole. By default, Extole will use this single view to interact with the customer.
 
-`View`
+```swift
+struct ContentView: View {
+    ...
+    @EnvironmentObject var extole: Extole
+    ...
+    var body: some View {
+        NavigationView {
+              extole.getView()         
+        }
+    }
+    ...
+}
+```
 
 [//]: ___
 
@@ -57,7 +89,12 @@ Initialize the `View` provided by Extole. By default, Extole will use this singl
 
 Send Extole information about the customer.
 
-`mobile_cta`
+```swift
+extole.identify("example@test.com", ["partner_user_id": "123"], 
+       {(eventId: Id<Event>?, error: Error?) in
+            
+})
+```
 
 You can choose to pass any type of data to describe the customer. Richer data about your customers gives your marketing team the information they need to better segment your program participants and target them with appropriate campaigns.
 
@@ -65,7 +102,9 @@ You can choose to pass any type of data to describe the customer. Richer data ab
 
 If you would like to verify the identity of your customers with JWT instead of their email address, use the following method:
 
-`image`
+```swift
+extole.identifyJwt(_ jwt: String, _ data: [String: Any?], _ completion: ((Id<Event>?, Error?) -> Void)?)
+```
 
 For more information on generating JWTs, please reference our article on [Verifying Consumers](https://docs.extole.com/docs/verifying-consumers#using-json-web-tokens-jwts).
 
@@ -77,7 +116,9 @@ For more information on generating JWTs, please reference our article on [Verify
 
 Send Extole events, such as registers, signups, conversions, account openings, and so on.
 
-`title`
+```swift
+extole.sendEvent("my_event")
+```
 
 For each event type, you can send additional data. For example, on a conversion event you may want to pass in order ID or order value and so on.
 
@@ -91,7 +132,30 @@ Populate a CTA with content from Extole.
 
 CTAs such as mobile menu items can be fully customized in the My Extole Campaign Editor. Each CTA has a designated zone. The following code is an example of how to retrieve a CTA by fetching zone content.
 
-`mobile_bootstrap`
+```swift
+extole.fetchZone("mobile_cta", [:]) { (zone: Zone?, campaign: Campaign?,   error: Error?) in
+    let title = zone?.get("title") as! String? ?? ""
+    let image = zone?.get("image") as! String? ?? ""
+    // Carry attributes to your view
+}
+
+
+// Send the CTA event when the view is displayed
+View {
+       .... // Your view    
+    }.task {
+        zone.viewed()
+   }
+}
+
+// On CTA tap send the event to Extole
+View {
+.... // Your view    
+}.onTapGesture {
+    zone.tap()
+}
+
+```
 
 _For a working example, please reference our[Github documentation](https://github.com/extole/ios/blob/master/iOSDemo/iOSDemo/ContentView.swift)._
 
@@ -116,7 +180,22 @@ The following topics cover advanced use cases for the Extole iOS SDK. If you wou
 
 Completing a deep link integration is simple once you have integrated with a deep link provider, such as Branch. Send a mobile event to Extole and, based on the configuration of your mobile operations, our framework will execute the corresponding action.
 
-`PROMPT`
+```swift
+class AppDelegate: UIResponder, UIApplicationDelegate, ObservableObject {
+   @Published var deeplinkProperties: [String: String] = [:]
+
+   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool 
+       Branch.getInstance().initSession(launchOptions: launchOptions) { [self] (params, _) in
+           params?.forEach({ (key: AnyHashable, value: Any) in
+               deeplinkProperties[key as! String] = String(describing: value)
+           })
+           extole.sendEvent("deeplink", deeplinkProperties) { _, _ in
+           }
+       }
+       return true
+   }
+}
+```
 
 [//]: ___
 
@@ -128,7 +207,28 @@ You can set up a specific action to occur when an event is fired. For example, w
 
 To set up this type of configuration, you will need to work with Extole Support to set up a zone in My Extole that returns JSON configurations with conditions and actions. The SDK executes actions for conditions that are passing for a specific event.
 
-`NATIVE_SHARING`
+```json json
+{
+  "operations": [
+    {
+      "conditions": [
+        {
+          "type": "EVENT",
+          "event_names": [
+            "mobile_cta_tap"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "VIEW_FULLSCREEN",
+          "zone_name": "microsite"
+        }
+      ]
+    }
+  ]
+}
+```
 
 <Info>
 **Adding additional operations**
@@ -151,7 +251,44 @@ The following types of actions are supported by default in our SDK.
 
 If you would like to create custom actions beyond our defaults, use the format exhibited in the example below. Please reach out to our Support Team at [support@extole.com](mailto:support@extole.com) if you have any questions.
 
-`VIEW_FULLSCREEN`
+```swift
+import ExtoleMobileSDK
+
+public class CustomAction: Action {
+   public static var type: ActionType = ActionType.CUSTOM
+
+   var customActionValue: String?
+
+   public override func execute(event: AppEvent, extole: ExtoleImpl) {
+       extole.getLogger().setLogLevel(level: LogLevel.disable)
+   }
+
+   init(customActionValue: String) {
+       super.init()
+       self.customActionValue = customActionValue
+   }
+
+   override init() {
+       super.init()
+   }
+
+   public override func getType() -> ActionType {
+       ActionType.CUSTOM
+   }
+
+   public required init?(map: Map) {
+       super.init()
+   }
+
+   public override func mapping(map: Map) {
+       customActionValue <- map["custom_action_value"]
+   }
+
+   public var description: String {
+       return "CustomAction[customActionValue:\(customActionValue)]"
+   }
+}
+```
 
 #### Register Custom Actions
 

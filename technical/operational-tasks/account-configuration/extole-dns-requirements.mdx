@@ -31,6 +31,8 @@ The most common option is to use subdomains of your main brand domain. For examp
 
 
 Your branded domain must be a domain that points to the Extole servers directly, such as `share.mycompany.com`. It cannot be a path like `www.mycompany.com/share`.
+
+Use a subdomain, such as `refer.mycompany.com`, not your main domain, `mycompany.com`. Your main domain already has records for your website and email, and DNS doesn't allow a CNAME record next to them.
 </Warning>
 
 [//]: ___
@@ -39,17 +41,21 @@ Your branded domain must be a domain that points to the Extole servers directly,
 
 [//]: # "How do I create CNAMEs for my domains?"
 
-Setting up a branded domain will require your IT organization to create CNAMEs for your domains and generate certificates.
+To set up a branded domain, your IT organization creates a CNAME record for each domain. Extole creates the certificates, as described below.
 
 To set up your CNAME, complete the following steps:
 
 1. Get your current Extole Program Domain. You can find this in the [My Extole Tech Center](https://my.extole.com/tech-center). It will be listed in the Program Domains section. Typically your unbranded domain will look like "mycompany.extole.io". If you cannot locate your domain, contact your CSM.
 2. Log into your domain registrar's control panel and create a CNAME record from your Branded Program URL to the Extole Program Domain. The UI and terminology may vary depending on your registrar. You will point `refer.mycompany.com` to `mycompany.extole.io`.
-3. Once you have created your branded domains, go back into Tech Center and create a New Domain. 
+3. Once you have created your branded domains, go back into Tech Center and create a New Domain.
+
+A new DNS record can take up to a day to start working everywhere. Until then, your program keeps using your Extole Program Domain.
 
 **Example DNS update**:
 
-`refer.mycompany.com/newsletter`
+```text
+share.mycompany.com. 86400 IN	CNAME	mycompany.extole.io.
+```
 
 <Info>
 **Corporate DNS versus Public DNS**
@@ -58,6 +64,13 @@ To set up your CNAME, complete the following steps:
 Many companies have a separate DNS server that runs inside the company to help support things like a corporate intranet. If this is the case, the CNAME needs to be applied to both the public DNS and the corporate DNS.
 
 If you find your program works correctly on your phone and over public WiFi, but does not work when you are at the office, then this is probably the case.
+</Info>
+
+<Info>
+**Replacing a Branded Domain**
+
+
+If you are moving an existing program to a new branded domain, create the new CNAME and leave the old one in place. Extole forwards the old domain so that links your advocates already shared keep working. See [Migrating to a New Program Domain](/guides/platform-overview/implementing-your-referral-program/technical-items/migrating-to-a-new-program-domain).
 </Info>
 
 [//]: ___
@@ -106,25 +119,42 @@ A referral program sends two types of emails:
 
 In the My Extole [Tech Center](https://my.extole.com/tech-center) you will see an **Email Domains** section where you can add your email domain. Here, we display if emails will send from that domain or if there is an SPF/DMARC error to be corrected:
 
-<Frame>
+<Frame caption="Example of Passing Email DNS">
   <img src="/images/extole/783142b8adb1c6296d5c440c6a697f8a2c66f0ce1e622f1805ef424438d807cf.png" alt="Screenshot showing In the My Extole Tech Center you will see an Email Domains section where you can add your email domain. Here, we display if emails will send from that domain..." />
-
-  Example of Passing Email DNS
 </Frame>
 
 To ensure your emails are delivered, you can add the Extole mail server IP address to your SPF records. You can add `spf.extole.io`.
 
 **Example SPF record update**:
 
-`refer.mycompany.com/s/lbarnett`
+```text Full
+mycompany.com.		86400	IN	TXT	"v=spf1 include:spf.extole.io -all"
+```
 
 ### Adding DKIM Keys
 
-In order to set up DMARC/DKIM, you will need to request DKIM keys from Extole and the following will be provided to you to put into your DNS. Once added, Extole will validate and approve the keys.
+[//]: # "How do I get the DKIM records for my sending domain?"
+
+DKIM lets Extole sign program emails with your own domain so that receiving mail servers accept them. Each sending domain needs three CNAME records, and the host names are specific to that domain.
+
+To get the records, go to the My Extole [Tech Center](https://my.extole.com/tech-center), select **Domains**, and open your domain under **Email Domains**. Click **Generate DKIM records** to produce the exact host and value pairs, then give those pairs to your DNS administrator. Once they resolve, Extole validates and approves them, and the domain's **DKIM Status** changes to Pass. New records can take up to a day to start working. Until the domain passes, program emails keep sending from `email.referral-mail.com`.
+
+The domain's **CNAME records** table lists the same pairs at any time, so you can copy them again without regenerating. The **Generate DKIM records** control appears while a domain has no DKIM records yet, or while one of them is failing.
 
 **Example DNS update**:
 
-`mycompany.com`
+```text
+emXXXX.CompanyName.com          86400 IN CNAME CompanyName.em.extole.io
+xtl._domainkey.CompanyName.com  86400 IN CNAME CompanyName.xtl.extole.io
+xtl2._domainkey.CompanyName.com 86400 IN CNAME CompanyName.xtl2.extole.io
+```
+
+<Warning>
+**Use the records Extole generated, not the example**
+
+
+The lines above show the shape of the records. The host prefix differs for every domain, so publish the values from your own domain's page.
+</Warning>
 
 <Warning>
 **Program Sending Domain**
@@ -132,5 +162,61 @@ In order to set up DMARC/DKIM, you will need to request DKIM keys from Extole an
 
 If you do not add the records and your SPF or DMARC is set to reject mails from unknown providers, your program emails will be sent from `email.referral-mail.com`.
 </Warning>
+
+[//]: ___
+
+## Checking an Email Domain
+
+[//]: # "How do I check whether my program emails will send from my own domain?"
+
+Go to the My Extole [Tech Center](https://my.extole.com/tech-center) and select **Domains**. **Email Domains** holds the domains your program emails send from; **Program Domains**, on the same page, holds the branded link domains covered earlier on this page. The two are configured separately.
+
+The **Email Domains** table carries one column per DNS check — **SPF Status**, **DMARC Status**, **DKIM Status**, **MX Status**, and **A Status** — plus **Overall send status**. Select a domain to open its page, which repeats each check with the record Extole found and lists the DKIM **CNAME records** to publish.
+
+**Overall send status** answers the question that decides delivery:
+
+| Status | What it means |
+|---|---|
+| **Available** | The domain passes validation. Program emails send from an address on this domain. |
+| **Not allowed** | The domain fails validation. Program emails send from `email.referral-mail.com` instead. |
+| **Overridden** | **Force Send From Email Domain** is on for this domain, so the checks are bypassed. See below. |
+| **Checking** | Extole is still reading your DNS. |
+
+Validation requires a passing DMARC record and either a resolving A record or a resolving MX record. **SPF Status** is reported alongside them and does not by itself change the overall status, but a failing SPF record still costs you deliverability — add `spf.extole.io` to your existing SPF record rather than publishing a second one. A domain can have only one SPF record. If it has two, mail servers fail the SPF check.
+
+<Info>
+**Adding a domain to the list**
+
+
+Use **+ New Domain** to add a sending domain. If you do not see that control, ask your CSM or [Support](mailto:support@extole.com) to add the domain for you; you can generate its DKIM records and check its status yourself afterwards.
+</Info>
+
+[//]: ___
+
+## Force Send From Email Domain
+
+[//]: # "What does Force Send From Email Domain mean?"
+
+Every email domain carries a **Force Send From Email Domain** switch, shown on the **+ New Domain** form when the domain is created and on the edit form afterwards. The domain's own page shows its state as **Force send**.
+
+With the switch off, Extole checks the From domain on every send and rewrites the From address to `email.referral-mail.com` when that domain does not pass. With it on, Extole skips those checks for this domain and sends from the address you configured, whatever the DNS checks report. The domain's validation then reports as passing and its overall send status reads **Overridden**.
+
+Turn it on only when a seed test has confirmed that mail from the domain reaches the inbox and Extole's automatic checks reject a configuration you know works.
+
+<Warning>
+**An override changes Extole, not the receiving mail server**
+
+
+Forcing the send domain bypasses Extole's checks. It does not change how receiving mail servers treat your messages, and some providers may consider mail from an unverified domain invalid and quarantine or reject it.
+</Warning>
+
+<Info>
+**It is not a step in DKIM setup**
+
+
+Adding a domain, publishing its DKIM records, and validating it are separate from this switch. Leave it off for a normal setup and fix the underlying DNS records instead.
+</Info>
+
+For what Extole does when a domain is not verified, including the From address advocates' friends see on share emails, see [Why Is the From Address @email.referral-mail.com?](/guides/notifications-and-troubleshooting/platform-and-admin/why-is-the-from-email-email-referral-mail-com-gmail-friendly-from-changes).
 
 [//]: ___

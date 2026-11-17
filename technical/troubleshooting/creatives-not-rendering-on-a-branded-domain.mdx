@@ -1,0 +1,44 @@
+---
+title: "Creatives Not Rendering on a Branded Domain"
+description: "Web creatives stopped rendering on your branded domain, the zone is blank or shows nothing, and the referral widget is empty — while email creatives still go out fine. An SSL handshake failure at your CDN is the usual cause, and it is almost never a missing certificate."
+---
+
+# Overview
+
+Your web creatives stop rendering on your branded domain, in preview and on your live site, and the browser shows an SSL handshake error. Email creatives still go out normally. This page explains what that error is telling you, how to tell where the failure is, and what to send Extole so it can be fixed quickly.
+
+## The Distinction That Matters
+
+An `SSL handshake failed` error — often a 525 — is returned by the CDN in front of your branded domain when *its own* connection to the origin fails. It is a handshake problem between your CDN and Extole, not a statement about the certificate your visitors see.
+
+That matters because two explanations look obvious and are usually wrong:
+
+- **A missing branded-domain certificate.** If a certificate were missing, your visitors' browsers would say so directly. A CDN-generated handshake error is about the CDN's connection behind the scenes.
+- **A deleted CNAME.** A CNAME lookup often looks unfamiliar once a domain sits behind a CDN, which invites this theory. The record is usually intact.
+
+The usual real cause is that your branded domain has been placed behind a CDN, so the CDN now originates the connection to Extole, and the two ends cannot agree on a cipher suite. Email is unaffected because it never travels that path.
+
+## Evidence That Settles It
+
+Two checks separate the two possibilities, and both are things you can run:
+
+1. **Load the branded domain through your CDN.** Confirm the error comes back from the CDN rather than from an Extole application response.
+2. **Reach the origin directly**, bypassing your CDN. A connection that resets before any response is a handshake failure. A normal response means the problem is at the CDN layer instead.
+
+<Info>
+If your branded domain has recently been fronted by a CDN, or your CDN's origin-pull settings have changed, say so when you open the ticket. That single fact is usually enough to identify the cause.
+</Info>
+
+## What to Do
+
+Contact Extole Support with the results of the two checks above, the branded domain, and the name of the CDN in front of it. The fix is a change to Extole's gateway configuration, so it is made by Extole rather than in your account settings or in My Extole.
+
+While the ticket is open, do not:
+
+- Re-create or re-issue your branded-domain certificate. It is not the cause, and re-issuing it does not shorten the fix.
+- Remove or re-create your CNAME record. Changing DNS while the handshake is failing makes the problem harder to diagnose.
+
+## Related
+
+- [Managing Your SSL Certificates](/guides/notifications-and-troubleshooting/managing-your-ssl-certificates)
+- [Quick Troubleshooting Guide](/guides/notifications-and-troubleshooting/troubleshooting/quick-troubleshooting-guide)

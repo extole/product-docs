@@ -7,7 +7,6 @@ Mintlify bake-off** from [`extole/ai-tools#346`](https://github.com/extole/ai-to
   + OpenAPI bundles from [`extole/extole-specification`](https://github.com/extole/extole-specification).
 - **Generator:** [`scripts/convert_from_product_docs.py`](scripts/convert_from_product_docs.py)
   (deterministic, re-runnable).
-- **How it was built + how hard it was:** see [`MIGRATION.md`](MIGRATION.md).
 
 ## Local preview
 

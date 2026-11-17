@@ -38,11 +38,15 @@ If you don't already have OpenSSL installed, you will need install [Homebrew](ht
 
 We first need to generate a private key with which to authenticate our CSR. On the command line enter the following sequence of commands:
 
-`refer.mycompany.com.`
+```
+openssl genrsa -out yourdomain.key 2048
+```
 
 The command above generates an RSA key named yourdomain that is 2048 bits long. Now that we have generated our key we will use it to generate the CSR. 
 
-`google.com`
+```
+openssl req -new -key yourdomain.key -out yourdomain.csr
+```
 
 As part of the CSR generation process, you will be asked to provide information regarding your organization. Use the table below as a guide to provide the necessary information.
 
@@ -86,17 +90,25 @@ While you wait for the CA to return the signed certificate, make sure to save th
 
 Once we have received the signed certificate, we are ready to convert our RSA key to PCKS#8 format. To do so, enter the command below:
 
-`yourdomain.key`
+```
+openssl pkcs8 -topk8 -inform PEM  -in yourdomain.key -out yourdomain.pkcs8 -nocrypt
+```
 
 This command will generate a new file called yourdomain.pkcs8, which is the key to be used to authenticate the certificate. 
 
 Next, we will open the file, copy the content and paste it into our My.Extole dashboard.
 
-`PRIVATE KEY VALUE`
+```
+cat yourdomain.pkcs8
+```
 
 Alternatively, you can choose to open the file with a text editor and copy the contents that way. The beginning and end of the file must be delimited by the following lines:
 
-`-----BEGIN PRIVATE KEY-----`
+```
+\-----BEGIN PRIVATE KEY-----
+
+\-----END PRIVATE KEY-----
+```
 
 Make sure to copy all the contents, including the lines above, then head to your [Tech Center](https://my.extole.com/tech-center) and click the edit icon next to your active domain to access the SSL portion. An overlay window will pop up.
 

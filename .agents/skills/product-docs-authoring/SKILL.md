@@ -1,86 +1,246 @@
 ---
 name: product-docs-authoring
-description: Author or edit Extole customer-facing documentation in this repo (product-docs on Mintlify) to house style. Use when creating a new page, editing an existing one, converting a draft/.docx into a page, or addressing reviewer comments on a PR. Applies the terminology glossary and style guide automatically, places the page in docs.json nav, validates the MDX build, and ends with a PR.
+description: Author or edit Extole customer-facing documentation in this repo (product-docs on Mintlify). Use when creating a new page, editing an existing one, converting a draft/.docx into a page, replacing a live page with a supplied draft, or addressing reviewer comments on a PR. Covers the authoring workflow, the pre-PR self-review, and the PR flow. Decide the tab with the product-docs-placement skill before writing a new page — do not default to guides/. Writing standards themselves live in .mintlify/AGENTS.md.
 ---
 
 # Product-docs authoring
 
-This repo is Extole's customer-facing documentation, built on **Mintlify**. This skill is how to write or edit those pages so they land in house style the first time and need only substantive review.
+This repo is Extole's customer-facing documentation, built on **Mintlify**. This skill is
+the **process**: how a change gets written, placed in navigation, checked, and merged.
 
-Companion always-on rule: [`product-docs-style.mdc`](../../rules/product-docs-style.mdc) (the fixes to apply automatically). Term map: [`glossary.md`](glossary.md). Style reference: [`style-guide.md`](style-guide.md). Preview and validation mechanics: [`mintlify-branch-preview`](../mintlify-branch-preview/SKILL.md).
+**The writing standards are not in this skill.** Voice, terminology, structure, formatting,
+links, images, frontmatter, and accuracy all live in one self-contained file:
+[`.mintlify/AGENTS.md`](../../../.mintlify/AGENTS.md). Read it before your first edit. It is
+canonical because Mintlify's own agent reads it directly and cannot follow links — so a
+standard stated anywhere else is one that some editing surface silently ignores.
+
+**Where content goes is not decided here.** Tab and group follow the three-tab model
+(Product Docs answers what and why, Guides answers how in My Extole, Technical Docs answers
+how it works and how to implement or diagnose it), not "put it next to a similar title in
+Guides". Load [`product-docs-placement`](../product-docs-placement/SKILL.md) **before
+writing a new page or a new section**, and before adding a path to `docs.json`.
+
+Preview and validation mechanics: [`mintlify-branch-preview`](../mintlify-branch-preview/SKILL.md).
 
 ## When to use
 
-- Creating a new page, or converting a supplied draft / `.docx` into a page.
-- Editing an existing page (wording, restructure, correction).
+- Creating a new page, or converting a supplied draft or `.docx` into a page.
+- Editing an existing page — wording, restructure, correction.
+- Replacing a live page's copy with a supplied draft — see **Replacing a live page with a
+  supplied draft** below, because that is a merge and not a paste.
 - Addressing reviewer comments on a PR (see **Reviewer comments** below).
-
-## Canonical sources (human-owned, cite them)
-
-- **Extole Style Guide** and **Extole Content Strategy Outline** — Google Docs owned by the docs team. Source of truth for voice, grammar, capitalization, punctuation, and terminology. [`style-guide.md`](style-guide.md) is the agent-actionable distillation; when it and the Google Doc disagree, the Google Doc wins and the distillation should be updated.
-- **Brand voice:** professional and informative, optimistic and encouraging, confident; client-centric, expert, clear and accessible. Educate the reader; don't oversell.
 
 ## Read this before your first edit: this repo is docs.extole.com
 
-**This repo is the source of truth for the live customer documentation.** `main` publishes docs.extole.com through Mintlify, so an edit here reaches customers on merge. Edit pages directly and normally.
+**This repo is the source of truth for the live customer documentation.** `main` publishes
+docs.extole.com through Mintlify, so an edit here reaches customers on merge. Edit pages
+directly and normally.
 
-The pages were originally produced by [`scripts/convert_from_product_docs.py`](../../../scripts/convert_from_product_docs.py) from the ReadMe corpus that used to publish the site — see [`MIGRATION.md`](../../../MIGRATION.md). That converter is history, not a pipeline: it is kept for provenance and must not be re-run over hand-edited pages, because it would overwrite them. `extole/product-docs-readme` is the ReadMe-based predecessor; it no longer publishes docs.extole.com.
+The pages were originally produced by
+[`scripts/convert_from_product_docs.py`](../../../scripts/convert_from_product_docs.py)
+from the ReadMe corpus that used to publish the site. That converter is history, not a pipeline: it is
+kept for provenance and must not be re-run over hand-edited pages, because it would
+overwrite them. `extole/product-docs-readme` is the ReadMe-based predecessor; it no longer
+publishes docs.extole.com.
 
-## Repo layout & pipeline
+## Repo layout and pipeline
 
-- Pages: `<tab>/<group>/…/<slug>.mdx`. The four content tabs are **`guides/`**, **`product/`**, **`technical/`**, **`news/`**; **`api-reference/`** holds the OpenAPI bundles.
-- **Frontmatter** (YAML) on every page:
-  ```yaml
-  ---
-  title: "Title Case Title"
-  description: "One or two sentences describing the page."
-  ---
-  ```
-  `description` is Mintlify's field (the ReadMe corpus called it `excerpt`); it is what shows in search and social previews.
-- **Navigation** lives in [`docs.json`](../../../docs.json) under `navigation.tabs[] → groups[] → pages[]`. A page entry is its path **without** the `.mdx` extension (`guides/audiences-and-segmentation/advocate-tiers`). Groups nest, and a group whose landing page is a page of its own carries `"root": "<path>/index"`. **A new page is invisible until its path is added to `docs.json`** — add it in the right position. Nothing enforces this: a page missing from `docs.json` passes `mint validate` and passes CI, and ships unreachable. It is a review responsibility.
-- **API reference is generated.** Mintlify renders the entire reference from `api-reference/*.json`, and `docs.json` lists endpoints as `METHOD /path` strings. Those specs come from `extole/extole-specification`; leave them and the API Reference tab alone unless that is the task.
-- **Published vs. not:** the content tabs are customer-visible. `.agents/` and `.claude/` are excluded from the build by Mintlify's built-in ignores, and `.cursor/` is excluded by [`.mintignore`](../../../.mintignore); repo-root files like `AGENTS.md`, `MIGRATION.md`, and `README.md` are not published.
-- **Deployment:** merging to `main` deploys **docs.extole.com** — that is the live customer site, so treat a merge as a publish. Mintlify's GitHub App also builds a preview deployment per PR, though previews have been observed missing on some PRs, so do not treat one as guaranteed.
-- **Agent reads:** the AI assistants read this documentation through `extole_docs_search` / `extole_docs_get` — the published site for `main`, and for any other branch the branch's own `docs.json` navigation and `.mdx` sources read straight from this repository. A pushed branch is therefore queryable by an agent immediately, with no preview build; a page missing from `docs.json` navigation is fetchable by exact path but never appears in search.
+- Pages: `<tab>/<group>/…/<slug>.mdx`. Customer-visible content lives in **`guides/`**,
+  **`product/`**, **`technical/`**, **`news/`**, and **`runbooks/`**; **`api-reference/`**
+  holds the OpenAPI bundles. Which of those tabs a *new* page belongs in is the
+  [`product-docs-placement`](../product-docs-placement/SKILL.md) decision — Guides is
+  not the default.
+- **Navigation** lives in [`docs.json`](../../../docs.json) under
+  `navigation.tabs[] → groups[] → pages[]`. A page entry is its path **without** the `.mdx`
+  extension (`guides/audiences-and-segmentation/advocate-tiers`). Groups nest, and a group
+  whose landing page is a page of its own carries `"root": "<path>/index"`. **A new page is
+  invisible until its path is added to `docs.json`** — add it to the group the placement
+  skill chose. Nothing enforces this: a page missing from `docs.json` passes
+  `mint validate`, passes CI, and ships unreachable. It is a review responsibility.
+- **API reference is generated.** Mintlify renders the entire reference from
+  `api-reference/*.json`, and `docs.json` lists endpoints as `METHOD /path` strings. Those
+  bundles are written by CI from [`extole/openapi`](https://github.com/extole/openapi)
+  (`sync-to-mintlify.yml`), which extracts them from pluribus. Leave them and the API
+  Reference tab alone unless that is the task.
+- **An API-reference page's URL comes from the operation's OpenAPI `tags` value, not from the
+  `docs.json` group it is listed under.** The group name sets only the sidebar heading and the
+  page eyebrow. Give a group a name that no operation inside it is tagged with and the page
+  reads as one section while living at the URL of another — five operations tagged `Rewards`
+  grouped as `"Reward Suppliers"` serve at `/api-reference/rewards/…` under a **Reward
+  Suppliers** heading. Worse, any redirect written against the group name — in `docs.json` or
+  `url-map.json` — points at a path that exists nowhere and 404s, and nothing catches it:
+  `mint validate` does not resolve redirect destinations. Name an API group after the tag the
+  bundle already carries, and `curl -L` any redirect destination you typed by hand.
+- **The API navigation is generated too.** Every bundle sync from
+  [`extole/openapi`](https://github.com/extole/openapi) rewrites the API Reference groups in
+  `docs.json` with its `scripts/generate-navigation.py`, so a hand edit to those groups is
+  overwritten by the next sync. To rename a group, move a bundle, or tag a group, change
+  [`specs/navigation.json`](https://github.com/extole/openapi/blob/main/specs/navigation.json)
+  in that repository. Getting Started is the one API Reference group the sync leaves alone.
+- **Published vs. not:** the content directories are customer-visible. `.agents/` and
+  `.claude/` are excluded by Mintlify's built-in ignores, `.mintlify/` is never served, and
+  `.cursor/` plus the repo-root agent files are excluded by
+  [`.mintignore`](../../../.mintignore). Note that Mintlify's built-in ignores do **not**
+  cover repo-root Markdown: an un-ignored `AGENTS.md` at the root is served publicly at
+  `/agents.md`.
+- **Deployment:** merging to `main` deploys **docs.extole.com** — the live customer site,
+  so treat a merge as a publish. The Mintlify GitHub App also builds a preview deployment
+  per PR and comments the link; see `mintlify-branch-preview` for what to do when it
+  doesn't.
+- **Agent reads:** the AI assistants read this documentation through `extole_docs_search` /
+  `extole_docs_get` — the published site for `main`, and for any other branch the branch's
+  own `docs.json` navigation and `.mdx` sources read straight from this repository. A
+  pushed branch is therefore queryable by an agent immediately, with no preview build; a
+  page missing from `docs.json` navigation is fetchable by exact path but never appears in
+  search.
 
 ## Authoring workflow
 
-1. **Ground first.** Read [`glossary.md`](glossary.md) and [`style-guide.md`](style-guide.md). If the topic is unfamiliar, research prior framing and the correct product terms in parallel with reading neighboring pages in the same group (match their structure).
-2. **Structure.** Typical page: `# Overview` (what it is / why it matters — 262/461 pages open with one) → concept sections (`##`) → a how-to or decision section → an optional quick-reference table. Use real `##` headings, not bold-line pseudo-headings, so Mintlify builds the on-page TOC. Title Case headings. Lead with the reader's goal.
-3. **Use the Mintlify components the corpus already uses.** `<Info>` / `<Tip>` / `<Warning>` / `<Danger>` / `<Note>` for callouts (76 pages), `<Frame>` for a captioned or bordered image (17 pages), `<Accordion>` for collapsible detail (3 pages). Internal links are site paths (`/guides/…`); images are root-relative under `/images/`.
-4. **Write to style automatically.** Apply everything in `product-docs-style.mdc` as you write — terminology, imperative how-to, cut hedging, Title Case, navigation bolding, number rules. Do not leave these for the reviewer.
-5. **Respect literals.** Event names (`promotion clicked`, `signed up`, `converted`), field names, and API identifiers stay verbatim. Use "click" for UI actions (reserve "tap" for in-app placements and mobile SDK).
-6. **Never fabricate.** Do not invent event names, product behavior, or metrics to make prose flow. Verify against the platform (Extole MCP, existing docs) or mark it as needing confirmation.
-7. **Place in nav.** Add the page path to the right group in `docs.json`.
-8. **Validate.** `npx mint@latest validate` must report **0 errors, 0 warnings** — MDX is JSX-strict and a broken tag fails the build, not just the page, and `validate` treats a warning as a failure. `npx mint@latest dev` renders it locally at http://localhost:3000. CI runs the same command on every PR as the required **`validate`** check, so this is a gate you clear before review, not after.
-9. **Self-review** against the checklist below, then open the PR.
+1. **Place first** (new pages). Load
+   [`product-docs-placement`](../product-docs-placement/SKILL.md), run the actor
+   test, and choose the filesystem path **before** drafting. Do not start from
+   `guides/` and look for a neighbouring title.
+2. **Ground.** Read [`.mintlify/AGENTS.md`](../../../.mintlify/AGENTS.md). If the
+   topic is unfamiliar, research prior framing and the correct product terms in parallel
+   with reading neighbouring pages in the **chosen** group, and match their structure.
+3. **Write to the standard as you go.** Everything in `.mintlify/AGENTS.md` applies while
+   you write — terminology, imperative how-to, Title Case, de-hedging, navigation bolding,
+   number rules, callout components, expert variables. Do not leave these for the reviewer.
+4. **Place in nav.** Add the chosen path to that group in `docs.json`, then run
+   `python3 scripts/check_navigation.py` — it reports a page absent from the navigation
+   and a path that does not mirror its group chain, neither of which `validate` catches.
+5. **Validate.** `npx mint@latest validate` must report **0 errors, 0 warnings**. MDX is
+   JSX-strict: a broken tag fails the whole build, not just the page, and `validate` treats
+   a warning as a failure. `npx mint@latest dev` renders it locally at
+   http://localhost:3000. CI runs the same command on every PR as the required
+   **`validate`** check, so this is a gate you clear before review, not after.
+6. **Self-review** against the checklist below, then open the PR.
 
-## Self-review checklist (what reviewers consistently catch)
+## Replacing a live page with a supplied draft
 
-Derived from repeated review feedback — clearing these is the point of this skill:
+"Here is the new copy for this page" is a **merge**, not a paste. A draft that has been
+through an editor, a Google Doc, or a chat attachment arrives stripped of things the live
+page has, and the loss is silent — the new file is valid MDX and `validate` passes at 0/0
+either way. Diff the two before you write anything:
 
-- [ ] **Terminology** matches the glossary; "event" not "step"; consistent throughout (same concept never spelled/cased two ways).
-- [ ] **No hedging or filler** — sweep for `just`, `simply`, `very`, `note that`, `please note`, `in order to`; no "related but different and should not be confused".
-- [ ] **Title & headings** in Title Case; title reads as a benefit/goal where natural.
+```bash
+# which images the draft dropped
+git show origin/main:<page>.mdx | grep -o 'images/[^")]*' | sort > /tmp/old
+grep -o 'images/[^")]*' <draft> | sort > /tmp/new
+diff /tmp/old /tmp/new
+```
+
+Three things a draft routinely loses, all seen on one page:
+
+- **Images, while keeping their captions.** A `<Frame>` that arrives holding only its caption
+  text had an `<img>` in it on the live page. Bare `<img>` tags and `![]()` images vanish
+  with no trace at all — the image diff above is the only thing that finds those.
+- **A heading level.** Dropping a `##` re-parents every `###` under it into the previous
+  section, which silently moves the whole sequence under an unrelated heading in the
+  on-page TOC.
+- **Link form.** Drafts written outside the repo use absolute `https://docs.extole.com/…`
+  links where the standard is a site path, and guess at My Extole routes. Check any
+  `my.extole.com/…` path against how the rest of the corpus writes it
+  (`grep -rno "my\.extole\.com/[a-z-]*" --include=*.mdx .`) — `/security` is not a route and
+  all 39 other links to that page use `/security-center`.
+
+**Some dropped images are not losses — they are orphans**, because the rewrite deleted the
+step they illustrated. That is the author's call, not yours: leave those out rather than
+placing a screenshot next to an instruction it does not show, and name each one in the PR
+body with what it depicts, so the author can say in one line where it should go. Never
+invent a caption or re-home a screenshot to keep a count whole.
+
+Everything else comes from the draft verbatim. Apply the unambiguous fixes above and flag
+them; do not rewrite the author's prose to the terminology table on a page they just wrote.
+
+## Self-review checklist
+
+Derived from repeated reviewer feedback — clearing these is the point of this skill. Each
+item checks conformance to `.mintlify/AGENTS.md` rather than restating it.
+
+- [ ] **Terminology** matches the glossary, and is consistent throughout — the same concept
+      is never spelled or cased two ways on one page.
+- [ ] **No hedging or filler** — swept against the de-hedge list.
+- [ ] **Written from the behavior, not the failure** — no pitfall framing ("confident wrong
+      answer", "unless you know", "nothing tells you", "silently", "answers `200` and"), per
+      **Write how it works, never how it fails** in `.mintlify/AGENTS.md`. Text promoted from an
+      internal source is rewritten sentence by sentence before placement.
+- [ ] **Title and headings** in Title Case; real `##` headings, not bold lines.
 - [ ] **Imperative** how-to steps; reader addressed as "you".
-- [ ] **Navigation** paths use bolded elements with `>`; UI elements bolded, not quoted.
-- [ ] **Numbers, units, spelling** follow the style guide (American English; spell out ≤10; imperial units).
-- [ ] **Accuracy** — wording matches actual product behavior and current UI labels/status text; no invented values.
+- [ ] **Navigation paths and UI elements** bolded, not quoted.
+- [ ] **Numbers, units, spelling** follow the standard.
+- [ ] **Accuracy** — wording matches actual product behavior and current UI labels and
+      status text; no invented values. Setting names come from the component's
+      `display_name`, not from memory — see **Naming a My Extole setting** above.
+- [ ] **Placement** — a new page sits in the tab the actor test chose, not in
+      Guides by default. Mechanism, diagnosis, tags, domains, and request
+      parameters belong in Technical Docs even when the symptom is a campaign.
 - [ ] **Frontmatter** present (`title`, `description`); **page path added to `docs.json`**.
-- [ ] **Links and images resolve** — internal links are site paths, images are root-relative repo assets, no `doc:slug` and no remote `expires=` URL.
+- [ ] **Links and images resolve** — internal links are site paths, images are
+      root-relative repo assets, no `doc:slug` and no remote `expires=` URL.
+- [ ] **Literals** — event names, schema fields, and API identifiers left verbatim.
+- [ ] **Expert variables** — employee-only settings and the **Show Expert** filter are not
+      described. See **Expert variables** in `.mintlify/AGENTS.md`.
+- [ ] **Open decisions** matched to the surrounding page, not silently standardized.
 - [ ] **`npx mint@latest validate` is clean** (0 errors, 0 warnings).
-- [ ] Literal event/field/API names left verbatim.
+
+## Describing a My Extole behaviour: read the screen's own code
+
+A page that tells a reader to click something in My Extole is describing
+[`extole/showtime`](https://github.com/extole/showtime). Its components carry two things worth
+reading before you write: the exact label on the control, and the condition around it — which
+tells you **which paths already warn the reader and which leave them on their own**. That
+difference is usually the most useful sentence on the page, and no screenshot shows it.
+
+[#163](https://github.com/extole/product-docs/pull/163) is the worked example. The subject was
+publishing a campaign that is not live yet, and the flat version — "remember to publish" — is
+what the page already implied. Three components said something better:
+
+- `GoLiveModal.vue` checks `is_published` before it launches and, when the campaign has a draft,
+  offers **Publish Changes and Go Live** or **Go Live with Last Published Version**. The
+  **Go Live** path guards the reader.
+- `CampaignScheduleModal.vue` has no such check, so a scheduled go-live does not. The page can
+  now say which path asks you and which does not, instead of asking every reader to remember.
+- `CampaignListItem.vue` renders **Unpublished changes** only when the campaign has a draft, and
+  the **Last Published** date only when it has ever been published — so "no **Last Published**
+  date" is a check the reader can actually perform.
+
+The labels came out of the same files: the editor's button reads **Apply**, and the page had
+said "the blue Apply Changes button" three times.
+
+Where the behaviour is the platform's rather than the screen's, the same rule points at
+[`extole/pluribus`](https://github.com/extole/pluribus). Here `CampaignPojo.getState()` derives
+a campaign's state from its dates on every read and returns `NOT_LAUNCHED` before it ever tests
+the start date, which is why a start date on a never-published campaign never takes effect —
+a sentence worth writing only because it was read, not assumed.
 
 ## Reviewer comments
 
-To read and resolve inline PR comments (the common "apply the reviewer's suggestions" task):
+To read and resolve inline PR comments — the common "apply the reviewer's suggestions" task:
 
 - List them: `gh api repos/extole/product-docs/pulls/<n>/comments --jq '.[] | {path,line:(.line//.original_line),body,id}'`.
-- Apply straightforward suggestions directly (correcting obvious typos in the suggestion text); **surface genuinely ambiguous ones to the user** instead of guessing.
-- Resolve threads with the GraphQL `resolveReviewThread` mutation (REST cannot): fetch thread ids via `pullRequest.reviewThreads`, then mutate each.
+- Apply straightforward suggestions directly, correcting obvious typos in the suggestion
+  text; **surface genuinely ambiguous ones to the user** instead of guessing.
+- Reply on each thread with the commit and what changed, then **leave it open for the
+  reviewer to resolve**. Whether a reply addresses a comment is the commenter's judgement, and
+  resolving hides the thread before they have read the answer. `tech`'s
+  [`pr-comment-merge-policy`](../../../../../.agents/skills/pr-comment-merge-policy/SKILL.md)
+  is canonical here and applies to every repository.
 
 ## PR workflow
 
-- The default branch is **`main`**. Branch from and target it. There is **no branch-name constraint** in this repo — the `v4.0.0_<slug>` prefix that `extole/product-docs-readme` requires for ReadMe mirroring means nothing here, so the tech repo's `tech-worktree-workflow` naming applies normally (a bare ticket id, or a short kebab-case slug). See [`mintlify-branch-preview`](../mintlify-branch-preview/SKILL.md).
-- Doc changes end with an **open PR** (`gh pr create`), which is what produces the reviewable Mintlify preview. A docs-standards or terms-glossary PR is a good candidate for **draft** so the docs team can ratify wording before merge.
-- Keep the PR scoped to docs; don't touch `api-reference/` specs, `scripts/`, or `url-map.json` unless that is the task.
+- The default branch is **`main`**. Branch from and target it. There is **no branch-name
+  constraint** in this repo — the `v4.0.0_<slug>` prefix that `extole/product-docs-readme`
+  requires for ReadMe mirroring means nothing here. Use a bare ticket id (`ENG-12345`) or a
+  short kebab-case slug, matching the convention the tech repo uses.
+- Doc changes end with an **open PR** (`gh pr create`), which is what produces the
+  reviewable Mintlify preview. A docs-standards or terminology PR is a good candidate for
+  **draft**, so the docs team can ratify wording before merge.
+- Keep the PR scoped to docs. Don't touch `api-reference/` specs, `scripts/`, or
+  `url-map.json` unless that is the task.
+
+## Changing the standards themselves
+
+Edit [`.mintlify/AGENTS.md`](../../../.mintlify/AGENTS.md). Do not add the rule to this
+skill or to `product-docs-style.mdc` as well — a second copy is a copy that drifts, and
+every surface except Claude Code and Cursor will only ever see the canonical file.
