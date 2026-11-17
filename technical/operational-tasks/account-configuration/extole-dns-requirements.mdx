@@ -32,7 +32,7 @@ The most common option is to use subdomains of your main brand domain. For examp
 
 Your branded domain must be a domain that points to the Extole servers directly, such as `share.mycompany.com`. It cannot be a path like `www.mycompany.com/share`.
 
-Use a subdomain rather than your main domain, such as `mycompany.com`. Your main domain already carries the records your website and email use, and DNS does not allow a CNAME record beside them.
+Use a subdomain, such as `refer.mycompany.com`, not your main domain, `mycompany.com`. Your main domain already has records for your website and email, and DNS doesn't allow a CNAME record next to them.
 </Warning>
 
 [//]: ___
@@ -41,7 +41,7 @@ Use a subdomain rather than your main domain, such as `mycompany.com`. Your main
 
 [//]: # "How do I create CNAMEs for my domains?"
 
-Setting up a branded domain requires your IT organization to create CNAMEs for your domains. Extole generates the certificates, as described below.
+To set up a branded domain, your IT organization creates a CNAME record for each domain. Extole creates the certificates, as described below.
 
 To set up your CNAME, complete the following steps:
 
@@ -49,7 +49,7 @@ To set up your CNAME, complete the following steps:
 2. Log into your domain registrar's control panel and create a CNAME record from your Branded Program URL to the Extole Program Domain. The UI and terminology may vary depending on your registrar. You will point `refer.mycompany.com` to `mycompany.extole.io`.
 3. Once you have created your branded domains, go back into Tech Center and create a New Domain.
 
-A new DNS record can take up to a day to reach every DNS server, depending on its time to live (TTL). Until your branded domain resolves, your program keeps working on your Extole Program Domain.
+A new DNS record can take up to a day to start working everywhere. Until then, your program keeps using your Extole Program Domain.
 
 **Example DNS update**:
 
@@ -137,7 +137,7 @@ mycompany.com.		86400	IN	TXT	"v=spf1 include:spf.extole.io -all"
 
 DKIM lets Extole sign program emails with your own domain so that receiving mail servers accept them. Each sending domain needs three CNAME records, and the host names are specific to that domain.
 
-To get the records, go to the My Extole [Tech Center](https://my.extole.com/tech-center), select **Domains**, and open your domain under **Email Domains**. Click **Generate DKIM records** to produce the exact host and value pairs, then give those pairs to your DNS administrator. Once they resolve, Extole validates and approves them, and the domain's **DKIM Status** changes to Pass. New records can take up to a day to resolve, and program emails keep sending from `email.referral-mail.com` until the domain passes.
+To get the records, go to the My Extole [Tech Center](https://my.extole.com/tech-center), select **Domains**, and open your domain under **Email Domains**. Click **Generate DKIM records** to produce the exact host and value pairs, then give those pairs to your DNS administrator. Once they resolve, Extole validates and approves them, and the domain's **DKIM Status** changes to Pass. New records can take up to a day to start working. Until the domain passes, program emails keep sending from `email.referral-mail.com`.
 
 The domain's **CNAME records** table lists the same pairs at any time, so you can copy them again without regenerating. The **Generate DKIM records** control appears while a domain has no DKIM records yet, or while one of them is failing.
 
@@ -182,7 +182,7 @@ The **Email Domains** table carries one column per DNS check — **SPF Status**,
 | **Overridden** | **Force Send From Email Domain** is on for this domain, so the checks are bypassed. See below. |
 | **Checking** | Extole is still reading your DNS. |
 
-Validation requires a passing DMARC record and either a resolving A record or a resolving MX record. **SPF Status** is reported alongside them and does not by itself change the overall status, but a failing SPF record still costs you deliverability — add `spf.extole.io` to your existing SPF record rather than publishing a second one. A domain can publish only one SPF record, and receiving mail servers fail the SPF check for a domain that publishes two.
+Validation requires a passing DMARC record and either a resolving A record or a resolving MX record. **SPF Status** is reported alongside them and does not by itself change the overall status, but a failing SPF record still costs you deliverability — add `spf.extole.io` to your existing SPF record rather than publishing a second one. A domain can have only one SPF record. If it has two, mail servers fail the SPF check.
 
 <Info>
 **Adding a domain to the list**
