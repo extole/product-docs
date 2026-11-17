@@ -1,0 +1,145 @@
+---
+title: "Build a Campaign from Components Over REST"
+description: "Assemble a Flow Builder campaign with the Management API: copy the Custom Campaign Template, then add the roles, journeys, business events, and rewards your program needs."
+---
+
+# Overview
+
+Most programs start as a copy of a template that already carries a complete flow, as
+[Creating a Program](/guides/platform-overview/creating-a-program) describes. When no template
+matches the flow you need, start from the **Custom Campaign Template** and assemble the campaign
+from components. This page gives the order of the calls.
+[Configuration Concepts](/api-reference/getting-started/configuration-concepts) explains
+components, types, and sockets, and draws the tree you are building.
+
+## Start from the Custom Campaign Template
+
+The Custom Campaign Template is the starter whose `program_type` is `empty-campaign`.
+[List duplicatable campaigns](/api-reference/campaigns/list-duplicatable-campaigns) returns it
+with the other templates your account can copy.
+
+[Duplicate a campaign](/api-reference/campaigns/duplicate-a-campaign) creates your copy as a
+draft. Send the `name` of the new campaign and the `program_label` of the program it belongs to.
+
+The copy holds the smallest tree a Flow Builder campaign needs:
+
+| Component | Absolute name | What it is |
+|---|---|---|
+| Root | `/` | The campaign. Its type is `campaign-v10.0`, and it carries the `roles` socket and the campaign-level settings. |
+| Placeholder Role | `/placeholder_role` | One role, to rename or replace. |
+| Placeholder Journey | `/placeholder_role/placeholder_journey` | One journey in that role. |
+| Template Business Event | `/placeholder_role/placeholder_journey/template_business_event` | One business event in that journey. |
+
+It holds no reward.
+
+[Create a campaign](/api-reference/campaigns/create-a-campaign) makes a campaign whose root
+component has no type and no sockets. A Flow Builder campaign needs the `campaign-v10.0` type on
+its root, and the template supplies it.
+
+## Add Components in Tree Order
+
+You add to a campaign by copying a component into a socket. A child needs its parent, so add
+components in this order:
+
+| Order | Component | Parent | Socket on the parent |
+|---|---|---|---|
+| 1 | Role | The root, `/` | `roles` |
+| 2 | Journey | A role | `journeys` |
+| 3 | Business event | A journey | `businessEvents` |
+| 4 | Reward | A role | `rewards` |
+| 5 | Reward rule | A reward | `rewardRules` |
+| 6 | Action | A business event | `actions` |
+
+For each component:
+
+1. Call [List duplicatable components](/api-reference/components/list-duplicatable-components)
+   for the parent component and the socket. The response lists the sources that fit that socket.
+2. Call [Duplicate a component](/api-reference/components/duplicate-a-component) on the source
+   you chose. Send `target_campaign_id`, `target_component_absolute_name` for the parent,
+   `target_socket_name` for the socket, and a `component_name` and `component_display_name` for
+   the copy.
+3. Call [List component settings](/api-reference/components/list-component-settings) on the
+   copy, and set the values your program needs.
+   [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest)
+   covers how to change a value the copy inherited.
+
+The copy keeps the settings of its source until you change them.
+
+## Declare a Business Event for Each Action
+
+Add one business event for each action that your program counts, measures, or rewards. Once
+the campaign accepts a matching event, the person's journey records a step with the business
+event's name. Rules and rewards read those steps.
+
+The **Triggered By** setting, `triggerEvent`, names the event that starts the business event.
+In the Custom Campaign Template, the business event is triggered by an input event with the
+same name as the component.
+[How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) covers how to
+declare the trigger events your systems send.
+
+Put each business event in the role of the person who takes the action. A program with two
+kinds of participant, such as an organizer and the people the organizer brings in, has two
+roles, and each role's journey holds that role's business events.
+
+## Count Actions Toward a Reward
+
+The **Has Taken Action** reward rule counts the events recorded on the profile of the person
+the reward is for. It has these settings:
+
+| Setting | What it does |
+|---|---|
+| **Business Event** | The business event to count. |
+| **Exact Count** | The reward is issued when the count equals one of these numbers. |
+| **Minimum Count** | The reward is issued when the count reaches this number. |
+| **Recent Activity Window** | Counts only the events inside this period. Leave it blank to count events from all time. |
+
+To issue a reward at two milestones, such as the third and the fifth event, add one reward for
+each milestone and give each its own **Exact Count**.
+
+### Count What Other People Do
+
+A reward for one person can depend on the actions of other people, such as a reward for an
+advocate when three friends convert. **Has Taken Action** reads the advocate's own profile, so
+each friend's event must first reach the advocate:
+
+1. On the friend's business event, add the **Publish Event Data** action to the `actions`
+   socket. Set **Target Role** to the role that earns the reward.
+2. In the earning role, add a business event that is triggered by the published event.
+3. On the reward, add **Has Taken Action**, and set **Business Event** to the business event
+   from step 2.
+
+**Publish Event Data** sends one event to the advocate each time the friend's business event
+occurs, and **Has Taken Action** counts each one. A friend who takes the action twice adds two
+to the count.
+
+The action finds the advocate through the referral relationship between the two people. A share
+link creates that relationship. An event can also name its advocate, as
+[Creating Advocate-Friend Relationships](/technical/platform-integrations/files/file-based-events#creating-advocate-friend-relationships)
+describes.
+
+[How to Set Up Bonus Rewards on a Specific Referral Count](/guides/flow-campaigns/how-to-set-up-bonus-rewards-on-a-specific-referral-count-2nd-3rd-5th-etc)
+shows the same pattern in Flow Builder.
+
+## Remove the Components You Do Not Use
+
+[Delete a component](/api-reference/components/delete-a-component) removes a component and its
+children. Delete the placeholder role, journey, and business event once your own components
+replace them. Deleting the root component archives the campaign.
+
+## Read the Campaign Back and Test It
+
+[Get a built campaign](/api-reference/campaigns/get-a-built-campaign) returns the campaign with
+every setting evaluated. Read it to confirm that each business event has its trigger and each
+reward has its rules.
+
+The campaign stays a draft until you publish it.
+[Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest)
+covers how to send test events to the draft, and
+[Campaign States Over REST](/technical/platform-integrations/rest-apis/campaign-states-over-rest)
+covers publishing and launching it.
+
+## Related Documentation
+
+- [Configuration Concepts](/api-reference/getting-started/configuration-concepts)
+- [How to Add a New Business Event](/guides/flow-campaigns/how-to-add-a-new-business-event)
+- [How to Set Up Reward Rules](/guides/flow-campaigns/how-to-set-up-reward-rules)
