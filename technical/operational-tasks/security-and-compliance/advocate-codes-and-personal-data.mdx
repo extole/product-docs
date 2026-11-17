@@ -17,21 +17,37 @@ This page covers where an advocate code comes from, how to move a program to ran
 
 [//]: # "Why does my advocate code look like part of the advocate's email address?"
 
-Extole generates a code for each advocate when their share link is created. A generated code is random rather than derived from anything in the person's profile.
+When a share link is created without a code, Extole generates one. By default that generated code is personalized from the person's profile: first name if present, otherwise the part of the email before the `@`. A random opaque code is used only when those candidates are missing, invalid, or already taken.
 
-A code that contains personal data reaches Extole one of two ways:
+A code that contains personal data reaches Extole one of three ways:
 
-- **Your integration supplies it.** `POST /v5/persons/{person_id}/shareables` accepts an optional `code`. Supply it and that value becomes the share code; omit it and Extole generates one. The same applies to an advocate code you send in a person or audience file.
-- **Your share experience asks for a prefix.** `POST /api/v6/me/shareables` and its `get-or-create` and `get-create-or-update` variants accept `preferred_code_prefixes`. Extole tries each prefix in turn and falls back to a random code when none is available, so a prefix built from a profile field produces codes that start with that field's value.
+- **Extole's default generation.** Omitting `code` on `POST /v5/persons/{person_id}/shareables`, or omitting `preferred_code_prefixes` on `POST /api/v6/me/shareables` and its `get-or-create` and `get-create-or-update` variants, still produces a profile-derived code when first name or email is available.
+- **Your integration supplies it.** The same create endpoints accept an optional `code`. Supply it and that value becomes the share code. The same applies to an `advocate_code` you send in a person or audience file — Extole creates the share link from that value on first create.
+- **Your share experience asks for a prefix.** The me shareable endpoints accept `preferred_code_prefixes`. Extole tries each prefix in turn (with numeric suffixes when a value is taken) and falls back to a random code when none is available, so a prefix built from a profile field produces codes that start with that field's value.
 
-Establish which of the two applies before you change anything:
+Establish which of the three applies before you change anything:
 
-- If your integration supplies the code, the change is in your system. Stop sending the personal value and let Extole generate the code.
+- If Extole's default generation is producing the personal value, stopping is not enough: omit `code` and Extole personalizes again. Create new links with an opaque code, or ask your Extole team to configure the share experience for random codes.
+- If your integration supplies the code, the change is in your system. Stop sending the personal value and start sending an opaque code — or ask Extole to generate random codes for you.
 - If the prefixes come from your share experience, ask your Extole team to change that configuration.
 
 <Warning>
 New codes stop further exposure; they do not clean up exposure that has already happened. Links already sent, bookmarked, or recorded in your analytics and logs keep the old code.
 </Warning>
+
+[//]: ___
+
+## Moving to Opaque Codes
+
+[//]: # "How do I make new advocate codes random instead of personalized?"
+
+| Surface | How to get a random or opaque code |
+|---|---|
+| Person API (`POST /v5/persons/{person_id}/shareables`) | Supply an opaque `code` you generated. The person create request has no random-code flag; omitting `code` personalizes from the profile. |
+| Me shareable API (`POST /api/v6/me/shareables` and variants) | Pass an empty `preferred_code_prefixes` list for a random code, or pass opaque prefixes you control. Omitting the field personalizes from the profile. |
+| Share experience | Ask your Extole team to turn off personalized share codes so new advocates receive random codes. |
+| My Extole (**User Support** > **+ New Share Link**) | Enter an opaque value in the **Code** field. Leaving it blank or accepting the suggested value keeps a profile-derived code. |
+| Bulk / existing population | Ask your Extole team to run a bulk creation with opaque or random codes. |
 
 [//]: ___
 
@@ -41,7 +57,7 @@ New codes stop further exposure; they do not clean up exposure that has already 
 
 A share code is fixed when the share link is created. `PUT /v5/persons/{person_id}/shareables/{code}` updates a share link's `content`, `data`, `key`, `label`, and `program_url`. It does not update the code — the code identifies the link in the request path rather than appearing in the body.
 
-Updating `advocate_code` on a person profile does not change an existing share link either. The profile value and the share link then disagree, and the share link keeps attributing referrals to its original code.
+Updating `advocate_code` on a person profile does not change an existing share link either. The profile field and the share link are separate: a later profile or audience update can overwrite `advocate_code` on the person while the original share link keeps attributing referrals to its original code. If they disagree, sync the profile to the live share code — do not expect the share link to follow the profile.
 
 To move an advocate onto an opaque code, issue a replacement share link.
 
@@ -54,12 +70,12 @@ To move an advocate onto an opaque code, issue a replacement share link.
 For one advocate over the API:
 
 1. List the advocate's existing share links with `GET /v5/persons/{person_id}/shareables` and note the `label` and `program_url` of the one you are replacing.
-2. Create the replacement with `POST /v5/persons/{person_id}/shareables`, reusing that `label` and `program_url` and omitting `code` so Extole generates a random one.
+2. Create the replacement with `POST /v5/persons/{person_id}/shareables`, reusing that `label` and `program_url`, and supply an opaque `code` you generated. Omitting `code` personalizes from the profile again — it does not produce a random code. If you need Extole to generate the random value, ask your Extole team.
 3. Publish the new link everywhere the advocate's link appears — your emails, your CRM, and your app.
 
-For one advocate in My Extole, go to **User Support**, open the person's profile, and select **+ New Share Link**.
+For one advocate in My Extole, go to **User Support**, open the person's profile, select **+ New Share Link**, and enter an opaque **Code**.
 
-For a whole audience, ask your Extole team to run a bulk creation. This is the same batch process used to backfill share links before launch — see [Create Share Link on an Event](/technical/platform-integrations/extensions/create-share-link-on-an-event).
+For a whole audience, ask your Extole team to run a bulk creation with opaque or random codes. This is the same batch process used to backfill share links before launch — see [Create Share Link on an Event](/technical/platform-integrations/extensions/create-share-link-on-an-event).
 
 [//]: ___
 
@@ -77,7 +93,7 @@ For a whole audience, ask your Extole team to run a bulk creation. This is the s
 
 [//]: # "How do I invalidate or retire an advocate's old share code?"
 
-Retiring a code is a request to your Extole team, not a self-service operation: none of the published APIs delete a share link. Tell your team which codes to retire and the date from which the old links should stop working, and confirm with them what a friend sees when an old link is opened after that date.
+Retiring a code is a request to your Extole team, not a self-service operation: none of the published client APIs delete a share link. Extole can retire codes for you. Tell your team which codes to retire and the date from which the old links should stop working, and confirm with them what a friend sees when an old link is opened after that date.
 
 Blocking the advocate is a distinct action with a much wider effect — it declines every event for that person, including events on their replacement link. See [How to Block Users and Decline Shares](/guides/rewards-management/reward-fulfillment/how-to-block-users-and-decline-shares) for what blocking does.
 
