@@ -1,0 +1,88 @@
+---
+title: "Snowflake"
+description: "Sync Snowflake tables or views with Extole audiences, and send events like purchases from Snowflake for Extole to reward."
+---
+
+## Overview
+
+The Send Data to Extole app runs inside your Snowflake account. It keeps Extole audiences matched to customer lists you already have in Snowflake, and sends events such as purchases so your programs can reward them. Your customer data stays in Snowflake. The app sends Extole only email addresses and the columns you choose.
+
+## Prerequisites
+
+| Requirement | Description |
+| --- | --- |
+| Extole account | An Extole account with the audiences and programs you want to use. |
+| Snowflake account | A paid Snowflake account. Trial accounts can't connect to services outside Snowflake, so the app can't reach Extole from one. |
+| Extole access token | Create one in My Extole in the [Security Center](https://my.extole.com/security-center). |
+| Snowflake admin | Someone who can approve app permissions in your Snowflake account. |
+
+## Install the App
+
+1. In Snowflake, open **Marketplace** and search for **Send Data to Extole**.
+2. Click **Get**, then open the app.
+3. Under **Access to Extole**, click **Review** and paste your Extole access token.
+
+## Sync Audiences
+
+Each sync connects one Snowflake table or view to one Extole audience. A sync sends what changed in your list since the last sync. A replace makes the audience match your list exactly, removing anyone added in Extole directly. Both can run on a schedule or on demand.
+
+### Customer List Columns
+
+A customer list is usually a view over a customer table you already have. It needs these columns:
+
+| Column | Description |
+| --- | --- |
+| `MEMBER_IDENTITY_KEY_VALUE` | The person's email address. |
+| `MEMBERSHIP_STATE` | `ADD` to include the person in the audience, `REMOVE` to take them out. |
+| `UPDATED_AT` | When the membership state last changed. |
+
+For example, over an existing `CUSTOMERS` table:
+
+```sql
+CREATE VIEW CUSTOMER_LIST AS
+SELECT EMAIL AS MEMBER_IDENTITY_KEY_VALUE,
+       IFF(STATUS = 'active', 'ADD', 'REMOVE') AS MEMBERSHIP_STATE,
+       LAST_UPDATED AS UPDATED_AT
+FROM CUSTOMERS;
+```
+
+### Add a Sync
+
+1. In the app, connect your list with **Connect a table** or **Connect a view**.
+2. Name the sync and choose the Extole audience, or select **+ Create a new audience**.
+3. Choose how often it syncs and replaces. Both are off until you turn them on.
+4. Click **Add sync**, then **Sync now**.
+
+### Member Data
+
+A sync can also send details about each person, such as `LOYALTY_TIER`, to tailor your campaigns. Add a column to your list for each detail, then turn on **Also send member data** in the sync's settings and pick the columns. Each column is sent under its column name. Never send passwords, tokens, or other sensitive details, because the person can read this data.
+
+## Send Events
+
+The app can send each new row in a Snowflake table or view to Extole once, as an event. Your Extole team sets up which events your program rewards, by event name.
+
+| Column | Description |
+| --- | --- |
+| `EVENT_ID` | A unique ID for the event, such as an order number, up to 38 characters. Each ID is sent once. |
+| `EVENT_NAME` | The event name your program listens for, such as `purchase`. |
+| `EVENT_TIME` | When the event happened. A timestamp without a time zone is read as UTC. |
+| `EMAIL`, `PARTNER_USER_ID`, or `PERSON_ID` | Who the event is for. At least one is required. |
+| `EVENT_DATA` | Optional. Other details as an object, such as `{"cart_value": 42.50}`. |
+
+1. In the app's **Events** section, connect your table or view.
+2. Select **Finish setup**, choose how often to send, and click **Save**.
+
+Only events that happen after you save are sent, so turning this on doesn't send your history to Extole. Events that land in your table late are still sent, up to the number of days you choose.
+
+## Data and Access
+
+- **Connection**: the app connects only to `api.extole.io`, over HTTPS.
+- **Sent to Extole**: email addresses and audience membership; the member data columns you pick; and, for events, each event's ID, name, time, person, and the event data you include. Nothing else from your tables is sent.
+- **Kept in Snowflake**: your tables, which the app only reads; your access token, stored as a Snowflake secret; and the app's settings and activity history. The app sends no logs or usage data to Extole.
+- **Permissions**: read access to each list and events table you connect, the connection to `api.extole.io`, and permission to run scheduled tasks when you turn on automatic syncs or sends.
+
+Extole stores what the app sends in your Extole account. See Extole's [privacy policy](https://www.extole.com/privacy-policy/).
+
+## Support
+
+Contact [support@extole.com](mailto:support@extole.com).
