@@ -117,66 +117,6 @@ The status webhook reads `orderStatus` from BHN's [Order Status Reference](https
 | `Funding Hold`, `Settlement Error`, `Not All Records Funded`, `Not All Records Reversed`, `Not All Records Processed` | Retry, then fail | Same: retry until exhausted, then fail. These usually mean the funding account needs attention. |
 | `In Process`, `Successfully Sent To Processor` | Still processing | Keep checking until the retry schedule is exhausted, then fail. |
 
-The views socket accepts `config-view-v10.0`, `report-runner-view-v10.0`, and `event-stream-view-v10.0`, and is tagged `internal:view`. Configuration's `settingsToDisplay` is `merchantId` and `clientKeyId`.
-
-The integration carries four tabs, and all four are part of the shape rather than optional extras:
-
-| Tab | View type | What it shows |
-| :-- | :-------- | :------------ |
-| Configuration | `config-view-v10.0` | The Merchant ID and the BHN client key. |
-| Reward Suppliers | `config-view-v10.0` | The supplier socket, reporting in progress until a product is installed. |
-| Reward Activity | `report-runner-view-v10.0` | A scheduled reward revenue report charting BHN fulfillment. |
-| Reward Events | `event-stream-view-v10.0` | A live feed of BHN reward events, tagged `internal:app_type=bhn`. |
-
-The integration's registered image key is `blackhawkNetwork`, and it is not derived from the partner's name or this page's slug. The image key feeds the partner detail view; the tile on the Integrations page comes from the logo setting instead, and BHN's artwork is already published on the registered `bhn` component for both the integration and its four reward products.
-
-Only the v10 integration is current. Build or install that one; the earlier flavor is not a fallback when something in the v10 shape is inconvenient.
-
-### Reward Activity Report Contract
-
-The Reward Activity tab owns one enabled, scheduled report runner. Its account-local report type is named `Reward Revenue`; find that name through `GET /v6/report-types?display_name=Reward%20Revenue`, and use the returned identifier rather than carrying an identifier from another account. Confirm the selected type declares `locales`, `include_totals`, and a metric-shaped `mappings` parameter. If this account has no type by that name, create a configured type from a parent that accepts metric mappings, with the defaults below, before creating the runner.
-
-| Runner property | Required value |
-| :-------------- | :------------- |
-| Name | `Partner BHN Reward Revenue Report` |
-| Type | `SCHEDULED` |
-| Formats | `JSON`, `CSV` |
-| Frequency | `WEEKLY` |
-| Schedule start | A future timestamp chosen when the runner is created, in ISO-8601 with an offset. A start date in the past leaves the runner enabled and never running. |
-| Scopes | `CLIENT_SUPERUSER` |
-| Tags | `internal:category:Performance & Metrics`, `partner-graph` |
-| Execution policy | `AWAIT_DATA` |
-| Attachment | The Reward Activity view, not the integration component |
-
-Its parameters are part of the product contract:
-
-```json
-{
-  "container": "production",
-  "mappings": "date=START_DATE(event.eventTime, period:\"DAY\"); reason=event.data.referral_reason; coupon_used=BOOLEAN_FORMAT(event.data.coupon_codes!=\"null\",\"COUPON USED\",\"NO COUPON USED\");quality=event.quality; count=group_count(event.id, step_name:\"converted\");hidden(reward_id)=LAST(COLLECTION(PERSON(event.data.related_person_id).steps, filter:rootEventId==event.rootEventId, filter: stepName==\"reward_earned\"),sortBy: eventDate).data.reward_id; revenue=GROUP_SUM(event.data.amount, step_name:\"converted\");rewarded=BOOLEAN_FORMAT(reward_id == \"null\",\"UNREWARDED\",\"REWARDED\")",
-  "locales": "ALL",
-  "time_range": "ALL_TIME",
-  "campaign_states": "ALL",
-  "visit_type": "NEW_TO_CLIENT",
-  "unattributed_events": "false",
-  "include_totals": "false",
-  "quality": "ALL"
-}
-```
-
-Do not substitute a reward-earned count or reward face value for this mapping: this report charts the conversion revenue and reward relationship that BHN program managers use. The Reward Activity view's `reportColumnsMapping` must use the `date`, `count`, and `revenue` columns this mapping emits.
-
-```json
-{
-  "chart": { "type": "line" },
-  "xAxis": { "column": "date", "type": "datetime" },
-  "series": [
-    { "name": "Count", "column": "count", "aggregation": "sum" },
-    { "name": "Total Spend", "column": "revenue", "aggregation": "sum" }
-  ]
-}
-```
-
 For how this category is built in general terms, see [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories), [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment) for the sequence, and [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model) for the campaign, component, and display metadata every path needs.
 
 ## Integration
