@@ -37,9 +37,27 @@ Stop and say so when there is no template to compare against:
 
 Do not substitute a library component with the same name. It is a different template, and most of what the comparison finds would be differences between the two templates, not changes to the campaign.
 
+## Find the Template as It Was Copied
+
+If the library has changed since the copy, the template's current archive mixes two kinds of difference: changes made in the campaign, and changes the library made afterwards. The campaign version that copied the component holds the template as it was copied, and comparing against it separates the two.
+
+1. Read the campaign's version history. Count back from the latest version to the last one where the component holds its current origin. That version copied it.
+2. If that version duplicated another campaign, its message names the source campaign and version. If the source is the template's campaign, the copying version holds the template as copied. Otherwise, find the same component in the source at that version, and repeat step 1 in the source.
+3. If that version upgraded the component or connected it to its origin, no campaign version holds the template as copied. Compare with the template's current archive instead, and read the table below.
+4. Otherwise, download the creative archive of the copying version.
+
+Then compare twice:
+
+- **The template as copied against the campaign's archive.** Every difference was made after the copy, in the campaign. Each one is a customization.
+- **The template as copied against the template's current archive.** Every difference is a library change after the copy. None of them is a customization.
+
+If the library has not changed since the copy, compare the template's current archive with the campaign's archive. Every difference is a customization.
+
 ## Read Each Difference
 
 Remove the first folder from every path in both archives before you compare. Each archive keeps its files under a folder named for its own creative action, so that folder always differs.
+
+When you compare with the template's current archive, read each difference with this table.
 
 | What you see | What it means |
 |---|---|
@@ -47,7 +65,7 @@ Remove the first folder from every path in both archives before you compare. Eac
 | A rule in `less/custom-overrides.less` where the template's rule is empty | A customization. The file exists for this. |
 | Code only the campaign has, and the library has not changed since the copy | A customization. |
 | Code only the template has, and the library has changed since the copy | The library added it after the copy. Not a customization. |
-| A changed line, and the library has changed since the copy | Either one. The campaign's change history does not mark which version holds a creative upload, so report the line as unresolved. |
+| A changed line, and the library has changed since the copy | Either one. Report the line as unresolved. |
 | The same difference on unrelated accounts that copied the same template version | The library changed. Not a customization. |
 
 A library change after the copy is common. When the campaign lacks code the template has, that difference is usually the library moving on, not a hand-made removal.
@@ -63,7 +81,7 @@ The rest are configuration: copy, colors, and options someone set in the campaig
 
 ## What a Clean Result Proves
 
-Identical archives prove that the creative's code is the library template at its current version.
+Identical archives prove that the creative's code is the template it was compared with: the template as copied, or the template at its current version.
 
 They do not prove:
 
