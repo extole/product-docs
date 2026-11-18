@@ -90,7 +90,9 @@ of the person the reward is for, so each member's event must reach the organizer
    conditions on it as trigger rules, so the event is recorded only when the member meets them.
 2. Give that business event a unique event key from a field that identifies the member's place
    in the group, such as a membership id. Extole then records the event once for each member,
-   however often your systems send it.
+   however often your systems send it. The key is read from the inbound event, so trigger this
+   business event with the input event itself. One input event can start more than one business
+   event, so the action keeps its own business event too.
 3. Add the **Publish Event Data** action to that business event, and set **Target Role** to the
    role that earns the reward. The action runs once for each recorded event.
 4. In the earning role, add a business event that is triggered by the published event.
@@ -127,6 +129,7 @@ Your systems send two events, `group_joined` and `session_attended`. Each carrie
 Role: Member
   Journey: Membership
     Business event: Group Joined          triggered by input event group_joined
+    Business event: Session Attended      triggered by input event session_attended
     Business event: Member Qualified      triggered by input event session_attended
       Trigger rule:  Has Taken Action     Group Joined, Minimum Action Age 30 days
       Data:          membership_id        the unique event key
