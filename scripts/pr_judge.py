@@ -26,11 +26,13 @@ if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
 
 from closing_references import armed_references
+import pr_safe
 from pr_floor import (
     FloorResult,
     compute_floor,
     render_floor_context,
     send_back_reasons,
+    REQUIRED_CHECK,
 )
 
 VERDICTS = (
@@ -227,6 +229,14 @@ def apply_verdict_steps(verdict: dict, floor: FloorResult) -> dict:
         })
         return verdict
 
+    if floor.already_on_main:
+        verdict.update({
+            "verdict": "close",
+            "one_line": "Every file this pull request changes is already the same on `main`.",
+            "reasons": reasons + ["The change is already on `main`; nothing is left to merge."],
+        })
+        return verdict
+
     if verdict.get("verdict") == "close":
         verdict["reasons"] = reasons
         return verdict
@@ -363,7 +373,38 @@ def defuse_reasons(text: str, repo: str) -> str:
     return text
 
 
-def render(pull, verdict, floor: FloorResult):
+def before_review(floor: FloorResult) -> list[str]:
+    notes = []
+    if floor.validate_failed and floor.validate_failed_on_main:
+        notes.append(f"`{REQUIRED_CHECK}` fails on `main` too, so this pull request did not cause the failure.")
+    elif floor.validate_failed and floor.commits_behind_main:
+        notes.append(
+            f"`{REQUIRED_CHECK}` fails here and passes on `main`. The branch is "
+            f"{floor.commits_behind_main} commits behind, so merge `main` in first: "
+            "`main` may already have fixed the failure."
+        )
+    if floor.merge_conflicts:
+        notes.append("The branch conflicts with `main`.")
+    elif floor.commits_behind_main and not floor.pages_changed_on_main:
+        notes.append(
+            f"The branch is {floor.commits_behind_main} commits behind `main`, and none of them "
+            "touches these files. **Update branch** is enough."
+        )
+    if floor.pages_changed_on_main:
+        notes.append(f"`main` changed {', '.join(f'`{p}`' for p in floor.pages_changed_on_main)} after this branch started.")
+    if floor.already_on_main:
+        notes.append("Every changed file is already the same on `main`.")
+    notes.extend(f"Possible duplicate page: {item}." for item in floor.corpus_duplicates)
+    return notes
+
+
+def shadow_line(safe: pr_safe.SafeClass) -> str:
+    if safe.would_merge:
+        return f"**Safe class (shadow):** would auto-merge as `{'`, `'.join(safe.kinds)}`. Nothing was merged."
+    return f"**Safe class (shadow):** would not auto-merge: {'; '.join(safe.reasons[:3])}."
+
+
+def render(pull, verdict, floor: FloorResult, safe: pr_safe.SafeClass):
     label = verdict["verdict"]
     lines = [
         "<!-- pr-judge -->",
@@ -372,6 +413,10 @@ def render(pull, verdict, floor: FloorResult):
         verdict.get("one_line", ""),
         "",
     ]
+    notes = before_review(floor)
+    if notes:
+        lines += ["**Before you review**", ""] + [f"- {note}" for note in notes] + [""]
+    lines += [shadow_line(safe), ""]
     if verdict.get("human_question") and label == "needs-human":
         lines += [f"**Question for a person:** {verdict['human_question']}", ""]
     if verdict.get("send_back") and label == "send-back":
@@ -408,9 +453,14 @@ LABELS = {
     "route-elsewhere": ("5319e7", "Belongs outside customer docs"),
     "close": ("000000", "Duplicate, superseded, or disproved"),
 }
+SHADOW_SAFE_LABEL = ("shadow-safe", "c2e0c6", "Safe class would auto-merge this (shadow; nothing merges)")
+VERSION_ONE_LABELS = ("minor", "needs-human-review")
 
 
 def ensure_labels(repo):
+    name, color, description = SHADOW_SAFE_LABEL
+    run(["gh", "label", "create", name, "--repo", repo, "--color", color, "--description", description, "--force"],
+        check=False)
     for name, (color, description) in LABELS.items():
         run([
             "gh", "label", "create", name, "--repo", repo, "--color", color,
@@ -418,14 +468,12 @@ def ensure_labels(repo):
         ], check=False)
 
 
-def apply(repo, pull, verdict, body):
+def apply(repo, pull, verdict, body, safe: pr_safe.SafeClass):
     number = str(pull["number"])
-    label = verdict["verdict"]
-    for name in LABELS:
-        if name == label:
-            run(["gh", "pr", "edit", number, "--repo", repo, "--add-label", name], check=False)
-        else:
-            run(["gh", "pr", "edit", number, "--repo", repo, "--remove-label", name], check=False)
+    wanted = {verdict["verdict"]} | ({SHADOW_SAFE_LABEL[0]} if safe.would_merge else set())
+    for name in [*LABELS, SHADOW_SAFE_LABEL[0], *VERSION_ONE_LABELS]:
+        action = "--add-label" if name in wanted else "--remove-label"
+        run(["gh", "pr", "edit", number, "--repo", repo, action, name], check=False)
 
     head_repo = ((pull.get("headRepository") or {}).get("nameWithOwner") or "").lower()
     if head_repo and head_repo != repo.lower():
@@ -469,7 +517,9 @@ def judge_one(args, rubric, standards, number):
     if truncated:
         floor.diff_truncated = True
     verdict = classify(pull, rubric, standards, floor, args.repo, args.root)
-    return pull, floor, verdict
+    head_files = set(run(["git", "-C", str(root), "ls-tree", "-r", "--name-only", head_sha], check=False).stdout.split("\n"))
+    safe = pr_safe.classify(pull["files"], floor, standards, pr_safe.site_path_resolver(head_files))
+    return pull, floor, verdict, safe
 
 
 def main():
@@ -499,35 +549,32 @@ def main():
     spend = {"input": 0, "output": 0, "cache_read": 0, "cache_write": 0}
 
     def work(number):
-        pull, floor, verdict = judge_one(args, rubric, standards, number)
-        return number, pull, floor, verdict
+        return judge_one(args, rubric, standards, number)
 
     if args.workers > 1 and len(numbers) > 1:
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
             futures = {pool.submit(work, n): n for n in numbers}
             for future in as_completed(futures):
-                number, pull, floor, verdict = future.result()
-                _record_result(args, pull, floor, verdict, results, spend)
+                _record_result(args, *future.result(), results, spend)
     else:
         for number in numbers:
-            pull, floor, verdict = judge_one(args, rubric, standards, number)
-            _record_result(args, pull, floor, verdict, results, spend)
+            _record_result(args, *judge_one(args, rubric, standards, number), results, spend)
 
     _write_summary(results, spend)
 
 
-def _record_result(args, pull, floor, verdict, results, spend):
+def _record_result(args, pull, floor, verdict, safe, results, spend):
     usage = verdict.pop("usage", None)
     if usage:
         spend["input"] += usage["input_tokens"]
         spend["output"] += usage["output_tokens"]
         spend["cache_read"] += usage["cache_read_input_tokens"]
         spend["cache_write"] += usage["cache_creation_input_tokens"]
-    body = render(pull, verdict, floor)
+    body = render(pull, verdict, floor, safe)
     if args.dry_run:
         print(f"\n{'=' * 78}\n#{pull['number']} {pull.get('title')}\n{'=' * 78}\n{body}")
     else:
-        apply(args.repo, pull, verdict, body)
+        apply(args.repo, pull, verdict, body, safe)
         print(f"#{pull['number']}: {verdict['verdict']} -- {verdict.get('one_line', '')}")
     results.append({
         "number": pull["number"],
@@ -535,6 +582,7 @@ def _record_result(args, pull, floor, verdict, results, spend):
         "author": (pull.get("author") or {}).get("login"),
         "url": pull.get("url"),
         "floor": floor.to_dict(),
+        "safe_class": safe.to_dict(),
         **verdict,
     })
 
@@ -554,11 +602,13 @@ def _write_summary(results, spend):
     with open("pr-judge-results.json", "w", encoding="utf-8") as handle:
         json.dump(summary, handle, indent=2)
     report = ["## Docs PR judge (v2)", "", f"{summary['judged']} judged on `{MODEL}`. Estimated ${summary['estimated_usd']}.", ""]
-    report.append("| PR | Verdict | Why |")
-    report.append("|---|---|---|")
+    report.append("| PR | Verdict | Safe class (shadow) | Why |")
+    report.append("|---|---|---|---|")
     for row in results:
         why = (row.get("one_line") or "").replace("|", "\\|")
-        report.append(f"| #{row['number']} | `{row['verdict']}` | {why} |")
+        safe = row["safe_class"]
+        shadow = f"would merge ({', '.join(safe['kinds'])})" if safe["would_merge"] else "no"
+        report.append(f"| #{row['number']} | `{row['verdict']}` | {shadow} | {why} |")
     with open("pr-judge-summary.md", "w", encoding="utf-8") as handle:
         handle.write("\n".join(report) + "\n")
     print("\n" + report[2], file=sys.stderr)
