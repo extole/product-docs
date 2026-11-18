@@ -49,7 +49,9 @@ Each signal on its own is common among real customers: people travel, households
   />
 </Frame>
 
-The extension opens on its **Person Quality Hold** tab, which lists the people in the audience of the same name. The second tab, **Configuration**, holds its settings.
+The install sets up Person Quality for you. It adds the four Person Quality events, and the **Person Quality - Hold** event creates the audience **Person Quality Hold** and adds people to it. There's nothing to create by hand.
+
+The extension opens on its **Person Quality Hold** tab, which lists the people in that audience. It's empty until someone's status reaches Hold. The second tab, **Configuration**, holds the settings.
 
 # Step 2: Check the Thresholds
 
@@ -64,7 +66,7 @@ Select the **Configuration** tab and read the four settings at the top. Leave th
 
 **Watch at** cannot be higher than **Hold at**, and **Hold at** cannot be higher than **Deny at**. None of them can be blank or zero. A person's score is shown out of the **Deny at** value, for example 50 of 75.
 
-<Frame caption="The Configuration tab once Step 3 is done: Enabled and the three thresholds at the top, then the Person Quality and Person Events sections.">
+<Frame caption="The Configuration tab after the install: Enabled and the three thresholds at the top, then the Person Quality and Person Events sections.">
   <img
     src="/images/extole/person-quality-configuration.png"
     alt="Configuration tab of Person Quality and Events with Enabled on, Watch at 25, Hold at 50, Deny at 75, the Person Quality section listing four events, and an empty Person Events section."
@@ -77,64 +79,46 @@ Start with the defaults. A threshold that suits one program's audience can flag 
 
 The **Person Events** section further down is for other person events, such as Reward Limit Reached. It is not part of Person Quality.
 
-# Step 3: Add the Four Person Quality Events
+# Step 3: Check the Four Person Quality Events
 
-Person Quality runs as four events in the **Person Quality** section, which is empty on a new install. Add each one:
+Person Quality runs as four events in the **Person Quality** section of the **Configuration** tab. The install adds all four.
 
-1. Under **Person Quality**, click **+ New Person Quality Event**.
-2. Select the event in the list on the left, then click **Add**.
-3. Repeat for the other three events: **Person Quality - IP**, **Person Quality - Relationship**, **Person Quality - Hold**, and **Person Quality - Deny**.
+| Event | What it does |
+| --- | --- |
+| **Person Quality - IP** | Scores how many distinct IP addresses the person has been seen from. It runs on the inbound events named in its trigger rule. |
+| **Person Quality - Relationship** | Scores the friends a person referred: how many, and how many share an IP address with them. It runs once for each new referral and scores the advocate. |
+| **Person Quality - Hold** | Runs when a person's status becomes Hold or Deny, and adds them to Person Quality Hold, the audience it created on install. |
+| **Person Quality - Deny** | Runs when a person's status becomes Deny. It has no action until you add one. |
 
-If an event is already listed, skip it. Do not add a second copy.
+The Hold and Deny events arrive already set up. Once added, their **Triggered By** reads **This Campaign: Person Quality changed**, the trigger event Person Quality and Events produces each time a person's status changes. Hold qualifies with the rule **Status is at least Hold** and Deny with **Status is Deny**. For more about trigger events, see [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by).
 
-<Frame caption="+ New Person Quality Event offers the four Person Quality events.">
+The points and the signal settings have defaults you do not need to change. [Reference: Scoring Settings](#reference-scoring-settings) lists them.
+
+If one of the events is missing, add it again: under **Person Quality**, click **+ New Person Quality Event**, select the event, and click **Add**. Then click **Apply Changes** at the top of the extension. A **Person Quality - Hold** event added this way creates a new, empty Person Quality Hold.
+
+<Frame caption="+ New Person Quality Event, for adding back an event that was removed.">
   <img
     src="/images/extole/person-quality-new-event-picker.png"
     alt="The New Person Quality Event picker listing Person Quality - Deny, Person Quality - Hold, Person Quality - IP, and Person Quality - Relationship, each with its description."
   />
 </Frame>
 
-| Event | What it does |
-| --- | --- |
-| **Person Quality - IP** | Scores how many distinct IP addresses the person has been seen from. It runs on the inbound events named in its trigger rule. |
-| **Person Quality - Relationship** | Scores the friends a person referred: how many, and how many share an IP address with them. It runs once for each new referral and scores the advocate. |
-| **Person Quality - Hold** | Runs when a person's status becomes Hold or Deny, and adds them to an audience. |
-| **Person Quality - Deny** | Runs when a person's status becomes Deny. It has no action until you add one. |
+# Step 4: Check the Person Quality Hold Audience
 
-The Hold and Deny events arrive already set up. Once added, their **Triggered By** reads **This Campaign: Person Quality changed**, the trigger event Person Quality and Events produces each time a person's status changes. Hold qualifies with the rule **Status is at least Hold** and Deny with **Status is Deny**. For more about trigger events, see [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by).
+The Hold event created the audience when you installed the extension, and the reward rule finds it by its name.
 
-The points and the signal settings have defaults you do not need to change. [Reference: Scoring Settings](#reference-scoring-settings) lists them. You publish these changes in Step 4.
+1. Open [Audiences](https://my.extole.com/audiences-overview/my-audiences). There is one audience named **Person Quality Hold**.
+2. Open **Partners** > **Extensions** > **Person Quality and Events** > **Configuration**, and open **Person Quality - Hold**. Its **Audience** reads **Person Quality Hold**.
 
-# Step 4: Create the Person Quality Hold Audience
-
-The Hold event needs an audience to add people to, and the reward rule finds that audience by its name.
-
-1. Open [Audiences](https://my.extole.com/audiences-overview/my-audiences) and click **Create Audience**.
-2. For **Audience Name**, enter `Person Quality Hold`. Do not upload a file.
-3. Click **Create Empty Audience**.
-
-<Frame caption="Create an Audience, with the name the reward rule looks for.">
-  <img
-    src="/images/extole/person-quality-create-audience.png"
-    alt="Create an Audience panel with Audience Name set to Person Quality Hold, no file uploaded, and the Create Empty Audience button at the bottom."
-  />
-</Frame>
-
-Then point the Hold event at it:
-
-1. Open **Partners** > **Extensions** > **Person Quality and Events** > **Configuration**, and open **Person Quality - Hold**.
-2. For **Audience**, select **Person Quality Hold**.
-3. Click **Apply**, then click **Apply Changes** at the top of the extension to publish it.
-
-<Frame caption="Person Quality - Hold, triggered by Person Quality changed, adding the person to Person Quality Hold.">
+<Frame caption="Person Quality - Hold, triggered by Person Quality changed, with its Audience set to Person Quality Hold on install.">
   <img
     src="/images/extole/person-quality-hold-event.png"
-    alt="Person Quality - Hold event with Triggered By set to This Campaign: Person Quality changed, the qualification rule Status is at least Hold, the action Add To Audience, and Audience set to Person Quality Hold."
+    alt="Person Quality - Hold event with Triggered By set to This Campaign: Person Quality changed, the qualification rule Status is at least Hold, an empty Actions section, and Audience set to Person Quality Hold."
   />
 </Frame>
 
 <Warning>
-The audience name is the link between the Hold event and the reward rule. **Enforce Person Quality Hold** holds a reward only when the person is in an audience named **Person Quality Hold**. Capitalization does not matter. Do not use that name for any other audience.
+The audience name is the link between the Hold event and the reward rule. **Enforce Person Quality Hold** holds a reward only when the person is in an audience named **Person Quality Hold**. Capitalization does not matter. Don't rename the audience, and don't create a second one with that name.
 </Warning>
 
 Leave **Person Quality - Deny** without an audience. The Hold event runs for Deny too, so a person whose status becomes Deny is already in Person Quality Hold and their rewards already wait. The Deny event is the place for anything extra a denied person should get, such as an email to your team or a webhook to your fraud tool: open it and click **+ New Action**.
@@ -194,6 +178,7 @@ Any program can also react to a status change: in a business event's **Triggered
 - **To stop holding one reward,** remove **Enforce Person Quality Hold** from that reward's **Reward Rules** and publish the campaign. A reward that was already waiting when you removed the rule keeps waiting. Find each one on the person's profile and click **Re-evaluate**, or **Approve**.
 - **To stop holding rewards for everyone,** archive the **Person Quality Hold** audience on the Audiences page. Rewards that were already waiting keep waiting until you click **Re-evaluate** or **Approve** on each one.
 - A disabled audience still holds rewards. Archive it, or remove the rule, to stop the hold.
+- **Removing the Person Quality - Hold event, or uninstalling Person Quality and Events,** archives the Person Quality Hold audience with it. Rewards that were already waiting keep waiting until you click **Re-evaluate** or **Approve** on each one. Adding the Hold event back creates a new, empty audience.
 - **To release one person,** use **Release** on the Person Quality Hold tab. See [How to Review People in Person Quality Hold](/guides/rewards-management/rules-configuration/how-to-review-people-in-person-quality-hold).
 
 # Reference: Scoring Settings
