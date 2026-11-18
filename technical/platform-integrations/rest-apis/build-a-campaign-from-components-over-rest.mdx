@@ -77,10 +77,14 @@ with a person identification.
 ## Set the Trigger of Each Business Event
 
 The **Triggered By** setting, `triggerEvent`, names the event that starts the business event.
-In the Custom Campaign Template, the business event is triggered by an input event with the
-same name as the component.
 [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) covers how to
-declare the trigger events your systems send.
+declare the trigger events your systems send, and
+[Select components for a component reference list](/api-reference/components/select-components-for-a-component-reference-list)
+sets the reference.
+
+While **Triggered By** is empty, the **Triggered by Input Event** rule in the business event's
+`triggerRules` socket starts the business event. Copy `input_event` into `triggerRules`, and set
+its `triggerEventNames` to the names of the events your systems send.
 
 ## Add the Rules from Your Design
 
@@ -99,6 +103,30 @@ its socket in the same way:
 **Has Taken Action** exists as a trigger rule and as a reward rule. List the duplicatable
 components for the socket you are filling, and the response holds the one that fits it.
 
+## Give Each Reward a Supplier, a Delivery, and an Email
+
+A reward issues when it has a reward supplier, and it reaches the person when it has a delivery
+with an email:
+
+1. Call [Create a reward supplier](/api-reference/reward-suppliers/create-a-reward-supplier). For
+   a reward that your own systems deliver, such as an account credit or a free month, send
+   `reward_supplier_type` `CUSTOM_REWARD`, a `type` of `ACCOUNT_CREDIT` or `LOYALTY_POINTS`,
+   a `face_value_type`, and a `face_value`.
+   [How to Reward with Account Credits](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-account-credits)
+   describes custom rewards.
+2. Call [Update a component setting](/api-reference/components/update-a-component-setting) to
+   set the reward's `rewardSupplierId` to the `id` of the supplier.
+3. Select the business event that earns the reward in the reward's `triggerEvent`.
+4. Copy `reward_issuer`, **Reward Emails**, into the reward's `rewardIssuer` socket. Then copy
+   `reward_email` into the `sendActions` socket of that copy.
+
+### Use a Placeholder Supplier Until Fulfillment Is Connected
+
+A custom reward with `auto_fulfillment_enabled` and `reward_email_auto_send_enabled` set to
+`true` is fulfilled and sent inside Extole, with no call to your systems. Create one for each
+reward in a new campaign. A test person then earns the reward and receives the reward email
+before your fulfillment exists. Replace the placeholder when your fulfillment is ready.
+
 ## Remove the Components You Do Not Use
 
 [Delete a component](/api-reference/components/delete-a-component) removes a component and its
@@ -113,9 +141,12 @@ reward has its rules.
 
 The campaign stays a draft until you publish it.
 [Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest)
-covers how to send test events to the draft, and
+covers how to send test events to the draft. In the `test` container, a reward comes from your
+account's test reward supplier. To issue the reward from the supplier that the reward names,
+such as a placeholder, send the event to the campaign sandbox with the `production` container:
+`campaign-<campaign id>-production`.
 [Campaign States Over REST](/technical/platform-integrations/rest-apis/campaign-states-over-rest)
-covers publishing and launching it.
+covers how to publish and launch the campaign.
 
 ## Related Documentation
 
