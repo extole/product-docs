@@ -51,9 +51,10 @@ brings in another has this order:
 | 4 | The first person | The invitation is shared | `shared`, in a copy of the `share` journey |
 | 5 | The second person | The invitation is clicked | `share_clicked`, in a copy of the `new_customer` journey |
 | 6 | The second person | Each action that the second person takes | Business events of your own |
-| 7 | The first person | Each reward | A reward on the first person's role |
+| 7 | The first person | What the second person's actions give back, such as a counted event | A business event in a later journey of the first person's role |
+| 8 | The first person | Each reward | A reward on the first person's role |
 
-A program for one person, such as a reward for an action, uses rows 1 to 3 and row 7.
+A program for one person, such as a reward for an action, uses rows 1 to 3 and row 8.
 
 Put the promotion and the invitation in the flow even when the program description leaves them
 out. The promotion records how a person found the program. The invitation is how the second
@@ -63,8 +64,17 @@ The invitation does work in the design. A share link creates the referral relati
 the two people, and **Publish Event Data** uses that relationship to find the first person. The
 second person's events then need no identifier for the first person.
 
-Flow Builder shows the business events of a journey in the order of their `sequence` setting. Set
-`sequence` on each business event, so that the campaign reads in the same order as your flow.
+Flow Builder draws each role as a column and each journey as a row. The rows of all the roles run
+from top to bottom in the order of each journey's `sequence` setting. The business events of a
+journey run in the order of their own `sequence`. So number the journeys in the order of the
+flow, across the roles, and give each journey a number of its own. Refer A Friend numbers the
+advocate's marketing journey 1, the advocate's share journey 2, and the friend's journey 4.
+
+A role that acts at two points of the flow has a journey for each point. The first person's early
+journeys exist to bring the second person in: they hold the promotion, the first person's own
+action, and the invitation. A later journey of the same role holds what the second person's
+actions give back, such as a counted event, and the rewards follow it. Number the second
+person's journeys between the two, so that the campaign reads in the same order as your flow.
 
 ## Give Each Part What It Needs to Run
 
@@ -180,6 +190,8 @@ click itself, and the campaign holds everything else:
 
 | Part | What it holds |
 |---|---|
+| The organizer's journeys | Promotion and Group, `sequence` 1, with Promotion Viewed, Promotion Clicked, and Group Created. Invitation, `sequence` 2, with Member Invited. Member Milestones, `sequence` 5, with Active Member Counted. |
+| The member's journeys | Invite Clicked, `sequence` 3. Member Activity, `sequence` 4, with Group Joined, Session Attended, and Member Qualified. |
 | Group Created, Group Joined, Session Attended | Each is triggered by the input event with its name. |
 | Member Qualified | Triggered by the input event `session_attended`. Trigger rule: **Has Taken Action**, Group Joined, **Minimum Action Age** 30 days. Data: `membership_id` as the unique event key. Action: **Publish Event Data**, **Target Role** Organizer. |
 | Active Member Counted | Triggered by the published event. The invitation made the organizer the member's referrer, so the event reaches the organizer. |
