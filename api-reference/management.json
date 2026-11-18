@@ -6981,6 +6981,46 @@
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
       },
+      "transform_column_values_script_invalid" : {
+        "summary" : "transform_column_values_script_invalid",
+        "value" : {
+          "code" : "transform_column_values_script_invalid",
+          "http_status_code" : 400,
+          "message" : "Transform column values task script does not compile",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "transform_column_values_script_not_javascript" : {
+        "summary" : "transform_column_values_script_not_javascript",
+        "value" : {
+          "code" : "transform_column_values_script_not_javascript",
+          "http_status_code" : 400,
+          "message" : "Transform column values task script must resolve to a JavaScript expression",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "transform_column_values_script_required" : {
+        "summary" : "transform_column_values_script_required",
+        "value" : {
+          "code" : "transform_column_values_script_required",
+          "http_status_code" : 400,
+          "message" : "Transform column values task requires a script",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "transform_column_values_target_column_required" : {
+        "summary" : "transform_column_values_target_column_required",
+        "value" : {
+          "code" : "transform_column_values_target_column_required",
+          "http_status_code" : 400,
+          "message" : "Transform column values task requires a target column",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
       "transition_period_milliseconds_invalid" : {
         "summary" : "transition_period_milliseconds_invalid",
         "value" : {
@@ -14770,7 +14810,8 @@
             "FILTER_ROWS" : "#/components/schemas/BuiltFilterRowsTaskResponse",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/BuiltStartAudienceOperationTaskResponse",
             "START_BATCH_JOB" : "#/components/schemas/BuiltStartBatchJobTaskResponse",
-            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/BuiltTransformColumnHeadersTaskResponse"
+            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/BuiltTransformColumnHeadersTaskResponse",
+            "TRANSFORM_COLUMN_VALUES" : "#/components/schemas/BuiltTransformColumnValuesTaskResponse"
           },
           "propertyName" : "task_type"
         },
@@ -14784,6 +14825,8 @@
           "$ref" : "#/components/schemas/BuiltStartBatchJobTaskResponse"
         }, {
           "$ref" : "#/components/schemas/BuiltTransformColumnHeadersTaskResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltTransformColumnValuesTaskResponse"
         } ],
         "readOnly" : true
       },
@@ -14822,7 +14865,7 @@
           },
           "task_type" : {
             "description" : "Discriminator identifying the task type.",
-            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS", "TRANSFORM_COLUMN_VALUES" ],
             "readOnly" : true,
             "type" : "string"
           }
@@ -14850,6 +14893,29 @@
         } ],
         "required" : [ "column_mappings", "component_ids", "enabled", "id", "job_id", "order", "task_type" ],
         "title" : "TRANSFORM_COLUMN_HEADERS",
+        "type" : "object"
+      },
+      "BuiltTransformColumnValuesTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltTaskResponseBase"
+        }, {
+          "properties" : {
+            "script" : {
+              "$ref" : "#/components/schemas/ScriptInBuiltTransformColumnValuesTaskResponse"
+            },
+            "target_column" : {
+              "description" : "Column the script result is written to.",
+              "type" : "string"
+            },
+            "task_type" : {
+              "enum" : [ "TRANSFORM_COLUMN_VALUES" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "component_ids", "enabled", "id", "job_id", "order", "script", "target_column", "task_type" ],
+        "title" : "TRANSFORM_COLUMN_VALUES",
         "type" : "object"
       },
       "BuiltTriggerResponse" : {
@@ -46133,6 +46199,51 @@
           "type" : "string"
         } ]
       },
+      "ScriptInBuiltTransformColumnValuesTaskResponse" : {
+        "description" : "JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. It returns the new value of the target column. When it returns null, the task drops the row. Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+        "externalDocs" : {
+          "description" : "FilterRowsContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@runtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@runtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Literal script",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "handlebars@runtime:{{script}}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('script');}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "ScriptInFilterRowsTaskRequest" : {
         "description" : "Expression evaluated when the task is built, resolving to a JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. The row expression must return a boolean: true keeps the row and false drops it. Use `context.getRow()` to read column values, an object keyed by column header. CSV and PSV values are strings; JSON values keep their JSON types. For example `context.getRow().status === 'active'`. `context.getClientContext()` returns the client id, short name and time zone. `context.getCommonServices()` returns helper services such as `getStringService()`, `getJsonService()` and `getDateService()`, which uses the client time zone. Required on create. Omit on update to keep the existing script. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts). Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
         "oneOf" : [ {
@@ -46187,6 +46298,140 @@
           "description" : "Literal script",
           "title" : "Static Value",
           "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{script}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('script');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "handlebars@runtime:{{script}}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('script');}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ScriptInTransformColumnValuesTaskRequest" : {
+        "description" : "Expression evaluated when the task is built, resolving to a JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope, the same context as the FILTER_ROWS task. The row expression returns the new value of the target column: text, a number, true or false. When it returns null, the task drops the row. Use `context.getRow()` to read column values, an object keyed by column header. `context.getClientContext()` returns the client id, short name and time zone. `context.getCommonServices()` returns helper services such as `getStringService()`. For example `({ placed: 'order_placed' })[context.getRow().status] || null`. Required on create. Omit on update to keep the existing script. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts). Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^handlebars@runtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@runtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Static script",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{script}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('script');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        }, {
+          "description" : "Handlebars expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "handlebars@runtime:{{script}}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^handlebars@runtime:.*",
+          "title" : "Runtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+          "example" : "javascript@runtime:function() { return context.get('script');}",
+          "externalDocs" : {
+            "description" : "FilterRowsContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts"
+          },
+          "pattern" : "^javascript@runtime:.*",
+          "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ScriptInTransformColumnValuesTaskResponse" : {
+        "description" : "Expression evaluated when the task is built, resolving to a JavaScript expression evaluated once per file row with `context` (FilterRowsContext) in scope. The row expression returns the new value of the target column. When it returns null, the task drops the row. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts). Runtime expressions use [FilterRowsContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/FilterRowsContext.d.ts).",
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^handlebars@runtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@runtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Literal script",
+          "title" : "Static Value"
         }, {
           "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
           "example" : "handlebars@buildtime:{{script}}",
@@ -48952,6 +49197,96 @@
         "title" : "TANGO_V2",
         "type" : "object"
       },
+      "TargetColumnInTransformColumnValuesTaskRequest" : {
+        "description" : "Column the script result is written to, compared without regard to case. When the file has no such column, the task adds it as the last column. A literal value or a buildtime expression resolved from component references when the task is saved. Required on create. Omit on update to keep the existing column. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Static target column",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{targetColumn}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('targetColumn');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "TargetColumnInTransformColumnValuesTaskResponse" : {
+        "description" : "Column the script result is written to. A literal value or a buildtime expression resolved from component references when the task is saved. Buildtime expressions use [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+        "externalDocs" : {
+          "description" : "JobBuildtimeContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Literal target column",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "handlebars@buildtime:{{targetColumn}}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [JobBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('targetColumn');}",
+          "externalDocs" : {
+            "description" : "JobBuildtimeContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/jobs/built/JobBuildtimeContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "TargetingAttributesInCampaignControllerTriggerEventTargetingResponse" : {
         "description" : "Buildtime expression resolving to a list of event-targeting attribute configurations, combined with logical OR. Each configuration's required key: EVENT_NAME. Optional keys: EVENT_TYPE, PROGRAM, CAMPAIGN, JOURNEY, and APP_TYPE. When EVENT_TYPE is set, supported values are INPUT, STEP, INTERNAL, AUDIENCE_MEMBERSHIP_CREATED, AUDIENCE_MEMBERSHIP_UPDATED, and AUDIENCE_MEMBERSHIP_REMOVED. A configuration whose EVENT_TYPE is an audience membership type instead requires AUDIENCE, the id of the audience, accepts APP_TYPE as its only optional key, and does not accept EVENT_NAME, PROGRAM, CAMPAIGN, or JOURNEY. AUDIENCE is not accepted with any other event type. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts).",
         "externalDocs" : {
@@ -49034,7 +49369,8 @@
             "FILTER_ROWS" : "#/components/schemas/FilterRowsTaskRequest",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/StartAudienceOperationTaskRequest",
             "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskRequest",
-            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/TransformColumnHeadersTaskRequest"
+            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/TransformColumnHeadersTaskRequest",
+            "TRANSFORM_COLUMN_VALUES" : "#/components/schemas/TransformColumnValuesTaskRequest"
           },
           "propertyName" : "task_type"
         },
@@ -49048,6 +49384,8 @@
           "$ref" : "#/components/schemas/StartBatchJobTaskRequest"
         }, {
           "$ref" : "#/components/schemas/TransformColumnHeadersTaskRequest"
+        }, {
+          "$ref" : "#/components/schemas/TransformColumnValuesTaskRequest"
         } ],
         "required" : [ "task_type" ]
       },
@@ -49075,7 +49413,7 @@
             "$ref" : "#/components/schemas/ParentJobIdInTaskRequest"
           },
           "task_type" : {
-            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS", "TRANSFORM_COLUMN_VALUES" ],
             "type" : "string"
           }
         },
@@ -49089,7 +49427,8 @@
             "FILTER_ROWS" : "#/components/schemas/FilterRowsTaskResponse",
             "START_AUDIENCE_OPERATION" : "#/components/schemas/StartAudienceOperationTaskResponse",
             "START_BATCH_JOB" : "#/components/schemas/StartBatchJobTaskResponse",
-            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/TransformColumnHeadersTaskResponse"
+            "TRANSFORM_COLUMN_HEADERS" : "#/components/schemas/TransformColumnHeadersTaskResponse",
+            "TRANSFORM_COLUMN_VALUES" : "#/components/schemas/TransformColumnValuesTaskResponse"
           },
           "propertyName" : "task_type"
         },
@@ -49103,6 +49442,8 @@
           "$ref" : "#/components/schemas/StartBatchJobTaskResponse"
         }, {
           "$ref" : "#/components/schemas/TransformColumnHeadersTaskResponse"
+        }, {
+          "$ref" : "#/components/schemas/TransformColumnValuesTaskResponse"
         } ],
         "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ]
       },
@@ -49135,7 +49476,7 @@
             "$ref" : "#/components/schemas/ParentJobIdInTaskResponse"
           },
           "task_type" : {
-            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS" ],
+            "enum" : [ "FILE_HEADER_VALIDATOR", "FILTER_ROWS", "START_AUDIENCE_OPERATION", "START_BATCH_JOB", "TRANSFORM_COLUMN_HEADERS", "TRANSFORM_COLUMN_VALUES" ],
             "type" : "string"
           }
         },
@@ -49366,6 +49707,51 @@
         "description" : "Stored transform column headers task definition. Fields `order`, `column_mappings`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
         "required" : [ "column_mappings", "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "task_type" ],
         "title" : "TRANSFORM_COLUMN_HEADERS",
+        "type" : "object"
+      },
+      "TransformColumnValuesTaskRequest" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskRequestBase"
+        }, {
+          "properties" : {
+            "script" : {
+              "$ref" : "#/components/schemas/ScriptInTransformColumnValuesTaskRequest"
+            },
+            "target_column" : {
+              "$ref" : "#/components/schemas/TargetColumnInTransformColumnValuesTaskRequest"
+            },
+            "task_type" : {
+              "enum" : [ "TRANSFORM_COLUMN_VALUES" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "required" : [ "task_type" ],
+        "title" : "TRANSFORM_COLUMN_VALUES",
+        "type" : "object"
+      },
+      "TransformColumnValuesTaskResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskResponseBase"
+        }, {
+          "properties" : {
+            "script" : {
+              "$ref" : "#/components/schemas/ScriptInTransformColumnValuesTaskResponse"
+            },
+            "target_column" : {
+              "$ref" : "#/components/schemas/TargetColumnInTransformColumnValuesTaskResponse"
+            },
+            "task_type" : {
+              "enum" : [ "TRANSFORM_COLUMN_VALUES" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Stored transform column values task definition. Fields `order`, `target_column`, `script`, and `enabled` are unevaluated and appear in buildtime-evaluatable form.",
+        "required" : [ "component_ids", "component_references", "enabled", "id", "order", "parent_job_id", "script", "target_column", "task_type" ],
+        "title" : "TRANSFORM_COLUMN_VALUES",
         "type" : "object"
       },
       "TransitionRuleResponse" : {
@@ -89251,6 +89637,18 @@
                   "transform_column_headers_column_mappings_required" : {
                     "$ref" : "#/components/examples/transform_column_headers_column_mappings_required"
                   },
+                  "transform_column_values_script_invalid" : {
+                    "$ref" : "#/components/examples/transform_column_values_script_invalid"
+                  },
+                  "transform_column_values_script_not_javascript" : {
+                    "$ref" : "#/components/examples/transform_column_values_script_not_javascript"
+                  },
+                  "transform_column_values_script_required" : {
+                    "$ref" : "#/components/examples/transform_column_values_script_required"
+                  },
+                  "transform_column_values_target_column_required" : {
+                    "$ref" : "#/components/examples/transform_column_values_target_column_required"
+                  },
                   "trigger_evaluation_failed" : {
                     "$ref" : "#/components/examples/trigger_evaluation_failed"
                   },
@@ -90854,6 +91252,18 @@
                   },
                   "transform_column_headers_column_mappings_required" : {
                     "$ref" : "#/components/examples/transform_column_headers_column_mappings_required"
+                  },
+                  "transform_column_values_script_invalid" : {
+                    "$ref" : "#/components/examples/transform_column_values_script_invalid"
+                  },
+                  "transform_column_values_script_not_javascript" : {
+                    "$ref" : "#/components/examples/transform_column_values_script_not_javascript"
+                  },
+                  "transform_column_values_script_required" : {
+                    "$ref" : "#/components/examples/transform_column_values_script_required"
+                  },
+                  "transform_column_values_target_column_required" : {
+                    "$ref" : "#/components/examples/transform_column_values_target_column_required"
                   }
                 },
                 "schema" : {
@@ -91336,6 +91746,18 @@
                   },
                   "transform_column_headers_column_mappings_required" : {
                     "$ref" : "#/components/examples/transform_column_headers_column_mappings_required"
+                  },
+                  "transform_column_values_script_invalid" : {
+                    "$ref" : "#/components/examples/transform_column_values_script_invalid"
+                  },
+                  "transform_column_values_script_not_javascript" : {
+                    "$ref" : "#/components/examples/transform_column_values_script_not_javascript"
+                  },
+                  "transform_column_values_script_required" : {
+                    "$ref" : "#/components/examples/transform_column_values_script_required"
+                  },
+                  "transform_column_values_target_column_required" : {
+                    "$ref" : "#/components/examples/transform_column_values_target_column_required"
                   }
                 },
                 "schema" : {
