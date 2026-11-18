@@ -117,63 +117,9 @@ The status webhook reads `orderStatus` from BHN's [Order Status Reference](https
 | `Funding Hold`, `Settlement Error`, `Not All Records Funded`, `Not All Records Reversed`, `Not All Records Processed` | Retry, then fail | Same: retry until exhausted, then fail. These usually mean the funding account needs attention. |
 | `In Process`, `Successfully Sent To Processor` | Still processing | Keep checking until the retry schedule is exhausted, then fail. |
 
-BHN uses the four views in [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment#the-finished-shape). These values are specific to BHN:
-
-| Tab | BHN value |
-| :-- | :-------- |
-| Configuration | `settingsToDisplay` is `merchantId` and `clientKeyId`. |
-| Reward Suppliers | Reports in progress until a BHN product is installed. |
-| Reward Activity | Charts the `Partner BHN Reward Revenue Report` described below. |
-| Reward Events | The event stream is tagged `internal:app_type=bhn`. |
-
 The registered image key is `blackhawkNetwork`. BHN's logo artwork is already published on the registered `bhn` component, for the integration and for its four reward products.
 
 Only the v10 BHN integration is current. Do not install the earlier BHN integration.
-
-### Reward Activity Report Contract
-
-The Reward Activity tab has one enabled, scheduled report runner. Its report type is the account's `Reward Revenue` type, and that type must declare `locales`, `include_totals`, and a metric `mappings` parameter. To find the type, or to create it when the account has none, see [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views).
-
-| Runner property | Required value |
-| :-------------- | :------------- |
-| Name | `Partner BHN Reward Revenue Report` |
-| Type | `SCHEDULED` |
-| Formats | `JSON`, `CSV` |
-| Frequency | `WEEKLY` |
-| Schedule start | A future ISO-8601 timestamp with an offset |
-| Scopes | `CLIENT_SUPERUSER` |
-| Tags | `internal:category:Performance & Metrics`, `partner-graph` |
-| Execution policy | `AWAIT_DATA` |
-| Attachment | The Reward Activity view |
-
-Its parameters are part of the product contract:
-
-```json
-{
-  "container": "production",
-  "mappings": "date=START_DATE(event.eventTime, period:\"DAY\"); reason=event.data.referral_reason; coupon_used=BOOLEAN_FORMAT(event.data.coupon_codes!=\"null\",\"COUPON USED\",\"NO COUPON USED\");quality=event.quality; count=group_count(event.id, step_name:\"converted\");hidden(reward_id)=LAST(COLLECTION(PERSON(event.data.related_person_id).steps, filter:rootEventId==event.rootEventId, filter: stepName==\"reward_earned\"),sortBy: eventDate).data.reward_id; revenue=GROUP_SUM(event.data.amount, step_name:\"converted\");rewarded=BOOLEAN_FORMAT(reward_id == \"null\",\"UNREWARDED\",\"REWARDED\")",
-  "locales": "ALL",
-  "time_range": "ALL_TIME",
-  "campaign_states": "ALL",
-  "visit_type": "NEW_TO_CLIENT",
-  "unattributed_events": "false",
-  "include_totals": "false",
-  "quality": "ALL"
-}
-```
-
-Do not substitute a reward-earned count or reward face value for this mapping: this report charts the conversion revenue and reward relationship that BHN program managers use. The Reward Activity view's `reportColumnsMapping` must use the `date`, `count`, and `revenue` columns this mapping emits.
-
-```json
-{
-  "chart": { "type": "line" },
-  "xAxis": { "column": "date", "type": "datetime" },
-  "series": [
-    { "name": "Count", "column": "count", "aggregation": "sum" },
-    { "name": "Total Spend", "column": "revenue", "aggregation": "sum" }
-  ]
-}
-```
 
 For how this category is built in general terms, see [Integration Categories](/technical/building-partner-integrations/integration-types/integration-categories), [Build a Reward Fulfillment Integration](/technical/building-partner-integrations/integration-types/integration-build-reward-fulfillment) for the sequence, and [Create the Integration Campaign and Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model) for the campaign, component, and display metadata every path needs.
 
