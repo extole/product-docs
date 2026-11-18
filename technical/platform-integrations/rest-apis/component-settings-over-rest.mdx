@@ -1,6 +1,6 @@
 ---
 title: "Component Settings Over REST"
-description: "Read a campaign component setting's effective value and change an inherited setting with the REST API."
+description: "Read a campaign component setting's effective value, change an inherited or parameter-bound setting, and confirm the change in the published campaign with the REST API."
 ---
 
 # Overview
@@ -8,8 +8,24 @@ description: "Read a campaign component setting's effective value and change an 
 Campaign component settings are read and written at
 `/v2/campaigns/{campaign_id}/components/{component_id}/settings/{setting_name}`. Each setting
 carries a `source`: `LOCAL` for a value set on this component, `INHERITED` for a value that comes
-from the component's library template, or `PARAMETER`. This page covers how to read the value
-that renders and how to give an inherited setting a value of its own.
+from the component's library template, or `PARAMETER` for a value bound from a parent component's
+parameter. This page covers how to read the value that renders, how to give an inherited or
+parameter-bound setting a value of its own, and how to confirm the change in the published
+campaign.
+
+## Where a Setting's Value Comes From
+
+The `source` decides which value the campaign uses:
+
+| Source | Value the campaign uses |
+|---|---|
+| `LOCAL` | The setting's own stored value |
+| `INHERITED` | The value from the component's library template |
+| `PARAMETER` | The value of the parent component's parameter that the setting is bound to |
+
+The campaign uses a setting's own stored value only when its `source` is `LOCAL`. To set a value on
+an `INHERITED` or `PARAMETER` setting, promote it to `LOCAL` first, as described in
+[Change an Inherited or Parameter Setting](#change-an-inherited-or-parameter-setting).
 
 ## Read the Built Value
 
@@ -19,13 +35,17 @@ the value the campaign renders, with build-time expressions resolved. For a sett
 library template's default in `values`, so use the built endpoint when you need the effective
 value. Use the raw listing to find candidate settings, then read each one's built value.
 
+A setting with `source: PARAMETER` can show `values.default: null` in the raw listing while its
+built value holds the parameter's value. The built value comes from the parent component's
+parameter, not from the setting.
+
 A value written as a runtime template, such as `{{variable}}`, keeps that form in the built view
 and resolves when the page renders.
 
-## Change an Inherited Setting
+## Change an Inherited or Parameter Setting
 
-To give an `INHERITED` setting a value of its own, send two `PUT` requests to the setting, in
-this order:
+To give an `INHERITED` or `PARAMETER` setting a value of its own, send two `PUT` requests to the
+setting, in this order:
 
 1. The setting with `"source": "LOCAL"` and no `values`. This promotes the setting to a local
    setting on the component.
@@ -34,11 +54,55 @@ this order:
 This is the order My Extole uses. Include the setting's other fields from the `GET` response in the
 second request, so the stored setting carries them.
 
+Promotion copies the value the setting was using into the setting as a local value. The response to
+the first request carries that value: the parameter's value for a `PARAMETER` setting, or for an
+`INHERITED` setting the template's value with its build-time expressions resolved. From then on,
+the setting keeps that value and no longer follows the template or the parameter. The second
+request replaces it with the value you send. After the second request, read the setting back and
+compare its `values` with the values you sent.
+
 For a setting that holds locales, write the value under the locale key, such as `en`. A
 translatable setting takes locale keys only; a `default` key returns `default_key_not_allowed`.
 
 An `IMAGE` setting inherited from a parent component points at an asset the parent owns. Upload the
 image to the child component first, then promote the setting and point it at the child's asset.
+
+## Confirm the Change in the Published Campaign
+
+Setting writes change the campaign's draft. A participant is served the published version, so a
+change reaches participants after you publish the campaign:
+
+```
+POST /v2/campaigns/{campaign_id}/publish
+```
+
+To read what participants are served, read the published build:
+
+```
+GET /v2/campaigns/{campaign_id}/version/published/built
+```
+
+For a setting that resolves to an asset, compare the asset's contents. An asset's identifier and
+its contents can change independently of each other.
+
+## Compare Two Builds
+
+Each build serializes the campaign again. The `created_date` and `updated_date` values change, and
+scalar lists such as `enabled_on_states` can come back in a different order. To find the change
+between two builds, remove `created_date` and `updated_date` and sort scalar lists before you
+compare them.
+
+## Concurrent Updates
+
+Each setting write creates a campaign version, and the campaign builds again after each one. A
+write that arrives while the campaign is updating returns:
+
+```
+400 campaign_concurrent_update — Campaign is currently updated by other process/user
+```
+
+Retry a request that returns `campaign_concurrent_update` with a backoff. A batch of setting writes
+creates one campaign version per write.
 
 ## The Root Component's Name
 
@@ -48,4 +112,5 @@ A campaign's root component keeps its `display_name`. A request to change it ret
 ## Related Documentation
 
 - [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints)
+- [Campaign States Over REST](/technical/platform-integrations/rest-apis/campaign-states-over-rest)
 - [Integration Component Model](/technical/building-partner-integrations/integration-lifecycle/integration-component-model)
