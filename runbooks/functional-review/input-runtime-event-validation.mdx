@@ -285,39 +285,48 @@ If report metadata `totalRows` (or equivalent) is much larger than the rows actu
 
 **Answers**
 
-- Do incoming production records for each earning event actually carry the configured dedup key?
-- When the same event arrives from more than one source, does every source send the key?
+- Do incoming production records for each earning event on this campaign actually carry the configured dedup key?
+- When the same event reaches this campaign from more than one source, does every source send the key?
 
-Deduplication only works on records that carry the key. When an inbound event does not carry the key's source field, Extole writes the step with no key and logs nothing (see [Duplicate Action Alerts and Unique Event Keys](/technical/troubleshooting/duplicate-action-alerts-and-unique-event-keys)). If one real action arrives from two sources and only one of them sends the key, the two copies are never matched: the action can be counted twice, or the second copy can fail a rule such as a new-customer check and block the reward the first copy earned.
+Deduplication only works on records that carry the key. When an inbound event does not carry the key's source field, Extole writes the step with no key and logs nothing (see [Duplicate Action Alerts and Unique Event Keys](/technical/troubleshooting/duplicate-action-alerts-and-unique-event-keys)). If one real action arrives from two sources and only one of them sends the key, the two copies are never matched as one action. The action can be counted twice, or a later copy can fail a new-customer or dedup rule because of its own twin that arrived first — and when the later copy is the one that would have paid, a real reward is lost.
 
-The configured keys come from **Partner event key consistency (configuration only)** in [Event Data Rule Alignment](/runbooks/functional-review/event-data-rule-alignment). This check reads Input Records to see whether the data matches that configuration.
+The configured keys come from **Partner event key consistency (configuration only)** in [Event Data Rule Alignment](/runbooks/functional-review/event-data-rule-alignment). This check reads incoming records to see whether the data matches that configuration.
 
 #### Procedure
 
-1. For each earning/reward-path event with a configured dedup key, take its Input Records rows where `Container` is `production`.
-2. Split the rows by source using the `Api Type` column. Browser (web tag) events carry `CONSUMER` and server-side API events carry `CLIENT`. Record the `Api Type` value that file-loaded rows carry for this client; if file rows cannot be told apart from API rows, record the split as **Needs investigation**.
-3. For each source, report the share of records whose `data` contains the key field with a non-blank value.
-4. Compute the share over every row for that event, not a top-of-report sample. If the download is truncated, resubmit filtered by `event_names` before computing it.
+1. Limit the records to those that reached the campaign under review. Input Records is client-wide: it returns rows from every program the client runs, so a client-wide count can flag a campaign for another campaign's traffic. Read the input records behind this campaign's steps instead — from a campaign-scoped step event, `input_record(event.rootEventId)` returns the originating record's `apiType` and `data` (see [Entities and Context Available in Extole's Configurable Reporting System](/guides/dashboards-and-reporting/configuring-reports/entities-and-context-available-in-extole-s-configurable-reporting-system)). For example, on one day one campaign received both file and tag copies of the same orders while a sibling campaign on the same client received no file rows; a client-wide count would have flagged both.
+2. For each earning/reward-path event with a configured dedup key, keep the records where `Container` is `production`.
+3. Split the records by source using `Api Type`. The values are the same at every client:
+
+   | `Api Type` | Source |
+   |---|---|
+   | `CONSUMER` | Web tag (browser) |
+   | `CLIENT` | Server-side API |
+   | `EVENT_DISPATCHER` | File |
+
+4. For each source, report the share of records whose `data` contains the key field with a non-blank value.
+5. Compute the share over every record for that event on this campaign, not a top-of-report sample. If the download is truncated, page the remaining rows or resubmit filtered before computing it.
 
 #### Flag if
 
-- The same earning event arrives from more than one source and one source is missing the key. Report the share for every source so the reader can see the size of the gap.
+- The same earning event reaches this campaign from more than one source and one source is missing the key. Report the share for every source so the reader can see the size of the gap.
 
 #### Severity
 
 | Finding | Severity |
 |---|---|
-| Same event from more than one source, and one source is missing the key — the copies cannot be deduplicated | **Issue** |
+| Same event reaches this campaign from more than one source, and one source is missing the key — the copies cannot be deduplicated | **Issue** |
 | Every source carries the key | **Pass** |
-| Source cannot be determined, or too few production records to compute a share | **Needs investigation** |
+| Records cannot be tied to this campaign, or too few production records to compute a share | **Needs investigation** |
 
 #### Required output
 
 ```text
-Dedup-key coverage (production):
+Dedup-key coverage (production, this campaign only):
   Event: <raw input event name> — Key: <configured key field>
-    Source <Api Type value> (<web tag | API | file>): <rows with key>/<rows> (<percent>)
-    Source <Api Type value> (<web tag | API | file>): <rows with key>/<rows> (<percent>)
+    Source <Api Type value> (<web tag | API | file>): <records with key>/<records> (<percent>)
+    Source <Api Type value> (<web tag | API | file>): <records with key>/<records> (<percent>)
+  How records were scoped to this campaign: <method>
   Rows analyzed / totalRows: <n>/<n>
 
 Verdict: Pass | Issue | Needs investigation
