@@ -281,6 +281,50 @@ If report metadata `totalRows` (or equivalent) is much larger than the rows actu
 **Do not expose raw customer payloads or PII in the final response. Summarize field-level validation instead.**
 </Warning>
 
+### Dedup-key coverage by source
+
+**Answers**
+
+- Do incoming production records for each earning event actually carry the configured dedup key?
+- When the same event arrives from more than one source, does every source send the key?
+
+Deduplication only works on records that carry the key. When an inbound event does not carry the key's source field, Extole writes the step with no key and logs nothing (see [Duplicate Action Alerts and Unique Event Keys](/technical/troubleshooting/duplicate-action-alerts-and-unique-event-keys)). If one real action arrives from two sources and only one of them sends the key, the two copies are never matched: the action can be counted twice, or the second copy can fail a rule such as a new-customer check and block the reward the first copy earned.
+
+The configured keys come from **Partner event key consistency (configuration only)** in [Event Data Rule Alignment](/runbooks/functional-review/event-data-rule-alignment). This check reads Input Records to see whether the data matches that configuration.
+
+#### Procedure
+
+1. For each earning/reward-path event with a configured dedup key, take its Input Records rows where `Container` is `production`.
+2. Split the rows by source using the `Api Type` column. Browser (web tag) events carry `CONSUMER` and server-side API events carry `CLIENT`. Record the `Api Type` value that file-loaded rows carry for this client; if file rows cannot be told apart from API rows, record the split as **Needs investigation**.
+3. For each source, report the share of records whose `data` contains the key field with a non-blank value.
+4. Compute the share over every row for that event, not a top-of-report sample. If the download is truncated, resubmit filtered by `event_names` before computing it.
+
+#### Flag if
+
+- The same earning event arrives from more than one source and one source is missing the key. Report the share for every source so the reader can see the size of the gap.
+
+#### Severity
+
+| Finding | Severity |
+|---|---|
+| Same event from more than one source, and one source is missing the key — the copies cannot be deduplicated | **Issue** |
+| Every source carries the key | **Pass** |
+| Source cannot be determined, or too few production records to compute a share | **Needs investigation** |
+
+#### Required output
+
+```text
+Dedup-key coverage (production):
+  Event: <raw input event name> — Key: <configured key field>
+    Source <Api Type value> (<web tag | API | file>): <rows with key>/<rows> (<percent>)
+    Source <Api Type value> (<web tag | API | file>): <rows with key>/<rows> (<percent>)
+  Rows analyzed / totalRows: <n>/<n>
+
+Verdict: Pass | Issue | Needs investigation
+```
+
+Report counts and shares only. Do not paste key values, email addresses, or other payload content.
+
 ### Next step
 
 After Input Records is downloaded, run [Event Data Rule Alignment](/runbooks/functional-review/event-data-rule-alignment) to compare sampled `event.data` against trigger/quality/reward rule conditions.
