@@ -37,6 +37,31 @@ Three habits keep the tree readable in Flow Builder and in reports:
   [Count Distinct People Toward Another Person's Reward](#count-distinct-people-toward-another-persons-reward)
   describes.
 
+## Order the Flow as the Events Happen
+
+Write the flow from top to bottom in the order the events take place, with one column for each
+role and an arrow from each event to the event that it causes. A program in which one person
+brings in another has this order:
+
+| Order | Who | Event | Where it comes from |
+|---|---|---|---|
+| 1 | The first person | The promotion is viewed | `promotion_viewed`, in a marketing journey |
+| 2 | The first person | The promotion is clicked | `promotion_clicked`, in the same journey |
+| 3 | The first person | The action that brings the person into the program | A business event of your own |
+| 4 | The first person | The invitation is shared | `shared`, in a copy of the `share` journey |
+| 5 | The second person | The invitation is clicked | `share_clicked`, in a copy of the `new_customer` journey |
+| 6 | The second person | Each action that the second person takes | Business events of your own |
+| 7 | The first person | Each reward | A reward on the first person's role |
+
+A program for one person, such as a reward for an action, uses rows 1 to 3 and row 7.
+
+The invitation does work in the design. A share link creates the referral relationship between
+the two people, and **Publish Event Data** uses that relationship to find the first person. The
+second person's events then need no identifier for the first person.
+
+Flow Builder shows the business events of a journey in the order of their `sequence` setting. Set
+`sequence` on each business event, so that the campaign reads in the same order as your flow.
+
 ## Give Each Part What It Needs to Run
 
 The Custom Campaign Template holds one role, one journey, and one business event. Every
@@ -118,37 +143,44 @@ shows steps 3 to 5 in Flow Builder for an advocate and friends.
 
 ## Worked Example
 
-A community program rewards an organizer when three members of the organizer's group are active,
-and again at five members. A member is active when the member joined the group and attended a
-session at least 30 days later. The organizer can earn each reward once in six months.
+A community program rewards an organizer when three members whom the organizer invited are
+active, and again at five members. A member is active when the member joined the group and
+attended a session at least 30 days later. The organizer can earn each reward once in six months.
 
-Your systems send two events, `group_joined` and `session_attended`. Each carries the member, a
-`membership_id`, and the organizer's identifier. The campaign holds everything else:
+The flow, in the order the events take place:
 
 ```text
-Role: Member
-  Journey: Membership
-    Business event: Group Joined          triggered by input event group_joined
-    Business event: Session Attended      triggered by input event session_attended
-    Business event: Member Qualified      triggered by input event session_attended
-      Trigger rule:  Has Taken Action     Group Joined, Minimum Action Age 30 days
-      Data:          membership_id        the unique event key
-      Action:        Publish Event Data   Target Role: Organizer
+Organizer                                 Member
 
-Role: Organizer
-  Journey: Group Activity
-    Business event: Active Member Counted triggered by the published event
-  Reward: Three Active Members            earned on Active Member Counted
-      Reward rule:   Has Taken Action     Active Member Counted, Minimum Count 3,
-                                          Recent Activity Window 6 months
-      Reward rule:   Reward Limit         this reward's name, Maximum Count 1,
-                                          Recent Activity Window 6 months
-  Reward: Five Active Members             earned on Active Member Counted
-      Reward rule:   Has Taken Action     Active Member Counted, Minimum Count 5,
-                                          Recent Activity Window 6 months
-      Reward rule:   Reward Limit         this reward's name, Maximum Count 1,
-                                          Recent Activity Window 6 months
+Promotion Viewed
+      ↓
+Promotion Clicked
+      ↓
+Group Created
+      ↓
+Member Invited (shared)          →        Invite Clicked (share clicked)
+                                                ↓
+                                          Group Joined
+                                                ↓
+                                          Session Attended
+                                                ↓
+Active Member Counted            ←        Member Qualified
+      ↓
+Reward: Three Active Members
+Reward: Five Active Members
 ```
+
+Your systems send three events, `group_created`, `group_joined`, and `session_attended`. The
+member's events carry a `membership_id`. Extole records the promotion, the invitation, and the
+click itself, and the campaign holds everything else:
+
+| Part | What it holds |
+|---|---|
+| Group Created, Group Joined, Session Attended | Each is triggered by the input event with its name. |
+| Member Qualified | Triggered by the input event `session_attended`. Trigger rule: **Has Taken Action**, Group Joined, **Minimum Action Age** 30 days. Data: `membership_id` as the unique event key. Action: **Publish Event Data**, **Target Role** Organizer. |
+| Active Member Counted | Triggered by the published event. The invitation made the organizer the member's referrer, so the event reaches the organizer. |
+| Reward: Three Active Members | Earned on Active Member Counted. Reward rules: **Has Taken Action**, Active Member Counted, **Minimum Count** 3, **Recent Activity Window** 6 months, and **Reward Limit**, this reward's name, **Maximum Count** 1, **Recent Activity Window** 6 months. |
+| Reward: Five Active Members | The same, with **Minimum Count** 5. |
 
 Extole checks that the member joined at least 30 days before the session, records the
 qualification once for each membership, counts the members on the organizer's profile, and limits
