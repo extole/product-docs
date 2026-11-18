@@ -1,18 +1,12 @@
 name: pr-judge
 
-# Label each pull request `minor` or `needs-human-review`, and say why in a comment.
+# Label each pull request with a v2 verdict and say why in a comment. See .agents/pr-judge/RUBRIC.md.
 #
-# `validate` proves the Mintlify site builds. It cannot see a page missing from `docs.json`, a
-# term used against the glossary, a page in the wrong tab, or a sentence describing behavior the
-# product does not have -- and a merge to `main` publishes docs.extole.com. This sorts the queue
-# so the docs owner reads the changes that need the product open.
+# `validate` proves the Mintlify site builds. The deterministic floor and claim checks sort the
+# queue so fixable defects go back to the author and the docs owner sees reserved questions only.
 #
-# It merges nothing. `main` still requires a green `validate` and one approving review, and the
-# label is a hint a reviewer is free to drop. Disagreeing with it is how the rubric gets fixed.
-#
-# The check never fails on a `needs-human-review` verdict. A red X would say "this is broken"
-# about a change that is fine and merely needs reading, and it would sit next to the real signal
-# from `validate` looking like the same kind of thing. The verdict is the label and the comment.
+# It merges nothing. `main` still requires a green `validate` and one approving review.
+# The check never fails on a verdict — the label and comment are the signal.
 
 on:
   pull_request:
@@ -36,6 +30,7 @@ permissions:
   contents: read
   pull-requests: write
   issues: write
+  checks: read
 
 concurrency:
   group: pr-judge-${{ github.event.pull_request.number || inputs.pull_request }}
@@ -43,9 +38,7 @@ concurrency:
 
 jobs:
   judge:
-    name: Minor or needs human review
-    # A draft is in nobody's queue yet, and it is judged when it is marked ready for review. A
-    # `workflow_dispatch` judges what it was given, draft or not, which is what a backfill needs.
+    name: Docs PR judge (v2)
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -54,11 +47,13 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       PR: ${{ github.event.pull_request.number || inputs.pull_request }}
+      PR_JUDGE_ROOT: ${{ github.workspace }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Use Python
@@ -69,11 +64,14 @@ jobs:
       - name: Install the Anthropic SDK
         run: pip install --quiet 'anthropic>=1.0,<2'
 
-      # The script fails closed on its own -- no key, no SDK, a model error or a diff too large
-      # to read all produce `needs-human-review` -- so this does not gate on the secret. A fork
-      # pull request, which never receives one, gets a label saying exactly that.
+      - name: Run floor unit tests
+        run: python3 scripts/test_pr_floor.py
+
       - name: Judge
-        run: python3 scripts/pr_judge.py --repo "$GITHUB_REPOSITORY" --pr "$PR" --root . $DRY_RUN
+        run: |
+          WORKERS=1
+          if [ "$PR" = "all-open" ]; then WORKERS=8; fi
+          python3 scripts/pr_judge.py --repo "$GITHUB_REPOSITORY" --pr "$PR" --root . --workers "$WORKERS" $DRY_RUN
         env:
           DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
 
