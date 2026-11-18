@@ -1,0 +1,156 @@
+---
+title: "Design a Campaign from Components"
+description: "Turn a description of a program into roles, journeys, business events, and rewards, and let Extole evaluate the counts, time windows, and limits from the plain events your systems send."
+---
+
+# Overview
+
+Every program template is a tree of the same four parts: roles, journeys, business events, and
+rewards. When no template matches your program, you design that tree yourself. This page shows
+how to read a program description as a tree, and where to put each count, time window, and limit,
+so that your systems send one plain event for each action and Extole evaluates the rest.
+
+[Configuration Concepts](/api-reference/getting-started/configuration-concepts) defines the
+parts. Once you have a design,
+[Build a Campaign from Components Over REST](/technical/platform-integrations/rest-apis/build-a-campaign-from-components-over-rest)
+assembles it with the Management API, and
+[How to Add a New Business Event](/guides/flow-campaigns/how-to-add-a-new-business-event)
+covers the same work in Flow Builder.
+
+## Read the Program as People, Stages, and Actions
+
+| In the description | In the campaign | How the templates use it |
+|---|---|---|
+| Each kind of person | A role | `advocate` and `friend` in Refer A Friend, `participant` in Reward for Action |
+| Each stage a person moves through | A journey in that role | A marketing journey holds the promotions, and a second journey holds the actions that follow |
+| Each action a person takes | A business event in that journey | `shared`, `signed_up`, `converted` |
+| Each thing a person earns | A reward on the role that earns it | Advocate Reward on Friend Converted |
+
+Three habits keep the tree readable in Flow Builder and in reports:
+
+- **One business event for each action.** Give an action its own business event even when it
+  only counts toward a later condition. Rules read the events that the campaign records.
+- **Name the business event after the action.** The component name becomes the event name on
+  the person's profile and in reports.
+- **Put the business event in the role of the person who acts.** A reward for someone else
+  reaches that person's role through a published event, as
+  [Count Distinct People Toward Another Person's Reward](#count-distinct-people-toward-another-persons-reward)
+  describes.
+
+## Give Each Part What It Needs to Run
+
+The Custom Campaign Template holds one role, one journey, and one business event. Every
+template that runs a program adds the following, and a design from components adds them too:
+
+| Part | What it needs | Guide |
+|---|---|---|
+| Business event | A trigger: the input event, zone, or published event that starts it | [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) |
+| Journey | A targeting scenario, which decides who enters the journey | [How to Target a Program](/guides/flow-campaigns/how-to-target-a-program) |
+| Reward | The business event that earns it, a reward supplier, and a reward email | [How to Add a New Reward](/guides/flow-campaigns/how-to-add-a-new-reward) |
+| Reward | Reward rules that limit how often and to whom it is issued | [How to Set Up Reward Rules](/guides/flow-campaigns/how-to-set-up-reward-rules) |
+
+## Send Plain Events and Let Extole Evaluate the Conditions
+
+Design the integration so that your systems send one event each time a person does something,
+with the identifiers of the people and records involved. Put every condition on those events in
+the campaign. A condition in the campaign is visible in Flow Builder and changes without a
+release of your systems.
+
+| The program says | Put it in the campaign as |
+|---|---|
+| "Counts once for each order, account, or membership" | A unique event key on the business event's data. Extole records the business event once for each key value, and the event's actions run once. See [Unique Event Keys](/technical/troubleshooting/duplicate-action-alerts-and-unique-event-keys#unique-event-keys). |
+| "Only after the person did something else" | **Has Taken Action** as a trigger rule on the business event. See [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules). |
+| "At least 30 days after joining" | **Minimum Action Age** on that **Has Taken Action** rule. The earlier event counts only when it is at least that old. |
+| "In the last 30 days" | **Recent Activity Window** on **Has Taken Action**. |
+| "On the third time" or "at least five times" | **Exact Count** or **Minimum Count** on **Has Taken Action**, as a reward rule. |
+| "Unless they cancel" | **Has Not Taken Action**, with the event that disqualifies the person. |
+| "When someone they brought in does something" | The **Publish Event Data** action on the other person's business event. |
+| "Once", or "once every six months" | **Reward Limit**, with **Maximum Count** and **Recent Activity Window**. |
+| "Once for each order or group" | **Reward Behavior** set to **Every Unique Action**, with **Unique Reward Data Parameter** set to the field that names the order or group. |
+| "After a waiting period" | **Pending Period** on the reward. |
+| "Only for some people" | A targeting scenario on the journey, or **Member of Audience** on the reward. |
+
+When a condition fits no row, ask whether a second business event would make it fit. A condition
+such as "active for 30 days" becomes two events, the one that starts the clock and the one that
+proves the person is still there, joined by **Has Taken Action** with a **Minimum Action Age**.
+
+## Count Distinct People Toward Another Person's Reward
+
+A reward for one person can depend on how many other people did something, such as a reward for
+an organizer when three members are active. **Has Taken Action** counts the events on the profile
+of the person the reward is for, so each member's event must reach the organizer once:
+
+1. In the member's role, add a business event for the moment a member starts to count. Put the
+   conditions on it as trigger rules, so the event is recorded only when the member meets them.
+2. Give that business event a unique event key from a field that identifies the member's place
+   in the group, such as a membership id. Extole then records the event once for each member,
+   however often your systems send it.
+3. Add the **Publish Event Data** action to that business event, and set **Target Role** to the
+   role that earns the reward. The action runs once for each recorded event.
+4. In the earning role, add a business event that is triggered by the published event.
+5. On each reward, add **Has Taken Action** as a reward rule. Set **Business Event** to the
+   business event from step 4, and set **Exact Count** to the number of people.
+
+The **Person Identification** socket on **Publish Event Data** decides who receives the event.
+The action arrives with **Person Identified by Referral Relationship**, which sends the event to
+the person's referrer. To send the event to a person that the event data names, replace it with
+one of these:
+
+| Person identification | Who receives the event |
+|---|---|
+| **Person Identified by Identity Key** | The person with the identity key, such as an email, in the event data. |
+| **Person Identified By Alternate Person Key** | The person with the person key, such as a partner user ID, in the event data. |
+| **Person Identified by Extole Person ID** | The person with the Extole person ID in the event data. |
+
+**Has Taken Action** counts every matching event on the profile in the rule's scope. An organizer
+who runs two groups has one count across both.
+
+[How to Set Up Bonus Rewards on a Specific Referral Count](/guides/flow-campaigns/how-to-set-up-bonus-rewards-on-a-specific-referral-count-2nd-3rd-5th-etc)
+shows steps 3 to 5 in Flow Builder for an advocate and friends.
+
+## Worked Example
+
+A community program rewards an organizer when three members of the organizer's group are active,
+and again at five members. A member is active when the member joined the group and attended a
+session at least 30 days later. The organizer can earn each reward once in six months.
+
+Your systems send two events, `group_joined` and `session_attended`. Each carries the member, a
+`membership_id`, and the organizer's identifier. The campaign holds everything else:
+
+```text
+Role: Member
+  Journey: Membership
+    Business event: Group Joined          triggered by input event group_joined
+    Business event: Member Qualified      triggered by input event session_attended
+      Trigger rule:  Has Taken Action     Group Joined, Minimum Action Age 30 days
+      Data:          membership_id        the unique event key
+      Action:        Publish Event Data   Target Role: Organizer
+
+Role: Organizer
+  Journey: Group Activity
+    Business event: Active Member Counted triggered by the published event
+  Reward: Three Active Members            earned on Active Member Counted
+      Reward rule:   Has Taken Action     Active Member Counted, Minimum Count 3,
+                                          Recent Activity Window 6 months
+      Reward rule:   Reward Limit         this reward's name, Maximum Count 1,
+                                          Recent Activity Window 6 months
+  Reward: Five Active Members             earned on Active Member Counted
+      Reward rule:   Has Taken Action     Active Member Counted, Minimum Count 5,
+                                          Recent Activity Window 6 months
+      Reward rule:   Reward Limit         this reward's name, Maximum Count 1,
+                                          Recent Activity Window 6 months
+```
+
+Extole checks that the member joined at least 30 days before the session, records the
+qualification once for each membership, counts the members on the organizer's profile, and limits
+each reward. Your systems do no counting.
+
+A campaign with more than one reward sets **Applicable Reward Name** on each **Reward Limit**, so
+that each limit counts its own reward.
+
+## Related Documentation
+
+- [Configuration Concepts](/api-reference/getting-started/configuration-concepts)
+- [Build a Campaign from Components Over REST](/technical/platform-integrations/rest-apis/build-a-campaign-from-components-over-rest)
+- [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules)
+- [How to Set Up Reward Rules](/guides/flow-campaigns/how-to-set-up-reward-rules)
