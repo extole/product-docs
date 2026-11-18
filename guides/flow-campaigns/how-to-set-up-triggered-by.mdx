@@ -9,16 +9,16 @@ description: "Choose the event that starts each business event, reward, and call
 
 # Overview
 
-In a Flow Builder campaign, each business event (Shared, Signed Up, Converted, and the like), each reward, and each call-to-action has a **Triggered By** setting. It names the event that starts that step. Flow Builder shows the selection as a chip on the card, so you can see what starts each part of the campaign without opening its rules.
+In a Flow Builder campaign, each business event (Shared, Signed Up, Converted, and the like), each reward, and each call-to-action has a **Triggered By** setting. It names the trigger event that starts it. Flow Builder shows the selection as a chip on the card, so you can see what starts each part of the campaign without opening its rules.
 
 All default programs use Triggered By.
 
 A campaign will not publish while a Triggered By setting it needs is empty. Declaring your events before you create the campaign is the easiest path: every Triggered By fills itself in, and the campaign publishes on the first try.
 
 <Warning>
-A yellow **No Trigger Events are selected.** notice means that step's **Triggered By** setting is empty. The notice stays while you edit, including when the step is turned off.
+A yellow **No Trigger Events are selected.** notice on a business event, reward, or call-to-action means its **Triggered By** setting is empty. The notice stays while you edit, including when it is turned off.
 
-For **Signed Up**, **Converted**, a call-to-action, and the other steps that check this on publish, an enabled step will not publish. The error is *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* A turned-off step can still publish, and the notice remains. The next publish after you turn that step on fails until you select a trigger event. A business event you add from the library can publish with the notice showing; it does not run until you select a trigger event. If **Triggered By** has nothing you can select, see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select).
+When **Signed Up**, **Converted**, a call-to-action, or any other part of the campaign that checks this on publish is turned on, the campaign will not publish. The error is *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* If it is turned off, the campaign can still publish, and the notice remains. The next publish after you turn it on fails until you select a trigger event. A business event you add from the library can publish with the notice showing; it does not run until you select a trigger event. If **Triggered By** has nothing you can select, see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select).
 </Warning>
 
 ## Where Trigger Events Come From
@@ -91,10 +91,10 @@ The Converted business event in Welcome Offer listens for `conversion`. If your 
 
 ## Set Up Triggered By
 
-1. **Find the step.** Open the business event, reward, or call-to-action in Flow Builder and note which trigger event it should listen for. The table above lists what each program expects.
+1. **Find the business event, reward, or call-to-action.** Open it in Flow Builder and note which trigger event it should listen for. The table above lists what each program expects.
 2. **Choose the extension.** Use [Choose the Extension](#choose-the-extension) to decide where the trigger event comes from.
 3. **Declare the trigger event.** Open that extension, add the trigger event with the exact name your systems, site, or app send, and publish the extension. For the Javascript SDK and Mobile SDK, see [Add a Trigger Event](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions#add-a-trigger-event).
-4. **Select it.** Open the step in the campaign, open **Triggered By**, and select the trigger event. Options are grouped by where they come from: this campaign, your integrations and extensions, and your other campaigns, which start collapsed. When the same zone is requested from more than one place, select the trigger event for each.
+4. **Select it.** In the campaign, open the business event, reward, or call-to-action, open **Triggered By**, and select the trigger event. Options are grouped by where they come from: this campaign, your integrations and extensions, and your other campaigns, which start collapsed. When the same zone is requested from more than one place, select the trigger event for each.
 5. **Publish the campaign.**
 
 Each chip in **Triggered By** names where its trigger event comes from, for example **This Campaign: Converted** or **Event API: Conversion**. A chip from another campaign or an extension opens it in a new tab. A gray chip is a selection whose component is turned off.
@@ -112,7 +112,7 @@ Publishing fails with *The Triggered By setting on 'converted' is not configured
 5. In **Triggered By**, select the Event API's `conversion` event.
 6. Publish the campaign.
 
-From then on, every `conversion` event you send for a referred friend records their Converted step and starts the rewards that follow it.
+From then on, every `conversion` event you send for a referred friend records the friend's Converted business event and starts the rewards that follow it.
 
 If your site sends `conversion` from a conversion tag instead, declare it on the **Javascript SDK** under **Tagged CTAs** in step 3, and select the Javascript SDK's `conversion` in step 5.
 
@@ -136,7 +136,7 @@ Publishing fails on the `show_reward_banner` call-to-action.
 
 ## When Triggered By Has Nothing to Select
 
-**Triggered By** lists trigger events from this campaign, your extensions and integrations, and your other campaigns. If nothing eligible appears for the event an enabled step needs, that step will not publish until something you can select is available. A turned-off step can publish with the list still empty.
+**Triggered By** lists trigger events from this campaign, your extensions and integrations, and your other campaigns. If nothing eligible appears for an enabled business event, reward, or call-to-action that needs a trigger event, the campaign will not publish until something you can select is available. If it is turned off, the campaign can publish with the list still empty.
 
 - **Trigger event from outside the campaign.** Declare it on the matching extension, then select it yourself. A newly declared event is never added to an existing campaign automatically. Follow [Set Up Triggered By](#set-up-triggered-by).
 - **Trigger event the campaign produces itself**, such as a friend signing up on the landing page. Current themes connect these automatically when the campaign is created. If you add a business event later, for example **Signed Up**, and **Triggered By** has no in-campaign option, the campaign is missing the companion trigger event that declares that signup. Contact your Extole team to add it. Selecting an Event API or SDK declaration does not replace that in-campaign producer.
@@ -145,11 +145,11 @@ Publishing fails on the `show_reward_banner` call-to-action.
 
 | Message or notice | What it means | What to do |
 |---|---|---|
-| Yellow **No Trigger Events are selected.** on the step | **Triggered By** is empty. On an enabled step that requires a trigger event, this is what blocks publish. A turned-off step can still publish. | Select a trigger event, or see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select). |
-| *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* | Nothing is selected. Often the trigger event the step expects has not been declared, or an in-campaign producer is missing. | Follow [Set Up Triggered By](#set-up-triggered-by), or see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select). |
+| Yellow **No Trigger Events are selected.** on a business event, reward, or call-to-action | **Triggered By** is empty. If it is turned on and requires a trigger event, this is what blocks publish. If it is turned off, the campaign can still publish. | Select a trigger event, or see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select). |
+| *The Triggered By setting on '`step`' is not configured. Select a trigger event before publishing.* | Nothing is selected. Often the expected trigger event has not been declared, or an in-campaign producer is missing. | Follow [Set Up Triggered By](#set-up-triggered-by), or see [When Triggered By Has Nothing to Select](#when-triggered-by-has-nothing-to-select). |
 | *The Triggered By setting on '`step`' points at a component that no longer declares a trigger event (`ids`). Select a trigger event before publishing.* | The selected trigger event was deleted or renamed on its extension. | Declare the trigger event again, or select a different one, then publish. |
 
-The publish message names the step by its internal name, such as `converted` or `signed_up`. If another publish error names Triggered By or a trigger event, contact your Extole team with the campaign link and the exact message.
+In the publish message, '`step`' is the internal name of the business event, reward, or call-to-action, such as `converted` or `signed_up`. If another publish error names Triggered By or a trigger event, contact your Extole team with the campaign link and the exact message.
 
 A campaign that publishes is not proof that a call-to-action shows everywhere its zone is requested. Publishing checks only that something is selected. If a call-to-action shows on your website but not in your app, see [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app).
 
@@ -167,4 +167,4 @@ A campaign that publishes is not proof that a call-to-action shows everywhere it
 - [File Integration](/technical/platform-integrations/extensions/file-integration)
 - [Javascript SDK and Mobile SDK Extensions](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions)
 - [Why a Zone Shows on Your Website but Not in Your App](/technical/troubleshooting/why-a-zone-shows-on-your-website-but-not-in-your-app)
-- [List the Components That Use or Could Use a Component](/api-reference/components/list-the-components-that-use-or-could-use-a-component): the API call that lists which business events and other steps use a trigger event, and which could use it
+- [List the Components That Use or Could Use a Component](/api-reference/components/list-the-components-that-use-or-could-use-a-component): the API call that lists which business events, rewards, and calls-to-action use a trigger event, and which could use it
