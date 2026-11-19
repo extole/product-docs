@@ -38,6 +38,7 @@ INTERNAL_TERM_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("ticket-key", re.compile(r"\b[A-Z][A-Z0-9]+-\d+\b")),
     ("slack-link", re.compile(r"https?://[^\s]*slack\.com/", re.I)),
     ("internal-repo", re.compile(r"\bextole/[a-z0-9_-]+\b", re.I)),
+    ("client-id", re.compile(r"client_id=\d{6,}")),
     ("email", re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")),
 ]
 
