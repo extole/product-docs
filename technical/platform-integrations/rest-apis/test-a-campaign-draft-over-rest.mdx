@@ -72,6 +72,25 @@ curl -X POST "https://api.extole.io/v6/events" \
 A consumer event can carry `sandbox` in its data too. Extole ignores a value that does not match a
 sandbox format above and processes the event as if it named no sandbox.
 
+### Send an Event That Took Place Earlier
+
+To test a time window, give a server event an `event_time` in ISO 8601. Extole records the event
+at that time, and each window, minimum age, and count is evaluated from the time of the event it
+evaluates. Send the events of one test person in the order they took place.
+
+To show that a 60-day window holds, test two people: one who opened an account 50 days ago and
+buys today, who earns the reward, and one who opened 70 days ago and buys today, who does not:
+
+```bash
+curl -X POST "https://api.extole.io/v6/events" \
+     -H "Authorization: Bearer <server access token>" \
+     -H "Content-Type: application/json" \
+     -d '{"event_name": "account_opened",
+          "event_time": "2026-09-10T17:00:00Z",
+          "data": {"email": "late-tester@example.com",
+                   "sandbox": "campaign-<campaign id>-production"}}'
+```
+
 ### See How Extole Processed an Event
 
 To see each decision Extole made for a test event, such as which sandbox and campaign it used and
@@ -97,13 +116,13 @@ A sandbox changes which campaign version handles the event and which container r
 event is processed in full:
 
 - In the `test` container and in the campaign preview sandbox, a reward comes from your account's
-  test reward supplier, whatever supplier the campaign's reward names. The test reward supplier is
-  the reward supplier named `Default Test Reward`. If your account has no test reward supplier, the
-  reward is not issued. A rule that counts a person's earlier rewards counts only rewards in the
-  same container.
+  test reward supplier, with that supplier's value, whatever supplier the campaign's reward names.
+  The test reward supplier is the reward supplier named `Default Test Reward`. If your account has
+  no test reward supplier, the reward is not issued. A rule that counts a person's earlier rewards
+  counts only rewards in the same container.
 - In the `production` container, a reward comes from the supplier that the campaign's reward
-  names. To test a draft's reward and its reward email with that supplier, send the events to the
-  campaign sandbox `campaign-<campaign id>-production`.
+  names, with its value. To test a draft's reward, its value, and its reward email, send the events
+  to the campaign sandbox `campaign-<campaign id>-production`. The draft stays unpublished.
 - When one person's event publishes an event to another person, the published event keeps the
   sandbox of the event that caused it. Extole then evaluates the second person's reward in that
   container, so send every event of one test to the same container.
