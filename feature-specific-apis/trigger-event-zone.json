@@ -21,7 +21,7 @@
     "/events": {
       "post": {
         "summary": "Send Event From Site or App",
-        "description": "Sends this trigger event from a consumer's browser or app, through the program domain, so the campaigns that listen for it run for that consumer. The call always answers 200. To find out if the event failed, read the X-Extole-Error-Message response header.",
+        "description": "Sends this trigger event from a consumer's browser or app, through the program domain, so the campaigns that listen for it run for that consumer. An Extole creative sends this event when a visitor opens its zone, for example when a friend clicks a share link, which opens share_destination. Your site or app needs no code for it. Call this operation to send the event without the creative, for example to test a campaign. The call always answers 200. To find out if the event failed, read the X-Extole-Error-Message response header.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "requestBody": {
           "required": true,
@@ -109,6 +109,13 @@
             }
           }
         },
+        "x-codeSamples": [
+          {
+            "lang": "html",
+            "label": "Tagged CTA",
+            "source": "<!-- The Extole core tag. Replace yourcompany.extole.io with your program domain. Load it once per page, and leave it out if the page already loads core.js. -->\n<script type=\"text/javascript\" src=\"https://yourcompany.extole.io/core.js\" fetchpriority=\"high\" async></script>\n<span id=\"extole_zone_zone_event\"></span>\n<!-- When the visitor is not known yet, remove the \"email\" line from data. -->\n<script type=\"text/javascript\">\n  /* Start Extole */\n  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,\"extole\",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},[\"createZone\"],0);\n  /* End Extole */\n\n  extole.createZone({\n    name: \"zone_event\",\n    element_id: \"extole_zone_zone_event\",\n    data: {\n      \"email\": INSERT_DYNAMIC_DATA\n    }\n  });\n</script>"
+          }
+        ],
         "servers": [
           {
             "description": "Production - your program domain",
@@ -203,6 +210,8 @@
         ],
         "properties": {
           "data": {
+            "description": "Data sent with the event, as key and value pairs. Any key not listed below is also kept with the event.",
+            "additionalProperties": true,
             "type": "object",
             "properties": {
               "container": {
