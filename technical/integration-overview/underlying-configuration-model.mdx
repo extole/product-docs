@@ -1,0 +1,97 @@
+---
+title: "The Underlying Configuration Model"
+description: "An advanced reference to what lies beneath components: component types, settings, model elements, and the campaign that holds them."
+---
+
+# Overview
+
+[Configuration Concepts](/api-reference/getting-started/configuration-concepts) explains how to configure Extole through components, and it is all most readers need. This page describes the model beneath components. Use it when you build components of your own, troubleshoot a campaign in depth, or read fields such as `campaign_type` in the Management API.
+
+A component has four parts:
+
+| Part | What it is |
+|---|---|
+| Types | What kind of component it is, and which sockets accept it. |
+| Variables | Its settings that hold values. |
+| Sockets | Its settings that hold other components. |
+| Model elements | The platform objects that carry out its behavior, such as steps, triggers, and actions. |
+
+The first three are the component's interface, and they are what you configure. The model elements are its implementation.
+
+## Component Types
+
+A component's types say what it is. [Get a component](/api-reference/components/get-a-component) returns them in `types`, and [List components](/api-reference/components/list-components) filters on them.
+
+A type name carries a generation suffix, such as `business-event-v10.0`. The pages on this site drop the suffix when they name a type in prose.
+
+A type can have a parent type. `reward-send-action-v10.0` is a kind of `action-v10.0`, and a socket that accepts the parent type accepts each type beneath it. A component can also have more than one type.
+
+Three types mark the top-level components that [Configuration Concepts](/api-reference/getting-started/configuration-concepts#overview) introduces: `campaign-v10.0` for a marketing campaign, `integration-v10.0` for an integration, and `extension-v10.0` for an extension. The components inside them have types such as `role-v10.0`, `journey-v10.0`, `business-event-v10.0`, `rule-v10.0`, `action-v10.0`, `content-v10.0`, and `reward-v10.0`.
+
+## Settings
+
+[List component settings](/api-reference/components/list-component-settings) returns a component's variables and sockets. Each setting has a name, a display name, a description, and a type.
+
+### Variables
+
+A variable holds a value. Its type says what kind, such as `STRING`, `COLOR`, `BOOLEAN`, or `TRIGGER_CONFIGURATION`, and its values can differ by locale.
+
+Some variable types point at an account resource and don't hold the value itself. `REWARD_SUPPLIER_ID` names a reward supplier, `AUDIENCE_ID` an audience, and `WEBHOOK_ID` a webhook. The Management API's [Reward Suppliers](/api-reference/reward-suppliers/list-reward-suppliers), [Audiences](/api-reference/audiences/list-audiences), and [Webhooks](/api-reference/webhooks/list-webhooks) groups manage those resources.
+
+A variable's value can be an expression. [The Configuration Lifecycle](/api-reference/getting-started/configuration-concepts#the-configuration-lifecycle) explains when each kind of expression is resolved.
+
+### Sockets
+
+A socket holds other components. A `SOCKET` holds one, and a `MULTI_SOCKET` holds many. Each socket declares filters that say which component types it accepts.
+
+You fill a socket by copying a component into it. [List duplicatable components](/api-reference/components/list-duplicatable-components) with `target_component_id` and `target_setting_name` returns the components that fit a socket, and [Add component to setting](/api-reference/components/add-component-to-setting) installs a copy. The copy keeps the values of its source until you set your own.
+
+### Read the Tree from the API
+
+The components of a campaign form a tree, and the sockets are its branches. The tree of a given campaign depends on the components installed in it, so read it from the API. [List components](/api-reference/components/list-components) with `parent_component_id` returns the components beneath a component, `max_depth` sets how many levels to return, and `parent_socket_name` limits the first level to one socket.
+
+## Model Elements
+
+Model elements are the platform objects that do the work at runtime. Each has its own identifier, and each records the components it belongs to.
+
+| Where it lives | Model elements |
+|---|---|
+| In the campaign | Steps, the triggers that decide whether a step applies to an event, the actions a step runs, and the flow steps that carry a campaign's dashboard metrics. |
+| In the account | Webhooks, reward suppliers, audiences, security keys, event streams, jobs, and report types, among others. |
+
+A business event component, for example, owns a step and its triggers, and a reward component owns several steps. A component's variables supply the values those elements use, which is how a setting changes behavior without a change to the elements.
+
+[Get a campaign](/api-reference/campaigns/get-a-campaign) returns a campaign's components in `components`, its steps in `steps`, and its flow steps in `flow_steps`.
+
+Model elements are also what an upgrade replaces. [Upgrade a component](/api-reference/components/upgrade-a-component) keeps the values you set on settings and takes the elements from the new version of the origin. [Configuration and Modification](/api-reference/getting-started/configuration-concepts#configuration-and-modification) explains what that means for a change you make to an element. [Connect a component to an origin](/api-reference/components/connect-a-component-to-an-origin) accepts a component only when its elements match the origin's.
+
+## The Campaign
+
+A campaign is the model element that holds a tree of components and their elements. Every top-level component lives in a campaign of its own, which is why integrations, extensions, and account configuration appear in the Management API's campaign list beside marketing campaigns.
+
+### Campaign Type
+
+The Management API classifies each campaign with `campaign_type`. [Create a campaign](/api-reference/campaigns/create-a-campaign) takes it, and [List campaigns](/api-reference/campaigns/list-campaigns) returns campaigns of every type.
+
+| `campaign_type` | What the campaign holds |
+|---|---|
+| `MARKETING` | A participant-facing campaign in a program. These are the campaigns on the My Extole **Programs** page. This is the default. |
+| `INTEGRATION` | A connection to an external system. See [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration). |
+| `EXTENSION` | A capability added to the account. |
+| `CONFIGURATION` | Account configuration. The account's `global` campaign is one. |
+
+`campaign_type` and component types are separate classifications. `campaign_type` describes the campaign, the container. A component type describes a component in it. Each is set on its own: creating a campaign with a `campaign_type` gives its root component no type.
+
+### Labels, Versions, and State
+
+A campaign carries **labels**, and each label is of type `PROGRAM` or `DATA`. The marketing campaigns that share a `PROGRAM` label form one program. A program is that label and nothing more: it has no component and no settings of its own.
+
+A campaign has **versions**. Editing creates a draft, and publishing makes the draft the published version. Each save builds the version, and the built campaign of the published version is the one your participants reach.
+
+A campaign has a **state**: `NOT_LAUNCHED`, `LIVE`, `PAUSED`, `ENDED`, `STOPPED`, or `ARCHIVED`. You launch, pause, and end a `MARKETING` campaign. [Pausing, Ending, and Scheduling Campaigns](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns) covers those changes in My Extole, and [Campaign States Over REST](/technical/platform-integrations/rest-apis/campaign-states-over-rest) covers them in the API. Extole launches a campaign of any other type itself.
+
+## Related Documentation
+
+- [Configuration Concepts](/api-reference/getting-started/configuration-concepts)
+- [Key Concepts](/technical/integration-overview/key-concepts)
+- [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest)

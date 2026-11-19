@@ -1,123 +1,116 @@
 ---
 title: "Configuration Concepts"
-description: "What the Management API configures: components, their types and sockets, the four kinds of campaign, and how a campaign is a tree of components."
+description: "What you can configure in Extole, how the major components relate, and how to discover, configure, and validate a component."
 ---
 
 # Overview
 
-Use this page when calling the Management API or reading campaign configuration. It describes how configuration is structured: a campaign is a tree of components plugged into typed sockets.
+Everything you configure in Extole is a **component**. A marketing campaign is a component, and so are the journeys, business events, rewards, and experiences inside it. Each component describes what it does and which settings it offers, so you learn the details from the component and not from a static list.
 
-Each of these concepts has a **runtime** meaning and a **configuration** meaning. At **runtime**, a campaign is the thing that accepted an event, a reward is one a person earned, and a journey is the path that person took. The [Integration APIs](/api-reference/getting-started/api-overview#the-apis) work with that meaning, and [Key Concepts](/technical/integration-overview/key-concepts) explains it.
+An account holds four kinds of top-level component:
 
-In **configuration**, a campaign is a tree of components, a reward is a reward component with its rules and supplier, and a journey is a component that groups business events. The [Management API](/api-reference/getting-started/api-overview#management-api) and My Extole work with that meaning. This page explains it.
+<CardGroup cols={2}>
+  <Card title="Marketing Campaigns" icon="bookmark" href="/guides/flow-campaigns/index">
+    The programs your participants see: roles, journeys, business events, rules, experiences, and rewards.
+  </Card>
+  <Card title="Integrations" icon="puzzle-piece" href="/technical/building-partner-integrations/integration-types/integration-categories">
+    Connections to external systems, which send events to Extole or receive them from it.
+  </Card>
+  <Card title="Extensions" icon="grid-2" href="/technical/platform-integrations/extensions/index">
+    Capabilities you add to the account, such as monitors, jobs, and the events your site and apps send.
+  </Card>
+  <Card title="Account Configuration" icon="gear">
+    Settings that the account's campaigns share and that belong to no single program.
+  </Card>
+</CardGroup>
 
-## Components
+Components draw on three kinds of account resource. Each is set up once and used by any component that names it:
 
-A component is the unit of configuration. Everything you set up in a campaign is one: a role, a journey, a business event, a reward, an experience, a rule. A component has a name, one or more types, settings, and child components. Together, the components of a campaign form a tree whose root is the campaign.
+<CardGroup cols={3}>
+  <Card title="Reward Suppliers" icon="trophy" href="/product/product-overview/rewards/rewards-overview">
+    The sources that fulfill rewards.
+  </Card>
+  <Card title="Audiences" icon="poll-people" href="/product/product-overview/people/people-overview">
+    Groups of people that campaigns target.
+  </Card>
+  <Card title="Reports" icon="file-chart-line" href="/product/product-overview/data/reports">
+    Reporting and analytics on what your programs did.
+  </Card>
+</CardGroup>
 
-[List components](/api-reference/components/list-components) returns the components of an account. [Get a built component](/api-reference/components/get-a-built-component) returns one with every setting evaluated.
+## How the Components Relate
 
-## Types
+A top-level component holds its own copy of every component inside it. A change to a business event in one marketing campaign reaches that campaign and no other.
 
-A component's type decides which settings it carries and which child components it can hold. Type names carry a generation suffix, such as `business-event-v10.0`. The pages on this site drop the suffix when they name a type in prose.
-
-A type can specialize another. `reward-email-v10.0` is a kind of `reward-send-action-v10.0`, which is a kind of `action-v10.0`. A socket that accepts the general type accepts each specialized one.
-
-## Sockets
-
-A **socket** is a typed slot for child components — a setting that holds one component or many. A `SOCKET` holds one. A `MULTI_SOCKET` holds many. Each socket declares the types it accepts, so a `businessEvents` socket on a journey holds business events and nothing else.
-
-You add to a campaign by copying a component into a socket. The API lists those sources as [duplicatable components](/api-reference/components/list-duplicatable-components) — templates you can install. Pass a target component and setting to see only the ones that fit that socket. [Duplicate a component](/api-reference/components/duplicate-a-component) installs the copy. The sources are the components Extole maintains and the ones your account already has.
-
-For example, to add a reward, list duplicatable components for the campaign's `rewards` socket, then duplicate one into that socket. The copy keeps the source defaults until you change its variables.
-
-## Variables
-
-A variable is a setting with a value. Each has a type, such as `STRING`, `COLOR`, `BOOLEAN`, `REWARD_SUPPLIER_ID` or `TRIGGER_CONFIGURATION`, and a map of values that can differ by locale. [List component settings](/api-reference/components/list-component-settings) returns the variables and sockets of a component.
-
-A duplicated component keeps the values of its source until you set your own. Values are evaluated when the campaign is built, which is why [Get a built component](/api-reference/components/get-a-built-component) and the component as configured can differ.
-
-Some variable types reference configuration that lives outside any campaign. `REWARD_SUPPLIER_ID` names a reward supplier, `AUDIENCE_ID` an audience, `WEBHOOK_ID` a webhook. The campaign refers to them; the Management API's [Reward Suppliers](/api-reference/reward-suppliers/list-reward-suppliers), [Audiences](/api-reference/audiences/list-audiences) and [Webhooks](/api-reference/webhooks/list-webhooks) groups manage them.
-
-## The Four Kinds of Campaign
-
-An account's campaign list holds four kinds. The Management API carries the kind as `campaign_type`.
-
-| `campaign_type` | What it is |
+| Top-level component | Components inside it |
 |---|---|
-| `MARKETING` | A participant-facing campaign in a program: roles, journeys, business events, rewards, and the content served on zones. These are the campaigns on the My Extole **Programs** page. |
-| `CONFIGURATION` | Account configuration, not a participant-facing program. The account's `global` campaign is one. It holds variables and components that the account's other campaigns use. |
-| `INTEGRATION` | A connection to an outside platform: partner events mapped onto business events, outbound webhooks, and the reward suppliers a partner fulfills through. The tiles on the **Integrations** page. See [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration). |
-| `EXTENSION` | A capability added to the account: views in My Extole, scheduled jobs, mobile SDK platforms, tagless calls to action, and monitoring. Usually Extole-maintained rather than built by an outside developer. |
+| Marketing campaign | Roles, such as advocate and friend. Each role has journeys and rewards. A journey has business events. A business event has rules, actions, and experiences. |
+| Integration | The events and actions it exchanges with the external system, its views in My Extole, and the reward suppliers a partner fulfills through. |
+| Extension | Whatever the capability needs: views, jobs, events, experiences, or monitors. |
+| Account configuration | Shared settings. Every account has one named `global`. |
 
-[Create a campaign](/api-reference/campaigns/create-a-campaign) takes the kind. [List campaigns](/api-reference/campaigns/list-campaigns) returns all four.
+Top-level components also work together. An integration or an extension declares the events an external system can send, and a business event in a marketing campaign chooses one of them as its trigger. [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) covers that choice.
 
-## A Marketing Campaign as a Tree
+An account resource is used by reference. A reward names its reward supplier and a campaign names the audiences it targets, so one reward supplier can serve many campaigns, and a change to it reaches all of them.
 
-The socket names below are the ones the API returns, and the type names drop their suffix. Each line is `socketName: component-type` — children listed under a socket are the types that socket accepts.
+A **program** is a group of marketing campaigns that serve one audience and one outcome. The campaigns of a program share a `PROGRAM` label. [Programs vs. Campaigns](/guides/platform-overview/key-concepts/programs-vs-campaigns) explains when to make a new one of each.
 
-```
-campaign
-└─ roles: role                        advocate, friend
-   ├─ journeys: journey
-   │  ├─ targetingScenario: targeting-scenario
-   │  │     entryRules, ongoingRules: rule
-   │  ├─ businessEvents: business-event
-   │  │     triggerRules, qualificationRules, qualityRules: rule
-   │  │     actions, lowQualityActions: action
-   │  │     experiences, onsitePromotions, clickBehavior: content
-   │  │     emailPromotions: email-promotion ── actions: action
-   │  │     data: data
-   │  ├─ rules: rule
-   │  ├─ shareLinkActions: content
-   │  ├─ authenticationActions: authentication-action
-   │  └─ data: data
-   └─ rewards: reward
-         triggerRules: rule
-         rewardRules: reward-rule
-         rewardIssuer: reward-issuer
-            sendActions: reward-send-action ── reward-email
-            fulfillmentActions: action
-         data: data
-```
+## Working with Components
 
-Flow Builder shows the same tree. Its columns are the roles, its flows are the journeys, its white boxes are the business events, and the promotions, experiences, quality rules, and actions on each business event are the children of that component. Rewards hang under the role in this tree; Flow Builder surfaces them next to the business events that earn them. [Flow Campaigns](/guides/flow-campaigns/index) describes each element as a marketer sees it.
+You work with every component the same way, in My Extole or through the [Management API](/api-reference/getting-started/api-overview#management-api).
 
-The leaf types have structure of their own:
+1. **Discover the component.** [List components](/api-reference/components/list-components) returns the components your account has, and you can narrow the list by type, tag, or parent component. [List duplicatable components](/api-reference/components/list-duplicatable-components) returns the components you can copy into your account: the ones Extole maintains and the ones you already have.
+2. **Read what it says about itself.** [Get a component](/api-reference/components/get-a-component) returns its name, description, and types. [List component settings](/api-reference/components/list-component-settings) returns each setting with its own name, description, and type.
+3. **Configure its settings.** A component has two kinds of setting:
+   - A **variable** holds a value, such as a text, a color, a reward supplier, or an audience. [Update a component setting](/api-reference/components/update-a-component-setting) sets it.
+   - A **socket** holds other components, and it says which types it accepts. [Add component to setting](/api-reference/components/add-component-to-setting) copies a component into a socket. To see what fits a socket, list duplicatable components with that socket as the target.
+4. **Validate the result.** [Get a built component](/api-reference/components/get-a-built-component) returns the component as Extole will run it. [Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest) sends events to a draft before you publish it.
 
-- **content** is a creative, a page or an experience. It holds content blocks in layout sockets, nested experiences, and the trigger events that show it.
-- **action** is what a business event does: send an email, publish an event, send a reward. It holds data and a person identification that says which person the action is about.
-- **rule** is a condition. A group rule holds rules. A targetable event listener is a rule that listens for a journey step — the named milestone recorded after a business event matches.
-- **business-event** declares the event a campaign listens for. Once a campaign accepts an event that matches one, the person's journey records a step with that name.
-- **reward** holds the rules that decide whether one is owed and the issuer that sends and fulfills it.
-- **data** declares the fields a component captures or carries.
+[Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest) covers reading and writing a setting in detail.
 
-## Extensions and Integrations as Trees
+### Configuration and Modification
+
+A component you copy remembers the component it came from, which is its **origin**. When the origin gets a later version, [Upgrade a component](/api-reference/components/upgrade-a-component) brings your copy to that version, and [Get available component upgrades](/api-reference/components/get-available-component-upgrades) lists what an upgrade would bring.
+
+An upgrade keeps what you configured: the values you set on settings, the settings and assets you added, and the components you placed in sockets. Everything beneath the settings comes from the new version of the origin.
+
+So there are two ways to change what a component does, and they are not equal:
+
+- **Configuring** a component sets its variables and fills its sockets. An upgrade carries that work forward.
+- **Modifying** a component changes the [model elements](/technical/integration-overview/underlying-configuration-model#model-elements) beneath it, such as a trigger or an action. An upgrade replaces those elements with the origin's, so your copy no longer upgrades automatically: each upgrade means making the change again.
+
+Modify model elements as a last resort. When a component has no setting for the behavior you need, or its description doesn't say how to get it, look for another component that offers it. If none does, the component is missing a setting or a description, and Extole Support can tell you whether it can gain one.
+
+## The Configuration Lifecycle
+
+Configuration becomes behavior in three stages.
 
 ```
-extension                              integration
-├─ views: view                         ├─ views: event-stream-view
-├─ jobs: job                           └─ rewardSuppliers: reward-supplier
-│    triggers: job-trigger
-│    tasks: job-task ── events: job-event
-├─ integrationEvents: event-api-trigger-event
-├─ platforms: mobile-sdk-platform ── ctas: sdk-zone-event
-├─ zoneEvents: sdk-zone-event
-├─ taglessCtas: tagless-cta
-├─ experiences: content
-└─ monitoringElements: monitoring-element
+Configuration  ──►  Build Time  ──►  Runtime
+component           built component  events, journeys, rewards
 ```
 
-An extension's `integrationEvents` are the events an outside system can send to the account. A marketing campaign's business event is triggered by one of them, which is what **Triggered By** selects in Flow Builder. [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) covers that choice.
+| Stage | What exists | What happens |
+|---|---|---|
+| **Configuration** | The component: its types, its variables and sockets, and its model elements. | You discover, configure, and save. Editing a published campaign creates a draft. |
+| **Build time** | The built component. | Each save builds the campaign. Building resolves every value that can be known from configuration alone. |
+| **Runtime** | The built model elements, running. | Extole receives events and runs the configured behavior. A value that depends on the event or the person is resolved here. |
 
-## Programs, Labels, Versions and State
+A **component** is what you configured. A **built component** is what the build made of it. The two can differ, because a setting can hold an expression and the built component holds the result.
 
-In product language, a **program** is the use case — audience plus outcome. In the Management API, that grouping is represented as a `PROGRAM` label: every campaign carries one, and the campaigns that share a label are one program. A campaign can also carry `CAMPAIGN` and `JOURNEY` labels. An integration's events name the program label they are for, and that label is what targets them at the campaign. [Programs vs. Campaigns](/guides/platform-overview/key-concepts/programs-vs-campaigns) explains when to make a new one of each.
+A built component can still hold unresolved values. A greeting that includes the person's first name has no value until a person arrives, so the built component keeps the expression and the runtime resolves it for each person.
 
-A campaign has **versions**. Editing creates a draft, and publishing makes the draft the published version. Building evaluates every variable of a version into the built campaign the runtime uses.
+## What Configuration Does at Runtime
 
-A campaign has a **state**: `NOT_LAUNCHED`, `LIVE`, `PAUSED`, `ENDED`, `STOPPED` or `ARCHIVED`. The state decides whether the runtime considers the campaign for an event. [Pausing, Ending, and Scheduling Campaigns](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns) covers the transitions in My Extole.
+At runtime, Extole works with events and people. The configuration decides what happens to each event.
 
-## Configuration Outside Campaigns
+1. An **event** arrives from your site, your app, your servers, a file, or an integration. Extole finds or creates the **profile** of the person it belongs to.
+2. **Targeting** finds the **business events** this event can start, across your campaigns, and chooses the campaign that applies to this person. The audiences and **rules** you configured decide which campaign that is, whether the event qualifies, and what its quality is.
+3. Extole records the business event as a **step** in the person's **journey**.
+4. The business event's **actions** run: show an experience, send an email, call a webhook, or earn a **reward**. A reward has its own rules, and its reward supplier fulfills it.
 
-Some configuration belongs to the account, not to any campaign: users and their roles, program domains, email sending domains, security keys, reward suppliers, audiences, webhooks, event streams, and report schedules. Each is a group of the Management API. A campaign refers to them through its variables, so the same reward supplier can serve many campaigns and a change to it reaches all of them.
+The profile now holds the step and the reward, and they shape what the person is eligible for on the next event. [Key Concepts](/technical/integration-overview/key-concepts) describes each of these in more depth.
+
+## The Model Beneath Components
+
+Components are built from model elements, such as campaigns, steps, triggers, and webhooks. You don't need them to configure Extole. [The Underlying Configuration Model](/technical/integration-overview/underlying-configuration-model) describes them for developers who build components, troubleshoot a campaign in depth, or read `campaign_type` in the Management API.
