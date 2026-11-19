@@ -1,6 +1,6 @@
 ---
 title: "Gift Card Reward Fails With a Partner Error"
-description: "What each Tango fulfillment failure message means, how many times Extole retries, how to read the partner's reason in Failed to make Tango Api request, what Unexpected software error covers, and how a retired catalog item or a recipient's name causes a failure that no message explains."
+description: "What each Tango fulfillment failure message means, how the spending limits are measured, how many times Extole retries, how to read the partner's reason in Failed to make Tango Api request, what Unexpected software error covers, and how a retired catalog item or a recipient's name causes a failure that no message explains."
 ---
 
 # Overview
@@ -26,6 +26,16 @@ A gift card reward that fails records one row per attempt in its history, with a
 | `Failed to make Tango Api request: <status> <reason>` | Any other partner response, a network failure, or a failure to read the catalog. The partner's HTTP status, such as `422 UNPROCESSABLE_ENTITY`, and the reason the partner gave follow the colon. |
 
 The two limit messages show the configured amount in place of the example numbers above. Hitting a limit counts as a failed attempt, so a burst of rewards over the limit can use up a reward's attempts.
+
+## How the Spending Limits Are Measured
+
+The daily limit covers the last 24 hours and the hourly limit covers the last 60 minutes, counted back from each attempt. Neither is a calendar day or a clock hour.
+
+Before each gift card order, Extole adds up the amount already sent in that window and compares it with the limit. Extole refuses the order only when that amount has already reached the limit. The order being placed is not added first, so the order that takes the total past the limit is sent, and the total sent in the window can end higher than the limit.
+
+The amount counts every reward fulfilled for your account in the window, not only gift cards. A gift card counts the amount the partner charged for the order. A custom reward counts when its fulfillment reports an amount.
+
+A refused order records the limit message as a failed attempt, and the reward is retried on the schedule below.
 
 ## Retries and the Final State
 
