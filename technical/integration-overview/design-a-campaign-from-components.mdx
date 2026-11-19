@@ -1,21 +1,21 @@
 ---
 title: "Design a Campaign from Components"
-description: "Turn a description of a program into roles, journeys, business events, and rewards, and let Extole evaluate the counts, time windows, and limits from the plain events your systems send."
+description: "Turn a program description into roles, journeys, business events, and rewards, and let Extole do the counting."
 ---
 
 # Overview
 
-Every program template is a tree of the same four parts: roles, journeys, business events, and
-rewards. When no template matches your program, you design that tree yourself. This page shows
-how to read a program description as a tree, and where to put each count, time window, and limit,
-so that your systems send one plain event for each action and Extole evaluates the rest.
+A campaign holds roles. A role holds journeys and rewards, and a journey holds business events.
+Every program template is a campaign that already holds these components. When no template
+matches your program, you choose them yourself: read the program description as people, stages,
+and actions, and put each count, time window, and limit in the campaign. Your systems then send
+one plain event for each action, and Extole evaluates the rest.
 
-[Configuration Concepts](/api-reference/getting-started/configuration-concepts) defines the
-parts. Once you have a design,
-[Build a Campaign from Components Over REST](/technical/platform-integrations/rest-apis/build-a-campaign-from-components-over-rest)
-assembles it with the Management API, and
-[How to Add a New Business Event](/guides/flow-campaigns/how-to-add-a-new-business-event)
-covers the same work in Flow Builder.
+[Configuration Concepts](/api-reference/getting-started/configuration-concepts) explains
+components and the components they hold. To build your design with the Management API, see
+[Build a Campaign from Components Over REST](/technical/platform-integrations/rest-apis/build-a-campaign-from-components-over-rest).
+To build it in Flow Builder, see
+[How to Add a New Business Event](/guides/flow-campaigns/how-to-add-a-new-business-event).
 
 ## Read the Program as People, Stages, and Actions
 
@@ -26,7 +26,7 @@ covers the same work in Flow Builder.
 | Each action a person takes | A business event in that journey | `shared`, `signed_up`, `converted` |
 | Each thing a person earns | A reward on the role that earns it | Advocate Reward on Friend Converted |
 
-Three habits keep the tree readable in Flow Builder and in reports:
+Three rules keep the campaign readable in Flow Builder and in reports:
 
 - **One business event for each action.** Give an action its own business event even when it
   only counts toward a later condition. Rules read the events that the campaign records.
@@ -57,29 +57,29 @@ brings in another has this order:
 A program for one person, such as a reward for an action, uses rows 1 to 3 and row 8.
 
 Put the promotion and the invitation in the flow even when the program description leaves them
-out. The promotion records how a person found the program. The invitation is how the second
-person arrives, and it ties that person to the first.
+out. The promotion records how a person found the program. The invitation brings in the second
+person and ties that person to the first.
 
-The invitation does work in the design. A share link creates the referral relationship between
-the two people, and **Publish Event Data** uses that relationship to find the first person. The
-second person's events then need no identifier for the first person.
+The share link creates the referral relationship between the two people. **Publish Event Data**
+uses that relationship to find the first person, so the second person's events need no
+identifier for the first person.
 
 Flow Builder draws each role as a column and each journey as a row. The rows of all the roles run
 from top to bottom in the order of each journey's `sequence` setting. The business events of a
-journey run in the order of their own `sequence`. So number the journeys in the order of the
-flow, across the roles, and give each journey a number of its own. Refer A Friend numbers the
+journey run in the order of their own `sequence`. Number the journeys in the order of the flow,
+across the roles, and give each journey a number of its own. Refer A Friend numbers the
 advocate's marketing journey 1, the advocate's share journey 2, and the friend's journey 4.
 
 A role that acts at two points of the flow has a journey for each point. The first person's early
-journeys exist to bring the second person in: they hold the promotion, the first person's own
-action, and the invitation. A later journey of the same role holds what the second person's
-actions give back, such as a counted event, and the rewards follow it. Number the second
-person's journeys between the two, so that the campaign reads in the same order as your flow.
+journeys hold the promotion, the first person's own action, and the invitation. A later journey
+of the same role holds what the second person's actions give back, such as a counted event, and
+the rewards follow it. Number the second person's journeys between the two, so that the campaign
+reads in the same order as your flow.
 
 ## Give Each Part What It Needs to Run
 
 The Custom Campaign Template holds one role, one journey, and one business event. Every
-template that runs a program adds the following, and a design from components adds them too:
+template that runs a program adds these parts, and your design needs them too:
 
 | Part | What it needs | Guide |
 |---|---|---|
@@ -88,18 +88,17 @@ template that runs a program adds the following, and a design from components ad
 | Reward | The business event that earns it, a reward supplier, and a reward email | [How to Add a New Reward](/guides/flow-campaigns/how-to-add-a-new-reward) |
 | Reward | Reward rules that limit how often and to whom it is issued | [How to Set Up Reward Rules](/guides/flow-campaigns/how-to-set-up-reward-rules) |
 
-Give every reward a supplier from the start, even before your fulfillment exists. A custom reward
-that Extole fulfills and sends by itself works as a placeholder: a test person earns the reward
-and receives the reward email, and you replace the supplier when your fulfillment is ready.
+Give every reward a supplier from the start, even before your fulfillment exists. Use a custom
+reward that Extole fulfills and sends by itself as a placeholder. A test person then earns the
+reward and receives the reward email, and you replace the supplier when your fulfillment is ready.
 [Build a Campaign from Components Over REST](/technical/platform-integrations/rest-apis/build-a-campaign-from-components-over-rest#use-a-placeholder-supplier-until-fulfillment-is-connected)
 has the settings.
 
 ## Send Plain Events and Let Extole Evaluate the Conditions
 
-Design the integration so that your systems send one event each time a person does something,
-with the identifiers of the people and records involved. Put every condition on those events in
-the campaign. A condition in the campaign is visible in Flow Builder and changes without a
-release of your systems.
+Have your systems send one event each time a person does something, with the identifiers of the
+people and records involved. Put every condition on those events in the campaign, where it shows
+in Flow Builder and changes without a release of your systems.
 
 | The program says | Put it in the campaign as |
 |---|---|
@@ -115,9 +114,9 @@ release of your systems.
 | "After a waiting period" | **Pending Period** on the reward. |
 | "Only for some people" | A targeting scenario on the journey, or **Member of Audience** on the reward. |
 
-When a condition fits no row, ask whether a second business event would make it fit. A condition
-such as "active for 30 days" becomes two events, the one that starts the clock and the one that
-proves the person is still there, joined by **Has Taken Action** with a **Minimum Action Age**.
+When a condition fits no row, see whether two business events make it fit. "Active for 30 days"
+becomes the event that starts the clock and the event that shows the person is still there,
+joined by **Has Taken Action** with a **Minimum Action Age**.
 
 ## Count Distinct People Toward Another Person's Reward
 
@@ -129,9 +128,9 @@ of the person the reward is for, so each member's event must reach the organizer
    conditions on it as trigger rules, so the event is recorded only when the member meets them.
 2. Give that business event a unique event key from a field that identifies the member's place
    in the group, such as a membership id. Extole then records the event once for each member,
-   however often your systems send it. The key is read from the inbound event, so trigger this
-   business event with the input event itself. One input event can start more than one business
-   event, so the action keeps its own business event too.
+   however often your systems send it. Extole reads the key from the inbound event, so trigger
+   this business event with the input event itself. One input event can start more than one
+   business event, so the same input event also starts the action's own business event.
 3. Add the **Publish Event Data** action to that business event, and set **Target Role** to the
    role that earns the reward. The action runs once for each recorded event.
 4. In the earning role, add a business event that is triggered by the published event.

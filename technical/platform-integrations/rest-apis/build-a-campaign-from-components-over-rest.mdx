@@ -1,30 +1,31 @@
 ---
 title: "Build a Campaign from Components Over REST"
-description: "Assemble a Flow Builder campaign with the Management API: copy the Custom Campaign Template, then add the roles, journeys, business events, and rewards your program needs."
+description: "Build a campaign with the Management API, starting from the Custom Campaign Template."
 ---
 
 # Overview
 
 Most programs start as a copy of a template that already carries a complete flow, as
 [Creating a Program](/guides/platform-overview/creating-a-program) describes. When no template
-matches the flow you need, start from the **Custom Campaign Template** and assemble the campaign
-from components. This page gives the order of the calls.
+matches the flow you need, start from the **Custom Campaign Template** and add components to it
+with the calls below, in order.
+
 [Design a Campaign from Components](/technical/integration-overview/design-a-campaign-from-components)
 covers what to build: the roles, journeys, business events, and rewards for your program, and
 the rules that let Extole do the counting.
 [Configuration Concepts](/api-reference/getting-started/configuration-concepts) explains
-components, types, and sockets, and draws the tree you are building.
+components and the components they hold.
 
 ## Start from the Custom Campaign Template
 
 [List duplicatable campaigns](/api-reference/campaigns/list-duplicatable-campaigns) returns the
-templates your account can copy. Select the row whose `name` is `Custom Campaign Template`. Its
-`program_type` is `empty-campaign`, and other templates can share that `program_type`.
+templates your account can copy. Select the row whose `name` is `Custom Campaign Template`. Match
+on the name, because other templates can share its `program_type`, `empty-campaign`.
 
 [Duplicate a campaign](/api-reference/campaigns/duplicate-a-campaign) creates your copy as a
 draft. Send the `name` of the new campaign and the `program_label` of the program it belongs to.
 
-The copy holds the smallest tree a Flow Builder campaign needs:
+The copy holds the fewest components that a Flow Builder campaign needs:
 
 | Component | Absolute name | What it is |
 |---|---|---|
@@ -39,7 +40,7 @@ It holds no reward.
 component has no type and no sockets. A Flow Builder campaign needs the `campaign-v10.0` type on
 its root, and the template supplies it.
 
-## Add Components in Tree Order
+## Add Each Component After Its Parent
 
 You add to a campaign by copying a component into a socket. A child needs its parent, so add
 components in this order:
@@ -57,9 +58,8 @@ For each component:
 
 1. Call [List duplicatable component summaries](/api-reference/components/list-duplicatable-component-summaries)
    with `target_component_id` set to the id of the parent and `target_setting_name` set to the
-   socket. The response lists only the sources that fit that socket. Each row is a summary: the
-   id, name, display name, description, types, tags, owner, and campaign of the source, which is
-   what you need to choose one.
+   socket. The response lists only the sources that fit that socket. Each row gives the id, name,
+   display name, description, types, tags, owner, and campaign of one source.
 2. Choose the source. The template sources are `template_role`, `template_journey`,
    `template_tracked_business_event`, and `reward_core`. When two rows have the same name, take
    the row whose `owner` is `EXTOLE`, which is the source that Extole maintains.
@@ -76,9 +76,9 @@ The copy keeps the settings of its source until you change them. It also brings 
 of its source: `reward_core` arrives with two reward rules, and **Publish Event Data** arrives
 with a person identification.
 
-For the promotion and invitation steps of a flow, copy these sources:
+For the promotion and the invitation in your flow, copy these sources:
 
-| Step | Source | Parent | Socket | What arrives with it |
+| Part of the flow | Source | Parent | Socket | What arrives with it |
 |---|---|---|---|---|
 | The promotion is viewed and clicked | `promotion_viewed` and `promotion_clicked` | A journey of your own | `businessEvents` | The two business events |
 | The invitation is shared | The `share` journey | The first person's role | `journeys` | `shared`, the share emails, the share link, and a targeting scenario |
@@ -103,7 +103,7 @@ While **Triggered By** is empty, the **Triggered by Input Event** rule in the bu
 `triggerRules` socket starts the business event. Copy `input_event` into `triggerRules`, and set
 its `triggerEventNames` to the names of the events your systems send.
 
-One event must match every trigger of a business event. So a business event has one starting
+One event must match every trigger of a business event, so give a business event one starting
 trigger: **Triggered By**, or the **Triggered by Input Event** rule. A business event that
 another business event or a **Publish Event Data** action starts has **Triggered By** only.
 
@@ -126,8 +126,7 @@ component summaries for the socket you are filling, and the response holds the o
 
 ## Give Each Reward a Supplier, a Delivery, and an Email
 
-A reward issues when it has a reward supplier, and it reaches the person when it has a delivery
-with an email:
+A reward needs a reward supplier to be issued, and a delivery with an email to reach the person:
 
 1. Call [Create a reward supplier](/api-reference/reward-suppliers/create-a-reward-supplier). For
    a reward that your own systems deliver, such as an account credit or a free month, send
