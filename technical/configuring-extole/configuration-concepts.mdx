@@ -56,7 +56,7 @@ Reward
     └── Fulfillment actions
 ```
 
-A send action delivers the reward to the person. A reward email is one kind of send action.
+[Trigger rules](/guides/flow-campaigns/common-trigger-rules) decide which events the reward responds to. [Reward rules](/guides/flow-campaigns/how-to-set-up-reward-rules) decide whether the person qualifies for it, such as a limit on how many rewards one person can earn. The reward issuer issues the reward from the reward supplier you choose. Its send actions deliver the reward to the person, and a reward email is one kind of send action. Its fulfillment actions run when the reward is fulfilled.
 
 These hierarchies show the common kinds. There are many more, and the components your account has depend on what you add.
 
@@ -64,10 +64,10 @@ A component holds its own copy of each component inside it. A change to a busine
 
 ## Components Reference Components
 
-A component can also reference a component that it does not hold. A business event shows how. Its **Triggered By** setting references a trigger event, and that trigger event belongs to another component, such as the Javascript SDK extension:
+A component can also reference a component that it does not hold. A business event shows how. Its **Triggered By** setting references a trigger event, and that trigger event belongs to another component, such as the JavaScript SDK extension. A trigger event describes an event that arrives from outside the campaign, such as the `conversion` event your website sends. A business event is what the campaign records when that event qualifies.
 
 ```
-Campaign                          Javascript SDK
+Campaign                          JavaScript SDK
 └── Business event: Converted     └── Trigger event: conversion
     └── Triggered By  ──────────────►  conversion
 ```
@@ -79,7 +79,7 @@ The extension holds the trigger event, and every business event that references 
 You add a component by copying one that exists. A copy can come from two sources:
 
 - **Your account.** Any component your account already has.
-- **A library or another account.** That account must grant your account access to its components, and your account must subscribe to them.
+- **A library or another account.** A library is an account that exists to share its components, such as Extole's own components or a partner's integration. The other account grants your account access to its components, and your account subscribes to them. Once your account subscribes, those components appear among the ones you can copy.
 
 A copy remembers the component it came from. That is what makes an upgrade possible, and [Upgrading Components](#upgrading-components) explains it.
 
@@ -117,14 +117,14 @@ Change a component through its settings whenever you can. When a component has n
 A component exists in three forms.
 
 ```
-Component  ──►  Built component  ──►  Runtime component
+Component  ──►  Built component  ──►  Running component
 ```
 
 | Form | What it is |
 |---|---|
 | **Component** | What you configure. A setting can hold a fixed value or an expression that works the value out. |
 | **Built component** | What Extole makes of the component each time you save. Most settings now have their final values. |
-| **Runtime component** | The built component at work. It responds to events, and it works out the few values that depend on the event or the person. |
+| **Running component** | The built component at work. It responds to events, and it works out the few values that depend on the event or the person. |
 
 ### Build
 
@@ -142,7 +142,7 @@ A build also checks the component. When a value cannot be worked out, the build 
 
 At runtime, the built component responds to events. The same built component serves every person, and it works out the remaining values for each one.
 
-A greeting that includes a person's first name shows the difference. The component holds the expression. The built component still holds it, because no person is known yet. The runtime component works it out for each person who arrives.
+A greeting that includes a person's first name shows the difference. The component holds the expression. The built component still holds it, because no person is known yet. The running component works it out for each person who arrives.
 
 Nothing changes at runtime until you change the configuration. A change becomes a new built component, and your participants reach it when you publish.
 
@@ -152,7 +152,7 @@ Nothing changes at runtime until you change the configuration. A change becomes 
 |---|---|
 | What did I set? | The component and its settings. |
 | What value will Extole use? | The built component. |
-| What happened for one person or one event? | The runtime: the person's profile, with its events, steps, and rewards. |
+| What happened for one person or one event? | The person's profile, with their events, business events, and rewards. |
 
 ## What Components Do at Runtime
 
@@ -160,10 +160,10 @@ At runtime, Extole works with events and people, and your components decide what
 
 1. An **event** arrives from your site, your app, your servers, a file, or an integration. Extole finds or creates the **profile** of the person it belongs to.
 2. **Targeting** finds the **business events** this event can start and chooses the campaign that applies to this person. Your audiences and **rules** decide which campaign that is and whether the event qualifies.
-3. Extole records the business event as a **step** in the person's **journey**.
+3. Extole records the business event in the person's **journey**.
 4. The business event's **actions** run: show an experience, send an email, call a webhook, or earn a **reward**.
 
-The profile now holds the step and the reward, and they shape what the person is eligible for on the next event. [Key Concepts](/technical/integration-overview/key-concepts) describes each of these in more depth.
+The profile now holds the business event and the reward, and they shape what the person is eligible for on the next event. [Key Concepts](/technical/integration-overview/key-concepts) describes each of these in more depth.
 
 ## Beneath Components
 
