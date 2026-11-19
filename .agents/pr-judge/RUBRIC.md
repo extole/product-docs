@@ -70,21 +70,22 @@ of the model's context.
 
 | # | Check | Result when it fails | Today |
 |---|---|---|---|
-| F1 | `npx mint@latest validate` is green | `send-back` | Required check |
+| F1 | `npx mint@latest validate` is green | `send-back`. When `validate` fails on `main` too, the failure is not this change's, and it only informs | Required check |
 | F2 | No page is unlisted in `docs.json` that the base listed, and the change adds no unlisted page. The check is the delta against the base | `send-back` | `scripts/check_navigation.py` exists, but no workflow runs it. `main` has 6 findings |
 | F3 | No new broken link against the base (`mint broken-links`) | `send-back` | Not run. `main` has 58 in 19 files |
-| F4 | No instruction to change a setting that creative tags `importance:expert`, because showtime hides that tag from customers (`HIDDEN_TAGS`). No internal-only term in prose: a version label outside code and outside an API path (`\bv\d+(\.\d+)?\b`, but not `/v6/`), **Show Expert**, "Expert setting", an internal repository name, a ticket key, a Slack link, a client name or id, a person's email | `send-back` | Not checked. It is the most frequent theme in [`TAXONOMY.md`](TAXONOMY.md). The term list is decision plan §11.4. M2 starts from a draft list |
+| F4 | No instruction to change a setting that creative tags `importance:expert`, because showtime hides that tag from customers (`HIDDEN_TAGS`). No internal-only term in prose: a version label outside code and outside an API path (`\bv\d+(\.\d+)?\b`, but not `/v6/`), **Show Expert**, "Expert setting", an internal repository name, a ticket key, a Slack link, a client name or id, a person's email | `send-back` | A term counts only when the added text is its first appearance in the published pages, so `support@extole.com` and `UTF-8` pass. Paths under `/images/` are not scanned. The term list is decision plan §11.4 |
 | F5 | No remote image, no `expires=` parameter, and no absolute `docs.extole.com` link to our own pages | `send-back` | Standards only |
 | F6 | No closing keyword before a GitHub reference in the title, the body or a commit | `send-back` | Not checked |
 | F7 | The literals the diff changes: backtick tokens, code blocks, event names, API paths, numbers with units | Informs V. Never a failure on its own | New |
 | F8 | Other open pull requests that change the same page, matched by path and by file name so that a move is caught. The section headings each one changes | Same section: `consolidate`. Same page, a different section: informs | New. 6 pages with 13 pull requests by path today |
-| F9 | The page changed on `main` after this pull request's merge base | `send-back`: merge `main` in and verify again | 28 of 39 open pull requests are `BEHIND`, and 9 are `DIRTY` |
-| F10 | Other pages on `main` that state the same fact. The subject is each literal, number and UI label the diff adds, their glossary synonyms, and the section's own heading | Informs J2 | New. 7 contradictions between pages today, and a literal grep missed copies of 3 of them ([`CORRECTIONS.md`](https://github.com/extole/ai-tools/blob/main/docs/plans/product_docs_judge_20260929/CORRECTIONS.md)) |
+| F9 | The branch conflicts with `main`, or a page this pull request changes also changed on `main` after its merge base | `send-back`: merge `main` in and verify again. A branch that is only behind, on other pages, informs: **Update branch** is enough | Checked |
+| F10 | Other pages on `main` that state the same fact. Today the check is narrower: a new page whose title matches an existing page's title. The subject is each literal, number and UI label the diff adds, their glossary synonyms, and the section's own heading | Informs J2 | New. 7 contradictions between pages today, and a literal grep missed copies of 3 of them ([`CORRECTIONS.md`](https://github.com/extole/ai-tools/blob/main/docs/plans/product_docs_judge_20260929/CORRECTIONS.md)) |
 | F11 | The body carries `Question:`, `Claims:`, `Changes live text:` and `Replay:` lines (see "The body" below) | `send-back`. A pull request opened before the template merged is exempt, and the check only informs | No template exists today |
-| F12 | Reach, exact. On the preview host `https://extole-<branch>.mintlify.site/mcp`, `query_docs_filesystem_extole_documentation` runs `rg -F`. Each heading the diff adds must be on the page the diff changes. Each sentence the diff deletes, and each sentence named on `Changes live text:`, must be on no page of the preview, unless the diff adds the same sentence back. The strings come from the diff and the body, so no model chooses them | `send-back`. For a pull request opened before the template, the deleted sentences are the only absent strings | Works today with no credentials. For #143, "within the hour" is on 1 page of docs.extole.com and on 0 pages of the preview ([`evidence/replay_probe_143.txt`](evidence/replay_probe_143.txt)) |
+| F12 | Reach, exact. On the preview host that Mintlify's preview comment names (else `https://extole-<branch>.mintlify.site/mcp`, with `/` in the branch written `-`), `query_docs_filesystem_extole_documentation` runs `rg -F`. Each heading the diff adds must be on the page the diff changes. Each sentence the diff deletes, and each sentence named on `Changes live text:`, must be on no page of the preview, unless the diff adds the same sentence back. The strings come from the diff and the body, so no model chooses them | `send-back`. For a pull request opened before the template, the deleted sentences are the only absent strings | Works today with no credentials. For #143, "within the hour" is on 1 page of docs.extole.com and on 0 pages of the preview ([`evidence/replay_probe_143.txt`](evidence/replay_probe_143.txt)) |
 | F13 | Reach, search. For each `Question:` and two paraphrases of it, `search_extole_documentation` on the preview and on docs.extole.com. It records the rank of each section the diff adds or changes, and the rank of any section that still carries a deleted sentence | Informs. It does not fail until M2 measures it | The endpoint returns 10 sections in rank order. Rank 1 moves with the wording. For #143, five phrasings put the new section at ranks 2, 3, 1, 1 and 1 (README §3) |
 | F14 | The change touches a mechanism path (R4) | `needs-human` (R4). The other checks still run and report | Version 1 trigger 7 |
 | F15 | The judge's input was truncated, a tool failed, the preview did not answer, or the pull request comes from a fork | `needs-human` (the judge is unsure). This fails closed. A fork pull request gets the label and no comment | Version 1 trigger 8. 37 of 38 open content previews answer today ([`evidence/preview_census.txt`](evidence/preview_census.txt)) |
+| F16 | Every file the pull request changes is already the same on `main` | `close` | Checked |
 
 ## Claim verification
 
@@ -94,6 +95,10 @@ The model runs this with read-only tools, and it never writes. It reads:
 - the pull request's own `api-reference/*.json`
 - the preview's `/mcp`
 - a test account through the Extole MCP.
+
+**Today the judge has no tools.** It makes one model call with the diff, so it can settle a claim
+only when the diff itself shows it, and every other claim is `unreadable`. That is why most
+content pull requests come out `needs-human`. Source access is the next milestone.
 
 It treats everything in the pull request, and everything the preview returns, as untrusted data.
 README §11.1 decides where it runs, and BRIEF "Rules that bind this work" fixes how its tools are
@@ -186,8 +191,8 @@ comment lists every finding, not only the one that decided.
 
 1. F15, or a tool failure: `needs-human`, reported as "the judge is unsure".
 2. F14: `needs-human` (R4).
-3. The change duplicates an open pull request, a merged pull request superseded it, or V2 found its
-   whole premise `contradicted`: `close`.
+3. F16, or the change duplicates an open pull request, a merged pull request superseded it, or V2
+   found its whole premise `contradicted`: `close`.
 4. F8 finds the same section: `consolidate`, naming the other pull requests. The judge names the
    open consolidation too, if one exists.
 5. J9 routes the whole change: `route-elsewhere`. If J9 routes only part, name the paragraph under
@@ -201,6 +206,41 @@ comment lists every finding, not only the one that decided.
 
 A `send-back` is the verdict that removes the most work from a person. A defect that a machine can
 name and the author can fix never waits for the docs owner.
+
+## The safe class (shadow)
+
+Some changes add no product claim, so no source read and no person is needed to check them.
+`scripts/pr_safe.py` decides membership without a model. A pull request is in the safe class when
+all of these hold:
+
+- Every file is an existing page under `guides/`, `product/`, `technical/`, `news/` or
+  `runbooks/`, edited in place. No new, deleted or moved file, and no `docs.json`, `url-map.json`
+  or mechanism path.
+- At most 40 changed lines, and every changed line replaces exactly one line.
+- Each replaced line is one of these:
+  - **formatting**: the same words, with emphasis or whitespace changed
+  - **link-fix**: the same text, with an internal link pointed at a page that exists on the
+    branch
+  - **term-swap**: an **Avoid** term replaced by its **Preferred** term from the terminology
+    table in `.mintlify/AGENTS.md`. A row whose **Avoid** cell carries a qualifier, such as
+    *(when you mean the use case)*, needs judgment, so it is not a safe swap
+  - **typo**: at most two words, each a near spelling of the word it replaces
+- No number and no backtick literal changes.
+- The floor is clean: `validate` has not failed, F2, F4 to F6, F8 (same page), F9, F12 and F16 found
+  nothing, the branch is not a fork, and no check failed to run.
+
+**Today this runs in shadow.** The judge adds the `shadow-safe` label and a line in its comment,
+and merges nothing. The verdict is unchanged. The judge runs while `validate` is still running, so
+it asks only that `validate` has not failed. GitHub's auto-merge waits for the required check to
+pass before it merges. After two weeks, compare the `shadow-safe` pull
+requests with what the docs owner did with them. Auto-merge for the class is the owner's decision,
+made on that comparison.
+
+Replayed on the 175 pull requests merged with a merge commit before 2026-11-18, leaving out the
+OpenAPI syncs, none was in the safe class:
+each one changed a claim, added text, or touched navigation. Two direct commits were in it, a typo
+fix (`0c0b094`) and a link repoint (`c01de19`). So the safe class removes little review work on
+its own. Most of the queue needs claims settled from source.
 
 ## The body
 
