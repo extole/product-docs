@@ -89,4 +89,4 @@ distillation and defers to them.
 
 ## Open decisions
 
-Several house-style choices are still split across the corpus and awaiting docs-team ratification — see **Open decisions** at the end of [`.mintlify/AGENTS.md`](.mintlify/AGENTS.md) (client vs. customer, report-name formatting, "Refer A Friend" casing, "step" scope, callout severity). Until decided, match the surrounding page and flag the inconsistency — don't pick a side.
+Several house-style choices are still split across the corpus and awaiting docs-team ratification — see **Open decisions** at the end of [`.mintlify/AGENTS.md`](.mintlify/AGENTS.md) (client vs. customer, report-name formatting, "Refer A Friend" casing, callout severity). Until decided, match the surrounding page and flag the inconsistency — don't pick a side.
