@@ -25,7 +25,7 @@ docs.json navigation but the file does not exist.
 error Build validation failed with 1 warning(s).
 ```
 
-**The reverse is not caught.** A page file that is valid MDX but appears in no `docs.json` group passes validation with exit 0 — it simply ships unreachable, with no build signal and no CI failure. Measured 2026-08-21 against `mint@latest`, and six troubleshooting pages then shipped exactly that way. `python3 scripts/check_navigation.py` reports it, along with paths that do not mirror their navigation group; run it alongside `validate`.
+**`mint validate` does not catch the reverse.** A page file that is valid MDX but appears in no `docs.json` group passes `mint validate` with exit 0, and ships unreachable. `python3 scripts/check_navigation.py` reports it, along with paths that do not mirror their navigation group; run it alongside `validate`. The CI `validate` check runs the same check and fails on a finding that `main` does not have.
 
 **And a page can pass `validate`, render in `mint dev`, and still 404 on the hosted preview.** The hosted build is stricter than both local tools, and it fails one page rather than the run — so `validate` is green, **Mintlify Deployment** is green, and the page you edited is the only one missing. Measured 2026-09-21: adding a `<Warning>` containing an indented markdown bullet list and a `×` (U+00D7) to `creative-image-asset-guide.mdx` left that one path 404 on `https://extole-<branch>.mintlify.site` while every unedited sibling in the same group answered 200; `npx mint@latest validate` reported `success build validation passed` and `npx mint@latest dev` served the page with the callout rendered. Rewriting the callout as plain paragraphs with ASCII `x` fixed it on the next push. So **curl the preview path of every page you touched** — a green deployment check is not the same claim, and the failure signature is indistinguishable from a page you forgot to add to `docs.json`.
 
@@ -55,7 +55,9 @@ Measured 2026-09-21 on `docs/dollar-amounts-render-as-math`: 432 pages swept in 
 
 ## CI runs the gate on every PR
 
-[`.github/workflows/validate.yml`](../../../.github/workflows/validate.yml) runs `npx --yes mint@latest validate` on every pull request, on pushes to `main`, and on manual dispatch. The **`validate`** check is a required status check on `main`, alongside one approving review, so a PR that breaks the build cannot merge.
+[`.github/workflows/validate.yml`](../../../.github/workflows/validate.yml) runs `mint validate` at the version pinned in its `MINT_VERSION` on every pull request, on pushes to `main`, and on manual dispatch. On a pull request the same job then runs [`scripts/check_new_findings.py`](../../../scripts/check_new_findings.py) for navigation and for broken links, and fails on any finding that `main` does not have. The **`validate`** check is a required status check on `main`, alongside one approving review, so a PR that breaks the build, leaves a page out of `docs.json`, or adds a broken link cannot merge.
+
+`mint@latest` on your machine can be newer than the pinned version. When the two disagree, CI decides. Raise `MINT_VERSION` in a pull request of its own, after `npx --yes mint@<version> validate` passes on `main`.
 
 The workflow deliberately carries no `paths:` filter. A required check that is skipped never reports a conclusion, so filtering it by path would leave any PR outside those paths pending forever. The run takes about 30 seconds; the cost of running it on every PR is far below the cost of a wedged merge queue.
 
