@@ -62,16 +62,17 @@ These hierarchies show the common kinds. There are many more, and the components
 
 A component holds its own copy of each component inside it. A change to a business event in one campaign reaches that campaign and no other.
 
-## Components That Reference Other Components
+## Components Reference Components
 
-A setting can also point at a component that lives elsewhere in the account. That component is set up once, and every component that references it sees the same one. Examples include:
+A component can also reference a component that it does not hold. A business event shows how. Its **Triggered By** setting references a trigger event, and that trigger event belongs to another component, such as the Javascript SDK extension:
 
-- **Trigger events.** An integration or an extension provides the events an external system can send, and a business event chooses one of them as its trigger. See [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by).
-- **Reward suppliers.** A reward chooses the reward supplier that fulfills it.
-- **Audiences.** A campaign chooses the audiences it targets.
-- **Webhooks.** An action chooses the webhook it calls.
+```
+Campaign                          Javascript SDK
+└── Business event: Converted     └── Trigger event: conversion
+    └── Triggered By  ──────────────►  conversion
+```
 
-One reward supplier can serve many campaigns, and a change to it reaches all of them.
+The extension holds the trigger event, and every business event that references it sees the same one. [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) covers the choice. A reward references its reward supplier in the same way, so one reward supplier can serve many campaigns.
 
 ## Working with Components
 
@@ -92,13 +93,15 @@ You can take these steps in three places:
 
 All three work with the same components, so a change you make in one appears in the others.
 
-### Configure Before You Modify
+### Upgrading Components
 
-Most components in your account are copies of components that Extole maintains. When Extole improves one, you can upgrade your copy, and the upgrade keeps everything you configured.
+Most components in your account are copies of components that Extole maintains. When Extole improves one, you can upgrade your copy to the new version.
 
-That is true only of configuration. A component does its work through parts beneath its settings, and it is possible to change those parts directly. An upgrade replaces them, so a direct change must be made again after each upgrade.
+An upgrade keeps your settings: the values you set, the components you placed inside the component, and the components it references.
 
-Configure a component through its settings. When a component has no setting for the behavior you need, look for another component that offers it. Modify what lies beneath a component as a last resort.
+An upgrade replaces everything else. A component can also be changed beneath its settings, in the [elements](/technical/configuring-extole/underlying-configuration-model#elements) that carry out its behavior. An upgrade does not keep that kind of change, so you make it again after each upgrade.
+
+Change a component through its settings whenever you can. When a component has no setting for what you need, look for another component that offers it before you change one beneath its settings.
 
 ## From Configuration to Runtime
 
