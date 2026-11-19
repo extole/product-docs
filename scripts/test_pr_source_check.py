@@ -48,6 +48,11 @@ class FromCommentsTests(unittest.TestCase):
     def test_reports_a_check_that_did_not_finish(self):
         self.assertTrue(source_check.from_comments([comment(failed=True)], HEAD).failed)
 
+    def test_a_check_that_has_only_started_counts_as_not_run(self):
+        started = comment()
+        started["body"] = started["body"].replace(json.dumps({"head": HEAD, "claims": []}), json.dumps({"head": HEAD, "claims": [], "pending": True, "attempt": 1}))
+        self.assertIsNone(source_check.from_comments([started], HEAD))
+
     def test_drops_a_claim_with_an_unknown_status(self):
         check = source_check.from_comments([comment(claims=[{**CONTRADICTED, "status": "approved"}])], HEAD)
         self.assertEqual(check.claims, [])
@@ -96,6 +101,7 @@ class ContextTests(unittest.TestCase):
         self.assertIsNotNone(source_check.reason(None, source_check.checked_by_verifier(page, fork=False)))
         self.assertIsNone(source_check.reason(None, source_check.checked_by_verifier(page, fork=True)))
         self.assertIsNone(source_check.reason(None, source_check.checked_by_verifier(config, fork=False)))
+        self.assertIsNone(source_check.reason(None, source_check.checked_by_verifier({**page, "isDraft": True}, fork=False)))
 
     def test_a_malformed_payload_is_ignored(self):
         bad = comment()
