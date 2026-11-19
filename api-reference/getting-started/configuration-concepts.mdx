@@ -13,7 +13,7 @@ In **configuration**, a campaign is a tree of components, a reward is a reward c
 
 ## Components
 
-A component is the unit of configuration. Everything you set up in a campaign is one: a role, a journey, a business event, a reward, an experience, a rule. A component has a name, one or more types, settings, and child components. Together, the components of a campaign form a tree whose root is the campaign.
+A component is the unit of configuration. Everything you set up in a campaign is one: a role, a journey, a business event, a reward, an experience, a rule. A component has a name, one or more types, settings, and child components. Together, the components of a campaign form a tree whose root is the campaign. The campaign's root component sits under the root of the account's `global` campaign, which holds the My Account settings, so a setting can take its value from either one. See [Copies, Inheritance, and Upgrades](/technical/integration-overview/copies-inheritance-and-upgrades).
 
 [List components](/api-reference/components/list-components) returns the components of an account. [Get a built component](/api-reference/components/get-a-built-component) returns one with every setting evaluated.
 
@@ -29,13 +29,19 @@ A **socket** is a typed slot for child components — a setting that holds one c
 
 You add to a campaign by copying a component into a socket. The API lists those sources as [duplicatable components](/api-reference/components/list-duplicatable-components) — templates you can install. Pass a target component and setting to see only the ones that fit that socket. [Duplicate a component](/api-reference/components/duplicate-a-component) installs the copy. The sources are the components Extole maintains and the ones your account already has.
 
-For example, to add a reward, list duplicatable components for the campaign's `rewards` socket, then duplicate one into that socket. The copy keeps the source defaults until you change its variables.
+For example, to add a reward, list duplicatable components for the campaign's `rewards` socket, then duplicate one into that socket. The copy starts with the source's settings, child components, and creatives as they were when you copied it, and from then on it belongs to the campaign. Later changes to the source reach the copy through an [upgrade](/technical/integration-overview/copies-inheritance-and-upgrades#upgrades).
 
 ## Variables
 
 A variable is a setting with a value. Each has a type, such as `STRING`, `COLOR`, `BOOLEAN`, `REWARD_SUPPLIER_ID` or `TRIGGER_CONFIGURATION`, and a map of values that can differ by locale. [List component settings](/api-reference/components/list-component-settings) returns the variables and sockets of a component.
 
-A duplicated component keeps the values of its source until you set your own. Values are evaluated when the campaign is built, which is why [Get a built component](/api-reference/components/get-a-built-component) and the component as configured can differ.
+A duplicated component holds the values its source had when it was copied. Each variable also has a `source` that decides where its value comes from:
+
+* `LOCAL`: the value stored on this component.
+* `INHERITED`: the same-named variable on the nearest ancestor component that is not itself `INHERITED`, up through the campaign root to the account's `global` campaign. The ancestor's published value is used.
+* `PARAMETER`: the same-named parameter of the socket the component is installed in.
+
+Values are evaluated when the campaign is built, which is why [Get a built component](/api-reference/components/get-a-built-component) and the component as configured can differ. For an `INHERITED` variable, the built component returns the value in effect.
 
 Some variable types reference configuration that lives outside any campaign. `REWARD_SUPPLIER_ID` names a reward supplier, `AUDIENCE_ID` an audience, `WEBHOOK_ID` a webhook. The campaign refers to them; the Management API's [Reward Suppliers](/api-reference/reward-suppliers/list-reward-suppliers), [Audiences](/api-reference/audiences/list-audiences) and [Webhooks](/api-reference/webhooks/list-webhooks) groups manage them.
 
@@ -46,7 +52,7 @@ An account's campaign list holds four kinds. The Management API carries the kind
 | `campaign_type` | What it is |
 |---|---|
 | `MARKETING` | A participant-facing campaign in a program: roles, journeys, business events, rewards, and the content served on zones. These are the campaigns on the My Extole **Programs** page. |
-| `CONFIGURATION` | Account configuration, not a participant-facing program. The account's `global` campaign is one. It holds variables and components that the account's other campaigns use. |
+| `CONFIGURATION` | Account configuration, not a participant-facing program. The account's `global` campaign is one. It holds variables and components that the account's other campaigns use, and its root holds the My Account settings that `INHERITED` variables resolve to. |
 | `INTEGRATION` | A connection to an outside platform: partner events mapped onto business events, outbound webhooks, and the reward suppliers a partner fulfills through. The tiles on the **Integrations** page. See [Build a Partner Integration with the Management API](/technical/building-partner-integrations/integration-lifecycle/management-api-integration). |
 | `EXTENSION` | A capability added to the account: views in My Extole, scheduled jobs, mobile SDK platforms, tagless calls to action, and monitoring. Usually Extole-maintained rather than built by an outside developer. |
 
@@ -112,9 +118,9 @@ An extension's `integrationEvents` are the events an outside system can send to 
 
 ## Programs, Labels, Versions and State
 
-In product language, a **program** is the use case — audience plus outcome. In the Management API, that grouping is represented as a `PROGRAM` label: every campaign carries one, and the campaigns that share a label are one program. A campaign can also carry `CAMPAIGN` and `JOURNEY` labels. An integration's events name the program label they are for, and that label is what targets them at the campaign. [Programs vs. Campaigns](/guides/platform-overview/key-concepts/programs-vs-campaigns) explains when to make a new one of each.
+In product language, a **program** is the use case — audience plus outcome. In the Management API, that grouping is represented as a `PROGRAM` label: every campaign carries one, and the campaigns that share a label are one program. No component represents a program, because the component tree starts at the campaign, so a program has no settings of its own. A campaign can also carry `CAMPAIGN` and `JOURNEY` labels. An integration's events name the program label they are for, and that label is what targets them at the campaign. [Programs vs. Campaigns](/guides/platform-overview/key-concepts/programs-vs-campaigns) explains when to make a new one of each.
 
-A campaign has **versions**. Editing creates a draft, and publishing makes the draft the published version. Building evaluates every variable of a version into the built campaign the runtime uses.
+A campaign has **versions**. Editing creates a draft, and publishing makes the draft the published version. Building evaluates every variable of a version into the built campaign the runtime uses. Publishing builds the campaign from its own components and keeps the library versions they already hold.
 
 A campaign has a **state**: `NOT_LAUNCHED`, `LIVE`, `PAUSED`, `ENDED`, `STOPPED` or `ARCHIVED`. The state decides whether the runtime considers the campaign for an event. [Pausing, Ending, and Scheduling Campaigns](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns) covers the transitions in My Extole.
 

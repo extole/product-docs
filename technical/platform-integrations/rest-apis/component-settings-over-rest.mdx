@@ -7,8 +7,12 @@ description: "Read a campaign component setting's effective value and change an 
 
 Campaign component settings are read and written at
 `/v2/campaigns/{campaign_id}/components/{component_id}/settings/{setting_name}`. Each setting
-carries a `source`: `LOCAL` for a value set on this component, `INHERITED` for a value that comes
-from the component's library template, or `PARAMETER`. This page covers how to read the value
+carries a `source`: `LOCAL` for a value set on this component, `INHERITED` for the value of the
+same-named setting on the nearest ancestor component that is not itself `INHERITED` (up through
+the campaign root to the account's `global` campaign, using the ancestor's published value), or
+`PARAMETER` for the same-named parameter of the socket the component is installed in. Library
+changes reach a component through an upgrade; see
+[Copies, Inheritance, and Upgrades](/technical/integration-overview/copies-inheritance-and-upgrades). This page covers how to read the value
 that renders and how to give an inherited setting a value of its own.
 
 ## Read the Built Value
@@ -16,8 +20,8 @@ that renders and how to give an inherited setting a value of its own.
 `GET /v2/campaigns/{campaign_id}/components/{component_id}/settings/{setting_name}/built` returns
 the value the campaign renders, with build-time expressions resolved. For a setting with
 `source: INHERITED`, the raw listing from `GET /v2/campaigns/{campaign_id}/components` shows the
-library template's default in `values`, so use the built endpoint when you need the effective
-value. Use the raw listing to find candidate settings, then read each one's built value.
+`values` stored on this component, usually the ones copied when the component was installed. The
+built endpoint returns the value in effect, so use it when you need the effective value. Use the raw listing to find candidate settings, then read each one's built value.
 
 A value written as a runtime template, such as `{{variable}}`, keeps that form in the built view
 and resolves when the page renders.
@@ -39,6 +43,12 @@ translatable setting takes locale keys only; a `default` key returns `default_ke
 
 An `IMAGE` setting inherited from a parent component points at an asset the parent owns. Upload the
 image to the child component first, then promote the setting and point it at the child's asset.
+
+## Reconnect a Setting to Its Ancestor
+
+To make a `LOCAL` setting follow its ancestor again, send a `PUT` to the setting with
+`"source": "INHERITED"` and no `values`. The values stored on the component stay on it unused.
+In the Campaign Editor, **Use Default Value** reconnects a setting to its parent.
 
 ## The Root Component's Name
 
