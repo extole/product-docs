@@ -35,7 +35,9 @@ The two campaign sandboxes differ in who can enter a journey and which rules run
 
 Use the campaign preview sandbox to check that each part of a journey runs and renders. Use the
 campaign sandbox to check who enters a journey and what the quality rules stop, and send the same
-events to a production sandbox to compare the draft with the published version.
+events to a production sandbox to compare the draft with the published version. To test a draft's
+rewards with the suppliers they name, use the campaign sandbox with the `production` container:
+`campaign-<campaign id>-production`.
 
 ## Send an Event to a Sandbox
 
@@ -77,9 +79,13 @@ sandbox format above and processes the event as if it named no sandbox.
 To test a time window, give a server event an `event_time` in ISO 8601. Extole records the event
 at that time. The **Recent Activity Window** and **Minimum Action Age** of **Has Taken Action**
 count back from the time of the event being evaluated, so a back-dated event lands inside or
-outside them as it would have on that date. Send the events of one test person in the order they
-took place. **Reward Limit** counts rewards by when they were earned, which is when Extole
-processed the event.
+outside them as it would have on that date. **Reward Limit** counts rewards by when they were
+earned, which is when Extole processed the event.
+
+A window counts back from the event and has no end, so it also counts a later-dated event that is
+already on the profile. Send the events of one test person one at a time, oldest first, and read
+the person's steps until the last event's business event or reward evaluation shows before you send
+the next. Events sent together can be processed in any order.
 
 To show that a 60-day window holds, test two people: one who opened an account 50 days ago and
 buys today, who earns the reward, and one who opened 70 days ago and buys today, who does not:
@@ -134,7 +140,8 @@ event is processed in full:
   for how test containers are reported.
 - An event can start schedules, such as a reward's pending period or a reminder email, which run
   later. After a test, cancel the schedules it started and check that each test person has no
-  reward.
+  reward. To test a pending period without waiting for it, set a short **Pending Period** on the
+  draft, run the test, and set the period back.
 - Your account's prehandlers still apply, so a prehandler can record an event in another
   container than the one the sandbox names.
 

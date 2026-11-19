@@ -103,6 +103,8 @@ has the settings.
 | "Only after the person did something else" | **Has Taken Action** as a trigger rule on the business event. See [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules). |
 | "At least 30 days after joining" | **Minimum Action Age** on that trigger rule. The earlier event counts only when it is at least that old. |
 | "Within 30 days" | **Recent Activity Window** on **Has Taken Action**. |
+| "At least 150 days since the last one", where each one restarts the clock | A business event that the counted business event triggers, with **Has Taken Action** on the counted business event, a **Recent Activity Window** of 150 days, and **Exact Count** 1. The count includes the event that triggered it, so 1 means no other one in the window. |
+| "Between 150 and 240 days since the last one" | The rule above, and beside it **Has Taken Action** on the counted business event with a **Minimum Action Age** of 150 days and a **Recent Activity Window** of 240 days. |
 | "On the third time" or "at least five times" | **Exact Count** or **Minimum Count** on **Has Taken Action**, as a reward rule. |
 | "Unless they cancel" | **Has Not Taken Action**, with the business event that disqualifies the person. |
 | "When someone they brought in does something" | **Publish Event Data** on the other person's business event. |
@@ -117,7 +119,8 @@ is `VALUE`, such as the order amount. [Unique Event Keys](/technical/troubleshoo
 describes key types.
 
 A window is a duration, such as 30 days. On **Has Taken Action** it counts back from the time of
-the event being evaluated. **Reward Limit** counts back from the moment the reward is evaluated. A
+the event being evaluated, and it counts every matching event on the profile dated after the
+window's start, including one that arrived earlier with a later date. **Reward Limit** counts back from the moment the reward is evaluated. A
 calendar month or quarter is a fixed period, and the nearest window is a duration of the same
 length. A year can start on a date you set: **Annual Reward Value Limit** has a tax year start, and
 **Reward Limit** has a tax year starting month.
@@ -125,6 +128,12 @@ length. A year can start on a date you set: **Annual Reward Value Limit** has a 
 **Has Taken Action** counts every matching event on the profile in the rule's scope. It counts
 events, not distinct values, so give each counted event a unique event key when one record must
 count once.
+
+A rule sees only the events Extole has recorded. A condition about earlier activity, such as "has
+bought before" or "no purchase in the last 45 days", treats a person whose activity came before your
+program as new. To count that history, send the past events with their `event_time`, as
+[Recent Customer Purchase Upload](/technical/operational-tasks/account-configuration/recent-customer-purchase-upload)
+describes.
 
 When a condition fits no row, see whether two business events make it fit. "Active for 30 days"
 becomes the event that starts the clock and the event that shows the person is still there,
@@ -166,6 +175,11 @@ Before you publish, test the draft with test people:
 - For each reward, a test person whose events earn it.
 - For each window, count, threshold, and exclusion, a test person whose events fall just outside it
   and earn nothing. Back-date events with `event_time` to put them where the window needs them.
+
+Send the test events to the campaign sandbox in the `production` container,
+`campaign-<campaign id>-production`. The draft stays unpublished, and each reward comes from its own
+supplier, so the test person holds the reward's value and receives its reward email. In the `test`
+container, every reward comes from the account's test reward supplier instead.
 
 [Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest)
 covers how to send the events and read the result.
