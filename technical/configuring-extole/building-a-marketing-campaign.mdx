@@ -83,8 +83,9 @@ Every template that runs a program adds these parts, and your campaign needs the
 | Reward | The business event that earns it, a reward supplier, and a reward email | [How to Add a New Reward](/guides/flow-campaigns/how-to-add-a-new-reward) |
 | Reward | Reward rules for each condition on the reward | [How to Set Up Reward Rules](/guides/flow-campaigns/how-to-set-up-reward-rules) |
 
-A new reward arrives with the reward rules **Annual Reward Value Limit** and Business Event
-Quality. Keep each rule your program needs, set it, and remove the others.
+A new reward arrives with two reward rules: **Annual Reward Value Limit**, set to a total of 2,000
+in a tax year that starts on January 1, and Business Event Quality, which passes when the earning
+event's quality is high. Keep each rule your program needs, set it, and remove the others.
 
 Give every reward a supplier from the start, even before your fulfillment exists. A custom reward
 that Extole fulfills and sends by itself works as a placeholder: a test person earns the reward
@@ -97,8 +98,8 @@ has the settings.
 | The program says | Put it in the campaign as |
 |---|---|
 | "Counts once for each order, account, or membership" | A unique event key on the business event's data. Extole records the business event once for each key value. See [Unique Event Keys](/technical/troubleshooting/duplicate-action-alerts-and-unique-event-keys#unique-event-keys). |
-| "An order of \$40 or more" | **Event Value Greater Than**, or **Value is greater than** on **Has Taken Action**. Both comparisons are strict. |
-| "Purchases add up to \$1,500" | **Has Taken Action** as a reward rule, with **Total value is greater than** and a **Recent Activity Window**. |
+| "An order of \$40 or more" | **Value is greater than** on **Has Taken Action**, set to 40. It includes the number you set. **Event Value Greater Than** passes only above its number. |
+| "Purchases add up to \$1,500" | **Has Taken Action** as a reward rule, with **Total value is greater than** set to 1500 and a **Recent Activity Window**. The total includes the event being evaluated and the number you set. |
 | "Only after the person did something else" | **Has Taken Action** as a trigger rule on the business event. See [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules). |
 | "At least 30 days after joining" | **Minimum Action Age** on that trigger rule. The earlier event counts only when it is at least that old. |
 | "Within 30 days" | **Recent Activity Window** on **Has Taken Action**. |
@@ -111,9 +112,15 @@ has the settings.
 | "After a waiting period" | **Pending Period** on the reward. |
 | "Only for some people" | A targeting scenario on the journey, or **Member of Audience** on the reward. |
 
-Every window is a duration counted back from the time of the event being evaluated, such as 30
-days. A calendar month or quarter is a fixed period, and the nearest window is a duration of the
-same length. **Annual Reward Value Limit** is the one rule that counts a year from a date you set.
+A rule that compares or adds values reads the business event's value: the data item whose key type
+is `VALUE`, such as the order amount. [Unique Event Keys](/technical/troubleshooting/duplicate-action-alerts-and-unique-event-keys#unique-event-keys)
+describes key types.
+
+A window is a duration, such as 30 days. On **Has Taken Action** it counts back from the time of
+the event being evaluated. **Reward Limit** counts back from the moment the reward is evaluated. A
+calendar month or quarter is a fixed period, and the nearest window is a duration of the same
+length. A year can start on a date you set: **Annual Reward Value Limit** has a tax year start, and
+**Reward Limit** has a tax year starting month.
 
 **Has Taken Action** counts every matching event on the profile in the rule's scope. It counts
 events, not distinct values, so give each counted event a unique event key when one record must
