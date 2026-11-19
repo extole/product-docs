@@ -213,6 +213,44 @@ One referral relationship, accessible via `person.recentAssociatedFriends` or `p
 | `displaced` | Whether this referral was replaced by a later one |
 | `container` | Environment container |
 
+# Shareable
+
+One share code owned by the person, accessible via `person.shareables`. Filter on `label` to select the shareable for one program, either `label==event.programLabel` or a named label such as `label=="refer-a-friend"`.
+
+| Field | Description |
+| --- | --- |
+| `code` | Share code; the last part of the share link |
+| `key` | Shareable key |
+| `label` | Program label the shareable belongs to |
+| `clientDomainId` | ID of the program domain the share link uses; pass it to `client_domain()` |
+| `personId` | Person who owns the shareable |
+| `createdDate` | When the shareable was created |
+| `data` | Custom shareable data |
+| `content` | Shared content: `.title`, `.description`, `.imageUrl`, `.url`, `.partnerContentId` |
+
+The share link is the program domain's `shareUri`, a `/`, and the `code`.
+
+**Mapping example:**
+
+```
+# Share link of the advocate on a friend-side row, for the event's program
+Advocate Share Link=CONCATENATE(CLIENT_DOMAIN(FIRST(COLLECTION(PERSON(event.data.related_person_id).shareables, filter:label==event.programLabel)).clientDomainId).shareUri, "/", FIRST(COLLECTION(PERSON(event.data.related_person_id).shareables, filter:label==event.programLabel)).code);
+```
+
+# ClientDomain
+
+**Function:** `client_domain(clientDomainId)` · e.g. `client_domain(FIRST(COLLECTION(PERSON(event.personId).shareables, filter:label==event.programLabel)).clientDomainId).shareUri`
+
+A program domain: the host a program's share links and pages are served from.
+
+| Field | Description |
+| --- | --- |
+| `id` | Program domain ID |
+| `name` | Program domain name |
+| `domain` | Host name |
+| `shareUri` | Base URI of the program's share links |
+| `scheme` | URL scheme, such as `https` |
+
 # RequestContext
 
 One device and geo snapshot, accessible via `person.recentRequestContexts`.
