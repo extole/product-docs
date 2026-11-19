@@ -1,0 +1,76 @@
+---
+title: "The Underlying Configuration Model"
+description: "An advanced overview of the parts of a component: its types, its settings, its operations, and the elements it manages."
+---
+
+# Overview
+
+[Configuration Concepts](/technical/configuring-extole/configuration-concepts) explains how to configure Extole through components, and it is all most readers need. This page describes the parts of a component. Use it when you build components of your own or troubleshoot one in depth.
+
+This page gives the ideas and a few examples. It does not list every type or setting, because your account is the accurate source. [See It in Your Account](#see-it-in-your-account) links the pages that show them.
+
+A component has these parts:
+
+| Part | What it is |
+|---|---|
+| Types | What kind of component it is. A component can have more than one type. |
+| Settings | What you configure: values, the components placed inside it, and the components it references. |
+| Operations | The API calls the component offers to your site, app, or servers. |
+| Elements | The parts that carry out its behavior at runtime. You don't see them when you configure a component. The component manages them. |
+
+Types, settings, and operations are the component's interface. Elements are its implementation.
+
+## Component Types
+
+A component's types say what it is. A type name ends in a version, such as `business-event-v10.0`. These pages leave the version off when they name a type in prose.
+
+A type can have a parent type, and the child is a kind of the parent. A setting that accepts the parent type accepts each type beneath it. For example:
+
+```
+Action
+└── Reward send action
+    └── Reward email
+Rule
+└── Group rule
+Trigger event
+└── Integration event
+```
+
+This hierarchy says what a component is. It is separate from the hierarchy of components inside components, which says where a component sits.
+
+## Settings
+
+Each setting has a name, a description, and a type. There are three kinds:
+
+| Kind | What it holds | Example types |
+|---|---|---|
+| Variable | A value. The value can be an expression, and [From Configuration to Runtime](/technical/configuring-extole/configuration-concepts#from-configuration-to-runtime) explains when it is worked out. | `STRING`, `COLOR`, `BOOLEAN` |
+| Socket | Other components, as copies. Each socket says which component types it accepts. | `SOCKET`, `MULTI_SOCKET` |
+| Reference | A pointer to something the component uses and does not hold. | `COMPONENT_REFERENCE`, `REWARD_SUPPLIER_ID`, `AUDIENCE_ID` |
+
+Sockets make the hierarchy of components inside components: a component, the components in its sockets, and the components in theirs.
+
+## Operations
+
+An operation is an API call that a component offers, such as an event your servers send to it. Each operation has a name, a description, a path, a method, and the schema of its request and response. A component documents its own API in the same way it documents its settings.
+
+## Elements
+
+Elements carry out a component's behavior at runtime. They include the business events a component records (its `steps`), the triggers that decide whether an event qualifies, and the actions that run when it does.
+
+A component manages its elements. Its settings supply the values the elements use, which is how a setting changes behavior without a change to an element.
+
+Elements are also what an upgrade replaces. [Upgrading Components](/technical/configuring-extole/configuration-concepts#upgrading-components) explains what that means for a change you make to an element.
+
+## See It in Your Account
+
+| To see | Go to |
+|---|---|
+| The components in your account, and the types of each | The [Components](https://my.extole.com/components) page in My Extole. Open a component to see what it holds. |
+| The same through the API | The [Components](/api-reference/components/list-components) and [Components Operations](/api-reference/components-operations/list-component-operations) groups of the Management API. |
+
+## Related Documentation
+
+- [Configuration Concepts](/technical/configuring-extole/configuration-concepts)
+- [Key Concepts](/technical/integration-overview/key-concepts)
+- [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest)

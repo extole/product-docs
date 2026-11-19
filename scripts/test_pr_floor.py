@@ -51,6 +51,11 @@ class InternalTermTests(unittest.TestCase):
         hits = scan_internal_terms("Click **Show Expert** to continue.", "guides/foo.mdx")
         self.assertTrue(any("show-expert" in hit for hit in hits))
 
+    def test_account_link_with_client_id(self):
+        added = "Open the [report](https://my.extole.com/reports?client_id=1063468100#/)."
+        hits = scan_internal_terms(added, "guides/foo.mdx")
+        self.assertTrue(any("client-id" in hit for hit in hits))
+
     def test_image_path_is_not_an_internal_repository(self):
         added = '<img src="/images/extole/1099e785cae5de9d.png" alt="Offer" />'
         self.assertEqual(scan_internal_terms(added, "guides/foo.mdx"), [])
