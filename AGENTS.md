@@ -54,8 +54,8 @@ distillation and defers to them.
 | `url-map.json` | Old-URL → new-path redirects; the converter emits them into `docs.json`. Add an entry whenever you rename or move a page. |
 | `scripts/convert_from_product_docs.py` | The deterministic generator that produced these pages from the ReadMe corpus. Kept for provenance — never re-run it over pages that have been hand-edited since. |
 | `scripts/check_navigation.py` | Reports pages absent from `docs.json`, navigation entries with no file, and paths that do not mirror their navigation group chain. Run it with `validate` before every PR. |
-| `scripts/check_new_findings.py` | Compares a checkout with a base commit and fails on navigation or broken-link findings that the base does not have. `main` already carries findings of both kinds, so the plain checks cannot gate. |
-| `.github/workflows/validate.yml` | CI: runs `validate` at the pinned `MINT_VERSION` on every PR and on pushes to `main`. On a PR it also fails on new navigation findings and new broken links. The **`validate`** check is required to merge. Raise `MINT_VERSION` in a PR of its own. |
+| `scripts/check_new_findings.py` | Compares a checkout with a base commit. Exits 1 on navigation or broken-link findings that the base does not have, and 2 when the check could not run. `main` already carries findings of both kinds, so the plain checks cannot gate. |
+| `.github/workflows/validate.yml` | CI: the **`validate`** job runs `mint validate` at the pinned `MINT_VERSION` on every PR and on pushes to `main`, and is required to merge. On a PR, the **`new findings`** job runs `check_new_findings.py` for navigation and broken links. It is not required yet, so a red `new findings` does not block a merge. Raise `MINT_VERSION` in a PR of its own. |
 | `.mintlify/AGENTS.md` | The writing standards, including where a page lives. Never served publicly — Mintlify does not expose `.mintlify/`. |
 | `AGENTS.md`, `.agents/`, `.claude/`, `.cursor/` | Agent config — not published. `.agents`/`.claude` are Mintlify built-in ignores (Claude Code's `CLAUDE.md` lives in `.claude/`); `.cursor/` and `AGENTS.md` are in `.mintignore`. The built-ins do **not** cover repo-root Markdown, so an un-ignored root `AGENTS.md` is served at `/agents.md`. |
 
@@ -70,11 +70,11 @@ distillation and defers to them.
 
 `main` is protected. A change lands only through a pull request that has:
 
-1. a green **`validate`** check (CI runs `mint validate` at the pinned `MINT_VERSION`, which fails on warnings as well as errors, and fails on navigation findings or broken links that `main` does not have), and
+1. a green **`validate`** check (CI runs `mint validate` at the pinned `MINT_VERSION`; it fails on warnings as well as errors), and
 2. **one approving review**, and
 3. the branch up to date with `main`.
 
-`mint validate` catches broken MDX and a `docs.json` entry pointing at a missing file. The new-findings steps of the `validate` check catch the reverse, a page absent from `docs.json`, and a link to a page that does not exist. Placement in the right group stays a reviewer responsibility.
+`mint validate` catches broken MDX and a `docs.json` entry pointing at a missing file. The **`new findings`** check catches the reverse, a page absent from `docs.json`, and a link to a page that does not exist. It is not required, so read it before you approve: a red `new findings` with "New ... finding" annotations is a defect in the change, and "check did not run" says nothing about the change. Placement in the right group stays a reviewer responsibility.
 
 ## Critical rules
 

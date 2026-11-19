@@ -23,8 +23,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -36,14 +34,30 @@ jobs:
       - name: Validate Mintlify build
         run: npx --yes "mint@$MINT_VERSION" validate
 
+  new-findings:
+    name: new findings
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: No new navigation findings
-        if: github.event_name == 'pull_request'
+        id: navigation
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: python3 scripts/check_new_findings.py --base "$BASE_SHA" navigation
 
       - name: No new broken links
-        if: github.event_name == 'pull_request'
+        if: success() || steps.navigation.outcome == 'failure'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: python3 scripts/check_new_findings.py --base "$BASE_SHA" broken-links

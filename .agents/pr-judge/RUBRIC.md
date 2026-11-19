@@ -71,8 +71,8 @@ of the model's context.
 | # | Check | Result when it fails | Today |
 |---|---|---|---|
 | F1 | The `validate` check is green | `send-back`. When `validate` fails on `main` too, the failure is not this change's, and it only informs | Required check |
-| F2 | No page is unlisted in `docs.json` that the base listed, and the change adds no unlisted page. The check is the delta against the base | `send-back` | The `validate` check also fails on it, through `scripts/check_new_findings.py` |
-| F3 | No new broken link against the base (`mint broken-links`) | `send-back` | The `validate` check fails on it, through `scripts/check_new_findings.py`. The judge does not run it again |
+| F2 | No page is unlisted in `docs.json` that the base listed, and the change adds no unlisted page. The check is the delta against the base | `send-back` | The `new findings` check also reports it, through `scripts/check_new_findings.py` |
+| F3 | No new broken link against the base (`mint broken-links`) | `send-back` | The `new findings` check reports it, through `scripts/check_new_findings.py`. The judge does not read that check yet |
 | F4 | No instruction to change a setting that creative tags `importance:expert`, because showtime hides that tag from customers (`HIDDEN_TAGS`). No internal-only term in prose: a version label outside code and outside an API path (`\bv\d+(\.\d+)?\b`, but not `/v6/`), **Show Expert**, "Expert setting", an internal repository name, a ticket key, a Slack link, a client name or id, a person's email | `send-back` | A term counts only when the added text is its first appearance in the published pages, so `support@extole.com` and `UTF-8` pass. Paths under `/images/` are not scanned. The term list is decision plan §11.4 |
 | F5 | No remote image, no `expires=` parameter, and no absolute `docs.extole.com` link to our own pages | `send-back` | Standards only |
 | F6 | No closing keyword before a GitHub reference in the title, the body or a commit | `send-back` | Not checked |
