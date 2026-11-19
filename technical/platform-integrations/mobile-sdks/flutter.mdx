@@ -1,0 +1,474 @@
+---
+title: "Flutter"
+description: "Integrate Extole into a Flutter app by bridging to the Extole iOS and Android SDKs through a platform channel."
+---
+
+# Overview
+
+Extole doesn't publish a Flutter package. A Flutter app integrates Extole the same way the [React Native SDK](/technical/platform-integrations/mobile-sdks/react-native-sdk) does: the native [iOS SDK](/technical/platform-integrations/mobile-sdks/ios-sdk) and [Android SDK](/technical/platform-integrations/mobile-sdks/android-sdk) do the work, and a small platform channel exposes them to Dart. The share experience renders inside the Flutter app in a web view.
+
+This guide walks through that integration in five parts:
+
+1. Add the native SDKs to the iOS and Android projects.
+2. Add a Dart class that calls them over a `MethodChannel`.
+3. Handle that channel in `MainActivity` (Android) and `AppDelegate` (iOS).
+4. Render the share experience in a Flutter web view with native sharing.
+5. Identify customers, send events, and forward deep links.
+
+If you want the share experience without writing native code, use a [promotion link or in-app web view](/technical/platform-integrations/mobile-sdks/index#comparing-mobile-integrations) instead. You give up SDK-managed identity and CTA content from My Extole.
+
+[//]: ___
+
+## Requirements
+
+[//]: # "What are the requirements for integrating Extole with a Flutter app?"
+
+* iOS 13.0 or later
+* Android `minSdkVersion 21` or later
+* Your Extole program domain, such as `share.example.com`
+* The zone names your Extole team set up for your program — typically a JSON CTA zone and a share experience zone such as `microsite`
+
+[//]: ___
+
+## Add the Native SDKs
+
+[//]: # "How do I add the Extole SDKs to a Flutter app?"
+
+### Android
+
+The Android SDK is published to Maven Central. In `android/app/build.gradle`, add the dependency:
+
+```groovy
+dependencies {
+    implementation 'com.extole.mobile:android-sdk:1.0.78'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+}
+```
+
+Make sure `mavenCentral()` is listed in the project's repositories. Flutter's default template already includes it.
+
+### iOS
+
+In `ios/Podfile`, set the platform to iOS 13 and add the SDK pod to the `Runner` target:
+
+```ruby
+platform :ios, '13.0'
+
+target 'Runner' do
+  use_frameworks!
+  pod 'ExtoleMobileSDK', '~> 0.0.98'
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+end
+```
+
+Then run `pod install` from the `ios` directory.
+
+[//]: ___
+
+## Add the Dart Class
+
+[//]: # "How do I call the Extole SDK from Dart?"
+
+Add `lib/extole.dart`. Every call goes over one channel named `extole`, and every data map is `String` to `String`, which is what both native SDKs accept.
+
+```dart
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+
+class Extole {
+  Extole._();
+
+  static const MethodChannel _channel = MethodChannel('extole');
+
+  static Future<void> init({
+    required String programDomain,
+    required String appName,
+    String sandbox = 'production-production',
+    List<String> labels = const [],
+  }) {
+    return _channel.invokeMethod<void>('init', {
+      'programDomain': programDomain,
+      'appName': appName,
+      'sandbox': sandbox,
+      'labels': labels,
+    });
+  }
+
+  static Future<String?> identify(String email, [Map<String, String> data = const {}]) {
+    return _channel.invokeMethod<String>('identify', {'email': email, 'data': data});
+  }
+
+  static Future<String?> identifyJwt(String jwt, [Map<String, String> data = const {}]) {
+    return _channel.invokeMethod<String>('identifyJwt', {'jwt': jwt, 'data': data});
+  }
+
+  static Future<String?> sendEvent(String eventName, [Map<String, String> data = const {}]) {
+    return _channel.invokeMethod<String>('sendEvent', {'eventName': eventName, 'data': data});
+  }
+
+  static Future<Map<String, dynamic>> fetchZone(String zoneName, [Map<String, String> data = const {}]) async {
+    final json = await _channel.invokeMethod<String>('fetchZone', {'zoneName': zoneName, 'data': data});
+    final decoded = jsonDecode(json ?? '{}');
+    return decoded is Map<String, dynamic> ? decoded : <String, dynamic>{};
+  }
+
+  static Future<String?> getAccessToken() {
+    return _channel.invokeMethod<String>('getAccessToken');
+  }
+
+  static Future<void> logout() {
+    return _channel.invokeMethod<void>('logout');
+  }
+}
+```
+
+`identify`, `identifyJwt`, and `sendEvent` return the ID of the event Extole recorded.
+
+[//]: ___
+
+## Handle the Channel Natively
+
+[//]: # "How do I bridge the Extole iOS and Android SDKs to Flutter?"
+
+Both handlers disable the SDK's own `VIEW_FULLSCREEN` and `PROMPT` actions, because the share experience renders in Flutter instead (see the next section). The React Native SDK disables the same two actions for the same reason.
+
+<Warning>
+Pass the program domain differently on each platform. The Android SDK takes the bare host (`share.example.com`) and adds `https://` itself. The iOS SDK takes the full URL, so the iOS handler below adds `https://` to the value Dart sends.
+</Warning>
+
+### Android
+
+In `android/app/src/main/kotlin/.../MainActivity.kt`:
+
+```kotlin
+import com.extole.android.sdk.Action
+import com.extole.android.sdk.impl.ExtoleInternal
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+
+class MainActivity : FlutterActivity() {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var extole: ExtoleInternal? = null
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "extole")
+            .setMethodCallHandler { call, result -> scope.launch { handle(call, result) } }
+    }
+
+    override fun onDestroy() {
+        scope.cancel()
+        super.onDestroy()
+    }
+
+    private suspend fun handle(call: MethodCall, result: MethodChannel.Result) {
+        try {
+            if (call.method == "init") {
+                if (extole == null) {
+                    extole = withContext(Dispatchers.IO) {
+                        ExtoleInternal.init(
+                            programDomain = call.argument<String>("programDomain"),
+                            appName = call.argument<String>("appName"),
+                            sandbox = call.argument<String>("sandbox") ?: "production-production",
+                            context = applicationContext,
+                            labels = call.argument<List<String>>("labels").orEmpty().toSet(),
+                            disabledActions = setOf(Action.ActionType.VIEW_FULLSCREEN, Action.ActionType.PROMPT)
+                        )
+                    }
+                }
+                result.success(null)
+                return
+            }
+            val sdk = extole ?: return result.error("not_initialized", "Call Extole.init first", null)
+            val data = call.argument<Map<String, String>>("data").orEmpty()
+            when (call.method) {
+                "identify" -> result.success(sdk.identify(call.argument<String>("email")!!, data).id)
+                "identifyJwt" -> result.success(sdk.identifyJwt(call.argument<String>("jwt")!!, data).id)
+                "sendEvent" -> result.success(sdk.sendEvent(call.argument<String>("eventName")!!, data).id)
+                "fetchZone" -> {
+                    val (zone, _) = sdk.fetchZone(call.argument<String>("zoneName")!!, data)
+                    result.success(JSONObject(zone?.content ?: emptyMap<String, Any?>()).toString())
+                }
+                "getAccessToken" -> result.success(sdk.getAccessToken())
+                "logout" -> {
+                    sdk.logout()
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        } catch (error: Exception) {
+            result.error("extole_error", error.message, null)
+        }
+    }
+}
+```
+
+### iOS
+
+In `ios/Runner/AppDelegate.swift`:
+
+```swift
+import ExtoleMobileSDK
+import Flutter
+import UIKit
+
+@main
+@objc class AppDelegate: FlutterAppDelegate {
+  private var extole: ExtoleImpl?
+
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    GeneratedPluginRegistrant.register(with: self)
+    if let registrar = registrar(forPlugin: "ExtoleBridge") {
+      let channel = FlutterMethodChannel(name: "extole", binaryMessenger: registrar.messenger())
+      channel.setMethodCallHandler { [weak self] call, result in self?.handle(call, result) }
+    }
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  private func handle(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    let args = call.arguments as? [String: Any] ?? [:]
+    if call.method == "init" {
+      if extole == nil {
+        extole = ExtoleImpl(
+          programDomain: "https://" + (args["programDomain"] as? String ?? ""),
+          applicationName: args["appName"] as? String ?? "flutter-app",
+          labels: args["labels"] as? [String] ?? [],
+          sandbox: args["sandbox"] as? String ?? "production-production",
+          disabledActions: [ActionType.PROMPT, ActionType.VIEW_FULLSCREEN])
+      }
+      result(nil)
+      return
+    }
+    guard let extole = extole else {
+      result(FlutterError(code: "not_initialized", message: "Call Extole.init first", details: nil))
+      return
+    }
+    let data = args["data"] as? [String: String] ?? [:]
+    let reply: (Id<Event>?, Error?) -> Void = { eventId, error in
+      if let error = error {
+        result(FlutterError(code: "extole_error", message: error.localizedDescription, details: nil))
+      } else {
+        result(eventId?.getValue())
+      }
+    }
+    switch call.method {
+    case "identify":
+      extole.identify(args["email"] as? String ?? "", data, reply)
+    case "identifyJwt":
+      extole.identifyJwt(args["jwt"] as? String ?? "", data, reply)
+    case "sendEvent":
+      extole.sendEvent(args["eventName"] as? String ?? "", data, reply)
+    case "fetchZone":
+      extole.fetchZone(args["zoneName"] as? String ?? "", data) { zone, _, error in
+        if let error = error {
+          result(FlutterError(code: "extole_error", message: error.localizedDescription, details: nil))
+          return
+        }
+        let json = (try? JSONEncoder().encode(zone?.content)).flatMap { String(data: $0, encoding: .utf8) }
+        result(json ?? "{}")
+      }
+    case "getAccessToken":
+      result(extole.getAccessToken())
+    case "logout":
+      extole.logout()
+      result(nil)
+    default:
+      result(FlutterMethodNotImplemented)
+    }
+  }
+}
+```
+
+[//]: ___
+
+## Show the Share Experience
+
+[//]: # "How do I display the Extole share experience in a Flutter app?"
+
+Render the share experience zone in a Flutter web view. The widget below loads `https://share.example.com/zone/microsite` with the SDK's access token, so the page knows who the customer is. It also gives the page a native share sheet: Extole's share experience hands a share to `navigator.share` or `extoleShare.share` when the page has either, and the widget defines both to open the platform share sheet.
+
+Add the three packages it uses:
+
+```bash
+flutter pub add webview_flutter share_plus url_launcher
+```
+
+Then add `lib/extole_zone_view.dart`:
+
+```dart
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+import 'extole.dart';
+
+const _nativeShareScript = '''
+  (function () {
+    var send = function (request) {
+      ExtoleNativeShare.postMessage(JSON.stringify(request || {}));
+      return Promise.resolve();
+    };
+    if (!navigator.share) { navigator.share = send; }
+    if (window.extoleShare === undefined) { window.extoleShare = { share: send }; }
+  })();
+''';
+
+class ExtoleZoneView extends StatefulWidget {
+  const ExtoleZoneView({
+    super.key,
+    required this.programDomain,
+    required this.zoneName,
+    this.parameters = const {},
+  });
+
+  final String programDomain;
+  final String zoneName;
+  final Map<String, String> parameters;
+
+  @override
+  State<ExtoleZoneView> createState() => _ExtoleZoneViewState();
+}
+
+class _ExtoleZoneViewState extends State<ExtoleZoneView> {
+  late final WebViewController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.white)
+      ..addJavaScriptChannel('ExtoleNativeShare', onMessageReceived: _share)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (_) => _controller.runJavaScript(_nativeShareScript),
+          onPageFinished: (_) => _controller.runJavaScript(_nativeShareScript),
+          onNavigationRequest: _openNativeSchemes,
+        ),
+      );
+    _load();
+  }
+
+  Future<void> _load() async {
+    final token = await Extole.getAccessToken();
+    final uri = Uri.https(
+      widget.programDomain,
+      '/zone/${widget.zoneName}',
+      widget.parameters.isEmpty ? null : widget.parameters,
+    );
+    await _controller.loadRequest(
+      uri,
+      headers: token == null ? {} : {'Authorization': 'Bearer $token'},
+    );
+  }
+
+  Future<void> _share(JavaScriptMessage message) async {
+    final request = jsonDecode(message.message);
+    if (request is! Map) return;
+    final text = (request['text'] ?? '').toString().trim();
+    final url = (request['url'] ?? '').toString().trim();
+    final body = url.isEmpty || text.contains(url) ? text : '$text $url'.trim();
+    if (body.isEmpty) return;
+    await SharePlus.instance.share(
+      ShareParams(text: body, subject: request['title']?.toString()),
+    );
+  }
+
+  NavigationDecision _openNativeSchemes(NavigationRequest request) {
+    const nativeSchemes = ['tel:', 'mailto:', 'sms:'];
+    if (nativeSchemes.any(request.url.startsWith)) {
+      launchUrl(Uri.parse(request.url));
+      return NavigationDecision.prevent;
+    }
+    return NavigationDecision.navigate;
+  }
+
+  @override
+  Widget build(BuildContext context) => WebViewWidget(controller: _controller);
+}
+```
+
+Keep the zone name in configuration rather than in code. Switching the app from the Extole-hosted page to an embedded experience later is then a zone-name change, not an app release.
+
+[//]: ___
+
+## Exchange Data with Extole
+
+[//]: # "How do I identify customers and send events from a Flutter app?"
+
+Initialize once at startup, before any other call:
+
+```dart
+await Extole.init(programDomain: 'share.example.com', appName: 'example-app');
+```
+
+Identify the customer when they sign in. Use `identifyJwt` instead to verify the customer with a JWT — see [Verifying Consumers](/technical/operational-tasks/security-and-compliance/verifying-consumers).
+
+```dart
+await Extole.identify(email, {'partner_user_id': memberId});
+```
+
+Send the events your program is configured for, such as a conversion:
+
+```dart
+await Extole.sendEvent('conversion', {
+  'partner_conversion_id': orderId,
+  'cart_value': total,
+});
+```
+
+Populate a CTA from a JSON zone, and open the share experience when it's tapped:
+
+```dart
+final cta = await Extole.fetchZone('mobile_cta');
+
+ListTile(
+  title: Text(cta['title']?.toString() ?? 'Refer a friend'),
+  onTap: () {
+    Extole.sendEvent('mobile_cta_tap');
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => Scaffold(
+        appBar: AppBar(),
+        body: const ExtoleZoneView(programDomain: 'share.example.com', zoneName: 'microsite'),
+      ),
+    ));
+  },
+);
+```
+
+Call `Extole.logout()` when the customer signs out, so the next customer doesn't inherit their identity.
+
+### Deep Links
+
+When your deep link provider opens the app, pass the link's parameters to Extole in an event. This is how a friend who installs the app from a share link is attributed to their advocate. See [Deep Link Integrations](/technical/platform-integrations/mobile-sdks/deep-link-integrations).
+
+```dart
+await Extole.sendEvent('deeplink', linkParameters);
+```
+
+[//]: ___
+
+## Before You Go Live
+
+[//]: # "What should I check before releasing a Flutter app with Extole?"
+
+* **Use the production sandbox in release builds.** `production-test` is for testing only. People who share from a build that still sends `production-test` land in the test container, where test rewards apply instead of your real ones. Choose the sandbox per build flavor rather than hard-coding it.
+* **Test on a device on your corporate network and one off it.** A firewall or proxy that inspects TLS replaces Extole's certificate, and the SDK then refuses the connection, so zones fail to load only for people behind it.
+* **Test the share experience on both platforms.** Tap each share channel on iOS and Android and confirm the native share sheet opens with the share link in the message.
+* **Confirm the zone names** with your Extole team before release, and read them from configuration.
