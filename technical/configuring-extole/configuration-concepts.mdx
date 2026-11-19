@@ -1,17 +1,33 @@
 ---
 title: "Configuration Concepts"
-description: "What you can configure in Extole, how the major components relate, and how to discover, configure, and validate a component."
+description: "What a component is, which components matter most, how you work with one, and how a component becomes running behavior."
 ---
 
 # Overview
 
-Everything you configure in Extole is a **component**. A marketing campaign is a component, and so are the journeys, business events, rewards, and experiences inside it. Each component describes what it does and which settings it offers, so you learn the details from the component and not from a static list.
+Everything you configure in Extole is a **component**. A marketing campaign is a component, and so is an integration, a reward, or a rule.
 
-An account holds four kinds of top-level component:
+Every component works the same way. It has a name and a description that say what it does, one or more **types** that say what kind of component it is, and **settings** that you change to fit your program. When you know how to work with one component, you know how to work with all of them.
+
+```
+Program
+└── Marketing campaign                 a component
+    ├── Role                           components inside it
+    │   ├── Journey
+    │   │   └── Business event
+    │   │       └── Rules, actions
+    │   └── Reward
+    └── uses ──►  trigger events, reward suppliers, audiences, webhooks
+                  that other components provide
+```
+
+## The Components You Start From
+
+These are the components you meet first. Each one stands on its own in your account.
 
 <CardGroup cols={2}>
   <Card title="Marketing Campaigns" icon="bookmark" href="/guides/flow-campaigns/index">
-    The programs your participants see: roles, journeys, business events, rules, experiences, and rewards.
+    What your participants see and do: who takes part, what they do, and what they earn.
   </Card>
   <Card title="Integrations" icon="puzzle-piece" href="/technical/building-partner-integrations/integration-types/integration-categories">
     Connections to external systems, which send events to Extole or receive them from it.
@@ -20,97 +36,93 @@ An account holds four kinds of top-level component:
     Capabilities you add to the account, such as monitors, jobs, and the events your site and apps send.
   </Card>
   <Card title="Account Configuration" icon="gear">
-    Settings that the account's campaigns share and that belong to no single program.
+    Settings that the account's campaigns share.
   </Card>
 </CardGroup>
 
-Components draw on three kinds of account resource. Each is set up once and used by any component that names it:
+These are the important ones, not the whole list. An account can hold other kinds of component, and My Extole shows them where they apply.
 
-<CardGroup cols={3}>
-  <Card title="Reward Suppliers" icon="trophy" href="/product/product-overview/rewards/rewards-overview">
-    The sources that fulfill rewards.
-  </Card>
-  <Card title="Audiences" icon="poll-people" href="/product/product-overview/people/people-overview">
-    Groups of people that campaigns target.
-  </Card>
-  <Card title="Reports" icon="file-chart-line" href="/product/product-overview/data/reports">
-    Reporting and analytics on what your programs did.
-  </Card>
-</CardGroup>
+A **program** is a collection of marketing campaigns. [Programs vs. Campaigns](/guides/platform-overview/key-concepts/programs-vs-campaigns) explains when to make a new one of each.
 
-## How the Components Relate
+## Components Inside Components
 
-A top-level component holds its own copy of every component inside it. A change to a business event in one marketing campaign reaches that campaign and no other.
+You configure a component largely by choosing the components inside it. A marketing campaign has roles, such as advocate and friend. A role has journeys and rewards, a journey has business events, and a business event has rules and actions. There are many more kinds, including:
 
-| Top-level component | Components inside it |
-|---|---|
-| Marketing campaign | Roles, such as advocate and friend. Each role has journeys and rewards. A journey has business events. A business event has rules, actions, and experiences. |
-| Integration | The events and actions it exchanges with the external system, its views in My Extole, and the reward suppliers a partner fulfills through. |
-| Extension | Whatever the capability needs: views, jobs, events, experiences, or monitors. |
-| Account configuration | Shared settings. Every account has one named `global`. |
+- Roles
+- Journeys
+- Business events
+- Rules
+- Actions
+- Rewards
+- Experiences
 
-Top-level components also work together. An integration or an extension declares the events an external system can send, and a business event in a marketing campaign chooses one of them as its trigger. [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) covers that choice.
+A component holds its own copy of each component inside it. A change to a business event in one marketing campaign reaches that campaign and no other.
 
-An account resource is used by reference. A reward names its reward supplier and a campaign names the audiences it targets, so one reward supplier can serve many campaigns, and a change to it reaches all of them.
+## Components That Use Other Components
 
-A **program** is a group of marketing campaigns that serve one audience and one outcome. The campaigns of a program share a `PROGRAM` label. [Programs vs. Campaigns](/guides/platform-overview/key-concepts/programs-vs-campaigns) explains when to make a new one of each.
+A component can also use a component that it does not hold. The other component is set up once, and every component that uses it sees the same one. Examples include:
+
+- **Trigger events.** An integration or an extension provides the events an external system can send, and a business event chooses one of them as its trigger. See [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by).
+- **Reward suppliers.** A reward chooses the reward supplier that fulfills it.
+- **Audiences.** A campaign chooses the audiences it targets.
+- **Webhooks.** An action chooses the webhook it calls.
+
+One reward supplier can serve many campaigns, and a change to it reaches all of them.
 
 ## Working with Components
 
-You work with every component the same way, in My Extole or through the [Management API](/api-reference/getting-started/api-overview#management-api).
+You work with every component in four steps:
 
-1. **Discover the component.** [List components](/api-reference/components/list-components) returns the components your account has, and you can narrow the list by type, tag, or parent component. [List duplicatable components](/api-reference/components/list-duplicatable-components) returns the components you can copy into your account: the ones Extole maintains and the ones you already have.
-2. **Read what it says about itself.** [Get a component](/api-reference/components/get-a-component) returns its name, description, and types. [List component settings](/api-reference/components/list-component-settings) returns each setting with its own name, description, and type.
-3. **Configure its settings.** A component has two kinds of setting:
-   - A **variable** holds a value, such as a text, a color, a reward supplier, or an audience. [Update a component setting](/api-reference/components/update-a-component-setting) sets it.
-   - A **socket** holds other components, and it says which types it accepts. [Add component to setting](/api-reference/components/add-component-to-setting) copies a component into a socket. To see what fits a socket, list duplicatable components with that socket as the target.
-4. **Validate the result.** [Get a built component](/api-reference/components/get-a-built-component) returns the component as Extole will run it. [Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest) sends events to a draft before you publish it.
+1. **Find the component.** Look at what your account has, or at what you can add to it. A component's types tell you what kind of component it is and where it fits.
+2. **Read what it says about itself.** A component has a description, and so does each of its settings. The description is the documentation for that component.
+3. **Configure its settings.** Set a value, choose a component to place inside it, or choose a component for it to use.
+4. **Validate the result.** Preview the change or test it in a draft before you publish.
 
-[Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest) covers reading and writing a setting in detail.
+You can take these steps in three places:
 
-### Configuration and Modification
+| Where | Use it for |
+|---|---|
+| **Extole Chat** | Most work. Ask in plain language what a component does, how it is set up, or for a change to it. See [Extole Chat](/product/extole-chat/index). [Extole AI Tools](/technical/extole-ai-tools/index) gives the same reach from an AI client you already use. |
+| **My Extole** | Marketing campaigns and programs are on the [Programs](https://my.extole.com/programs) page. Integrations and extensions are on the [Partners](https://my.extole.com/partners) page. Reward suppliers are on the [Rewards](https://my.extole.com/account-rewards) page, and reports are on the [Reports](https://my.extole.com/reports) page. |
+| **Management API** | Automation and your own tools. The [Components](/api-reference/components/list-components) endpoints find, read, and configure components. [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest) walks through a change. |
 
-A component you copy remembers the component it came from, which is its **origin**. When the origin gets a later version, [Upgrade a component](/api-reference/components/upgrade-a-component) brings your copy to that version, and [Get available component upgrades](/api-reference/components/get-available-component-upgrades) lists what an upgrade would bring.
+All three work with the same components, so a change you make in one appears in the others.
 
-An upgrade keeps what you configured: the values you set on settings, the settings and assets you added, and the components you placed in sockets. Everything beneath the settings comes from the new version of the origin.
+### Configure Before You Modify
 
-So there are two ways to change what a component does, and they are not equal:
+Most components in your account are copies of components that Extole maintains. When Extole improves one, you can upgrade your copy, and the upgrade keeps everything you configured.
 
-- **Configuring** a component sets its variables and fills its sockets. An upgrade carries that work forward.
-- **Modifying** a component changes the [model elements](/technical/configuring-extole/underlying-configuration-model#model-elements) beneath it, such as a trigger or an action. An upgrade replaces those elements with the origin's, so your copy no longer upgrades automatically: each upgrade means making the change again.
+That is true only of configuration. A component does its work through parts beneath its settings, and it is possible to change those parts directly. An upgrade replaces them, so a direct change must be made again after each upgrade.
 
-Modify model elements as a last resort. When a component has no setting for the behavior you need, or its description doesn't say how to get it, look for another component that offers it. If none does, the component is missing a setting or a description, and Extole Support can tell you whether it can gain one.
+Configure a component through its settings. When a component has no setting for the behavior you need, look for another component that offers it. Modify what lies beneath a component as a last resort.
 
-## The Configuration Lifecycle
+## From Configuration to Runtime
 
-Configuration becomes behavior in three stages.
+A component exists in three forms.
 
 ```
-Configuration  ──►  Build Time  ──►  Runtime
-component           built component  events, journeys, rewards
+Component  ──►  Built component  ──►  Runtime component
 ```
 
-| Stage | What exists | What happens |
-|---|---|---|
-| **Configuration** | The component: its types, its variables and sockets, and its model elements. | You discover, configure, and save. Editing a published campaign creates a draft. |
-| **Build time** | The built component. | Each save builds the campaign. Building resolves every value that can be known from configuration alone. |
-| **Runtime** | The built model elements, running. | Extole receives events and runs the configured behavior. A value that depends on the event or the person is resolved here. |
+| Form | What it is |
+|---|---|
+| **Component** | What you configure. A setting can hold a fixed value or an expression that works the value out. |
+| **Built component** | What Extole makes of the component each time you save. Most settings now have their final values. |
+| **Runtime component** | The built component at work. It responds to events, and it works out the few values that depend on the event or the person. |
 
-A **component** is what you configured. A **built component** is what the build made of it. The two can differ, because a setting can hold an expression and the built component holds the result.
+A greeting that includes a person's first name shows the difference. The component holds the expression. The built component still holds it, because no person is known yet. The runtime component works it out for each person who arrives.
 
-A built component can still hold unresolved values. A greeting that includes the person's first name has no value until a person arrives, so the built component keeps the expression and the runtime resolves it for each person.
+## What Components Do at Runtime
 
-## What Configuration Does at Runtime
-
-At runtime, Extole works with events and people. The configuration decides what happens to each event.
+At runtime, Extole works with events and people, and your components decide what happens to each event.
 
 1. An **event** arrives from your site, your app, your servers, a file, or an integration. Extole finds or creates the **profile** of the person it belongs to.
-2. **Targeting** finds the **business events** this event can start, across your campaigns, and chooses the campaign that applies to this person. The audiences and **rules** you configured decide which campaign that is, whether the event qualifies, and what its quality is.
+2. **Targeting** finds the **business events** this event can start and chooses the campaign that applies to this person. Your audiences and **rules** decide which campaign that is and whether the event qualifies.
 3. Extole records the business event as a **step** in the person's **journey**.
-4. The business event's **actions** run: show an experience, send an email, call a webhook, or earn a **reward**. A reward has its own rules, and its reward supplier fulfills it.
+4. The business event's **actions** run: show an experience, send an email, call a webhook, or earn a **reward**.
 
 The profile now holds the step and the reward, and they shape what the person is eligible for on the next event. [Key Concepts](/technical/integration-overview/key-concepts) describes each of these in more depth.
 
-## The Model Beneath Components
+## Beneath Components
 
-Components are built from model elements, such as campaigns, steps, triggers, and webhooks. You don't need them to configure Extole. [The Underlying Configuration Model](/technical/configuring-extole/underlying-configuration-model) describes them for developers who build components, troubleshoot a campaign in depth, or read `campaign_type` in the Management API.
+You don't need more than this page to configure Extole. [The Underlying Configuration Model](/technical/configuring-extole/underlying-configuration-model) describes the parts of a component in more detail, for developers who build components or troubleshoot one in depth.
