@@ -422,7 +422,7 @@ The full lifecycle of one reward instance, built from all known reward state-cha
 | `personId` | Person who earned the reward |
 | `faceValue` | Reward face value |
 | `faceValueType` | `POINTS`, `CREDIT`, `COUPON_CODE`, etc. |
-| `currentState` | The latest state the reward entered, as a [RewardEvent](#rewardevent) `type` value: `reward_earned`, `reward_fulfilled`, `reward_sent`, `reward_redeemed`, `reward_failed`, `reward_canceled`, and so on |
+| `currentState` | The reward's most advanced state, as a [RewardEvent](#rewardevent) `type` value. See [Reward States](#reward-states) |
 | `rewardSupplierId` | Supplier that issued this reward |
 | `campaignId` | Campaign context |
 | `program` | Program label |
@@ -458,6 +458,32 @@ To sum total reward value issued across a step in a **Metrics** report:
 
 ```
 Total Reward Value=group_sum(reward(event.data.reward_id).faceValue, step_name:"advocate_reward_earned");
+```
+
+## Reward States
+
+`currentState` holds one of nine lowercase values. They are the event names of the [reward webhooks](/technical/platform-integrations/webhooks/reward-webhooks#filter-reward-events-by-state), plus `reward_expired`. When a reward has been through several states, `currentState` is the one that ranks highest in this order, from lowest to highest:
+
+1. `reward_earned`
+2. `reward_fulfillment_failed`
+3. `reward_failed`
+4. `reward_canceled`
+5. `reward_fulfilled`
+6. `reward_sent`
+7. `reward_revoked`
+8. `reward_redeemed`
+9. `reward_expired`
+
+So a reward whose fulfillment failed and then succeeded on a retry has the state `reward_fulfilled`.
+
+To leave out rewards that failed, were canceled, or were revoked, filter on `currentState`:
+
+```
+# Rewards report: Filters parameter
+event.currentState not like "reward_failed|reward_fulfillment_failed|reward_canceled|reward_revoked"
+
+# Reward Metrics report: Filters parameter
+reward(event.rewardId).currentState not like "reward_failed|reward_fulfillment_failed|reward_canceled|reward_revoked"
 ```
 
 # RewardSupplier
