@@ -1,0 +1,70 @@
+---
+title: "Gift Card Rewards Over REST"
+description: "Create a Tango gift card reward with the REST API: find or create the gift card account, choose a card from the catalog, and create the reward."
+---
+
+# Overview
+
+The [How to Reward with Tango Gift Cards](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-tango-gift-cards)
+guide creates a gift card reward in My Extole. This page creates the same reward through the REST
+API. A gift card reward needs three things: the account's gift card account, a card from the Tango
+catalog, and a value.
+
+## The Gift Card Account
+
+Every gift card reward draws on one gift card account. My Extole creates that account the first
+time someone creates a gift card reward, so an account that has never had one has no gift card
+account yet. Over REST, you create it yourself, once.
+
+A new gift card account has a balance of zero. A reward on it can be attached to a campaign and
+published, but it sends no gift card until the balance is funded. Extole funds the balance by
+invoice or by credit card; see
+[Fund Your Gift Card Balance](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-tango-gift-cards#fund-your-gift-card-balance).
+
+## Create a Gift Card Reward
+
+1. **Find the gift card account.** `GET /v2/settings/tango/accounts` lists the account's gift card
+   accounts. If the list has one, use its `account_id` and go to step 3.
+2. **Create the gift card account if the list is empty.** `POST /v2/settings/tango/accounts` with
+   the balance at which Extole warns that funds are low. `funds_amount_warn_limit` is required.
+   My Extole uses 2500:
+
+   ```json
+   { "funds_amount_warn_limit": 2500 }
+   ```
+
+   The response carries the new `account_id`. An account can hold only a limited number of gift
+   card accounts, and a request past the limit returns `account_limit_reached`.
+3. **Choose the card.** `GET /v2/reward-suppliers/tango/catalog` returns the cards Tango sells
+   today. Each brand lists its `items`. Pick the item in the currency you want and note its `utid`.
+   An item with a `face_value` has a fixed value. An item with `min_value` and `max_value` takes
+   any value between them.
+4. **Create the reward.** `POST /v6/reward-suppliers` with `reward_supplier_type` set to
+   `TANGO_V2`. `account_id`, `utid` and `face_value_type` are required:
+
+   ```json
+   {
+     "reward_supplier_type": "TANGO_V2",
+     "name": "Advocate 10 USD Visa",
+     "display_name": "$10 Visa Gift Card",
+     "account_id": "<account_id from step 1 or 2>",
+     "utid": "<utid from step 3>",
+     "face_value_type": "USD",
+     "face_value": 10,
+     "face_value_algorithm_type": "FIXED"
+   }
+   ```
+
+5. **Attach the reward.** Set the reward step's **Reward** setting to the new reward's `id`. See
+   [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest),
+   or [Change the Reward on your Program](/guides/flow-campaigns/change-the-reward-on-your-program)
+   in My Extole.
+
+You can't change the card on a gift card reward after you create it. To use a different card,
+create a new reward and attach it in place of the old one.
+
+## Related Documentation
+
+- [How to Reward with Tango Gift Cards](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-tango-gift-cards)
+- [General Information About Tango Gift Cards](/guides/rewards-management/setting-up-your-rewards/general-information-about-tango-gift-cards)
+- [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest)
