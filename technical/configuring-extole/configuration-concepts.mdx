@@ -9,18 +9,6 @@ Everything you configure in Extole is a **component**. A marketing campaign is a
 
 Every component works the same way. It has a name and a description that say what it does, one or more **types** that say what kind of component it is, and **settings** that you change to fit your program. When you know how to work with one component, you know how to work with all of them.
 
-```
-Program
-└── Marketing campaign                 a component
-    ├── Role                           components inside it
-    │   ├── Journey
-    │   │   └── Business event
-    │   │       └── Rules, actions
-    │   └── Reward
-    └── uses ──►  trigger events, reward suppliers, audiences, webhooks
-                  that other components provide
-```
-
 ## The Components You Start From
 
 These are the components you meet first. Each one stands on its own in your account.
@@ -46,21 +34,38 @@ A **program** is a collection of marketing campaigns. [Programs vs. Campaigns](/
 
 ## Components Inside Components
 
-You configure a component largely by choosing the components inside it. A marketing campaign has roles, such as advocate and friend. A role has journeys and rewards, a journey has business events, and a business event has rules and actions. There are many more kinds, including:
+You configure a component largely by choosing the components inside it. A marketing campaign shows the shape:
 
-- Roles
-- Journeys
-- Business events
-- Rules
-- Actions
-- Rewards
-- Experiences
+```
+Marketing campaign
+└── Role
+    ├── Journey
+    │   └── Business event
+    │       ├── Rules
+    │       ├── Actions
+    │       └── Experiences
+    └── Reward
+```
+
+A role is a kind of participant, such as advocate or friend. Each component in the hierarchy has components of its own. A reward is a rich example:
+
+```
+Reward
+├── Trigger rules
+├── Reward rules
+└── Reward issuer
+    ├── Send actions
+    │   └── Reward email
+    └── Fulfillment actions
+```
+
+These hierarchies show the common kinds. There are many more, and the components your account has depend on what you add.
 
 A component holds its own copy of each component inside it. A change to a business event in one marketing campaign reaches that campaign and no other.
 
-## Components That Use Other Components
+## Components That Reference Other Components
 
-A component can also use a component that it does not hold. The other component is set up once, and every component that uses it sees the same one. Examples include:
+A setting can also point at a component that lives elsewhere in the account. That component is set up once, and every component that references it sees the same one. Examples include:
 
 - **Trigger events.** An integration or an extension provides the events an external system can send, and a business event chooses one of them as its trigger. See [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by).
 - **Reward suppliers.** A reward chooses the reward supplier that fulfills it.
@@ -75,7 +80,7 @@ You work with every component in four steps:
 
 1. **Find the component.** Look at what your account has, or at what you can add to it. A component's types tell you what kind of component it is and where it fits.
 2. **Read what it says about itself.** A component has a description, and so does each of its settings. The description is the documentation for that component.
-3. **Configure its settings.** Set a value, choose a component to place inside it, or choose a component for it to use.
+3. **Configure its settings.** Set a value, choose a component to place inside it, or choose a component for it to reference.
 4. **Validate the result.** Preview the change or test it in a draft before you publish.
 
 You can take these steps in three places:
