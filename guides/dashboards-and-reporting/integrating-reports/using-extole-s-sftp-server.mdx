@@ -23,13 +23,15 @@ Sending information through less-secure services is analogous to sending mail in
 
 ### Add a Server
 
-Navigate to the [Tech Center](https://my.extole.com/tech-center) and click the "+ New Server" button. Make sure you have selected "Extole Server" in the top left. You will see a number of fields to fill out to describe the server.
+Navigate to [**Tech Center** > **SFTP Servers**](https://my.extole.com/tech-center/sftp) and click **+ New Extole Server**. **Extole hosted Server** is selected at the top of the form. You will see a number of fields to fill out to describe the server.
 
-![Screenshot showing Navigate to the Tech Center and click the "+ New Server" button. Make sure you have selected "Extole Server" in the top left. You will see a number of fields...](/images/extole/67266ccf0f903c287fe7eaf006e5a580e0f2c1cd07e564783ca0b0926109437d.png)
+<Frame caption="The **Create New Server** form for an Extole hosted server, on Extole's Launch Demo test account.">
+  <img src="/images/extole/sftp-extole-hosted-server-form.png" alt="Create New Server page with Extole hosted Server selected, showing the Name, Username, Login Key, and Enable File Processing fields" />
+</Frame>
 
 **Name**: How you'd like to reference the server in the Extole Admin Tool.
 
-**Username**: The username used to access the SFTP server. By default, this will be your client name (e.g., "extole" in the above example). While all usernames must begin with your client name, you can optionally add suffixes to distinguish the purpose of the account using the text box (e.g., extole-events, extole-reports, etc.).
+**Username**: The username used to access the SFTP server. By default, this will be your client name (e.g., "launch-demo" in the above example). While all usernames must begin with your client name, you can optionally add suffixes to distinguish the purpose of the account using the text box (e.g., extole-events, extole-reports, etc.).
 
 - Some clients may have user names in our previous format "c123456..." which is still supported.
 
@@ -51,22 +53,16 @@ Click on the "Create Login Key" button to create a new SSH key and fill out the 
 
 ### Use PGP Encryption with Extole (Optional)
 
-#### Upload Your PGP Key
+SFTP encrypts every file in transit. To also encrypt the files themselves, use PGP:
 
-From the Create New Server page, click the "Create PGP Encryption Key" button and fill out all required fields.
+- **Files you upload to Extole**: copy Extole's public key from **Advanced** > **Download Extole's Public PGP Key** on the server form, or from the [Security Center](https://my.extole.com/security-center). Encrypt each file to it and give the file a `.gpg`, `.pgp`, or `.asc` extension. Extole decrypts the file when it processes it.
+- **Reports Extole delivers to this server**: click **Advanced** > **Create PGP Encryption Key** on the server form and paste your armored public key. Extole then encrypts every report it delivers to the server.
 
-- Key Name: How we'll refer to the key in the Extole Admin Tool.
-- Email: Your email address.
-- Key: The key itself. [View more information on PGP key formatting](https://datatracker.ietf.org/doc/html/rfc4880#section-6.2).
-- Description: An optional description for the key.
+For the full steps in each direction, including the GnuPG commands, see [PGP Encryption for SFTP Files](/technical/platform-integrations/files/pgp-encryption).
 
-![Screenshot showing Description: An optional description for the key.](/images/extole/ec3b3283316d3efae77967be5afdcafa3400b2234e84d181eb8be70cb629beae.png)
-
-#### Download Extole's PGP Key
-
-You must also download Extole's public PGP encryption key, which you can do from the Create New Server page in the Tech Center.
-
-![Screenshot showing You must also download Extole's public PGP encryption key, which you can do from the Create New Server page in the Tech Center.](/images/extole/3d85f36b1f4892a5dd785763bdedfb63e3f7c8338d1820f6ce53ae959f3e6003.png)
+<Frame caption="The **Advanced** section of an Extole hosted server, on Extole's Launch Demo test account.">
+  <img src="/images/extole/sftp-pgp-extole-server-advanced.png" alt="Create New Server page with Extole hosted Server selected and the Advanced section open, showing the PGP Encryption Key list and the Create PGP Encryption Key and Download Extole's Public PGP Key buttons" />
+</Frame>
 
 ### Configure and Test Your SFTP Client
 
@@ -137,7 +133,7 @@ Yes. Your company's IT department likely has tools that can help automate the tr
 
 ### Can the files being sent to and from Extole be encrypted?
 
-SFTP encrypts files as they are transferred. For the types of files being sent, encryption during transmission (transmission-level encryption) is sufficient. Extole does not have a standard way to handle direct file encryption (message-level encryption).
+Yes. SFTP encrypts every file while it is transferred, and you can also encrypt the files themselves with PGP, in either direction. Encrypt the files you upload with Extole's public key, and add your own public key to a server so that Extole encrypts the reports it delivers there. See [PGP Encryption for SFTP Files](/technical/platform-integrations/files/pgp-encryption).
 
 ### Can Extole support another transport protocol like ConnectDirect?
 
