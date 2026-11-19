@@ -55,11 +55,11 @@ Measured 2026-09-21 on `docs/dollar-amounts-render-as-math`: 432 pages swept in 
 
 ## CI runs the gate on every PR
 
-[`.github/workflows/validate.yml`](../../../.github/workflows/validate.yml) runs `mint validate` at the version pinned in its `MINT_VERSION` on every pull request, on pushes to `main`, and on manual dispatch. The **`validate`** check is a required status check on `main`, alongside one approving review, so a PR that breaks the build cannot merge.
+[`.github/workflows/validate.yml`](../../../.github/workflows/validate.yml) runs `mint validate` at the version pinned in `package.json` on every pull request, on pushes to `main`, and on manual dispatch. The **`validate`** check is a required status check on `main`, alongside one approving review, so a PR that breaks the build cannot merge.
 
 On a pull request, the **`new findings`** job runs [`scripts/check_new_findings.py`](../../../scripts/check_new_findings.py) for navigation and for broken links. It fails on a page left out of `docs.json` or a broken link that `main` does not have, and reports separately when the check could not run. It is not a required check, so a red `new findings` does not block a merge: fix what it names before you ask for review.
 
-`mint@latest` on your machine can be newer than the pinned version. When the two disagree, CI decides. Raise `MINT_VERSION` in a pull request of its own, after `npx --yes mint@<version> validate` passes on `main`.
+`mint@latest` on your machine can be newer than the pinned version. When the two disagree, CI decides. Dependabot opens a pull request each week that raises the version in `package.json`, and `validate` runs on it, so a stricter release fails on that pull request only.
 
 The workflow deliberately carries no `paths:` filter. A required check that is skipped never reports a conclusion, so filtering it by path would leave any PR outside those paths pending forever. The run takes about 30 seconds; the cost of running it on every PR is far below the cost of a wedged merge queue.
 

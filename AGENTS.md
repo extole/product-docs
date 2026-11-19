@@ -55,7 +55,8 @@ distillation and defers to them.
 | `scripts/convert_from_product_docs.py` | The deterministic generator that produced these pages from the ReadMe corpus. Kept for provenance — never re-run it over pages that have been hand-edited since. |
 | `scripts/check_navigation.py` | Reports pages absent from `docs.json`, navigation entries with no file, and paths that do not mirror their navigation group chain. Run it with `validate` before every PR. |
 | `scripts/check_new_findings.py` | Compares a checkout with a base commit. Exits 1 on navigation or broken-link findings that the base does not have, and 2 when the check could not run. `main` already carries findings of both kinds, so the plain checks cannot gate. |
-| `.github/workflows/validate.yml` | CI: the **`validate`** job runs `mint validate` at the pinned `MINT_VERSION` on every PR and on pushes to `main`, and is required to merge. On a PR, the **`new findings`** job runs `check_new_findings.py` for navigation and broken links. It is not required yet, so a red `new findings` does not block a merge. Raise `MINT_VERSION` in a PR of its own. |
+| `package.json` | Holds only the Mintlify CLI version that CI uses. Dependabot (`.github/dependabot.yml`) opens a PR each week when a newer version is out, and `validate` runs on that PR, so a stricter release fails there and nowhere else. Review it like any PR. |
+| `.github/workflows/validate.yml` | CI: the **`validate`** job runs `mint validate` at the version in `package.json` on every PR and on pushes to `main`, and is required to merge. On a PR, the **`new findings`** job runs `check_new_findings.py` for navigation and broken links. It is not required yet, so a red `new findings` does not block a merge. |
 | `.mintlify/AGENTS.md` | The writing standards, including where a page lives. Never served publicly — Mintlify does not expose `.mintlify/`. |
 | `AGENTS.md`, `.agents/`, `.claude/`, `.cursor/` | Agent config — not published. `.agents`/`.claude` are Mintlify built-in ignores (Claude Code's `CLAUDE.md` lives in `.claude/`); `.cursor/` and `AGENTS.md` are in `.mintignore`. The built-ins do **not** cover repo-root Markdown, so an un-ignored root `AGENTS.md` is served at `/agents.md`. |
 
@@ -70,7 +71,7 @@ distillation and defers to them.
 
 `main` is protected. A change lands only through a pull request that has:
 
-1. a green **`validate`** check (CI runs `mint validate` at the pinned `MINT_VERSION`; it fails on warnings as well as errors), and
+1. a green **`validate`** check (CI runs `mint validate` at the version in `package.json`; it fails on warnings as well as errors), and
 2. **one approving review**, and
 3. the branch up to date with `main`.
 

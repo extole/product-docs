@@ -8,11 +8,12 @@ Exit status: 0 when the change adds no finding, 1 when it adds one, 2 when the c
 
 Usage:
   python3 scripts/check_new_findings.py --base <ref> navigation
-  python3 scripts/check_new_findings.py --base <ref> broken-links      # needs MINT_VERSION
+  python3 scripts/check_new_findings.py --base <ref> broken-links
 """
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import subprocess
@@ -44,7 +45,7 @@ def navigation_findings(checkout: Path) -> set[str]:
 
 
 def broken_link_findings(checkout: Path) -> set[str]:
-    version = os.environ["MINT_VERSION"]
+    version = mint_version()
     result = subprocess.run(
         ["npx", "--yes", f"mint@{version}", "broken-links"],
         cwd=checkout, capture_output=True, text=True, check=False,
@@ -52,6 +53,11 @@ def broken_link_findings(checkout: Path) -> set[str]:
     if result.returncode not in (0, 1):
         raise CheckDidNotRun(f"mint broken-links exited {result.returncode}: {result.stderr.strip()[-400:]}")
     return parse_broken_links(ANSI_ESCAPE.sub("", result.stdout))
+
+
+def mint_version() -> str:
+    """The pinned CLI version, from package.json, which Dependabot keeps current."""
+    return json.loads((ROOT / "package.json").read_text())["devDependencies"]["mint"]
 
 
 def parse_broken_links(output: str) -> set[str]:

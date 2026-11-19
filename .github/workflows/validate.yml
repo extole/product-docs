@@ -12,9 +12,6 @@ concurrency:
   group: validate-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  MINT_VERSION: 4.3.67
-
 jobs:
   validate:
     name: validate
@@ -32,7 +29,7 @@ jobs:
       # No `paths:` filter: this job is a required status check, and a required
       # check that is skipped never reports, leaving every filtered PR pending.
       - name: Validate Mintlify build
-        run: npx --yes "mint@$MINT_VERSION" validate
+        run: npx --yes "mint@$(node -p "require('./package.json').devDependencies.mint")" validate
 
   new-findings:
     name: new findings
