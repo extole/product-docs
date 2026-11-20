@@ -1,0 +1,37 @@
+---
+title: "Who Froze the Gift Card Account"
+description: "Read the account's change log to find the user who froze or unfroze a gift card account, and when."
+noindex: true
+---
+
+Use this runbook when someone asks who froze a gift card account, or when. The customer-facing description of what a frozen account is and what it does to rewards is in [Freeze Your Gift Card Account](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-tango-gift-cards#freeze-your-gift-card-account).
+
+<Info>
+**Audience**
+
+Extole operators and agents. The report below needs Extole super user access. A customer cannot run it. If your access is refused, ask an Extole user with super user access to run it over the window you chose.
+</Info>
+
+## What the Change Log Holds
+
+The gift card account itself holds no actor, no time, and no reason for a freeze. Extole records every change to the gift card account in the account's change log. Each record carries the user who made the change, the time, and the whole gift card settings as written, with each account's enabled state.
+
+No record holds the reason for a change. Only the person who made it can say why.
+
+## Run the Report
+
+1. Choose a window that holds the change. The reward fulfillment histories bound it: the last success before the freeze, and the first failure that says *The account associated with this transaction has been disabled*. If you cannot bound it, start with the recent weeks and widen it. The log starts on July 28, 2020.
+2. Run the **Client Change Events** report (`CLIENT_CHANGE`) for the account over that window. Set the `type` filter to `ClientTangoSettingsPojo`, so the report returns only changes to the gift card account. The `time_range` filter defaults to the last day, so set it to your window.
+
+## Read the Rows
+
+- `user_id` is the user who made the change. Look the user up to get a person's name and email, and say whether that person is on the customer's team or at Extole.
+- `event_time` is when the change was made.
+- `pojo` is the gift card settings as written. Compare each row's account with the row before it.
+
+The row where the account goes from enabled to disabled is the freeze. Later rows can show it unfrozen and frozen again, so read every row in the window, not only the first.
+
+## Related
+
+- [How to Reward with Tango Gift Cards](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-tango-gift-cards)
+- [Rewards Stuck in Trying to Fulfill](/guides/rewards-management/reward-fulfillment/how-to-resend-tango-rewards#rewards-stuck-in-trying-to-fulfill)
