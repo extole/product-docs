@@ -1,104 +1,61 @@
 ---
 title: "Find Components Over REST"
-description: "Find components with the REST API: the components in your account, a campaign's component tree, and the library you copy from, including campaign templates and components that fit a socket."
+description: "Find components with the REST API: list them as short summaries, read the candidates in full, walk a component tree, and find a template or a component that fits a socket."
 ---
 
 # Overview
 
-Your account can see two sets of components: the components of your own campaigns, and the components of the accounts your account subscribes to, including the campaign templates that Extole provides. [Configuration Concepts](/technical/configuring-extole/configuration-concepts) explains where a library's components come from. The Management API lists both:
+Your account can use its own components and the components of the accounts it subscribes to, including the templates that Extole provides. [Configuration Concepts](/technical/configuring-extole/configuration-concepts) explains where those components come from.
 
-| To find | Use |
-|---|---|
-| Components your account can see, in full | [List components](/api-reference/components/list-components). It includes the libraries your account subscribes to unless you set `include_subscribed` to `false`. |
-| The components you can copy, one short row each | [List duplicatable component summaries](/api-reference/components/list-duplicatable-component-summaries) |
-| One component, its settings, and its operations | [Get a component](/api-reference/components/get-a-component), [List component settings](/api-reference/components/list-component-settings), and [List component operations](/api-reference/components-operations/list-component-operations) |
+To find a component, list them with [List duplicatable component summaries](/api-reference/components/list-duplicatable-component-summaries). It returns one short row for each component, and its page lists the fields of a row. When you have found a few candidates, read them in full to choose between them, with [Get a component](/api-reference/components/get-a-component), [List component settings](/api-reference/components/list-component-settings), and [List component operations](/api-reference/components-operations/list-component-operations).
 
-## Component Types
+## Filter by Type
 
-A component's types say what kind of component it is, and so where it fits. Each type name ends in a version, and one type can be a kind of another, as [The Underlying Configuration Model](/technical/configuring-extole/underlying-configuration-model#component-types) explains. These are some of the types you will see:
+A component's types say what kind of component it is, and so where it fits. [The Underlying Configuration Model](/technical/configuring-extole/underlying-configuration-model#component-types) explains types. To list the components of a type, pass it as `having_any_types`, which keeps a component that has at least one of the comma-separated types, or `having_all_types`, which keeps a component that has all of them.
 
-| Type | What the component is |
-|---|---|
-| `campaign-v10.0` | The root component of a Flow Builder campaign. It stands for the whole campaign. |
-| `role-v10.0` | A role in a campaign, such as the advocate. |
-| `business-event-v10.0` | A business event that a journey records. |
-| `reward-email-v10.0` | A reward email. |
+## Find a Template
 
-There are many more. [Narrow a Long List](#narrow-a-long-list) shows how to count every type in your library.
+A template is a component that Extole provides for you to copy. The `owner` of a row says which account holds the component: `EXTOLE` for Extole's default template accounts, `EXTOLE_BETA` for Extole's component library and beta accounts, and `CLIENT` for any other account, your own included.
 
-Filter either list by type with `having_any_types`, which keeps a component that has at least one of the comma-separated types, or `having_all_types`, which keeps a component that has all of them.
+1. **List the components of the type you need, and set `show_all` to `true`.** `show_all` decides which components of a subscribed account the list holds. Without it, the list holds only the components of `LIVE` campaigns whose program type is `integration` or `campaign-component`. With `show_all` set to `true`, it holds them all.
+2. **Keep the rows that Extole owns**, with the owner `EXTOLE` or `EXTOLE_BETA`.
+3. **Choose by `display_name` and `description`.** The `name` parameter filters on the component's `name`: without `*` it must equal the whole name, and `*` at the start, the end, or both matches the end, the start, or any part of it. To match a display name, filter the rows in your own code.
+4. **Copy it.** Send the row's `id` to [Duplicate a component](/api-reference/components/duplicate-a-component). In the request body, `target_campaign_id`, `target_component_absolute_name`, and `target_setting_name` say where the copy goes.
 
-## Walk a Campaign's Components
+### Example: Campaign Templates
 
-To list the components of one campaign, pass its id to [List components](/api-reference/components/list-components) as `campaign_ids`. To read the tree beneath one component, pass the component's id as `parent_component_id`:
+A campaign template is a template whose `types` include `campaign-v10.0`, the type of a Flow Builder campaign's root component. Its `name` is `root`, and its `display_name` is the template's name, such as `Refer a Friend`, `Welcome Offer`, `Reward for Action`, or `Custom Campaign Template`.
 
 ```bash
-curl --get "$EXTOLE_API_HOST/v1/components" \
+curl --get "$EXTOLE_API_HOST/v1/components/duplicatable/summaries" \
   --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-  --data-urlencode "parent_component_id=$ROOT_COMPONENT_ID" \
-  --data-urlencode "max_depth=all"
+  --data-urlencode "having_any_types=campaign-v10.0" \
+  --data-urlencode "show_all=true"
 ```
 
-`max_depth` is `1` by default, which returns the direct children. Set it to a number of levels, or to `all` for the whole subtree. Add `parent_socket_name` to start from the children in one socket. Each component in the response carries `component_ids` and `installed_into_socket`, which name its parent and the socket it sits in.
+A row from that list, trimmed to the fields this page uses:
 
-## What a Summary Row Holds
+```json
+{
+  "id": "7595588148547844495",
+  "name": "root",
+  "display_name": "Reward for Action",
+  "types": ["campaign-v10.0"],
+  "owner": "EXTOLE",
+  "campaign_id": "7595588147951656208"
+}
+```
 
-| Field | What it holds |
-|---|---|
-| `id` | The component's id. To copy the component into a campaign, pass it to [Duplicate a component](/api-reference/components/duplicate-a-component). |
-| `name` | The component's name. The root component of every campaign is named `root`. |
-| `display_name` | The name to show for the component. A root component with no display name of its own takes its campaign's name. |
-| `description` | What the component is for, as its author wrote it. |
-| `types` | What kind of component it is. See [Component Types](#component-types). |
-| `tags` | Labels on the component, such as `email-type:reward`. |
-| `owner` | `EXTOLE` for a component that Extole provides, `EXTOLE_BETA` for one that Extole provides in beta, and `CLIENT` for a component of your account or of an account that shares with it. |
-| `source_client_id` | The account that holds the component. |
-| `campaign_id` | The campaign that holds the component. For a root component, pass it to [Duplicate a campaign](/api-reference/campaigns/duplicate-a-campaign) to copy the whole campaign. |
-| `campaign_state` | The state of that campaign, such as `LIVE` or `NOT_LAUNCHED`. |
-| `version` | The version of the component that the row describes. |
+To copy the whole campaign, send the row's `campaign_id` to [Duplicate a campaign](/api-reference/campaigns/duplicate-a-campaign). The copy is a new draft campaign in your account, and the request body can set its `name` and its `program_label`:
 
-## Find a Campaign Template
+```bash
+curl --request POST "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/duplicate" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{"name": "Spring Referral Program", "program_label": "your-program-label"}'
+```
 
-A campaign template is a campaign that Extole provides for you to copy. In the library, a template is the root component of that campaign: its `types` include `campaign-v10.0`, and its `owner` is `EXTOLE`.
-
-1. **List the root components.** Ask for the `campaign-v10.0` type, and set `show_all` to `true`:
-
-   ```bash
-   curl --get "$EXTOLE_API_HOST/v1/components/duplicatable/summaries" \
-     --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-     --data-urlencode "having_any_types=campaign-v10.0" \
-     --data-urlencode "show_all=true"
-   ```
-
-   `show_all` decides which components of a subscribed account the list holds. Without it, the list holds only the components of `LIVE` campaigns whose program type is `integration` or `campaign-component`. With `show_all` set to `true`, it holds the components of every campaign, Extole's templates among them.
-
-2. **Keep the rows that Extole owns.** `EXTOLE` marks a released template, and `EXTOLE_BETA` a template in beta. A `CLIENT` row is a campaign of your own account, or of an account that shares with it.
-
-3. **Choose by `display_name` and `description`.** A template's display name is its name, such as `Refer a Friend`, `Welcome Offer`, `Reward for Action`, or `Custom Campaign Template`, and its description says what the program does. Match the display name in your own code. The `name` parameter filters on the `name` field, and every template's `name` is `root`.
-
-   A template's row, trimmed to the fields this page uses:
-
-   ```json
-   {
-     "id": "7595588148547844495",
-     "name": "root",
-     "display_name": "Reward for Action",
-     "types": ["campaign-v10.0"],
-     "owner": "EXTOLE",
-     "campaign_id": "7595588147951656208"
-   }
-   ```
-
-4. **Copy it.** Send the row's `campaign_id` to [Duplicate a campaign](/api-reference/campaigns/duplicate-a-campaign). The copy is a new draft campaign in your account. The request body can set its `name` and its `program_label`:
-
-   ```bash
-   curl --request POST "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/duplicate" \
-     --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-     --header "Content-Type: application/json" \
-     --data '{"name": "Spring Referral Program", "program_label": "your-program-label"}'
-   ```
-
-If no row has the owner `EXTOLE`, your account does not subscribe to Extole's templates. Ask your Extole team to add the subscription.
+If no row has the owner `EXTOLE`, your account does not subscribe to Extole's templates. Contact your Customer Success Manager about the subscription, as [Your Team at Extole](/product/extole-overview/your-team) describes.
 
 ## Find a Component That Fits a Socket
 
@@ -111,37 +68,24 @@ curl --get "$EXTOLE_API_HOST/v1/components/duplicatable/summaries" \
   --data-urlencode "target_setting_name=$SOCKET_NAME"
 ```
 
-To copy a component into the socket, send the row's `id` to [Duplicate a component](/api-reference/components/duplicate-a-component). In the request body, `target_campaign_id`, `target_component_absolute_name`, and `target_setting_name` say where the copy goes.
+Copy one into the socket with [Duplicate a component](/api-reference/components/duplicate-a-component), as in [Find a Template](#find-a-template).
+
+## Walk a Component Tree
+
+To list child components, pass the parent's id to [List components](/api-reference/components/list-components) as `parent_component_id`:
+
+```bash
+curl --get "$EXTOLE_API_HOST/v1/components" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --data-urlencode "parent_component_id=$COMPONENT_ID" \
+  --data-urlencode "max_depth=all"
+```
+
+`max_depth` is `1` by default, which returns the direct children. Set it to a number of levels, or to `all` for the whole subtree. Add `parent_socket_name` to start from the children in one socket. Each component in the response carries `component_ids` and `installed_into_socket`, which name its parent and the socket it sits in.
 
 ## Narrow a Long List
 
-A library can hold thousands of components. Each list returns up to `limit` components, 1000 by default, starting at `offset`. Filter before you page:
-
-| Parameter | Keeps |
-|---|---|
-| `having_any_types`, `having_all_types` | Components that have at least one, or all, of the comma-separated types. |
-| `having_any_tags`, `having_all_tags` | Components that have at least one, or all, of the comma-separated tags. `exclude_having_any_tags` and `exclude_having_all_tags` leave those components out instead. |
-| `name` | Components whose name equals the value. Put `*` at the start, the end, or both to match names that end with, start with, or contain the rest of the value. |
-| `campaign_ids` | Components of the comma-separated campaigns. |
-| `state` | Components whose campaign is in the state, such as `LIVE`. |
-| `owner` | Components with this owner. [List components](/api-reference/components/list-components) only. |
-| `source_client_id` | Components held by the comma-separated accounts. [List duplicatable component summaries](/api-reference/components/list-duplicatable-component-summaries) only. |
-
-To read every component, request the next page with `offset` increased by `limit` until a page holds fewer than `limit`, as [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints) describes. This loop reads your whole library and counts the components of each type:
-
-```bash
-offset=0
-while true; do
-  page=$(curl --silent --get "$EXTOLE_API_HOST/v1/components/duplicatable/summaries" \
-    --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
-    --data-urlencode "show_all=true" \
-    --data-urlencode "limit=1000" \
-    --data-urlencode "offset=$offset")
-  echo "$page" | jq -r '.[].types[]'
-  [ "$(echo "$page" | jq length)" -lt 1000 ] && break
-  offset=$((offset + 1000))
-done | sort | uniq -c | sort -rn
-```
+A library can hold thousands of components, and a list returns up to `limit` of them, 1000 by default, starting at `offset`. Filter before you page, by type, tag, name, or state; the operation's page in the API Reference lists every filter. To read every component, page as [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints) describes.
 
 ## Related Documentation
 
