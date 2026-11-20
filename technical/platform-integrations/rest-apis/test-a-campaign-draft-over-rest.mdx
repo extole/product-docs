@@ -180,6 +180,28 @@ as a share experience. Set `creative_classification` to `JAVASCRIPT`, `PAGE`, or
 https://<your program domain>/core/preview.html?zone_name=<zone name>&sandbox=campaign_preview-<campaign id>-<journey name>&creative_classification=JAVASCRIPT&is_preview_mode=true
 ```
 
+### Check a Draft Without a Browser
+
+The same `/zones/` address answers a plain HTTP request, with no token, so a script or an assistant
+can check each experience of a draft:
+
+- **An email** returns `text/html`, with the sender in the `X-Extole-Email-From` header and the
+  subject in `X-Extole-Email-Subject`. Read the body for the heading, the message, and each amount.
+- **A JavaScript creative**, such as a call-to-action or a share experience, returns
+  `text/javascript`. The body carries the text the creative shows. A call-to-action that selects a
+  JavaScript SDK zone in **Triggered By** renders only for a request from the JavaScript SDK, so
+  send the header `x-extole-app-type: javascript_sdk`.
+- **A zone the draft does not serve** returns `200` with an empty body, so check the content type
+  and the length, not the status.
+
+The zone name of an email is its `zoneName` setting. The zone name of a call-to-action is the
+trigger event it selects. Each request records an input event in the `test` container.
+
+```bash
+curl -i -H "x-extole-app-type: javascript_sdk" \
+  "https://<your program domain>/zones/homepage_banner?sandbox=campaign_preview-<campaign id>"
+```
+
 To find the program domain, the zone name, and the journey name, select the creative on the
 campaign's **Assets** tab in My Extole and click **Preview in New Tab**. The address that opens
 carries all three: the domain, the zone in `zone_name`, and the journey at the end of `sandbox`, such

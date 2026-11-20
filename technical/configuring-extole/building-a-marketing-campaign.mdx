@@ -219,6 +219,35 @@ compares them.
   describes. [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform)
   has the call, with retries and testing.
 
+## Add the Experiences People See
+
+A campaign's experiences are what a person sees: how they learn about the offer, how they invite
+someone, where an invited person lands, and the email for each reward. Choose them from the
+program and from the systems the client has:
+
+| The program needs | Add | Where it goes |
+|---|---|---|
+| An offer shown on the client's website or app | A call-to-action, such as a banner or an overlay | The `promotion_viewed` business event, named after the zone the site or app requests |
+| An offer sent by email | A promotion email | The `promotion_viewed` business event |
+| An invitation from one person to another | The share experience, the share link, and the share email | The first person's share journey |
+| A page for the invited person | The landing experience | The second person's `share_clicked` business event |
+| A message for each reward | A reward email | The reward's issuer |
+
+- **Write the program's own words.** A copied experience keeps its source's text, such as a
+  referral heading and default reward amounts. Set the heading, the message, and each amount for
+  the program, and the experience a click opens.
+- **Connect each call-to-action to its zone.** A call-to-action selects the zone's trigger event in
+  **Triggered By**, declared on the **JavaScript SDK** or **Mobile SDK** extension like any other
+  trigger event. [JavaScript SDK and Mobile SDK Extensions](/technical/platform-integrations/extensions/javascript-sdk-and-mobile-sdk-extensions)
+  lists the zones each extension declares.
+- **Emails take the sender and company details from the account.** The **My Account** settings
+  supply the sender, company name, and links, so a reward email needs only its subject and text.
+- **A program with no website or app** can reach people by email alone: a promotion email and a
+  reward email for each reward.
+
+[Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#view-draft-pages-and-emails)
+covers how to check that each experience renders with its content before you publish.
+
 ## Test Each Condition from Both Sides
 
 Before you publish, test the draft with test people:

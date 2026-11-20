@@ -69,7 +69,7 @@ For the promotion and the invitation, copy these sources:
 | Part of the flow | Source | Parent | Socket | What arrives with it |
 |---|---|---|---|---|
 | The promotion is viewed and clicked | `promotion_viewed` and `promotion_clicked` | A journey of your own | `businessEvents` | The two business events |
-| The invitation is shared | The `share` journey | The first person's role | `journeys` | `shared`, the share emails, the share link, and a targeting scenario |
+| The invitation is shared | The `share` journey of a Refer A Friend campaign in your account; Extole's library has none of its own | The first person's role | `journeys` | `shared`, the share emails, the share link, and a targeting scenario |
 | The invitation is clicked | The `new_customer` journey | The second person's role | `journeys` | `share_clicked` and its landing destination |
 
 Set `sequence` on every journey, in the order of your flow across the roles, because a copy keeps
@@ -139,6 +139,33 @@ A custom reward with `auto_fulfillment_enabled` and `reward_email_auto_send_enab
 is fulfilled and sent inside Extole, with no call to your systems. Create one for each reward in a
 new campaign, so a test person earns the reward and receives the reward email before your
 fulfillment exists. Replace it when your fulfillment is ready.
+
+## Add the Experiences
+
+[Building a Marketing Campaign](/technical/configuring-extole/building-a-marketing-campaign#add-the-experiences-people-see)
+says which experiences a program needs. Each is a component that you copy into its socket:
+
+| Experience | Source | Parent | Socket |
+|---|---|---|---|
+| A call-to-action on a zone | A call-to-action from Extole's promotions library, such as `banner`, `overlay`, or `call_to_action` | `promotion_viewed` | `onsitePromotions` |
+| A promotion email | `generic_promotion_email` | `promotion_viewed` | `emailPromotions` |
+| A reward email | `reward_email` | The reward's `reward_issuer` | `sendActions` |
+
+For a call-to-action:
+
+1. Set `component_display_name` to the zone name your site requests, such as `Homepage Banner` for
+   `homepage_banner`.
+2. Declare the zone on the **JavaScript SDK** extension, under its `zoneEvents` socket (**Tagged
+   CTAs**): copy the named zone, such as `homepage_banner`, or `sdk_zone_event` for a zone of your
+   own, then publish the extension.
+3. Select the declaration in the call-to-action's `triggerEvent`, as for a business event.
+4. Set `heading` and the other text for the program, and `popupZoneName` to the experience that a
+   click opens. A copy arrives with referral text and default reward amounts.
+
+Set each email's `subject`, heading, and message for the program. The sender and company details
+come from the account's **My Account** settings.
+[Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#check-a-draft-without-a-browser)
+covers how to check each one.
 
 ## Remove the Components You Do Not Use
 
