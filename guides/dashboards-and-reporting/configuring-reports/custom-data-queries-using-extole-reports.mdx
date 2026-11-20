@@ -793,6 +793,16 @@ Concatenates all values of the expression within the group.
 GROUP_CONCATENATE(event.data.source, step_name:"converted")
 ```
 
+### Columns Calculated From Aggregation Columns
+
+A metrics report calculates its columns in two stages. It calculates every column that reads the event, groups the rows, and then calculates every column that reads a `GROUP_*` column. Such a column — `RATE(Convertors, Share Link Clickers)`, or a `BOOLEAN_FORMAT` that compares a count — is calculated once per grouped row.
+
+In a column calculated after grouping, compare a `GROUP_*` column only with another `GROUP_*` column or with a constant value such as `"0"`. A value calculated from each event, such as a cutoff date built from `now()`, has no single value on a grouped row. To compare against it, wrap it in a `GROUP_*` function so it becomes an aggregation column too. A column calculated after grouping can also read another column calculated after grouping, so one `BOOLEAN_FORMAT` can nest inside another.
+
+A report that compares a `GROUP_*` column with a value calculated from each event fails with the error `Supplied column expressions are recursive`.
+
+For a status that compares a date with a rolling window, see the recipe [Compare an Aggregated Date Against a Rolling Window](#compare-an-aggregated-date-against-a-rolling-window).
+
 ## Arithmetic & Rate Functions
 
 ### SUM
@@ -1069,6 +1079,14 @@ hidden(step)=FIRST(COLLECTION(PERSON(event.personId).steps, filter:stepName=="ap
 
 ```
 ACH_Event_Date=event.eventTime; hidden(45_Days_Offset)=DATE_FORMAT(replace(concatenate(number_format(SUBTRACT(date_format(ACH_Event_Date, format:"epoch"), "3888000000")), ""), search:".00", replacement:""), format:"YYYY-MM-dd'T'hh:mm:ss", timezone:"Z"); Application Completed Within 45 Days=LAST(COLLECTION(PERSON(event.personId).steps, filter:stepName=="application_completed" and programLabel=="refer-a-friend" and eventDate>=45_Days_Offset and quality=="HIGH"), sortBy:"createdDate").eventDate;
+```
+
+## Compare an Aggregated Date Against a Rolling Window
+
+One row per person, with a three-way status: converted, signed up in the 90 days before the end of the report's time range, or signed up earlier. The cutoff is wrapped in `GROUP_LAST`, so the status compares two aggregation columns. See [Columns Calculated From Aggregation Columns](#columns-calculated-from-aggregation-columns).
+
+```
+Person Id=event.personId; Signed Up=GROUP_MIN(event.eventTime, step_name:"signup"); Conversions=GROUP_COUNT(event.id, step_name:"converted"); hidden(Cutoff)=GROUP_LAST(date_format(replace(concatenate("", number_format(sum(date_format(report_parameters().timeRange.endTime, format:"epoch"), "-7776000000"))), search:".00", replacement:""), format:"yyyy-MM-dd HH:mm:ss", timezone:"UTC"), step_name:"ALL"); Status=BOOLEAN_FORMAT(Conversions > "0", "Converted", BOOLEAN_FORMAT(Signed Up >= Cutoff, "Signed up in the last 90 days", "Signed up earlier"));
 ```
 
 ## Parameterized Period (Using REPORT_PARAMETERS)
