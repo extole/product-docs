@@ -116,7 +116,9 @@ has the settings.
 | "Between 150 and 240 days since the last one" | The rule above, and beside it **Has Taken Action** on the counted business event with a **Minimum Action Age** of 150 days and a **Recent Activity Window** of 240 days. |
 | "At least five times" | **Minimum Count** on **Has Taken Action**, as a reward rule. |
 | "On the third time" | A business event that the counted business event triggers, with **Has Taken Action** on the counted business event and **Exact Count** 3 as a trigger rule. The count includes the event that triggered it. Put the reward on the new business event. |
-| "Every three, and each one counts once" | The same business event, with two trigger rules: **Has Taken Action** with **Exact Count** listing 3 and each multiple of it, such as 3, 6, 9 and on up to the most a person could reach, and no window, so it passes only when a new set of three is complete; and **Has Taken Action** with **Minimum Count** 3 and the **Recent Activity Window**, so the set falls in the window. The sets run over the person's whole history, so three actions in the window earn only when they complete a set, and a set that spans more than the window earns nothing and is still used up. |
+| "Every three, and each one counts once" | The same business event, with two trigger rules: **Has Taken Action** with **Exact Count** listing 3 and each multiple of it, such as 3, 6, 9 and on up to the most a person could reach, and no window, so it passes only when a new set of three is complete; and **Has Taken Action** with **Minimum Count** 3 and the **Recent Activity Window**, so the set falls in the window. The sets run over the person's whole history, so three actions in the window earn only when they complete a set, and a set that spans more than the window earns nothing and is still used up. When an action that missed a set must still count toward a later one, use [Count Sets of Actions in a Window](#count-sets-of-actions-in-a-window) instead. |
+| "Three orders within 14 days, and each order counts toward one reward" | An **Expression Reward Rule** that forms sets of three from the orders in the window, using each order once. See [Count Sets of Actions in a Window](#count-sets-of-actions-in-a-window). |
+| "No more than two rewards in a calendar month", for rewards earned by sets | The same **Expression Reward Rule**, which counts the sets that earned in each calendar month. See [Count Sets of Actions in a Window](#count-sets-of-actions-in-a-window). |
 | "Unless they cancel" | **Has Not Taken Action**, with the business event that disqualifies the person. |
 | "Unless they cancel during the waiting period" | **Has Not Taken Action** as a reward rule, with a **Recent Activity Window** at least as long as the **Pending Period**. When the period ends, Extole runs the reward's rules again, so a cancellation during the period stops the reward. |
 | "When someone they brought in does something" | **Publish Event Data** on the other person's business event. |
@@ -185,6 +187,127 @@ invited the actor. To send the event to a person named in the event data, replac
 
 [How to Set Up Bonus Rewards on a Specific Referral Count](/guides/flow-campaigns/how-to-set-up-bonus-rewards-on-a-specific-referral-count-2nd-3rd-5th-etc)
 shows steps 3 to 5 in Flow Builder.
+
+## Count Sets of Actions in a Window
+
+Some programs reward a set of actions inside a window, and use each action once: "three orders of
+\$40 or more delivered within 14 days earn a \$10 credit, each order counts toward one credit, and
+a person earns no more than two credits in a calendar month". **Exact Count** on **Has Taken
+Action** splits the person's whole history into fixed sets, so an order that missed its window
+still uses up its place in a set. Put the sets on an **Expression Reward Rule** instead. Its
+expression reads the person's orders in date order and forms each set from the orders that are not
+yet used.
+
+1. Add a business event for the counted action, such as `order_delivered`, with a unique event key
+   on the order ID. Your systems send one event for each delivered order, with the order amount as
+   the business event's value and the delivery time as `event_time`.
+2. Earn the reward on that business event, with **Reward Behavior** set to **Every Action**, so the
+   rules run on each order.
+3. On the reward, add an **Expression Reward Rule**, and set its expression to the sample below,
+   with your own business event name and numbers.
+4. Remove any **Has Taken Action** and **Reward Limit** that count the same orders or rewards. The
+   expression already holds the set, the window and the monthly limit.
+
+The expression walks the orders from oldest to newest. Each order joins the open orders that fall
+within the window before it. When the open orders reach a full set, that set earns, unless the
+calendar month of the order that completes it already has its limit of rewards. An earning set uses
+its orders, and no later set counts them. A set that the monthly limit stops uses no orders, so
+they can still complete a set in the next month. The expression passes only on the order that
+completes an earning set. Set the constants at the top:
+
+| Constant | What it sets |
+|---|---|
+| `COUNTED_EVENT` | The business event that records each order. |
+| `MINIMUM_VALUE` | The smallest business event value that counts, such as 40. It includes the number you set. `0` counts every order. |
+| `SET_SIZE` | How many orders make a set. |
+| `WINDOW_DAYS` | The most days between the first and the last order of a set. |
+| `REWARDS_PER_MONTH` | The most sets that earn in one calendar month. `null` for no limit. |
+| `UTC_OFFSET_HOURS` | 0 to read each order's month in UTC. Your time zone's offset, such as -5, to read it there. The offset is fixed, so it does not follow daylight saving time. |
+
+```javascript
+javascript@runtime:(function () {
+    var COUNTED_EVENT = 'order_delivered';
+    var MINIMUM_VALUE = 40;
+    var SET_SIZE = 3;
+    var WINDOW_DAYS = 14;
+    var REWARDS_PER_MONTH = 2;
+    var UTC_OFFSET_HOURS = 0;
+
+    function timeOf(date) {
+        return new Date(String(date).replace(/\[.*\]$/, '')).getTime();
+    }
+
+    function monthOf(time) {
+        var local = new Date(time + UTC_OFFSET_HOURS * 60 * 60 * 1000);
+        return local.getUTCFullYear() * 12 + local.getUTCMonth();
+    }
+
+    var thisEvent = String(context.getCauseEvent().getRootEventId());
+    var container = String(context.getSandbox().getContainer());
+    var windowLength = WINDOW_DAYS * 24 * 60 * 60 * 1000;
+
+    var orders = Java.from(context.getPerson().getSteps()).filter(function (step) {
+        return String(step.getStepName()) === COUNTED_EVENT
+            && String(step.getCampaignId()) === String(context.getCampaignId())
+            && String(step.getContainer()) === container
+            && step.getValue() !== null
+            && Number(step.getValue()) >= MINIMUM_VALUE;
+    }).map(function (step) {
+        return {
+            event: String(step.getRootEventId()),
+            time: timeOf(step.getEventDate()),
+            created: timeOf(step.getCreatedDate())
+        };
+    }).sort(function (first, second) {
+        return first.time - second.time || first.created - second.created;
+    });
+
+    var open = [];
+    var rewardsInMonth = {};
+    for (var index = 0; index < orders.length; index++) {
+        var order = orders[index];
+        open = open.filter(function (earlier) {
+            return order.time - earlier.time <= windowLength;
+        });
+        open.push(order);
+        if (open.length < SET_SIZE) {
+            continue;
+        }
+        var month = monthOf(order.time);
+        var earned = rewardsInMonth[month] || 0;
+        if (REWARDS_PER_MONTH !== null && earned >= REWARDS_PER_MONTH) {
+            if (order.event === thisEvent) {
+                context.log('This order completes a set, and its month already has ' + earned + ' rewards.');
+                return false;
+            }
+            continue;
+        }
+        rewardsInMonth[month] = earned + 1;
+        open = open.slice(SET_SIZE - 1, open.length - 1);
+        if (order.event === thisEvent) {
+            context.log('This order completes a set: reward ' + (earned + 1) + ' of its month.');
+            return true;
+        }
+    }
+    context.log('This order does not complete a set.');
+    return false;
+})();
+```
+
+It reads only the business events of this campaign, in the container of the event being evaluated,
+so the orders of a test person in the campaign sandbox count only in that sandbox. It counts the
+orders that Extole records, and no event needs to carry a running count. A set earns when the
+order that completes it by date is recorded, so send each order when it is delivered. `context.log` writes why the rule passed or failed to the reward rule's
+evaluation.
+
+Test each case with back-dated events, sent oldest first:
+
+- Three orders inside the window earn, and an order below the minimum does not count.
+- Orders on 1 October, 20 October, and 10, 11 and 12 November earn once, on 12 November. With
+  **Exact Count**, the first three would use up a set, and these five orders would earn nothing.
+- Six orders inside the window earn twice, and no order counts in both sets.
+- A third set in a month that already has two earns nothing, and an order on the first of the next
+  month that completes a set with those orders earns.
 
 ## Connect Your Systems
 
