@@ -1,0 +1,47 @@
+---
+title: "How to Send an Email After a Delay"
+description: "Send an email a set time after a business event in a Flow Builder campaign, and skip it when the person completes another business event first."
+---
+
+# Overview
+
+Some emails work best a few days after an event rather than at the moment it happens. A reminder to make a first purchase is one example: it should go out two days after a person signs up, and only if they have not purchased by then.
+
+In a Flow Builder campaign, the **Generic Reminder Email** does this. You add it as an action on the business event that starts the wait, set how long to wait, and, if you need it, choose the business event that cancels the email.
+
+<Warning>
+Do not add an ordinary email to the business event and try to delay it with a rule. An email on a business event sends when that event happens. A rule on it is checked at that moment, so it cannot see a purchase that happens later.
+</Warning>
+
+## How the Generic Reminder Email Works
+
+- **Start:** a high-quality occurrence of the business event you add it to starts the schedule for that person.
+- **Send time:** the first email goes out one delay after that event. With a delay of 2 days, a person who signs up on Monday at 10:00 gets the email on Wednesday at about 10:00.
+- **More than one delay:** each delay you add sends one more email, measured from the original event. Delays of 2 days and 7 days send two emails.
+- **Stop:** if you set **Remind Till Business Event (optional)**, Extole checks it before each send. When the person already has that business event, the email is not sent, and no later reminder on the schedule is sent either.
+
+The stop check looks at the person's whole history in your Extole account. It counts the business event at any time before the send, in any program, and at any quality. So a person who purchased before they signed up gets no email either.
+
+## Add a Delayed Email
+
+1. Open the campaign's **Flow** page.
+2. Click the business event that should start the wait, such as **Signed Up**.
+3. In **Actions**, click **+ New Action**.
+4. Search for **Generic Reminder Email**, select it, give it a descriptive name, and click **Add**.
+5. In **Reminder Email Schedule**, remove the default delay of 7 days, then add the delay you want, such as 2 days. Add more delays only if you want more than one email.
+6. In **Remind Till Business Event (optional)**, select the business event that should cancel the email, such as the purchase event. Leave it empty to send on schedule whatever the person does.
+7. Edit the subject, heading, message, and button text, and check the sender, footer, and copy for each language your campaign uses.
+8. Publish the campaign. See [Making Updates to Your Campaigns](/guides/programs-and-campaigns/managing-campaigns/making-updates-to-your-campaigns).
+
+## Test It
+
+Test both paths before you rely on the email. A short delay, such as a few minutes, makes testing faster. Set the real delay again and publish before launch.
+
+1. Trigger the starting business event for a test person who has never had the stop event. They should get one email after the delay.
+2. Trigger the starting business event for a second test person, then trigger the stop event for them before the delay ends. They should get no email.
+
+## Related Guides
+
+- [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules)
+- [How to Add a New Business Event](/guides/flow-campaigns/how-to-add-a-new-business-event)
+- [How to Add a Promotion Email or Onsite CTA](/guides/flow-campaigns/how-to-add-a-promotion-email-or-onsite-cta)
