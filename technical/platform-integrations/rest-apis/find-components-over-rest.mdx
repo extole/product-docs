@@ -1,15 +1,47 @@
 ---
-title: "Find Components to Copy Over REST"
-description: "List your account's component library with the REST API, read what each component is from its types, and find a campaign template or a component that fits a socket."
+title: "Find Components Over REST"
+description: "Find components with the REST API: the components in your account, a campaign's component tree, and the library you copy from, including campaign templates and components that fit a socket."
 ---
 
 # Overview
 
-Your account's component library holds every component you can copy: your own components, and the components of the accounts your account subscribes to, including the campaign templates that Extole provides. [Configuration Concepts](/technical/configuring-extole/configuration-concepts) explains where a library's components come from.
+Your account can see two sets of components: the components of your own campaigns, and the components of the accounts your account subscribes to, including the campaign templates that Extole provides. [Configuration Concepts](/technical/configuring-extole/configuration-concepts) explains where a library's components come from. The Management API lists both:
 
-[List duplicatable component summaries](/api-reference/components/list-duplicatable-component-summaries) returns the library as one short row per component. This page explains what a row holds, how to read a component's types, and how to find the component you want to copy: a campaign template, or a component that fits a socket in your campaign.
+| To find | Use |
+|---|---|
+| Components your account can see, in full | [List components](/api-reference/components/list-components). It includes the libraries your account subscribes to unless you set `include_subscribed` to `false`. |
+| The components you can copy, one short row each | [List duplicatable component summaries](/api-reference/components/list-duplicatable-component-summaries) |
+| One component, its settings, and its operations | [Get a component](/api-reference/components/get-a-component), [List component settings](/api-reference/components/list-component-settings), and [List component operations](/api-reference/components-operations/list-component-operations) |
 
-## What a Row Holds
+## Component Types
+
+A component's types say what kind of component it is, and so where it fits. Each type name ends in a version, and one type can be a kind of another, as [The Underlying Configuration Model](/technical/configuring-extole/underlying-configuration-model#component-types) explains. These are some of the types you will see:
+
+| Type | What the component is |
+|---|---|
+| `campaign-v10.0` | The root component of a Flow Builder campaign. It stands for the whole campaign. |
+| `role-v10.0` | A role in a campaign, such as the advocate. |
+| `business-event-v10.0` | A business event that a journey records. |
+| `reward-email-v10.0` | A reward email. |
+
+There are many more. [Narrow a Long List](#narrow-a-long-list) shows how to count every type in your library.
+
+Filter either list by type with `having_any_types`, which keeps a component that has at least one of the comma-separated types, or `having_all_types`, which keeps a component that has all of them.
+
+## Walk a Campaign's Components
+
+To list the components of one campaign, pass its id to [List components](/api-reference/components/list-components) as `campaign_ids`. To read the tree beneath one component, pass the component's id as `parent_component_id`:
+
+```bash
+curl --get "$EXTOLE_API_HOST/v1/components" \
+  --header "Authorization: Bearer $MANAGEMENT_API_ACCESS_TOKEN" \
+  --data-urlencode "parent_component_id=$ROOT_COMPONENT_ID" \
+  --data-urlencode "max_depth=all"
+```
+
+`max_depth` is `1` by default, which returns the direct children. Set it to a number of levels, or to `all` for the whole subtree. Add `parent_socket_name` to start from the children in one socket. Each component in the response carries `component_ids` and `installed_into_socket`, which name its parent and the socket it sits in.
+
+## What a Summary Row Holds
 
 | Field | What it holds |
 |---|---|
@@ -24,21 +56,6 @@ Your account's component library holds every component you can copy: your own co
 | `campaign_id` | The campaign that holds the component. For a root component, pass it to [Duplicate a campaign](/api-reference/campaigns/duplicate-a-campaign) to copy the whole campaign. |
 | `campaign_state` | The state of that campaign, such as `LIVE` or `NOT_LAUNCHED`. |
 | `version` | The version of the component that the row describes. |
-
-## Component Types
-
-A component's types say what kind of component it is, and so where it fits. Each type name ends in a version, and one type can be a kind of another, as [The Underlying Configuration Model](/technical/configuring-extole/underlying-configuration-model#component-types) explains. These are some of the types a library holds:
-
-| Type | What the component is |
-|---|---|
-| `campaign-v10.0` | The root component of a Flow Builder campaign. Its row stands for the whole campaign. |
-| `role-v10.0` | A role in a campaign, such as the advocate. |
-| `business-event-v10.0` | A business event that a journey records. |
-| `reward-email-v10.0` | A reward email. |
-
-Your library holds many more. [Narrow a Long List](#narrow-a-long-list) shows how to count every type in it.
-
-Filter the list by type with `having_any_types`, which keeps a component that has at least one of the comma-separated types, or `having_all_types`, which keeps a component that has all of them.
 
 ## Find a Campaign Template
 
@@ -98,18 +115,19 @@ To copy a component into the socket, send the row's `id` to [Duplicate a compone
 
 ## Narrow a Long List
 
-A library can hold thousands of components. The list returns up to `limit` rows, 1000 by default, starting at `offset`. Filter it before you page through it:
+A library can hold thousands of components. Each list returns up to `limit` components, 1000 by default, starting at `offset`. Filter before you page:
 
 | Parameter | Keeps |
 |---|---|
 | `having_any_types`, `having_all_types` | Components that have at least one, or all, of the comma-separated types. |
 | `having_any_tags`, `having_all_tags` | Components that have at least one, or all, of the comma-separated tags. `exclude_having_any_tags` and `exclude_having_all_tags` leave those components out instead. |
 | `name` | Components whose name equals the value. Put `*` at the start, the end, or both to match names that end with, start with, or contain the rest of the value. |
-| `source_client_id` | Components held by the comma-separated accounts. |
 | `campaign_ids` | Components of the comma-separated campaigns. |
 | `state` | Components whose campaign is in the state, such as `LIVE`. |
+| `owner` | Components with this owner. [List components](/api-reference/components/list-components) only. |
+| `source_client_id` | Components held by the comma-separated accounts. [List duplicatable component summaries](/api-reference/components/list-duplicatable-component-summaries) only. |
 
-To read every row, request the next page with `offset` increased by `limit` until a page holds fewer rows than `limit`, as [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints) describes. This loop reads the whole library and counts the components of each type:
+To read every component, request the next page with `offset` increased by `limit` until a page holds fewer than `limit`, as [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints) describes. This loop reads your whole library and counts the components of each type:
 
 ```bash
 offset=0
