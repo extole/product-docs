@@ -33,6 +33,10 @@ To build it in Flow Builder, see
 
 - **One business event for each action**, even an action that only counts toward a later
   condition. Rules read the business events that the campaign records.
+- **Record every action, whatever its amount.** Put a threshold, such as a minimum order value, on
+  the rule that counts the actions, such as **Value is greater than** on **Has Taken Action**, and
+  not on the business event that records the action. The smaller actions then still show in
+  reports.
 - **Name the business event after the action.** The name is the event name on the person's
   profile and in reports.
 - **Put the business event in the role of the person who acts.** A reward for someone else reaches
@@ -111,7 +115,7 @@ has the settings.
 | "Between 150 and 240 days since the last one" | The rule above, and beside it **Has Taken Action** on the counted business event with a **Minimum Action Age** of 150 days and a **Recent Activity Window** of 240 days. |
 | "At least five times" | **Minimum Count** on **Has Taken Action**, as a reward rule. |
 | "On the third time" | A business event that the counted business event triggers, with **Has Taken Action** on the counted business event and **Exact Count** 3 as a trigger rule. The count includes the event that triggered it. Put the reward on the new business event. |
-| "Every three, and each one counts once" | The same business event, with two trigger rules: **Has Taken Action** with **Exact Count** listing 3 and each multiple of it, such as 3, 6, 9 and on up to the most a person could reach, and no window, so it passes only when a new set of three is complete; and **Has Taken Action** with **Minimum Count** 3 and the **Recent Activity Window**, so the set falls in the window. A set that spans more than the window earns nothing and is still used up. |
+| "Every three, and each one counts once" | The same business event, with two trigger rules: **Has Taken Action** with **Exact Count** listing 3 and each multiple of it, such as 3, 6, 9 and on up to the most a person could reach, and no window, so it passes only when a new set of three is complete; and **Has Taken Action** with **Minimum Count** 3 and the **Recent Activity Window**, so the set falls in the window. The sets run over the person's whole history, so three actions in the window earn only when they complete a set, and a set that spans more than the window earns nothing and is still used up. |
 | "Unless they cancel" | **Has Not Taken Action**, with the business event that disqualifies the person. |
 | "Unless they cancel during the waiting period" | **Has Not Taken Action** as a reward rule, with a **Recent Activity Window** at least as long as the **Pending Period**. When the period ends, Extole runs the reward's rules again, so a cancellation during the period stops the reward. |
 | "When someone they brought in does something" | **Publish Event Data** on the other person's business event. |
@@ -141,8 +145,9 @@ count once.
 A rule sees only the events Extole has recorded. A person whose activity came before your program has
 no earlier events on the profile, so a rule that needs earlier activity, such as "has bought
 before", fails for them, and a rule that needs a quiet period, such as "no purchase in the last 45
-days", passes. A returning customer then looks new. To count that history, send the past events
-with their `event_time`, as
+days", passes. A returning customer then looks new: a rule that leaves out a person's first purchase
+also leaves out a returning customer whose earlier purchases came before your program. To count that
+history, send the past events with their `event_time`, as
 [Recent Customer Purchase Upload](/technical/operational-tasks/account-configuration/recent-customer-purchase-upload)
 describes.
 
