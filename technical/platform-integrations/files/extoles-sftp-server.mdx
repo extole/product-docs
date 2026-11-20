@@ -137,6 +137,10 @@ You must also download Extole's public PGP encryption key, which you can do from
 
 ![Screenshot showing You must also download Extole's public PGP encryption key, which you can do from the Create New Server page in the Tech Center.](/images/extole/3d85f36b1f4892a5dd785763bdedfb63e3f7c8338d1820f6ce53ae959f3e6003.png "download-extole-key.png")
 
+#### Name Encrypted Files
+
+Extole decrypts a file when the last extension of its name is `.pgp`, `.gpg`, or `.asc`. It removes that extension after decrypting, so `events_20261023.psv.pgp` is processed as `events_20261023.psv`. Extole processes a file whose name ends in any other extension as it was uploaded, without decrypting it.
+
 [//]: ___
 
 ### Configure and Test Your SFTP Client
@@ -182,7 +186,19 @@ If you are uploading any CSV file through SFTP, make sure the permissions of the
 
 ### Processed Files
 
-After Extole processes files, it moves them into an "archive" folder on the SFTP server to indicate it has been processed.
+Extole renames each file it picks up in the folder you uploaded it to. It appends the batch job ID and the file's status: `<file name>.<batch job ID>.<status>`. The status is `processing`, `completed`, `failed`, `canceled`, `ignored`, or `duplicate`. When Extole creates no batch job for the file, the name carries `none` in place of the batch job ID.
+
+For example, `events/events_20261023.psv.pgp` becomes `events/events_20261023.psv.pgp.t1a2b3c4d5e6f7g8h9i0.completed`. Extole doesn't pick up a file again while its name ends in one of these statuses.
+
+### Reprocess a File
+
+Extole rejects a file as a `duplicate` when its name matches a file already uploaded to your account. The rejected file stays on the SFTP server with its contents. To process a `duplicate` or `failed` file again, rename it on the SFTP server:
+
+1. Remove the batch job ID and the status that Extole appended.
+2. Add a part that makes the name unique, such as `_retry`, before the file's extensions.
+3. Keep the file's original extensions at the end of the name. For an encrypted file, the name must still end in `.pgp`, `.gpg`, or `.asc`.
+
+For example, rename `events/events_20261023.psv.pgp.t1a2b3c4d5e6f7g8h9i0.duplicate` to `events/events_20261023_retry.psv.pgp`. Extole processes the renamed file as a new upload, including every row in it. If an earlier upload already processed some of those rows, remove them from the file before you rename it.
 
 [//]: ___
 
@@ -232,7 +248,7 @@ Yes. Your company's IT department likely has tools that can help automate the tr
 
 [//]: # "Can the files being sent to and from Extole be encrypted"
 
-SFTP encrypts files as they are transferred. For the types of files being sent, encryption during transmission (transmission-level encryption) is sufficient. Extole does not have a standard way to handle direct file encryption (message-level encryption).
+SFTP encrypts files as they are transferred. You can also encrypt a file with Extole's public PGP key before you upload it, and Extole decrypts it. See [Use PGP Encryption with Extole](#use-pgp-encryption-with-extole-optional) and [Name Encrypted Files](#name-encrypted-files).
 
 [//]: ___
 
