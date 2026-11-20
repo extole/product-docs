@@ -74,11 +74,27 @@ Streams and person lookups test one event at a time. To know whether a feed is w
 | **Input Records** | A configurable log of input events for the event names you choose, with the columns you map. Use it to check that each event carried the data your campaign reads. |
 | **Step Events By Event Time** | The steps created in a time range, filterable by step, person, partner event ID, and container. |
 | **Event By Event Id** | The full record of one event, by its ID. |
-| **Batch Events By Event Time** | The events produced by batch jobs, such as file uploads, in a time range. |
+| **Batch Events By Event Time** | The batch jobs' own records in a time range, such as when each job was created and which file it read. To list the input events one job created, see [Trace a File Through Its Batch Job](#trace-a-file-through-its-batch-job). |
 
 **Input event names with triggered steps** and **Input Records** read only the `production` container unless you choose another, so a feed that runs only in testing looks empty in them until you set the container to `test` or `all`. Set the container on every report you run, so that you know which events you're counting.
 
 Once the feed is sound, the [Events](/guides/dashboards-and-reporting/report-types/recommended-reports/events-report) report is the one to confirm the business result: one row per event, with the person and the related person, matching what the dashboard counts.
+
+## Trace a File Through Its Batch Job
+
+Every event file runs as one batch job: a file you upload on the **Tech Center** > **Batch Jobs** page, and a file you deliver to the `events` or `conversions` folder on [Extole's SFTP server](/technical/platform-integrations/files/extoles-sftp-server). A batch job for an SFTP file is named after the file's path, such as `conversions/purchases-20261118.csv`. If your account runs the feed through [File Integration](/technical/platform-integrations/extensions/file-integration), check the run on that extension's **Job History** tab instead.
+
+Open the job on the **Batch Jobs** page and check these fields:
+
+- **Status**: a **Failed** job shows an **Error Code** and an **Error Message** that say why it stopped.
+- **Valid Records**: the rows that passed validation and were sent in as input events.
+- **Invalid Records**: the rows that failed parsing or validation. They create no event.
+- **Event Name**: when it's set, every row was sent under this name. When it's empty, each row was sent under its own `event_name` value, or under the job's `default_event_name` when the row has none. An SFTP job's default is `conversion` for a file in the `conversions` folder. For a file in the `events` folder, it's the part of the file name before the first hyphen, such as `reviews` for `reviews-20201015.csv`. A campaign listens for the name the job sent, so compare it with the event name on the campaign's trigger.
+
+The job's page runs two reports for that job:
+
+- **Event Report**: the input events the job created. Each one carries the job's ID in its app data, under the key `batch_job_id`, and the report is an **Input Records** report filtered on `event.appData.batch_job_id`. Take an event ID from it and follow that event with **Event By Event Id** or the person's steps.
+- **Failed Records Report**: the rows that passed validation and failed while their input event was created. Each one is a `batch_event_error` client event that carries the same `batch_job_id`. An empty report means no row failed at that stage.
 
 ## A Debugging Sequence
 
@@ -102,7 +118,7 @@ Work through these in order and stop at the first check that fails. That check n
 | The step is on an anonymous person | The event carried no identifier Extole could match | The event's JSON in the stream |
 | The step exists but has no journey | The person wasn't part of a referral journey when the step was recorded | The step's **Journey**; the person's earlier steps |
 | The step is scored **Suspicious** | A quality rule failed | The person's **Approvals** tab |
-| A batch job finished, but nothing happened | The job counts rows it sent in as input events, not steps created | The target person's steps; **Batch Events By Event Time** |
+| A batch job finished, but nothing happened | The job counts rows it sent in as input events, not steps created | The job's **Event Name** and **Event Report**; the target person's steps |
 
 ## Before You Contact Extole Support
 
