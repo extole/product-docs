@@ -328,6 +328,30 @@ In addition to CTAs, Extole also provides placements that will directly embed a 
 </script>
 ```
 
+#### Add the Embedded Share Experience Zone to a Campaign
+
+The `embedded_share_experience` zone renders the campaign's share experience inside the element you name, instead of as a pop-up. A Flow Builder campaign serves the zone when it has an enabled **Embedded Experience** component named `embedded_share_experience` in the `experiences` setting of its `promotion_clicked` business event. The component's name is the zone name. The **Tag Generator** in **Tech Center** lists the zone once the component is enabled.
+
+The **Embedded Share Experience** content block is a distinct component. It places the share experience on the Extole-hosted microsite and serves no zone of its own. A copy of the campaign's `share_experience` component is not an embedded zone either.
+
+If the campaign already has an `embedded_share_experience` component, enable it and publish the campaign. Otherwise, add it with the REST API:
+
+1. Find the library component. Send `GET /v1/components/duplicatable` with `name=embedded_experience` and `version_state=PUBLISHED`, and note the `id` it returns.
+2. Copy it into the campaign's `promotion_clicked` business event. Send `POST /v1/components/{component_id}/duplicate` with that `id` and this body:
+
+```json
+{
+  "target_campaign_id": "YOUR_CAMPAIGN_ID",
+  "target_component_absolute_name": "/advocate/marketing/promotion_clicked",
+  "target_setting_name": "experiences",
+  "component_name": "embedded_share_experience",
+  "component_display_name": "Embedded Share Experience"
+}
+```
+
+3. Set the new component's `enabled` setting to `true`. The setting is inherited from the library component, so change it as [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest#change-an-inherited-setting) describes.
+4. Publish the campaign, then copy the tag for `embedded_share_experience` from the **Tag Generator**. It matches the example tag above.
+
 [//]: ___
 
 ## Add Event Tags
