@@ -13,7 +13,7 @@ import urllib.error
 import urllib.request
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from closing_references import armed_references
 
@@ -38,6 +38,7 @@ INTERNAL_TERM_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("ticket-key", re.compile(r"\b[A-Z][A-Z0-9]+-\d+\b")),
     ("slack-link", re.compile(r"https?://[^\s]*slack\.com/", re.I)),
     ("internal-repo", re.compile(r"\bextole/[a-z0-9_-]+\b", re.I)),
+    ("client-id", re.compile(r"client_id=\d{6,}")),
     ("email", re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")),
 ]
 
@@ -51,6 +52,10 @@ BODY_LINE_PATTERNS = {
 # M1 adds the template; until then F11 only informs.
 BODY_TEMPLATE_SINCE = "2099-01-01T00:00:00Z"
 
+IMAGE_PATH = re.compile(r"/images/\S+")
+MINTLIFY_PREVIEW_HOST = re.compile(r"https://(extole-[a-z0-9-]+\.mintlify\.site)")
+FRONTMATTER_TITLE = re.compile(r"^title:\s*(.+?)\s*$", re.MULTILINE)
+
 REMOTE_IMAGE = re.compile(r"!\[[^\]]*\]\(\s*https?://", re.I)
 EXPIRES_PARAM = re.compile(r"expires=", re.I)
 ABSOLUTE_DOCS_LINK = re.compile(r"https?://docs\.extole\.com/", re.I)
@@ -63,6 +68,8 @@ ADDED_LINE = re.compile(r"^\+(?!\+\+\+)(.*)$", re.MULTILINE)
 class FloorResult:
     validate_conclusion: str | None = None
     validate_failed: bool = False
+    validate_failed_on_main: bool = False
+    already_on_main: bool = False
     navigation_send_back: list[str] = field(default_factory=list)
     broken_links_send_back: list[str] = field(default_factory=list)
     internal_terms: list[str] = field(default_factory=list)
@@ -71,7 +78,9 @@ class FloorResult:
     literals_changed: list[str] = field(default_factory=list)
     contention_same_section: dict[str, list[int]] = field(default_factory=dict)
     contention_same_page: dict[str, list[int]] = field(default_factory=dict)
-    merge_base_stale: bool = False
+    merge_conflicts: bool = False
+    commits_behind_main: int = 0
+    pages_changed_on_main: list[str] = field(default_factory=list)
     corpus_duplicates: list[str] = field(default_factory=list)
     body_lines_missing: list[str] = field(default_factory=list)
     body_lines_required: bool = False
@@ -170,12 +179,28 @@ def _listed_pages_from_navigation(navigation: dict) -> set[str]:
     return pages
 
 
-def scan_internal_terms(added: str, filename: str) -> list[str]:
+def scan_internal_terms(
+    added: str,
+    filename: str,
+    already_published: Callable[[str], bool] = lambda token: False,
+) -> list[str]:
+    prose = IMAGE_PATH.sub("", added)
     hits: list[str] = []
     for name, pattern in INTERNAL_TERM_PATTERNS:
-        if pattern.search(added):
-            hits.append(f"{filename}: internal term `{name}`")
+        new_tokens = sorted({
+            match.group(0) for match in pattern.finditer(prose)
+            if not already_published(match.group(0))
+        })
+        if new_tokens:
+            hits.append(f"{filename}: internal term `{name}` ({', '.join(new_tokens[:3])})")
     return hits
+
+
+def published_on(base_sha: str) -> Callable[[str], bool]:
+    def already_published(token: str) -> bool:
+        found = run(["git", "grep", "-q", "-F", token, base_sha, "--", *CONTENT_PREFIXES])
+        return found.returncode == 0
+    return already_published
 
 
 def scan_remote_assets(added: str, filename: str) -> list[str]:
@@ -224,10 +249,93 @@ def other_open_on_paths(repo: str, number: int, paths: set[str]) -> dict[str, li
 
 
 def preview_host(branch: str) -> str | None:
-    slug = branch.lower()
+    slug = branch.lower().replace("/", "-")
     if not re.fullmatch(r"[a-z0-9-]+", slug):
         return None
     return f"extole-{slug}.mintlify.site"
+
+
+def preview_host_from_comments(comment_bodies: list[str]) -> str | None:
+    for body in reversed(comment_bodies):
+        match = MINTLIFY_PREVIEW_HOST.search(body)
+        if match:
+            return match.group(1)
+    return None
+
+
+def mintlify_preview_host(repo: str, number: int, branch: str) -> str | None:
+    bodies = gh_json([
+        "api", f"repos/{repo}/issues/{number}/comments", "--paginate",
+        "--jq", '[.[] | select(.user.login == "mintlify[bot]") | .body]',
+    ]) or []
+    return preview_host_from_comments(bodies) or preview_host(branch)
+
+
+def deleted_sentences(files: list[dict]) -> list[str]:
+    """Deleted content lines that the diff does not add back anywhere (F12's absent strings)."""
+    added_text = "\n".join(
+        added_text_from_patch(entry.get("patch") or "")
+        for entry in files if MDX_PATH.match(entry["filename"])
+    )
+    sentences: list[str] = []
+    for entry in files:
+        if not MDX_PATH.match(entry["filename"]):
+            continue
+        for line in (entry.get("patch") or "").splitlines():
+            if not line.startswith("-") or line.startswith("---"):
+                continue
+            text = line[1:].strip()
+            if len(text) > 20 and text not in sentences and text not in added_text:
+                sentences.append(text)
+    return sentences
+
+
+def new_page_titles(files: list[dict], head_sha: str) -> dict[str, str]:
+    titles: dict[str, str] = {}
+    for entry in files:
+        if entry.get("status") != "added" or not MDX_PATH.match(entry["filename"]):
+            continue
+        text = run(["git", "show", f"{head_sha}:{entry['filename']}"]).stdout
+        match = FRONTMATTER_TITLE.search(text)
+        if match:
+            titles[entry["filename"]] = match.group(1)
+    return titles
+
+
+def pages_with_same_title(titles: dict[str, str], base_sha: str) -> list[str]:
+    listing = run(["git", "grep", "-i", "-E", r"^title:", base_sha, "--", *CONTENT_PREFIXES]).stdout
+    existing: dict[str, str] = {}
+    for line in listing.splitlines():
+        _, path, rest = line.split(":", 2)
+        match = FRONTMATTER_TITLE.search(rest)
+        if match:
+            existing.setdefault(normalized_title(match.group(1)), path)
+    return [
+        f"{path} has the same title as existing {existing[normalized_title(title)]}: {title!r}"
+        for path, title in titles.items()
+        if normalized_title(title) in existing and existing[normalized_title(title)] != path
+    ]
+
+
+def normalized_title(title: str) -> str:
+    return re.sub(r"\s+", " ", title.strip().strip("\"'")).lower()
+
+
+def changed_files_identical_on_main(files: list[dict], base_sha: str, head_sha: str) -> bool:
+    paths = [entry["filename"] for entry in files]
+    if not paths:
+        return False
+    return run(["git", "diff", "--quiet", base_sha, head_sha, "--", *paths]).returncode == 0
+
+
+def paths_changed_on_main_since_branch(files: list[dict], base_sha: str, head_sha: str) -> tuple[int, list[str]]:
+    merge_base = run(["git", "merge-base", base_sha, head_sha], check=True).stdout.strip()
+    behind = int(run(["git", "rev-list", "--count", f"{merge_base}..{base_sha}"], check=True).stdout.strip())
+    paths = [entry["filename"] for entry in files]
+    if not paths:
+        return behind, []
+    changed = run(["git", "diff", "--name-only", merge_base, base_sha, "--", *paths], check=True).stdout
+    return behind, sorted(set(changed.split()))
 
 
 def mcp_rg_pages(host: str, string: str) -> list[str]:
@@ -237,7 +345,7 @@ def mcp_rg_pages(host: str, string: str) -> list[str]:
         "method": "tools/call",
         "params": {
             "name": "query_docs_filesystem_extole_documentation",
-            "arguments": {"command": f"rg -il {json.dumps(string)} /"},
+            "arguments": {"command": f"rg -ilF {json.dumps(string)} /"},
         },
     }
     request = urllib.request.Request(
@@ -279,19 +387,22 @@ def compute_floor(
     conclusion, failed = validate_check(repo, head_sha)
     floor.validate_conclusion = conclusion
     floor.validate_failed = failed
+    if failed:
+        _, floor.validate_failed_on_main = validate_check(repo, base_sha)
 
     try:
         floor.navigation_send_back = navigation_delta(root, base_sha, head_sha)
     except Exception as error:  # noqa: BLE001
         floor.tool_failures.append(f"navigation delta: {error}")
 
+    already_published = published_on(base_sha)
     for entry in pull.get("files") or []:
         filename = entry["filename"]
         patch = entry.get("patch") or ""
         added = added_text_from_patch(patch)
         if not added:
             continue
-        floor.internal_terms.extend(scan_internal_terms(added, filename))
+        floor.internal_terms.extend(scan_internal_terms(added, filename, already_published))
         floor.remote_image_or_link.extend(scan_remote_assets(added, filename))
         if any(filename.startswith(prefix) for prefix in MECHANISM_PREFIXES) or filename in MECHANISM_PREFIXES:
             floor.mechanism_paths.append(filename)
@@ -325,7 +436,16 @@ def compute_floor(
     merge_state = gh_json([
         "pr", "view", str(pull["number"]), "--repo", repo, "--json", "mergeStateStatus,createdAt",
     ])
-    floor.merge_base_stale = merge_state.get("mergeStateStatus") in ("BEHIND", "DIRTY")
+    floor.merge_conflicts = merge_state.get("mergeStateStatus") == "DIRTY"
+    files = pull.get("files") or []
+    try:
+        floor.already_on_main = changed_files_identical_on_main(files, base_sha, head_sha)
+        floor.commits_behind_main, floor.pages_changed_on_main = paths_changed_on_main_since_branch(
+            files, base_sha, head_sha,
+        )
+        floor.corpus_duplicates = pages_with_same_title(new_page_titles(files, head_sha), base_sha)
+    except subprocess.CalledProcessError as error:
+        floor.tool_failures.append(f"git against main: {str(error.stderr or error).strip()[:200]}")
     created = pull.get("createdAt") or merge_state.get("createdAt") or ""
     floor.body_lines_required = created >= BODY_TEMPLATE_SINCE
     body = pull.get("body") or ""
@@ -336,21 +456,13 @@ def compute_floor(
     if skip_preview or is_fork:
         return floor
 
-    host = preview_host(head)
+    host = mintlify_preview_host(repo, pull["number"], head)
     if not host:
         floor.preview_unreachable = True
+        floor.tool_failures.append(f"no Mintlify preview host for branch {head!r}")
         return floor
 
-    absent_strings: list[str] = []
-    for entry in pull.get("files") or []:
-        if not MDX_PATH.match(entry["filename"]):
-            continue
-        patch = entry.get("patch") or ""
-        for line in patch.splitlines():
-            if line.startswith("-") and not line.startswith("---"):
-                text = line[1:].strip()
-                if len(text) > 20 and text not in absent_strings:
-                    absent_strings.append(text)
+    absent_strings = deleted_sentences(pull.get("files") or [])
     try:
         for string in absent_strings[:8]:
             pages = mcp_rg_pages(host, string)
@@ -375,15 +487,20 @@ def render_floor_context(floor: FloorResult) -> str:
 
 def send_back_reasons(floor: FloorResult) -> list[str]:
     reasons: list[str] = []
-    if floor.validate_failed:
+    if floor.validate_failed and not floor.validate_failed_on_main:
         reasons.append(f"F1: `{REQUIRED_CHECK}` is not green ({floor.validate_conclusion!r}).")
     reasons.extend(f"F2: {item}" for item in floor.navigation_send_back)
     reasons.extend(f"F3: {item}" for item in floor.broken_links_send_back)
     reasons.extend(f"F4: {item}" for item in floor.internal_terms)
     reasons.extend(f"F5: {item}" for item in floor.remote_image_or_link)
     reasons.extend(f"F6: {item}" for item in floor.closing_keyword_hits)
-    if floor.merge_base_stale:
-        reasons.append("F9: branch is BEHIND or DIRTY relative to `main`; merge `main` in and re-run.")
+    if floor.merge_conflicts:
+        reasons.append("F9: the branch conflicts with `main`; merge `main` in and resolve the conflicts.")
+    if floor.pages_changed_on_main:
+        reasons.append(
+            f"F9: `main` changed {floor.pages_changed_on_main} after this branch started; "
+            "merge `main` in and check the change still reads right."
+        )
     if floor.body_lines_required and floor.body_lines_missing:
         reasons.append(f"F11: body missing {floor.body_lines_missing}.")
     reasons.extend(floor.reach_exact_failures)
