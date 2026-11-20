@@ -93,46 +93,65 @@ If a rule condition cannot be parsed into testable predicates, record **Needs in
 ## Partner event key consistency (configuration only)
 
 <Warning>
-****Config only.** This check is derived from the campaign graph/configuration alone. Inbound events do not label which field is the unique key. Do **not** infer or validate the key from Input Records or inbound payloads.**
+****Config only.** This section reads the campaign graph/configuration alone. Inbound events do not label which field is the unique key, so do **not** infer or validate the key from Input Records or inbound payloads here. Whether incoming records actually carry the configured key is a separate data check: **Dedup-key coverage by source** in [Input / Runtime Event Validation](/runbooks/functional-review/input-runtime-event-validation).**
 </Warning>
+
+One key per event type is normal. A share, a sign-up, and a purchase identify different things, so they usually carry different keys (for example `partner_share_id`, `signup_id`, and `partner_conversion_id`). Do **not** flag a campaign for having more than one distinct key.
+
+Two configuration problems are real:
+
+- **A reversal rule that matches on a key the conversion does not use.** When a return, refund, or cancellation rule ties the reversal to a specific conversion by comparing keys, both events must carry the same key in the same format. When the reversal rule does not compare keys — for example, a rule that counts any return by the friend — a different key is context, not a finding.
+- **A step that declares more than one unique key.** Extole uses only the first `UNIQUE_PARTNER_EVENT_KEY` on a step and silently ignores the others (see [Duplicate Action Alerts and Unique Event Keys](/technical/troubleshooting/duplicate-action-alerts-and-unique-event-keys)).
 
 **Answers**
 
-- Does this campaign configure more than one distinct unique/partner event key across its business/input events?
+- Where a reversal rule matches a conversion by key, do the reversal and the conversion use the same configured key?
+- Does any step declare more than one unique key?
 - Are earning/reward-path events missing a configured key where the flow expects dedup?
 
 ### Procedure
 
 1. From the campaign configuration, for each business-event / input-event / targetable-step, extract the configured unique/partner event key (dedup/idempotency key field or expression). Record it as `unique_partner_key` on the Step 1 manifest.
-2. Build the set of distinct non-blank configured keys across the campaign.
-3. If more than one distinct key is configured, flag and record each key with its owning event(s).
-4. Note any earning/reward-path event with no configured key where the flow expects deduplication or uniqueness.
+2. Record every step that declares more than one unique key, with all of its keys in order. The first is the one Extole uses.
+3. For each return, refund, cancellation, or other reversal event, open the rule that ties it to a conversion. Record whether that rule compares a key, and which one. Pair events by the rule, not by name.
+4. For each reversal rule that compares a key, check that the conversion it reverses uses the same configured key. Record the pair as matched or mismatched.
+5. Note any earning/reward-path event with no configured key where the flow expects deduplication or uniqueness.
+6. Record different keys on unrelated event types (share, sign-up, purchase), and reversal rules that do not compare keys, as context only.
 
 ### Flag if
 
-- More than one distinct unique partner event key is configured across the campaign's events
+- A reversal rule matches the conversion by key, and the reversal and the conversion use different configured keys, so the rule cannot find the original
+- A step declares more than one unique key
 - An earning/reward path event has no configured key where dedup is expected
+
+Do **not** flag different keys on different event types, or a key difference on a reversal whose rule does not compare keys.
 
 ### Severity
 
 | Finding | Severity |
 |---|---|
-| More than one distinct configured unique/partner event key across the campaign | **Issue** |
+| A reversal rule matches by key, and the reversal and its conversion use different configured keys | **Issue** |
+| More than one unique key on an earning/reward-path step | **Issue** |
+| More than one unique key on any other step | **Watch** |
 | Missing key on an earning/reward path where dedup is expected | **Issue** |
+| Different keys on event types that do not need to match, or on a reversal whose rule does not compare keys | **Pass** — context only |
 | Key configuration cannot be resolved from the graph/config | **Needs investigation** |
 
 ### Required output
 
 ```text
 Partner event keys (config only):
-  Key: <configured key field/expression>
-    Events: <component names>
-  Key: <configured key field/expression>
-    Events: <component names>
-  Distinct key count: <n>
+  Event: <component name> — Key: <configured key field/expression, or none>
+  Event: <component name> — Key: <configured key field/expression, or none>
+  Steps with more than one unique key: <step: key 1 (used), key 2, ... | none>
+  Reversal rules:
+    <conversion component> ↔ <reversal component>: <compares key: match | compares key: mismatch, key A vs key B | does not compare keys (context)>
+    (or "none configured")
   Events with no key (where dedup expected): <component names or none>
+  Unresolved keys: <component names or none>
+  Data check: see Dedup-key coverage by source (Input / Runtime Event Validation)
 
-Verdict: Pass | Issue | Needs investigation
+Verdict: Pass | Watch | Issue | Needs investigation
 ```
 
 ## Step 2 — Pull evidence from Input Records
