@@ -186,6 +186,20 @@ After Extole processes files, it moves them into an "archive" folder on the SFTP
 
 [//]: ___
 
+## Receiving Reports Under a Temporary Name
+
+[//]: # "How do I stop my automation from downloading a report before Extole finishes writing it to Extole's SFTP server?"
+
+When a report is delivered to your Extole SFTP server, Extole writes it to the `dropbox` folder under its final file name. If a process polls that folder, it can find the file while it is still being written. To prevent this, set a temporary file suffix on the server. Extole then writes each file as the final name plus the suffix, copies it to the final name once it is complete, and removes the temporary copy. The final name appears only when the file is whole.
+
+For example, with the suffix `.filepart`, the file `report.csv` is written as `report.csv.filepart` and then appears as `report.csv`. With PGP encryption, `report.csv.gpg.filepart` becomes `report.csv.gpg`.
+
+Set the suffix with the `temporary_file_suffix` field when you create or update the server through the API (`POST /v6/sftp-destinations` or `PUT /v6/sftp-destinations/{sftpDestinationId}`). The suffix is one or more letters, digits, dots, underscores, hyphens, or tildes. To go back to writing straight to the final name, update the server with `temporary_file_suffix` set to `null`. With no suffix set, delivery works as it always has.
+
+Set your automation to ignore files that end with the suffix. Extole manages the rename on its own server, so you don't need to grant any extra permissions. To use the same setting on a server you host yourself, see [Uploading Under a Temporary Name](/technical/platform-integrations/files/external-sftp-servers#uploading-under-a-temporary-name).
+
+[//]: ___
+
 ## Frequently Asked Questions
 
 ### How do I connect to Extole SFTP servers using WS_FTP?
