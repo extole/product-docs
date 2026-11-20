@@ -106,6 +106,7 @@ has the settings.
 | "Counts once for each order, account, or membership" | A unique event key on the business event's data. Extole records the business event once for each key value. See [Unique Event Keys](/technical/troubleshooting/duplicate-action-alerts-and-unique-event-keys#unique-event-keys). |
 | "An order of \$40 or more" | **Value is greater than** on **Has Taken Action**, set to 40. It includes the number you set. **Event Value Greater Than** passes only above its number. |
 | "Purchases add up to \$1,500" | **Has Taken Action** as a reward rule, with **Total value is greater than** set to 1500 and a **Recent Activity Window**. The total includes the event being evaluated and the number you set. |
+| "Purchases add up to \$1,500 in the 60 days after the account opens", when one person can open more than one account | An **Expression Reward Rule** on the reward, in place of **Has Taken Action**. Its expression totals the purchases for each account from that account's opening event. See [Count from an Earlier Event for the Same Record](#count-from-an-earlier-event-for-the-same-record). |
 | "Only after the person did something else" | **Has Taken Action** as a trigger rule on the business event. See [Common Trigger Rules](/guides/flow-campaigns/common-trigger-rules). |
 | "In this order" | **Has Taken Action** on the earlier action, as a trigger rule on the later action's business event. It passes when the earlier action is on the profile, whatever its date, so it checks the order in which the events arrive. Test it with each case's events sent oldest first. |
 | "Count only what they do after joining" | **Has Taken Action** on the joining business event, as a trigger rule on the counted business event. An action before joining is then not recorded, so no count or total includes it. |
@@ -156,6 +157,82 @@ describes.
 When a condition fits no row, see whether two business events make it fit. "Active for 30 days"
 becomes the event that starts the clock and the event that shows the person is still there,
 joined by **Has Taken Action** with a **Minimum Action Age**.
+
+## Count from an Earlier Event for the Same Record
+
+Some programs count from an event that names a record, such as an account, a policy, or a
+subscription: "purchases on the account add up to \$1,500 in the 60 days after it opens". The
+window starts at that record's opening event, and only the events for that record count. One
+person can open more than one record, so the total belongs to each record, not to the person.
+
+**Has Taken Action** cannot hold this condition: its window counts back from the event being
+evaluated, and its total adds every matching event on the profile. Use an **Expression Reward Rule**
+on the reward instead. Its expression reads the business events on the person's profile and
+decides whether the reward's condition holds.
+
+1. Add the record's identifier, such as `account_id`, as a data item on the opening business event
+   and on the counted business event. Your systems send it on both events.
+2. Give the counted business event its value: the data item whose key type is `VALUE`, such as the
+   purchase amount.
+3. Earn the reward on the counted business event, so its rules run on each purchase. On the
+   reward, add an **Expression Reward Rule**, and set its expression to the sample below, with
+   your own business event names, data item, window, and total.
+4. Add **Reward Limit** with **Maximum Count** 1 when the person earns the reward once, whatever
+   the number of records.
+
+The expression passes when, for one opening event, the counted events with the same identifier,
+dated from the opening to the end of the window, add up to the total or more. It reads only the
+business events of this campaign, in the container of the event being evaluated, so the events of
+a test person in the campaign sandbox count only in that sandbox.
+
+```javascript
+javascript@runtime:(function () {
+    var OPENING_EVENT = 'checking_account_opened';
+    var COUNTED_EVENT = 'debit_card_purchase';
+    var RECORD_KEY = 'account_id';
+    var WINDOW_DAYS = 60;
+    var TOTAL = 1500;
+
+    function millis(date) {
+        return new Date(String(date).replace(/\[.*\]$/, '')).getTime();
+    }
+
+    var container = context.getSandbox().getContainer();
+    var steps = Java.from(context.getPerson().getSteps()).filter(function (step) {
+        return String(step.getCampaignId()) === String(context.getCampaignId())
+            && String(step.getContainer()) === String(container);
+    });
+
+    for (var i = 0; i < steps.length; i++) {
+        var opening = steps[i];
+        if (String(opening.getStepName()) !== OPENING_EVENT) { continue; }
+        var record = opening.getData().get(RECORD_KEY);
+        if (record === null) { continue; }
+        var start = millis(opening.getEventDate());
+        var end = start + WINDOW_DAYS * 24 * 60 * 60 * 1000;
+        var total = 0;
+        for (var j = 0; j < steps.length; j++) {
+            var counted = steps[j];
+            if (String(counted.getStepName()) !== COUNTED_EVENT) { continue; }
+            if (String(counted.getData().get(RECORD_KEY)) !== String(record)) { continue; }
+            var time = millis(counted.getEventDate());
+            if (time < start || time > end || counted.getValue() === null) { continue; }
+            total = total + Number(counted.getValue());
+        }
+        context.log(RECORD_KEY + ' ' + record + ': total ' + total + ' in the window from the opening.');
+        if (total >= TOTAL) { return true; }
+    }
+    return false;
+})();
+```
+
+`context.log` writes each record's total to the reward rule's evaluation, so a test shows why a
+reward was or was not earned.
+
+Test it with a test person for each side of the condition: one whose purchases on one account
+reach the total inside that account's window, one whose total is reached only by adding a second
+account's purchases, one whose purchases fall a few days after the window closes, and one whose
+purchases came before the opening.
 
 ## Reward One Person for Another Person's Actions
 
