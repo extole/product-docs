@@ -1366,7 +1366,17 @@
         "value" : {
           "code" : "campaign_version_malformed",
           "http_status_code" : 400,
-          "message" : "Campaign version is malformed",
+          "message" : "Campaign version is malformed. Expected a valid number.",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "campaign_version_state_malformed" : {
+        "summary" : "campaign_version_state_malformed",
+        "value" : {
+          "code" : "campaign_version_state_malformed",
+          "http_status_code" : 400,
+          "message" : "Campaign version state is malformed. Valid options: published or latest.",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -6527,6 +6537,16 @@
           "code" : "sftp_destination_invalid_port",
           "http_status_code" : 400,
           "message" : "Port is not valid",
+          "parameters" : { },
+          "unique_id" : "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "sftp_destination_invalid_temporary_file_suffix" : {
+        "summary" : "sftp_destination_invalid_temporary_file_suffix",
+        "value" : {
+          "code" : "sftp_destination_invalid_temporary_file_suffix",
+          "http_status_code" : 400,
+          "message" : "Temporary file suffix must be one or more letters, digits, dots, underscores, hyphens or tildes",
           "parameters" : { },
           "unique_id" : "00000000-0000-0000-0000-000000000000"
         }
@@ -30963,7 +30983,7 @@
           "type" : "object"
         } ],
         "description" : "External sftp destination response.",
-        "required" : [ "created_date", "dropbox_path", "extole_key_id", "host", "id", "key_id", "name", "partner_key_id", "port", "type", "updated_date", "username" ],
+        "required" : [ "created_date", "dropbox_path", "extole_key_id", "host", "id", "key_id", "name", "partner_key_id", "port", "temporary_file_suffix", "type", "updated_date", "username" ],
         "title" : "EXTERNAL",
         "type" : "object"
       },
@@ -30984,6 +31004,12 @@
             "port" : {
               "format" : "int32",
               "type" : "integer"
+            },
+            "temporary_file_suffix" : {
+              "description" : "When set, each file is uploaded as <name><suffix>, for example report.csv.filepart, and renamed to <name> after the upload completes, so the final name appears only when the file is whole. An external server must allow rename and remove. One or more letters, digits, dots, underscores, hyphens or tildes. Null uploads straight to the final name. Omit to keep the current value.",
+              "example" : ".filepart",
+              "nullable" : true,
+              "type" : "string"
             },
             "type" : {
               "enum" : [ "EXTERNAL" ],
@@ -35117,7 +35143,7 @@
           "type" : "object"
         } ],
         "description" : "Extole local sftp destination response.",
-        "required" : [ "created_date", "dropbox_path", "extole_key_id", "file_processing_enabled", "host", "id", "key_ids", "name", "partner_key_id", "port", "type", "updated_date", "username" ],
+        "required" : [ "created_date", "dropbox_path", "extole_key_id", "file_processing_enabled", "host", "id", "key_ids", "name", "partner_key_id", "port", "temporary_file_suffix", "type", "updated_date", "username" ],
         "title" : "LOCAL",
         "type" : "object"
       },
@@ -35135,6 +35161,12 @@
               },
               "type" : "array",
               "uniqueItems" : true
+            },
+            "temporary_file_suffix" : {
+              "description" : "When set, each file is uploaded as <name><suffix>, for example report.csv.filepart, and renamed to <name> after the upload completes, so the final name appears only when the file is whole. An external server must allow rename and remove. One or more letters, digits, dots, underscores, hyphens or tildes. Null uploads straight to the final name. Omit to keep the current value.",
+              "example" : ".filepart",
+              "nullable" : true,
+              "type" : "string"
             },
             "type" : {
               "enum" : [ "LOCAL" ],
@@ -46530,6 +46562,11 @@
           "partner_key_id" : {
             "type" : "string"
           },
+          "temporary_file_suffix" : {
+            "description" : "When set, each file is uploaded as <name><suffix>, for example report.csv.filepart, and renamed to <name> after the upload completes, so the final name appears only when the file is whole. An external server must allow rename and remove. One or more letters, digits, dots, underscores, hyphens or tildes. Omit to upload straight to the final name.",
+            "example" : ".filepart",
+            "type" : "string"
+          },
           "type" : {
             "enum" : [ "EXTERNAL", "LOCAL" ],
             "type" : "string"
@@ -46643,6 +46680,11 @@
             "format" : "int32",
             "type" : "integer"
           },
+          "temporary_file_suffix" : {
+            "description" : "When present, each file is uploaded as <name><suffix> and renamed to <name> after the upload completes, so the final name appears only when the file is whole. Absent when files are uploaded straight to the final name.",
+            "example" : ".filepart",
+            "type" : "string"
+          },
           "type" : {
             "enum" : [ "EXTERNAL", "LOCAL" ],
             "type" : "string"
@@ -46681,6 +46723,12 @@
             "type" : "string"
           },
           "partner_key_id" : {
+            "type" : "string"
+          },
+          "temporary_file_suffix" : {
+            "description" : "When set, each file is uploaded as <name><suffix>, for example report.csv.filepart, and renamed to <name> after the upload completes, so the final name appears only when the file is whole. An external server must allow rename and remove. One or more letters, digits, dots, underscores, hyphens or tildes. Null uploads straight to the final name. Omit to keep the current value.",
+            "example" : ".filepart",
+            "nullable" : true,
             "type" : "string"
           },
           "type" : {
@@ -55979,6 +56027,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -58209,6 +58260,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
@@ -58482,6 +58536,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -59139,6 +59196,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -59888,6 +59948,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
@@ -60225,9 +60288,23 @@
             "type" : "string"
           }
         }, {
+          "description" : "Version of the component's campaign, as a number. Any other value reads the component with no version: the latest version of a component in your own campaign, or the published version of a component that another client shares.",
+          "in" : "query",
+          "name" : "component_version",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "path",
           "name" : "other_component_id",
           "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Version of the other component's campaign, as a number. Any other value reads the component with no version: the latest version of a component in your own campaign, or the published version of a component that another client shares.",
+          "in" : "query",
+          "name" : "other_component_version",
           "schema" : {
             "type" : "string"
           }
@@ -60250,6 +60327,21 @@
                   "binding_error" : {
                     "$ref" : "#/components/examples/binding_error"
                   },
+                  "campaign_concurrent_update" : {
+                    "$ref" : "#/components/examples/campaign_concurrent_update"
+                  },
+                  "campaign_has_pending_changes" : {
+                    "$ref" : "#/components/examples/campaign_has_pending_changes"
+                  },
+                  "campaign_locked" : {
+                    "$ref" : "#/components/examples/campaign_locked"
+                  },
+                  "campaign_version_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
@@ -60259,11 +60351,23 @@
                   "component_state_not_supported" : {
                     "$ref" : "#/components/examples/component_state_not_supported"
                   },
+                  "date_invalid" : {
+                    "$ref" : "#/components/examples/date_invalid"
+                  },
                   "external_element_not_found" : {
                     "$ref" : "#/components/examples/external_element_not_found"
                   },
                   "external_element_type_not_supported" : {
                     "$ref" : "#/components/examples/external_element_type_not_supported"
+                  },
+                  "invalid_campaign_id" : {
+                    "$ref" : "#/components/examples/invalid_campaign_id"
+                  },
+                  "invalid_campaign_state" : {
+                    "$ref" : "#/components/examples/invalid_campaign_state"
+                  },
+                  "invalid_campaign_version" : {
+                    "$ref" : "#/components/examples/invalid_campaign_version"
                   },
                   "invalid_external_element_filter" : {
                     "$ref" : "#/components/examples/invalid_external_element_filter"
@@ -60286,11 +60390,17 @@
                   "invalid_uri_in_query_parameter" : {
                     "$ref" : "#/components/examples/invalid_uri_in_query_parameter"
                   },
+                  "lock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/lock_missing_lock_types"
+                  },
                   "missing_request_body" : {
                     "$ref" : "#/components/examples/missing_request_body"
                   },
                   "unknown_source_clients" : {
                     "$ref" : "#/components/examples/unknown_source_clients"
+                  },
+                  "unlock_missing_lock_types" : {
+                    "$ref" : "#/components/examples/unlock_missing_lock_types"
                   }
                 },
                 "schema" : {
@@ -61098,6 +61208,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_asset_content_length_out_of_range" : {
                     "$ref" : "#/components/examples/component_asset_content_length_out_of_range"
                   },
@@ -61785,6 +61898,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_asset_content_length_out_of_range" : {
                     "$ref" : "#/components/examples/component_asset_content_length_out_of_range"
                   },
@@ -62097,6 +62213,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -63103,6 +63222,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -63881,6 +64003,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -64235,6 +64360,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -64961,6 +65089,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_asset_content_length_out_of_range" : {
                     "$ref" : "#/components/examples/component_asset_content_length_out_of_range"
                   },
@@ -65384,6 +65515,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -65837,6 +65971,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
@@ -66085,6 +66222,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_id_missing" : {
                     "$ref" : "#/components/examples/component_id_missing"
@@ -66440,6 +66580,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_id_missing" : {
                     "$ref" : "#/components/examples/component_id_missing"
                   },
@@ -66769,6 +66912,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_id_missing" : {
                     "$ref" : "#/components/examples/component_id_missing"
@@ -67123,6 +67269,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_id_missing" : {
                     "$ref" : "#/components/examples/component_id_missing"
@@ -67698,6 +67847,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -68184,6 +68336,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -68692,6 +68847,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
@@ -68944,6 +69102,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
@@ -69148,6 +69309,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
@@ -69561,6 +69725,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
@@ -70603,6 +70770,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
                   },
@@ -70775,6 +70945,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
@@ -70956,6 +71129,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
@@ -71158,6 +71334,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
@@ -71833,6 +72012,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_operation_code_sample_invalid" : {
                     "$ref" : "#/components/examples/component_operation_code_sample_invalid"
                   },
@@ -72170,6 +72352,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
@@ -72567,6 +72752,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -72821,6 +73009,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_operation_code_sample_invalid" : {
                     "$ref" : "#/components/examples/component_operation_code_sample_invalid"
                   },
@@ -73022,6 +73213,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
                   },
@@ -73212,6 +73406,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
                   },
@@ -73401,6 +73598,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
@@ -73597,6 +73797,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_operation_code_sample_invalid" : {
                     "$ref" : "#/components/examples/component_operation_code_sample_invalid"
@@ -73806,6 +74009,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
@@ -98946,6 +99152,7 @@
                 "name" : "name",
                 "partner_key_id" : "partner_key_id",
                 "port" : 1,
+                "temporary_file_suffix" : ".filepart",
                 "type" : "EXTERNAL",
                 "username" : "username"
               },
@@ -99023,6 +99230,9 @@
                   },
                   "sftp_destination_invalid_port" : {
                     "$ref" : "#/components/examples/sftp_destination_invalid_port"
+                  },
+                  "sftp_destination_invalid_temporary_file_suffix" : {
+                    "$ref" : "#/components/examples/sftp_destination_invalid_temporary_file_suffix"
                   },
                   "sftp_destination_missing_host" : {
                     "$ref" : "#/components/examples/sftp_destination_missing_host"
@@ -99307,6 +99517,7 @@
                 "name" : "name",
                 "partner_key_id" : "partner_key_id",
                 "port" : 1,
+                "temporary_file_suffix" : ".filepart",
                 "type" : "EXTERNAL",
                 "username" : "username"
               },
@@ -99387,6 +99598,9 @@
                   },
                   "sftp_destination_invalid_port" : {
                     "$ref" : "#/components/examples/sftp_destination_invalid_port"
+                  },
+                  "sftp_destination_invalid_temporary_file_suffix" : {
+                    "$ref" : "#/components/examples/sftp_destination_invalid_temporary_file_suffix"
                   },
                   "sftp_destination_missing_host" : {
                     "$ref" : "#/components/examples/sftp_destination_missing_host"
@@ -104016,6 +104230,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -104738,6 +104955,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_not_found" : {
                     "$ref" : "#/components/examples/component_not_found"
                   },
@@ -104975,6 +105195,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_id_missing" : {
                     "$ref" : "#/components/examples/component_id_missing"
@@ -105343,6 +105566,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_id_missing" : {
                     "$ref" : "#/components/examples/component_id_missing"
                   },
@@ -105709,6 +105935,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_id_missing" : {
                     "$ref" : "#/components/examples/component_id_missing"
@@ -106077,6 +106306,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_id_missing" : {
                     "$ref" : "#/components/examples/component_id_missing"
                   },
@@ -106443,6 +106675,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_id_missing" : {
                     "$ref" : "#/components/examples/component_id_missing"
@@ -106874,6 +107109,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -107631,6 +107869,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -108523,6 +108764,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -109200,6 +109444,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -109453,6 +109700,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
@@ -109779,6 +110029,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -110490,6 +110743,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_operation_code_sample_invalid" : {
                     "$ref" : "#/components/examples/component_operation_code_sample_invalid"
                   },
@@ -110859,6 +111115,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -111362,6 +111621,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -111850,6 +112112,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_operation_code_sample_invalid" : {
                     "$ref" : "#/components/examples/component_operation_code_sample_invalid"
                   },
@@ -112088,6 +112353,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
@@ -112346,6 +112614,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -112851,6 +113122,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -113355,6 +113629,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -113809,6 +114086,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_operation_code_sample_invalid" : {
                     "$ref" : "#/components/examples/component_operation_code_sample_invalid"
@@ -114268,6 +114548,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_operation_code_sample_invalid" : {
                     "$ref" : "#/components/examples/component_operation_code_sample_invalid"
                   },
@@ -114528,6 +114811,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "component_operation_code_sample_invalid" : {
                     "$ref" : "#/components/examples/component_operation_code_sample_invalid"
                   },
@@ -114758,6 +115044,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
                   },
@@ -114966,6 +115255,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
@@ -115232,6 +115524,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "date_invalid" : {
                     "$ref" : "#/components/examples/date_invalid"
@@ -119480,6 +119775,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "client_key_build_failed" : {
                     "$ref" : "#/components/examples/client_key_build_failed"
                   },
@@ -120034,6 +120332,9 @@
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
                   },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
+                  },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
                   },
@@ -120395,6 +120696,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "component_operation_code_sample_invalid" : {
                     "$ref" : "#/components/examples/component_operation_code_sample_invalid"
@@ -120865,6 +121169,9 @@
                   },
                   "campaign_version_malformed" : {
                     "$ref" : "#/components/examples/campaign_version_malformed"
+                  },
+                  "campaign_version_state_malformed" : {
+                    "$ref" : "#/components/examples/campaign_version_state_malformed"
                   },
                   "circular_component_reference" : {
                     "$ref" : "#/components/examples/circular_component_reference"
