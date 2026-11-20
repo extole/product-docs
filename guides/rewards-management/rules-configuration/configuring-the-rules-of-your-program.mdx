@@ -121,3 +121,26 @@ The rules page gives you control over the following reward rules:
 In addition to standard Reward Rules, Extole Support can help you write custom reward rules as JavaScript or SpEL expressions or reward groups.
 
 For example, rather than a reward rule that dictates "Advocates can only earn \$500," an advanced reward rule could say "Advocates whose profile identifies them as based in the US can only earn \$500."
+
+## Reward Rule Expressions
+
+Each reward has an advanced rule, **Matches the expression**. Choose **SpEL** or **JS**, then enter the expression. Extole runs it for the person who would receive the reward, and declines the reward when the expression is false. The advocate reward and the friend reward each have their own rules, so an expression on the friend reward declines only the friend's reward.
+
+In the expression, `person` is the person who would receive the reward. `person.rewards` lists every reward on that person's profile, from every campaign in your account. Each reward carries these fields:
+
+| Field | What It Holds |
+| --- | --- |
+| `rewardSlots` | The reward slots the reward was issued under. |
+| `state` | The reward's state: `EARNED`, `FULFILLED`, `SENT`, `REDEEMED`, `FAILED`, `CANCELED`, `REVOKED` or `EXPIRED`. |
+| `faceValueType` | The reward's face value type, such as `USD` or `POINTS`. |
+| `campaignId` | The campaign that issued the reward. |
+
+Because `person.rewards` covers every campaign, an expression can check rewards that another campaign issued, such as a makegood or a promotion. This SpEL expression on a friend reward rewards the friend only when they hold no reward in the `ADVOCATE_ANY_MAKEGOOD` or `ADVOCATE_ANY_PROMOTION` slot, leaving out canceled and revoked rewards:
+
+```
+person.rewards.?[!{'CANCELED','REVOKED'}.contains(state) and rewardSlots.?[{'ADVOCATE_ANY_MAKEGOOD','ADVOCATE_ANY_PROMOTION'}.contains(#this)].length > 0].length == 0
+```
+
+Use the slot names your other campaigns issue their rewards under. The reward's other rules, such as the limit on how many rewards the rewardee has earned, still apply.
+
+Like any rule change, an expression is saved to a draft of the campaign and takes effect when the campaign is published.
