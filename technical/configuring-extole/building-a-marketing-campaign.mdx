@@ -110,9 +110,10 @@ has the settings.
 | "Count only what they do after joining" | **Has Taken Action** on the joining business event, as a trigger rule on the counted business event. An action before joining is then not recorded, so no count or total includes it. |
 | "At least 30 days after joining" | **Minimum Action Age** on that trigger rule. The earlier event counts only when it is at least that old. |
 | "Within 30 days" | **Recent Activity Window** on **Has Taken Action**. |
-| "Six sessions in the same calendar month" | An **Expression Reward Rule** that counts the events dated in the calendar month of the event being evaluated. See [Count by Calendar Month](#count-by-calendar-month). |
-| "Three months in a row" | The same **Expression Reward Rule**, which also checks each of the months before. See [Count by Calendar Month](#count-by-calendar-month). |
-| "For each child, up to two a month" | The same **Expression Reward Rule**, which counts each child's events apart and passes for no more than two children in a calendar month. See [Count by Calendar Month](#count-by-calendar-month). |
+| "Six sessions in the same calendar month" | An **Expression Reward Rule** that counts the events dated in the calendar month of the event being evaluated. See [Count by Calendar Month or Quarter](#count-by-calendar-month-or-quarter). |
+| "Three months in a row" | The same **Expression Reward Rule**, which also checks each of the months before. See [Count by Calendar Month or Quarter](#count-by-calendar-month-or-quarter). |
+| "For each child, up to two a month" | The same **Expression Reward Rule**, which counts each child's events apart and passes for no more than two children in a calendar month. See [Count by Calendar Month or Quarter](#count-by-calendar-month-or-quarter). |
+| "Five referrals in the same calendar quarter" | The same **Expression Reward Rule**, counting by quarter, on the advocate's reward. It passes once in each quarter, so it needs no **Reward Limit**. See [Count by Calendar Month or Quarter](#count-by-calendar-month-or-quarter). |
 | "Within a day of another action" | **Has Taken Action** on the other action, with a **Recent Activity Window** of hours, as a trigger rule on the later action's business event. A window counts hours back from the event, so it approximates a calendar day. |
 | "At least 150 days since the last one", where each one restarts the clock | A business event that the counted business event triggers, with **Has Taken Action** on the counted business event, a **Recent Activity Window** of 150 days, and **Exact Count** 1. The count includes the event that triggered it, so 1 means no other one in the window. |
 | "Between 150 and 240 days since the last one" | The rule above, and beside it **Has Taken Action** on the counted business event with a **Minimum Action Age** of 150 days and a **Recent Activity Window** of 240 days. |
@@ -139,9 +140,10 @@ window takes days or hours, not months. For a duration of months, such as "withi
 use the days of the longest run of that many months: 92 days for "at least three months", so that
 no early case passes, and 184 days for "no more than six months", so that no on-time case fails. A
 year can start on a date you set: **Annual Reward Value Limit** has a tax year start, and
-**Reward Limit** has a tax year starting month. A calendar month is a fixed period, not a
-duration, and no window or limit starts on the first of each month. Count it with an expression, as
-[Count by Calendar Month](#count-by-calendar-month) describes.
+**Reward Limit** has a tax year starting month. A calendar month or quarter is a fixed period, not
+a duration, and no window or limit starts on the first of each month or quarter. Count it with an
+expression, as
+[Count by Calendar Month or Quarter](#count-by-calendar-month-or-quarter) describes.
 
 **Has Taken Action** counts every matching event on the profile in the rule's scope. It counts
 events, not distinct values, so give each counted event a unique event key when one record must
@@ -160,14 +162,17 @@ When a condition fits no row, see whether two business events make it fit. "Acti
 becomes the event that starts the clock and the event that shows the person is still there,
 joined by **Has Taken Action** with a **Minimum Action Age**.
 
-## Count by Calendar Month
+## Count by Calendar Month or Quarter
 
 Some programs count by calendar month: "six sessions and four homework sets in the same calendar
-month", "three months in a row", or "for each child, up to two a month". The month starts on the
-first, so an event on 31 October and an event on 1 November count in different months. A **Recent
-Activity Window** counts back from the event being evaluated, so it mixes the end of one month with
-the start of the next. Put a calendar month on an **Expression Reward Rule** instead. Its expression
-reads the business events on the person's profile and sorts them by the month of their date.
+month", "three months in a row", or "for each child, up to two a month". Others count by calendar
+quarter: "five referrals in the same quarter". The month starts on the first, and the quarters
+start on 1 January, 1 April, 1 July and 1 October. So an event on 31 October and an event on 1
+November count in different months, and an event on 30 September and an event on 1 October count
+in different quarters. A **Recent Activity Window** counts back from the event being evaluated, so
+it mixes the end of one period with the start of the next. Put a calendar period on an **Expression
+Reward Rule** instead. Its expression reads the business events on the person's profile and sorts
+them by the month or quarter of their date.
 
 1. Add a business event for each counted action, such as `session_attended` and
    `homework_submitted`. Your systems send one event each time the person acts, dated with
@@ -176,32 +181,35 @@ reads the business events on the person's profile and sorts them by the month of
 3. On the reward, add an **Expression Reward Rule**, and set its expression to the sample below,
    with your own business event names and counts.
 4. Remove any **Has Taken Action** and **Reward Limit** that count the same actions or rewards with
-   a window. The expression already holds the month.
+   a window. The expression already holds the period.
 
-The expression passes on the event that completes the counts for its calendar month, and on no
-other event, so the person earns the reward once in each month. Set the constants at the top for
-each condition:
+The expression passes on the event that completes the counts for its calendar period, and on no
+other event, so the person earns the reward once in each month or quarter. Set the constants at the
+top for each condition:
 
 | Constant | What it sets |
 |---|---|
-| `COUNTS` | Each counted business event, and how many of it a month needs. |
-| `MONTHS_IN_A_ROW` | 1 to reward each month. 3 to reward a third month in a row: the expression then passes only when the counts were also met in each of the two months before. A run of six months earns again at the sixth. |
+| `COUNTS` | Each counted business event, and how many of it a period needs. |
+| `MONTHS_PER_PERIOD` | 1 to count by calendar month. 3 to count by calendar quarter. |
+| `PERIODS_IN_A_ROW` | 1 to reward each period. 3 to reward a third period in a row: the expression then passes only when the counts were also met in each of the two periods before. A run of six periods earns again at the sixth. |
 | `GROUP_KEY` | `null` to count all of the person's events together. A data item, such as `student_id`, to count the events of each value apart, so one person earns for each child. |
-| `GROUPS_PER_MONTH` | `null` for no limit. A number, such as 2, to pass for no more than that many values of `GROUP_KEY` in one month. |
-| `UTC_OFFSET_HOURS` | 0 to read each date's month in UTC. Your time zone's offset, such as -5, to read it there. The offset is fixed, so it does not follow daylight saving time. |
+| `GROUPS_PER_PERIOD` | `null` for no limit. A number, such as 2, to pass for no more than that many values of `GROUP_KEY` in one period. |
+| `UTC_OFFSET_HOURS` | 0 to read each date's period in UTC. Your time zone's offset, such as -5, to read it there. The offset is fixed, so it does not follow daylight saving time. |
 
 ```javascript
 javascript@runtime:(function () {
     var COUNTS = { session_attended: 6, homework_submitted: 4 };
-    var MONTHS_IN_A_ROW = 1;
+    var MONTHS_PER_PERIOD = 1;
+    var PERIODS_IN_A_ROW = 1;
     var GROUP_KEY = null;
-    var GROUPS_PER_MONTH = null;
+    var GROUPS_PER_PERIOD = null;
     var UTC_OFFSET_HOURS = 0;
 
-    function monthOf(date) {
+    function periodOf(date) {
         var time = new Date(String(date).replace(/\[.*\]$/, '')).getTime();
         var local = new Date(time + UTC_OFFSET_HOURS * 60 * 60 * 1000);
-        return local.getUTCFullYear() * 12 + local.getUTCMonth();
+        var month = local.getUTCFullYear() * 12 + local.getUTCMonth();
+        return Math.floor(month / MONTHS_PER_PERIOD);
     }
 
     var thisEvent = String(context.getCauseEvent().getRootEventId());
@@ -210,16 +218,16 @@ javascript@runtime:(function () {
     var before = {};
     var groups = {};
     var thisGroup = null;
-    var thisMonth = null;
+    var thisPeriod = null;
 
-    function add(tally, group, month, name) {
-        var key = group + '|' + month;
+    function add(tally, group, period, name) {
+        var key = group + '|' + period;
         tally[key] = tally[key] || {};
         tally[key][name] = (tally[key][name] || 0) + 1;
     }
 
-    function met(tally, group, month) {
-        var counted = tally[group + '|' + month] || {};
+    function met(tally, group, period) {
+        var counted = tally[group + '|' + period] || {};
         for (var name in COUNTS) {
             if ((counted[name] || 0) < COUNTS[name]) { return false; }
         }
@@ -232,14 +240,14 @@ javascript@runtime:(function () {
         if (String(step.getCampaignId()) !== String(context.getCampaignId())) { return; }
         if (String(step.getContainer()) !== container) { return; }
         var group = GROUP_KEY === null ? '' : String(step.getData().get(GROUP_KEY));
-        var month = monthOf(step.getEventDate());
+        var period = periodOf(step.getEventDate());
         groups[group] = true;
-        add(all, group, month, name);
+        add(all, group, period, name);
         if (String(step.getRootEventId()) === thisEvent) {
             thisGroup = group;
-            thisMonth = month;
+            thisPeriod = period;
         } else {
-            add(before, group, month, name);
+            add(before, group, period, name);
         }
     });
 
@@ -247,26 +255,26 @@ javascript@runtime:(function () {
         context.log('The event being evaluated is not a counted event.');
         return false;
     }
-    if (!met(all, thisGroup, thisMonth) || met(before, thisGroup, thisMonth)) {
-        context.log('This event does not complete the counts for its month.');
+    if (!met(all, thisGroup, thisPeriod) || met(before, thisGroup, thisPeriod)) {
+        context.log('This event does not complete the counts for its period.');
         return false;
     }
     var run = 1;
-    while (met(all, thisGroup, thisMonth - run)) { run = run + 1; }
-    if (run % MONTHS_IN_A_ROW !== 0) {
-        context.log('This month completes a run of ' + run + ' months.');
+    while (met(all, thisGroup, thisPeriod - run)) { run = run + 1; }
+    if (run % PERIODS_IN_A_ROW !== 0) {
+        context.log('This period completes a run of ' + run + ' periods.');
         return false;
     }
-    if (GROUPS_PER_MONTH !== null) {
+    if (GROUPS_PER_PERIOD !== null) {
         var completed = Object.keys(groups).filter(function (group) {
-            return group !== thisGroup && met(all, group, thisMonth);
+            return group !== thisGroup && met(all, group, thisPeriod);
         }).length;
-        if (completed >= GROUPS_PER_MONTH) {
-            context.log(completed + ' other values already completed this month.');
+        if (completed >= GROUPS_PER_PERIOD) {
+            context.log(completed + ' other values already completed this period.');
             return false;
         }
     }
-    context.log('Counts complete for ' + (thisGroup || 'the person') + ' in a run of ' + run + ' months.');
+    context.log('Counts complete for ' + (thisGroup || 'the person') + ' in a run of ' + run + ' periods.');
     return true;
 })();
 ```
@@ -291,11 +299,18 @@ When one person earns for another, such as a parent for a child, count on the ea
 
 A program such as "the parent earns \$20 for each child who completes a month, up to \$40 a month,
 and the child earns a gift card for three months in a row" then has two rewards: the parent's,
-with `GROUP_KEY` `student_id` and `GROUPS_PER_MONTH` 2, and the child's, with `MONTHS_IN_A_ROW` 3.
+with `GROUP_KEY` `student_id` and `GROUPS_PER_PERIOD` 2, and the child's, with `PERIODS_IN_A_ROW` 3.
 
-Test each side of the month with back-dated events: a test person whose counts are met inside one
-month, one whose counts are met only by adding the last days of the month before, one whose third
-month follows a month that missed its counts, and, for a limit, a third group in a month that
+A referral program counts on the advocate's profile the same way. For "the advocate earns \$500
+when five friends they referred qualify in the same calendar quarter", publish the friend's
+qualifying business event to the advocate, and earn the bonus on the published business event in
+the advocate's role. Set `COUNTS` to that business event and 5, and `MONTHS_PER_PERIOD` to 3. Give
+the friend's qualifying business event a unique event key, such as the friend's account ID, so each
+friend counts once.
+
+Test each side of the period with back-dated events: a test person whose counts are met inside one
+period, one whose counts are met only by adding the last days of the period before, one whose third
+period follows a period that missed its counts, and, for a limit, a third group in a period that
 already has two.
 
 ## Reward One Person for Another Person's Actions
