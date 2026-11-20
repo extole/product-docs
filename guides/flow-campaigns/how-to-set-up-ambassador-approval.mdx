@@ -1,0 +1,42 @@
+---
+title: "How to Set Up Ambassador Approval"
+description: "Configure whether a Flow Builder Ambassador campaign approves applicants when they submit or after your team reviews them, and switch an existing campaign from one to the other."
+---
+
+# Overview
+
+An Ambassador campaign built in Flow Builder approves applicants in one of two ways: when they submit their application (auto approval), or after your team reviews them (manual approval). The **Ambassador with Auto Approval** and **Ambassador with Manual Approval** starters each come configured for one of these paths. For when to choose each starter, see [Ambassador](/product/product-overview/programs/influencer#choosing-a-flow-builder-starter).
+
+This guide explains what decides approval in the campaign, what each starter configures, and how to switch a Manual Approval campaign to auto approval.
+
+# What Approves an Applicant
+
+Two parts of the campaign decide what happens when a person submits an application.
+
+- **Ambassadors audience membership.** A person is an approved ambassador when they are a member of the campaign's ambassadors audience, the audience the **Ambassadors** tab lists. A manual approval campaign also has a pending audience, which the tab lists under **Show Pending**. Each audience action on a business event adds the person to, or removes them from, the audience its **Audience** setting names.
+- **The `autoApprove` data item on the `application_submitted` event.** When its value is `true`, the Application Experience shows the applicant the approved message and creates their share link as soon as they submit. When it has any other value, or none, the Application Experience shows the pending message.
+
+An auto approval campaign needs both: an action on `application_submitted` that adds the applicant to the ambassadors audience, and `autoApprove` set to `true`.
+
+# What Each Starter Configures
+
+| | Ambassador with Auto Approval | Ambassador with Manual Approval |
+|---|---|---|
+| Audience action on `application_submitted` | Adds the applicant to the ambassadors audience | Adds the applicant to the pending audience |
+| `autoApprove` default value on `application_submitted` | `true` | Not set |
+| Ambassador Welcome email | Sent on `application_submitted` | Sent on `application_reviewed` when the applicant is approved |
+| `application_reviewed` event | Not included | Approves the applicant when `application_status` contains `approved`: adds them to the ambassadors audience and removes them from the pending audience. Otherwise removes them from the pending audience and sends the Application Declined email |
+
+# Switch a Manual Approval Campaign to Auto Approval
+
+Make these changes to the campaign in Flow Builder, then publish it. Applicants who submit after you publish are approved on submit. Applicants already in the pending audience stay there until you approve them on the **Ambassadors** tab.
+
+1. On the `application_submitted` event, make its audience action add applicants to the ambassadors audience. Either set the existing action's **Audience** to the ambassadors audience, or add an audience action that targets the ambassadors audience and turn off the action that targets the pending audience.
+2. On the `application_submitted` event, set the default value of the `autoApprove` data item to `true`.
+3. Send the Ambassador Welcome email on `application_submitted`, so that applicants receive it when they are approved.
+4. Turn off the `application_reviewed` event. Its approval rule, its audience actions, and the Application Declined email then no longer run.
+5. Publish the campaign.
+
+To check the result, submit a test application. The Application Experience shows the approved message and a share link, and the test applicant appears in the approved list on the **Ambassadors** tab.
+
+To approve the applicants who were already pending, see [How to Approve Pending Ambassadors](/guides/programs-and-campaigns/other-acquisition-and-engagement-programs/how-to-approve-pending-ambassadors).
