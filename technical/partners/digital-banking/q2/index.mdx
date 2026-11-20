@@ -165,7 +165,7 @@ Account record:
 
 ```json
 {
-  "event_name": "q2_integration_account",
+  "event_name": "account",
   "data": {
     "q2_integration_event_id": "<stable-event-id>",
     "customer_primary_cif": "0001234567",
@@ -173,7 +173,8 @@ Account record:
     "hostaccountid": "<q2-internal-host-account-id>",
     "productid": "SAV001",
     "accountstatus": "open",
-    "dataasofdate": "2026-09-13T00:00:00Z"
+    "dataasofdate": "2026-09-13T00:00:00Z",
+    "app_type": "q2"
   }
 }
 ```
@@ -182,7 +183,7 @@ Transaction record:
 
 ```json
 {
-  "event_name": "q2_integration_transaction",
+  "event_name": "transacted",
   "data": {
     "q2_integration_event_id": "<stable-event-id>",
     "customer_primary_cif": "0001234567",
@@ -190,12 +191,15 @@ Transaction record:
     "transactionid": "<q2-internal-transaction-id>",
     "hosttrancode": "DEP",
     "txnamount": 500.00,
-    "postdate": "2026-09-13T14:02:00Z"
+    "postdate": "2026-09-13T14:02:00Z",
+    "app_type": "q2"
   }
 }
 ```
 
 `q2_integration_event_id` is a stable id Extole uses to dedupe. All `data` field names are sent lowercase. `customer_primary_cif` keeps its underscores so it matches the SSO key above, and both records are keyed to the member by it.
+
+Every record carries `app_type` set to `q2`. The Q2 integration's Account and Transacted trigger events match `account` and `transacted` only when `app_type` is `q2`, so the same event names sent from another source do not trigger them.
 
 ## Host Accounts Event Emitter Configuration Options
 
