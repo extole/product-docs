@@ -188,9 +188,11 @@ After Extole processes files, it moves them into an "archive" folder on the SFTP
 
 ## Receiving Reports Under a Temporary Name
 
-[//]: # "How do I stop my automation from downloading a report before Extole finishes writing it to Extole's SFTP server?"
+[//]: # "Can my automation download a report from Extole's SFTP server before Extole finishes writing it?"
 
-When a report is delivered to your Extole SFTP server, Extole writes it to the `dropbox` folder under its final file name. If a process polls that folder, it can find the file while it is still being written. To prevent this, set a temporary file suffix on the server. Extole then writes each file as the final name plus the suffix, copies it to the final name once it is complete, and removes the temporary copy. The final name appears only when the file is whole.
+When a report is delivered to your Extole SFTP server, Extole writes it to the `dropbox` folder under its final file name. Extole writes each file in one step, so a process that polls that folder finds the file only once it is complete. This is true with or without a suffix.
+
+You can still set a temporary file suffix on the server, for example so your automation can use the same rules here as on a server you host yourself. Extole then writes each file as the final name plus the suffix, copies it to the final name, and removes the temporary copy.
 
 For example, with the suffix `.filepart`, the file `report.csv` is written as `report.csv.filepart` and then appears as `report.csv`. With PGP encryption, `report.csv.gpg.filepart` becomes `report.csv.gpg`.
 
