@@ -14,6 +14,7 @@ enforces is defined there, each stated in full, so writing to it needs no other 
 - Skill: [`.agents/skills/product-docs-placement/SKILL.md`](.agents/skills/product-docs-placement/SKILL.md) — **load before writing a new page**: which tab and group the page belongs in. Guides is not the default.
 - Skill: [`.agents/skills/product-docs-authoring/SKILL.md`](.agents/skills/product-docs-authoring/SKILL.md) — the authoring workflow, PR flow, and pre-PR self-review.
 - Skill: [`.agents/skills/mintlify-branch-preview/SKILL.md`](.agents/skills/mintlify-branch-preview/SKILL.md) — **load before creating any branch/PR**: how to get a rendered preview, and the `npx mint@latest validate` gate every change owes.
+- Skill: [`.agents/skills/docs-site-design/SKILL.md`](.agents/skills/docs-site-design/SKILL.md) — **load before changing how the site looks**: which of `docs.json`, `style.css` and `public/style.css` styles what, and the design rubric a page is scored against.
 - Rule (always-on): [`.agents/rules/product-docs-style.mdc`](.agents/rules/product-docs-style.mdc) — a short pointer to the standards file, plus three guardrails.
 
 ### Why the standards live in `.mintlify/`
