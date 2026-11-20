@@ -90,7 +90,7 @@ A raw inbound event from a client integration, before it is processed into a ste
 | `deviceOs` | Operating system |
 | `appType` | Application type |
 | `data` | Custom key-value payload from the client |
-| `httpHeaders` | HTTP headers from the inbound request |
+| `httpHeaders` | HTTP headers from the inbound request, each a list of values. `referer` is the page or site that sent the request, and `x-extole-incoming-url` is the full URL Extole received |
 
 **Mapping examples:**
 
@@ -100,6 +100,9 @@ Event Name=event.name; API Type=event.apiType; Device=device_type(user_agent:eve
 
 # Count all input events by name in an Input Record Metrics report
 name=event.name; api_type=event.apiType; count=group_count_distinct(event.id, name:"all");
+
+# Count input events by the page and URL that requested them
+name=event.name; referer=FIRST(COLLECTION(event.httpHeaders.referer)); incoming_url=FIRST(COLLECTION(event.httpHeaders.x-extole-incoming-url)); count=group_count_distinct(event.id, name:"all");
 
 # Count a specific event per person per day
 day=end_date(event.eventTime, period:"DAY"); person_id=person(event.personId).id; count=group_count_distinct(event.id, name:"purchase");
