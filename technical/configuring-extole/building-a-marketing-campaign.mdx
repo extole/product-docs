@@ -106,6 +106,7 @@ has the settings.
 | "Count only what they do after joining" | **Has Taken Action** on the joining business event, as a trigger rule on the counted business event. An action before joining is then not recorded, so no count or total includes it. |
 | "At least 30 days after joining" | **Minimum Action Age** on that trigger rule. The earlier event counts only when it is at least that old. |
 | "Within 30 days" | **Recent Activity Window** on **Has Taken Action**. |
+| "Within a day of another action" | **Has Taken Action** on the other action, with a **Recent Activity Window** of hours, as a trigger rule on the later action's business event. A window counts hours back from the event, so it approximates a calendar day. |
 | "At least 150 days since the last one", where each one restarts the clock | A business event that the counted business event triggers, with **Has Taken Action** on the counted business event, a **Recent Activity Window** of 150 days, and **Exact Count** 1. The count includes the event that triggered it, so 1 means no other one in the window. |
 | "Between 150 and 240 days since the last one" | The rule above, and beside it **Has Taken Action** on the counted business event with a **Minimum Action Age** of 150 days and a **Recent Activity Window** of 240 days. |
 | "At least five times" | **Minimum Count** on **Has Taken Action**, as a reward rule. |
@@ -127,7 +128,9 @@ A window is a duration, such as 30 days. On **Has Taken Action** it counts back 
 the event being evaluated, and it counts every matching event on the profile dated after the
 window's start, including one that arrived earlier with a later date. **Reward Limit** counts back from the moment the reward is evaluated. A
 calendar month or quarter is a fixed period, and the nearest window is a duration of the same
-length. A year can start on a date you set: **Annual Reward Value Limit** has a tax year start, and
+length. A window takes days or hours, not months. For a number of months, use the days of the
+longest run of that many months: 92 days for "at least three months", so that no early case
+passes, and 184 days for "no more than six months", so that no on-time case fails. A year can start on a date you set: **Annual Reward Value Limit** has a tax year start, and
 **Reward Limit** has a tax year starting month.
 
 **Has Taken Action** counts every matching event on the profile in the rule's scope. It counts
