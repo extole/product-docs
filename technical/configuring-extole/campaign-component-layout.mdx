@@ -1,0 +1,106 @@
+---
+title: "Campaign Component Layout"
+description: "Which component types a Flow Builder campaign and its trigger-event extensions use, where each sits in the tree, and why."
+---
+
+# Overview
+
+A Flow Builder campaign is a tree of components. Each component has a type, which says what it
+is, and sits in a socket of its parent, which says where it is.
+[Component Types](/technical/configuring-extole/underlying-configuration-model#component-types)
+explains types and parent types. This page shows the layout that Extole's own campaigns use, so
+that a campaign you build reads the same way in Flow Builder and evaluates in the same order.
+
+These pages leave the version off a type name in prose. In your account each type name ends in
+a version, such as `business-event-v10.0`.
+
+## The Layout of a Flow Builder Campaign
+
+Each line names a socket, then the type of the component that goes in it.
+
+```
+campaign
+├── roles: role
+│   ├── journeys: journey
+│   │   ├── targetingScenario: targeting-scenario
+│   │   │   └── ongoingRules: rule
+│   │   ├── shareLinkActions: content
+│   │   └── businessEvents: business-event
+│   │       ├── triggerRules: rule
+│   │       ├── qualityRules: rule
+│   │       ├── data: data
+│   │       ├── actions: action
+│   │       ├── onsitePromotions: content
+│   │       ├── emailPromotions: email-promotion
+│   │       ├── experiences: content
+│   │       └── clickBehavior: content
+│   └── rewards: reward
+│       ├── rewardRules: reward-rule
+│       └── rewardIssuer: reward-issuer
+│           └── sendActions: reward-email
+```
+
+| Type | What it is |
+|---|---|
+| `campaign` | The root of a Flow Builder campaign. It holds the roles. |
+| `role` | One kind of person in the program, such as the person who refers and the person referred. Flow Builder draws each role as a column. |
+| `journey` | One part of a role's path through the program. Flow Builder draws each journey as a row, in the order of its `sequence`. |
+| `targeting-scenario` | Who may take part in the journey. Its rules decide it. |
+| `business-event` | A step that a person takes, or a milestone that the campaign records. It starts on the trigger event that its **Triggered By** selects. |
+| `rule` | A condition. On a business event, a trigger rule decides whether the event is recorded. On a targeting scenario, a rule decides who takes part. |
+| `data` | A value that the business event keeps, such as the key that makes it count once, or the value that a rule compares or adds. |
+| `action` | Something the business event does when it is recorded, such as **Publish Event Data**, which records a business event on another person. |
+| `content` | Something a person sees or follows: a call-to-action on a zone, a page, a share link, or where a click goes. |
+| `email-promotion` | An email that offers the program. |
+| `reward` | What a person earns. It sits on the role that receives it, and its **Triggered By** selects the business event that earns it. |
+| `reward-rule` | A condition that the reward checks before the person earns it, such as a count, a total, or a limit. |
+| `reward-issuer` | Delivers the earned reward. In My Extole it is **Reward Emails**. |
+| `reward-email` | The email that tells the person about the reward. |
+
+## The Layout of the Trigger-Event Extensions
+
+A campaign's events start on trigger events that an extension declares for the whole account.
+Each extension is a campaign of its own, with this layout:
+
+```
+extension (Event API)
+└── integrationEvents: event-api-trigger-event
+
+extension (JavaScript SDK)
+├── zoneEvents: sdk-zone-event
+└── taglessCtas: tagless-cta
+```
+
+| Type | What it is |
+|---|---|
+| `event-api-trigger-event` | An event that your systems send through the Event API. A business event selects it in **Triggered By**. |
+| `sdk-zone-event` | A zone that your website requests through the JavaScript SDK. A call-to-action selects it in **Triggered By**. |
+
+## Why Each Part Sits Where It Does
+
+- **A condition sits on what it judges.** A trigger rule sits on the business event that it lets
+  through, so an action that fails the rule is never recorded and no count includes it. A reward
+  rule sits on the reward that it holds back.
+- **A reward sits on the role that receives it.** It can be earned by a business event of another
+  role, through **Publish Event Data** on that event.
+- **An experience sits on the business event that shows it.** A call-to-action and a promotion
+  email sit on the business event recorded when the offer is viewed, and a reward email sits on
+  the reward's issuer, so each one shows or is sent when its event takes place.
+- **A trigger event is declared once for the account.** Every campaign that needs the event
+  selects the same declaration, so your systems send one event whatever the number of campaigns.
+
+[Building a Marketing Campaign](/technical/configuring-extole/building-a-marketing-campaign)
+covers how to map a program onto this layout, and which rule evaluates each condition.
+
+## Find the Types in Your Account
+
+Your account holds the full list of types, and a component library can add its own.
+[List duplicatable component summaries](/api-reference/components/list-duplicatable-component-summaries)
+with `having_any_types` set to a type returns the components of that type that you can copy.
+Each row's `types` lists the types that the component has.
+
+## Related Documentation
+
+- [Building a Marketing Campaign](/technical/configuring-extole/building-a-marketing-campaign)
+- [Underlying Configuration Model](/technical/configuring-extole/underlying-configuration-model)
+- [Build a Campaign from Components Over REST](/technical/platform-integrations/rest-apis/build-a-campaign-from-components-over-rest)

@@ -35,7 +35,9 @@ The two campaign sandboxes differ in who can enter a journey and which rules run
 
 Use the campaign preview sandbox to check that each part of a journey runs and renders. Use the
 campaign sandbox to check who enters a journey and what the quality rules stop, and send the same
-events to a production sandbox to compare the draft with the published version.
+events to a production sandbox to compare the draft with the published version. To test a draft's
+rewards with the suppliers they name, use the campaign sandbox with the `production` container:
+`campaign-<campaign id>-production`.
 
 ## Send an Event to a Sandbox
 
@@ -72,6 +74,39 @@ curl -X POST "https://api.extole.io/v6/events" \
 A consumer event can carry `sandbox` in its data too. Extole ignores a value that does not match a
 sandbox format above and processes the event as if it named no sandbox.
 
+### Test a Referral
+
+To test a referral in the campaign sandbox, the second person needs the first person's real share
+code. Create one with [Create a person shareable](/api-reference/persons/create-a-person-shareable)
+for the first person, then send the second person's events with that code as `shareable_code`, in
+the same sandbox. The share link ties the two people, as it does on your live site.
+
+### Send an Event That Took Place Earlier
+
+To test a time window, give a server event an `event_time` in ISO 8601. Extole records the event
+at that time. The **Recent Activity Window** and **Minimum Action Age** of **Has Taken Action**
+count back from the time of the event being evaluated, so a back-dated event lands inside or
+outside them as it would have on that date. **Reward Limit** counts rewards by when they were
+earned, which is when Extole processed the event.
+
+A window counts back from the event and has no end, so it also counts a later-dated event that is
+already on the profile. Send the events of one test person one at a time, oldest first, and read
+the person's steps until the last event's business event or reward evaluation shows before you send
+the next. Events sent together can be processed in any order.
+
+To show that a 60-day window holds, test two people: one who opened an account 50 days ago and
+buys today, who earns the reward, and one who opened 70 days ago and buys today, who does not:
+
+```bash
+curl -X POST "https://api.extole.io/v6/events" \
+     -H "Authorization: Bearer <server access token>" \
+     -H "Content-Type: application/json" \
+     -d '{"event_name": "account_opened",
+          "event_time": "2026-09-10T17:00:00Z",
+          "data": {"email": "<test person's email>",
+                   "sandbox": "campaign-<campaign id>-production"}}'
+```
+
 ### See How Extole Processed an Event
 
 To see each decision Extole made for a test event, such as which sandbox and campaign it used and
@@ -97,20 +132,35 @@ A sandbox changes which campaign version handles the event and which container r
 event is processed in full:
 
 - In the `test` container and in the campaign preview sandbox, a reward comes from your account's
-  test reward supplier, whatever supplier the campaign's reward names. If your account has no test
-  reward supplier, the reward is not issued. A rule that counts a person's earlier rewards counts
-  only rewards in the same container.
+  test reward supplier, with that supplier's value, whatever supplier the campaign's reward names.
+  The test reward supplier is the reward supplier named `Default Test Reward`. If your account has
+  no test reward supplier, the reward is not issued. A rule that counts a person's earlier rewards
+  counts only rewards in the same container.
+- In the `production` container, a reward comes from the supplier that the campaign's reward
+  names, with its value. To test a draft's reward, its value, and its reward email, send the events
+  to the campaign sandbox `campaign-<campaign id>-production`. The draft stays unpublished.
+- When one person's event publishes an event to another person, the published event keeps the
+  sandbox of the event that caused it. Extole then evaluates the second person's reward in that
+  container, so send every event of one test to the same container.
 - Emails and webhooks run as they do for a live event. Use test email addresses that you control.
   See [Exclude Test Data from Analytics](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics)
   for how test containers are reported.
 - An event can start schedules, such as a reward's pending period or a reminder email, which run
   later. After a test, cancel the schedules it started and check that each test person has no
-  reward.
+  reward. When a **Pending Period** ends, Extole runs the reward's rules
+  again if the reward's evaluation started more than 10 minutes earlier. To test a pending period
+  without waiting for it, set the draft's **Pending Period** to 11 minutes, send the test events,
+  including any that should stop the reward during the period, read the result after the period
+  ends, and set the period back.
 - Your account's prehandlers still apply, so a prehandler can record an event in another
   container than the one the sandbox names.
 
 To check a test, read each test person's events and rewards. A person's steps show the container
 each event was recorded in.
+
+Extole keeps what a test person did. A unique event key records each key value once, and a rule
+that counts a person's earlier events counts the earlier test events too. To run a test again
+after you change the draft, use a new test person and new key values.
 
 ## View Draft Pages and Emails
 
@@ -128,6 +178,29 @@ as a share experience. Set `creative_classification` to `JAVASCRIPT`, `PAGE`, or
 
 ```text
 https://<your program domain>/core/preview.html?zone_name=<zone name>&sandbox=campaign_preview-<campaign id>-<journey name>&creative_classification=JAVASCRIPT&is_preview_mode=true
+```
+
+### Check a Draft Without a Browser
+
+The same `/zones/` address answers a plain HTTP request, with no token, so a script or an assistant
+can check each experience of a draft:
+
+- **An email** returns `text/html`, with the sender in the `X-Extole-Email-From` header and the
+  subject in `X-Extole-Email-Subject`. Read the body for the heading, the message, and each amount.
+- **A JavaScript creative**, such as a call-to-action or a share experience, returns
+  `text/javascript`. The body carries the text the creative shows. A call-to-action that selects a
+  JavaScript SDK zone in **Triggered By** renders only for a request from the JavaScript SDK, so
+  add `app_type=javascript_sdk` to the query. The header `x-extole-app-type: javascript_sdk` does
+  the same.
+- **A zone the draft does not serve**, or a call-to-action that is turned off or requested without
+  the app type, returns `200` with an empty body, so check the content type and the length, not
+  the status.
+
+The zone name of an email is its `zoneName` setting. The zone name of a call-to-action is the
+trigger event it selects. Each request records an input event in the `test` container.
+
+```bash
+curl -i "https://<your program domain>/zones/homepage_banner?sandbox=campaign_preview-<campaign id>&app_type=javascript_sdk"
 ```
 
 To find the program domain, the zone name, and the journey name, select the creative on the
