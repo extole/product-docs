@@ -74,19 +74,31 @@ role orders the columns.
 
 ## Set the Trigger of Each Business Event
 
-The **Triggered By** setting, `triggerEvent`, names the event that starts the business event.
-[How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) covers the trigger
-events your systems send, and
-[Select components for a component reference list](/api-reference/components/select-components-for-a-component-reference-list)
-sets the reference.
+The **Triggered By** setting, `triggerEvent`, names the trigger event that starts the business
+event. For an event your backend sends:
 
-While **Triggered By** is empty, the **Triggered by Input Event** rule starts the business event.
-Copy `input_event` into the business event's `triggerRules` socket, and set its
-`triggerEventNames` to the names of the events your systems send.
+1. Find the **Event API** extension: [List campaigns](/api-reference/campaigns/list-campaigns)
+   returns it as a campaign of type `EXTENSION`, and its `event_api` component has the
+   `integrationEvents` socket. If the account already declares the event's name there, reuse that
+   declaration and go to step 4.
+2. Copy a declaration into `integrationEvents`. List the duplicatable component summaries for that
+   socket: the rows of type `event-api-trigger-event-v10.0` include named events, such as
+   `account_opened`, and `event_api_trigger_event` for a name of your own. Set
+   `component_display_name` so that the copy's name is the exact event name your systems send:
+   `Member Joined` becomes `member_joined`.
+3. Publish the Event API campaign with [Publish a campaign](/api-reference/campaigns/publish-a-campaign).
+   A business event selects from another campaign's published version only.
+4. Call [List selectable components](/api-reference/components/list-selectable-components-for-a-component-reference-list)
+   for the business event's `triggerEvent` setting, and then
+   [Select components for a component reference list](/api-reference/components/select-components-for-a-component-reference-list)
+   with the declaration's id in `component_ids`.
 
-Give a business event one starting trigger: **Triggered By**, or the **Triggered by Input Event**
-rule. A business event that another business event or **Publish Event Data** starts has
-**Triggered By** only.
+A business event with a selection starts on that trigger event alone and needs no input-event
+rule. A business event that another business event or **Publish Event Data** starts selects that
+business event in **Triggered By**. For a website tag, an app, or a file, declare the event on the
+matching extension, as
+[How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) describes, and
+select it the same way.
 
 ## Add the Rules
 

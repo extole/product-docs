@@ -184,6 +184,38 @@ invited the actor. To send the event to a person named in the event data, replac
 [How to Set Up Bonus Rewards on a Specific Referral Count](/guides/flow-campaigns/how-to-set-up-bonus-rewards-on-a-specific-referral-count-2nd-3rd-5th-etc)
 shows steps 3 to 5 in Flow Builder.
 
+## Connect Your Systems
+
+Once the business events exist, connect each event your systems send to the business event it
+starts. An event reaches a campaign as a **trigger event**, declared on the extension or
+integration that carries it, and each business event selects its trigger event in **Triggered
+By**. A campaign does not publish while a **Triggered By** it needs is empty.
+
+Choose the route for each event, in this order:
+
+| The event comes from | Route | Declared on |
+|---|---|---|
+| A platform with a packaged integration, such as Shopify | The integration | The integration, which declares its own trigger events |
+| Your backend, server to server | The Event API | The **Event API** extension, under **Integration Events** |
+| A tag on your website, or a zone your website requests | The JavaScript SDK | The **JavaScript SDK** extension |
+| Your iOS or Android app | The Mobile SDK | The **Mobile SDK** extension, under the app's platform |
+| A recurring file | File Integration | The job's **Create Events** in **File Integration** |
+
+[How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) covers each
+route, and [Integrating with Extole](/technical/integration-overview/integrating-with-extole)
+compares them.
+
+- **Declare each event once in the account**, with the exact name your systems send, and reuse
+  the declaration in every campaign that listens for it.
+- **Publish the extension after you declare an event.** A campaign selects trigger events from the
+  published version of an extension.
+- **Select the declaration in each business event's Triggered By.** The business event then starts
+  on that event alone.
+- **Give your developers, for each event,** its name, the identifier of the person, the fields your
+  rules read, such as the value and the unique event key, and `event_time` when they send an event
+  after it took place. [Send Events from the Partner Platform](/technical/building-partner-integrations/integration-types/partner-events-send-from-platform)
+  has the call, with retries and testing.
+
 ## Test Each Condition from Both Sides
 
 Before you publish, test the draft with test people:
