@@ -1,0 +1,239 @@
+---
+title: "How to Set Up Person Quality"
+description: "Install Person Quality and Events, choose when a person's status becomes Watch, Hold, or Deny, and hold the rewards of people who need review until someone on your team decides."
+---
+
+# Overview
+
+Person Quality gives every person in your programs a status of **Clear**, **Watch**, **Hold**, or **Deny**. The status comes from two kinds of activity Extole already records: how many distinct IP addresses the person has been seen from, and the friends they referred. A person whose status reaches Hold or Deny joins an audience named **Person Quality Hold**. While they are in it, every reward that carries the **Enforce Person Quality Hold** reward rule waits, until someone on your team reviews the person and releases them or decides each reward.
+
+Person Quality never blocks anyone, never tells a person they were flagged, and never declines a reward on its own. It finds the people worth a second look and holds their rewards while you look.
+
+This page is for the marketer or program operator who sets Person Quality up. Once it is running, [How to Review People in Person Quality Hold](/guides/rewards-management/rules-configuration/how-to-review-people-in-person-quality-hold) covers the day-to-day review.
+
+## How a Person Gets a Status
+
+Person Quality adds points for each signal a person shows, and compares the total with three thresholds you set:
+
+| Signal | Points by default | When it adds points |
+| --- | --- | --- |
+| Distinct IP addresses | 25 | The person has been seen from 8 or more distinct IP addresses. |
+| Referred friends | 25 | The person has referred 30 or more friends. |
+| Referred friends sharing an IP address | 25 | At least 15% of the friends the person referred, and at least three of them, were seen on one of the person's own IP addresses. |
+
+| Status | Default score | What happens to the person |
+| --- | --- | --- |
+| **Clear** | Below 25 | Nothing. A person who has never been scored counts as Clear. |
+| **Watch** | 25 or more (one signal) | Nothing. The status is visible on the person's profile. |
+| **Hold** | 50 or more (two signals) | The person joins Person Quality Hold, and their rewards wait. |
+| **Deny** | 75 or more (all three signals) | The same as Hold, and anything you add to the Deny event also runs. |
+
+Each signal on its own is common among real customers: people travel, households share a router, and popular advocates refer many friends. Together they describe one person, on many networks, who referred a large group that keeps appearing on those same networks. The minimum of three friends sharing an IP address keeps a couple or a small household from adding points.
+
+# Before You Start
+
+- **Person Quality and Events is available to your account.** Open [Partners](https://my.extole.com/integrations), select **Extensions**, and click **+ New Extension**. If **Person Quality and Events** is not offered, contact your CSM.
+- **You have a live program that earns rewards.**
+- **You know who will review the people it holds, and how often.** A person in Person Quality Hold has rewards waiting, so the review is part of the setup. Decide this before you turn the hold on. [How to Review People in Person Quality Hold](/guides/rewards-management/rules-configuration/how-to-review-people-in-person-quality-hold) describes the routine.
+
+# Step 1: Install Person Quality and Events
+
+1. Open [Partners](https://my.extole.com/integrations) and select **Extensions**.
+2. Click **+ New Extension**, select **Person Quality and Events**, and click **Install**.
+3. Open **Person Quality and Events** from the Extensions tab.
+
+<Frame caption="Person Quality and Events on the Extensions tab, once installed.">
+  <img
+    src="/images/extole/person-quality-extensions-tab.png"
+    alt="The Extensions tab under Partners, with the Person Quality and Events tile in the Utilities category beside Campaign Monitors, Event API, Javascript SDK, and Mobile SDK."
+  />
+</Frame>
+
+The install sets up Person Quality for you. It adds the four Person Quality events, and the **Person Quality - Hold** event creates the audience **Person Quality Hold** and adds people to it. There's nothing to create by hand.
+
+The extension opens on its **Person Quality Hold** tab, which lists the people in that audience. It's empty until someone's status reaches Hold. The second tab, **Configuration**, holds the settings.
+
+# Step 2: Check the Thresholds
+
+Select the **Configuration** tab and read the four settings at the top. Leave them as they are for now.
+
+| Setting | Default | What it means |
+| --- | --- | --- |
+| **Enabled** | On | Turns Person Quality and Events on or off. |
+| **Watch at** | 25 | The score at which a person's status becomes Watch. Watch changes nothing for the person. |
+| **Hold at** | 50 | The score at which a person's status becomes Hold. The person joins Person Quality Hold, and their rewards wait. |
+| **Deny at** | 75 | The score at which a person's status becomes Deny, which by default means every signal added points. |
+
+**Watch at** cannot be higher than **Hold at**, and **Hold at** cannot be higher than **Deny at**. None of them can be blank or zero. A person's score is shown out of the **Deny at** value, for example 50 of 75.
+
+<Frame caption="The Configuration tab after the install: Enabled and the three thresholds at the top, then the Person Quality and Person Events sections.">
+  <img
+    src="/images/extole/person-quality-configuration.png"
+    alt="Configuration tab of Person Quality and Events with Enabled on, Watch at 25, Hold at 50, Deny at 75, the Person Quality section listing four events, and an empty Person Events section."
+  />
+</Frame>
+
+<Tip>
+Start with the defaults. A threshold that suits one program's audience can flag too many people in another, so review the first people Person Quality holds before you change anything. If many of them turn out to be genuine customers, ask your CSM to size the thresholds against your own population.
+</Tip>
+
+The **Person Events** section further down is for other person events, such as Reward Limit Reached. It is not part of Person Quality.
+
+# Step 3: Check the Four Person Quality Events
+
+Person Quality runs as four events in the **Person Quality** section of the **Configuration** tab. The install adds all four.
+
+| Event | What it does |
+| --- | --- |
+| **Person Quality - IP** | Scores how many distinct IP addresses the person has been seen from. It runs on the inbound events named in its trigger rule. |
+| **Person Quality - Relationship** | Scores the friends a person referred: how many, and how many share an IP address with them. It runs once for each new referral and scores the advocate. |
+| **Person Quality - Hold** | Runs when a person's status becomes Hold or Deny, and adds them to Person Quality Hold, the audience it created on install. |
+| **Person Quality - Deny** | Runs when a person's status becomes Deny. It has no action until you add one. |
+
+The Hold and Deny events arrive already set up. Once added, their **Triggered By** reads **This Campaign: Person Quality changed**, the trigger event Person Quality and Events produces each time a person's status changes. Hold qualifies with the rule **Status is at least Hold** and Deny with **Status is Deny**. For more about trigger events, see [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by).
+
+The points and the signal settings have defaults you do not need to change. [Reference: Scoring Settings](#reference-scoring-settings) lists them.
+
+If one of the events is missing, add it again: under **Person Quality**, click **+ New Person Quality Event**, select the event, and click **Add**. Then click **Apply Changes** at the top of the extension. A **Person Quality - Hold** event added this way creates a new, empty Person Quality Hold.
+
+<Frame caption="+ New Person Quality Event, for adding back an event that was removed.">
+  <img
+    src="/images/extole/person-quality-new-event-picker.png"
+    alt="The New Person Quality Event picker listing Person Quality - Deny, Person Quality - Hold, Person Quality - IP, and Person Quality - Relationship, each with its description."
+  />
+</Frame>
+
+# Step 4: Check the Person Quality Hold Audience
+
+The Hold event created the audience when you installed the extension, and the reward rule finds it by its name.
+
+1. Open [Audiences](https://my.extole.com/audiences-overview/my-audiences). There is one audience named **Person Quality Hold**.
+2. Open **Partners** > **Extensions** > **Person Quality and Events** > **Configuration**, and open **Person Quality - Hold**. Its **Audience** reads **Person Quality Hold**.
+
+<Frame caption="Person Quality - Hold, triggered by Person Quality changed, with its Audience set to Person Quality Hold on install.">
+  <img
+    src="/images/extole/person-quality-hold-event.png"
+    alt="Person Quality - Hold event with Triggered By set to This Campaign: Person Quality changed, the qualification rule Status is at least Hold, an empty Actions section, and Audience set to Person Quality Hold."
+  />
+</Frame>
+
+<Warning>
+The audience name is the link between the Hold event and the reward rule. **Enforce Person Quality Hold** holds a reward only when the person is in an audience named **Person Quality Hold**. Capitalization does not matter. Don't rename the audience, and don't create a second one with that name.
+</Warning>
+
+The **Person Quality - Deny** event has no audience of its own. The Hold event runs for Deny too, so a person whose status becomes Deny is already in Person Quality Hold and their rewards already wait. The Deny event is the place for anything extra a denied person should get, such as an email to your team or a webhook to your fraud tool: open it and click **+ New Action**.
+
+A person stays in Person Quality Hold until someone on your team releases them, even if their score later drops. A score that drops is not a review.
+
+# Step 5: Hold Rewards for People in Person Quality Hold
+
+**Enforce Person Quality Hold** is a reward rule with no settings. While the person being rewarded is in Person Quality Hold, the reward waits: on their profile it shows **Evaluating**. It is paid when they leave the audience, or when someone approves it on the person's profile. It can also be declined there. A person who is not in the audience, or an account with no audience of that name, is not affected.
+
+New programs include the rule on every reward. A program created before the rule was released does not, so check each reward in each live campaign:
+
+1. Go to **Programs**, find the campaign, and click its **Manage Flow** icon.
+2. Select each reward, for example the advocate reward, and look under **Reward Rules**.
+3. If **Enforce Person Quality Hold** is not listed, click **+ New Reward Rule**, search for `Person Quality`, select **Enforce Person Quality Hold**, and click **Add**.
+4. If **Pending Period** is not listed, add it the same way and set its **Pending Period** to ten minutes or more. The pending period gives Person Quality time to score the event that earned the reward before the reward is checked. When the period ends, the hold is checked again, and a person who joined Person Quality Hold during the period is held.
+5. Publish the campaign.
+
+<Frame caption="An advocate reward's Reward Rules, with Enforce Person Quality Hold listed.">
+  <img
+    src="/images/extole/person-quality-reward-rules.png"
+    alt="The Advocate Reward on Friend Converted reward opened in Flow Builder, with Reward Rules listing Business Event Quality, Annual Reward Value Limit, Reward Limit, Has Email Address, Risk Evaluation, Other Person Risk Evaluation, Has Not Been Rewarded For Relationship, and Enforce Person Quality Hold, above + New Reward Rule."
+  />
+</Frame>
+
+<Frame caption="+ New Reward Rule, searched for Person Quality.">
+  <img
+    src="/images/extole/person-quality-new-reward-rule.png"
+    alt="The New Reward Rule picker filtered to Person Quality, showing Enforce Person Quality Hold and its description."
+  />
+</Frame>
+
+Do this for every reward that should wait, including friend rewards. The rule checks the person who receives that reward: a friend reward is held only when the friend is in Person Quality Hold, not when their advocate is. For more about reward rules, see [How to Set Up Reward Rules](/guides/flow-campaigns/how-to-set-up-reward-rules).
+
+# Step 6: Check That It Works
+
+Use a test person of your own, never a customer. The test person must already have a profile, so start them in a program before you add them to the audience.
+
+1. Walk the test person through a program whose reward carries **Enforce Person Quality Hold**, up to the step before the reward is earned. See [How to Push Your Test Campaign Live](/guides/programs-and-campaigns/managing-campaigns/how-to-push-your-test-campaign-live) for how to test a program.
+2. Open the **Person Quality Hold** tab of Person Quality and Events.
+3. Under **Add a person to Person Quality Hold**, enter the test person's email, a **Reason** such as "Setup test", leave **Decision** on **Hold**, and click **Add person**. The person appears in the list as **Reviewer hold**.
+4. Have the test person, or their friend, complete the step that earns the reward, for example the friend's conversion for an advocate reward.
+5. Open the test person's profile from **User Support** > **Person Search**. Wait until the reward's **Pending Period** has ended. The reward shows **Evaluating** instead of being paid, with **Approve**, **Decline**, and **Re-evaluate** beside it.
+6. On the **Person Quality Hold** tab, click **Release** on the test person's row, then click **Release** again to confirm. Within about a minute the reward is evaluated again and paid, as long as its other reward rules pass.
+
+If the reward was paid once the pending period ended, check that the reward lists **Enforce Person Quality Hold** under **Reward Rules** and that the audience is named exactly Person Quality Hold.
+
+# Optional: Act on a Status in Your Own Rules
+
+The rule **Person Quality status** can be added to a step's trigger, qualification, or quality rules in any program. It has two settings, **Comparison** and **Status**, and the statuses rise from Clear through Watch and Hold to Deny. For example, a quality rule of **Person Quality status** with Comparison **Is Below** and Status **Hold** passes only for people whose status is Clear or Watch. A person who has never been scored counts as Clear.
+
+Any program can also react to a status change: in a business event's **Triggered By**, select **Person Quality changed**, the trigger event Person Quality and Events produces. See [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by).
+
+# Turning It Off
+
+- **To stop scoring people,** turn off **Enabled** on the Configuration tab, click **Apply**, then click **Apply Changes**. People already in Person Quality Hold stay in it, and their rewards keep waiting until you release them. The Person Quality Hold tab keeps working, so you can still release people.
+- **To stop holding one reward,** remove **Enforce Person Quality Hold** from that reward's **Reward Rules** and publish the campaign. A reward that was already waiting when you removed the rule keeps waiting. Find each one on the person's profile and click **Re-evaluate**, or **Approve**.
+- **To stop new holds,** turn off the **Person Quality - Hold** event with the toggle at the top of the event, then click **Apply Changes**. People already in Person Quality Hold stay in it, and their rewards keep waiting until you release them.
+- **To stop holding rewards for everyone,** release each person on the Person Quality Hold tab, or remove **Enforce Person Quality Hold** from the rewards. The Person Quality Hold audience can't be archived from the Audiences page while the Hold event uses it.
+- A disabled audience still holds rewards.
+- **Removing the Person Quality - Hold event, or uninstalling Person Quality and Events,** archives the Person Quality Hold audience with it. Rewards that were already waiting keep waiting until you click **Re-evaluate** or **Approve** on each one. Adding the Hold event back creates a new, empty audience.
+- **To release one person,** use **Release** on the Person Quality Hold tab. See [How to Review People in Person Quality Hold](/guides/rewards-management/rules-configuration/how-to-review-people-in-person-quality-hold).
+
+# Reference: Scoring Settings
+
+The points and the signal settings live in two places, one inside each scoring event. Open **Person Quality - IP** and select **IP address scoring** in its **Scoring** section, or open **Person Quality - Relationship** and select **Referred friends scoring**.
+
+<Frame caption="Person Quality - IP: its trigger rule, and IP address scoring in its Scoring section.">
+  <img
+    src="/images/extole/person-quality-ip-event.png"
+    alt="Person Quality - IP event with Triggered by Input Event under Trigger Rules, an empty Qualification Rules section, IP address scoring under Scoring, and an empty Actions section."
+  />
+</Frame>
+
+## IP Address Scoring
+
+| Setting | Default | What it means |
+| --- | --- | --- |
+| **Distinct IP addresses** | 8 | The number of distinct IP addresses at which the points are added. Extole keeps a person's 10 most recent locations, each with its IP address, so a value above 10 never adds points. |
+| **Points** | 25 | The points added when the person has been seen from at least that many distinct IP addresses. |
+
+## Referred Friends Scoring
+
+| Setting | Default | What it means |
+| --- | --- | --- |
+| **Referred friends** | 30 | The number of referred friends at which the points for referred friends are added. |
+| **Points for referred friends** | 25 | The points added when the person has referred at least that many friends. |
+| **Referred friends sharing an IP address (%)** | 15 | The percent of the person's referred friends that must share an IP address with them. |
+| **Minimum referred friends sharing an IP address** | 3 | No points for a shared IP address below this many friends, whatever the percent. It keeps a household that refers each other from adding points. |
+| **Points for a shared IP address** | 25 | The points added when enough of the person's referred friends share an IP address with them. |
+
+**Referred friends scoring** also has an advanced setting, **Referred friends examined** (default 200). To see it, click the filter icon above the settings and turn on **Show Advanced**. It is how many of the person's referred friends are checked for a shared IP address each time one of their referrals is scored. The referred friends count always covers every friend.
+
+<Frame caption="Referred friends scoring, with its defaults.">
+  <img
+    src="/images/extole/person-quality-referred-friends-scoring.png"
+    alt="Referred friends scoring with Referred friends 30, Points for referred friends 25, Referred friends sharing an IP address 15 percent, Minimum referred friends sharing an IP address 3, and Points for a shared IP address 25."
+  />
+</Frame>
+
+A changed IP setting applies the next time that person's IP addresses are scored. A changed referred friends setting applies on the advocate's next referral. Each signal keeps the points it earned until it is scored again.
+
+## The Events That Score a Person
+
+**Person Quality - IP** scores a person again on each event named in its trigger rule. Open **Triggered by Input Event** under its **Trigger Rules** to see the list in **Trigger Event Names**. By default it holds `signed_up`, `share_destination`, `page_view`, `converted`, and `person_quality_review`.
+
+- Add the names of the events your own program sends for a person, such as a purchase event, so those people are scored too.
+- Keep `person_quality_review`. It is the event name a developer sends through Extole's Event API to score one person again right away.
+- Keep the rest of the default list unless your CSM advises otherwise.
+
+**Person Quality - Relationship** scores the advocate each time a new friend is referred. It has no list to edit.
+
+# Related Articles
+
+- [How to Review People in Person Quality Hold](/guides/rewards-management/rules-configuration/how-to-review-people-in-person-quality-hold)
+- [Fraud and Anti-gaming Protection](/guides/rewards-management/rules-configuration/fraud-and-anti-gaming-protection)
+- [How to Set Up Reward Rules](/guides/flow-campaigns/how-to-set-up-reward-rules)
+- [How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by)
