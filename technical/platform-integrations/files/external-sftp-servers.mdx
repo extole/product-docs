@@ -84,13 +84,32 @@ With your server set up, you are ready to get reports delivered to your SFTP ser
 
 ![Screenshot showing Click on the "Advanced" section at the bottom of the report configuration page. Here, you can choose which server you would like the report delivered to and...](/images/extole/2192f8a39b0c19cd40b74caaa3275eee4f03351ff2f773b39aacfc9d89096909.png "Screen Shot 2022-05-17 at 11.00.11 AM.png")
 
+## Uploading Under a Temporary Name
+
+[//]: # "How do I stop my automation from picking up a file before Extole finishes uploading it?"
+
+By default, Extole writes each report straight to its final file name, so a process that watches your server can see the file while it is still being written. To prevent this, set a temporary file suffix on the server. Extole then uploads each file as the final name plus the suffix, and renames it to the final name only after the upload completes. The final name appears only when the file is whole.
+
+For example, with the suffix `.filepart`, the file `report.csv` is uploaded as `report.csv.filepart` and then renamed to `report.csv`. With PGP encryption, `report.csv.gpg.filepart` becomes `report.csv.gpg`.
+
+Set the suffix with the `temporary_file_suffix` field when you create or update the server through the API (`POST /v6/sftp-destinations` or `PUT /v6/sftp-destinations/{sftpDestinationId}`). The suffix is one or more letters, digits, dots, underscores, hyphens, or tildes. To go back to uploading straight to the final name, update the server with `temporary_file_suffix` set to `null`.
+
+Before you set a suffix, check these on your side:
+
+* The SFTP user can rename and remove files in the root path. Validating the server tests the rename, and validation fails when the server refuses it.
+* Your automation ignores files that end with the suffix.
+
+If an upload or the rename fails, Extole removes the file with the temporary name and the delivery fails, as described below.
+
+Extole's own SFTP server accepts the same setting. See [Receiving Reports Under a Temporary Name](/technical/platform-integrations/files/extoles-sftp-server#receiving-reports-under-a-temporary-name).
+
 ## Failed Deliveries
 
 [//]: # "What happens when Extole can't deliver a report to my SFTP server?"
 
-When a report finishes, Extole connects to your SFTP server and uploads the report's files. If the connection or the upload fails, Extole waits one second and tries once more.
+When a report finishes, Extole connects to your SFTP server and uploads the report's files. If Extole can't connect or log in, it waits one second and tries once more. Once the upload has started, Extole doesn't try again: a failure during the upload ends the delivery.
 
-When the second attempt also fails, Extole stops trying and the report's status changes to **SFTP delivery failed**. Extole never sends that file to your server again. For a scheduled report, the next run delivers only its own new file, not the one that failed.
+When the delivery fails, Extole stops trying and the report's status changes to **SFTP delivery failed**. Extole never sends that file to your server again. For a scheduled report, the next run delivers only its own new file, not the one that failed.
 
 The report itself completed, so its data is still in My Extole. To get the missed file onto your server, do one of these:
 
