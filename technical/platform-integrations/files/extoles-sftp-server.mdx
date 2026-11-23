@@ -17,13 +17,15 @@ If your business registers online but completes conversion events outside of 
 
 ### Add a Server
 
-Navigate to the Tech Center and click the "+ New Server" button. Make sure you have selected "Extole Server" in the top left. You will see a number of fields to fill out to describe the server.
+In My Extole, navigate to [**Tech Center** > **SFTP Servers**](https://my.extole.com/tech-center/sftp) and click **+ New Extole Server**. **Extole hosted Server** is selected at the top of the form. You will see a number of fields to fill out to describe the server.
 
-![Screenshot showing Navigate to the Tech Center and click the "+ New Server" button. Make sure you have selected "Extole Server" in the top left. You will see a number of fields...](/images/extole/91f1aa88bd53054830b32dcd44ce9f7b1f762f681ea0233a28a77b187ec6c274.png "Screen Shot 2022-05-17 at 3.01.46 PM.png")
+<Frame caption="The **Create New Server** form for an Extole hosted server.">
+  <img src="/images/extole/sftp-extole-hosted-server-form.png" alt="Create New Server page with Extole hosted Server selected, showing the Name, Username, Login Key, and Enable File Processing fields" />
+</Frame>
 
 **Name**: How you'd like to reference the server in your My Extole account.
 
-**Username**: The username used to access the SFTP server. By default, this will be your client name (e.g., `susan-irving-test` in the above example). While all usernames must begin with your client name, you can optionally add suffixes to distinguish the purpose of the account using the text box (e.g., `susan-irving-test-events`, `susan-irving-test-reports`, etc.).
+**Username**: The username used to access the SFTP server. By default, this will be your client name (e.g., `launch-demo` in the above example). Every username starts with your client name. To show what an account is for, you can add a suffix in the text box, such as `launch-demo-events` or `launch-demo-reports`.
 
 <Warning>
 **Username Format**
@@ -120,26 +122,16 @@ Next, point your SFTP client at the private key. See [Configure and Test Your SF
 
 [//]: # "How do I use PGP encryption with Extole?"
 
-#### Upload Your PGP Key
+SFTP encrypts every file in transit. To also encrypt the files themselves, use PGP:
 
-From the Create New Server page, click the "Create PGP Encryption Key" button and fill out all required fields.
+* **Files you upload to Extole**: copy Extole's public key from **Advanced** > **Download Extole's Public PGP Key** on the server form, encrypt each file to it, and give the file a `.gpg`, `.pgp`, or `.asc` extension. Extole decrypts the file when it processes it.
+* **Reports Extole delivers to this server**: click **Advanced** > **Create PGP Encryption Key** on the server form and paste your armored public key. Extole then encrypts every report it delivers to the server.
 
-* Key Name: How we'll refer to the key in your My Extole account.
-* Email: Your email address.
-* Key: The key itself. [View more information on PGP key formatting](https://datatracker.ietf.org/doc/html/rfc4880#section-6.2).
-* Description: An optional description for the key.
+For the full steps in each direction, see [PGP Encryption for SFTP Files](/technical/platform-integrations/files/pgp-encryption).
 
-![Screenshot showing Description: An optional description for the key.](/images/extole/ec3b3283316d3efae77967be5afdcafa3400b2234e84d181eb8be70cb629beae.png "Screen Shot 2022-06-27 at 10.57.07 AM.png")
-
-#### Download Extole's PGP Key
-
-You must also download Extole's public PGP encryption key, which you can do from the Create New Server page in the Tech Center.
-
-![Screenshot showing You must also download Extole's public PGP encryption key, which you can do from the Create New Server page in the Tech Center.](/images/extole/3d85f36b1f4892a5dd785763bdedfb63e3f7c8338d1820f6ce53ae959f3e6003.png "download-extole-key.png")
-
-#### Name Encrypted Files
-
-Extole decrypts a file when the last extension of its name is `.pgp`, `.gpg`, or `.asc`. It removes that extension after decrypting, so `events_20261023.psv.pgp` is processed as `events_20261023.psv`. Extole processes a file whose name ends in any other extension as it was uploaded, without decrypting it.
+<Frame caption="The **Advanced** section of an Extole hosted server.">
+  <img src="/images/extole/sftp-pgp-extole-server-advanced.png" alt="Create New Server page with Extole hosted Server selected and the Advanced section open, showing the PGP Encryption Key list and the Create PGP Encryption Key and Download Extole's Public PGP Key buttons" />
+</Frame>
 
 [//]: ___
 
@@ -148,8 +140,6 @@ Extole decrypts a file when the last extension of its name is `.pgp`, `.gpg`, or
 [//]: # "How do I test my SFTP client?"
 
 Using your own SFTP program, follow its instructions to configure your private key.
-
-Extole recommends [FileZilla](https://filezilla-project.org/download.php), as it is free and works on multiple operating systems. [Learn how to configure FileZilla with your private key](#how-do-i-configure-filezilla-with-my-private-key).
 
 [//]: ___
 
@@ -186,19 +176,38 @@ If you are uploading any CSV file through SFTP, make sure the permissions of the
 
 ### Processed Files
 
-Extole renames each file it picks up in the folder you uploaded it to. It appends the batch job ID and the file's status: `<file name>.<batch job ID>.<status>`. The status is `processing`, `completed`, `failed`, `canceled`, `ignored`, or `duplicate`. When Extole creates no batch job for the file, the name carries `none` in place of the batch job ID.
+Extole picks up each file you upload to the `events`, `conversions`, `optouts`, `approvals`, or `audiences` folder. It renames the file in the same folder to show its status: `<file name>.<ID>.<status>`.
+
+* **ID**: the batch job ID. For a file in `audiences`, it is the audience operation ID. When Extole creates neither for the file, the name carries `none` in its place.
+* **Status**: `processing`, `completed`, `failed`, `canceled`, `ignored`, or `duplicate`. A file shows `processing` while its batch job runs, then `completed`, `failed`, or `canceled`. A file shows `ignored` when file processing is turned off for the server.
 
 For example, `events/events_20261023.psv.pgp` becomes `events/events_20261023.psv.pgp.t1a2b3c4d5e6f7g8h9i0.completed`. Extole doesn't pick up a file again while its name ends in one of these statuses.
 
+Extole doesn't pick up or rename files in `dropbox` or `optouts/exports`. When a job on your account is set up to pick up a file, the job handles it, and Extole doesn't rename it.
+
 ### Reprocess a File
 
-Extole rejects a file as a `duplicate` when its name matches a file already uploaded to your account. The rejected file stays on the SFTP server with its contents. To process a `duplicate` or `failed` file again, rename it on the SFTP server:
+Extole rejects a file as a `duplicate` when an earlier file on your account has the same name. The name Extole compares is the path you uploaded to, without an encryption extension. So `events/events_20261023.psv.pgp` and `events/events_20261023.psv` have the same name, and the same file name in another folder does not. An earlier file keeps its name after Extole stops storing it.
 
-1. Remove the batch job ID and the status that Extole appended.
+The rejected file stays on the SFTP server with its contents. To process a `duplicate` or `failed` file again, rename it on the SFTP server:
+
+1. Remove the ID and the status that Extole appended.
 2. Add a part that makes the name unique, such as `_retry`, before the file's extensions.
 3. Keep the file's original extensions at the end of the name. For an encrypted file, the name must still end in `.pgp`, `.gpg`, or `.asc`.
 
-For example, rename `events/events_20261023.psv.pgp.t1a2b3c4d5e6f7g8h9i0.duplicate` to `events/events_20261023_retry.psv.pgp`. Extole processes the renamed file as a new upload, including every row in it. If an earlier upload already processed some of those rows, remove them from the file before you rename it.
+For example, rename `events/events_20261023.psv.pgp.t1a2b3c4d5e6f7g8h9i0.duplicate` to `events/events_20261023_retry.psv.pgp`. Extole picks up the renamed file as a new upload and processes every row in it. If an earlier upload already processed some of those rows, remove them from the file before you rename it.
+
+[//]: ___
+
+## Receiving Reports Under a Temporary Name
+
+[//]: # "Can my automation download a report from Extole's SFTP server before Extole finishes writing it?"
+
+When a report is delivered to your Extole SFTP server, Extole writes it to the `dropbox` folder under its final file name. Extole writes each file in one step, so a process that polls that folder finds the file only once it is complete. This is true with or without a suffix.
+
+You can still set a temporary file suffix on the server, for example so your automation can use the same rules here as on a server you host yourself. Extole then writes each file as the final name plus the suffix, copies it to the final name, and removes the temporary copy. With no suffix set, delivery works as it always has.
+
+The setting is the same `temporary_file_suffix` field used for a server you host yourself. To set or clear it, see [Uploading Under a Temporary Name](/technical/platform-integrations/files/external-sftp-servers#uploading-under-a-temporary-name). Extole manages the rename on its own server, so you don't need to grant any extra permissions. Set your automation to ignore files that end with the suffix.
 
 [//]: ___
 
@@ -207,34 +216,6 @@ For example, rename `events/events_20261023.psv.pgp.t1a2b3c4d5e6f7g8h9i0.duplica
 ### How do I connect to Extole SFTP servers using WS_FTP?
 
 To connect to Extole SFTP servers using WS_FTP, you need to upload both a private AND public key. The public key needs to be in a .pub format. In this case, Extole needs to [provide both keys in the correct format](https://community.progress.com/s/article/How-to-Import-SSH-Key-Pair-from-Vendor).
-
-### How do I configure FileZilla with my private key?
-
-[//]: # "How do I configure FileZilla with my private key?"
-
-Once you've downloaded and installed FileZilla for your operating system, complete the following steps.
-
-1. In FileZilla's Menu, go to File → Site Manager to get to the Site Manager page.
-
-2. Click the New Site button on the lower left, then fill out the fields under the General Tab as follows:
-
-* Host: sftp.extole.io
-* Protocol: SFTP - SSH File Transfer Protocol
-* Logon Type: Key File
-* User: Found in the SFTP section of the Settings page of your My Extole account.
-* Key file: click the Browse button and select your private key file, such as `extole_sftp` or the `-extole-ssh-key` file My Extole downloaded. See [Add a Login Key](#add-a-login-key).
-
-3. Click the Connect button to establish your connection.
-
-[//]: ___
-
-### In FileZilla, why am I receiving an error on connection that passwords cannot be saved?
-
-[//]: # "In FileZilla, why am I receiving an error on connection that passwords cannot be saved?"
-
-Extole uses public keys instead of passwords, but this may cause the connection not to occur properly. To resolve this issue please go to Edit > Settings > on the left side, click Interface > on the right side, uncheck the “Do not save passwords” checkbox under the Behavior section.
-
-[//]: ___
 
 ### Can I set up an automated process that will push or pull files from the SFTP server?
 
@@ -248,7 +229,7 @@ Yes. Your company's IT department likely has tools that can help automate the tr
 
 [//]: # "Can the files being sent to and from Extole be encrypted"
 
-SFTP encrypts files as they are transferred. You can also encrypt a file with Extole's public PGP key before you upload it, and Extole decrypts it. See [Use PGP Encryption with Extole](#use-pgp-encryption-with-extole-optional) and [Name Encrypted Files](#name-encrypted-files).
+Yes. SFTP encrypts every file while it is transferred, and you can also encrypt the files themselves with PGP, in either direction. Encrypt the files you upload with Extole's public key, and add your own public key to a server so that Extole encrypts the reports it delivers there. See [PGP Encryption for SFTP Files](/technical/platform-integrations/files/pgp-encryption).
 
 [//]: ___
 
