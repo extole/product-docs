@@ -176,7 +176,26 @@ If you are uploading any CSV file through SFTP, make sure the permissions of the
 
 ### Processed Files
 
-After Extole processes files, it moves them into an "archive" folder on the SFTP server to indicate it has been processed.
+Extole picks up each file you upload to the `events`, `conversions`, `optouts`, `approvals`, or `audiences` folder. It renames the file in the same folder to show its status: `<file name>.<ID>.<status>`.
+
+* **ID**: the batch job ID. For a file in `audiences`, it is the audience operation ID. When Extole creates neither for the file, the name carries `none` in its place.
+* **Status**: `processing`, `completed`, `failed`, `canceled`, `ignored`, or `duplicate`. A file shows `processing` while its batch job runs, then `completed`, `failed`, or `canceled`. A file shows `ignored` when file processing is turned off for the server.
+
+For example, `events/events_20261023.psv.pgp` becomes `events/events_20261023.psv.pgp.t1a2b3c4d5e6f7g8h9i0.completed`. Extole doesn't pick up a file again while its name ends in one of these statuses.
+
+Extole doesn't pick up or rename files in `dropbox` or `optouts/exports`. When a job on your account is set up to pick up a file, the job handles it, and Extole doesn't rename it.
+
+### Reprocess a File
+
+Extole rejects a file as a `duplicate` when an earlier file on your account has the same name. The name Extole compares is the path you uploaded to, without an encryption extension. So `events/events_20261023.psv.pgp` and `events/events_20261023.psv` have the same name, and the same file name in another folder does not. An earlier file keeps its name after Extole stops storing it.
+
+The rejected file stays on the SFTP server with its contents. To process a `duplicate` or `failed` file again, rename it on the SFTP server:
+
+1. Remove the ID and the status that Extole appended.
+2. Add a part that makes the name unique, such as `_retry`, before the file's extensions.
+3. Keep the file's original extensions at the end of the name. For an encrypted file, the name must still end in `.pgp`, `.gpg`, or `.asc`.
+
+For example, rename `events/events_20261023.psv.pgp.t1a2b3c4d5e6f7g8h9i0.duplicate` to `events/events_20261023_retry.psv.pgp`. Extole picks up the renamed file as a new upload and processes every row in it. If an earlier upload already processed some of those rows, remove them from the file before you rename it.
 
 [//]: ___
 
