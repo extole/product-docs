@@ -84,6 +84,30 @@ With your server set up, you are ready to get reports delivered to your SFTP ser
 
 ![Screenshot showing Click on the "Advanced" section at the bottom of the report configuration page. Here, you can choose which server you would like the report delivered to and...](/images/extole/2192f8a39b0c19cd40b74caaa3275eee4f03351ff2f773b39aacfc9d89096909.png "Screen Shot 2022-05-17 at 11.00.11 AM.png")
 
+### Files in a Report Delivery
+
+[//]: # "Does Extole send a .done file or a row count with a report?"
+
+Extole delivers one file for each format the report produces, and no other file. It doesn't write a `.done` file, a manifest, or a separate row count file.
+
+Each file is named in one of two ways, followed by the format's extension:
+
+* **File name set**: the file name set for the report or its schedule.
+* **No file name set**: the report name, a hyphen, and the time Extole created the report in UTC. For example, `Rewards Report-2026-11-17T225700.csv`.
+
+The extension is `csv`, `psv`, `json`, `jsonl`, `xlsx`, `headless.csv`, or `headless.psv`. When the server has a PGP key, Extole encrypts the file and adds `.gpg` to its name.
+
+A schedule delivers a file even when a run has no rows. To skip those files, set `deliver_empty_reports_to_sftp` to `false` on the schedule.
+
+### Check a Delivered File
+
+The report itself carries its status and row count. Read them with the Extole API:
+
+* [Get a report](/api-reference/reports/get-a-report) returns the report's `status`. `DONE` means the report completed. `SFTP_DELIVERY_FAILED` means the report completed and Extole couldn't deliver its file.
+* [Get report info](/api-reference/reports/get-report-info) returns `total_rows`, the number of rows in the report.
+
+To confirm that your system received the whole report, compare `total_rows` with the number of data rows in the file.
+
 ## Uploading Under a Temporary Name
 
 [//]: # "How do I stop my automation from picking up a file before Extole finishes uploading it?"
