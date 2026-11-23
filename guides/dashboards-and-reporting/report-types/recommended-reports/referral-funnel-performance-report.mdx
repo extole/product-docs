@@ -57,6 +57,23 @@ For example, Advocate Click Through Rate = (Promotion Clickers ÷ Impression Vie
 
 To track progress toward a goal, toggle on **Include Goal**, enter a numerical goal, and name the column that tracks your progress.
 
+### Column Expressions
+
+The report stores each column as `Column Name=FUNCTION(arguments)`, with semicolons between columns. This is the form the `step_columns` parameter takes when you run the report through the API.
+
+- **`EVENT_COUNT(step_name)`**: counts the events of a step.
+- **`PEOPLE_COUNT(step_name)`**: counts the distinct people with that step.
+- **Column filters**: after the step name, add any of `attribution`, `quality`, `visit_type`, `channel`, and `source`, for example `EVENT_COUNT(shared,channel:QR_CODE)`. A column filter applies to that column only. A column with no `attribution` filter counts referral-related events. Use `attribution:ALL` for all events or `attribution:UNATTRIBUTED` for events that are not referral-related.
+- **`SUBTRACT`, `SUM`, `RATE`, and `PERCENTAGE`**: take the names of other columns in the same report, for example `SUBTRACT(All Shares,QR Code Shares)`.
+
+A `channel` filter selects one channel. To show one channel next to all the others, count the step for that channel and for all channels, then subtract one column from the other. These columns split shares into QR code shares and all other shares:
+
+```
+All Shares=EVENT_COUNT(shared,attribution:ALL);QR Code Shares=EVENT_COUNT(shared,attribution:ALL,channel:QR_CODE);Other Shares=SUBTRACT(All Shares,QR Code Shares)
+```
+
+To add columns to a report you already ran, run it again with the same filters and the new columns.
+
 ## Report Output
 
 In the output, you see the information you specified with the filters:
