@@ -1,0 +1,94 @@
+---
+title: "Test a Change Before You Publish"
+description: "Check a campaign change in My Extole before your customers see it: preview the draft at desktop and mobile widths, send yourself the draft email, run a test journey, check the test person, clean up, and publish."
+---
+
+# Overview
+
+When you change a campaign and click **Apply**, Extole saves the change as a draft. Your customers keep seeing the published version until you click **Publish Changes**. Between those two clicks, you can look at the draft, send its emails to yourself, and run test events through it, so you know what the change does before anyone else sees it.
+
+This page puts those checks in order. Every step before the last one works on the draft, so nothing here changes what your customers see until you publish. For how **Apply** and **Publish Changes** differ, see [Making Updates to your Campaigns](/guides/programs-and-campaigns/managing-campaigns/making-updates-to-your-campaigns).
+
+## Apply Your Change
+
+Make the change in the campaign, then click **Apply**. The preview, the test email, and test events all use the latest applied version of the campaign, so a change you have not applied is not part of any check below.
+
+## Look at the Draft
+
+1. Open the campaign and select the **Assets** tab.
+2. Select the page or email you changed. The preview shows the draft, with every change you applied.
+3. Where the preview offers **Desktop** and **Mobile**, check the creative at both.
+4. Click **Preview in New Tab** to open the draft at full size in its own browser tab.
+
+A preview is not rendered for a particular person. Fields that show a person's details, such as a name, a share link, or reward totals, show the values the creative uses when it has no person. To see an email with a person's values, send it to yourself as described below.
+
+To open a draft's page or email at an address of its own, for example to check it in another browser, see [View Draft Pages and Emails](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#view-draft-pages-and-emails).
+
+## Compare the Draft With What Is Live
+
+- **How it looks**: open the page on your site, where your customers see the published version. To open the published version of one page or email directly, use the address in [View Draft Pages and Emails](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#view-draft-pages-and-emails) without its `sandbox` parameter.
+- **How it is set up**: use the [Component Diff](/guides/programs-and-campaigns/managing-campaigns/compare-a-component-across-campaign-versions) to compare a component in your draft with its **Published** version, setting by setting.
+
+## Send Yourself the Email
+
+**Send Test Email** in the campaign sends the draft version of the email, with every change you applied.
+
+1. On the **Assets** tab, hover over the email in the asset list.
+2. Open the email's **...** menu, and choose **Send Test Email**.
+3. Enter your email address, and click **Send Test Email**.
+
+Extole builds the test email for the person with the address you enter, so fields such as a name or a share link show that person's values. It sends to one address at a time.
+
+A test email shows what the email looks like. It does not show which action sends it, or when. To check that, run a test journey as described in the next section.
+
+A promotional email can also be sent with **Send Now** on its **Operations** tab. Other emails, such as share and reward emails, do not have operations. **Send Now** submits one of the events that trigger the email, so the campaign sends it to that person as it does for a live event, and records the event. **Send Test Email** only shows the draft email. With **Preview** or **Campaign** under **Execution Mode**, **Send Now** runs the draft. The next section gives the steps.
+
+**Send Test** under **Email Audience** on the My Audiences page is a separate send: it runs the published campaign, not your draft. Publish the campaign before you test a promotional email there. See [How to Send a Promotional Email to an Audience](/guides/audiences-and-segmentation/my-audiences/how-to-send-a-promotional-email-to-an-audience).
+
+## Run a Test Journey Through the Draft
+
+To check what the change does when people act, such as who earns a reward, which email sends, and what a friend sees after a share, send the events of a test journey to the draft. [Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest) gives the requests, and [What a Test Event Does](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#what-a-test-event-does) explains how a test event is processed. A test event's reward comes from your account's test reward supplier, and its emails and webhooks send as they do for a live event, so use email addresses you control.
+
+To send one test event from My Extole, use the component that receives it:
+
+1. In **Flow Builder**, select the trigger event, or a promotional email that has **Send Now**, and open its **Operations** tab. Only components that have operations show this tab.
+2. Expand the operation that sends the event. For an email's **Send Now**, enter your test person's email address. For a trigger event that your servers send, such as an API event, a platform event or a job event, enter the test person's value for your account's identity key, or their person ID. For a trigger event that a site or app sends, such as a zone event, enter the identity key value, or leave it empty and enter a consumer access token.
+3. Under **Execution Mode**, keep **Preview** or choose **Campaign** to run the draft. [Choose a Sandbox](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#choose-a-sandbox) says how the two differ. If the operation shows no **Execution Mode**, it runs the published campaign, so send the event with the requests in [Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest) instead.
+4. Click **Run**.
+
+Extole Chat can send these test events for you. Sending an event needs a conversation in **Full access**. See [Access Modes and Data](/product/extole-chat/advanced).
+
+## Check What Happened
+
+1. Go to **Support** > **Person Search**, and search for the test person by email.
+2. Open the person's profile, and choose **Show Steps** from the actions menu.
+3. Select **All Containers**. A campaign preview sandbox records events in the `test` container, so **Production Only** does not list them.
+4. Check that each step you expected is there, with the campaign, journey, and quality you expected.
+5. On the person's profile, check the **Rewards** section.
+
+The "A Person's Steps" section of [Debug an Inbound Integration](/technical/troubleshooting/debug-an-inbound-integration) explains how to read each step.
+
+## Clean Up After the Test
+
+A test event can start schedules that run later, such as a reward's pending period or a reminder email.
+
+1. On each test person's profile, choose **Show Schedules** from the actions menu.
+2. Open each schedule the test started that is still running, and click **Cancel Schedule**.
+3. Check each test person's rewards again, as [What a Test Event Does](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#what-a-test-event-does) describes.
+
+## Publish
+
+1. In the campaign, click **Publish Changes**.
+2. Optionally add a comment and a dashboard annotation, then click **Confirm**.
+
+**Publish Changes** publishes the whole draft: every change applied to the campaign since it was last published, including changes a teammate applied. If the draft holds a change you do not want to publish, **Discard** removes the whole draft, not one change.
+
+Publishing a campaign that is not live does not make it live. See [Campaigns That Are Not Live Yet](/guides/programs-and-campaigns/managing-campaigns/making-updates-to-your-campaigns#campaigns-that-are-not-live-yet).
+
+## Related
+
+- [Making Updates to your Campaigns](/guides/programs-and-campaigns/managing-campaigns/making-updates-to-your-campaigns)
+- [Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest)
+- [Compare a Component Across Campaign Versions](/guides/programs-and-campaigns/managing-campaigns/compare-a-component-across-campaign-versions)
+- [Debug an Inbound Integration](/technical/troubleshooting/debug-an-inbound-integration)
+- [Extole Chat](/product/extole-chat/index)

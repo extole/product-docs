@@ -236,6 +236,10 @@ To read and resolve inline PR comments — the common "apply the reviewer's sugg
 - Doc changes end with an **open PR** (`gh pr create`), which is what produces the
   reviewable Mintlify preview. A docs-standards or terminology PR is a good candidate for
   **draft**, so the docs team can ratify wording before merge.
+- The PR body carries a **Preview** section with a working Mintlify link to every page the
+  PR adds or changes. Build and check the links as
+  [`mintlify-branch-preview`](../mintlify-branch-preview/SKILL.md) » **Put a preview link
+  to every changed page in the PR body** says.
 - Keep the PR scoped to docs. Don't touch `api-reference/` specs, `scripts/`, or
   `url-map.json` unless that is the task.
 

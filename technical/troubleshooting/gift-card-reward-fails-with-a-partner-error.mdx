@@ -1,11 +1,11 @@
 ---
 title: "Gift Card Reward Fails With a Partner Error"
-description: "What each Tango fulfillment failure message means, how many times Extole retries, what Failed to make Tango Api request and Unexpected software error cover, and how a retired catalog item or a recipient's name causes a failure that no message explains."
+description: "What each Tango fulfillment failure message means, how many times Extole retries, how to read the partner's reason in Failed to make Tango Api request, what Unexpected software error covers, and how a retired catalog item or a recipient's name causes a failure that no message explains."
 ---
 
 # Overview
 
-A gift card reward that fails records one row per attempt in its history, with a message that says why. Most messages name the cause. Two of them, `Unexpected software error` and `Failed to make Tango Api request`, are what Extole writes when the partner refused in a way Extole has no specific message for, and the partner's own reason is not kept on the reward. This page lists every message, explains the retry schedule, and shows how to find the cause behind the two generic ones.
+A gift card reward that fails records one row per attempt in its history, with a message that says why. Most messages name the cause. `Failed to make Tango Api request` is what Extole writes when the partner refused in a way Extole has no specific message for, and it ends with the partner's own status and reason. `Unexpected software error` names no cause. This page lists every message, explains the retry schedule, and shows how to find the cause behind the two generic ones.
 
 ## Every Message a Fulfillment Attempt Can Write
 
@@ -20,9 +20,10 @@ A gift card reward that fails records one row per attempt in its history, with a
 | `Gift card template id is not specified and has no configured default` | No email template is set on the reward or as the account default. |
 | `Gift card template id is invalid` | The partner rejected the template id. |
 | `The domain of the email address associated with this reward is unserviceable` | The partner does not deliver to that email domain. |
+| `The gift card of this reward supplier cannot be delivered by email. Choose a gift card that supports email delivery` | The partner's catalog item for this gift card reward does not support email delivery. |
 | `Your reward balance with Extole is too low to issue this reward. It is likely that an invoice has already been sent requesting additional funds. Once you add more reward funds, this reward will automatically be issued.` | The partner answered that the balance is too low. |
 | `Unexpected software error` | The partner answered 400 for a reason other than the template or the email domain. |
-| `Failed to make Tango Api request` | Any other partner response, a network failure, or a failure to read the catalog. |
+| `Failed to make Tango Api request: <status> <reason>` | Any other partner response, a network failure, or a failure to read the catalog. The partner's HTTP status, such as `422 UNPROCESSABLE_ENTITY`, and the reason the partner gave follow the colon. |
 
 The two limit messages show the configured amount in place of the example numbers above. Hitting a limit counts as a failed attempt, so a burst of rewards over the limit can use up a reward's attempts.
 
@@ -47,9 +48,13 @@ Each row a manual retry writes carries `operator_user_id`, the id of the user wh
 
 When the gift card reward itself is archived or deleted, the rewards issued from it can't be fulfilled again, by a manual retry or by the automatic job. A manual retry returns `software_error`, or `reward_supplier_not_found` when the reward's latest **Earned** row failed. The automatic job's attempts fail without adding a row to the history.
 
-## The Two Messages That Name No Cause
+## When the Message Does Not Name the Cause
 
-`Unexpected software error` and `Failed to make Tango Api request` mean the partner refused a request it received, or the request did not complete, and the partner's own response is in Extole's service logs rather than on the reward. Before asking Extole Support for that response, rule out the three causes below, because none of them produces a specific message.
+`Failed to make Tango Api request` ends with the partner's HTTP status and the reason the partner gave, for example `422 UNPROCESSABLE_ENTITY` followed by the partner's message. A status with no reason after it, such as `500 INTERNAL_SERVER_ERROR` on its own, means the request did not complete or the partner gave no reason.
+
+`Unexpected software error` means the partner answered 400 for a reason other than the template or the email domain, and the partner's response is in Extole's service logs rather than on the reward.
+
+Before asking Extole Support for the partner's response, rule out the three causes below, because none of them produces a specific message.
 
 ### A Retired Catalog Item
 
@@ -74,7 +79,7 @@ Extole sends the recipient's first name with the order. When the profile has no 
 
 1. Read the reward's history and find the message on the **Fulfilled** rows with `success` false.
 2. For a named cause, act on it: funds, limits, the template, the recipient's address, or the frozen account.
-3. For the two generic messages, check the three causes above. Compare the failure boundary too: a retired item or a changed range fails every order on that reward from one date on, while a partner outage fails orders across rewards for a window and then stops.
+3. For `Failed to make Tango Api request`, read the partner's reason after the colon. For `Unexpected software error`, or a reason that does not name the cause, check the three causes above. Compare the failure boundary too: a retired item or a changed range fails every order on that reward from one date on, while a partner outage fails orders across rewards for a window and then stops.
 4. Count the attempts. A reward that is already **Failed** needs a manual retry once the cause is fixed. One still in **Earned** or **Fulfilled** with attempts left retries on its own.
 5. If the cause is still unknown, ask Extole Support with the reward id and the time of the failed attempt. Support can read the partner's response in the service logs.
 
