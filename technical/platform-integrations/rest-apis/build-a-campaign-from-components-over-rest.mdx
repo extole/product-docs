@@ -14,14 +14,10 @@ evaluates each condition.
 
 ## Start from the Custom Campaign Template
 
-[List duplicatable component summaries](/api-reference/components/list-duplicatable-component-summaries)
-with `having_any_types` set to `campaign-v10.0` and `show_all` set to `true` returns the starters
-your account can copy. Select the row whose `source_client_short_name` is `extole-components-v10`,
-Extole's component library, and whose `display_name` is `Custom Campaign Template`. Match on the
-display name: the `name` of every starter is `root`.
-
-[Duplicate a campaign](/api-reference/campaigns/duplicate-a-campaign) with that row's
-`campaign_id` creates your copy as a draft. Send the `name` of the new campaign and the `program_label` of the program it belongs to.
+List the campaign templates and copy one as
+[Find Components Over REST](/technical/platform-integrations/rest-apis/find-components-over-rest#example-campaign-templates)
+describes. The row to copy is the one whose `display_name` is `Custom Campaign Template`, and your
+copy is a draft.
 
 | Component | Absolute name | What it is |
 |---|---|---|
@@ -46,18 +42,18 @@ type. A Flow Builder campaign needs `campaign-v10.0` on its root, and the templa
 
 For each component:
 
-1. Call [List duplicatable component summaries](/api-reference/components/list-duplicatable-component-summaries)
-   with `target_component_id` set to the parent's id and `target_setting_name` set to the socket.
-   The response lists only the sources that fit that socket.
+1. List the sources that fit the parent's socket, as
+   [Find a Component That Fits a Socket](/technical/platform-integrations/rest-apis/find-components-over-rest#find-a-component-that-fits-a-socket)
+   describes.
 2. Choose the source. The template sources are `template_role`, `template_journey`, and
    `reward_core`. For a business event that your systems start, copy one of Extole's named
    business events, such as `registered`, `purchased`, or `completed`, and give it your event's
    name: its **Triggered By** can select a trigger event declared on an extension. A copy of
    `template_tracked_business_event` or another template business event selects only from its own
    campaign, so use it for a business event that another business event in the campaign starts.
-   When two rows share a name, take the row whose `source_client_short_name` is
-   `extole-components-v10`. A row with your own account's short name is a copy already in your
-   account.
+   When two rows share a name, keep the row from Extole's library, as
+   [Find a Template](/technical/platform-integrations/rest-apis/find-components-over-rest#find-a-template)
+   describes.
 3. Call [Duplicate a component](/api-reference/components/duplicate-a-component) with
    `target_campaign_id`, `target_component_absolute_name` for the parent, `target_setting_name` for
    the socket, and `component_display_name`. The copy takes its name from the display name:
