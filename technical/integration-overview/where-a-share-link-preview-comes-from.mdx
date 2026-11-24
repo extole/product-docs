@@ -1,0 +1,58 @@
+---
+title: "Where a Share Link Preview Comes From"
+description: "How Extole builds the title, description, and image that an app shows when an advocate's share link is posted, and which campaign settings fill them."
+---
+
+# Overview
+
+When an advocate posts their share link in a social network or a messaging app, the app can show a preview card under it: a heading, a short description, and an image. The app builds that card by fetching the link itself, before anyone clicks it. Extole answers that fetch with the campaign's **Social Share Heading**, **Social Share Description**, and **Social Share Image**.
+
+The preview is separate from any message the advocate sends with the link. A share message is text placed next to the link. The preview is what the app renders from the link.
+
+## How Extole Answers a Preview Request
+
+Every request for a share link goes to the campaign's `share_destination` zone, the zone that handles share link clicks. That zone looks at who is asking:
+
+- **A known preview crawler.** Extole recognizes the link-preview crawlers of Facebook, X, WhatsApp, LinkedIn, Pinterest, Google, and WeChat by their user agent. For those, the zone returns an HTML page that holds the preview tags and no visible content, and the app builds its card from them.
+- **Anything else.** A person's browser, and any preview tool that does not identify as one of the crawlers above, is redirected to the page the share link opens, such as your friend landing page. A preview built by that tool, if it builds one, comes from that page and not from the social share settings.
+
+## Which Settings Fill the Preview
+
+| Preview tag | Campaign setting |
+| --- | --- |
+| `og:title` | **Social Share Heading** |
+| `og:description` | **Social Share Description** |
+| `og:image` | **Social Share Image** |
+
+These are set once per campaign and apply to every advocate's share link in it. For a request from X, Extole also adds a `twitter:card` tag with the value `summary_large_image`.
+
+A share link created through the API can carry its own `content` object, with `title`, `description`, and `image_url`. When a link has one of those values, it replaces the matching campaign setting in that link's preview. A link without one uses the campaign settings. See [Create Share Link on an Event](/technical/platform-integrations/extensions/create-share-link-on-an-event) for creating share links through the API.
+
+## Share Messages Are Separate Settings
+
+The share experience has a separate message setting for each channel that accepts text: SMS, WhatsApp, X, Pinterest, and the device's native share sheet. Each one defaults to the **Social Share Description**, so a new campaign shows the same words in the message and in the preview. When you change one of those message settings, only that channel's message changes, and the preview keeps the **Social Share Description**.
+
+Some ways of sharing add no message at all:
+
+- **Copy link** copies only the share link. The advocate pastes it wherever they choose, and whatever they type around it is their own text.
+- **Facebook** and **Messenger** send only the share link to Facebook. The card under the advocate's post comes from the preview.
+
+So when an advocate copies their link and pastes it into a message, the **Social Share Description** reaches the friend only as part of a preview card, and only if that app shows one.
+
+## What the App Decides
+
+Extole controls what the preview tags say. The app controls whether and how it uses them:
+
+- Whether a preview card appears at all is up to the app.
+- An app can cache a preview. After you change a social share setting, an app can keep showing the old card for a link it already fetched.
+- The recommended size for the **Social Share Image** is 1200 x 630 px. Each app decides how to display it.
+
+## Check What a Preview Will Show
+
+To see the tags Extole returns, request a share link with a crawler's user agent:
+
+```bash
+curl -A "facebookexternalhit/1.1" https://share.example.com/abc123
+```
+
+Replace the address with a real share link from your program. The response is the HTML page described above, with the `og:title`, `og:description`, and `og:image` tags the crawler receives. The same request without `-A` returns a redirect, because Extole treats it as a person's click.

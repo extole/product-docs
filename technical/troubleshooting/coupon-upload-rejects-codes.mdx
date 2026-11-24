@@ -1,0 +1,37 @@
+---
+title: "Coupon Upload Rejects Codes"
+description: "Which characters a coupon code upload accepts, how a rejected upload reports itself, and how to allow codes that are links or carry other characters, from the Rewards Center or the API."
+---
+
+# Overview
+
+A coupon code upload accepts codes made of letters, digits, dashes and underscores by default, up to 255 characters each. Codes that are links, or that carry punctuation, are refused unless you allow them. The refusal does not come back as an error: the upload completes as a failed operation with a message that starts "Coupon codes typically only contain alphanumeric characters, dashes, and underscores". This page explains the checks, how the result is reported, and the options that change the checks.
+
+## Which Codes Are Accepted
+
+- The default character set is letters, digits, dashes and underscores.
+- A code can be up to 255 characters long. A longer code is refused with `coupon_code_too_long`.
+- A code that contains a less-than or greater-than sign is always refused with `coupon_code_invalid`, whatever options are set.
+- The file is CSV, TXT or XLSX. Another format, or an empty file, is refused with `corrupted_uploaded_file`.
+
+## How a Rejected Upload Reports Itself
+
+An upload that contains a code outside the character set, or a coupon that is expired or expiring soon, returns normally with an operation whose `status` is `FAILED` and whose `result_message` names the first line with a problem. Nothing is stored. An integration that checks only the HTTP status will read that as success, so read the operation's status.
+
+A code that is too long, blank, or contains a less-than or greater-than sign is refused with an HTTP 400 and the error code above.
+
+## Allow Codes Outside the Default Set
+
+In **Rewards Center**, the upload drawer has three options:
+
+- **Allow codes outside letters, numbers, dashes, and underscores**, with the hint "Redemption links need this."
+- **Allow coupons that are already expired or expiring soon**
+- **Skip duplicate codes in the file**
+
+The same options are query parameters on the upload request for both the JSON and the file form: `allow_restricted_characters`, `allow_expired` and `discard_duplicated`. See [Upload Coupons](/api-reference/reward-suppliers/upload-manual-coupons-file). Without `discard_duplicated`, a code that appears twice in the file is refused with `duplicate_coupon_code_in_list`, and a code already in the reward's pool with `existing_coupon_code`.
+
+When the codes are links, turn the first option on rather than rewriting the codes. The codes are what your customers redeem.
+
+## Related
+
+- [How to Reward With Coupons](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-coupons)

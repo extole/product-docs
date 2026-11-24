@@ -79,7 +79,7 @@ curl --request POST "https://api.extole.io/v6/events" \
 ```
 
 <Warning>
-A valid submission returns `200` with a JSON body carrying the `person_id`. An empty `204 No Content` means the request is not reaching the Events API — check the host.
+A valid submission returns `200` with a JSON body carrying both `event_id` and `person_id`. Keep the `event_id`: it is how you find the event, and every event it caused, in an event stream. An empty `204 No Content` means the request is not reaching the Events API — check the host.
 </Warning>
 
 ### Retry and Deduplicate
@@ -95,7 +95,7 @@ Extole answers an accepted submission with a `2xx`. Retry network failures, `429
 
 ## How to Test
 
-Send one event synchronously. The response returns a `person_id`; read that person's steps:
+Send one event synchronously and capture the returned `event_id` and `person_id`. Use `person_id` to read the person's events:
 
 ```bash
 curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
@@ -104,7 +104,7 @@ curl --get "https://api.extole.io/v5/persons/$PERSON_ID/steps" \
   --data-urlencode "names=converted"
 ```
 
-Confirm the step carries the canonical event name, not the platform's; the transaction identifier and value match the source record; person keys resolve; and resending the same source identifier produces a duplicate outcome, not a second conversion. Repeat for every event.
+Confirm the event carries the canonical event name, not the platform's; the transaction identifier and value match the source record; person keys resolve; and resending the same source identifier produces a duplicate outcome, not a second conversion. Repeat for every event. [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events#how-to-test) shows how to use `event_id` to follow the complete processing chain in Event Streams.
 
 ### No Business Event Appears
 

@@ -51,30 +51,69 @@ hand-edit a spec to fix wording.
 
 ## Where a page lives
 
-Choose the tab by **who performs the work**, not by the topic or by whether the title
-starts with "How to". **Guides is the largest tab and the wrong default.**
+The three customer tabs answer three different questions for three different readers.
+One topic may have one page in each, linking to the others. It never has two pages in one
+tab and never the same content copied into two tabs. **Guides is the largest tab and the
+wrong default.**
 
-- **Guides** (`guides/`): a marketer or operator finishes the work in My Extole —
-  campaign setup, creative, audiences, rewards, reporting, QA, strategy.
-- **Technical Docs** (`technical/`): an integration owner diagnoses or implements —
-  site tags, SDKs, APIs, zone requests, targeting parameters, domains, SSL, webhooks,
-  partner integrations, and symptom-to-cause troubleshooting. A page that explains a
-  platform mechanism belongs here even when the symptom showed up on a campaign.
-- **Product Docs** (`product/`): what a capability is — overviews, program types,
-  concepts. Not the My Extole click-path and not the implementation.
-- **News** (`news/`): announcements. Not evergreen pages.
-- **Runbooks** (`runbooks/`): hidden operational checklists for Extole's own review
-  work. Not customer pages.
+- **Product Docs** (`product/`) answers *what is this and why would I want it*, for a
+  reader with no My Extole login: definitions, program types, capabilities, benefits,
+  strategy framing. No numbered steps, no UI labels, no request forms.
+- **Guides** (`guides/`) answers *how do I do it in My Extole*, for a marketer or operator:
+  numbered steps with bold UI labels, every step inside the application.
+- **Technical Docs** (`technical/`) answers *how does it work, and how do I implement or
+  diagnose it outside My Extole*, for an integration owner: site tags, SDKs, APIs, zone
+  requests, targeting parameters, identity resolution, domains, SSL, files, webhooks,
+  partner integrations, and symptom-to-cause troubleshooting.
+- **News** (`news/`): newsletters and release notes. Dated, and linking to the evergreen
+  page; never the only place a feature is documented.
+- **Runbooks** (`runbooks/`): hidden operational checklists for Extole's own review work.
+  Not customer pages.
+- **API Reference** (`api-reference/`): generated from OpenAPI bundles. Its **Getting
+  Started** group is the one hand-authored part, for material that applies to every API
+  (authentication, errors, conventions). A how-to for one feature over REST is a Technical
+  Docs page under Platform Integrations > REST APIs.
 
-If the topic has both a My Extole click-path and a platform mechanism, put the
-mechanism in Technical Docs. A Guides page, if one is needed, is short and links
-to it — do not bury zone selection, journey pinning, targeting hints, certificates,
-or tag behavior under Programs & Campaigns.
+Pick the tab in this order and stop at the first answer. Does the reader perform steps? No
+→ Product Docs. Are all the steps inside My Extole? Yes → Guides. Does any step leave My
+Extole — a tag, a DNS record, a certificate, an SFTP upload, an API call, a partner console?
+→ Technical Docs, even when the symptom showed up on a campaign and a marketer asked. Does
+it explain a platform mechanism in terms the reader acts on — identifiers, ordering,
+parameters, request forms? → Technical Docs.
 
-The live corpus is mixed. Guides still contains a Technical Items group and some
-targeting and webhook pages from the migration. Do not copy those placements for
-new pages. Match neighbouring pages for structure and house style after the tab
-is chosen, not in order to choose it.
+When a topic has both a My Extole click-path and a platform mechanism, the mechanism goes
+in Technical Docs. A Guides page, if one is needed, is short and links to it. Never bury
+zone selection, journey pinning, targeting hints, certificates, or tag behavior under
+Programs & Campaigns.
+
+**An addition to an existing page follows the same test.** Place a new section by what it
+says, not by the page the reader landed on: a mechanism or request form goes on the
+Technical Docs counterpart even when the page in hand is in Guides.
+
+**Do not duplicate across tabs.** Search the corpus for the topic before writing. If another
+tab already covers it, link to it rather than restating it.
+
+**A partner page is for the marketer who sets the partner up.** It says what to configure in
+the partner's console and in My Extole, and the values that are specific to that partner.
+How Extole builds any partner integration — the views socket, the tabs, the report behind a
+tab, how an image key works — is the same for every partner. It lives on the Building
+Partner Integrations pages, and a partner page links there rather than restating it. Before
+you keep a sentence on a partner page, ask whether a marketer setting up that partner acts
+on it. If not, cut it, or move it to the page for the reader who does.
+
+The live corpus is mixed. Guides still holds integration pages inherited from the migration
+(Platform Overview > Technical Items, the SFTP and event-upload pages, Targeting,
+Dashboards and Reporting > Integrating Reports, Notifications & Troubleshooting), Technical
+Docs holds My Extole click-paths under Operational Tasks > Program Testing, and A/B testing,
+ADA compliance, the glossary, and single sign-on each appear in more than one tab. Do not
+add to any of those placements. Match neighbouring pages for structure and house style
+after the tab is chosen, never in order to choose it.
+
+**File path, navigation, and URL are one thing.** A page lives at
+`<tab dir>/<group slug>/<subgroup slug>/<page>.mdx`, with `&` written as `and`, and its
+path without `.mdx` is listed under the same groups in `docs.json`. Renaming a navigation
+group changes every URL in it, so it comes with the directory move and a redirect per
+published page, or does not happen.
 
 ## Brand voice
 
@@ -83,6 +122,29 @@ expert, clear and accessible. Educate the reader about getting value from their 
 programs. Use industry language — event tracking, audience segmentation, real-time event
 streams — without slipping into internal jargon. Don't oversell, and don't hunt for
 problems the reader didn't ask about.
+
+## Write how it works, never how it fails
+
+A page tells the reader how the product behaves and what to do. It does not warn the reader
+about the mistake they might make, narrate a trap, or describe a request that "answers `200`
+and stores the old value". That register comes from internal investigation notes and agent
+lessons, where a paragraph is written from the failure that taught it. A customer page is
+written from the behavior.
+
+- State the behavior and the procedure. "To change an inherited setting, send two requests in
+  this order", not "a one-request edit stores the old value and answers `200`".
+- Describe what a response contains, not what it hides. "The built endpoint returns the value
+  that renders", not "the raw read does not show the value that renders".
+- Delete framing that addresses a reader who is about to be wrong: "confident wrong answer",
+  "unless you know", "nothing tells you", "silently", "looks complete", "proves nothing",
+  "the trap", "worse". If the sentence has no content left without that framing, it was a
+  warning and not a fact; delete the sentence.
+- A platform defect is not product behavior. Describe the supported procedure; the defect goes
+  to the engineering ticket, not to the page.
+
+Text promoted from an internal source (an agent's lessons, an investigation, a support thread)
+is rewritten under this rule before it is placed, sentence by sentence. The source's facts
+carry over; its register does not.
 
 ## Voice and grammar
 
@@ -204,11 +266,14 @@ code sample.
 | **advocate** | referrer, sharer | A person who refers a brand or product to a friend. |
 | **friend** | referred person, referee, referred customer | A person who receives a referral from an advocate. |
 | **event** | step *(as loose prose)* | A recorded occurrence in a person's journey (shared, clicked, converted, reward earned). Prose only — see "step". |
-| **step** *(keep, scoped)* | — using it as a prose synonym for "event" | Keep for the schema field (`step_name`, `stepName`, `person.steps`) and the deliberate journey-structure sense. Do **not** blanket-replace; that breaks valid reporting and API references. |
+| **business event, reward, call-to-action** | step *(for a part of a campaign)* | Name the part of the campaign you mean. "Open the reward", not "open the step"; "the friend's Converted business event", not "the Converted step". When a sentence covers all three, say "business event, reward, or call-to-action", or "part of the campaign". A numbered step in a procedure is still a step. |
+| **step** *(literal only)* | — in prose | Keep it only where it is a literal: the schema field (`step_name`, `stepName`, `person.steps`), and quoted UI or error text such as *The Triggered By setting on '`step`' is not configured.* When quoted text says `step`, say what it stands for. |
 | **outcome event** | success step, goal step | The event that defines a successful referral for a program (converted, account opened, loan funded). |
 | **conversion / converted** | — | A friend completing the program's goal action. |
 | **program** | campaign *(when you mean the use case)* | The overall referral use case: audience plus outcome (Refer A Friend, Welcome Offer, Ambassador). |
 | **campaign** | program *(when you mean an implementation)* | A specific implementation within a program: creative, behavior, and rules. |
+| **Flow Builder campaign** | v10, V10, "v10 campaign", "v10 microsite", and any other version number for a current campaign | A campaign built in Flow Builder. Say this instead of a version. |
+| **legacy campaign** | v8, V8, v9, V9, and any version below v10 | A campaign from before Flow Builder. Say "legacy" instead of the version. |
 | **journey** | funnel *(loosely)* | The end-to-end path a participant takes through a program. |
 | **participant journey** | — | A journey with one person and no referrer/referred relationship (welcome offer, loyalty). |
 | **referral journey** | — | A journey with two people: an advocate and a friend. |
@@ -233,6 +298,8 @@ code sample.
 | **My Extole** | MyExtole, my.extole *(as the product name)* | The client-facing application. `my.extole.com` is fine as a URL. |
 
 Prefer **distinct** over **different** when separating two concepts.
+
+**Never write a campaign version in prose.** `v8`, `v9`, `v10`, and the same labels in any casing are internal. Call a v10 campaign a **Flow Builder campaign**. Call any earlier campaign a **legacy campaign**. Do not name the version, including in phrases like "v10 microsite" or "older than v10". Leave a version string that is part of a code sample, a component type name, or an API identifier exactly as written.
 
 ## Literals — never rewrite these
 
@@ -267,6 +334,41 @@ responses, metric names.
 you are unsure, verify it or mark it as needing confirmation. Say you are unsure rather
 than writing something plausible.
 
+**For an extension setting, the label is in `extole/creative`, not in a screenshot here.**
+Each setting declares a `display_name` and a `description` in the extension's
+`component.json`, and that is what My Extole renders. A capture in `images/` is a snapshot
+of whatever the UI said the day it was taken — several are v8-era and now name fields the
+product renamed. Read the component, and prefer the newest capture when two disagree.
+
+The Reward Bank field is one worked example. Its `display_name` is **Redemption Ratio**,
+its two neighbours are **Redemption Minimum Value** and **Redemption Maximum Value**, and
+the loyalty pages had shipped "Redemption Rate" and "Value Limits" — none of which a reader
+can find in the extension. Worse, **Redemption Rate** is a real Extole name already:
+*Advocate Reward Redemption Rate* is a referral metric, redeemed over issued as a
+percentage. Before coining a name for something, `git grep` it across the corpus and search
+the platform for it; a term that already means something else costs more than a clumsy one.
+
+## Expert settings
+
+Some component settings are **expert settings**, tagged `importance:expert`. My Extole
+hides them by default. Every user can show them by turning on the **Show Expert** filter.
+
+Do not document an expert setting without need. Name one only when a task the page
+teaches needs it. Where the page names it, tell the reader to turn on **Show Expert** to
+see it.
+
+When a sentence names an expert setting or the **Show Expert** filter and the page's task
+does not need that setting, delete the sentence. It often sits at the end of a paragraph
+that is otherwise about something the reader can see — keep the paragraph and delete the
+sentence.
+
+Leave a schema literal alone. An `importance:expert` tag inside a component JSON sample is
+a field value, and the literals rule already covers it. Add no prose around that tag that
+explains the filter.
+
+Apply this to the page you are writing or editing. Search the rest of the corpus for older
+sentences only when that is the task.
+
 ## Open decisions — do not pick a side
 
 These are genuinely split across the corpus and await a docs-team call. Until each is
@@ -283,9 +385,7 @@ Do not silently standardize.
    only — **Events** report. Needs sign-off.
 3. **"Refer A Friend" casing.** At least six spellings exist. Proposal: `Refer A Friend` as
    the program name, `refer-a-friend` only for slugs and labels.
-4. **"step" scope.** Confirm the keep-for-schema / replace-in-prose rule above so no lint
-   pass ever rewrites `step_name`.
-5. **Callout severity mapping.** The components are settled; which severity fits which
+4. **Callout severity mapping.** The components are settled; which severity fits which
    situation is still editorial.
 
 ## Canary
