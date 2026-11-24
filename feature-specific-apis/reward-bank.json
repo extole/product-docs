@@ -21,7 +21,7 @@
     "/api/v6/zones/bankable_rewards": {
       "post": {
         "summary": "Current Balance and Transaction History",
-        "description": "Returns what this person can redeem and what they have redeemed already: the rewards their balance currently reaches, the suppliers those can be redeemed with, the redemption history, and the parameters the bank is configured with. Rendered for the person the access token identifies, so a person only ever sees their own bank.",
+        "description": "Returns what this person can redeem and what they have redeemed already: the rewards their balance currently reaches, the value rewards already redeemed, the suppliers those can be redeemed with, the redemption history, and the parameters the bank is configured with. Rendered for the person the access token identifies, so a person only ever sees their own bank.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "tags": [
           "VIEW"
@@ -119,6 +119,71 @@
                             "description": "A reward the person holds."
                           },
                           "description": "Rewards this person's balance currently reaches, each redeemable on its own."
+                        },
+                        "redeemed_rewards": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "data": {
+                                "type": "object",
+                                "description": "The reward's own data entries."
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "Name of the reward."
+                              },
+                              "state": {
+                                "type": "string",
+                                "description": "Where the reward has reached. Redeemed rewards are REDEEMED."
+                              },
+                              "reward_id": {
+                                "type": "string",
+                                "description": "Identifier of the redeemed reward. This is what redeemed_reward_ids on a redemption_history entry names."
+                              },
+                              "face_value": {
+                                "type": "string",
+                                "description": "Value of the reward, in the units face_value_type names."
+                              },
+                              "campaign_id": {
+                                "type": "string",
+                                "description": "Campaign that issued it."
+                              },
+                              "earned_date": {
+                                "type": "string",
+                                "description": "When the person earned it."
+                              },
+                              "expiry_date": {
+                                "type": "string",
+                                "description": "When it stops being redeemable."
+                              },
+                              "program_label": {
+                                "type": "string",
+                                "description": "Program the reward belongs to."
+                              },
+                              "face_value_type": {
+                                "type": "string",
+                                "description": "What that value is denominated in."
+                              },
+                              "partner_reward_id": {
+                                "type": "string",
+                                "description": "Your own identifier for the reward, when one was supplied."
+                              },
+                              "reward_supplier_id": {
+                                "type": "string",
+                                "description": "Supplier the reward came from."
+                              },
+                              "redeemed_reward_ids": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "For a redemption, the rewards that were spent to make it."
+                              }
+                            },
+                            "description": "A value reward that was spent into a redemption."
+                          },
+                          "description": "Value rewards this person has already redeemed. Match these by reward_id to the ids in a redemption_history entry's redeemed_reward_ids to read each spent reward's face value and earned date."
                         },
                         "reward_parameters": {
                           "type": "object",
