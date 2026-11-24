@@ -1,0 +1,90 @@
+name: pr-judge
+
+# Label each pull request with a v2 verdict and say why in a comment. See .agents/pr-judge/RUBRIC.md.
+#
+# `validate` proves the Mintlify site builds. The deterministic floor and claim checks sort the
+# queue so fixable defects go back to the author and the docs owner sees reserved questions only.
+#
+# It merges nothing. `main` still requires a green `validate` and one approving review.
+# The check never fails on a verdict — the label and comment are the signal.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: "Pull request number to judge, or `all-open` to backfill the queue"
+        type: string
+        required: true
+        default: all-open
+      dry_run:
+        description: "Classify and print the verdicts; label and comment on nothing"
+        type: boolean
+        required: false
+        default: false
+
+run-name: "judge ${{ github.event.pull_request.number || inputs.pull_request }}"
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: read
+
+concurrency:
+  group: pr-judge-${{ github.event.pull_request.number || inputs.pull_request }}
+  cancel-in-progress: true
+
+jobs:
+  judge:
+    name: Docs PR judge (v2)
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      PR: ${{ github.event.pull_request.number || inputs.pull_request }}
+      PR_JUDGE_ROOT: ${{ github.workspace }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the Anthropic SDK
+        run: pip install --quiet 'anthropic>=1.0,<2'
+
+      - name: Run the judge's unit tests
+        run: python3 -m unittest discover -s scripts -p 'test_pr_*.py'
+
+      - name: Judge
+        run: |
+          WORKERS=1
+          if [ "$PR" = "all-open" ]; then WORKERS=8; fi
+          python3 scripts/pr_judge.py --repo "$GITHUB_REPOSITORY" --pr "$PR" --root . --workers "$WORKERS" $DRY_RUN
+        env:
+          DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Summary
+        if: always()
+        run: cat pr-judge-summary.md >> "$GITHUB_STEP_SUMMARY" || echo "No verdicts produced." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the verdicts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-judge-${{ github.event.pull_request.number || inputs.pull_request }}
+          path: |
+            pr-judge-results.json
+            pr-judge-summary.md
+          if-no-files-found: ignore

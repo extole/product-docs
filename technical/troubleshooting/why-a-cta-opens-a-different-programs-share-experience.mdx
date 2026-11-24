@@ -1,6 +1,6 @@
 ---
 title: "Why a CTA Opens a Different Program's Share Experience"
-description: "Why a CTA can open a different program's share experience when several programs are live at once, and how to give each program its own share experience."
+description: "Why a CTA or a program domain can serve a different program when several programs are live at once, and the two settings that fix it."
 ---
 
 # Overview
@@ -9,9 +9,16 @@ When you run more than one referral program on the same site, each program has i
 call-to-action, but they can end up opening the **same** share experience. A customer clicks the
 CTA for one program and the share experience that opens belongs to another one.
 
-This is not a broken CTA and it is not a mis-targeted campaign. It happens because the programs
-share a **zone name** for the share experience, and Extole keeps each person in one program at a
-time. This page explains the behavior and the setting that fixes it.
+This is not a broken CTA and it is not a mis-targeted campaign. It happens because Extole keeps each
+person in one program at a time, and something that should have decided the program first did not.
+
+There are two causes, and they have different fixes:
+
+- The programs **share a zone name** for the share experience, so the visitor's existing journey
+  decides between them. This is the common one, and it is covered first.
+- A **promotion link is labeled for a program that does not exist** on the account, so the label
+  narrowing is skipped and the journey decides instead. This one shows up on your program domain and
+  is a single field to correct.
 
 ## How Extole Picks Which Program Answers a Zone
 
@@ -19,9 +26,13 @@ A zone is a named place on your site where Extole serves content. When a zone re
 Extole gathers every live campaign that publishes that zone name — the **candidates** — and then
 decides between them in a fixed order:
 
-1. **Journey check.** If the person is already in a journey that one of the candidates owns, that
-   candidate answers. The person stays in the program they are already in.
-2. **Journey entry.** Only if no candidate matches an existing journey does Extole start a new
+1. **Explicit hints.** If the request carries a hint that names a program — most commonly the
+   program label on a promotion link the visitor followed — Extole narrows the candidates to the
+   campaigns carrying it and decides from those. This runs before the journey is consulted, which is
+   what makes a promotion link serve its own program reliably.
+2. **Journey check.** If no hint decided it, and the person is already in a journey that one of the
+   candidates owns, that candidate answers. The person stays in the program they are already in.
+3. **Journey entry.** Only if no candidate matches an existing journey does Extole start a new
    journey and pick a candidate for it.
 
 That order is what keeps a returning advocate's experience consistent: someone part-way through
@@ -59,6 +70,27 @@ The result for a customer with more than one program available to them:
 Which program a person is pinned to therefore depends on which CTA they happened to click first,
 which is why the symptom looks intermittent and customer-specific.
 
+## When the Wrong Program Comes and Goes
+
+The section above is the usual case. The person stays on the first program they opened, and every
+later click shows that same share experience.
+
+There is a second case, and you tell them apart by repeating the click. Two programs can answer the
+same share experience name, and Extole shows whichever answer arrives first. Nothing in My Extole
+names this. You see it on the click:
+
+- The usual case stays put. Repeat the click and the same wrong program opens every time.
+- This case flips. Two clicks a few seconds apart can open two programs.
+
+A program label does not fix the flipping case. The label can choose a program when only one
+program is answering, and it cannot stop a second program from answering the same name.
+
+<Info>
+Repeat the same click ten times in one session. The same wrong program every time is the usual case
+above. A wrong program that comes and goes is this case. One passing click is not evidence the
+problem is gone.
+</Info>
+
 ## What Does Not Fix It
 
 Three things that look like the fix are not:
@@ -68,14 +100,50 @@ Three things that look like the fix are not:
   the label leaves them where they are.
 - **Adjusting the program-label rules** on the campaigns. The person is not being excluded by a
   rule — they are being matched by an existing journey, which happens first.
-- **A `campaign_id` request parameter.** This is not the journey hint, and it changes nothing here.
-  It leaves every candidate in the running, so the journey check still matches the journey the
-  person already holds. The hint has its own form, shown in
-  [Option 2](#option-2-send-an-explicit-journey-hint).
+- **A `campaign_id` on its own.** Adding `campaign_id` without the form in
+  [Option 2](#option-2-name-the-campaign-on-the-request) leaves the other programs eligible, so the
+  person stays in the program they already opened.
 
-## How to Fix It
+## A Second Cause: A Promotion Link Labeled for No Program
 
-There are two remedies, and they trade a campaign change against a site change.
+The same symptom appears on your **program domain** itself — the address your promotion links are
+built on, such as `refer.example.com`. Someone opens a promotion link for one program, later returns
+to the bare program domain, and gets that first program again instead of your main one.
+
+This one has a different cause, and it is worth checking first because it is a single field.
+
+Every promotion link carries a **program label**, including the built-in link for the bare program
+domain. Extole reads that label before it looks at the visitor's journey, and narrows the candidates
+to the campaigns that carry it. That is what makes a promotion link reliable: it decides the program
+outright, whatever journey the visitor already holds.
+
+The narrowing only happens when the label **matches a program label in use on the account**. When a
+link is labeled for a program that does not exist — most often a default such as `refer-a-friend`
+left in place on an account whose programs are named something else — Extole finds no candidates for
+that label, stops, and falls through to the journey check described above. The visitor's existing
+journey then decides, and a promotion link they opened earlier keeps serving its program.
+
+<Warning>
+A mislabeled link fails silently. Nothing errors, and a first-time visitor still sees the right
+program, because they hold no journey for the fall-through to match. The symptom only appears for
+someone who opened one of your other promotion links first.
+</Warning>
+
+### How to Check and Fix It
+
+1. List your promotion links and read the **label** on each one, including the link for the bare
+   program domain.
+2. Compare each label against the program labels actually in use on your account.
+3. Correct any label that matches no program, setting it to the program that link should serve.
+
+No campaign change and no publish is needed, and nothing on your own site has to change. Confirm it
+the way the section below describes: open another program's promotion link, then the bare program
+domain, in the same browser session.
+
+## How to Fix a Shared Zone Name
+
+When the collision is a shared zone name rather than a mislabeled link, there are two remedies, and
+they trade a campaign change against a site change.
 
 ### Option 1: Give Each Program Its Own Share Experience Zone
 
@@ -99,32 +167,35 @@ Changing a zone name changes what your site tags must request. Inventory every s
 for the old name before you publish, or those surfaces will request a zone no campaign publishes.
 </Warning>
 
-### Option 2: Send an Explicit Journey Hint
+### Option 2: Name the Campaign on the Request
 
-Recommended when changing the campaigns is not practical. `journey.campaign_id` is a high-priority
-targeting hint that is considered ahead of the visitor's existing journey, so a share experience
-request carrying the intended campaign's id is served by that campaign even when the visitor is
-already in a sibling program's journey. See
-[Targeting](/guides/platform-overview/targeting) for how explicit hints rank against normal
-selection.
-
-On a zone request, send the hint as a `target` parameter naming the campaign, alongside the
-program's own label:
+Use this when you cannot give each program its own zone name. This is a change to the tag on your
+site, not a setting in My Extole. The request that opens the share experience names the campaign,
+and it includes the program's label:
 
 ```
 GET /zone/share_experience?labels=<program label>&target=campaign_id:<campaign id>
 ```
 
+`target=campaign_id:` limits the share experience to that campaign, so another program cannot answer
+the same zone name. See [Targeting](/guides/platform-overview/targeting) for how a named campaign
+ranks against the usual selection.
+
 <Warning>
-Send the hint **with** the program label, not instead of it. The hint narrows the candidates to the
-campaign you named, and journey entry then still needs the label to start the journey. A request
-carrying the hint and no label matches nothing and comes back empty, so the share experience does
-not open at all.
+Send the program label with it. Naming the campaign limits which campaign can answer, and the label
+is still what starts the person's journey. A request that names the campaign and omits the label
+matches nothing, and the share experience does not open.
 </Warning>
 
-This keeps one shared zone name and moves the work to whatever makes the share experience request —
-each CTA has to send the hint for its own program. Test it on one program before rolling it out; the
-hint has to reach the request that opens the share experience, not only an earlier page view.
+<Warning>
+`journey.campaign_id` is a different value, and it does not do this job. It prefers one campaign and
+still lets another program answer the same share experience, so the wrong program still appears some
+of the time. Use `target=campaign_id:` when the click has to open one campaign.
+</Warning>
+
+This keeps one shared zone name. Each CTA has to send its own campaign on the request that opens
+the share experience, not only on an earlier page view. Try it on one program before you roll it
+out.
 
 ## How to Confirm the Behavior
 
@@ -134,7 +205,10 @@ Test with a fresh browser session per program, and test the collision deliberate
    to that program.
 2. In the **same** session, click a different program's CTA. Before the fix, the first program's
    share experience opens again. After the fix, the second program's own share experience opens.
-3. Repeat in a new clean session starting with the other program, to confirm the result follows the
+3. Repeat step 2 ten times in that same session. If the wrong program appears on some loads and not
+   others, more than one program is answering the share experience name, and one passing click
+   proves nothing.
+4. Repeat in a new clean session starting with the other program, to confirm the result follows the
    fix and not the order of clicks.
 
 Testing each program only in its own clean session hides the problem entirely, because a fresh
