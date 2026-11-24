@@ -47,9 +47,9 @@ class PreviewHostTests(unittest.TestCase):
 
 
 class InternalTermTests(unittest.TestCase):
-    def test_show_expert(self):
-        hits = scan_internal_terms("Click **Show Expert** to continue.", "guides/foo.mdx")
-        self.assertTrue(any("show-expert" in hit for hit in hits))
+    def test_show_expert_and_expert_setting_are_not_internal_terms(self):
+        added = "This is an expert setting. To see it, turn on **Show Expert**."
+        self.assertEqual(scan_internal_terms(added, "guides/foo.mdx"), [])
 
     def test_account_link_with_client_id(self):
         added = "Open the [report](https://my.extole.com/reports?client_id=1063468100#/)."
