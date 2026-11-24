@@ -293,8 +293,7 @@ Copy this into `product-docs-authoring` in M1, and into Ada's and Garry's docs p
    into it.
 6. Merge `main` in before you mark the pull request ready.
 7. Run F12 and F13 on your preview, and write the result on the `Replay:` line.
-8. Keep versions, repositories, tickets, clients and people out of the page. Name an expert setting
-   only when the page's task needs it, and tell the reader to turn on **Show Expert** to see it.
+8. Keep versions, repositories, tickets, clients and people out of the page.
 
 ## Calibration
 
