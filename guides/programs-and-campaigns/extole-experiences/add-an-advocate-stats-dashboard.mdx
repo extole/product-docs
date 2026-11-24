@@ -1,0 +1,113 @@
+---
+title: "Add an Advocate Stats Dashboard"
+description: "Keep your advocates motivated by providing them with real-time insights into their referral activity and rewards. An Advocate Stats Dashboard helps advocates:"
+---
+
+# Overview:
+
+Keep your advocates motivated by providing them with real-time insights into their referral activity and rewards. An Advocate Stats Dashboard helps advocates:
+
+- Track their progress and rewards.
+- Understand the value they’ve earned from referrals.
+- Drive more sharing by increasing transparency.
+
+This guide explains how to add and customize an Advocate Stats Dashboard using Extole’s tools.
+
+# Default Advocate Dashboard Options
+
+You can display the Advocate Stats Dashboard in several ways:
+
+1. On your sharing microsite (out-of-the-box UI)
+2. Embedded behind login on your own website
+3. Powered by Extole APIs (for headless or custom implementations)
+
+Here’s an example of the out-of-the-box dashboard on the sharing microsite:
+
+ ![Screenshot showing Here’s an example of the out-of-the-box dashboard on the sharing microsite](/images/extole/b5705f78080d47f536bf80506065cbf7d07acc05ce879440366c5ff30eebcc00.png)
+
+## **Default Dashboard Sections**
+
+- **Your Stats**  
+Summarizes the advocate’s activity and rewards.
+- **Your Rewards**  
+Lists individual rewards earned, such as coupon codes or credits.
+- **Your Activity**  
+Displays recent referral actions (e.g., email shares, social shares).
+
+## **Default Metrics Explained**
+
+- **Referrals**  
+The number of explicit shares (e.g., using the share link, email, or social share buttons).
+- **Earned Rewards**  
+The total number of rewards received for successful referrals.
+- **Earned Value**  
+The cumulative value of rewards earned (e.g., total credits or coupons).
+
+# **Implementation Steps**
+
+## **Stats on your Microsite**
+
+1. In the Campaign Editor, navigate to the microsite section and toggle Display Embedded Stats
+2. If you don’t see this option, contact your Customer Success Manager to upgrade your campaign to the latest version.
+
+## **Embedding Stats Behind Login**
+
+Use this path when the advocate is already logged in on your site. You verify identity and pass a JWT.
+
+1. Reach out to Extole support to enable the `advocate_stats_embedded` zone with a JWT
+2. Configure the JWT key in My Extole. See [Verifying Consumers](/technical/operational-tasks/security-and-compliance/verifying-consumers#using-json-web-tokens-jwts)
+3. Navigate to **Tech Center** > **Tag Generator**.
+4. Copy the JavaScript tag for the `advocate_stats_embedded` zone.
+5. Add this tag to your desired page behind your login to ensure user security and enable the JWT.
+
+## Embed Stats With Email Verification
+
+Use this path when you want Extole's authentication flow instead of a login-backed JWT. An advocate clicks to view their stats, receives an email with a verification link, clicks to verify, and then sees their stats.
+
+Place the embedded stats zone inline — exactly where you want the creative to appear on the page, such as a My Account page:
+
+```html
+<span id="extole_zone_advocate_stats_embedded"></span>
+<script type="text/javascript">
+  (function(c,b,f,k,a){c[b]=c[b]||{};for(c[b].q=c[b].q||[];a<k.length;)f(k[a++],c[b])})(window,"extole",function (c,b){b[c]=b[c]||function (){b.q.push([c,arguments])}},["createZone"],0);
+  extole.createZone({
+    name: "advocate_stats_embedded",
+    element_id: "extole_zone_advocate_stats_embedded",
+    data: {
+      "email": REPLACE_WITH_DATA_BEFORE_ADDING_TAG_TO_PAGE,
+      "first_name": REPLACE_WITH_DATA_BEFORE_ADDING_TAG_TO_PAGE,
+      "last_name": REPLACE_WITH_DATA_BEFORE_ADDING_TAG_TO_PAGE,
+      "partner_user_id": REPLACE_WITH_DATA_BEFORE_ADDING_TAG_TO_PAGE
+    }
+  });
+</script>
+```
+
+Replace the `REPLACE_WITH_DATA_BEFORE_ADDING_TAG_TO_PAGE` values with the advocate's identity. The rest of the stats experience is controlled in My Extole. For JWT verification instead of this email flow, see [Verifying Consumers](/technical/operational-tasks/security-and-compliance/verifying-consumers).
+
+The dashboard shows an advocate's friends only after the advocate verifies. If a verified-only dashboard shows no friends for an advocate whose referrals are recorded, see [Advocate Stats Show No Friends](/technical/troubleshooting/advocate-stats-show-no-friends).
+
+## **Extole API**
+
+Extole offers an All-In-One endpoint that can power your entire referral experience and provide user stats. If you want to ensure that all stats are available at any time, a JWT can be passed in the API request to authenticate the user and allow access to any private user information stored in Extole.
+
+1. Contact Extole support to add the default fields in the mobile_experience zone.
+2. Configure the JWT key in My.Extole. Guide -> [https://docs.extole.com/docs/verifying-consumers#using-json-web-tokens-jwts](https://docs.extole.com/docs/verifying-consumers#using-json-web-tokens-jwts)
+3. Build the User Experience in your platform using data fields in mobile_experience
+
+>
+
+> Note: Extole supports consumer API and server to server versions of this. Work with your team to determine which works best for you.
+
+>
+
+## **Dashboard Customization**
+
+> Want to further customize your stats dashboard? Extole supports extensions such as:
+
+- Additional custom events or data points in “Your Stats”
+- Visual or branding updates
+
+> To discuss customization, reach out to your Extole Customer Success Manager.
+
+>
