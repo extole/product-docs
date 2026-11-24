@@ -354,9 +354,8 @@ Some component settings are **expert settings**, tagged `importance:expert`. My 
 hides them by default. Every user can show them by turning on the **Show Expert** filter.
 
 Do not document an expert setting without need. Name one only when a task the page
-teaches needs it — for example, the `VALUE` key type on a business event's data item,
-which a total-value rule needs. Where the page names it, tell the reader to turn on
-**Show Expert** to see it.
+teaches needs it. Where the page names it, tell the reader to turn on **Show Expert** to
+see it.
 
 When a sentence names an expert setting or the **Show Expert** filter and the page's task
 does not need that setting, delete the sentence. It often sits at the end of a paragraph

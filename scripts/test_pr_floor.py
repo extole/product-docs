@@ -48,7 +48,7 @@ class PreviewHostTests(unittest.TestCase):
 
 class InternalTermTests(unittest.TestCase):
     def test_show_expert_and_expert_setting_are_not_internal_terms(self):
-        added = "The key type is an expert setting. To see it, turn on **Show Expert**."
+        added = "This is an expert setting. To see it, turn on **Show Expert**."
         self.assertEqual(scan_internal_terms(added, "guides/foo.mdx"), [])
 
     def test_account_link_with_client_id(self):
