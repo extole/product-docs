@@ -27,12 +27,12 @@ Forwarding moves these from the profile you merge away onto the surviving profil
 * Rewards, including rewards that have already been sent
 * Shares, share links, and referral relationships
 * Audience memberships
+* Stored assets. An asset with the same name as one on the surviving profile is added beside it, not merged with it.
 
 Other parts of the two profiles are combined rather than moved:
 
 * **Journeys**: a journey with the same campaign, container, journey name, and journey key on both profiles becomes one journey on the surviving profile. It keeps the earlier start and the more recent activity. Every other journey moves across.
-* **Profile data**: when both profiles hold a value for the same field, the more recently updated value is kept. Consent fields stay as they are on the surviving profile.
-* **Stored assets**: an asset on the profile you merge away replaces an asset with the same name on the surviving profile.
+* **Profile data**: when both profiles hold a value for the same field, the more recently updated value is kept. The surviving profile keeps its own email address, and consent fields stay as they are on the surviving profile.
 
 Blocks on the two profiles are combined, and the stricter of the two applies.
 
@@ -48,9 +48,9 @@ So the event count on the merged profile can be lower than the two profiles adde
 
 1. Look up both addresses with [Search for Persons](/api-reference/persons/search-for-persons) to get their profile IDs, and confirm each one returns its own ID. If both addresses already return the same profile, they have been merged already and there is nothing to do.
 2. Decide which profile survives. The survivor is usually the address the person still uses, not the one with the most activity — the activity moves either way.
-3. Call [Forward an Identity Profile to Another Identity Profile](/api-reference/persons/forward-an-identity-profile-to-another-identity-profile) on the profile that is being merged away, naming the survivor as `forward_to_profile_id`. The call needs an access token with the `USER_SUPPORT` scope.
+3. Call [Forward an Identity Profile to Another Identity Profile](/api-reference/persons/forward-an-identity-profile-to-another-identity-profile) on the profile that is being merged away, naming the survivor as `forward_to_profile_id`. The call needs an access token with the `USER_SUPPORT` scope. Use the IDs that Search for Persons returned: if the call fails with `forward_to_profile_is_device`, the ID you named as the survivor is not the person's identity profile.
 4. Verify from the profile you merged away: looking it up by ID or by email address now returns the surviving profile's ID.
-5. Check the surviving profile's email address and other profile data. Because the more recently updated value of each field is kept, a value from the profile you merged away can replace the survivor's. Correct any field with [Update a Person](/api-reference/persons/update-a-person).
+5. Check the surviving profile's other profile data. Because the more recently updated value of each field is kept, a value from the profile you merged away can replace the survivor's. Correct any field with [Update a Person](/api-reference/persons/update-a-person).
 
 <Note>
 Both addresses have to exist as profiles for this to be a merge. If the address you want to keep has never been seen by your program, there is nothing to merge into — update the identity key value on the existing profile instead, with [Update a Person](/api-reference/persons/update-a-person).
