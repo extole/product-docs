@@ -28,7 +28,7 @@ A template is a component that Extole provides for you to copy. Each row's `sour
 
 A campaign template is a whole campaign that Extole provides for you to copy. A Flow Builder campaign template's row is its root component, whose `types` include `campaign-v10.0`. Its `name` is `root`. On the rows from `extole-components-v10`, its `display_name` is the template's name.
 
-By default, the list holds only the components of a subscribed account's `LIVE` campaigns whose program type is `integration` or `campaign-component`. To include the components of every campaign in those accounts, whatever its program type or state, set `show_all` to `true`. List campaign templates this way:
+By default, the list holds every component in your own account, and from each account you subscribe to, only the components of `LIVE` campaigns whose program type is `integration` or `campaign-component`. To include the components of every campaign in the accounts you subscribe to, whatever its program type or state, set `show_all` to `true`. List campaign templates this way:
 
 ```bash
 curl --get "$EXTOLE_API_HOST/v1/components/duplicatable/summaries" \
@@ -59,7 +59,7 @@ curl --request POST "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/duplicate" \
   --data '{"name": "Spring Referral Program", "program_label": "your-program-label"}'
 ```
 
-Your account subscribes to each account on its own. [Your Team at Extole](/product/extole-overview/your-team) describes who to contact.
+Your account subscribes to each of these accounts separately. [Your Team at Extole](/product/extole-overview/your-team) describes who to contact.
 
 ## Find a Component That Fits a Socket
 
@@ -85,11 +85,11 @@ curl --get "$EXTOLE_API_HOST/v1/components" \
   --data-urlencode "max_depth=all"
 ```
 
-Each component in the response carries `component_ids` and `installed_into_socket`, which name its parent and the socket it sits in, so you can rebuild the tree.
+Each component in the response carries `component_references`, the components it references, which include its parent, and `installed_into_socket`, the socket it sits in, so you can rebuild the tree.
 
 ## Narrow a Long List
 
-A library can hold thousands of components, and a list returns up to `limit` of them, 1000 by default, starting at `offset`. Filter before you page. To read every component, page as [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints) describes.
+A library can hold thousands of components, and a list returns up to `limit` of them, 1000 by default, starting at `offset`. Set `limit` to 1000 or less. Filter before you page. To read every component, page as [Paging and Filtering List Endpoints](/technical/platform-integrations/rest-apis/paging-and-filtering-list-endpoints) describes.
 
 ## Related Documentation
 
