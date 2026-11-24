@@ -1,0 +1,189 @@
+---
+title: "Component Upgrades Over REST"
+description: "Bring a copied campaign component to the latest published version of its origin with the REST API: what the upgrade keeps, drops, installs, and refuses, and how to tell it finished."
+---
+
+# Overview
+
+A component you copy from another component keeps an `origin`: the component it was copied from.
+`POST /v1/components/{component_id}/upgrade`
+([Upgrade a Component](/api-reference/components/upgrade-a-component)) brings the component, and
+every component under it, to the latest published version of its origin, and keeps your own
+changes. Call it when the origin has a newer version.
+[Get Available Component Upgrades](/api-reference/components/get-available-component-upgrades)
+(`GET /v1/components/{component_id}/available-upgrades`) lists what an upgrade would bring.
+
+[Upgrading Components](/technical/configuring-extole/configuration-concepts#upgrading-components)
+explains upgrades as a concept. This page covers the rules the upgrade endpoint follows.
+
+## The Origin
+
+A component's `origin` holds `client_id`, the account that owns the origin component,
+`component_id`, and `component_version`: the version the origin had when this component was copied
+from it, or when an upgrade last brought this component to it.
+
+- A duplicate sets the origin. A copy of a copy in the same account keeps the first copy's origin.
+- A change to the component's types, its install, its first-level elements other than child
+  components, or the account-level elements it uses clears the origin.
+- An upgrade does not clear the origin.
+- A component with no origin is offered no upgrade.
+
+To give a component an origin, connect it. See [Upgrade or Connect](#upgrade-or-connect).
+
+## How the Upgrade Decides What Is Yours
+
+A value is yours when it differs from the origin's state at the moment the component took that
+origin: the state you copied, or the state its last upgrade or connect read. If the upgrade cannot
+find that state, it compares with the origin's last state at the version the copy records.
+
+A reference setting or socket parameter that the copy points at your own component counts as yours,
+even when you never changed it, because the origin points at its own component. So the upgrade keeps
+your reference, and a new target the origin set for that reference does not reach your component.
+
+A setting's source counts on its own. When you changed whether a setting is its own value or
+inherited, the upgrade keeps your source. Otherwise the setting takes the origin's source.
+
+## What the Upgrade Keeps
+
+- The name, display name, description, and tags you changed.
+- The values you set on settings and socket parameters the origin still has.
+- Each value you set, with the origin's values added for keys you never set, such as another
+  language.
+- The settings you added.
+- The assets you changed or added.
+- A child component you removed. It stays removed, and so does everything the origin has under it.
+- A child component that has no origin, unless the upgrade removes its parent.
+- References from outside the component into it, and references you set inside it. They point at
+  the same components after the upgrade, as long as the upgrade kept those components.
+
+## What the Upgrade Replaces or Removes
+
+- A setting the origin no longer has is dropped.
+- A setting you added under a name the origin has since added takes the origin's values.
+- When a socket holds two parameters whose names differ only in case, both take the origin's
+  values.
+- A child component the origin had at the version you last copied or upgraded to, and no longer
+  has, is removed. This includes a child whose own origin no longer exists.
+- When the upgrade removes a component that a reference points at, the reference loses that entry,
+  and your account gets a `component_reference_unmatched` client event for it. A `COMPONENT_ID`
+  setting is the exception: see [Component ID Settings](#component-id-settings).
+
+## What the Upgrade Installs
+
+The upgrade installs each other child component of the origin, at every depth.
+
+## How Child Components Are Paired
+
+The upgrade pairs each of your child components with the origin's child component that your child
+names as its own origin. It never pairs child components by name or type. A socket that holds one
+component is the only exception; see [Sockets That Hold One Component](#sockets-that-hold-one-component).
+
+The upgrade counts a child component as removed when the origin, or the origin of the child's
+parent, had it at the version you last copied or upgraded to, and your component no longer has it.
+
+A child component whose own origin is not in the origin's tree follows one of two rules:
+
+- **It has an upgrade available**: it is upgraded on its own, against the version of its own
+  origin that it last copied or upgraded to, and the components under it follow that origin.
+- **It has no upgrade available**, and it is not under a component upgraded on its own: it stays
+  as it is, also when its origin no longer exists, unless the upgrade removes its parent.
+
+### A Component with No Origin
+
+When the component you upgrade has no origin, the upgrade applies these rules on its own to each
+topmost component under it that has an origin and has an available upgrade, on that component or
+under it.
+
+### Sockets That Hold One Component
+
+A socket that holds one component is resolved on its own:
+
+- A component you put there stays.
+- A component you removed stays removed, unless the origin replaced its own.
+- A replacement the origin made for the component you kept takes your changes with it.
+- When you and the origin each put a different component there, the upgrade is refused with
+  `component_upgrade_single_socket_conflict`. The error names each such socket and both components.
+
+The same error refuses an upgrade when the origin moved the component you copied out of a socket
+that holds one component and put another component there, because the upgrade keeps each of your
+components where you placed it. To upgrade, remove your component from that socket and upgrade
+again. The origin's component then fills the socket.
+
+After a move, the upgrade treats the moved component as one you removed and does not install it.
+To keep it, copy it in again with `POST /v1/components/{component_id}/duplicate`
+([Duplicate a Component](/api-reference/components/duplicate-a-component)).
+
+## Component ID Settings
+
+A `COMPONENT_ID` setting that points at a component the upgrade removes fails the upgrade with
+`component_upgrade_upgrade_failed`.
+
+A `COMPONENT_ID` setting on a child component the upgrade copies from the origin can hold a fixed
+component id. That id names a component of the origin's campaign, so the upgrade resolves it by path:
+
+- The path is the names of the component's parent components and its own name, ignoring case.
+- The upgrade points the setting at the component with the same path in your campaign. It does not
+  match by origin, and it does not look in other campaigns.
+- When your campaign has no component at that path, the upgrade fails with
+  `component_upgrade_upgrade_failed`.
+- A value computed by an expression is copied as it is.
+
+## When the Upgrade Is Refused
+
+| Condition | Error |
+|---|---|
+| Neither the component nor any component under it has an origin with an available upgrade | `component_upgrade_no_upgrade_available` |
+| The component's own origin no longer exists, even when components under it have upgrades available | `component_upgrade_no_upgrade_available` |
+| The component, or a component under it, uses an audience, a client key, a client domain pattern, a prehandler, or another restricted account-level element | `component_upgrade_restricted_external_elements` |
+| You and the origin each put a different component in a socket that holds one component, or the origin moved your copied component out of one | `component_upgrade_single_socket_conflict` |
+| A `COMPONENT_ID` setting points at a component the upgrade removes, or names a path your campaign does not have | `component_upgrade_upgrade_failed` |
+| The campaign is being saved, was saved after the call started, or another upgrade is running | `campaign_concurrent_update` |
+
+`component_upgrade_restricted_external_elements` lists the elements it found, grouped by type, in
+`restricted_external_elements`.
+
+## Timing and How to Tell It Finished
+
+The upgrade has no preview. Read
+[Get Available Component Upgrades](/api-reference/components/get-available-component-upgrades)
+before you call it.
+
+An upgrade can take several minutes, and it keeps running after a call that times out. To tell
+whether it finished, read the campaign's versions with `GET /v2/campaigns/{campaignId}/versions`
+([Get Campaign Version History](/api-reference/campaigns/get-campaign-version-history)):
+
+- Each save of the upgrade adds a version whose message starts with `Upgrade`, followed by the
+  upgrade's id and a hyphen.
+- The last of those versions says `upgrade completed`.
+- The saves commit together, so they appear only when the upgrade ends.
+- A failed upgrade adds no version.
+
+For up to 15 minutes while the upgrade runs, any other save of the campaign is refused with
+`campaign_concurrent_update`, another upgrade included.
+
+## Upgrade or Connect
+
+`PUT /v1/components/{component_id}/origin`
+([Connect a Component to an Origin](/api-reference/components/connect-a-component-to-an-origin))
+sets the origin of a component, and of each matching component under it, to the current version of
+another component, so the component can take that origin's later upgrades. Use the two calls this
+way:
+
+- **The component already has this origin at an older version**: upgrade it. A connect to the same
+  origin is refused.
+- **The component has no origin, or you want a different one**: connect it, then upgrade it when
+  the origin has a newer version.
+
+A connect does not compare settings, assets, sockets, or facets. It records them as matching the
+origin's current version, so bring them to that version before you connect. Otherwise the next
+upgrade keeps their old values as your changes.
+
+A connect saves the campaign's draft. Publish the campaign for the published version to carry the
+new origin.
+
+## Related Documentation
+
+- [Configuration Concepts](/technical/configuring-extole/configuration-concepts)
+- [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest)
+- [Compare a Component Across Campaign Versions](/guides/programs-and-campaigns/managing-campaigns/compare-a-component-across-campaign-versions)
+- [Traffic Changed After a Campaign Upgrade](/technical/troubleshooting/traffic-changed-after-a-campaign-upgrade)

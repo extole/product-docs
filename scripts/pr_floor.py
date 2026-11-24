@@ -32,12 +32,11 @@ MDX_PATH = re.compile(r"^(guides|product|technical|news|runbooks)/.+\.mdx$")
 
 # Draft internal-only term list (README §11.4); the docs owner edits via rubric changes.
 INTERNAL_TERM_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
-    ("show-expert", re.compile(r"\bShow Expert\b", re.I)),
-    ("expert-setting", re.compile(r"\bExpert setting\b", re.I)),
     ("version-label", re.compile(r"(?<![/\w])\bv\d+(?:\.\d+)?\b(?![/\w])")),
     ("ticket-key", re.compile(r"\b[A-Z][A-Z0-9]+-\d+\b")),
     ("slack-link", re.compile(r"https?://[^\s]*slack\.com/", re.I)),
     ("internal-repo", re.compile(r"\bextole/[a-z0-9_-]+\b", re.I)),
+    ("client-id", re.compile(r"client_id=\d{6,}")),
     ("email", re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")),
 ]
 
