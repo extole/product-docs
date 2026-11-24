@@ -23866,6 +23866,10 @@
             "description" : "The id of the client that holds the component.",
             "type" : "string"
           },
+          "source_client_short_name" : {
+            "description" : "The short name of the client that holds the component, the client that `source_client_id` names. It tells one library from another: one of Extole's template accounts, a partner's integration library, or the calling client.",
+            "type" : "string"
+          },
           "tags" : {
             "description" : "The tags on the component.",
             "items" : {
@@ -23886,7 +23890,7 @@
             "type" : "integer"
           }
         },
-        "required" : [ "campaign_id", "campaign_state", "description", "display_name", "id", "name", "owner", "source_client_id", "tags", "types", "version" ],
+        "required" : [ "campaign_id", "campaign_state", "description", "display_name", "id", "name", "owner", "source_client_id", "source_client_short_name", "tags", "types", "version" ],
         "type" : "object"
       },
       "ComponentTypeSettingFilterCreateRequest" : {
@@ -55604,6 +55608,7 @@
           "in" : "query",
           "name" : "show_all",
           "schema" : {
+            "default" : false,
             "type" : "boolean"
           }
         }, {
@@ -55611,13 +55616,15 @@
           "in" : "query",
           "name" : "include_granted",
           "schema" : {
+            "default" : false,
             "type" : "boolean"
           }
         }, {
-          "description" : "includeSubscribed includes components from subscribed clients. true (default) includes subscribed components. false excludes subscribed components, showing only owned.",
+          "description" : "includeSubscribed includes components from subscribed clients. false (default) excludes subscribed components, showing only owned. true also includes components from subscribed clients.",
           "in" : "query",
           "name" : "include_subscribed",
           "schema" : {
+            "default" : false,
             "type" : "boolean"
           }
         }, {
@@ -56716,6 +56723,7 @@
           "in" : "query",
           "name" : "show_all",
           "schema" : {
+            "default" : false,
             "type" : "boolean"
           }
         }, {
@@ -56723,13 +56731,15 @@
           "in" : "query",
           "name" : "include_granted",
           "schema" : {
+            "default" : false,
             "type" : "boolean"
           }
         }, {
-          "description" : "includeSubscribed includes components from subscribed clients. true (default) includes subscribed components. false excludes subscribed components, showing only owned.",
+          "description" : "includeSubscribed includes components from subscribed clients. false (default) excludes subscribed components, showing only owned. true also includes components from subscribed clients.",
           "in" : "query",
           "name" : "include_subscribed",
           "schema" : {
+            "default" : false,
             "type" : "boolean"
           }
         }, {
@@ -57131,6 +57141,7 @@
           "in" : "query",
           "name" : "show_all",
           "schema" : {
+            "default" : false,
             "type" : "boolean"
           }
         }, {
@@ -57534,6 +57545,7 @@
           "in" : "query",
           "name" : "show_all",
           "schema" : {
+            "default" : false,
             "type" : "boolean"
           }
         }, {
@@ -57937,6 +57949,7 @@
           "in" : "query",
           "name" : "show_all",
           "schema" : {
+            "default" : false,
             "type" : "boolean"
           }
         }, {
@@ -73359,16 +73372,20 @@
             "type" : "string"
           }
         }, {
+          "description" : "Maximum number of versions to return. A value above 1000 is rejected with max_fetch_size_1000.",
           "in" : "query",
           "name" : "limit",
           "schema" : {
+            "default" : "100",
             "nullable" : true,
             "type" : "string"
           }
         }, {
+          "description" : "Number of most recent versions to skip.",
           "in" : "query",
           "name" : "offset",
           "schema" : {
+            "default" : "0",
             "nullable" : true,
             "type" : "string"
           }
@@ -82390,18 +82407,20 @@
             "type" : "string"
           }
         }, {
-          "description" : "Optional filter for offset, defaults to 0.",
+          "description" : "Optional filter for offset.",
           "in" : "query",
           "name" : "offset",
           "schema" : {
+            "default" : "0",
             "nullable" : true,
             "type" : "string"
           }
         }, {
-          "description" : "Optional filter for limit, defaults to all.",
+          "description" : "Optional filter for limit.",
           "in" : "query",
           "name" : "limit",
           "schema" : {
+            "default" : "100",
             "nullable" : true,
             "type" : "string"
           }
@@ -82415,10 +82434,11 @@
             "type" : "string"
           }
         }, {
-          "description" : "Optional sort direction for order_by, defaults to ASCENDING. Valid values: ASCENDING (or ASC), DESCENDING (or DESC), matched case-insensitively.",
+          "description" : "Optional sort direction for order_by. Valid values: ASCENDING (or ASC), DESCENDING (or DESC), matched case-insensitively.",
           "in" : "query",
           "name" : "order",
           "schema" : {
+            "default" : "ASCENDING",
             "enum" : [ "ASC", "ASCENDING", "DESC", "DESCENDING" ],
             "nullable" : true,
             "type" : "string"
@@ -82790,18 +82810,20 @@
             "type" : "string"
           }
         }, {
-          "description" : "Optional filter for offset, defaults to 0.",
+          "description" : "Optional filter for offset.",
           "in" : "query",
           "name" : "offset",
           "schema" : {
+            "default" : "0",
             "nullable" : true,
             "type" : "string"
           }
         }, {
-          "description" : "Optional filter for limit, defaults to 100.",
+          "description" : "Optional filter for limit.",
           "in" : "query",
           "name" : "limit",
           "schema" : {
+            "default" : "100",
             "nullable" : true,
             "type" : "string"
           }
@@ -83223,7 +83245,7 @@
             "type" : "string"
           }
         }, {
-          "description" : "Optional filter for offset, defaults to 0.",
+          "description" : "Optional number of rows to skip in the report preview, 0 when only limit is set. Omit both offset and limit to download the whole report.",
           "in" : "query",
           "name" : "offset",
           "schema" : {
@@ -83231,7 +83253,7 @@
             "type" : "string"
           }
         }, {
-          "description" : "Optional filter for limit, defaults to all.",
+          "description" : "Optional number of rows in the report preview, 100 when only offset is set. Omit both offset and limit to download the whole report.",
           "in" : "query",
           "name" : "limit",
           "schema" : {
@@ -83411,17 +83433,19 @@
       "get" : {
         "description" : "Returns per-report-type performance profiles derived from this client's report execution history over the last three months. Each profile carries a performance tier, the p90 run duration, and an optional per-range-hour normalized duration. SQL-backed report types are tiered VERY_FAST regardless of their execution history. Any other report type with at least 3 runs and more than 30% of them failing on memory or interrupt errors is tiered VERY_SLOW. Report types with fewer than 3 completed runs in the window are tiered UNKNOWN. VERY_FAST is also assigned outright to any other report type whose p90 duration is under a minute, regardless of its relative rank. Remaining report types are ranked relative to their peers, with range-parameterized types ranked by per-range-hour duration and rangeless types ranked by absolute p90 duration in separate peer groups. Results are ordered fastest first, by tier and then by p90 duration, and UNKNOWN report types come last. The list is paged: pass offset to read the next page, and a page with fewer profiles than limit is the last one. Use this to bias automated report runs toward faster report types.",
         "parameters" : [ {
-          "description" : "Optional maximum number of profiles to return, defaults to 100.",
+          "description" : "Optional maximum number of profiles to return.",
           "in" : "query",
           "name" : "limit",
           "schema" : {
+            "default" : "100",
             "type" : "string"
           }
         }, {
-          "description" : "Optional number of profiles to skip before the page starts, defaults to 0.",
+          "description" : "Optional number of profiles to skip before the page starts.",
           "in" : "query",
           "name" : "offset",
           "schema" : {
+            "default" : "0",
             "type" : "string"
           }
         } ],
@@ -83728,10 +83752,11 @@
             "type" : "string"
           }
         }, {
-          "description" : "Optional filter for limit, defaults to 4.",
+          "description" : "Optional filter for limit.",
           "in" : "query",
           "name" : "limit",
           "schema" : {
+            "default" : "4",
             "type" : "string"
           }
         } ],
@@ -95589,12 +95614,13 @@
     },
     "/v6/report-types/recommendations" : {
       "get" : {
-        "description" : "Returns report types that are recommended for immediate execution, ranked by relevance for the calling client. Use the `limit` parameter to control the maximum number of results (default: 5).",
+        "description" : "Returns report types that are recommended for immediate execution, ranked by relevance for the calling client. Use the `limit` parameter to control the maximum number of results.",
         "parameters" : [ {
-          "description" : "Optional filter for limit, defaults to 5.",
+          "description" : "Optional filter for limit.",
           "in" : "query",
           "name" : "limit",
           "schema" : {
+            "default" : "5",
             "type" : "string"
           }
         } ],
@@ -102361,34 +102387,38 @@
             "type" : "string"
           }
         }, {
-          "description" : "Optional filter for offset, defaults to 0.",
+          "description" : "Optional filter for offset.",
           "in" : "query",
           "name" : "offset",
           "schema" : {
+            "default" : "0",
             "nullable" : true,
             "type" : "string"
           }
         }, {
-          "description" : "Optional filter for limit, defaults to all.",
+          "description" : "Optional filter for limit.",
           "in" : "query",
           "name" : "limit",
           "schema" : {
+            "default" : "100",
             "nullable" : true,
             "type" : "string"
           }
         }, {
-          "description" : "Optional sort field, defaults to CREATED_DATE. Valid values: CREATED_DATE, UPDATED_DATE, NAME.",
+          "description" : "Optional sort field. Valid values: CREATED_DATE, UPDATED_DATE, NAME.",
           "in" : "query",
           "name" : "order_by",
           "schema" : {
+            "default" : "CREATED_DATE",
             "nullable" : true,
             "type" : "string"
           }
         }, {
-          "description" : "Optional sort direction, defaults to DESCENDING. Valid values: ASCENDING (or ASC), DESCENDING (or DESC).",
+          "description" : "Optional sort direction. Valid values: ASCENDING (or ASC), DESCENDING (or DESC).",
           "in" : "query",
           "name" : "order",
           "schema" : {
+            "default" : "DESCENDING",
             "nullable" : true,
             "type" : "string"
           }
@@ -104946,7 +104976,11 @@
     },
     "/v1/components/{component_id}/upgrade" : {
       "post" : {
-        "description" : "Brings the component, and every component under it, to the latest published version of its `origin`, the component it was copied from, while it keeps the client's own changes. The upgrade keeps the name, display name, description and tags the client changed, the values the client set on settings and socket parameters the origin still has, the settings the client added, and the assets the client changed or added. When a socket holds two parameters whose names differ only in case, both take the origin's values. A value is the client's when it differs from the origin's state at the moment the component took that origin: the state the client copied, or the one its last upgrade or connect read. If the upgrade cannot find that state, it compares with the origin's last state at the version the copy records. A reference setting or socket parameter that the copy points at the client's own component counts as the client's even when the client never changed it, because the origin points at its own component. So the upgrade keeps the client's reference, and a new target the origin set for it does not reach the client. A setting's source counts on its own: when the client changed whether the setting is its own value or inherited, the upgrade keeps the client's source, and otherwise the setting takes the origin's. The upgrade keeps each value the client set and adds the origin's values for keys the client never set, such as another language. A setting the client added under a name the origin has since added takes the origin's values. The upgrade drops a setting the origin no longer has. The upgrade pairs each child component of the client with the child component of the origin that the client's child names as its own origin. It never pairs child components by name or type. A socket that holds one component is the only exception, as described below. The upgrade leaves a child component that has no origin as it is, unless the upgrade removes its parent. A child component the client removed stays removed, and so does everything the origin has under it. The upgrade counts a child component as removed when the origin, or the origin of the child's parent, had it at the version the client last copied or upgraded to, and the client's component no longer has it. In the same way, the upgrade removes a child component of the client when the origin had it at that version and no longer has it, also when the child's own origin no longer exists. The upgrade installs each other child component of the origin, at every depth. A child component whose own origin is not in the origin's tree, and that has an upgrade available, is upgraded on its own, against the version of its own origin that it last copied or upgraded to, and the components under it follow that origin. Any other child component whose own origin is not in the origin's tree, and that is not under a component upgraded on its own, stays as it is, also when that origin no longer exists, unless the upgrade removes its parent. When the component has no origin, the upgrade does all of this for each topmost component under it that has an origin and that has an available upgrade on it or under it, on its own. When the component's own origin no longer exists, the upgrade is refused with `component_upgrade_no_upgrade_available`, even when components under it have upgrades available. References from outside the component into it, and references the client set inside it, point at the same components after the upgrade, as long as the upgrade kept them. If the upgrade removes a component that such a reference points at, the reference loses that entry, and the client gets a `component_reference_unmatched` client event for it. A `COMPONENT_ID` setting that points at it fails the upgrade instead, with `component_upgrade_upgrade_failed`. When a `COMPONENT_ID` setting on a child component the upgrade copies from the origin holds a fixed component id, that id names a component of the origin's campaign. The upgrade points the setting at the component with the same path in this campaign: the names of its parent components and its own name, ignoring case. It does not match by origin, and it does not look in other campaigns. A value computed by an expression is copied as it is. When this campaign has no component at that path, the upgrade fails with `component_upgrade_upgrade_failed`. The component, or a component under it, needs an origin. The upgrade is refused when the component or a component under it uses an audience, a client key, a client domain pattern, a prehandler or another restricted account-level element. A socket that holds one component is resolved on its own: a component the client put there stays, a component the client removed stays removed unless the origin replaced its own, and a replacement the origin made for the component the client kept takes the client's changes with it. When the client and the origin each put a different component there, the upgrade is refused with `component_upgrade_single_socket_conflict`, which names each such socket and both components. The same error refuses an upgrade when the origin moved the component the client copied out of a socket that holds one component and put another component there, because the upgrade keeps each of the client's components where the client placed it. To get past the refusal, remove the client's component from that socket and upgrade again: the origin's component then fills the socket. After a move, the upgrade treats the moved component as one the client removed and does not install it; copy it in again with `POST /v1/components/{component_id}/duplicate` if it is still wanted. The upgrade has no preview. It can take several minutes, and it keeps running after a call that times out. To tell whether it finished, read the campaign versions. Each save of the upgrade adds a version whose message starts with `Upgrade <upgrade id> -`. The last one says `upgrade completed`. The saves commit together, so they appear only when the upgrade ends. A failed upgrade adds no version. For up to 15 minutes while it runs, any other save of the campaign is refused with `campaign_concurrent_update`, another upgrade included. The upgrade gets the same error when the campaign is being saved, or was saved after the call started. `GET /v1/components/{component_id}/available-upgrades` lists what an upgrade would bring.",
+        "description" : "Brings the component, and every component under it, to the latest published version of its `origin`, the component it was copied from, while it keeps the client's own changes. It has no preview: `GET /v1/components/{component_id}/available-upgrades` lists what it would bring. It can take several minutes, and it keeps running after a call that times out. To tell whether it finished, read the campaign versions. Each save of the upgrade adds one whose message starts with `Upgrade <upgrade id> -`, the last one says `upgrade completed`, and they appear only when the upgrade ends. A failed upgrade adds none. For up to 15 minutes while it runs, any other save of the campaign gets `campaign_concurrent_update`, and so does the upgrade when the campaign is being saved or was saved after the call started. `component_upgrade_no_upgrade_available` means nothing in the component has an available upgrade, or the component's own origin no longer exists. `component_upgrade_restricted_external_elements` means the component or one under it uses an audience, a client key, a prehandler or another restricted account-level element. `component_upgrade_single_socket_conflict` means the client and the origin each put a different component in a socket that holds one, or the origin moved the client's component out of one. Remove the client's component from that socket and upgrade again. `component_upgrade_upgrade_failed` means the upgrade could not finish, for example because a `COMPONENT_ID` setting points at a component it removes. [Component upgrades over REST](https://docs.extole.com/technical/platform-integrations/rest-apis/component-upgrades-over-rest) has the full rules.",
+        "externalDocs" : {
+          "description" : "Component upgrades over REST",
+          "url" : "https://docs.extole.com/technical/platform-integrations/rest-apis/component-upgrades-over-rest"
+        },
         "parameters" : [ {
           "in" : "path",
           "name" : "component_id",
