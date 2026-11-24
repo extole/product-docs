@@ -187,7 +187,7 @@ The type checks only that all eight are present, not that their values are usabl
 - `external.integration.url` — the partner's marketplace or extension listing, or an empty string.
 - `categories` — one `STRING` category other integrations already use, such as `eCommerce Platform`; the admin groups by exact value, so copy it from a working integration.
 - `logo` — the `IMAGE` the Integrations page renders, covered below.
-- `imageKey` — the key the platform resolves to its own stored partner image, read by the older partner detail view rather than the tile; take it from the partner page.
+- `imageKey` — the key the platform resolves to its own stored partner image, read by the older partner detail view rather than the tile. It is not derived from the partner's name or page slug, so take it from the partner page.
 
 ### Set a Logo That Resolves
 
@@ -311,7 +311,7 @@ curl --request POST \
   }'
 ```
 
-Declare a type on every socket and attach only components that satisfy it. `view-v10.0` is the parent of every view type, so one filter accepts the configuration view below plus the `report-runner-view-v10.0` and `event-stream-view-v10.0` children from [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views).
+Declare a type on every socket and attach only components that satisfy it. `view-v10.0` is the parent of the standard view types, so one filter accepts the configuration, activity, and event-stream views from [Add the Activity and Event Views](/technical/building-partner-integrations/integration-lifecycle/integration-activity-views). A Partner to Extole integration also adds a `testEventPayload` JSON setting and displays it through a `config-view-v10.0` child titled **Test Event**. Add both after configuring the business events and input rules in [Map Partner Events to Business Events](/technical/building-partner-integrations/integration-types/partner-events-map-to-business-events).
 
 ### Add a Configuration View
 
@@ -388,3 +388,4 @@ Read the built component with `GET /v1/components/built?having_all_tags=internal
 | The integration groups nowhere, or alone | `categories` sent as `STRING_LIST`, or a new spelling | One existing category, typed `STRING` |
 | The view installs into the root, which lacks `views` | `component_ids` omitted | Recreate with the parent component |
 | Configuration tab stuck in progress | `status` hardcoded | Use a buildtime expression |
+| A component's `name` changed after an edit that only set its label | `display_name` sent without `name` on the update, which re-derives `name` from the label | Send `name` alongside `display_name` on every update |

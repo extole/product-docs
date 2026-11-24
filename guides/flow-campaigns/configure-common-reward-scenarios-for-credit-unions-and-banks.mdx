@@ -5,7 +5,7 @@ description: "💡 Important Note: This guide only applies to flow campaigns tha
 
 💡 **Important Note:** This guide only applies to flow campaigns that use Extole's upgraded Flow Builder. Check for the flow icon next to your campaign name.
 
-![](https://files.readme.io/bb73980658a2ce5ec37d56dee5c55bf2265ea047e28f29d9862e2cf5a1aedd3f-b95d2e2e_Screenshot-2B2025-08-15-2Bat-2B08_43_12.png)
+![](/images/extole/90ca442dc5ec72c042de6d335e02575d76e425714c5c9df24b859868af233e8d.png)
 
 # Overview
 
@@ -78,7 +78,7 @@ The bank or CU sends an **"Account Opened"** event, but does not send a qualific
 
 
 
-![](https://files.readme.io/cd7022f0d7ea33cea0e7294248403c1c1584e3d5e1e4a41c0e5449fecc16ef35-2d214849_20cd7bc2-abb5-4bd6-af76-4cb0fa549a73.png)
+![](/images/extole/8f6b2533b5ee7057c4f59a1697c0f32984d9a14c81ef6599a1cbc4a428e34b3f.png)
 
 ## **Preventing Rewards for Negative Outcomes**
 
@@ -116,7 +116,7 @@ Use **Has Not Taken Action** to ensure that if the negative event occurs within 
 
 
 
-![](https://files.readme.io/260048f9f16d41556f8845c1d1f2a7727991302cb60d094a719389312dda8be2-7f8f9a09_1969a18a-3f44-4f7a-8f7b-a829c29f7c9a.png)
+![](/images/extole/6df7ced9050fdfdc059b9dc82a6ec20f0cc3d82d8e97e3a51b0d2f0192ee7ffa.png)
 
 ## **When to Use This Setup**
 
@@ -165,6 +165,49 @@ Once the qualification event is received and validated within the time window, t
   * Qualification must occur within a defined time window.
 
   * Rewards should be issued immediately after qualification, but not if it’s passed the defined window
+
+
+
+
+* * *
+
+# **Scenario 4: Rewards Sent When a Total Amount Is Reached Within a Time Limit**
+
+## **Overview**
+
+Extole evaluates the qualification. The bank or CU sends one event per transaction, such as each direct deposit, with the amount in the event data. The reward issues when the amounts add up to a threshold within a time window. For example, the member earns a reward once direct deposits total \$3,000 within 90 days of opening a checking account.
+
+## **Flow Builder Configuration**
+
+  1. **[Add a new business event](/guides/flow-campaigns/how-to-add-a-new-business-event)** for the transaction, such as **Direct Deposit Posted**, and **[add a reward](/guides/flow-campaigns/how-to-add-a-new-reward)** on it.
+
+  2. On that business event, under the **Data** section, click **+ New Data** and choose **Business Event Data**.
+
+     1. Rename the data to match the parameter that carries the amount (ex. value).
+
+     2. Set **Key Type** to **VALUE**. The business event then records the amount as its value, and **Total value is greater than** adds up those values. Key Type is an advanced setting, so turn on **Show Advanced** to see it. If it is still hidden, turn on **Show Expert**.
+
+  3. Click into the reward and click **+ New Reward Rule**. For friend rewards, choose **Has Taken Action**, and for advocate rewards, choose **Other Person Has Taken Action**.
+
+     1. Update the name and description to describe the rule (ex. Direct Deposits Total \$3,000 Within 90 Days).
+
+     2. Choose the transaction business event, set **Total value is greater than** to the threshold (ex. 3000), and set the **Recent Activity Window** (ex. 90 days). If a setting is not listed, turn on **Show Advanced**.
+
+  4. To require that the account was opened within the window, add a second rule of the same type on the account opening business event, with the same **Recent Activity Window**.
+
+  5. To hold the reward until the account has stayed open for a set period, or to stop it when a negative event such as **Account Closed** arrives, add a **Pending Period** and a **Has Not Taken Action** rule (**Other Person Has Not Taken Action** for advocate rewards), as in Scenario 2.
+
+  6. Adjust any other **[reward rules](/guides/flow-campaigns/how-to-set-up-reward-rules)** (Annual Reward Value Limit, etc).
+
+<Note>
+  **Total value is greater than** adds up only amounts that a data item with **Key Type** set to **VALUE** records. It passes when the total is equal to or greater than the number you enter, so 3000 means \$3,000 or more.
+</Note>
+
+## **When to Use This Setup**
+
+  * The bank or CU sends individual transactions rather than a qualification event.
+
+  * Qualification depends on a total amount, not on a single event.
 
 
 
@@ -220,4 +263,5 @@ The three primary configurations needed are creating events for each product typ
 ---|---|---|---  
 Qualify immediately on Account Qualified| Account Qualified| None| Immediate  
 Pending period qualification| Account Opening only (+ optional Account Closed)| Pending Period (+ optional Has Not Taken Action)| After waiting period (if no closure happened)  
-Time-bound qualification| Account Opening + Account Qualified| Has Taken Action with Recent Activity Window| Immediate after validation as long as within activity window
+Time-bound qualification| Account Opening + Account Qualified| Has Taken Action with Recent Activity Window| Immediate after validation as long as within activity window  
+Total amount within a time limit| Account Opening + one event per transaction, with the amount| Has Taken Action with Total value is greater than and Recent Activity Window| Immediate once the total is reached within the window, or after the pending period if one is added
