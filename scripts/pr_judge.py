@@ -428,7 +428,7 @@ def comment_send_back(verdict: dict) -> list[str]:
 
 
 NEXT_STEP = {
-    "merge-floor": "The docs owner is asked to review it.",
+    "merge-floor": "The docs owner approves it from the weekly digest.",
     "send-back": "The author, `{author}`, makes the edits in the send-back review. No person needs to read this yet.",
     "needs-human": "The docs owner answers one question. Nobody needs to read the whole diff.",
     "consolidate": "Held. This and {related} fold into one pull request, and the older one closes with a link.",
@@ -517,7 +517,7 @@ def render(pull, verdict, floor: FloorResult, safe: pr_safe.SafeClass):
     return "\n".join(lines)
 
 LABELS = {
-    "merge-floor": ("0e8a16", "Floor and claims settled; docs owner reviews"),
+    "merge-floor": ("0e8a16", "Floor and claims settled; docs owner digest"),
     "send-back": ("fbca04", "Author can fix without a person deciding"),
     "needs-human": ("d93f0b", "One reserved question needs a person"),
     "consolidate": ("1d76db", "Same section — fold into one pull request"),
@@ -566,27 +566,12 @@ def posts_send_back_review(verdict: dict, head: str, reviewed_heads: str) -> boo
     return send_back_review_marker(head) not in reviewed_heads
 
 
-VERDICTS_FOR_THE_DOCS_OWNER = ("merge-floor", "needs-human")
-
-
-def asks_the_docs_owner(pull, verdict: dict, docs_owner: str) -> bool:
-    author = (pull.get("author") or {}).get("login", "")
-    if author.lower() == docs_owner.lower():
-        return False
-    return verdict["verdict"] in VERDICTS_FOR_THE_DOCS_OWNER and not verdict.get("skipped")
-
-
-def apply(repo, pull, verdict, body, safe: pr_safe.SafeClass, docs_owner: str):
+def apply(repo, pull, verdict, body, safe: pr_safe.SafeClass):
     number = str(pull["number"])
     wanted = {verdict["verdict"]} | ({SHADOW_SAFE_LABEL[0]} if safe.would_merge else set())
     for name in [*LABELS, SHADOW_SAFE_LABEL[0], *VERSION_ONE_LABELS]:
         action = "--add-label" if name in wanted else "--remove-label"
         run(["gh", "pr", "edit", number, "--repo", repo, action, name], check=False)
-
-    if not verdict.get("source_check_pending"):
-        method = "POST" if asks_the_docs_owner(pull, verdict, docs_owner) else "DELETE"
-        run(["gh", "api", "--method", method, f"repos/{repo}/pulls/{number}/requested_reviewers",
-             "-f", f"reviewers[]={docs_owner}", "--silent"], check=False)
 
     head_repo = ((pull.get("headRepository") or {}).get("nameWithOwner") or "").lower()
     if head_repo and head_repo != repo.lower():
@@ -647,11 +632,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="classify and print; label nothing")
     parser.add_argument("--skip-preview", action="store_true", help="skip F12/F13 preview probes")
     parser.add_argument("--workers", type=int, default=1, help="parallel workers for all-open backfill")
-    parser.add_argument("--docs-owner", default=os.environ.get("PR_JUDGE_DOCS_OWNER", ""),
-                        help="GitHub login asked to review a merge-floor or needs-human pull request")
     args = parser.parse_args()
-    if not args.dry_run and not args.docs_owner:
-        parser.error("--docs-owner or PR_JUDGE_DOCS_OWNER is required unless --dry-run")
 
     rubric, standards = read_standards(args.root)
 
@@ -695,7 +676,7 @@ def _record_result(args, pull, floor, verdict, safe, results, spend):
     if args.dry_run:
         print(f"\n{'=' * 78}\n#{pull['number']} {pull.get('title')}\n{'=' * 78}\n{body}")
     else:
-        apply(args.repo, pull, verdict, body, safe, args.docs_owner)
+        apply(args.repo, pull, verdict, body, safe)
         print(f"#{pull['number']}: {verdict['verdict']} -- {verdict.get('one_line', '')}")
     results.append({
         "number": pull["number"],
