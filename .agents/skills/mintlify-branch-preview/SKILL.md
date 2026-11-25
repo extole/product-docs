@@ -25,7 +25,7 @@ docs.json navigation but the file does not exist.
 error Build validation failed with 1 warning(s).
 ```
 
-**The reverse is not caught.** A page file that is valid MDX but appears in no `docs.json` group passes validation with exit 0 — it simply ships unreachable, with no build signal and no CI failure. Measured 2026-08-21 against `mint@latest`, and six troubleshooting pages then shipped exactly that way. `python3 scripts/check_navigation.py` reports it, along with paths that do not mirror their navigation group; run it alongside `validate`.
+**`mint validate` does not catch the reverse.** A page file that is valid MDX but appears in no `docs.json` group passes `mint validate` with exit 0, and ships unreachable. `python3 scripts/check_navigation.py` reports it, along with paths that do not mirror their navigation group; run it alongside `validate`. The CI `new findings` check runs it and fails on a finding that `main` does not have.
 
 **And a page can pass `validate`, render in `mint dev`, and still 404 on the hosted preview.** The hosted build is stricter than both local tools, and it fails one page rather than the run — so `validate` is green, **Mintlify Deployment** is green, and the page you edited is the only one missing. Measured 2026-09-21: adding a `<Warning>` containing an indented markdown bullet list and a `×` (U+00D7) to `creative-image-asset-guide.mdx` left that one path 404 on `https://extole-<branch>.mintlify.site` while every unedited sibling in the same group answered 200; `npx mint@latest validate` reported `success build validation passed` and `npx mint@latest dev` served the page with the callout rendered. Rewriting the callout as plain paragraphs with ASCII `x` fixed it on the next push. So **curl the preview path of every page you touched** — a green deployment check is not the same claim, and the failure signature is indistinguishable from a page you forgot to add to `docs.json`.
 
@@ -55,7 +55,11 @@ Measured 2026-09-21 on `docs/dollar-amounts-render-as-math`: 432 pages swept in 
 
 ## CI runs the gate on every PR
 
-[`.github/workflows/validate.yml`](../../../.github/workflows/validate.yml) runs `npx --yes mint@latest validate` on every pull request, on pushes to `main`, and on manual dispatch. The **`validate`** check is a required status check on `main`, alongside one approving review, so a PR that breaks the build cannot merge.
+[`.github/workflows/validate.yml`](../../../.github/workflows/validate.yml) runs `mint validate` at the version pinned in `package.json` on every pull request, on pushes to `main`, and on manual dispatch. The **`validate`** check is a required status check on `main`, alongside one approving review, so a PR that breaks the build cannot merge.
+
+On a pull request, the **`new findings`** job runs [`scripts/check_new_findings.py`](../../../scripts/check_new_findings.py) for navigation and for broken links. It fails on a page left out of `docs.json` or a broken link that `main` does not have, and reports separately when the check could not run. It is not a required check, so a red `new findings` does not block a merge: fix what it names before you ask for review.
+
+`mint@latest` on your machine can be newer than the pinned version. When the two disagree, CI decides. Dependabot opens a pull request each week that raises the version in `package.json` to the newest release at least three days old, and `validate` runs on it, so a stricter release fails on that pull request only.
 
 The workflow deliberately carries no `paths:` filter. A required check that is skipped never reports a conclusion, so filtering it by path would leave any PR outside those paths pending forever. The run takes about 30 seconds; the cost of running it on every PR is far below the cost of a wedged merge queue.
 
@@ -89,9 +93,9 @@ Poll `GET https://api.mintlify.com/v1/project/update-status/{statusId}` until
 and only then share the link. `POST /v1/project/update/{projectId}` does the
 same for `main`, forcing a publish of docs.extole.com.
 
-The branch name becomes a DNS label in that host, so it must be lowercase
-`[a-z0-9-]` and the whole `extole-<branch>` subdomain must stay under 63
-characters. A `/` in the branch name becomes a `-`:
+The branch name becomes a DNS label in that host, so it is lowercased, it must
+otherwise be `[a-z0-9-]`, and the whole `extole-<branch>` subdomain must stay
+under 63 characters. A `/` in the branch name becomes a `-`:
 `docs/loyalty-content-gaps` is served at
 `extole-docs-loyalty-content-gaps.mintlify.site`.
 
@@ -191,6 +195,36 @@ root with no path at all. When you are sending someone a page to read, build the
 URL yourself — the host is `extole-` plus the branch with slashes as hyphens, the
 path is the page's path with `.mdx` dropped — and check it returns 200 before you
 send it.
+
+### Put a preview link to every changed page in the PR body
+
+Every PR body has a **Preview** section with one link for each page the PR adds or changes.
+A reviewer opens the page they need from the description, and does not have to work it out
+from the bot comment, which links only one page.
+
+1. List the changed pages:
+   `git diff --name-only origin/main...HEAD -- '*.mdx'`. Skip `api-reference/` and
+   `.agents/`. If only `docs.json` changed, link the pages whose navigation moved.
+2. Build each URL: `https://extole-<branch>.mintlify.site/<path>`. For `<branch>`, lowercase
+   the branch name and change each `/` to `-`. For `<path>`, drop `.mdx` from the file path.
+   Branch `Find-components-over-rest` and the file
+   `technical/platform-integrations/rest-apis/find-components-over-rest.mdx` give
+   `https://extole-find-components-over-rest.mintlify.site/technical/platform-integrations/rest-apis/find-components-over-rest`.
+3. Write the section with the page title as the link text, and open the PR:
+
+   ```markdown
+   ## Preview
+
+   - [Find Components Over REST](https://extole-find-components-over-rest.mintlify.site/technical/platform-integrations/rest-apis/find-components-over-rest) (new)
+   - [Configuration Concepts](https://extole-find-components-over-rest.mintlify.site/technical/configuring-extole/configuration-concepts)
+   ```
+
+4. Wait for the bot comment to show 🟢 Ready. Then check each link:
+   `curl -s -m 10 -o /dev/null -w '%{http_code}' <url>`. Every link must return `200`.
+5. If a link returns `404`, follow
+   **A preview can 404 on the one page the branch changed** below. Until the link returns
+   `200`, say in the Preview section that the page does not load yet. Do not remove the link.
+6. If a later push adds or removes a changed page, update the Preview section.
 
 ### A missing preview comment is a signal, not the norm
 

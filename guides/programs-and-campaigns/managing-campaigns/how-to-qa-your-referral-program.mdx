@@ -23,13 +23,16 @@ Follow our recommendations for setting up your QA tests.
 
 - Use emails that are significantly different from each other to avoid flagging the Similar Email Address rule. This rule is set up to prevent people from referring or nominating themselves or from signing up/registering as a new user multiple times.
 
-  - Bear in mind that simply adding a plus or period to an existing email address will not be enough to distinguish it. In other words, using [ellathompson@extole.com](mailto:ellathompson@extole.com) as a test email and then [ella+thompson@extole.com](mailto:ella+thompson@extole.com) or [ella.thompson@extole.com](mailto:ella.thompson@extole.com) will still flag the Similar Email Address rule.
-  - Numbers aren't enough either. The rule ignores digits when at least three letters remain, so `ellathompson1@` and `ellathompson2@` read as the same person. Make test addresses differ by letters.
+  - Bear in mind that simply adding a plus or period to an existing email address will not be enough to distinguish it. In other words, using janedoe@example.com as a test email and then jane+doe@example.com or jane.doe@example.com will still flag the Similar Email Address rule.
+  - Numbers aren't enough either. The rule ignores digits when at least three letters remain, so `janedoe1@` and `janedoe2@` read as the same person. Make test addresses differ by letters.
 
 - Do not use production data, especially if you are a financial institution or your program requires eligibility checks.
 - Do not reuse test users. Use new emails as much as possible to eliminate cache issues and prevent the possibility of testing with a user that has already been flagged as suspicious. If it’s easier, you can turn off program rules to test and turn them back on after testing. Don't do this on a live program, because real participants are evaluated without those rules while they're off. See [Risk Evaluation When You Test a Program](/guides/rewards-management/rules-configuration/fraud-and-anti-gaming-protection#risk-evaluation-when-you-test-a-program).
 - Use a staging or lower environment.
 - Test in an incognito browser window. This means using different incognito windows to test each of your customer journeys (e.g., one incognito to test the friend flow and another to test the advocate flow).
+- Use email addresses at a domain you control. Extole sends real emails to every address you test with — welcome, share, reminder, and reward emails — so an invented address can deliver to a domain that belongs to someone else.
+- Space out your test people. When many new people are created from one network within a few minutes, the Risk Evaluation quality rule can grade them as high risk. Their events still record, so the journey looks complete, but their rewards are declined. To confirm, look up the person in **User Support** and find the Risk Evaluation event, which reads "The person is considered high risk."
+- If more than one program is live, open each program's pages with an explicit hint. Without one, a zone request from a new visitor can be served by any live program that publishes that zone. See [Why a CTA Opens a Different Program's Share Experience](/technical/troubleshooting/why-a-cta-opens-a-different-programs-share-experience#option-2-send-an-explicit-journey-hint) for the hint and how to send it.
 
 ## Mobile
 
@@ -109,6 +112,16 @@ To give you an idea of what you should be looking for when you QA your program, 
 | Friend Landing Experience | Is the landing page appearance and copy correct?Are the images rendering correctly?Does the coupon/gift card code (if applicable) function? |
 | Registration, Conversion and Fulfillment | Did the friend's coupon/gift card apply correctly?Did the advocate's coupon/gift card apply correctly?Was the reward amount(s) correct?Was the friend registration and/or conversion event recorded correctly? |
 
+Check every creative, not a sample. Check each email at the width of an email client. Check each page, share experience and onsite promotion on a phone and on a desktop, because a layout fault at one width does not show at the other.
+
+On each creative, also check that:
+
+- No placeholder content is left in place, such as a stock logo, a sample brand name or template text.
+- Every headline and line of text is easy to read against what is behind it. Text over an image needs contrast with the part of the image it sits on, not only with the page's background color.
+- Every image is sharp at the size it displays. An image that is narrower than the space it fills, such as a small photo used as a full-width banner, is stretched and looks blurry.
+- Each reward amount and condition the copy states matches the rewards the campaign is set up to give.
+- The logo, colors, fonts, button style and footer match across all of your campaigns.
+
 If for some reason any of your program environments are not working correctly, report the issue(s) to your Client Services Manager so that they can work quickly to resolve the problem.
 
 ## Zone Tags
@@ -138,6 +151,14 @@ To verify that your events, such as conversions or registrations, are passing in
 
 Contact your Client Services Manager if your conversion tags are not passing information correctly.
 
+## Upgraded Campaigns
+
+When a Flow Builder campaign replaces a legacy campaign, test the new campaign in the test container as soon as it is live, and check these as well:
+
+- **Value thresholds.** **Event Value Greater Than** and **Event Value Less Than** are strict comparisons with a whole number. Check that an order at your minimum spend qualifies. See [How to Set Up Reward Rules](/guides/flow-campaigns/how-to-set-up-reward-rules).
+- **Cancellation rules.** If a cancellation stops a reward, test two friends: one who cancels the order that earned the reward, and one who cancels a different order. Check that each reward result is the one you intend. See [Has Not Taken Action](/guides/flow-campaigns/common-trigger-rules#has-not-taken-action).
+- **The legacy campaign.** End or pause it rather than stopping it, so rewards still in a pending period are issued. See [Pausing, Ending, and Scheduling Campaigns](/guides/programs-and-campaigns/managing-campaigns/pausing-ending-and-scheduling-campaigns).
+
 # Frequently Asked Questions
 
 ## I'm not receiving rewards why?
@@ -148,9 +169,13 @@ If you're QA testing your program flow and your test user isn't receiving a rewa
 - Are coupon codes loaded?
 - Did I fail a quality reward rule? (Check in user support.)
 
-If a default reward is set in your account, our system is likely sending you a test reward to ensure we are not using production rewards. If a test container user shares with a new user, that new user will also usually be put in a test container. You can force yourself into a production container using a mod header.
+A test user gets a test reward, not your live reward. Extole issues it from your account's **Default Test Reward**, and if your account has none, the test user gets no reward. See [Rewards in the Test Container](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics#rewards-in-the-test-container). If a test container user shares with a new user, that new user will also usually be put in a test container. Production is the default container, so a request that names no container reaches it. To stay in another container, such as `test`, name that container in every request. If you set the `container` cookie to `test`, every request names `test` until you clear the cookie. To return to production, clear the cookie, or name `production` in the request, for example with the `X-Extole-Container` header. See [How Extole Picks an Event's Container](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics#how-extole-picks-an-events-container).
 
 **Remember to use a new test email.** Any ongoing events will also be put in a test container if the user is in a test container. It’s best practice to start fresh with a new test email.
+
+## Why does a page that worked earlier now load blank?
+
+Check whether the test person has been blocked in **User Support**. Extole serves no content to a blocked person, so their own browser gets blank pages, and so does anyone who opens their share link. Start again in a new incognito window with a new test person, or unblock the person if they were blocked by mistake.
 
 ## How do I know if my approved or declined events are sending rewards?
 
