@@ -1,0 +1,69 @@
+---
+title: "Account Media Library"
+description: "Your account has one media library of files that every campaign can use, separate from the files uploaded to a single campaign. Manage it with the /v4/media-assets endpoints."
+---
+
+# Overview
+
+Your Extole account has a media library: one set of files that belongs to the account rather than to any campaign. It is separate from the files you upload to a component in one campaign. You list, upload, update, download, and delete library files with the `/v4/media-assets` endpoints.
+
+My Extole has no page for the media library today, so this API is how you manage it.
+
+## Library Files and Campaign Files
+
+| | Media library | Campaign component files |
+| --- | --- | --- |
+| **Belongs to** | Your account | One component of one campaign |
+| **Endpoints** | `/v4/media-assets` | `/v2/campaigns/{campaign_id}/components/{component_id}/assets` and `/v1/components/{component_id}/assets` |
+| **Used by** | Any campaign, by the file's name | The component it was uploaded to |
+
+The component file endpoints are listed under **Components** in the [API Reference](/api-reference). The media library endpoints are not in the API Reference yet; this page describes them.
+
+## Calling the API
+
+Send each call to `https://api.extole.io` with an access token in the `Authorization: Bearer` header. Create the token in the [Security Center](https://my.extole.com/security-center).
+
+- A token with the **Client Admin** access level can call every endpoint below.
+- A token with the **User Support** access level can list, read, and download files, but it cannot upload, update, or delete them.
+
+| Method and path | What it does |
+| --- | --- |
+| `GET /v4/media-assets` | Lists every file in the library. |
+| `GET /v4/media-assets/{asset_id}` | Returns one file's details. |
+| `GET /v4/media-assets/{asset_id}/download` | Downloads the file's content. |
+| `POST /v4/media-assets` | Uploads a new file. |
+| `PUT /v4/media-assets/{asset_id}` | Renames a file, replaces its content, or both. Only the parts you send change. |
+| `DELETE /v4/media-assets/{asset_id}` | Deletes the file and returns its details. |
+
+Each response describes a file with four fields: `id`, `name`, `created_date`, and `updated_date`.
+
+### Upload a File
+
+Uploads and updates are `multipart/form-data` requests with two parts: `asset`, a JSON object that carries the file's `name`, and `file`, the content.
+
+```bash
+curl -X POST "https://api.extole.io/v4/media-assets" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -F 'asset={"name":"holiday-banner.png"};type=application/json' \
+  -F "file=@holiday-banner.png"
+```
+
+## File Rules
+
+Extole checks every upload and update against these rules and returns a `400` error that names the rule when a file breaks one.
+
+- **Name**: required, up to 255 characters, and unique in your account. Extole stores the name in lowercase, so `Logo.png` is saved as `logo.png`. After lowercasing, the name may contain only letters, numbers, dashes, underscores, and periods: no spaces and no folders.
+- **Size**: the content must be smaller than 3 MB (3,072,000 bytes) and must not be empty.
+- **JavaScript**: a file whose name ends in `.js` must be valid JavaScript.
+
+## Using a Library File in a Campaign
+
+A creative file or a component setting value refers to a library file by its name with the `media-root://` prefix:
+
+```html
+<img src="media-root:///holiday-banner.png" />
+```
+
+When Extole renders the creative, it replaces `media-root://` with the address of your account's media library. The reference is to the library's file, so it is not copied into the campaign.
+
+Every upload, update, or delete in the library publishes a new version of the account's media library, and a reference resolves to an address in the newest version. Because the reference uses the file's name, renaming or deleting a file that a campaign refers to leaves that reference pointing at a name the library no longer has.

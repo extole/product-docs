@@ -1,0 +1,36 @@
+---
+title: "Advocate Stats Show No Friends"
+description: "An advocate stats dashboard that requires a verified advocate shows its empty state to an advocate who has not verified, even when their referrals are recorded."
+---
+
+# Overview
+
+An advocate opens their stats dashboard and a friend they referred is missing, or the dashboard shows no friends at all. The referral is recorded on both profiles. In most cases the advocate's session is not verified, so the dashboard never receives the friend list.
+
+## How the Dashboard Decides What to Show
+
+A friend list is private profile data. A consumer access token that is anonymous or only identified cannot read it. A verified token can. See [Security Levels](/api-reference/getting-started/authentication-overview#security-levels).
+
+The stats zone can require a verified consumer before it renders. When it does, the zone refuses a request from an advocate who has not verified and returns the `no_creative` error instead of the friend list. A dashboard that treats any error as "no referrals yet" then shows its empty state, such as "Your referrals will show up here".
+
+The advocate sees the friends after they verify and reload the dashboard. The referral itself needs no change.
+
+## Evidence That Settles It
+
+For the time between the friend's activity and the moment the advocate looked at the dashboard:
+
+- An **Input Records** report for the stats zone's event lists each time the advocate's page asked for stats.
+- A request that the zone served also records a step named for the zone's controller on the advocate's profile.
+- A request with no matching step at its time was refused.
+
+If every request has its step, the zone served the friend list, and the cause is in what the dashboard displays.
+
+## What to Do
+
+- **For the advocate**: verify through a route your campaign offers, such as an email verification link or your own login with a JWT. See [Verifying Consumers](/technical/operational-tasks/security-and-compliance/verifying-consumers).
+- **For the campaign**: when the stats request is refused, show a prompt to verify instead of the empty state. Work with your Extole Customer Success Manager to change the dashboard.
+
+## Related
+
+- [Add an Advocate Stats Dashboard](/guides/programs-and-campaigns/add-an-advocate-stats-dashboard)
+- [Errors](/api-reference/getting-started/common-errors)
