@@ -143,27 +143,27 @@ For different programs and varying reward types, set up multiple Reward Bank ext
 
 ### When Two Reward Banks Are Live
 
-Reward Banks answer the `bankable_rewards` zone by default, and the Extole-hosted Redemption Center requests that zone by name. When two banks are live and a request carries no `target=campaign_id:` parameter, both banks answer it, and the platform picks one of them for the visitor. Later requests from that visitor that carry no parameter return the same bank. When their rewards are in the other bank, the balance they see is empty, and the zone request still succeeds.
+By default, every Reward Bank answers the same zone, `bankable_rewards`, and that's the zone the Extole-hosted Redemption Center asks for. If two banks are live and a link doesn't say which bank it wants, Extole picks one of the two for that member. Later visits without the parameter go to the same bank. If the member's rewards are in the other bank, the Redemption Center still loads, but it shows an empty balance.
 
-Giving one bank a different zone name does not separate them: the Redemption Center requests `bankable_rewards` whatever the bank's zone name is.
+Changing one bank's zone name doesn't keep the banks apart, because the Redemption Center always asks for `bankable_rewards`.
 
-Include `target=campaign_id:<REWARD_BANK_CAMPAIGN_ID>` in every link that leads to a Reward Bank, so the request reaches the bank you name.
-
-This example link opens the Extole-hosted Redemption Center through its own zone, `redemption_center_microsite`, which then loads the balance from `bankable_rewards`:  
+To send members to the right bank, add `target=campaign_id:<REWARD_BANK_CAMPAIGN_ID>` to every link that leads to a Reward Bank. For example, this link opens the Extole-hosted Redemption Center through its `redemption_center_microsite` zone, for the bank you name:  
 `https://test.extole.io/zone/redemption_center_microsite?target=campaign_id:<CAMPAIGN_ID>&jwt=<JWT_TOKEN>`
 
-The extension builds the Redemption Center link in a reward email from the **Redemption Center URL** setting:
+Reward emails don't add this parameter. The extension builds the Redemption Center link in a reward email from the **Redemption Center URL** setting:
 
-* When the setting is a zone name, the link is `https://<Program_Domain>/zones/<ZONE_NAME>?jwt=<JWT_TOKEN>`.
-* When the setting is a full URL that starts with `https://`, the email uses that URL exactly as entered and adds no JWT.
+* If the setting is a zone name, the link is `https://<Program_Domain>/zones/<ZONE_NAME>?jwt=<JWT_TOKEN>`.
+* If the setting is a full URL that starts with `https://`, the email uses that URL exactly as you entered it, without a JWT.
 
-Neither form adds `target=campaign_id:`.
+### Show the Right Bank on a Program's Page
 
-### Repoint Every Program That Embeds a Bank
+To show a Reward Bank inside one of your program's pages, use the **Reward Bank Redemption Center Panel** content block. You can add it only to a page built from a **Composable Page** template.
 
-The **Reward Bank Redemption Center Panel** is a content block, so you can add it only to a content area of a page built from a **Composable Page** template. A page that is not built from one of those templates cannot hold it. The **Template With Authentication And Enrollment** template already includes it in the **Right Content** area that enrolled members see. The block's **Reward Bank Campaign ID** setting adds `target=campaign_id:` for the bank you enter. When the setting is empty, the panel loads no bank and shows "Reward Bank Campaign ID is required".
+The **Microsite V2 with Authentication and Enrollment** page already includes the panel. In My Extole, it's listed on that page as **Reward Bank Redemption Center**, in the **Right Content** area that enrolled members see.
 
-That pin is per program, and it does not follow the reward. When you move a program's rewards to a different bank, change **Reward Bank Campaign ID** on that program's panel in the same release.
+The panel opens the bank whose campaign ID you enter in its **Reward Bank Campaign ID** setting. Copy the ID from the URL of the Reward Bank campaign in My Extole. If the setting is empty, the panel shows "Reward Bank Campaign ID is required" instead of a balance.
+
+Each program's panel has its own **Reward Bank Campaign ID**, and it doesn't change when you move rewards. If you move a program's rewards to a different bank, update that program's panel in the same release.
 
 ## Reading a Balance
 
