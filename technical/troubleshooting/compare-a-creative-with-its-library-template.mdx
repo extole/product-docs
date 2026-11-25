@@ -5,7 +5,7 @@ description: "Decide whether a Flow Builder campaign's creative carries a hand-m
 
 # Overview
 
-Use this page when you need to know whether a Flow Builder campaign's creative was changed by hand, or is still the library template. A campaign rebuilt from library components carries none of the old creative's hand-made changes, so find them before a rebuild.
+Use this page when you need to know whether a Flow Builder campaign's creative was changed by hand, or is still the library template.
 
 Every read on this page uses your own access token and changes nothing. Your account can read the library templates that Extole's own accounts hold. It can read a component in any other account only if it subscribes to that account.
 
@@ -26,13 +26,13 @@ Do not compare the page a zone serves. The served code is built from the archive
 A Flow Builder component can record its **origin**: the component it was copied from, the account that owns that component, and that component's version at the copy, or at the last upgrade that brought this component to it.
 
 1. Find the campaign's creative action for the experience in question. The component on that action is the campaign's copy.
-2. Read the origin. If an Extole account owns the origin component, that component is the library template. A copy made inside the same account keeps the first copy's origin, so a campaign duplicated within your account still points at the template. If one of your own accounts owns the origin component, the component was copied across accounts: read that component's origin, and repeat until you reach a component that Extole owns.
+2. Read the origin. If an Extole account owns the origin component, that component is the library template. Otherwise the origin is the component this one was copied from. A copy made inside the same account keeps the source's origin when the source has one, so it points past the source. It points at the source itself when the copy came from another account, or when the source recorded no origin. Read the origin component's own origin, and repeat until you reach a component that Extole owns. If you reach a component that records no origin, or one your account cannot read, there is no library template to compare against.
 3. Read the template's campaign, and find the creative action whose component is the template. That action's archive is the one to compare against.
 4. Compare the version the origin recorded with the template's current version. If the template's current version is newer, the template has had a new version since the copy or the last upgrade. In the rest of this page, that is what "the library has changed since the copy" means. A new version does not always change the code: it can change only the template's settings.
 
 Stop and say so when there is no template to compare against:
 
-- **The component records no origin.** The platform does not know what it was copied from. A change to the component's types, its install, its first-level elements other than child components, or the account-level elements it uses clears the origin.
+- **The component records no origin.** The platform does not know what it was copied from. Some edits to a component clear its origin.
 - **The library no longer holds the template.** Reading the origin answers **Component not found**.
 
 Do not substitute a library component with the same name. It is a different template, and most of what the comparison finds would be differences between the two templates, not changes to the campaign.
@@ -41,9 +41,9 @@ Do not substitute a library component with the same name. It is a different temp
 
 If the library has changed since the copy, the template's current archive mixes two kinds of difference: changes made in the campaign, and changes the library made afterwards. A version of the campaign, or of the template's own campaign, holds the template as it was copied, and comparing against it separates the two.
 
-1. Read the campaign's version history. Count back from the latest version to the last one where the component holds its current origin, with the same component and version. That version took the origin: it duplicated a campaign, restored an older version of this campaign, upgraded the component, or connected the component to its origin.
+1. Read the campaign's version history. Count back from the latest version to the last one where the component holds its current origin, with the same component and version. That version took the origin. Read its message to see how. These steps cover a version that duplicated a campaign, restored an older version of this campaign, upgraded the component, or connected the component to its origin. If the version took the origin some other way, compare with the template's current archive and report each difference that the library could have made as unresolved.
 2. If that version restored an older version of this campaign, repeat step 1 from the restored version.
-3. If that version duplicated another campaign, its message names the source campaign and version. If the source is the template's campaign, the copying version holds the template as copied. Otherwise, find the same component in the source at that version, and repeat step 1 in the source.
+3. If that version duplicated another campaign, and its message reads `Campaign duplicated: sourceCampaignId=…, sourceCampaignVersion=…`, the message names the source campaign and version. If the message does not name them, compare with the template's current archive as in step 1. If the source is the template's campaign, the copying version holds the template as copied. Otherwise, find the same component in the source at that version, and repeat step 1 in the source.
 4. If that version upgraded the component or connected it to its origin, the template's own campaign holds the template as it was taken. When the template is in another account, that is the newest published version of the template's campaign at or before the time the origin was taken. When it is in your own account, it is the newest version saved at or before that time. Download the template's archive at that version.
 5. Otherwise, download the creative archive of the copying version.
 
@@ -56,7 +56,7 @@ If the library has not changed since the copy, compare the template's current ar
 
 ## Read Each Difference
 
-Remove the first folder from every path in both archives before you compare. Each archive keeps its files under a folder named for its own creative action, so that folder always differs.
+The archive download puts every file under a folder named for the creative action's ID. Remove that first folder from every path in both archives before you compare, so the two action IDs do not show up as a difference.
 
 When you compare with the template's current archive, read each difference with this table.
 
