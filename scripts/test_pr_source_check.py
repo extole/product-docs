@@ -142,5 +142,43 @@ class JudgeCommentTests(unittest.TestCase):
         self.assertIn("Unreadable claims: 1.", body)
 
 
+class JudgeCommentLayoutTests(unittest.TestCase):
+    VERIFIED = {**CONTRADICTED, "sentence": "Rewards are issued after the friend converts.", "status": "verified"}
+
+    def verdict(self, model_verdict, *claims):
+        rows = source_check.merge_claims(source_check.SourceCheck(claims=list(claims), failed=False), [])
+        return apply_verdict_steps({"claims": rows, "reasons": [], **model_verdict}, FloorResult())
+
+    def top_and_details(self, verdict):
+        pull = {"number": 1, "author": {"login": "extole-ada-lovelace[bot]"}}
+        body = render(pull, verdict, FloorResult(), pr_safe.SafeClass(would_merge=False, reasons=["too long"]))
+        top, details = body.split("<details>", 1)
+        return top, details
+
+    def test_a_send_back_tells_people_they_have_nothing_to_do_yet(self):
+        finding = "Correct the report count in the first paragraph."
+        top, details = self.top_and_details(self.verdict({"verdict": "send-back", "send_back": [finding]}, CONTRADICTED))
+        self.assertIn("**A person needs to:** Nothing yet.", top)
+        self.assertIn("`extole-ada-lovelace[bot]`", top)
+        self.assertNotIn(finding, top)
+        self.assertNotIn(CONTRADICTED["sentence"], top)
+        self.assertIn(finding, details)
+
+    def test_needs_human_puts_the_question_on_top(self):
+        verdict = self.verdict({"verdict": "needs-human", "reserved": "R1", "human_question": "Is the reward capped? (R1)"}, self.VERIFIED)
+        top, _ = self.top_and_details(verdict)
+        self.assertIn("**A person needs to:** Answer this: Is the reward capped? (R1)", top)
+
+    def test_merge_floor_shows_the_claims_the_owner_reads_for_scope(self):
+        top, details = self.top_and_details(self.verdict({"verdict": "merge-floor"}, self.VERIFIED))
+        self.assertIn(self.VERIFIED["sentence"], top)
+        self.assertNotIn(self.VERIFIED["sentence"], details)
+
+    def test_the_details_list_unsettled_claims_before_verified_ones(self):
+        _, details = self.top_and_details(self.verdict({"verdict": "send-back", "send_back": []}, self.VERIFIED, CONTRADICTED))
+        self.assertLess(details.index(CONTRADICTED["sentence"]), details.index(self.VERIFIED["sentence"]))
+        self.assertIn("claims 1 verified, 1 contradicted", details.split("</summary>", 1)[0])
+
+
 if __name__ == "__main__":
     unittest.main()

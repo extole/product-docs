@@ -425,46 +425,94 @@ def comment_send_back(verdict: dict) -> list[str]:
     return verdict["send_back_findings"] + claim_line
 
 
+NEXT_STEP = {
+    "merge-floor": "The docs owner approves it from the weekly digest.",
+    "send-back": "The author, `{author}`, makes the edits in the send-back review. No person needs to read this yet.",
+    "needs-human": "The docs owner answers one question. Nobody needs to read the whole diff.",
+    "consolidate": "Held. This and {related} fold into one pull request, and the older one closes with a link.",
+    "route-elsewhere": "The change moves to where it belongs, and this pull request closes with a link.",
+    "close": "This pull request closes. The reason is under **Why** in the details.",
+}
+PERSON_ACTION = {
+    "merge-floor": "Read the claims below for scope, then approve.",
+    "send-back": "Nothing yet.",
+    "consolidate": "Nothing yet.",
+    "route-elsewhere": "Nothing yet.",
+    "close": "Close it, or change the label if you disagree.",
+}
+
+
+def next_step(pull, verdict: dict) -> str:
+    author = (pull.get("author") or {}).get("login", "unknown")
+    related = ", ".join(f"#{number}" for number in verdict.get("related_open") or []) or "the related pull requests"
+    return NEXT_STEP[verdict["verdict"]].format(author=author, related=related)
+
+
+def person_action(verdict: dict) -> str:
+    if verdict["verdict"] == "needs-human":
+        return f"Answer this: {verdict.get('human_question') or 'the judge is unsure.'}"
+    return PERSON_ACTION[verdict["verdict"]]
+
+
+def claim_summary(claims: list[dict]) -> str:
+    counts = [(status, sum(1 for row in claims if row.get("status") == status)) for status in source_check.STATUSES]
+    return ", ".join(f"{count} {status}" for status, count in counts if count)
+
+
+def claim_lines(claims: list[dict]) -> list[str]:
+    unsettled_first = sorted(claims, key=lambda row: row.get("status") == "verified")
+    return [
+        f"- {row.get('status')}: {row.get('sentence', '')[:200]} ({row.get('source', '')})"
+        for row in unsettled_first
+    ]
+
+
 def render(pull, verdict, floor: FloorResult, safe: pr_safe.SafeClass):
     label = verdict["verdict"]
+    claims = verdict.get("claims") or []
     lines = [
         "<!-- pr-judge -->",
         f"### Docs PR judge (v2): `{label}`",
         "",
         verdict.get("one_line", ""),
         "",
+        f"**Next:** {next_step(pull, verdict)}",
+        "",
+        f"**A person needs to:** {person_action(verdict)}",
+        "",
     ]
     notes = before_review(floor)
     if notes:
         lines += ["**Before you review**", ""] + [f"- {note}" for note in notes] + [""]
-    lines += [shadow_line(safe), ""]
-    if verdict.get("human_question") and label == "needs-human":
-        lines += [f"**Question for a person:** {verdict['human_question']}", ""]
+    if claims and label == "merge-floor":
+        lines += [f"**Claims** ({claim_summary(claims)})", ""] + claim_lines(claims) + [""]
+
+    summary = "Details"
+    if claims:
+        summary += f": claims {claim_summary(claims)}"
+    lines += [f"<details><summary>{summary}</summary>", ""]
     if verdict.get("send_back") and label == "send-back":
         lines += ["**Send back**", ""] + [f"- {item}" for item in comment_send_back(verdict)] + [""]
-    if verdict.get("claims"):
-        lines += ["**Claims**", ""]
-        lines += [
-            f"- {row.get('status')}: {row.get('sentence', '')[:200]} ({row.get('source', '')})"
-            for row in verdict["claims"]
-        ] + [""]
+    if claims and label != "merge-floor":
+        lines += ["**Claims**", ""] + claim_lines(claims) + [""]
     if verdict.get("reasons"):
         lines += ["**Why**", ""] + [f"- {defuse_reasons(r, 'extole/product-docs')}" for r in verdict["reasons"]] + [""]
     if verdict.get("related_open"):
         lines += ["**Related open pull requests**", ""]
         lines += [f"- #{n}" for n in verdict["related_open"]] + [""]
     lines += [
-        "---",
+        shadow_line(safe),
         "",
         "Verdicts: `merge-floor`, `send-back`, `needs-human`, `consolidate`, `route-elsewhere`, `close`. "
         "This is a routing hint; it merges nothing. `main` still needs green `validate` and one approving review. "
         "**Disagree?** Change the label or reply — that is how "
         "[`.agents/pr-judge/RUBRIC.md`](https://github.com/extole/product-docs/blob/main/.agents/pr-judge/RUBRIC.md) improves.",
         "",
+        "</details>",
+        "",
         "🤖 _Posted by an AI agent._",
     ]
     return "\n".join(lines)
-
 
 LABELS = {
     "merge-floor": ("0e8a16", "Floor and claims settled; docs owner digest"),
