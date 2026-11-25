@@ -73,7 +73,7 @@ of the model's context.
 | F1 | The `validate` check is green | `send-back`. When `validate` fails on `main` too, the failure is not this change's, and it only informs | Required check |
 | F2 | No page is unlisted in `docs.json` that the base listed, and the change adds no unlisted page. The check is the delta against the base | `send-back` | The `new findings` check also reports it, through `scripts/check_new_findings.py` |
 | F3 | No new broken link against the base (`mint broken-links`) | `send-back` | The `new findings` check reports it, through `scripts/check_new_findings.py`. The judge does not read that check yet |
-| F4 | No instruction to change a setting that creative tags `importance:expert`, because showtime hides that tag from customers (`HIDDEN_TAGS`). No internal-only term in prose: a version label outside code and outside an API path (`\bv\d+(\.\d+)?\b`, but not `/v6/`), **Show Expert**, "Expert setting", an internal repository name, a ticket key, a Slack link, a client name or id, a person's email | `send-back` | A term counts only when the added text is its first appearance in the published pages, so `support@extole.com` and `UTF-8` pass. Paths under `/images/` are not scanned. The term list is decision plan §11.4 |
+| F4 | A setting that creative tags `importance:expert` is named only when a task the page teaches needs it, and there the page tells the reader to turn on **Show Expert**. My Extole hides expert settings by default and shows that filter to every user. No internal-only term in prose: a version label outside code and outside an API path (`\bv\d+(\.\d+)?\b`, but not `/v6/`), an internal repository name, a ticket key, a Slack link, a client name or id, a person's email | `send-back` | A term counts only when the added text is its first appearance in the published pages, so `support@extole.com` and `UTF-8` pass. Paths under `/images/` are not scanned. The term list is decision plan §11.4 |
 | F5 | No remote image, no `expires=` parameter, and no absolute `docs.extole.com` link to our own pages | `send-back` | Standards only |
 | F6 | No closing keyword before a GitHub reference in the title, the body or a commit | `send-back` | Not checked |
 | F7 | The literals the diff changes: backtick tokens, code blocks, event names, API paths, numbers with units | Informs V. Never a failure on its own | New |
@@ -293,7 +293,7 @@ Copy this into `product-docs-authoring` in M1, and into Ada's and Garry's docs p
    into it.
 6. Merge `main` in before you mark the pull request ready.
 7. Run F12 and F13 on your preview, and write the result on the `Replay:` line.
-8. Keep versions, employee-only settings, repositories, tickets, clients and people out of the page.
+8. Keep versions, repositories, tickets, clients and people out of the page.
 
 ## Calibration
 
