@@ -9,21 +9,21 @@ An event reaches the right person and is saved, but it is recorded unattributed,
 
 ## Why the Event Time Matters
 
-Extole attributes an event using the time the event carries, not the time it arrived. In a direct file upload, that time comes from the `event_time` column. If the column is empty, Extole uses the time the row is processed. See [File-Based Events](/technical/platform-integrations/files/file-based-events).
+Extole attributes an event using the time the event carries, not the time it arrived. In a direct file upload, that time comes from the `event_time` column, and a row with no `event_time` takes the time the file is processed. See [File-Based Events](/technical/platform-integrations/files/file-based-events).
 
 So an event can arrive weeks after the date it carries. A file that sends a qualification on the day it is earned, but dates it to the day the account opened, does this on every row.
 
-When an event's time differs from the time it arrived, Extole ignores each referral and each journey created at or after that time. If the friend's referral was created later than the event time, the event is treated as having happened before the friend was referred, and it is recorded unattributed.
+When a row from a direct file upload carries a time other than the time it arrived, Extole leaves out the friend's referrals created at or after that time, and the friend's journeys created at or after it, other than a journey this event starts. If the friend's referral was created later than the event time, the event is treated as having happened before the friend was referred, and it is recorded unattributed.
 
 On a direct file upload, a date with no time of day resolves to the start of that day in your account's time zone. That makes this cause likely: a row dated to the start of the day is earlier than a referral made later that same day.
 
-A Flow Builder file integration can change the event time before this check. Its **Delayed Event**, installed by default, removes `event_time` from the rows it matches and sends them at a new time, or skips them. See [Delay a File Event](/technical/platform-integrations/extensions/file-integration#delay-a-file-event).
+A Flow Builder file integration can include a **Delayed Event**, which holds the rows for the event it is named for and sends each one when its date arrives. A row with no `event_time`, or a date that has already passed, waits for the delay you set. The held row is sent again as an event Extole raises itself, dated to the time it is sent, so this check does not apply to it. See [Delay a File Event](/technical/platform-integrations/extensions/file-integration#delay-a-file-event).
 
 ## Why Another Event Can Still Attribute
 
-A business event with an eligibility window holds each event for the length of the window, 24 hours by default, and then sends it again. Extole does not treat the resent event as dated in the past, so it is attributed if the referral exists by the time the window ends, whatever date the event carries.
+A business event with an eligibility window holds each event for the length of the window, 24 hours unless the campaign sets another length, and then sends it again as an event Extole raises itself. The resent event keeps its original date, but this check applies only to events sent into Extole, so the friend's referral counts if it exists by the time the window ends.
 
-A business event without an eligibility window does not do this. So the same person's account opening, with the same date, can be attributed while their qualification is not. An attributed event for the same person does not rule this cause out. Check which business events in the campaign have an eligibility window.
+A business event without an eligibility window takes the uploaded event as it arrives, so the check applies. So the same person's account opening, with the same date, can be attributed while their qualification is not. An attributed event for the same person does not rule this cause out. Check which business events in the campaign have an eligibility window.
 
 ## How to Confirm It
 
