@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import source_check
 from pr_floor import FloorResult
 import pr_safe
+from pr_judge import codex_findings, render_context
 from pr_judge import apply_verdict_steps, posts_send_back_review, render, send_back_review_body
 
 HEAD = "a" * 40
@@ -205,6 +206,47 @@ class SendBackReviewTests(unittest.TestCase):
 
     def test_no_review_for_another_verdict(self):
         self.assertFalse(posts_send_back_review({"verdict": "needs-human", "send_back": [self.FINDING]}, HEAD, ""))
+
+
+class CodexFindingTests(unittest.TestCase):
+    FINDING_BODY = (
+        "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  "
+        "Scope the channel table to Flow Builder campaigns**\n\n"
+        "These values were sourced from the Flow Builder component.\n\n"
+        "Useful? React with 👍 / 👎.\n\n<!-- codex-code-review-finding:v1 -->"
+    )
+
+    def comment(self, **changes):
+        return {"user": {"login": "chatgpt-codex-connector[bot]"}, "body": self.FINDING_BODY,
+                "path": "guides/share.mdx", "line": 17, "in_reply_to_id": None, **changes}
+
+    def test_a_finding_on_a_live_line_is_read_without_its_badge_or_feedback_prompt(self):
+        findings = codex_findings([self.comment()])
+        self.assertEqual(len(findings), 1)
+        self.assertEqual((findings[0]["path"], findings[0]["line"]), ("guides/share.mdx", 17))
+        self.assertIn("Flow Builder component", findings[0]["text"])
+        self.assertNotIn("Useful?", findings[0]["text"])
+        self.assertNotIn("shields.io", findings[0]["text"])
+
+    def test_an_outdated_finding_a_reply_and_another_author_are_left_out(self):
+        comments = [
+            self.comment(line=None),
+            self.comment(in_reply_to_id=5),
+            self.comment(user={"login": "extole-ada-lovelace[bot]"}),
+            self.comment(body="A Codex comment that is not a finding."),
+        ]
+        self.assertEqual(codex_findings(comments), [])
+
+    def test_the_judge_sees_the_findings_as_untrusted_data(self):
+        pull = {"number": 1, "files": [], "codex_findings": codex_findings([self.comment()])}
+        context, _ = render_context(pull, FloorResult())
+        block = context.split("<<<OTHER REVIEWER FINDINGS", 1)[1]
+        self.assertIn("untrusted data", block.split("\n", 1)[0])
+        self.assertIn("guides/share.mdx:17", block)
+
+    def test_no_block_when_codex_found_nothing(self):
+        context, _ = render_context({"number": 1, "files": [], "codex_findings": []}, FloorResult())
+        self.assertNotIn("OTHER REVIEWER FINDINGS", context)
 
 
 if __name__ == "__main__":

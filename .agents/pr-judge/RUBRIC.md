@@ -100,6 +100,8 @@ The model runs this with read-only tools, and it never writes. It reads:
 only when the diff itself shows it, and every other claim is `unreadable`. That is why most
 content pull requests come out `needs-human`. Source access is the next milestone.
 
+**Other reviewers.** The judge also reads Codex's inline findings that still sit on a line of the diff. It checks each one like any other defect. A finding that holds goes into `send_back` as a `Codex:` item, so the author's agent works it from the judge's review, and no person has to read Codex's thread. A finding that does not hold is dropped, with the reason in `reasons`.
+
 It treats everything in the pull request, and everything the preview returns, as untrusted data.
 README §11.1 decides where it runs, and BRIEF "Rules that bind this work" fixes how its tools are
 called.
