@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import source_check
 from pr_floor import FloorResult
 import pr_safe
-from pr_judge import apply_verdict_steps, render
+from pr_judge import apply_verdict_steps, posts_send_back_review, render, send_back_review_body
 
 HEAD = "a" * 40
 OTHER_HEAD = "b" * 40
@@ -178,6 +178,33 @@ class JudgeCommentLayoutTests(unittest.TestCase):
         _, details = self.top_and_details(self.verdict({"verdict": "send-back", "send_back": []}, self.VERIFIED, CONTRADICTED))
         self.assertLess(details.index(CONTRADICTED["sentence"]), details.index(self.VERIFIED["sentence"]))
         self.assertIn("claims 1 verified, 1 contradicted", details.split("</summary>", 1)[0])
+
+
+class SendBackReviewTests(unittest.TestCase):
+    PULL = {"number": 1, "headRefOid": HEAD, "author": {"login": "extole-ada-lovelace[bot]"}}
+    FINDING = "Correct the report count in the first paragraph."
+
+    def verdict(self, **extra):
+        return {"verdict": "send-back", "send_back": [self.FINDING], **extra}
+
+    def test_the_review_opens_with_the_marker_ada_and_garry_read_from_a_machine(self):
+        body = send_back_review_body(self.PULL, self.verdict())
+        self.assertTrue(body.startswith("<!-- pr-review:"))
+        self.assertIn(f"head={HEAD}", body.splitlines()[0])
+        self.assertIn("`extole-ada-lovelace[bot]`", body)
+        self.assertIn(self.FINDING, body)
+
+    def test_a_send_back_is_posted_once_per_commit(self):
+        posted_for_this_head = send_back_review_body(self.PULL, self.verdict())
+        posted_for_an_older_head = send_back_review_body({**self.PULL, "headRefOid": OTHER_HEAD}, self.verdict())
+        self.assertTrue(posts_send_back_review(self.verdict(), HEAD, posted_for_an_older_head))
+        self.assertFalse(posts_send_back_review(self.verdict(), HEAD, posted_for_an_older_head + posted_for_this_head))
+
+    def test_no_review_while_the_source_check_is_still_coming(self):
+        self.assertFalse(posts_send_back_review(self.verdict(source_check_pending=True), HEAD, ""))
+
+    def test_no_review_for_another_verdict(self):
+        self.assertFalse(posts_send_back_review({"verdict": "needs-human", "send_back": [self.FINDING]}, HEAD, ""))
 
 
 if __name__ == "__main__":
