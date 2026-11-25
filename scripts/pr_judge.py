@@ -514,6 +514,37 @@ def claim_lines(claims: list[dict]) -> list[str]:
     ]
 
 
+MAX_PREVIEW_LINKS = 5
+PAGE_PATH = re.compile(r"^(guides|product|technical|news|runbooks)/.+\.mdx$")
+
+
+def validate_status(floor: FloorResult) -> str:
+    if floor.validate_failed:
+        return f"`{REQUIRED_CHECK}` failed (`{floor.validate_conclusion}`)"
+    if floor.validate_conclusion is None:
+        return f"`{REQUIRED_CHECK}` has not finished"
+    return f"`{REQUIRED_CHECK}` passed"
+
+
+def preview_links(pull, floor: FloorResult) -> list[str]:
+    if not floor.preview_host:
+        return []
+    pages = [
+        entry["filename"] for entry in pull.get("files") or []
+        if PAGE_PATH.match(entry["filename"]) and entry.get("status") != "removed"
+    ]
+    return [
+        f"[{Path(page).stem}](https://{floor.preview_host}/{page.removesuffix('.mdx')})"
+        for page in pages[:MAX_PREVIEW_LINKS]
+    ]
+
+
+def checks_line(pull, floor: FloorResult) -> str:
+    links = preview_links(pull, floor)
+    preview = f" · Preview: {', '.join(links)}" if links else ""
+    return f"**Checks:** {validate_status(floor)}{preview}"
+
+
 def render(pull, verdict, floor: FloorResult, safe: pr_safe.SafeClass):
     label = verdict["verdict"]
     claims = verdict.get("claims") or []
@@ -526,6 +557,8 @@ def render(pull, verdict, floor: FloorResult, safe: pr_safe.SafeClass):
         f"**Next:** {next_step(pull, verdict)}",
         "",
         f"**A person needs to:** {person_action(verdict)}",
+        "",
+        checks_line(pull, floor),
         "",
     ]
     notes = before_review(floor)

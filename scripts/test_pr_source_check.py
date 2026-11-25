@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import source_check
 from pr_floor import FloorResult
 import pr_safe
-from pr_judge import codex_findings, render_context
+from pr_judge import checks_line, codex_findings, render_context
 from pr_judge import apply_verdict_steps, posts_send_back_review, render, send_back_review_body
 
 HEAD = "a" * 40
@@ -247,6 +247,30 @@ class CodexFindingTests(unittest.TestCase):
     def test_no_block_when_codex_found_nothing(self):
         context, _ = render_context({"number": 1, "files": [], "codex_findings": []}, FloorResult())
         self.assertNotIn("OTHER REVIEWER FINDINGS", context)
+
+
+class ChecksLineTests(unittest.TestCase):
+    PULL = {"number": 1, "files": [
+        {"filename": "guides/campaigns/share-channels.mdx", "status": "modified"},
+        {"filename": "images/share.png", "status": "added"},
+        {"filename": "guides/campaigns/old-page.mdx", "status": "removed"},
+    ]}
+
+    def test_a_reviewer_gets_the_check_and_a_link_to_each_changed_page(self):
+        floor = FloorResult(validate_conclusion="success", preview_host="extole-eng-1.mintlify.site")
+        line = checks_line(self.PULL, floor)
+        self.assertIn("`validate` passed", line)
+        self.assertIn("[share-channels](https://extole-eng-1.mintlify.site/guides/campaigns/share-channels)", line)
+        self.assertNotIn("share.png", line)
+        self.assertNotIn("old-page", line)
+
+    def test_a_running_or_failed_check_is_said_plainly(self):
+        self.assertIn("has not finished", checks_line(self.PULL, FloorResult()))
+        failed = FloorResult(validate_conclusion="failure", validate_failed=True)
+        self.assertIn("`validate` failed (`failure`)", checks_line(self.PULL, failed))
+
+    def test_no_preview_link_without_a_preview_host(self):
+        self.assertNotIn("Preview", checks_line(self.PULL, FloorResult(validate_conclusion="success")))
 
 
 if __name__ == "__main__":
