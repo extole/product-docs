@@ -54,7 +54,9 @@ distillation and defers to them.
 | `url-map.json` | Old-URL → new-path redirects; the converter emits them into `docs.json`. Add an entry whenever you rename or move a page. |
 | `scripts/convert_from_product_docs.py` | The deterministic generator that produced these pages from the ReadMe corpus. Kept for provenance — never re-run it over pages that have been hand-edited since. |
 | `scripts/check_navigation.py` | Reports pages absent from `docs.json`, navigation entries with no file, and paths that do not mirror their navigation group chain. Run it with `validate` before every PR. |
-| `.github/workflows/validate.yml` | CI: runs `npx --yes mint@latest validate` on every PR and on pushes to `main`. The **`validate`** check is required to merge. |
+| `scripts/check_new_findings.py` | Compares a checkout with a base commit. Exits 1 on navigation or broken-link findings that the base does not have, and 2 when the check could not run. `main` already carries findings of both kinds, so the plain checks cannot gate. |
+| `package.json` | Holds only the Mintlify CLI version that CI uses. Dependabot (`.github/dependabot.yml`) opens a PR each week when a version at least three days old is out, and `validate` runs on that PR, so a stricter release fails there and nowhere else. Review it like any PR. |
+| `.github/workflows/validate.yml` | CI: the **`validate`** job runs `mint validate` at the version in `package.json` on every PR and on pushes to `main`, and is required to merge. On a PR, the **`new findings`** job runs `check_new_findings.py` for navigation and broken links. It is not required yet, so a red `new findings` does not block a merge. |
 | `.mintlify/AGENTS.md` | The writing standards, including where a page lives. Never served publicly — Mintlify does not expose `.mintlify/`. |
 | `AGENTS.md`, `.agents/`, `.claude/`, `.cursor/` | Agent config — not published. `.agents`/`.claude` are Mintlify built-in ignores (Claude Code's `CLAUDE.md` lives in `.claude/`); `.cursor/` and `AGENTS.md` are in `.mintignore`. The built-ins do **not** cover repo-root Markdown, so an un-ignored root `AGENTS.md` is served at `/agents.md`. |
 
@@ -69,11 +71,11 @@ distillation and defers to them.
 
 `main` is protected. A change lands only through a pull request that has:
 
-1. a green **`validate`** check (CI runs `npx --yes mint@latest validate`; it fails on warnings as well as errors), and
+1. a green **`validate`** check (CI runs `mint validate` at the version in `package.json`; it fails on warnings as well as errors), and
 2. **one approving review**, and
 3. the branch up to date with `main`.
 
-`validate` catches broken MDX and a `docs.json` entry pointing at a missing file. It does **not** catch the reverse — a valid page absent from `docs.json` passes CI and ships unreachable — so nav placement stays a reviewer responsibility, with `python3 scripts/check_navigation.py` as the reviewer's check.
+`mint validate` catches broken MDX and a `docs.json` entry pointing at a missing file. The **`new findings`** check catches the reverse, a page absent from `docs.json`, and a link to a page that does not exist. It is not required, so read it before you approve: a red `new findings` with "New ... finding" annotations is a defect in the change, and "check did not run" says nothing about the change. Placement in the right group stays a reviewer responsibility.
 
 ## Critical rules
 
@@ -89,4 +91,4 @@ distillation and defers to them.
 
 ## Open decisions
 
-Several house-style choices are still split across the corpus and awaiting docs-team ratification — see **Open decisions** at the end of [`.mintlify/AGENTS.md`](.mintlify/AGENTS.md) (client vs. customer, report-name formatting, "Refer A Friend" casing, "step" scope, callout severity). Until decided, match the surrounding page and flag the inconsistency — don't pick a side.
+Several house-style choices are still split across the corpus and awaiting docs-team ratification — see **Open decisions** at the end of [`.mintlify/AGENTS.md`](.mintlify/AGENTS.md) (client vs. customer, report-name formatting, "Refer A Friend" casing, callout severity). Until decided, match the surrounding page and flag the inconsistency — don't pick a side.
