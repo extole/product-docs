@@ -366,10 +366,12 @@ def classify(pull, rubric, standards, floor: FloorResult, repo: str, root: str):
 
     if check and not check.failed:
         verdict["claims"] = source_check.merge_claims(check, verdict.get("claims") or [])
-    pending = source_check.reason(check, source_check.checked_by_verifier(pull, floor.fork))
+    checked = source_check.checked_by_verifier(pull, floor.fork)
+    pending = source_check.reason(check, checked)
     if pending:
         verdict["reasons"] = list(verdict.get("reasons") or []) + [pending]
     verdict = apply_verdict_steps(verdict, floor)
+    verdict["source_check_pending"] = checked and check is None
     verdict["usage"] = {
         "input_tokens": response.usage.input_tokens,
         "output_tokens": response.usage.output_tokens,
@@ -537,6 +539,33 @@ def ensure_labels(repo):
         ], check=False)
 
 
+SEND_BACK_REVIEW_MARKER_PREFIX = "<!-- pr-review:docs-judge"
+
+
+def send_back_review_marker(head: str) -> str:
+    return f"{SEND_BACK_REVIEW_MARKER_PREFIX} head={head} -->"
+
+
+def send_back_review_body(pull, verdict: dict) -> str:
+    author = (pull.get("author") or {}).get("login", "unknown")
+    head = pull.get("headRefOid") or ""
+    lines = [
+        send_back_review_marker(head),
+        f"Docs judge send-back for `{head[:12]}`. `{author}`, make these edits and push. "
+        "The judge runs again on the new commit.",
+        "",
+    ] + [f"- {item}" for item in verdict["send_back"]]
+    return "\n".join(lines + ["", "🤖 _Posted by an AI agent._"])
+
+
+def posts_send_back_review(verdict: dict, head: str, reviewed_heads: str) -> bool:
+    if verdict["verdict"] != "send-back" or not verdict.get("send_back"):
+        return False
+    if verdict.get("source_check_pending"):
+        return False
+    return send_back_review_marker(head) not in reviewed_heads
+
+
 def apply(repo, pull, verdict, body, safe: pr_safe.SafeClass):
     number = str(pull["number"])
     wanted = {verdict["verdict"]} | ({SHADOW_SAFE_LABEL[0]} if safe.would_merge else set())
@@ -560,11 +589,15 @@ def apply(repo, pull, verdict, body, safe: pr_safe.SafeClass):
     else:
         run(["gh", "pr", "comment", number, "--repo", repo, "--body-file", "/tmp/pr-judge-comment.md"], check=False)
 
-    if verdict["verdict"] == "send-back" and verdict.get("send_back"):
-        review_body = "\n".join(f"- {line}" for line in verdict["send_back"])
+    head = pull.get("headRefOid") or ""
+    reviewed_heads = run([
+        "gh", "api", f"repos/{repo}/pulls/{number}/reviews", "--paginate", "--jq",
+        f'.[] | select(.body | startswith("{SEND_BACK_REVIEW_MARKER_PREFIX}")) | .body',
+    ], check=False).stdout
+    if posts_send_back_review(verdict, head, reviewed_heads):
         run([
             "gh", "pr", "review", number, "--repo", repo, "--comment", "--body",
-            f"Docs judge send-back:\n\n{review_body}\n\n🤖 _Posted by an AI agent._",
+            send_back_review_body(pull, verdict),
         ], check=False)
 
 
