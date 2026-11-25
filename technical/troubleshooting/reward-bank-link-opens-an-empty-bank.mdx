@@ -18,20 +18,22 @@ When the link is opened, Extole identifies the person by the identity key value 
 
 Changing the person's email does not update links that were already sent. See [How to Change a Person's Email](/guides/rewards-management/reward-fulfillment/how-to-change-a-persons-email).
 
-This token is not the email JWT described in the [Reward Bank Configuration Guide](/technical/platform-integrations/extensions/reward-bank/reward-bank-configuration-guide).
-
 ## Why Resending the Reward Email Does Not Help
 
 A reward email sent for a reward uses the link stored on that reward. Resending it delivers the same link, with the same token, so the bank opens the same way.
 
 ## Send a Fresh Link
 
-A reward email signs a new token when it is sent only if it has no stored link to use and its **Reward Redemption Button Destination** holds a zone name, such as `redemption_center_microsite`, rather than a URL. An email sent without a reward has no stored link. **Reward Redemption Button Destination** holds your company URL unless it has been changed, and a URL gets no token. The person's profile must also have an email address, or the email links to the zone with no token.
+On a Flow Builder campaign, the reward email and the reward reminder email in the **Reward Emails** component build their redemption button link when they are sent. They sign a new token for it only when all of these are true:
+
+- The email has no stored link to use. It is sent for no reward, or for a reward that has no stored link. A collectible reward has a stored link, so an email sent for it uses that link.
+- Its **Reward Redemption Button Destination** holds a zone name, such as `redemption_center_microsite`, rather than a URL. This setting holds your company URL unless it has been changed, and a URL gets no token.
+- The person's profile has an email address. Without one, the button links to the zone with no token.
 
 The new token names the person by the identity key value on their profile when the email is sent. It lasts one day. If the person opens the email after that, send it again.
 
 To send a fresh link:
 
 1. Confirm that the person's profile holds their current email address.
-2. Send them a reward email that is not sent for a reward, with its **Reward Redemption Button Destination** set to the zone name of their Reward Bank, such as `redemption_center_microsite`. For the Reward Bank's earned reward email, see **Update Earned Reward Emails** in the [Reward Bank Configuration Guide](/technical/platform-integrations/extensions/reward-bank/reward-bank-configuration-guide).
+2. Send them the reward email from the **Reward Emails** component, not for their collectible reward, with its **Reward Redemption Button Destination** set to the zone name of their Reward Bank, such as `redemption_center_microsite`. For the Reward Bank's earned reward email, see **Update Earned Reward Emails** in the [Reward Bank Configuration Guide](/technical/platform-integrations/extensions/reward-bank/reward-bank-configuration-guide).
 3. Ask the person to open the new email, and confirm that the Reward Bank shows their rewards.
