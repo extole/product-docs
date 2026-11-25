@@ -123,7 +123,7 @@ A call with a token that is revoked, expired, or was never issued returns `403 a
 
 #### Scopes on a programmatic token
 
-When the caller is a user, the `scopes` field on `POST /v4/tokens` selects the new token's scopes from the caller's own. When the caller is a managed token, `scopes` is ignored and the new token carries the managed token's scopes, as described above. When the caller is a user and `scopes` is empty or absent, the new token carries all of the caller's scopes. When a user caller lists `CLIENT_ADMIN` in `scopes`, the new token also carries `USER_SUPPORT`. When the caller holds `CLIENT_SUPERUSER`, the new token carries `CLIENT_SUPERUSER` as well, whatever `scopes` lists. To get a token without `CLIENT_SUPERUSER`, mint it from a caller that does not hold it.
+When the caller is a user, the `scopes` field on `POST /v4/tokens` selects the new token's scopes from those the user holds in the account the token is for. When `scopes` is empty or absent, the new token carries all of them. When `scopes` lists `CLIENT_ADMIN`, the new token also carries `USER_SUPPORT`. A request for a scope the user can't be granted returns `403 scopes_denied`, and `denied_scopes` lists the scopes that were refused. When the caller is a managed token, `scopes` is ignored and the new token carries the managed token's scopes, as described above.
 
 ## Consumer Access Tokens
 
@@ -211,7 +211,7 @@ curl https://acme.extole.io/v6/zones/refer_a_friend \
 
 See the <a href="https://docs.extole.com/docs/verifying-consumers" target="_blank">Verifying Consumers reference</a> for required claim names, including the `scope: VERIFIED_CONSUMER` claim that completes the upgrade.
 
-Verification failures return `401` with one of `jwt_error`, `jwt_authentication_error`, or `invalid_access_token`.
+Verification failures return `403` with one of `jwt_error`, `jwt_authentication_error`, or `invalid_access_token`.
 
 #### Email verification
 
@@ -240,17 +240,17 @@ Sandbox tenants use the same token endpoints and the same OAuth substrate as pro
 | Status | Code                            | Cause                                                 |
 | ------ | ------------------------------- | ----------------------------------------------------- |
 | 401    | `method_unauthorized`           | Missing, malformed, or expired token.                 |
-| 401    | `invalid_credentials`           | Wrong email or password during token creation.        |
-| 401    | `invalid_access_token`          | Token does not match a known credential.              |
-| 401    | `expired_access_token`          | Token is past its expiration.                         |
-| 401    | `jwt_authentication_error`      | JWT signature did not verify.                         |
+| 403    | `invalid_credentials`           | Wrong email or password during token creation.        |
+| 403    | `invalid_access_token`          | Consumer access token does not match a known credential. |
+| 403    | `expired_access_token`          | Consumer access token is past its expiration.         |
+| 403    | `jwt_authentication_error`      | JWT signature did not verify.                         |
 | 403    | `access_denied`                 | Caller is not authorized for the resource.            |
 | 403    | `scopes_denied`                 | Token does not carry a required scope.                |
 | 403    | `missing_credentials`           | Token creation called without sufficient credentials. |
 | 400    | `invalid_access_token_duration` | Consumer access token duration outside the allowed range. |
-| 400    | `invalid_duration`              | `duration_seconds` on `POST /v4/tokens` is longer than the token lifetime of the account the token is for. The response names that lifetime in `parameters.default_duration`. |
+| 400    | `invalid_duration`              | `duration_seconds` on `POST /v4/tokens` is longer than the token lifetime of the account the token is for, or is negative. `parameters.default_duration` gives that lifetime in seconds. |
 | 400    | `invalid_client_id`             | `client_id` is not a known client.                    |
-| 400    | `jwt_error`                     | JWT is malformed or claims are invalid.               |
+| 403    | `jwt_error`                     | JWT is malformed or claims are invalid.               |
 
 ## Related
 
