@@ -5,8 +5,6 @@ description: "Consolidate two profiles that belong to the same person, so their 
 
 ## Overview
 
-[//]: # "How do I merge two profiles that both have referral activity?"
-
 When your program identifies people by email address and the same person reaches it under two addresses, Extole records them as two profiles. Each one holds its own referral activity — shares, journeys, events, and rewards.
 
 Merging consolidates them. You choose which profile survives, the other profile's activity and data are forwarded to it, and from then on a lookup of either address resolves to the surviving profile.
@@ -32,11 +30,11 @@ Forwarding moves these from the profile you merge away onto the surviving profil
 Other parts of the two profiles are combined rather than moved:
 
 * **Journeys**: a journey with the same campaign, container, journey name, and journey key on both profiles becomes one journey on the surviving profile. It keeps the earlier start and the more recent activity. Every other journey moves across.
-* **Profile data**: when both profiles hold a value for the same field, the more recently updated value is kept. This includes the email address field. Consent fields are the exception: they stay as they are on the surviving profile.
+* **Profile data**: when both profiles hold a value for the same field, the more recently updated value is kept. Consent fields are the exception: they stay as they are on the surviving profile.
 
 Blocks on the two profiles are combined, and the stricter of the two applies.
 
-A profile holds a limited number of journeys, rewards, shares, events, and other records. When the merged profile holds more than its limit, older items are generally removed first. Recently updated items, the identity key, and important profile data are always kept.
+A profile holds a limited number of journeys, rewards, shares, events, and other records. When the merged profile holds more than its limit, older items are generally removed first and recently updated items are kept.
 
 ## The Same Event Is Kept Once
 
@@ -50,7 +48,7 @@ So the event count on the merged profile can be lower than the two profiles adde
 2. Decide which profile survives. The survivor is usually the address the person still uses, not the one with the most activity — the activity moves either way.
 3. Call [Forward an Identity Profile to Another Identity Profile](/api-reference/persons/forward-an-identity-profile-to-another-identity-profile) on the profile that is being merged away, naming the survivor as `forward_to_profile_id`. The call needs an access token with the `USER_SUPPORT` scope. Use the IDs that Search for Persons returned: if the call fails with `forward_to_profile_is_device`, the ID you named as the survivor is not the person's identity profile.
 4. Verify from the profile you merged away: looking it up by ID or by email address now returns the surviving profile's ID.
-5. Check the surviving profile's data, including its email address. Because the more recently updated value of each field is kept, a value from the profile you merged away can replace the survivor's. Correct any field with [Update a Person](/api-reference/persons/update-a-person).
+5. Check the surviving profile's data. When both profiles held a value for the same field, the value that was updated more recently is kept, so a value from the profile you merged away can replace the survivor's. Correct any field with [Update a Person](/api-reference/persons/update-a-person).
 
 <Note>
 Both addresses have to exist as profiles for this to be a merge. If the address you want to keep has never been seen by your program, there is nothing to merge into — update the identity key value on the existing profile instead, with [Update a Person](/api-reference/persons/update-a-person) and an access token with the `USER_SUPPORT` scope.
