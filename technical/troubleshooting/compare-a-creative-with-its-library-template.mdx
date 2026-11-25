@@ -7,7 +7,7 @@ description: "Decide whether a Flow Builder campaign's creative carries a hand-m
 
 Use this page when you need to know whether a Flow Builder campaign's creative was changed by hand, or is still the library template. A campaign rebuilt from library components carries none of the old creative's hand-made changes, so find them before a rebuild.
 
-Every read on this page uses your own access token and changes nothing. Your account can see a library template only if it subscribes to the Extole account that holds the template.
+Every read on this page uses your own access token and changes nothing. Your account can read the library templates that Extole's own accounts hold. It can read a component in any other account only if it subscribes to that account.
 
 ## What You Compare
 
@@ -39,12 +39,13 @@ Do not substitute a library component with the same name. It is a different temp
 
 ## Find the Template as It Was Copied
 
-If the library has changed since the copy, the template's current archive mixes two kinds of difference: changes made in the campaign, and changes the library made afterwards. The campaign version that copied the component holds the template as it was copied, and comparing against it separates the two.
+If the library has changed since the copy, the template's current archive mixes two kinds of difference: changes made in the campaign, and changes the library made afterwards. A version of the campaign, or of the template's own campaign, holds the template as it was copied, and comparing against it separates the two.
 
-1. Read the campaign's version history. Count back from the latest version to the last one where the component holds its current origin, with the same component and version. That version set the origin: it either copied the component or upgraded it.
-2. If that version duplicated another campaign, its message names the source campaign and version. If the source is the template's campaign, the copying version holds the template as copied. Otherwise, find the same component in the source at that version, and repeat step 1 in the source.
-3. If that version upgraded the component or connected it to its origin, no campaign version holds the template as copied. Compare with the template's current archive instead, and read the table below.
-4. Otherwise, download the creative archive of the copying version.
+1. Read the campaign's version history. Count back from the latest version to the last one where the component holds its current origin, with the same component and version. That version took the origin: it duplicated a campaign, restored an older version of this campaign, upgraded the component, or connected the component to its origin.
+2. If that version restored an older version of this campaign, repeat step 1 from the restored version.
+3. If that version duplicated another campaign, its message names the source campaign and version. If the source is the template's campaign, the copying version holds the template as copied. Otherwise, find the same component in the source at that version, and repeat step 1 in the source.
+4. If that version upgraded the component or connected it to its origin, the template's own campaign holds the template as it was taken. When the template is in another account, that is the newest published version of the template's campaign at or before the time the origin was taken. When it is in your own account, it is the newest version saved at or before that time. Download the template's archive at that version.
+5. Otherwise, download the creative archive of the copying version.
 
 Then compare twice:
 
@@ -72,9 +73,11 @@ A library change after the copy is common. When the campaign lacks code the temp
 
 ## Read the Setting Differences
 
-[Diff two components](/api-reference/components/diff-two-components) compares the campaign's component with the template's component and lists the settings that differ. Two kinds of difference say nothing about customization:
+[Diff two components](/api-reference/components/diff-two-components) compares the settings of two components and lists each setting that was added, removed, or changed. Name the campaign's component and the template's component. Each one is read at the campaign version you give. Without a version, the endpoint reads the latest version of a component in your own campaign, and the published version of a component that another account shares. It compares settings only, not the creative archive.
 
-- A setting that points at another component, such as the component that creates the share link. A copy points at the campaign's own components.
+Two kinds of difference say nothing about customization:
+
+- A setting that points at another component, such as the component that creates the share link.
 - The zone name.
 
 The rest are configuration: copy, colors, and options someone set in the campaign editor.
