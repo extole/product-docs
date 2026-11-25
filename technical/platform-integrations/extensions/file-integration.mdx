@@ -41,8 +41,12 @@ Deliver files over [Extole SFTP](/technical/platform-integrations/files/extoles-
 **Event File** ships with one trigger:
 
 - **File Name Matches**
-  - **Filename Match Pattern**: the default is `.*\.csv$` (any CSV filename, JavaScript regular expression syntax — not glob syntax such as `*.csv`). Leave that pattern unless you have a naming convention to enforce. A guessed prefix silently drops every other CSV the job would have processed.
+  - **Filename Match Pattern**: the default is `.*\.csv$` (any CSV filename, JavaScript regular expression syntax — not glob syntax such as `*.csv`). The pattern must match the whole filename, without its folder. On a new feed, leave that pattern unless you have a naming convention to enforce. A guessed prefix silently drops every other CSV the job would have processed.
   - **Watch Directory** (optional): an SFTP destination and folder. When set, the file must land under that directory on the selected destination. Leave it empty to match by filename alone.
+
+<Warning>
+A file this job matches is no longer processed by the SFTP folder it lands in. That applies to the `events`, `conversions`, `optouts`, `approvals`, and `audiences` folders. If the account already sends files to one of those folders, set **Watch Directory** to the folder this job should handle, and set **Filename Match Pattern** to that feed's own filenames. With the default pattern and no **Watch Directory**, the job also takes over every other CSV. For example, an audience file stops updating its audience.
+</Warning>
 
 **Lands In Directory** is available to add. Its **Watch Directory** setting is the SFTP destination and folder to watch. If the path is missing or empty, the job watches `/incoming`. Add it when you need the job to ignore files that land anywhere else. When both triggers are present, both must match for a file to run.
 
@@ -109,6 +113,17 @@ The hold follows the event name, not the job. Use a different name on each File 
 | **Lookback Window** | 365 days | How far in the past a date can be and still wait. Older dates are not sent, and a warning is raised. |
 | **Future Limit** | 365 days | How far in the future a date can be and still wait. Later dates are not sent, and a warning is raised. |
 | **Columns to Exclude** | Empty | Columns left off the event. Leave empty to include every column. |
+
+## Test With a Real Feed File
+
+A File Integration job is built around the files your feed already sends. To test the feed, use a real file with test data and confirm the configured job picks it up and processes it. Only a file that goes through the job tests the integration; a campaign-only upload does not.
+
+1. Start from a recently delivered feed file, or another file in the same format your feed sends. Keep the filename and the header row as the feed sends them — those are what the job's **Filename Match Pattern** and **Expected File Headers** were set to match.
+2. Replace only the values that identify the person and the account with your test person's identifiers. Leave formats unchanged (dates, IDs, amounts, and other column shapes) so campaign rules see the same values the live feed will send.
+3. Deliver the file the same way, and to the same place, as your feed's files.
+4. Open **Job History**. Confirm a run appeared for your file, the trigger matched, **Validate Column Headers** passed, and **Create Events** created the expected events. If no run appears, the filename or directory did not match, or the job is not enabled. When the run succeeds, check the test person's events and rewards.
+
+A file built for [Manually Uploading Events](/guides/platform-overview/implementing-your-referral-program/technical-items/manually-uploading-events-to-extole), with `email` and `event_name` columns, tests the campaign's rules. It does not test this job's filename match, its header check, or the values your feed sends.
 
 ## Watch Job History
 
