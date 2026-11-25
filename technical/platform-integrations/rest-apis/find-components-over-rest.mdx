@@ -28,7 +28,7 @@ A template is a component that Extole provides for you to copy. Each row's `sour
 
 A campaign template is a whole campaign that Extole provides for you to copy. A Flow Builder campaign template's row is its root component, whose `types` include `campaign-v10.0`. Its `name` is `root`. On the rows from `extole-components-v10`, its `display_name` is the template's name.
 
-By default, the list holds only the components of a subscribed account's `LIVE` campaigns whose program type is `integration` or `campaign-component`. To include the components of every campaign in those accounts, whatever its program type or state, set `show_all` to `true`. List campaign templates this way:
+By default, the list holds the components of each campaign's published version. From your own account, that is every campaign that is not archived and has been published at least once. From each account you subscribe to, it is only the `LIVE` campaigns whose program type is `integration` or `campaign-component`. Set `show_all` to `true` to drop that filter on the accounts you subscribe to. To list each campaign's latest version instead, including campaigns that were never published, set `version_state` to `LATEST`. List campaign templates this way:
 
 ```bash
 curl --get "$EXTOLE_API_HOST/v1/components/duplicatable/summaries" \
@@ -59,8 +59,6 @@ curl --request POST "$EXTOLE_API_HOST/v2/campaigns/$CAMPAIGN_ID/duplicate" \
   --data '{"name": "Spring Referral Program", "program_label": "your-program-label"}'
 ```
 
-Your account subscribes to each account on its own. [Your Team at Extole](/product/extole-overview/your-team) describes who to contact.
-
 ## Find a Component That Fits a Socket
 
 A socket accepts components of certain types. To list only the components that fit a socket, add the component that holds the socket and the socket's name:
@@ -85,7 +83,7 @@ curl --get "$EXTOLE_API_HOST/v1/components" \
   --data-urlencode "max_depth=all"
 ```
 
-Each component in the response carries `component_ids` and `installed_into_socket`, which name its parent and the socket it sits in, so you can rebuild the tree.
+Each component in the response carries `component_references`, the components it references, which include its parent, and `installed_into_socket`, the socket it sits in, so you can rebuild the tree.
 
 ## Narrow a Long List
 
