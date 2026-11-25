@@ -78,6 +78,53 @@ The Security Center creates long-lived **managed tokens** that are named, listed
 
 For automation, CI/CD, or applications that rotate credentials, create short-lived tokens programmatically through the `/v4/tokens` endpoint. See the API reference for token creation, exchange, and revocation.
 
+#### Creating a managed token requires a password
+
+`POST /v4/tokens/managed` requires the calling user's My Extole **password** in the request body, and rejects the request with `missing_credentials` when it is absent. A valid bearer token is not enough on its own.
+
+#### How long a programmatic token lasts
+
+How long a token from `POST /v4/tokens` lasts depends on the caller.
+
+The new token is for the account named in `client_id`, or for the caller's own account when `client_id` is omitted. When the caller is a user — signing in with `email` and `password`, or sending a user's bearer token — the new token's expiry is set from that account's token lifetime, a per-account security setting. Every caller's `duration_seconds` is checked against it, so asking for a deliberately long duration returns the account's lifetime in the `400` response:
+
+```bash
+curl -X POST https://api.extole.io/v4/tokens \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"client_id": "YOUR_CLIENT_ID", "duration_seconds": 31536000}'
+```
+
+```json
+{
+  "code": "invalid_duration",
+  "parameters": { "default_duration": 14400.0 }
+}
+```
+
+`default_duration` is the token lifetime, in seconds, of the account the token is for. A `duration_seconds` value larger than it returns `invalid_duration` for any caller.
+
+For a user caller, a `duration_seconds` value up to that lifetime sets a fixed expiry for the new token. A user caller's token created without `duration_seconds` starts with one token lifetime and is refreshable. When it is used and its expiry was last set at least six minutes ago, or at least half a token lifetime ago, its expiry moves to one token lifetime from that use. A use sooner than that leaves the expiry unchanged.
+
+When the caller is a managed token, `POST /v4/tokens` returns a token that lasts one hour and carries the managed token's own scopes. The request's `scopes` field, and a `duration_seconds` value within the limit, do not change that.
+
+#### Revoking a programmatic token
+
+`DELETE /v4/tokens` revokes the token sent as the bearer credential:
+
+```bash
+curl -X DELETE https://api.extole.io/v4/tokens \
+  -H "Authorization: Bearer TOKEN_TO_REVOKE"
+```
+
+A successful revocation returns `204 No Content`, and later calls with that token return `403 access_denied`. `DELETE /v4/tokens/{token}` does the same with the token in the URL path instead; it is deprecated because it puts the token in the URL. A token issued by the Extole identity provider is the exception: the call returns `204` and the token stays valid until it expires.
+
+A call with a token that is revoked, expired, or was never issued returns `403 access_denied`.
+
+#### Scopes on a programmatic token
+
+When the caller is a user, the `scopes` field on `POST /v4/tokens` selects the new token's scopes from those the user holds in the account the token is for. When `scopes` is empty or absent, the new token carries all of them. When `scopes` lists `CLIENT_ADMIN`, the new token also carries `USER_SUPPORT`. A request for a scope the user can't be granted returns `403 scopes_denied`, and `denied_scopes` lists the scopes that were refused. When the caller is a managed token, `scopes` is ignored and the new token carries the managed token's scopes, as described above.
+
 ## Consumer Access Tokens
 
 Used for calls from a browser or native app to the Integration: Consumer to Extole API. Issued and rotated by Extole during a participant's session; the SDKs and the `access_token` cookie handle most of the lifecycle automatically.
@@ -129,6 +176,8 @@ A consumer access token has one of three identity levels. Each level is a functi
 
 A token is upgraded through the lifecycle as identity is established. The most common upgrade path: anonymous to identified (event carries `email`) to verified (one of the verification methods below).
 
+A zone can require a verified consumer before it renders, for example a zone that lists an advocate's friends and their progress. That zone returns `no_creative` to an anonymous or identified token, so the participant sees its content only after verifying with one of the methods below.
+
 ### Pass the token
 
 Three methods, in order of preference:
@@ -162,7 +211,7 @@ curl https://acme.extole.io/v6/zones/refer_a_friend \
 
 See the <a href="https://docs.extole.com/docs/verifying-consumers" target="_blank">Verifying Consumers reference</a> for required claim names, including the `scope: VERIFIED_CONSUMER` claim that completes the upgrade.
 
-Verification failures return `401` with one of `jwt_error`, `jwt_authentication_error`, or `invalid_access_token`.
+Verification failures return `403` with one of `jwt_error`, `jwt_authentication_error`, or `invalid_access_token`.
 
 #### Email verification
 
@@ -172,7 +221,9 @@ Extole sends a verification email to the participant. The participant clicks the
 
 For experiences behind a brand login, the brand can use the Authenticated API to mark a consumer token as verified using an OAuth Resource Owner Credential Grant. Useful when the brand already authenticates the participant and wants to forward that proof of identity to Extole.
 
-## Sandbox
+## Sandbox Clients
+
+A sandbox client is a separate Extole client for development. It is not the `sandbox` value that an event or a request carries inside your account, which [Sandboxes](/technical/integration-overview/sandboxes) describes.
 
 Sandbox tenants use the same token endpoints and the same OAuth substrate as production. The `client_id` in a token-creation request distinguishes the sandbox from a production client. Until self-serve sandbox provisioning ships, contact your Extole guide.
 
@@ -189,20 +240,21 @@ Sandbox tenants use the same token endpoints and the same OAuth substrate as pro
 | Status | Code                            | Cause                                                 |
 | ------ | ------------------------------- | ----------------------------------------------------- |
 | 401    | `method_unauthorized`           | Missing, malformed, or expired token.                 |
-| 401    | `invalid_credentials`           | Wrong email or password during token creation.        |
-| 401    | `invalid_access_token`          | Token does not match a known credential.              |
-| 401    | `expired_access_token`          | Token is past its expiration.                         |
-| 401    | `jwt_authentication_error`      | JWT signature did not verify.                         |
+| 403    | `invalid_credentials`           | Wrong email or password during token creation.        |
+| 403    | `invalid_access_token`          | Consumer access token does not match a known credential. |
+| 403    | `expired_access_token`          | Consumer access token is past its expiration.         |
+| 403    | `jwt_authentication_error`      | JWT signature did not verify.                         |
 | 403    | `access_denied`                 | Caller is not authorized for the resource.            |
 | 403    | `scopes_denied`                 | Token does not carry a required scope.                |
 | 403    | `missing_credentials`           | Token creation called without sufficient credentials. |
-| 400    | `invalid_access_token_duration` | Token duration outside the allowed range.             |
+| 400    | `invalid_access_token_duration` | Consumer access token duration outside the allowed range. |
+| 400    | `invalid_duration`              | `duration_seconds` on `POST /v4/tokens` is longer than the token lifetime of the account the token is for, or is negative. `parameters.default_duration` gives that lifetime in seconds. |
 | 400    | `invalid_client_id`             | `client_id` is not a known client.                    |
-| 400    | `jwt_error`                     | JWT is malformed or claims are invalid.               |
+| 403    | `jwt_error`                     | JWT is malformed or claims are invalid.               |
 
 ## Related
 
-- [Getting Started](./getting-started.md)
+- [Getting Started](/api-reference/getting-started/api-overview)
 - <a href="https://docs.extole.com/docs/generate-long-lived-access-tokens" target="_blank">Generate Long-lived Access Tokens</a>
 - <a href="https://docs.extole.com/docs/verifying-consumers" target="_blank">Verifying Consumers</a>
 

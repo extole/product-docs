@@ -93,6 +93,14 @@ Technical Docs counterpart even when the page in hand is in Guides.
 **Do not duplicate across tabs.** Search the corpus for the topic before writing. If another
 tab already covers it, link to it rather than restating it.
 
+**A partner page is for the marketer who sets the partner up.** It says what to configure in
+the partner's console and in My Extole, and the values that are specific to that partner.
+How Extole builds any partner integration — the views socket, the tabs, the report behind a
+tab, how an image key works — is the same for every partner. It lives on the Building
+Partner Integrations pages, and a partner page links there rather than restating it. Before
+you keep a sentence on a partner page, ask whether a marketer setting up that partner acts
+on it. If not, cut it, or move it to the page for the reader who does.
+
 The live corpus is mixed. Guides still holds integration pages inherited from the migration
 (Platform Overview > Technical Items, the SFTP and event-upload pages, Targeting,
 Dashboards and Reporting > Integrating Reports, Notifications & Troubleshooting), Technical
@@ -258,7 +266,8 @@ code sample.
 | **advocate** | referrer, sharer | A person who refers a brand or product to a friend. |
 | **friend** | referred person, referee, referred customer | A person who receives a referral from an advocate. |
 | **event** | step *(as loose prose)* | A recorded occurrence in a person's journey (shared, clicked, converted, reward earned). Prose only — see "step". |
-| **step** *(keep, scoped)* | — using it as a prose synonym for "event" | Keep for the schema field (`step_name`, `stepName`, `person.steps`) and the deliberate journey-structure sense. Do **not** blanket-replace; that breaks valid reporting and API references. |
+| **business event, reward, call-to-action** | step *(for a part of a campaign)* | Name the part of the campaign you mean. "Open the reward", not "open the step"; "the friend's Converted business event", not "the Converted step". When a sentence covers all three, say "business event, reward, or call-to-action", or "part of the campaign". A numbered step in a procedure is still a step. |
+| **step** *(literal only)* | — in prose | Keep it only where it is a literal: the schema field (`step_name`, `stepName`, `person.steps`), and quoted UI or error text such as *The Triggered By setting on '`step`' is not configured.* When quoted text says `step`, say what it stands for. |
 | **outcome event** | success step, goal step | The event that defines a successful referral for a program (converted, account opened, loan funded). |
 | **conversion / converted** | — | A friend completing the program's goal action. |
 | **program** | campaign *(when you mean the use case)* | The overall referral use case: audience plus outcome (Refer A Friend, Welcome Offer, Ambassador). |
@@ -339,18 +348,19 @@ can find in the extension. Worse, **Redemption Rate** is a real Extole name alre
 percentage. Before coining a name for something, `git grep` it across the corpus and search
 the platform for it; a term that already means something else costs more than a clumsy one.
 
-## Expert variables
+## Expert settings
 
-Some component settings are **expert variables**. My Extole shows them only to Extole
-employees, behind the **Show Expert** filter. Customer-facing pages do not describe them.
+Some component settings are **expert settings**, tagged `importance:expert`. My Extole
+hides them by default. Every user can show them by turning on the **Show Expert** filter.
 
-When a sentence names **Show Expert**, tells the reader to turn that filter on, or calls a
-setting an Expert setting, delete that sentence. It often sits at the end of a paragraph
+Do not document an expert setting without need. Name one only when a task the page
+teaches needs it. Where the page names it, tell the reader to turn on **Show Expert** to
+see it.
+
+When a sentence names an expert setting or the **Show Expert** filter and the page's task
+does not need that setting, delete the sentence. It often sits at the end of a paragraph
 that is otherwise about something the reader can see — keep the paragraph and delete the
 sentence.
-
-A value the reader already sees can stay: an event name, a metric, a reward identifier on
-a report. What stays out is the hidden setting and the filter that reveals it.
 
 Leave a schema literal alone. An `importance:expert` tag inside a component JSON sample is
 a field value, and the literals rule already covers it. Add no prose around that tag that
@@ -375,9 +385,7 @@ Do not silently standardize.
    only — **Events** report. Needs sign-off.
 3. **"Refer A Friend" casing.** At least six spellings exist. Proposal: `Refer A Friend` as
    the program name, `refer-a-friend` only for slugs and labels.
-4. **"step" scope.** Confirm the keep-for-schema / replace-in-prose rule above so no lint
-   pass ever rewrites `step_name`.
-5. **Callout severity mapping.** The components are settled; which severity fits which
+4. **Callout severity mapping.** The components are settled; which severity fits which
    situation is still editorial.
 
 ## Canary
