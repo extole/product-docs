@@ -84,21 +84,17 @@ A batch job reports one of these statuses, on the **Batch Jobs** page and on `GE
 
 | Status | What it means |
 | --- | --- |
-| `PENDING` | Submitted. Extole has accepted the job, and processing has not started yet. |
+| `PENDING` | Submitted. The job has not reached `IN_PROGRESS` yet. It may be waiting to be picked up, or picked up and waiting to begin. |
 | `IN_PROGRESS` | A processor has claimed the job and is reading your file. |
 | `DISPATCHING` | Rows have been read and the events are being sent into your program. |
 | `DONE` | Every row was processed. `success_rows` and `failed_rows` are final. |
-| `FAILED` | Processing stopped. `error_code` and `error_message` say why. |
+| `FAILED` | Processing stopped. When the response includes `error_code` and `error_message`, they say why. |
 | `CANCELED` | The job was canceled before it finished. |
-| `EXPIRED` | A job that finished (`DONE`, `FAILED`, or `CANCELED`) and was created more than 90 days ago. |
+| `EXPIRED` | A finished job (`DONE`, `FAILED`, or `CANCELED`) that has passed the age at which Extole expires finished jobs. By default that age is 90 days from when the job was created. |
 
 `PENDING` does not distinguish "not yet picked up" from "accepted by a processor and waiting to start", so a job can sit at `PENDING` for a short time even though it is already moving.
 
-How long that takes depends on the size of the file. A file with only a few events is processed directly. A larger file is handed to Extole's batch processing cluster, and until the cluster starts it, the job shows `PENDING` with no start date.
-
-<Warning>
-A job that still shows `PENDING` with no start date has not started processing. If it stays that way well past the time your uploads usually take, contact Extole support with the batch job ID rather than resubmitting the same file.
-</Warning>
+A file with only a few events is processed directly. A larger file is handed to Extole's batch processing cluster, and until the cluster starts it, the job shows `PENDING` with no start date.
 
 To cancel or delete a batch job through the API, see [General File Uploads](/technical/platform-integrations/files/general-file-uploads#canceling-or-deleting-a-job).
 
