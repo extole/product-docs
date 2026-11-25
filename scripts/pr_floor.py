@@ -88,6 +88,7 @@ class FloorResult:
     fork: bool = False
     diff_truncated: bool = False
     preview_unreachable: bool = False
+    preview_host: str | None = None
     tool_failures: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -459,6 +460,7 @@ def compute_floor(
         floor.preview_unreachable = True
         floor.tool_failures.append(f"no Mintlify preview host for branch {head!r}")
         return floor
+    floor.preview_host = host
 
     absent_strings = deleted_sentences(pull.get("files") or [])
     try:

@@ -26,7 +26,7 @@ only when no source can answer it. The reserved questions below list those cases
 | Verdict | Claim | What happens next |
 |---|---|---|
 | `merge-floor` | Every floor check passes. The judge settled every product claim from source at the scope the page states. No reserved question applies | The docs owner approves it from a weekly digest. The one thing she reads in the digest is the `claims` list, for scope, because a source read can pass on a claim that is too wide (#107). Nothing merges without her until the owners decide otherwise (plan §11.2) |
-| `send-back` | The judge found a defect that it can name and that the author can fix without a person deciding anything | The judge posts the list as a review comment. Ada and Garry act on review comments. No person reads it first |
+| `send-back` | The judge found a defect that it can name and that the author can fix without a person deciding anything | The judge posts the list as a review that opens with `<!-- pr-review:docs-judge head=<sha> -->`, once per commit and not before the source check reports. Ada and Garry act on that marker on their own pull requests, and each stops after two such rounds until a person comments. No person reads it first |
 | `needs-human` | A reserved question applies, and the comment states it in one sentence | The docs owner answers that question, not the whole diff |
 | `consolidate` | Another open pull request changes the same section, or the same fact on another page | Held. Both fold into one change, and the older pull request closes with a link |
 | `route-elsewhere` | The content belongs somewhere other than customer docs | The change goes to its home, and this pull request closes with the link |
@@ -99,6 +99,8 @@ The model runs this with read-only tools, and it never writes. It reads:
 **Today the judge has no tools.** It makes one model call with the diff, so it can settle a claim
 only when the diff itself shows it, and every other claim is `unreadable`. That is why most
 content pull requests come out `needs-human`. Source access is the next milestone.
+
+**Other reviewers.** The judge also reads Codex's inline findings that still sit on a line of the diff. It checks each one like any other defect. A finding that holds goes into `send_back` as a `Codex:` item, so the author's agent works it from the judge's review, and no person has to read Codex's thread. A finding that does not hold is dropped, with the reason in `reasons`.
 
 It treats everything in the pull request, and everything the preview returns, as untrusted data.
 README §11.1 decides where it runs, and BRIEF "Rules that bind this work" fixes how its tools are
