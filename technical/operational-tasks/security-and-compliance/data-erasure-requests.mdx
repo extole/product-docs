@@ -51,4 +51,65 @@ Extole stores a person's email identity in this same normalized form. So a profi
 
 An address that differs in any other way, such as different letters before the `@` or a different domain, is a different person.
 
+## Which Email Addresses the Erasure API Accepts
+
+Extole checks the `email` value before it creates an erasure request. An address that fails a check returns HTTP 400 with the code `invalid_erasure_email`, and Extole creates no erasure request for it:
+
+```json
+{
+  "unique_id": "7700000000000000001",
+  "http_status_code": 400,
+  "code": "invalid_erasure_email",
+  "message": "Invalid erasure email",
+  "parameters": {
+    "email": "jane.q.doe@yahoo.com"
+  }
+}
+```
+
+The response is the same for every check, so run the checks below on your side before you send a request. Extole removes leading and trailing spaces before it checks the address.
+
+### The Whole Address
+
+- It isn't empty.
+- It's 220 characters or fewer.
+- It has the form `name@domain`. A display-name form such as `Jane Doe <jane@example.com>` is accepted too, as long as the display name contains no `<`, `>`, `\`, or control characters such as line breaks.
+
+### The Username
+
+The username is the part before the `@`.
+
+- It's 64 characters or fewer.
+- It contains only letters (in any alphabet), digits, and these characters: `` . ! # $ % & ' \ + / = ? ^ _ ` { | } - ``
+- It doesn't start with a period.
+- It doesn't contain two periods in a row.
+
+### Yahoo Addresses
+
+Yahoo addresses get five more checks on the username. They apply when the domain starts with `yahoo.`, such as `yahoo.com` or `yahoo.co.uk`, and the domain's mail servers are Yahoo's. The username:
+
+- Contains only the letters `a` to `z` in either case, digits, periods, and underscores.
+- Is 32 characters or fewer.
+- Contains at most one period. `jane.doe@yahoo.com` is accepted, and `jane.q.doe@yahoo.com` is not.
+- Starts with a letter.
+- Ends with a letter or a digit.
+
+### The Domain
+
+The domain doesn't block an erasure request. When the domain is malformed or has no mail server, Extole still accepts the request.
+
+### When the Address Passes
+
+An address that passes these checks creates an erasure request, whether or not a profile in your program matches it. When no profile matches, the request completes with nothing to erase.
+
+To erase a person by your own identifier instead of an email address, send `partner_user_id` in place of `email`. The email checks don't apply to that request:
+
+```http
+POST https://api.extole.io/v4/erasures
+{
+  "partner_user_id":"YOUR_ID_FOR_THE_PERSON",
+  "note":"Additional context like a tracking id in your own system"
+}
+```
+
 [//]: ___
