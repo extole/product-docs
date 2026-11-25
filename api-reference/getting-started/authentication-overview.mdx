@@ -86,7 +86,7 @@ For automation, CI/CD, or applications that rotate credentials, create short-liv
 
 How long a token from `POST /v4/tokens` lasts depends on the caller.
 
-When the caller is a user — signing in with `email` and `password`, or sending a user's bearer token — the new token lasts up to the token lifetime of the account named in `client_id`. The token lifetime is a per-account security setting. Every caller's `duration_seconds` is checked against it, so asking for a deliberately long duration returns the account's lifetime in the `400` response:
+The new token is for the account named in `client_id`, or for the caller's own account when `client_id` is omitted. When the caller is a user — signing in with `email` and `password`, or sending a user's bearer token — the new token's expiry is set from that account's token lifetime, a per-account security setting. Every caller's `duration_seconds` is checked against it, so asking for a deliberately long duration returns the account's lifetime in the `400` response:
 
 ```bash
 curl -X POST https://api.extole.io/v4/tokens \
@@ -102,9 +102,9 @@ curl -X POST https://api.extole.io/v4/tokens \
 }
 ```
 
-`default_duration` is the token lifetime, in seconds, of the account named in `client_id`. A `duration_seconds` value larger than it returns `invalid_duration` for any caller.
+`default_duration` is the token lifetime, in seconds, of the account the token is for. A `duration_seconds` value larger than it returns `invalid_duration` for any caller.
 
-For a user caller, a `duration_seconds` value up to that lifetime sets a fixed expiry for the new token. A user caller's token created without `duration_seconds` starts with one token lifetime, and using it extends its expiry to one token lifetime from that use.
+For a user caller, a `duration_seconds` value up to that lifetime sets a fixed expiry for the new token. A user caller's token created without `duration_seconds` starts with one token lifetime and is refreshable. When it is used and its expiry was last set at least six minutes ago, or at least half a token lifetime ago, its expiry moves to one token lifetime from that use. A use sooner than that leaves the expiry unchanged.
 
 When the caller is a managed token, `POST /v4/tokens` returns a token that lasts one hour and carries the managed token's own scopes. The request's `scopes` field, and a `duration_seconds` value within the limit, do not change that.
 
@@ -123,7 +123,7 @@ A call with a token that is revoked, expired, or was never issued returns `403 a
 
 #### Scopes on a programmatic token
 
-When the caller is a user, the `scopes` field on `POST /v4/tokens` selects the new token's scopes from the caller's own. When the caller is a managed token, `scopes` is ignored and the new token carries the managed token's scopes, as described above. Requesting `CLIENT_ADMIN` also grants `USER_SUPPORT`. When the caller holds `CLIENT_SUPERUSER`, the new token carries `CLIENT_SUPERUSER` as well, whatever `scopes` lists. To get a token without `CLIENT_SUPERUSER`, mint it from a caller that does not hold it.
+When the caller is a user, the `scopes` field on `POST /v4/tokens` selects the new token's scopes from the caller's own. When the caller is a managed token, `scopes` is ignored and the new token carries the managed token's scopes, as described above. When the caller is a user and `scopes` is empty or absent, the new token carries all of the caller's scopes. When a user caller lists `CLIENT_ADMIN` in `scopes`, the new token also carries `USER_SUPPORT`. When the caller holds `CLIENT_SUPERUSER`, the new token carries `CLIENT_SUPERUSER` as well, whatever `scopes` lists. To get a token without `CLIENT_SUPERUSER`, mint it from a caller that does not hold it.
 
 ## Consumer Access Tokens
 
@@ -248,7 +248,7 @@ Sandbox tenants use the same token endpoints and the same OAuth substrate as pro
 | 403    | `scopes_denied`                 | Token does not carry a required scope.                |
 | 403    | `missing_credentials`           | Token creation called without sufficient credentials. |
 | 400    | `invalid_access_token_duration` | Consumer access token duration outside the allowed range. |
-| 400    | `invalid_duration`              | `duration_seconds` on `POST /v4/tokens` is longer than the token lifetime of the account named in `client_id`. The response names that lifetime in `parameters.default_duration`. |
+| 400    | `invalid_duration`              | `duration_seconds` on `POST /v4/tokens` is longer than the token lifetime of the account the token is for. The response names that lifetime in `parameters.default_duration`. |
 | 400    | `invalid_client_id`             | `client_id` is not a known client.                    |
 | 400    | `jwt_error`                     | JWT is malformed or claims are invalid.               |
 
