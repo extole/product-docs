@@ -174,7 +174,10 @@ item checks conformance to `.mintlify/AGENTS.md` rather than restating it.
       `display_name`, not from memory — see **Naming a My Extole setting** above.
 - [ ] **Placement** — a new page sits in the tab the actor test chose, not in
       Guides by default. Mechanism, diagnosis, tags, domains, and request
-      parameters belong in Technical Docs even when the symptom is a campaign.
+      parameters belong in Technical Docs even when the symptom is a campaign. Each
+      rule, setting, and event the change names was searched in the corpus, and a
+      name another page already covers links there instead of being described again.
+      See **Do not duplicate across tabs** in `product-docs-placement`.
 - [ ] **Frontmatter** present (`title`, `description`); **page path added to `docs.json`**.
 - [ ] **Links and images resolve** — internal links are site paths, images are
       root-relative repo assets, no `doc:slug` and no remote `expires=` URL.

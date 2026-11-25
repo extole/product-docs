@@ -455,6 +455,10 @@ def before_review(floor: FloorResult) -> list[str]:
     if floor.already_on_main:
         notes.append("Every changed file is already the same on `main`.")
     notes.extend(f"Possible duplicate page: {item}." for item in floor.corpus_duplicates)
+    notes.extend(
+        f"`{page}` already names {', '.join(f'**{subject}**' for subject in found['subjects'])}."
+        for page, found in floor.subjects_on_other_pages.items()
+    )
     return notes
 
 
