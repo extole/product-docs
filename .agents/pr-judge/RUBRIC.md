@@ -255,7 +255,7 @@ Claims:
 - <claim>: <repository name> <status>, or "account read on a test account"
 Changes live text: <each sentence this narrows or reverses, with its page>, or "none"
 Replay: <F12 and F13 on the preview and on docs.extole.com>, or why they did not run
-Placement: <tab and group, and the placement test's answer>
+Placement: <tab and group, the placement test's answer, and each name searched with the pages it found, or "none">
 ```
 
 The `Claims:` line names a repository, not a path or a symbol, because the body is public (README
@@ -286,8 +286,8 @@ Copy this into `product-docs-authoring` in M1, and into Ada's and Garry's docs p
 
 1. Write the reader's question first. If you can state only the conversation, you have a record,
    not a page change.
-2. `git grep` the corpus for the fact, its synonyms and its heading. If another page states it, edit
-   that page, or correct both.
+2. `git grep` the corpus for the fact, its synonyms, its heading, and each rule, setting or event
+   it names. If another page states it, edit that page, or correct both.
 3. Find the sentence that is wrong and edit it. Do not add a correct section beside it.
 4. Settle every claim from source, and name the repository on the `Claims:` line. Check that the
    sentence covers every case the evidence covers, and no more.
