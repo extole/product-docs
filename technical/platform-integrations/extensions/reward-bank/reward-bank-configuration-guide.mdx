@@ -141,26 +141,27 @@ Extole JWT (JSON Web Tokens) can be used to authenticate users to the Reward Ban
 
 For different programs and varying reward types, set up multiple Reward Bank extensions.  Give each Reward Bank a unique name to make identification easier.
 
-When using multiple integrations, include `target=campaign_id:<REWARD_BANK_CAMPAIGN_ID>` in the links leading to the Reward Bank to ensure correct functionality.
+### When Two Reward Banks Are Live
+
+Reward Banks answer the `bankable_rewards` zone by default, and the Extole-hosted Redemption Center requests that zone by name. When two banks are live and a request carries no `target=campaign_id:` parameter, both banks answer it, and the platform picks one of them for the visitor. The visitor keeps that bank on every later visit, so they can see an empty balance while their rewards sit in the other bank. Nothing is reported as an error when this happens.
+
+Giving one bank a different zone name does not separate them: the Redemption Center requests `bankable_rewards` whatever the bank's zone name is.
+
+Include `target=campaign_id:<REWARD_BANK_CAMPAIGN_ID>` in every link that leads to a Reward Bank, so the request reaches the bank you name. Once the Redemption Center opens from a link that carries the parameter, the balance it loads comes from that bank too.
 
 Example link:  
 `https://test.extole.io/zone/bankable_rewards_redemption_center?target=campaign_id:<CAMPAIGN_ID>&jwt=<JWT_TOKEN>`
 
-### Give each Reward Bank its own zone name
+The extension builds the Redemption Center link in a reward email from the **Redemption Center URL** setting:
 
-`Zone Name`, on the Reward Bank extension's **Content** tab, defaults to `bankable_rewards` on every bank. Two live banks left on the default both answer that same request, and the platform then picks one of them for the visitor. The visitor keeps whichever bank they were given on every later visit, so they can be shown an empty balance that belongs to the other bank. Nothing is reported as an error when this happens.
+* When the setting is a zone name, the link is `https://<Program_Domain>/zones/<ZONE_NAME>?jwt=<JWT_TOKEN>`.
+* When the setting is a full URL that starts with `https://`, the email uses that URL exactly as entered and adds no JWT.
 
-Set a unique `Zone Name` on each Reward Bank before you make a second one live, and set each bank's **Redemption Center URL** to that bank's own Redemption Center Microsite zone.
+Neither form adds `target=campaign_id:`. If more than one Reward Bank is live, **contact the Extole Support Team** to point the email links at the right bank.
 
-<Warning>
-  Reward Bank extensions created before V10.1 have no `Zone Name` setting and always answer `bankable_rewards`. If one of your banks is an older version, give the newer bank the unique zone name.
-</Warning>
+### Repoint Every Program That Embeds a Bank
 
-A standalone Redemption Center link sent from a reward email carries only `?jwt=<JWT_TOKEN>`: the extension builds it from the **Redemption Center URL** setting plus the token, so there is nowhere in that link for a `target=campaign_id:` parameter. Unique zone names are what keeps those email links pointed at the right bank.
-
-### Repoint every program that embeds a bank
-
-A program whose microsite shows a Reward Bank embeds it with the **Reward Bank Redemption Center Panel** content block, and that block's **Reward Bank Campaign ID** setting names one bank explicitly. The panel is therefore already pinned: it asks for the bank you named and never the other one, whatever the zone names are.
+A program whose microsite shows a Reward Bank embeds it with the **Reward Bank Redemption Center Panel** content block. The block's **Reward Bank Campaign ID** setting adds `target=campaign_id:` for the bank you enter, so the panel asks only for that bank. When the setting is empty, the panel loads no bank and shows "Reward Bank Campaign ID is required".
 
 That pin is per program, and it does not follow the reward. When you move a program's rewards to a different bank, change **Reward Bank Campaign ID** on that program's panel in the same release. A program left naming the old bank keeps showing the old bank's balance, so the person sees an empty Reward Bank while their new rewards sit in the other one.
 
