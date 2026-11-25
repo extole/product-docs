@@ -82,11 +82,11 @@ For automation, CI/CD, or applications that rotate credentials, create short-liv
 
 `POST /v4/tokens/managed` requires the calling user's My Extole **password** in the request body, and rejects the request with `missing_credentials` when it is absent. A valid bearer token is not enough on its own.
 
-When you set up monitoring or tooling across several accounts, have a person create one managed token per account in the Security Center, or use short-lived tokens as described below.
-
 #### How long a programmatic token lasts
 
-A token from `POST /v4/tokens` lasts up to the account's token lifetime. The lifetime is a per-account security setting, so it varies between accounts rather than being a platform constant. To read an account's lifetime, ask for a deliberately long one — the `400` response names the real limit:
+How long a token from `POST /v4/tokens` lasts depends on the caller.
+
+When the caller is a user — signing in with `email` and `password`, or sending a user's bearer token — the new token lasts up to the token lifetime of the account named in `client_id`. The token lifetime is a per-account security setting. Every caller's `duration_seconds` is checked against it, so asking for a deliberately long duration returns the account's lifetime in the `400` response:
 
 ```bash
 curl -X POST https://api.extole.io/v4/tokens \
@@ -102,9 +102,9 @@ curl -X POST https://api.extole.io/v4/tokens \
 }
 ```
 
-`default_duration` is the account's token lifetime in seconds. A `duration_seconds` value up to that limit sets a fixed expiry for the new token; a larger value returns `invalid_duration`.
+`default_duration` is the token lifetime, in seconds, of the account named in `client_id`. A `duration_seconds` value larger than it returns `invalid_duration` for any caller.
 
-A token created without `duration_seconds` stays live while you use it: using it moves its expiry out to one token lifetime from that moment. A token created with `duration_seconds` expires at the time set when it was created.
+For a user caller, a `duration_seconds` value up to that lifetime sets a fixed expiry for the new token. A user caller's token created without `duration_seconds` starts with one token lifetime, and using it extends its expiry to one token lifetime from that use.
 
 When the caller is a managed token, `POST /v4/tokens` returns a token that lasts one hour and carries the managed token's own scopes. The request's `scopes` field, and a `duration_seconds` value within the limit, do not change that.
 
@@ -119,11 +119,11 @@ curl -X DELETE https://api.extole.io/v4/tokens \
 
 A successful revocation returns `204 No Content`, and later calls with that token return `403 access_denied`. `DELETE /v4/tokens/{token}` does the same with the token in the URL path instead; it is deprecated because it puts the token in the URL. A token issued by the Extole identity provider is the exception: the call returns `204` and the token stays valid until it expires.
 
-To keep a record of which tokens you revoked, record each `204` as you receive it. A `403 access_denied` on a token means it is not usable — revoked, expired, or never issued — so checking a set of tokens afterwards confirms that none of them work, and the `204` records are what show how each one ended.
+A call with a token that is revoked, expired, or was never issued returns `403 access_denied`.
 
 #### Scopes on a programmatic token
 
-The `scopes` field on `POST /v4/tokens` selects a subset of the caller's own scopes for the new token. Requesting `CLIENT_ADMIN` also grants `USER_SUPPORT`. When the caller holds `CLIENT_SUPERUSER`, the new token carries `CLIENT_SUPERUSER` as well, whatever `scopes` lists. To get a token without `CLIENT_SUPERUSER`, mint it from a caller that does not hold it.
+When the caller is a user, the `scopes` field on `POST /v4/tokens` selects the new token's scopes from the caller's own. When the caller is a managed token, `scopes` is ignored and the new token carries the managed token's scopes, as described above. Requesting `CLIENT_ADMIN` also grants `USER_SUPPORT`. When the caller holds `CLIENT_SUPERUSER`, the new token carries `CLIENT_SUPERUSER` as well, whatever `scopes` lists. To get a token without `CLIENT_SUPERUSER`, mint it from a caller that does not hold it.
 
 ## Consumer Access Tokens
 
@@ -248,7 +248,7 @@ Sandbox tenants use the same token endpoints and the same OAuth substrate as pro
 | 403    | `scopes_denied`                 | Token does not carry a required scope.                |
 | 403    | `missing_credentials`           | Token creation called without sufficient credentials. |
 | 400    | `invalid_access_token_duration` | Consumer access token duration outside the allowed range. |
-| 400    | `invalid_duration`              | `duration_seconds` on `POST /v4/tokens` is longer than the account's token lifetime. The response names the limit in `parameters.default_duration`. |
+| 400    | `invalid_duration`              | `duration_seconds` on `POST /v4/tokens` is longer than the token lifetime of the account named in `client_id`. The response names that lifetime in `parameters.default_duration`. |
 | 400    | `invalid_client_id`             | `client_id` is not a known client.                    |
 | 400    | `jwt_error`                     | JWT is malformed or claims are invalid.               |
 
