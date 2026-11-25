@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import source_check
 from pr_floor import FloorResult
 import pr_safe
-from pr_judge import apply_verdict_steps, posts_send_back_review, render, send_back_review_body
+from pr_judge import apply_verdict_steps, asks_the_docs_owner, posts_send_back_review, render, send_back_review_body
 
 HEAD = "a" * 40
 OTHER_HEAD = "b" * 40
@@ -205,6 +205,26 @@ class SendBackReviewTests(unittest.TestCase):
 
     def test_no_review_for_another_verdict(self):
         self.assertFalse(posts_send_back_review({"verdict": "needs-human", "send_back": [self.FINDING]}, HEAD, ""))
+
+
+class DocsOwnerRequestTests(unittest.TestCase):
+    OWNER = "ekthayer"
+    AGENT_PULL = {"number": 1, "author": {"login": "extole-ada-lovelace[bot]"}}
+
+    def test_the_owner_is_asked_when_a_person_has_something_to_decide(self):
+        for verdict in ("merge-floor", "needs-human"):
+            self.assertTrue(asks_the_docs_owner(self.AGENT_PULL, {"verdict": verdict}, self.OWNER), verdict)
+
+    def test_the_owner_is_not_asked_while_an_agent_has_work_to_do(self):
+        for verdict in ("send-back", "consolidate", "route-elsewhere", "close"):
+            self.assertFalse(asks_the_docs_owner(self.AGENT_PULL, {"verdict": verdict}, self.OWNER), verdict)
+
+    def test_the_owner_is_not_asked_about_generated_bundles(self):
+        self.assertFalse(asks_the_docs_owner(self.AGENT_PULL, {"verdict": "needs-human", "skipped": True}, self.OWNER))
+
+    def test_the_owner_is_not_asked_to_review_their_own_pull_request(self):
+        own_pull = {"number": 1, "author": {"login": "EKThayer"}}
+        self.assertFalse(asks_the_docs_owner(own_pull, {"verdict": "merge-floor"}, self.OWNER))
 
 
 if __name__ == "__main__":
