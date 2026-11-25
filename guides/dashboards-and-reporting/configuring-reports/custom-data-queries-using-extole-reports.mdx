@@ -395,6 +395,22 @@ CLIENT().shortName
 CLIENT().clientType
 ```
 
+### CLIENT_DOMAIN
+
+Loads a program domain by its ID. A shareable's `clientDomainId` is the program domain its share link belongs to.
+
+**Parameters:**
+- `(anonymous)` — column with program domain ID
+
+**Returns:** `api.ClientDomain` properties
+
+```
+CLIENT_DOMAIN(FIRST(COLLECTION(PERSON(event.personId).shareables, filter:label==event.programLabel)).clientDomainId).shareUri
+CLIENT_DOMAIN(FIRST(COLLECTION(PERSON(event.personId).shareables, filter:label==event.programLabel)).clientDomainId).domain
+```
+
+Key ClientDomain properties: `id`, `name`, `domain`, `shareUri`, `scheme`. To build a share link from `shareUri`, see [Advocate Share Link](#advocate-share-link).
+
 ### CLIENT_PROPERTIES
 
 Loads the property map associated with the current client. No join column required.
@@ -425,7 +441,7 @@ Loads a specific consumer event by ID.
 **Returns:** `api.ConsumerEvent` (or subtype: `StepConsumerEvent`, `RewardConsumerEvent`, `InputConsumerEvent`)
 
 ```
-event(event.rootEventId).name
+event(event.rootEventId).type
 EVENT(event.id).person.email
 EVENT(event.id).selectedCampaignContext.triggerResults
 ```
@@ -433,6 +449,10 @@ EVENT(event.id).selectedCampaignContext.triggerResults
 Key ConsumerEvent properties: `id`, `rootEventId`, `type`, `eventTime`, `person`, `data`, `sandbox`, `clientContext`.
 
 Additional StepConsumerEvent properties: `name`, `stepName`, `campaignId`, `personId`, `visitType`, `quality`, `attribution`.
+
+<Tip>
+To read the name or the `data` payload of the input event behind a step or reward, use [INPUT_RECORD](#input_record) with `event.rootEventId` instead of `event()`. `input_record()` loads only the inbound request, so it reads far less data and the report runs faster. `event()` searches the raw events around each ID's event time, so over a long report range it can read most of the client's events in that range. Use `event()` for properties that exist only on the consumer event, such as `person`, `selectedCampaignContext`, `referralContext`, and `causeEventId`.
+</Tip>
 
 ### REWARD
 
@@ -491,17 +511,20 @@ Finds the input record corresponding to an input consumer event.
 **Parameters:**
 - `(anonymous)` — column with input consumer event ID
 - `event_name` *(optional)* — column with event name; omit to match any name
-- `event_time_name` *(required)* — column with event time
+- `event_time_name` *(optional)* — column with event time; omit to find the input record by its ID alone
 
 **Returns:** `api.InputRecord` properties
 
 ```
-input_record(event.rootEventId, event_time_name:event.eventTime).name
-input_record(event.rootEventId, event_name:"conversion", event_time_name:event.eventTime).apiType
+input_record(event.rootEventId).name
+input_record(event.rootEventId).data.amount
+input_record(event.rootEventId, event_name:"conversion").apiType
 INPUT_RECORD(event.rootEventId, event_time_name:event.eventTime).userAgent
 ```
 
-Key InputRecord properties: `id`, `clientId`, `eventTime`, `personId`, `name`, `locale`, `apiType`, `appType`, `deviceType`, `userAgent`, `data`.
+Key InputRecord properties: `id`, `clientId`, `eventTime`, `personId`, `name`, `locale`, `apiType`, `appType`, `deviceType`, `userAgent`, `ipAddress`, `httpHeaders`, `data`.
+
+From a step or reward event, `input_record(event.rootEventId)` is the fastest way to read the name and `data` of the input event behind it. The keys in an input record's `data` are the keys the client sent, and they can differ from the keys on the steps that event produced. Run an **Input Records** report for the event name first to see which keys it carries.
 
 ### DEVICE_TYPE
 
@@ -542,6 +565,14 @@ collection(person(event.personId).steps, extracting:stepName)
 collection(event(event.id).selectedCampaignContext.triggerResults, filter:passed=="false")
 COLLECTION(PERSON(event.personId).steps, filter:stepName=="transacted" AND campaignId!="null")
 ```
+
+Within one `filter:` argument, conditions combine from left to right. Each `and` or `or` joins everything before it with the next condition, and parentheses aren't supported. This filter matches a step whose name is `converted` or `shared` and whose quality is `HIGH`:
+
+```
+collection(person(event.personId).steps, filter:stepName=="converted" or stepName=="shared" and quality=="HIGH")
+```
+
+List the alternatives first, and the conditions that apply to all of them after. [PERSON_COLLECTION](#person_collection) reads its `filter:` argument the same way.
 
 Multiple separate `filter:` arguments (implicit AND between them):
 
@@ -672,8 +703,8 @@ All aggregation functions share a common set of optional filter parameters in ad
 | `name` | Input event name (required for input record metrics) |
 | `names` | Comma-separated list of input event names |
 | `audience_id` | Audience ID filter |
-| `attribution` | `ALL`, `ATTRIBUTED`, `UNATTRIBUTED` |
-| `quality` | `ALL`, `HIGH`, `LOW`, `NONE` |
+| `attribution` | `ALL`, `ATTRIBUTED`, `UNATTRIBUTED`. When you leave it out, the count follows the report's `unattributed_events` parameter, so steps with no campaign may be left out. |
+| `quality` | `ALL`, `HIGH`, `LOW`, `NONE`. A step with no campaign is neither `HIGH` nor `LOW`, so count steps with `attribution:"UNATTRIBUTED"` with `quality:"ALL"`. |
 | `visit_type` | `ALL`, `NEW_TO_CLIENT`, `NEW_TO_PROGRAM`, `NEW_TO_CAMPAIGN`, `NORMAL` |
 | `channel` | Channel filter string |
 | `source` | Source filter string |
@@ -973,6 +1004,26 @@ Day=end_date(event.eventTime, period:"DAY"); Count=group_count_distinct(event.id
 ```
 Email=person(event.personId).email; First Name=person(event.personId).firstName; Last Name=person(event.personId).lastName; Campaign Name=campaign(event.campaignId).campaignName;
 ```
+
+## Advocate Share Link
+
+An advocate's share link is their program domain's share URI, a `/`, and their share code. A shareable holds the code and the program domain ID, and `CLIENT_DOMAIN` loads the share URI. Select the advocate's shareable by its `label`, then join the two parts.
+
+The examples below select the shareable whose label matches the event's program with `filter:label==event.programLabel`. If the advocate's shareables carry a different label from the events in the report, name that label instead, for example `filter:label=="refer-a-friend"`, in each place the filter appears.
+
+On friend-side rows such as `share_clicked`, `signup`, or `converted`, the advocate is `event.data.related_person_id`:
+
+```
+Advocate Share Code=FIRST(COLLECTION(PERSON(event.data.related_person_id).shareables, filter:label==event.programLabel)).code; Advocate Share Link=CONCATENATE(CLIENT_DOMAIN(FIRST(COLLECTION(PERSON(event.data.related_person_id).shareables, filter:label==event.programLabel)).clientDomainId).shareUri, "/", FIRST(COLLECTION(PERSON(event.data.related_person_id).shareables, filter:label==event.programLabel)).code);
+```
+
+On advocate-side rows such as `shared`, the advocate is `event.personId`:
+
+```
+Advocate Share Link=CONCATENATE(CLIENT_DOMAIN(FIRST(COLLECTION(PERSON(event.personId).shareables, filter:label==event.programLabel)).clientDomainId).shareUri, "/", FIRST(COLLECTION(PERSON(event.personId).shareables, filter:label==event.programLabel)).code);
+```
+
+Which side a step belongs to is set by the campaign's journeys. **Advocate vs. Friend Funnel** under [Aggregation Functions](#aggregation-functions-metrics-reports-only) lists examples of each.
 
 ## Conditional Column (Boolean Format)
 

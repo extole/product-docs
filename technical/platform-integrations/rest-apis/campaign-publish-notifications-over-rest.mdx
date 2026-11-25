@@ -1,0 +1,47 @@
+---
+title: "Campaign Publish Notifications Over REST"
+description: "Subscribe to publish notifications for one campaign with the REST API, instead of to every campaign publish on the account."
+---
+
+# Overview
+
+The [Subscribing to My Extole Notifications](/guides/notifications-and-troubleshooting/platform-and-admin/subscribing-to-my-extole-notifications)
+guide covers the four notification categories. At the **Some** level, Configuration Changes
+notifies you every time any campaign is published, which is noise when you only care about one
+of them. This page covers a narrower subscription that reaches you only when one campaign is
+published.
+
+## How a Subscription Matches a Notification
+
+Every notification carries tags. A campaign publish notification is tagged `business_operations`,
+`tracked_feature`, and `campaign_id=<id>`, where `<id>` is the campaign that was published. When
+Extole matches a notification to subscriptions, it also counts the notification's name,
+`campaign_published`, as one of its tags.
+
+A subscription matches a notification only when every tag on the subscription is also on the
+notification. Other campaign notifications carry the same `campaign_id=<id>` tag, so use both
+`campaign_published` and `campaign_id=<id>`. That subscription reaches you when that one campaign
+is published, and for nothing else.
+
+Read the campaign id from the address bar while the campaign is open in My Extole.
+
+## Create the Subscription
+
+Send the request to the [Create a User Subscription](/api-reference/user-subscriptions/create-a-user-subscription)
+endpoint for the user who should receive the notification:
+
+```json
+{
+  "having_all_tags": ["campaign_published", "campaign_id=1234567890123456789"],
+  "filtering_level": "SOME",
+  "channels": [{ "type": "EMAIL" }]
+}
+```
+
+Campaign publish notifications are warnings, so the subscription needs the **Some** or **All**
+level — **Noteworthy** does not include them. To reach someone who has no My Extole login, use a
+`THIRD_PARTY_EMAIL` channel with a `recipient` address instead.
+
+<Note>
+  This tells you that the campaign was published. It does not list what changed inside it.
+</Note>

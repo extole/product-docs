@@ -16,7 +16,8 @@ Hidden groups are exempt from the mirroring check: they have no sidebar
 position to mirror, which is how the runbooks are served.
 
 Usage:
-  python3 scripts/check_navigation.py            # from the repository root
+  python3 scripts/check_navigation.py            # this checkout
+  python3 scripts/check_navigation.py <root>     # another checkout, such as one at `main`
 """
 from __future__ import annotations
 
@@ -63,7 +64,7 @@ def listed_pages(navigation: dict) -> list[tuple[str, list[str], str, bool]]:
 
 
 def main() -> int:
-    root = Path(__file__).resolve().parent.parent
+    root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parent.parent
     navigation = json.loads((root / "docs.json").read_text())["navigation"]
     pages = listed_pages(navigation)
 
