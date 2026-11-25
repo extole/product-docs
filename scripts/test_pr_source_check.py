@@ -11,7 +11,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import source_check
 from pr_floor import FloorResult
-from pr_judge import apply_verdict_steps
+import pr_safe
+from pr_judge import apply_verdict_steps, render
 
 HEAD = "a" * 40
 OTHER_HEAD = "b" * 40
@@ -108,6 +109,37 @@ class ContextTests(unittest.TestCase):
         bad["body"] = bad["body"].replace(json.dumps({"head": HEAD, "claims": []}), json.dumps([1, 2]))
         self.assertIsNone(source_check.from_comments([bad], HEAD))
         self.assertEqual(source_check.from_comments([comment(claims=["text", 3])], HEAD).claims, [])
+
+
+class JudgeCommentTests(unittest.TestCase):
+    FINDING = "Correct the report count in the first paragraph."
+
+    def send_back_verdict(self):
+        rows = source_check.merge_claims(source_check.SourceCheck(claims=[CONTRADICTED], failed=False), [])
+        model_verdict = {"verdict": "send-back", "claims": rows, "send_back": [self.FINDING], "reasons": []}
+        return apply_verdict_steps(model_verdict, FloorResult())
+
+    def comment_body(self, verdict):
+        return render({"number": 1}, verdict, FloorResult(), pr_safe.SafeClass(would_merge=False, reasons=["too long"]))
+
+    def test_the_comment_names_each_claim_and_finding_once(self):
+        body = self.comment_body(self.send_back_verdict())
+        self.assertEqual(body.count(CONTRADICTED["sentence"]), 1)
+        self.assertEqual(body.count(self.FINDING), 1)
+        self.assertIn("Claims that source contradicts or only partly supports: 1.", body)
+
+    def test_the_review_for_the_author_still_carries_every_item(self):
+        send_back = " ".join(self.send_back_verdict()["send_back"])
+        self.assertIn(self.FINDING, send_back)
+        self.assertIn(CONTRADICTED["sentence"], send_back)
+
+    def test_unreadable_claims_are_counted_not_repeated(self):
+        rows = source_check.merge_claims(source_check.SourceCheck(claims=[{**CONTRADICTED, "status": "unreadable"}], failed=False), [])
+        verdict = apply_verdict_steps({"verdict": "merge-floor", "claims": rows, "reasons": []}, FloorResult())
+        body = self.comment_body(verdict)
+        self.assertEqual(verdict["verdict"], "needs-human")
+        self.assertEqual(body.count(CONTRADICTED["sentence"]), 1)
+        self.assertIn("Unreadable claims: 1.", body)
 
 
 if __name__ == "__main__":

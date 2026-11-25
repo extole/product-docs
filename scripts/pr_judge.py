@@ -270,8 +270,10 @@ def apply_verdict_steps(verdict: dict, floor: FloorResult) -> dict:
         verdict.update({
             "verdict": "send-back",
             "send_back": all_send_back,
+            "send_back_findings": floor_send_back + judgment_send_back,
+            "send_back_claims": claim_send_back,
             "one_line": verdict.get("one_line") or "Fixable defects the author can address.",
-            "reasons": reasons + all_send_back,
+            "reasons": reasons,
         })
         return verdict
 
@@ -290,7 +292,7 @@ def apply_verdict_steps(verdict: dict, floor: FloorResult) -> dict:
             "verdict": "needs-human",
             "human_question": "The judge could not read source for every claim.",
             "reserved": "",
-            "reasons": reasons + [f"Unreadable claim: {row.get('sentence', '')[:100]}" for row in unreadable],
+            "reasons": reasons + [f"Unreadable claims: {len(unreadable)}. Each is listed under **Claims**."],
         })
         return verdict
 
@@ -415,6 +417,14 @@ def shadow_line(safe: pr_safe.SafeClass) -> str:
     return f"**Safe class (shadow):** would not auto-merge: {'; '.join(safe.reasons[:3])}."
 
 
+def comment_send_back(verdict: dict) -> list[str]:
+    claim_count = len(verdict["send_back_claims"])
+    claim_line = [
+        f"Claims that source contradicts or only partly supports: {claim_count}. Each is listed under **Claims**."
+    ] if claim_count else []
+    return verdict["send_back_findings"] + claim_line
+
+
 def render(pull, verdict, floor: FloorResult, safe: pr_safe.SafeClass):
     label = verdict["verdict"]
     lines = [
@@ -431,7 +441,7 @@ def render(pull, verdict, floor: FloorResult, safe: pr_safe.SafeClass):
     if verdict.get("human_question") and label == "needs-human":
         lines += [f"**Question for a person:** {verdict['human_question']}", ""]
     if verdict.get("send_back") and label == "send-back":
-        lines += ["**Send back**", ""] + [f"- {item}" for item in verdict["send_back"]] + [""]
+        lines += ["**Send back**", ""] + [f"- {item}" for item in comment_send_back(verdict)] + [""]
     if verdict.get("claims"):
         lines += ["**Claims**", ""]
         lines += [
