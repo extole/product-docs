@@ -21,7 +21,7 @@
     "/events": {
       "post": {
         "summary": "Send Event From Site or App",
-        "description": "Sends this trigger event from a consumer's browser or app, through the program domain, so the campaigns that listen for it run for that consumer. The call always answers 200. To find out if the event failed, read the X-Extole-Error-Message response header.",
+        "description": "Sends this trigger event from a consumer's browser or app, through the program domain, so the campaigns that listen for it run for that consumer. Which SDK sends the event depends on where this trigger event is declared: under Tagged CTAs on the Javascript SDK extension, or under a platform on the Mobile SDK extension. Use the sample for that SDK. In the iOS and Android SDKs, identify the person with identify or identifyJwt before you call fetchZone. The call always answers 200. To find out if the event failed, read the X-Extole-Error-Message response header.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "requestBody": {
           "required": true,
@@ -109,6 +109,23 @@
             }
           }
         },
+        "x-codeSamples": [
+          {
+            "lang": "html",
+            "label": "JavaScript SDK",
+            "source": "<!-- core.js sends this zone request with app type javascript_sdk. -->\n<!-- The Extole core tag. Replace yourcompany.extole.io with your program domain. Load it once per page, and leave it out if the page already loads core.js. -->\n<script type=\"text/javascript\" src=\"https://yourcompany.extole.io/core.js\" fetchpriority=\"high\" async></script>\n<span id=\"extole_zone_sdk_zone_event\"></span>\n<!-- When the visitor is not known yet, remove the \"email\" line from data. -->\n<script type=\"text/javascript\">\n  /* Start Extole */\n  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,\"extole\",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},[\"createZone\"],0);\n  /* End Extole */\n\n  extole.createZone({\n    name: \"sdk_zone_event\",\n    element_id: \"extole_zone_sdk_zone_event\",\n    data: {\n      \"email\": INSERT_DYNAMIC_DATA\n    }\n  });\n</script>"
+          },
+          {
+            "lang": "swift",
+            "label": "iOS SDK",
+            "source": "// The iOS SDK sends this zone request with app type mobile-sdk-ios.\n// Identify the person when they sign in. Until then, call only fetchZone.\nextole.identify(INSERT_DYNAMIC_DATA, [:]) { eventId, error in\n    extole.fetchZone(\"sdk_zone_event\", [:]) { zone, campaign, error in\n        // zone holds the zone content, if the zone has any.\n    }\n}"
+          },
+          {
+            "lang": "kotlin",
+            "label": "Android SDK",
+            "source": "// The Android SDK sends this zone request with app type mobile_sdk_android.\n// Identify the person when they sign in. Until then, call only fetchZone.\nextole.identify(INSERT_DYNAMIC_DATA)\nval (zone, campaign) = extole.fetchZone(\"sdk_zone_event\")\n// zone holds the zone content, if the zone has any."
+          }
+        ],
         "servers": [
           {
             "description": "Production - your program domain",
@@ -203,10 +220,34 @@
         ],
         "properties": {
           "data": {
+            "description": "Data sent with the event, as key and value pairs. Any key not listed below is also kept with the event.",
+            "additionalProperties": true,
             "type": "object",
             "properties": {
-              "container": {
-                "description": "Container the event goes to, for example test to keep it out of analytics. Without it, the event goes to production.",
+              "sandbox": {
+                "description": "Sandbox the event runs in, which also decides the container it is recorded in. Without it, the event runs your published campaigns in production.",
+                "anyOf": [
+                  {
+                    "const": "production-production",
+                    "description": "Runs your published campaigns and records the event in production.",
+                    "title": "Production"
+                  },
+                  {
+                    "const": "campaign_preview-{id}",
+                    "description": "Runs the latest version of your campaigns, including unpublished changes, and records the event in test. Quality rules do not run, and a person can enter a journey without a referral.",
+                    "title": "Preview"
+                  },
+                  {
+                    "const": "campaign-{id}-test",
+                    "description": "Runs the latest version of your campaigns, including unpublished changes, and records the event in test. Quality rules run, and a person enters a journey as on your live site.",
+                    "title": "Campaign"
+                  },
+                  {
+                    "description": "Any other sandbox, such as production-test.",
+                    "type": "string",
+                    "title": "Other"
+                  }
+                ],
                 "type": "string"
               },
               "email": {

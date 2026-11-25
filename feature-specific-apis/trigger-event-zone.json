@@ -21,7 +21,7 @@
     "/events": {
       "post": {
         "summary": "Send Event From Site or App",
-        "description": "Sends this trigger event from a consumer's browser or app, through the program domain, so the campaigns that listen for it run for that consumer. The call always answers 200. To find out if the event failed, read the X-Extole-Error-Message response header.",
+        "description": "Sends this trigger event from a consumer's browser or app, through the program domain, so the campaigns that listen for it run for that consumer. An Extole creative sends this event when a visitor opens its zone, for example when a friend clicks a share link, which opens share_destination. Your site or app needs no code for it. Call this operation to send the event without the creative, for example to test a campaign. The call always answers 200. To find out if the event failed, read the X-Extole-Error-Message response header.",
         "x-extole-type": "CONSUMER_TO_EXTOLE",
         "requestBody": {
           "required": true,
@@ -109,6 +109,13 @@
             }
           }
         },
+        "x-codeSamples": [
+          {
+            "lang": "html",
+            "label": "Tagged CTA",
+            "source": "<!-- The Extole core tag. Replace yourcompany.extole.io with your program domain. Load it once per page, and leave it out if the page already loads core.js. -->\n<script type=\"text/javascript\" src=\"https://yourcompany.extole.io/core.js\" fetchpriority=\"high\" async></script>\n<span id=\"extole_zone_zone_event\"></span>\n<!-- When the visitor is not known yet, remove the \"email\" line from data. -->\n<script type=\"text/javascript\">\n  /* Start Extole */\n  (function(c,e,k,l,a){c[e]=c[e]||{};for(c[e].q=c[e].q||[];a<l.length;)k(l[a++],c[e])})(window,\"extole\",function(c,e){e[c]=e[c]||function(){e.q.push([c,arguments])}},[\"createZone\"],0);\n  /* End Extole */\n\n  extole.createZone({\n    name: \"zone_event\",\n    element_id: \"extole_zone_zone_event\",\n    data: {\n      \"email\": INSERT_DYNAMIC_DATA\n    }\n  });\n</script>"
+          }
+        ],
         "servers": [
           {
             "description": "Production - your program domain",
@@ -203,10 +210,34 @@
         ],
         "properties": {
           "data": {
+            "description": "Data sent with the event, as key and value pairs. Any key not listed below is also kept with the event.",
+            "additionalProperties": true,
             "type": "object",
             "properties": {
-              "container": {
-                "description": "Container the event goes to, for example test to keep it out of analytics. Without it, the event goes to production.",
+              "sandbox": {
+                "description": "Sandbox the event runs in, which also decides the container it is recorded in. Without it, the event runs your published campaigns in production.",
+                "anyOf": [
+                  {
+                    "const": "production-production",
+                    "description": "Runs your published campaigns and records the event in production.",
+                    "title": "Production"
+                  },
+                  {
+                    "const": "campaign_preview-{id}",
+                    "description": "Runs the latest version of your campaigns, including unpublished changes, and records the event in test. Quality rules do not run, and a person can enter a journey without a referral.",
+                    "title": "Preview"
+                  },
+                  {
+                    "const": "campaign-{id}-test",
+                    "description": "Runs the latest version of your campaigns, including unpublished changes, and records the event in test. Quality rules run, and a person enters a journey as on your live site.",
+                    "title": "Campaign"
+                  },
+                  {
+                    "description": "Any other sandbox, such as production-test.",
+                    "type": "string",
+                    "title": "Other"
+                  }
+                ],
                 "type": "string"
               },
               "email": {
