@@ -11,15 +11,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from closing_references import armed_references
 from pr_floor import (
+    MAXIMUM_PAGES_PER_SUBJECT,
     FloorResult,
+    added_subjects,
     deleted_sentences,
     preview_host,
     preview_host_from_comments,
     scan_internal_terms,
     scan_remote_assets,
     send_back_reasons,
+    subjects_on_other_pages,
 )
-from pr_judge import apply_verdict_steps
+from pr_judge import apply_verdict_steps, before_review
 
 
 class PreviewHostTests(unittest.TestCase):
@@ -80,6 +83,67 @@ class DeletedSentenceTests(unittest.TestCase):
         row = "| Views | The socket that carries the tabs |"
         files = [{"filename": "guides/a.mdx", "patch": f"-{row}\n+| Other | row |"}]
         self.assertEqual(deleted_sentences(files), [row])
+
+
+class SubjectOnOtherPageTests(unittest.TestCase):
+    SECTION_ADDED_TO_EXISTING_PAGE = "\n".join([
+        "+## Standard Rules in Flow Builder Campaigns",
+        "+| Quality Rule | Description |",
+        "+| :--- | :--- |",
+        "+| Share Email Limit | Limits the share emails a person can receive. |",
+        "+The **Business Event Quality** reward rule stops it.",
+        " | Untouched Row | stays as it was |",
+        "-| Removed Row | is not a subject |",
+    ])
+
+    def test_added_section_names_its_heading_bold_terms_and_table_rows(self):
+        self.assertEqual(
+            added_subjects(self.SECTION_ADDED_TO_EXISTING_PAGE),
+            {
+                "Standard Rules in Flow Builder Campaigns",
+                "Quality Rule",
+                "Share Email Limit",
+                "Business Event Quality",
+            },
+        )
+
+    def test_short_and_numeric_cells_are_not_subjects(self):
+        self.assertEqual(added_subjects("+| On | 30 |\n+| 2026 | yes |"), set())
+
+    def test_subject_on_another_page_is_found_and_the_page_itself_is_not(self):
+        lines = {
+            "Share Email Limit": [
+                ("guides/flow-campaigns/default-business-event-quality-rules.mdx", "| > Share Email Limit | > Shared |"),
+                ("product/rules-quality.mdx", "| Share Email Limit | Limits |"),
+            ],
+        }
+        found, too_common = subjects_on_other_pages(
+            {"product/rules-quality.mdx": {"Share Email Limit"}},
+            lambda subject: lines.get(subject, []),
+        )
+        self.assertEqual(
+            found,
+            {"guides/flow-campaigns/default-business-event-quality-rules.mdx": {
+                "subjects": ["Share Email Limit"],
+                "lines": ["| > Share Email Limit | > Shared |"],
+            }},
+        )
+        self.assertEqual(too_common, [])
+
+    def test_subject_on_many_pages_is_reported_as_too_common(self):
+        many = [(f"guides/page-{index}.mdx", "Reward Rule") for index in range(MAXIMUM_PAGES_PER_SUBJECT + 1)]
+        found, too_common = subjects_on_other_pages({"product/a.mdx": {"Reward Rule"}}, lambda subject: many)
+        self.assertEqual(found, {})
+        self.assertEqual(too_common, [f"Reward Rule ({MAXIMUM_PAGES_PER_SUBJECT + 1} pages)"])
+
+    def test_review_note_names_the_page_and_its_subjects(self):
+        floor = FloorResult(subjects_on_other_pages={
+            "guides/a.mdx": {"subjects": ["Mass Share Limit", "Share Email Limit"], "lines": []},
+        })
+        self.assertIn(
+            "`guides/a.mdx` already names **Mass Share Limit**, **Share Email Limit**.",
+            before_review(floor),
+        )
 
 
 class VerdictStepTests(unittest.TestCase):

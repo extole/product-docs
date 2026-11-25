@@ -79,7 +79,7 @@ of the model's context.
 | F7 | The literals the diff changes: backtick tokens, code blocks, event names, API paths, numbers with units | Informs V. Never a failure on its own | New |
 | F8 | Other open pull requests that change the same page, matched by path and by file name so that a move is caught. The section headings each one changes | Same section: `consolidate`. Same page, a different section: informs | New. 6 pages with 13 pull requests by path today |
 | F9 | The branch conflicts with `main`, or a page this pull request changes also changed on `main` after its merge base | `send-back`: merge `main` in and verify again. A branch that is only behind, on other pages, informs: **Update branch** is enough | Checked |
-| F10 | Other pages on `main` that state the same fact. Today the check is narrower: a new page whose title matches an existing page's title. The subject is each literal, number and UI label the diff adds, their glossary synonyms, and the section's own heading | Informs J2 | New. 7 contradictions between pages today, and a literal grep missed copies of 3 of them ([`CORRECTIONS.md`](https://github.com/extole/ai-tools/blob/main/docs/plans/product_docs_judge_20260929/CORRECTIONS.md)) |
+| F10 | Other pages on `main` that name what the diff adds. The subjects are each heading, bold term and first table cell that an added line of a page carries, at four characters or more. Each one is searched on `main` without case, and each other page that names it is listed with its matching lines. A subject on more than 6 other pages is too common to point at one home, and is listed by count only. A new page whose title matches an existing page's title is also listed. F10 matches names, not facts: glossary synonyms and a fact restated in other words still need J2 | Informs J2 | Checked. On #452 it lists the two Guides pages that already describe the rules the change adds. 7 contradictions between pages today, and a literal grep missed copies of 3 of them ([`CORRECTIONS.md`](https://github.com/extole/ai-tools/blob/main/docs/plans/product_docs_judge_20260929/CORRECTIONS.md)) |
 | F11 | The body carries `Question:`, `Claims:`, `Changes live text:` and `Replay:` lines (see "The body" below) | `send-back`. A pull request opened before the template merged is exempt, and the check only informs | No template exists today |
 | F12 | Reach, exact. On the preview host that Mintlify's preview comment names (else `https://extole-<branch>.mintlify.site/mcp`, with `/` in the branch written `-`), `query_docs_filesystem_extole_documentation` runs `rg -F`. Each heading the diff adds must be on the page the diff changes. Each sentence the diff deletes, and each sentence named on `Changes live text:`, must be on no page of the preview, unless the diff adds the same sentence back. The strings come from the diff and the body, so no model chooses them | `send-back`. For a pull request opened before the template, the deleted sentences are the only absent strings | Works today with no credentials. For #143, "within the hour" is on 1 page of docs.extole.com and on 0 pages of the preview ([`evidence/replay_probe_143.txt`](evidence/replay_probe_143.txt)) |
 | F13 | Reach, search. For each `Question:` and two paraphrases of it, `search_extole_documentation` on the preview and on docs.extole.com. It records the rank of each section the diff adds or changes, and the rank of any section that still carries a deleted sentence | Informs. It does not fail until M2 measures it | The endpoint returns 10 sections in rank order. Rank 1 moves with the wording. For #143, five phrasings put the new section at ranks 2, 3, 1, 1 and 1 (README §3) |
@@ -150,7 +150,7 @@ The model answers these with this context:
 
 - the diff
 - the full text of each touched page at the base
-- the pages F10 found
+- the pages F10 found, with their matching lines
 - the other open pull requests from F8
 - the floor output.
 
@@ -162,6 +162,9 @@ The model answers these with this context:
   there and links to it. It does not state the fact a second time. If the other page states the fact
   differently, the change corrects both or the verdict is `send-back`. All 7 contradictions
   between pages on `main` today are one fact stated in two places, with one place never updated.
+  A description of a named setting, rule or event counts as the fact, not only its steps. Read
+  each page F10 lists against the change. An empty F10 is not proof that no other page states
+  the fact, because F10 matches names only.
 - **J3. Displacement.** Does the change edit the sentence that was wrong? Or does it add a section
   beside it and leave the wrong sentence live? #101 added "A Paused Campaign Is Still a Targeting
   Candidate" and left "by pausing, you prevent new top-of-funnel traffic" on the same page. That
