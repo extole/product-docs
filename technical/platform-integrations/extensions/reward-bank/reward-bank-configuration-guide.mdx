@@ -141,10 +141,29 @@ Extole JWT (JSON Web Tokens) can be used to authenticate users to the Reward Ban
 
 For different programs and varying reward types, set up multiple Reward Bank extensions.  Give each Reward Bank a unique name to make identification easier.
 
-When using multiple integrations, include `target=campaign_id:<REWARD_BANK_CAMPAIGN_ID>` in the links leading to the Reward Bank to ensure correct functionality.
+### When Two Reward Banks Are Live
 
-Example link:  
-`https://test.extole.io/zone/bankable_rewards_redemption_center?target=campaign_id:<CAMPAIGN_ID>&jwt=<JWT_TOKEN>`
+By default, every Reward Bank answers the same zone, `bankable_rewards`, and that's the zone the Extole-hosted Redemption Center asks for. If two banks are live, a link doesn't say which bank it wants, and the member hasn't visited either bank before, Extole can pick either one for that member. If it picks the bank that doesn't hold the member's rewards, the Redemption Center still loads, but it shows an empty balance.
+
+Changing one bank's zone name doesn't keep the banks apart, because the Redemption Center always asks for `bankable_rewards`.
+
+To send members to the right bank, add `target=campaign_id:<REWARD_BANK_CAMPAIGN_ID>` to every link that leads to a Reward Bank. The **Redemption Center URL** setting defaults to `redemption_center_microsite`, the zone of the Extole-hosted Redemption Center. A link to that zone with the parameter looks like this:  
+`https://test.extole.io/zone/redemption_center_microsite?target=campaign_id:<CAMPAIGN_ID>&jwt=<JWT_TOKEN>`
+
+Reward emails don't add this parameter. The extension builds the Redemption Center link in a reward email from the **Redemption Center URL** setting:
+
+* If the setting is a zone name, the link is `https://<Program_Domain>/zones/<ZONE_NAME>?jwt=<JWT_TOKEN>`.
+* If the setting is a full URL that starts with `https://`, the email uses that URL exactly as you entered it, without a JWT.
+
+### Show the Right Bank on a Program's Page
+
+To show a Reward Bank inside one of your program's pages, use the **Reward Bank Redemption Center Panel** content block. The block ships with the **Composable Page** template.
+
+The **Microsite V2 with Authentication and Enrollment** page already includes the panel. In My Extole, it's listed on that page as **Reward Bank Redemption Center**, in the **Right Content** area that enrolled members see.
+
+The panel opens the bank whose campaign ID you enter in its **Reward Bank Campaign ID** setting. Copy the ID from the URL of the Reward Bank campaign in My Extole. If the setting is empty, the panel shows "Reward Bank Campaign ID is required" instead of a balance.
+
+Each program's panel has its own **Reward Bank Campaign ID**, and it doesn't change when you move rewards.
 
 ## Reading a Balance
 
