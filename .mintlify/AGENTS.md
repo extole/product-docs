@@ -90,8 +90,10 @@ Programs & Campaigns.
 says, not by the page the reader landed on: a mechanism or request form goes on the
 Technical Docs counterpart even when the page in hand is in Guides.
 
-**Do not duplicate across tabs.** Search the corpus for the topic before writing. If another
-tab already covers it, link to it rather than restating it.
+**Do not duplicate across tabs.** Search the corpus for the topic before writing, and for
+each rule, setting, event, and UI label the change names. A page that describes one of them
+covers it, even when that page has no steps. If another page already covers the topic or a
+name, link to it rather than restating it, and put any new fact about that name on that page.
 
 **A partner page is for the marketer who sets the partner up.** It says what to configure in
 the partner's console and in My Extole, and the values that are specific to that partner.
