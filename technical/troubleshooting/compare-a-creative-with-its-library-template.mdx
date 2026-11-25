@@ -7,32 +7,32 @@ description: "Decide whether a Flow Builder campaign's creative carries a hand-m
 
 Use this page when you need to know whether a Flow Builder campaign's creative was changed by hand, or is still the library template. A campaign rebuilt from library components carries none of the old creative's hand-made changes, so find them before a rebuild.
 
-Every read on this page works with your own access token, and nothing here changes the campaign.
+Every read on this page uses your own access token and changes nothing. Your account can see a library template only if it subscribes to the Extole account that holds the template.
 
 ## What You Compare
 
 A participant sees the result of three things. Only one of them can hold a hand-made code change.
 
 - **Component settings**: copy, colors, images, amounts, and toggles that someone can change in the campaign editor. A difference here is configuration, not a customization of the creative.
-- **The creative archive**: the code behind one experience — `js/`, `html/`, `less/`, and `variables/` files, plus fonts and images. A hand-made change lives here, often in `less/custom-overrides.less`.
+- **The creative archive**: the source code behind one experience, in folders such as `html/`, `js/`, `less/`, and `variables/`. Which folders an archive has depends on the experience: an email has no `less/` folder, and only some experiences have a `font/` folder. A hand-made change lives here, often in `less/custom-overrides.less`.
 - **The library template**: the library component the campaign's component was copied from.
 
 Compare the campaign's creative archive with the template's creative archive, file by file. Compare the settings separately, and report the two results separately.
 
-Do not compare the page a zone serves. The served code is minified, so a text comparison with the template shows differences on almost every line, and none of them mean anything. The creative archive holds the source files, so the comparison is exact.
+Do not compare the page a zone serves. The served code is built from the archive and is usually minified, so a text comparison with the template is not meaningful. The creative archive holds the source files.
 
 ## Find the Template
 
-A Flow Builder component records its **origin**: the component it was copied from, the account that owns it, and the version it had at the moment of the copy.
+A Flow Builder component can record its **origin**: the component it was copied from, the account that owns that component, and that component's version at the copy, or at the last upgrade that brought this component to it.
 
 1. Find the campaign's creative action for the experience in question. The component on that action is the campaign's copy.
-2. Follow the origin until you reach a component that Extole owns. That component is the library template. A copy can sit between them — for example, a campaign copied from another campaign in the same account.
+2. Read the origin. If an Extole account owns the origin component, that component is the library template. A copy made inside the same account keeps the first copy's origin, so a campaign duplicated within your account still points at the template. If one of your own accounts owns the origin component, the component was copied across accounts: read that component's origin, and repeat until you reach a component that Extole owns.
 3. Read the template's campaign, and find the creative action whose component is the template. That action's archive is the one to compare against.
-4. Compare the version the origin recorded with the template's current version. If they differ, the library has changed since the copy. A new version does not always change the code: it can change only the template's settings.
+4. Compare the version the origin recorded with the template's current version. If the template's current version is newer, the template has had a new version since the copy or the last upgrade. In the rest of this page, that is what "the library has changed since the copy" means. A new version does not always change the code: it can change only the template's settings.
 
 Stop and say so when there is no template to compare against:
 
-- **The component records no origin.** The platform does not know what it was copied from.
+- **The component records no origin.** The platform does not know what it was copied from. A change to the component's types, its install, its first-level elements other than child components, or the account-level elements it uses clears the origin.
 - **The library no longer holds the template.** Reading the origin answers **Component not found**.
 
 Do not substitute a library component with the same name. It is a different template, and most of what the comparison finds would be differences between the two templates, not changes to the campaign.
@@ -41,7 +41,7 @@ Do not substitute a library component with the same name. It is a different temp
 
 If the library has changed since the copy, the template's current archive mixes two kinds of difference: changes made in the campaign, and changes the library made afterwards. The campaign version that copied the component holds the template as it was copied, and comparing against it separates the two.
 
-1. Read the campaign's version history. Count back from the latest version to the last one where the component holds its current origin. That version copied it.
+1. Read the campaign's version history. Count back from the latest version to the last one where the component holds its current origin, with the same component and version. That version set the origin: it either copied the component or upgraded it.
 2. If that version duplicated another campaign, its message names the source campaign and version. If the source is the template's campaign, the copying version holds the template as copied. Otherwise, find the same component in the source at that version, and repeat step 1 in the source.
 3. If that version upgraded the component or connected it to its origin, no campaign version holds the template as copied. Compare with the template's current archive instead, and read the table below.
 4. Otherwise, download the creative archive of the copying version.
@@ -72,7 +72,7 @@ A library change after the copy is common. When the campaign lacks code the temp
 
 ## Read the Setting Differences
 
-[Diff two components](/api-reference/components/diff-two-components) compares the campaign's component with the template's component and lists the settings that differ. Two kinds of difference appear on almost every copy and say nothing about customization:
+[Diff two components](/api-reference/components/diff-two-components) compares the campaign's component with the template's component and lists the settings that differ. Two kinds of difference say nothing about customization:
 
 - A setting that points at another component, such as the component that creates the share link. A copy points at the campaign's own components.
 - The zone name.
