@@ -1,0 +1,39 @@
+---
+title: "Reward Bank Link Opens an Empty Bank"
+description: "Why the stored Reward Bank link for a collectible reward can stop showing the person's rewards after their identity value changes or the link ages, why resending the reward email does not help, and how to send a fresh link."
+---
+
+# Overview
+
+A person clicks the Reward Bank link in their reward email and the bank does not show their rewards. This page covers one cause: the redemption link Extole stored on a collectible reward. That link was signed for the person as they were when they earned the reward, so it can stop naming them as they are now.
+
+## How a Stored Reward Bank Link Admits a Person
+
+When a person earns a collectible reward, Extole builds a redemption link and stores it on the reward. When the link points at a Reward Bank zone, it carries a token. The token names the person by your account's identity key, using the value it had when the reward was earned. When email is your account's identity key — the usual case — that value is the person's email address. The token expires two months after the reward is earned. The Reward Bank on a legacy campaign and on a Flow Builder campaign builds this stored link the same way.
+
+When the link is opened, Extole identifies the person by the identity key value in the token, and the Reward Bank lists that person's rewards. So a stored link stops showing the person's rewards in two cases:
+
+- **The person's identity key value changed.** When email is your account's identity key and the person changed their email after earning the reward, the token still names the old email.
+- **The token expired.** A link opened more than two months after the reward was earned no longer admits the person.
+
+Changing the person's email does not update links that were already sent. See [How to Change a Person's Email](/guides/rewards-management/reward-fulfillment/how-to-change-a-persons-email).
+
+## Why Resending the Reward Email Does Not Help
+
+A reward email sent for a reward uses the link stored on that reward. Resending it delivers the same link, with the same token, so the bank opens the same way.
+
+## Send a Fresh Link
+
+On a Flow Builder campaign, the reward email and the reward reminder email in the **Reward Emails** component build their redemption button link when they are sent. They sign a new token for it only when all of these are true:
+
+- The email has no stored link to use. It is sent for no reward, or for a reward that has no stored link. A collectible reward has a stored link, so an email sent for it uses that link.
+- Its **Reward Redemption Button Destination** holds a zone name, such as `redemption_center_microsite`, rather than a URL. This setting holds your company URL unless it has been changed, and a URL gets no token.
+- The person's profile has an email address. Without one, the button links to the zone with no token.
+
+The new token names the person by the identity key value on their profile when the email is sent. It lasts one day. If the person opens the email after that, send it again.
+
+To send a fresh link:
+
+1. Confirm that the person's profile holds their current email address.
+2. Send them the reward email from the **Reward Emails** component, not for their collectible reward, with its **Reward Redemption Button Destination** set to the zone name of their Reward Bank, such as `redemption_center_microsite`. For the Reward Bank's earned reward email, see **Update Earned Reward Emails** in the [Reward Bank Configuration Guide](/technical/platform-integrations/extensions/reward-bank/reward-bank-configuration-guide).
+3. Ask the person to open the new email, and confirm that the Reward Bank shows their rewards.
