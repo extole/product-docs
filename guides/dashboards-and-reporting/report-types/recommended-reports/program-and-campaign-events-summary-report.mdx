@@ -22,7 +22,7 @@ Four report types read the same summarized data. They share their parameters and
 
 Each row lists the business events of the programs you selected, and the metrics of each one. A metric comes from one of two places:
 
-- **The program's flow.** The report includes every metric the flow defines for its dashboards. These are the counts you see on the program dashboard. Each flow metric has its own definition, and that definition can narrow what it counts with the same arguments a mapping takes: visit type, quality, attribution, source, channel, and container. Two metrics on the same business event can count different events. See [Filter Arguments](#filter-arguments).
+- **The program's flow.** The report includes the flow metrics tagged `event-funnel-report` on the flow steps you selected. These are the counts you see on the program dashboard. Each flow metric has its own definition, and that definition can narrow what it counts with the same arguments a mapping takes: visit type, quality, attribution, source, channel, and container. Two metrics on the same business event can count different events. See [Filter Arguments](#filter-arguments).
 - **The `mappings` parameter.** Each mapping adds a metric that you define, such as every `email_sent` event across all visit types. Mapped metrics appear together, in one entry that has no step name. See [Mappings](#mappings) below.
 
 Counts include attributed events by default: events that Extole tied to a campaign. To count unattributed events too, set the `attribution` argument on a mapping.
@@ -61,11 +61,11 @@ The three Monitoring report types also choose campaigns by state and by tag:
 | `campaigns_having_any_tags`, `campaigns_having_all_tags` | Include campaigns that carry any, or all, of these tags |
 | `campaigns_exclude_having_any_tags`, `campaigns_exclude_having_all_tags` | Leave out campaigns that carry any, or all, of these tags |
 
-`summary_per_program` and `summary_per_dimensions` can add one account-level row, labeled `TOTAL`, across every campaign in the account. Set `account_enabled` to `true` to add it. The `account_flows`, `account_mappings`, `account_tags_to_include`, `account_tags_to_exclude`, `account_metric_tags_to_include`, and `account_metric_tags_to_exclude` parameters set that row's metrics, the same way their counterparts set the other rows.
+Set `account_enabled` to `true` to add account-level rows to `summary_per_program` and `summary_per_dimensions`. These rows ignore the campaign state and tag filters, and still follow `program` and `campaign`. `summary_per_program` labels its account row `TOTAL`. `summary_per_dimensions` marks its account rows as account level, with no dimension values. The `account_flows`, `account_mappings`, `account_tags_to_include`, `account_tags_to_exclude`, `account_metric_tags_to_include`, and `account_metric_tags_to_exclude` parameters set the metrics of those rows, the same way their counterparts set the other rows.
 
-A program row from either of those two report types also carries the date its last campaign stopped, when none of its campaigns is live.
+When every campaign in a row is inactive (not launched, paused, stopped, ended, or archived), a row from either of those two report types also carries the latest date that any of those campaigns was paused, stopped, ended, or archived.
 
-`summary_per_dimensions` returns one row for each program when `dimensions` includes `PROGRAM`. Otherwise it returns one row for each combination of the other dimensions, across all the campaigns you selected.
+When `dimensions` includes `PROGRAM`, `summary_per_dimensions` returns, for each program, one row for each combination of dimension values. Otherwise it returns one row for each combination of dimension values, across all the campaigns you selected.
 
 # Mappings
 
