@@ -61,6 +61,8 @@ The **Steps** list shows every step recorded on that person, with its **Name**, 
 - **Which container is it in?** Toggle between **All Containers** and **Production Only**. A step that appears only under **All Containers** was routed to a test or other non-production container, and production dashboards and reports won't count it.
 - **What are the quality and journey?** A step with no journey was recorded but not attributed to a referral. A low quality score means a quality rule failed; the person's **Approvals** tab names the rule.
 
+To see why a step has no campaign or journey, read the step's own event. Take the `event_id` from the step's JSON and run **Event By Event Id** with it. In that record, `step_matching_campaign_contexts` lists each campaign that considered the step, with whether it qualified and whether it was selected. For each campaign, `trigger_results` holds the business event's rules and `journey_trigger_results` holds the journey's entry and ongoing rules. Each rule carries `passed` and its `log_messages`. Read the rules whose `passed` is `false`: their `log_messages` say what didn't match. The input event that caused the step has a record of its own, and that record doesn't carry these results.
+
 If you can't find the steps you expected, search for the person by every identifier your integration sends. Two profiles for the same customer usually means the event carried a different identifier from the one the share or earlier events used.
 
 ## When the Friend's Click and Purchase Are on Two Profiles
@@ -122,7 +124,7 @@ Work through these in order and stop at the first check that fails. That check n
 | An `INPUT` event arrives, with no `STEP` after it | No campaign listens for that event name | **Input event names with triggered steps** |
 | Steps appear under **All Containers** only | The events were routed to a test container | The step's **Container**; your test data rules |
 | The step is on an anonymous person | The event carried no identifier Extole could match | The event's JSON in the stream |
-| The step exists but has no journey | The person wasn't part of a referral journey when the step was recorded. When the advocate's referrals are all with anonymous profiles, the friend's click and purchase may be on two profiles | The step's **Journey**; the person's earlier steps; [When the Friend's Click and Purchase Are on Two Profiles](#when-the-friends-click-and-purchase-are-on-two-profiles) |
+| The step exists but has no journey | The person wasn't part of a referral journey when the step was recorded. When the advocate's referrals are all with anonymous profiles, the friend's click and purchase may be on two profiles | The step's **Journey**; the step event's `journey_trigger_results` in **Event By Event Id**; the person's earlier steps; [When the Friend's Click and Purchase Are on Two Profiles](#when-the-friends-click-and-purchase-are-on-two-profiles) |
 | The step is scored **Suspicious** | A quality rule failed | The person's **Approvals** tab |
 | A batch job finished, but nothing happened | The job counts rows it sent in as input events, not steps created | The target person's steps; **Batch Events By Event Time** |
 
