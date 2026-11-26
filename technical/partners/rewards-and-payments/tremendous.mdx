@@ -52,35 +52,123 @@ Remember that Extole programs are completely customizable and your team at Extol
 
 ### Initiate the Connection with Extole Team
 
-The Extole and Tremendous integration is handled almost entirely by your Extole team. In order to start the integration process, talk to your Extole team about which Tremendous rewarding solution is right for your program.
+Your Extole team installs and configures the Tremendous integration for you. To start, talk to your Extole team about which Tremendous rewarding solution is right for your program, and whether you'll use an Extole-managed Tremendous account or your own.
+
+### Integration Settings
+
+The integration lives on the [Partners](https://my.extole.com/integrations) page in My Extole. Each Tremendous integration carries these settings:
+
+| Setting | What it controls |
+| :------ | :--------------- |
+| **API URL** | The Tremendous environment that Extole places orders with and reads balances from. When this is empty, Extole uses Tremendous's testflight (sandbox) environment. |
+| **API Authentication Certificate** | The Tremendous access token Extole uses to authenticate. |
+| **Funding Source Id** | The Tremendous funding source that pays for each order. |
+| **Delivery Method** | How Tremendous delivers the reward: `LINK`, `EMAIL`, or `PHONE`. The default is `LINK`, which returns a redemption link that Extole sends in the Earned Reward email. |
+| **Product Ids** | The Tremendous products a recipient can choose from when they redeem. Used when **Use Template ID** is off. |
+| **Use Template ID** | When on, Extole orders with a Tremendous campaign instead of a product list. |
+| **Campaign Template ID** | The Tremendous campaign to order with when **Use Template ID** is on. A reward can set its own value — see [Rewards and Tremendous Campaigns](#rewards-and-tremendous-campaigns). |
+| **Low Balance Threshold** | The balance, in whole currency units, below which Extole sends a low balance alert. For example, `500` alerts when the balance drops below 500. |
+| **Reward Suppliers** | The Tremendous rewards that this integration fulfills. |
 
 ### Configure the Reward in Extole
 
-In Extole, your marketing team is able to create and set reward values for any number of rewards. This takes place within the Rewards center of your My Extole account. The reward is then connected to your desired campaign in Extole. When Extole detects that a rewardable action has been completed and is high-quality (not fraudulent), it triggers the API workflow to Tremendous.
+In Extole, your marketing team creates Tremendous rewards and sets their values in the [Rewards](https://my.extole.com/account-rewards) center, then connects each reward to a campaign. When Extole detects that a rewardable action has been completed and is high-quality (not fraudulent), the reward is earned and Extole places the order with Tremendous.
 
 <Frame caption="Example Tremendous reward configured in Extole">
   <img src="/images/extole/b98c8bb1ddc43cb81de15dd4c776e4591c5cece70d96a1da71db4720345b5b60.png" alt="Example Tremendous reward configured in Extole" width="60%" />
 </Frame>
 
-### Establish an API Connection to Tremendous
+### Rewards and Tremendous Campaigns
 
-Extole has been configured to send a webhook to Tremendous when a consumer has earned a reward through your Extole program. The API connection is secured with a managed access token from Tremendous’ developer center. Your Extole team will work directly with Tremendous to secure this access token and set up the connection in your My Extole account.
-
-### Configure a Webhook to Send Rewards
-
-On the Extole side, your team will create webhook that fires to Tremendous when rewards are earned. This step will include deciding what data needs to be passed from Extole to Tremendous. 
-
-Typically, the data includes the recipient's name and email address, the configured reward's ISO currency code and denomination, and the Tremendous product type, but you can work with your Extole team to customize the payload.
+Each Tremendous reward has its own **Campaign Template ID**. When the integration's **Use Template ID** is on, Extole orders a reward with the reward's own **Campaign Template ID**, and with the integration's value when the reward leaves it empty. This lets the advocate reward and the friend reward use distinct Tremendous campaigns — for example, a different set of products or a different email design — from one integration.
 
 ### Provide Funds in Tremendous
 
-You and your Extole team will have joint access to the Tremendous portal. Here you can directly upload funds to ensure you always have a healthy balance for your program rewards.
+You and your Extole team have joint access to the Tremendous portal. There you can upload funds directly to keep a healthy balance for your program rewards, and check your current balance.
 
 <img src="/images/extole/2c82b0145779bf2cfeba44efe0480615e0e0060182e2d8779dd9c4cf00a5e0b3.png" alt="Screenshot showing You and your Extole team will have joint access to the Tremendous portal. Here you can directly upload funds to ensure you always have a healthy balance for..." width="50%" />
 
+## How Extole Fulfills a Tremendous Reward
+
+When a Tremendous reward is earned, Extole places one Tremendous order for it:
+
+- **Recipient**: the person's first name and email address. When the profile has no first name, the order uses "Valued Customer".
+- **Value**: the reward's face value, in the reward's currency. The currency is USD unless the reward sets another.
+- **Payment**: the integration's **Funding Source Id**.
+- **Order ID**: the Extole reward ID. Tremendous accepts one order per ID, so each reward is ordered once.
+
+What happens next depends on Tremendous's answer:
+
+- **The order is complete.** Extole marks the reward fulfilled and stores the redemption link, which the Earned Reward email sends to the recipient.
+- **The order is accepted but still processing.** Extole sends the order again on its retry schedule, Tremendous answers with the same order, and Extole fulfills the reward once that answer carries the redemption link.
+- **Tremendous rejects the order as invalid**, for example because a product or campaign ID is wrong. Extole marks the reward failed without retrying. Ask your Extole team to correct the setting.
+- **The funding source doesn't have enough money**, or Tremendous returns another error. Extole retries the order automatically: first within minutes, then at intervals that grow to days and weeks, for about four months in total. When you add funds, the next retry completes the order. If every retry fails, Extole marks the reward failed.
+
+### Using More Than One Tremendous Integration
+
+An account can have more than one Tremendous integration, for example to pay for rewards from distinct funding sources or distinct Tremendous accounts. Each integration places orders only for the rewards listed in its own **Reward Suppliers**, so one earned reward produces one order, from the integration it belongs to.
+
+## Reward Bank Redemptions
+
+A Tremendous reward can be a redemption option in the [Reward Bank](/technical/platform-integrations/extensions/reward-bank). Members collect rewards over time and redeem them for a Tremendous reward in the Redemption Center.
+
+### How a Redemption Becomes a Tremendous Order
+
+1. The member chooses the Tremendous redemption option in the Redemption Center.
+2. Extole redeems the member's collectible rewards. They stop counting toward the member's balance, and the redemption appears in the member's redemption history.
+3. Extole earns a new reward for the member on the Tremendous redemption option. Its value is the redeemed amount, converted with the Reward Bank's **Redemption Ratio**.
+4. The Tremendous integration places the order for that reward, the same way it does for any Tremendous reward. See [How Extole Fulfills a Tremendous Reward](#how-extole-fulfills-a-tremendous-reward).
+5. When the order is complete, Extole marks the reward fulfilled and sends the Reward Bank redemption email for that option. The email's redemption button opens the Tremendous redemption link.
+
+### Configure a Tremendous Redemption Option
+
+Adding the reward to the integration's **Reward Suppliers** is what makes the integration order it. A working redemption option needs all of these:
+
+1. **A Tremendous Rewards reward with a dynamic value.** Turn on **Use Dynamic Value** and set **Dynamic value** to `100`, so the reward is worth 100% of the redeemed amount. Set **Maximum dynamic reward amount a user can earn** to at least the Reward Bank's **Redemption Maximum Value**, because it is the maximum value of a single reward.
+2. **The reward in the integration's Reward Suppliers.** The integration places orders only for the rewards listed there. When the account has more than one Tremendous integration, add the reward to the one whose funding source should pay for redemptions.
+3. **The reward in the Reward Bank's Redemption Options.** This is what offers it to members in the Redemption Center.
+4. **`LINK` as the integration's Delivery Method.** See the next section.
+5. **A redemption email for the option.** In the Reward Bank's **Content** tab, either add a redemption email whose **Reward Option** is this reward, or keep a default redemption email with no **Reward Option**, which sends for every option that has no email of its own.
+
+You don't create a webhook. The integration builds the webhook that places the order from its own **Reward Suppliers**.
+
+### Which Email the Member Receives
+
+**Delivery Method** is set on the integration, so it applies to every reward the integration fulfills, Reward Bank redemptions included.
+
+| Delivery Method | What the member receives |
+| :-------------- | :----------------------- |
+| `LINK` | Tremendous returns a redemption link with the order and sends nothing itself. Extole fulfills the reward and sends the Reward Bank redemption email, whose button opens the link. |
+| `EMAIL` | Tremendous delivers the reward to the member by email. |
+| `PHONE` | Tremendous delivers the reward to the member by text message. |
+
+Extole sends the redemption email only after it fulfills the reward, and it fulfills a Tremendous reward when Tremendous's order response includes the redemption link. Tremendous returns that link for the `LINK` method. Use `LINK` for an integration that fulfills Reward Bank redemptions, so the member receives the redemption email from your brand with the link in it.
+
+### When Funds Run Out During a Redemption
+
+When the funding source doesn't have enough money for the order:
+
+- The member's collectible rewards stay redeemed, and the redemption stays in their redemption history.
+- The Tremendous reward waits to be fulfilled, and Extole sends `tremendous_no_funds_available`, which names the reward. See [Balance Alerts](#balance-alerts).
+- Extole retries the order on the same schedule as any Tremendous reward, for about four months. When you add funds, the next retry places the order, and the member then receives the redemption email.
+- If every retry fails, Extole marks the reward failed and the member receives no redemption email.
+
+To hear about a low balance before redemptions wait on it, set a **Low Balance Threshold** and subscribe to the balance alerts.
+
+## Balance Alerts
+
+Extole sends two My Extole notifications about your Tremendous balance. Both are in the Business Operations category, so subscribe to that category on the [Settings](https://my.extole.com/settings) page to receive them — see [Subscribing to My Extole Notifications](/guides/notifications-and-troubleshooting/platform-and-admin/subscribing-to-my-extole-notifications).
+
+| Notification | When Extole sends it | Level |
+| :----------- | :------------------- | :---- |
+| `tremendous_low_balance_alert` | After a Tremendous reward is fulfilled, Extole checks the funding source balance. It sends this alert when the balance is below the integration's **Low Balance Threshold**. When the threshold is empty, Extole sends no low balance alert. | Warning — delivered at the **Some** and **All** levels |
+| `tremendous_no_funds_available` | Tremendous refused an order because the funding source doesn't have enough money. The alert names the reward and the reward supplier. | Error — delivered at the **Noteworthy**, **Some**, and **All** levels |
+
+When you receive `tremendous_no_funds_available`, add funds in the Tremendous portal. The orders waiting on funds complete on their next automatic retry.
+
 ## Using this Integration
 
-Once the integration is set up, you will be able to see rewards flow from Extole to Tremendous in real-time in your My Extole account. You'll also be able to access the Tremendous portal, where you can manage your funds and run reports to monitor funding balances and rewards issued over time.
+Once the integration is set up, you can see rewards flow from Extole to Tremendous in real time in your My Extole account. In the Tremendous portal you can manage your funds and run reports to monitor funding balances and rewards issued over time.
 
 ## FAQs
 
@@ -96,7 +184,7 @@ The continued variance based on the exchange rate after redemption is only possi
 
 ### What if I want to reward in a non-USD amount?
 
-If you're looking to send specific amounts in another currency (for example, €100 EUR instead of $100 USD), you can do this by using Currency Codes within Tremendous. The currency of the reward is set by you as the sender when placing an order. If no currency code is specified during the order, the reward will be sent in the default USD amount and converted to the equivalent in the recipient's currency when they receive it. But if a currency code is used, this will allow you to send the specific non-USD amount and the price of the reward will be the USD equivalent of that conversion.
+If you're looking to send specific amounts in another currency (for example, €100 EUR instead of \$100 USD), you can do this by using Currency Codes within Tremendous. The currency of the reward is set by you as the sender when placing an order. If no currency code is specified during the order, the reward will be sent in the default USD amount and converted to the equivalent in the recipient's currency when they receive it. But if a currency code is used, this will allow you to send the specific non-USD amount and the price of the reward will be the USD equivalent of that conversion.
 
 <Info>
 **Learn More**
