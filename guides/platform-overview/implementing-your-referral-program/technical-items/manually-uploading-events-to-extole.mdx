@@ -78,6 +78,26 @@ For a worked example, see [How to Set Up a Reward for Action Offer Program](/gui
 - Once completed, you can search for that user or event on the **User Support** page to ensure it fired as expected.
 - If errors occur, review the error logs to identify missing or incorrectly formatted fields.
 
+# Understanding Batch Job Status
+
+A batch job reports one of these statuses, on the **Batch Jobs** page and on `GET /v6/batches`:
+
+| Status | What it means |
+| --- | --- |
+| `PENDING` | Submitted. The job has not reached `IN_PROGRESS` yet. It may be waiting to be picked up, or picked up and waiting to begin. |
+| `IN_PROGRESS` | A processor has claimed the job and is reading your file. |
+| `DISPATCHING` | Rows have been read and the events are being sent into your program. |
+| `DONE` | Every row was processed. `success_rows` and `failed_rows` are final. |
+| `FAILED` | Processing stopped. When the response includes `error_code` and `error_message`, they say why. |
+| `CANCELED` | The job was canceled before it finished. |
+| `EXPIRED` | A finished job (`DONE`, `FAILED`, or `CANCELED`) that has passed the age at which Extole expires finished jobs. By default that age is 90 days from when the job was created. |
+
+`PENDING` does not distinguish "not yet picked up" from "accepted by a processor and waiting to start", so a job can sit at `PENDING` for a short time even though it is already moving.
+
+A file with only a few events is processed directly. A larger file is handed to Extole's batch processing cluster, and until the cluster starts it, the job shows `PENDING` with no start date.
+
+To cancel or delete a batch job through the API, see [General File Uploads](/technical/platform-integrations/files/general-file-uploads#canceling-or-deleting-a-job).
+
 # Best Practices
 
 - Always test with a small CSV file before uploading a large batch.

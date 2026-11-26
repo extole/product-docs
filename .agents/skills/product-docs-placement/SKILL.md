@@ -89,10 +89,13 @@ not by the page the reader happened to land on:
 
 ## Do not duplicate across tabs
 
-Before writing, search the corpus for the topic (`grep -ril <term> guides product technical`).
-If a page in another tab already covers it, link to that page instead of restating it. If the
-existing page is in the wrong tab, do not write a correctly placed copy beside it — that leaves
-two pages to reconcile. Write the new page where it belongs, link the old one to it, and say in
+Before writing, search the corpus for the topic and for each rule, setting, event, and UI label
+the change names (`grep -ril '<name>' guides product technical`). A page that describes a name
+covers it, even when that page has no steps. If another page already covers the topic or a
+name, link to that page instead of restating it, and put any new fact about that name on that
+page. Write each name you searched, and the pages it found, on the `Placement:` line of the PR
+body. If the existing page is in the wrong tab, do not write a correctly placed copy beside
+it — that leaves two pages to reconcile. Write the new page where it belongs, link the old one to it, and say in
 the PR that the old page is now a candidate for removal.
 
 The corpus currently carries the same topic in more than one tab in several places (A/B
@@ -169,7 +172,8 @@ State the answers, then the path:
 
 1. **Who acts, and where?** No steps → Product. Steps inside My Extole → Guides. Any step
    outside it, or a mechanism the reader acts on → Technical.
-2. **Does a page on this already exist in another tab?** Link, do not copy.
+2. **Does another page already cover the topic, or a rule or setting the change names?** Link,
+   do not copy.
 3. **Are two readers real?** Split; the mechanism goes to Technical.
 4. **Is the nearest existing page in an inherited group?** Do not join it, and do not grow it.
 5. **Is this an addition to an existing page?** Place the addition by its own content.
