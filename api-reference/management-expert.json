@@ -45664,7 +45664,7 @@
     }
   },
   "info" : {
-    "description" : "Advanced configuration endpoints for Extole platform experts: campaign controllers, typed actions and triggers, advanced component types and facets, source mapping, report post-handlers, pre-handlers, and other expert configuration surfaces not included in the standard Management API.\n\n## Updating a resource\n\n`PUT` merges. A field you omit from the body is left at its stored value, so you do not need to read a resource and send it back whole in order to change one field. This is a deliberate departure from the HTTP convention that `PUT` replaces, and it holds across this API.\n\nTwo qualifications, both visible on each operation's own request schema:\n\n- Some operations mark fields `required` in their request schema. Those must be sent on every request, whether or not you are changing them.\n- A field that holds a list or a map is replaced, not merged, when you supply it. Sending one entry of a collection stores that entry and drops the rest, so to change one member of a collection you must send the collection's other members alongside it.",
+    "description" : "Advanced configuration endpoints for Extole platform experts: campaign controllers, typed actions and triggers, advanced component types and facets, source mapping, report post-handlers, pre-handlers, and other expert configuration surfaces not included in the standard Management API.\n\nThese endpoints are for advanced use. Use them only when you know how the configuration they change works, because a wrong call can change how a live program behaves. For most configuration, use the Management API.\n\n## Updating a resource\n\n`PUT` merges. A field you omit from the body is left at its stored value, so you do not need to read a resource and send it back whole in order to change one field. This is a deliberate departure from the HTTP convention that `PUT` replaces, and it holds across this API.\n\nTwo qualifications, both visible on each operation's own request schema:\n\n- Some operations mark fields `required` in their request schema. Those must be sent on every request, whether or not you are changing them.\n- A field that holds a list or a map is replaced, not merged, when you supply it. Sending one entry of a collection stores that entry and drops the rest, so to change one member of a collection you must send the collection's other members alongside it.",
     "title" : "Management Expert API",
     "version" : "1.0"
   },
@@ -124404,6 +124404,7 @@
     },
     "/v3/signals/step/status/{pollingId}" : {
       "get" : {
+        "description" : "Returns the step signals that have completed for the operation identified by `pollingId`. A signal that is still pending or has failed is not listed.",
         "parameters" : [ {
           "in" : "path",
           "name" : "pollingId",
@@ -124532,6 +124533,7 @@
             "description" : "Too Many Requests"
           }
         },
+        "summary" : "Get the status of a step signal",
         "tags" : [ "Events" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "expert"
@@ -124953,6 +124955,7 @@
     },
     "/v4/optout/{secure_email}" : {
       "get" : {
+        "description" : "Returns whether the email address in `secure_email`, the encrypted address from an Extole email link, is opted out of the program's emails.",
         "parameters" : [ {
           "in" : "path",
           "name" : "secure_email",
@@ -125072,11 +125075,13 @@
             "description" : "Too Many Requests"
           }
         },
+        "summary" : "Get the opt-out status for a secure email",
         "tags" : [ "Profiles" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "expert"
       },
       "post" : {
+        "description" : "Opts the email address in `secure_email`, the encrypted address from an Extole email link, out of the program's emails when `optout` is `true`, and back in when it is `false`. Records an unsubscribe or subscribe event for the address.",
         "parameters" : [ {
           "in" : "path",
           "name" : "secure_email",
@@ -125212,6 +125217,7 @@
             "description" : "Too Many Requests"
           }
         },
+        "summary" : "Update the opt-out status for a secure email",
         "tags" : [ "Profiles" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "expert"
@@ -125735,6 +125741,7 @@
     },
     "/v4/reports/latest" : {
       "get" : {
+        "description" : "Checks each tag in `tags` in order, and returns the latest report for the first tag whose latest report carries none of the `exclude_tags`.",
         "parameters" : [ {
           "in" : "query",
           "name" : "tags",
@@ -125879,6 +125886,7 @@
             "description" : "Too Many Requests"
           }
         },
+        "summary" : "Get the latest report by tags",
         "tags" : [ "Reporting" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "expert"
@@ -125886,6 +125894,7 @@
     },
     "/v4/reports/latest/download{format}" : {
       "get" : {
+        "description" : "Downloads the output of the report that `GET /v4/reports/latest` returns for the same `tags` and `exclude_tags`. Append a format extension to select the download format.",
         "parameters" : [ {
           "in" : "header",
           "name" : "Content-Type",
@@ -126040,6 +126049,7 @@
             "description" : "Too Many Requests"
           }
         },
+        "summary" : "Download the latest report by tags",
         "tags" : [ "Reporting" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "expert"
@@ -126047,6 +126057,7 @@
     },
     "/v4/reports/{reportId}" : {
       "get" : {
+        "description" : "Returns the metadata for the report run identified by its report ID.",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -126184,6 +126195,7 @@
             "description" : "Too Many Requests"
           }
         },
+        "summary" : "Get a report",
         "tags" : [ "Reporting" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "expert"
@@ -126191,6 +126203,7 @@
     },
     "/v4/reports/{reportId}/download{format}" : {
       "get" : {
+        "description" : "Downloads the output of a completed report run. Append a format extension (`.csv`, `.json`, `.jsonl`, `.xlsx`, `.psv`) to select the download format, or omit it to use the report's default format.",
         "parameters" : [ {
           "in" : "header",
           "name" : "Content-Type",
@@ -126338,6 +126351,7 @@
             "description" : "Too Many Requests"
           }
         },
+        "summary" : "Download a report",
         "tags" : [ "Reporting" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "expert"
@@ -126345,6 +126359,7 @@
     },
     "/v4/reports/{reportId}/info/{format}" : {
       "get" : {
+        "description" : "Returns metadata about a completed report in the specified format: its row count and content length.",
         "parameters" : [ {
           "in" : "path",
           "name" : "reportId",
@@ -126490,6 +126505,7 @@
             "description" : "Too Many Requests"
           }
         },
+        "summary" : "Get report format info",
         "tags" : [ "Reporting" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "expert"
@@ -130057,6 +130073,7 @@
     },
     "/web/me/assets/download" : {
       "get" : {
+        "description" : "Returns the content of the asset matching the `name` query parameter on the authenticated consumer's profile. When no such asset exists and `default_url` is a URL the program allows, redirects to `default_url` instead of returning an error.",
         "parameters" : [ {
           "in" : "query",
           "name" : "name",
@@ -130192,6 +130209,7 @@
             "description" : "Too Many Requests"
           }
         },
+        "summary" : "Download an asset by name",
         "tags" : [ "Content" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "expert"
@@ -130199,6 +130217,7 @@
     },
     "/web/me/assets/{assetId}/download" : {
       "get" : {
+        "description" : "Returns the content of the asset identified by `assetId` on the authenticated consumer's profile. When no such asset exists and `default_url` is a URL the program allows, redirects to `default_url` instead of returning an error.",
         "parameters" : [ {
           "in" : "path",
           "name" : "assetId",
@@ -130335,6 +130354,7 @@
             "description" : "Too Many Requests"
           }
         },
+        "summary" : "Download an asset by ID",
         "tags" : [ "Content" ],
         "x-extole-bundle" : "integration-consumer-to-extole",
         "x-extole-visibility" : "expert"
