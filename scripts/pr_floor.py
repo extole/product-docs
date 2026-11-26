@@ -351,12 +351,17 @@ def lines_naming_on(base_sha: str) -> Callable[[str], list[tuple[str, str]]]:
         result = run(["git", "grep", "-i", "-F", "-e", subject, base_sha, "--", *CONTENT_PREFIXES])
         if result.returncode > GIT_GREP_NO_MATCH:
             raise subprocess.CalledProcessError(result.returncode, result.args, result.stdout, result.stderr)
-        lines: list[tuple[str, str]] = []
-        for line in result.stdout.splitlines():
-            _, path, text = line.split(":", 2)
-            lines.append((path, text.strip()))
-        return lines
+        return grep_matches(result.stdout)
     return lines_naming
+
+
+def grep_matches(output: str) -> list[tuple[str, str]]:
+    matches: list[tuple[str, str]] = []
+    for line in output.split("\n"):
+        if line:
+            _, path, text = line.split(":", 2)
+            matches.append((path, text.strip()))
+    return matches
 
 
 def subjects_on_other_pages(
