@@ -99,15 +99,11 @@ This value needs a token with the **Client Admin** access level, as [Values That
 
 A `version=1` value that has the same keys and values as one of the values in [Sandbox Values](#sandbox-values), such as each one in [Each Sandbox Value as a Version 1 Sandbox](#each-sandbox-value-as-a-version-1-sandbox), works with any token that can send that value.
 
-Every other `version=1` value needs a token with the **Client Admin** access level. That includes `actions=none`, `targeting_listeners=disabled`, `quality_triggers=disabled` on its own, `candidates=latest` without a campaign id, one campaign's published version, such as `candidates=7709@published`, and a campaign preview form with any key changed or left out. Without that access level, Extole refuses the request, and no campaign handles the event:
+Every other `version=1` value needs a token with the **Client Admin** access level. That includes `actions=none`, `targeting_listeners=disabled`, `quality_triggers=disabled` on its own, `candidates=latest` without a campaign id, one campaign's published version, such as `candidates=7709@published`, and a campaign preview form with any key changed or left out. Without that access level, Extole refuses the request:
 
-| Request | Response |
-|---|---|
-| `POST https://api.extole.io/v6/events` | `403` with the code `access_denied` |
-| `POST /v4/events` | `403` with the code `access_denied` |
-| Another client endpoint that reads a `sandbox`, such as person data | `403` with the code `access_denied` |
-| `POST /v5/zones` with a zone name | `500` |
-| The consumer API | Refused. A consumer access token never has the **Client Admin** access level. |
+- Server events, `POST https://api.extole.io/v6/events` with a server access token, and `POST /v4/events` answer `403` with the code `access_denied`.
+- Any other request that carries such a value fails, and no campaign handles the event.
+- A consumer access token never has the **Client Admin** access level, so the consumer API cannot send these values.
 
 ### Invalid Version 1 Values
 
@@ -130,10 +126,9 @@ When Extole processes an event after it has answered the request, such as a row 
 
 The event, the business events it triggers, and the rewards it leads to carry a sandbox id. [Event streams](/technical/platform-integrations/extensions/event-streams-overview/event-stream-query-language) show it as `sandbox_id`.
 
-- A `version=1` value with the same keys and values as a value in [Sandbox Values](#sandbox-values) records the id that value records. `version=1` records `production-production`, and `version=1;candidates=published;container=test` records `production-test`. The campaign forms record `CAMPAIGN-7709-test` and `CAMPAIGN-7709-test-friend`, and the campaign preview forms record `CAMPAIGN_PREVIEW-7709` and `CAMPAIGN_PREVIEW-7709-friend`.
-- Every other `version=1` value records a `version=1` id in lowercase. It names `candidates`, then each key whose value is not its default, in the order of [Keys](#keys), then `container`, then `journey` when the value sets one. `version=1;actions=none` records `version=1;candidates=published;actions=none;container=production`, and `version=1;container=test;actions=none;candidates=7709@latest` records `version=1;candidates=7709@latest;actions=none;container=test`.
+When a `version=1` value makes the same choices as a value in [Sandbox Values](#sandbox-values), Extole records that value. `version=1` records `production-production`, and `version=1;candidates=published;container=test` records `production-test`. The campaign forms record `CAMPAIGN-7709-test` and `CAMPAIGN-7709-test-friend`, and the campaign preview forms record `CAMPAIGN_PREVIEW-7709` and `CAMPAIGN_PREVIEW-7709-friend`.
 
-When a container or journey name contains `-`, the id of the matching campaign value can read back as another container and journey. Extole then records the `version=1` id instead, and the value needs the **Client Admin** access level.
+Every other `version=1` value records a `version=1` id. Read a recorded `version=1` id as a sandbox value, by its keys and their values, not by its text or the order of its keys.
 
 ## Where You Set a Sandbox
 
