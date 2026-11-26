@@ -1,0 +1,67 @@
+---
+title: "Cookie Consent Policy"
+description: "How the cookie_policy and cookie_consent_policy account settings decide which cookies Extole sets before and after a person consents, and how to read and change them."
+---
+
+# Overview
+
+Two account settings decide whether Extole sets cookies on your program domain for a person who has not consented to cookies: `cookie_policy` and `cookie_consent_policy`. They hold one value each for the whole account, so they apply to every program and every program domain in it. They cannot be set per program or per region.
+
+For the list of cookies Extole uses, see [Cookie Handling](/product/product-overview/security-and-compliance/cookie-handling).
+
+## The Two Settings
+
+| Setting | Values | Default |
+| :-- | :-- | :-- |
+| `cookie_policy` | `DEFAULT_TO_YEAR`: set cookies for one year, with or without consent. `REQUIRE_COOKIE_CONSENT`: set one-year cookies only for a person with recorded consent. | `DEFAULT_TO_YEAR` |
+| `cookie_consent_policy` | `COOKIE_CONSENT_OR_SESSION_COOKIE`: before consent, the access token cookie lasts for the browser session. `COOKIE_CONSENT_OR_NO_COOKIE`: before consent, Extole sets no cookies on the responses listed below. | `COOKIE_CONSENT_OR_SESSION_COOKIE` |
+
+`cookie_consent_policy` takes effect only when `cookie_policy` is `REQUIRE_COOKIE_CONSENT`.
+
+## What Each Combination Does
+
+| `cookie_policy` | `cookie_consent_policy` | Person without recorded consent | Person with recorded consent |
+| :-- | :-- | :-- | :-- |
+| `DEFAULT_TO_YEAR` | Either value | Access token cookie and `xtl_bid` for one year | Access token cookie and `xtl_bid` for one year |
+| `REQUIRE_COOKIE_CONSENT` | `COOKIE_CONSENT_OR_SESSION_COOKIE` | Access token cookie for the browser session, `xtl_bid` for one year | Access token cookie and `xtl_bid` for one year |
+| `REQUIRE_COOKIE_CONSENT` | `COOKIE_CONSENT_OR_NO_COOKIE` | No cookies on zone, event, share link, and v4 token responses | Access token cookie and `xtl_bid` for one year |
+
+## What No Cookie Covers
+
+With `REQUIRE_COOKIE_CONSENT` and `COOKIE_CONSENT_OR_NO_COOKIE`, a response to a person with no recorded consent sets no cookies at all, including `xtl_bid`, on these requests to your program domain:
+
+- Zone requests, `/zones/{zone_name}` and `/zone/{zone_name}`. The JavaScript SDK makes these to render CTAs and the embedded share experience.
+- Web events, `/events/{event_name}`.
+- Share link clicks.
+- Consumer token requests under `/api/v4/token`.
+
+Other consumer API responses set `xtl_bid` whatever the policy, for example creating a token with `POST /api/v5/token`, or saving profile parameters with `/api/v4/me/parameters`. The policy alone does not guarantee that a browser receives no Extole cookie. To confirm what a page sets, load it in a browser with no cookies for your program domain and read the `Set-Cookie` headers of every request to that domain.
+
+Changing the policy does not remove cookies that a browser already holds. They stay until they expire or the person clears them.
+
+Without a cookie, the JavaScript SDK keeps the person's access token in memory for the page. Zones still render, and a person who identifies, for example by entering an email address in the share experience, can get a share link and share. On a later visit, the browser starts as a new anonymous person until the person identifies again.
+
+## Recording Consent
+
+When `cookie_policy` is `REQUIRE_COOKIE_CONSENT`, Extole sets one-year cookies for a person once their profile holds a cookie consent. Record it in one of these ways:
+
+- Add the zone parameters `cookie_consent`, the time of consent in milliseconds since the epoch, and `cookie_consent_type`, `CLIENT` when your own consent tool collected it.
+- Send `person.cookie_consent` and `person.cookie_consent_type` in event data. See [Set Person Profile Data from an Event](/technical/integration-overview/set-person-profile-data-from-an-event).
+- Turn on cookie consent on a standalone share page, which records consent with type `EXTOLE`. See [GDPR / CCPA](/product/product-overview/security-and-compliance/gdpr-ccpa).
+
+Because the settings cover the whole account, a different consent rule for some visitors comes from your site, not from Extole. For example, to keep one-year cookies for visitors in one region and none for unconsented visitors in another, set `REQUIRE_COOKIE_CONSENT` with `COOKIE_CONSENT_OR_NO_COOKIE`, and pass `cookie_consent` for every visitor whose consent your policy records.
+
+## Read and Change the Settings
+
+To read the current values, call `GET /v2/settings/core` on `https://api.extole.io` with an access token for your account. See [Generate Long-Lived Access Tokens](/technical/operational-tasks/account-configuration/generate-long-lived-access-tokens). The response carries `cookie_policy` and `cookie_consent_policy`:
+
+```json
+{
+  "cookie_policy": "REQUIRE_COOKIE_CONSENT",
+  "cookie_consent_policy": "COOKIE_CONSENT_OR_NO_COOKIE"
+}
+```
+
+The response holds the account's other core settings as well. Only the two fields above decide cookie consent.
+
+To change either value, contact Extole Support. Extole makes the change for your account.
