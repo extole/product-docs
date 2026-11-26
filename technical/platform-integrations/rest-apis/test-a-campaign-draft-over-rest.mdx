@@ -54,8 +54,11 @@ curl -X POST "https://api.extole.io/v6/events" \
                    "sandbox": "campaign-<campaign id>-test"}}'
 ```
 
-A consumer event can carry `sandbox` in its data too. Extole ignores a value that does not match a
-sandbox format in [Sandboxes](/technical/integration-overview/sandboxes) and processes the event as if it named no sandbox.
+A consumer event can carry `sandbox` in its data too. A value that starts with `version` is a
+version 1 sandbox, and the events and zones endpoints answer an invalid one with `400` and the
+code `invalid_sandbox`, as [Invalid Version 1 Values](/technical/integration-overview/sandboxes#invalid-version-1-values)
+describes. Extole ignores any other value that does not match a sandbox format in
+[Sandboxes](/technical/integration-overview/sandboxes) and processes the event as if it named no sandbox.
 
 ### See How Extole Processed an Event
 
@@ -78,8 +81,10 @@ curl -i -X POST "https://<your program domain>/api/v6/events?debug=true" \
 
 ## What a Test Event Does
 
-A sandbox changes which campaign version handles the event and which container records it. The
-event is processed in full:
+A sandbox changes which campaign version handles the event and which container records it. Unless
+it is a version 1 sandbox that turns something off, such as `actions=none` (see
+[Version 1 Sandboxes](/technical/integration-overview/sandboxes#version-1-sandboxes)), the event is
+processed in full:
 
 - In the `test` container and in the campaign preview sandbox, a reward comes from your account's
   test reward supplier, whatever supplier the campaign's reward names. If your account has no test
