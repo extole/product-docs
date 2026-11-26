@@ -1,0 +1,109 @@
+---
+title: "Copies, Inheritance, and Upgrades"
+description: "Each campaign holds its own copy of its components. A library change reaches an existing campaign through an upgrade, connected settings follow My Account once it is published, and account-level configuration such as reward suppliers is shared."
+---
+
+## Overview
+
+Each campaign holds its own copy of the components it was built from. A campaign gets its configuration in three ways, and the way a piece of configuration arrived decides whether a later change reaches a campaign that already exists.
+
+| Way | What arrives this way | Does a later change reach an existing campaign? |
+| --- | --- | --- |
+| **Copied** | Components, with their settings, child components, and creatives | Through an [upgrade](#upgrades) |
+| **Inherited** | The values of settings connected to a parent setting, such as the brand settings on **My Account** | Yes, once the parent is published, for settings that are still connected |
+| **Referenced** | Account-level configuration: reward suppliers, audiences, and webhooks | Yes, in every campaign that refers to it |
+
+## How It Works
+
+* **A campaign owns a copy of every component in it.** Extole makes the copy when you create a program from a template, when a component is added to a campaign, and when a campaign is duplicated. The copy holds the component's settings, child components, and creatives as they were at that moment.
+* **A library change reaches campaigns created after it.** When Extole publishes a new version of a component or program template, existing campaigns keep the copy they already have.
+* **Publishing builds a campaign from its own copy.** Publishing evaluates the campaign's settings again and keeps the library versions the campaign already holds.
+* **An upgrade brings library changes into an existing campaign.** An upgrade saves draft versions, and participants see the result after the campaign is published.
+* **A change made in one campaign stays in that campaign.** A campaign duplicated from it, or created from the same template, keeps its own copy.
+* **A connected setting follows its parent's published value.** The parent is the nearest one that holds its own value for the setting: a parent component, the campaign's **Overview**, or **My Account**.
+* **Editing a connected setting in a campaign disconnects it.** A disconnected setting keeps its own value. Later changes to the Overview or My Account reach it after it is reconnected.
+* **Account-level configuration is shared.** Reward suppliers, audiences, and webhooks live outside campaigns, and campaigns refer to them. A change to one of them reaches every campaign that refers to it.
+* **Sharing stops at the account.** My Account settings and inheritance apply within one Extole account. A campaign copied into another account becomes a new copy there and connects to that account's My Account.
+* **A program has no settings of its own.** A program is the `PROGRAM` label its campaigns share. No component represents a program, so values shared by a program's campaigns live on My Account or in each campaign.
+
+## What Reaches an Existing Campaign
+
+| Change | Effect on an existing campaign |
+| --- | --- |
+| Extole publishes a new version of a library component or program template | The campaign keeps its copy until it is upgraded. Campaigns created afterward get the new version. |
+| You change a setting on My Account and publish it | Connected settings take the new value. Disconnected settings keep their own value. |
+| You change a setting on a campaign's Overview and publish the campaign | Connected settings in that campaign take the new value. Other campaigns keep theirs. |
+| You edit a component, setting, or creative in campaign A | Only campaign A changes. |
+| You duplicate campaign A as campaign B | B gets its own copy. Later edits to either campaign stay in that campaign. |
+| You change a reward supplier, audience, or webhook | Every campaign that refers to it uses the change. |
+| An upgrade runs on campaign A | Campaign A gets new draft versions. Participants see them after campaign A is published. |
+
+## Connected and Standalone Settings
+
+Every setting has a source that decides where its value comes from. My Extole and the Management API name the sources differently:
+
+| API `source` | Campaign Editor | Component Diff label | Value in effect |
+| --- | --- | --- | --- |
+| `INHERITED` | Connected: closed diamond icon | **Using default value** | The same-named setting on the nearest ancestor component that is not itself `INHERITED`: a parent component, then the campaign's root component (the **Overview**), then the root of the account's `global` campaign (**My Account**). The ancestor's published value is used. |
+| `LOCAL` | Disconnected: broken diamond icon | **Standalone value** | The value stored on this component. |
+| `PARAMETER` | Not shown | **Parameter value** | The same-named parameter of the socket the component is installed in. |
+
+In My Extole, "default value" means the value of the parent setting that a connected setting follows.
+
+Editing a connected setting in My Extole disconnects it and sets its source to `LOCAL`. [Setting Inheritance](/guides/programs-and-campaigns/campaign-creation-and-editing/using-extole-s-campaign-editor#setting-inheritance) shows how to disconnect, reconnect, and push a value up to the Overview or My Account. [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest) shows the same changes through the API, and how to read the value in effect.
+
+## The Component Library and Origins
+
+The component library is the set of components and program templates that Extole maintains. When you add a component to a campaign, the sources offered are the library's components and the ones your account already has.
+
+A copy records its **origin**: the component it was copied from, and that component's version at the copy. The API returns it as `origin.client_id`, `origin.component_id`, and `origin.component_version`.
+
+* A copy of a copy in the same account keeps the first copy's origin, so a duplicated campaign can be upgraded like the original.
+* A change to a component's types, its install, its first-level elements other than child components, or the account-level elements it uses clears its origin. An upgrade keeps the origin.
+* A component with no origin is offered no upgrade.
+* The [Component Diff](/guides/programs-and-campaigns/managing-campaigns/compare-a-component-across-campaign-versions) shows each child component's library version, such as **Library v9**, and labels a child **Library version changed** when the two sides hold different library versions.
+
+## Upgrades
+
+An upgrade brings a component, and every component under it, to the latest published version of its origin. Run on a campaign's root component, an upgrade covers every component in the campaign that has an upgrade available.
+
+### What an Upgrade Keeps
+
+An upgrade keeps your changes and adds the library's:
+
+* It keeps the names, display names, descriptions, and tags you changed.
+* It keeps the values you set on settings and socket parameters that the origin still has.
+* It keeps the settings you added, and the assets you changed or added.
+* It keeps whether a setting is connected or standalone, when you changed that.
+* It keeps child components you added. Child components you removed stay removed.
+* It adds the library's new child components, and the library's values for keys you never set, such as another language.
+* It drops settings that the library removed.
+
+[Upgrade a component](/api-reference/components/upgrade-a-component) has the complete rules, including how an upgrade resolves a socket that holds one component.
+
+### Before and After an Upgrade
+
+* `GET /v1/components/{component_id}/available-upgrades` lists what an upgrade would bring. The upgrade itself has no preview.
+* An upgrade can take several minutes. Each save adds a campaign version whose message starts with `Upgrade`, followed by the upgrade's ID, and the last one says `upgrade completed`. While it runs, other saves to the campaign are refused with `campaign_concurrent_update`.
+* An upgrade saves draft versions. Review them with the [Component Diff](/guides/programs-and-campaigns/managing-campaigns/compare-a-component-across-campaign-versions), test the campaign, then publish it. Participants see the result after you publish.
+* To undo an unpublished upgrade, make the version from before the upgrade the latest draft.
+* An upgrade is refused when the component, or a component under it, uses an audience, a client key, a client domain pattern, a prehandler, or another restricted account-level element.
+
+### Who Runs an Upgrade
+
+Contact your Extole team to upgrade a campaign. The Management API exposes the upgrade as `POST /v1/components/{component_id}/upgrade`.
+
+### Moving a Legacy Campaign to Flow Builder
+
+An upgrade brings a component to a newer version of the component it was copied from. Moving a legacy campaign to Flow Builder is a separate change: a new Flow Builder campaign replaces the legacy campaign. [How to QA Your Referral Program](/guides/programs-and-campaigns/managing-campaigns/how-to-qa-your-referral-program) lists what to check when that happens.
+
+## Related Documentation
+
+* [Key Concepts](/technical/integration-overview/key-concepts)
+* [Configuration Concepts](/technical/configuring-extole/configuration-concepts)
+* [Programs vs. Campaigns](/guides/platform-overview/key-concepts/programs-vs-campaigns)
+* [My Account Settings](/guides/programs-and-campaigns/campaign-creation-and-editing/my-account-settings)
+* [Compare a Component Across Campaign Versions](/guides/programs-and-campaigns/managing-campaigns/compare-a-component-across-campaign-versions)
+* [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest)
+* [Traffic Changed After a Campaign Upgrade](/technical/troubleshooting/traffic-changed-after-a-campaign-upgrade)
+* [Upgrade a component](/api-reference/components/upgrade-a-component)
