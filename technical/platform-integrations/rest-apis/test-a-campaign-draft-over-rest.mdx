@@ -120,10 +120,27 @@ campaign's **Assets** tab in My Extole and click **Preview in New Tab**. The add
 carries all three: the domain, the zone in `zone_name`, and the journey at the end of `sandbox`, such
 as `MARKETING` or `SHARE`. A zone name that the campaign does not serve returns an empty page.
 
-A preview has no person behind it, so a field that shows a person's details, such as a name, a share
-link, or reward totals, shows the value the creative uses when there is no person. To check those
+A preview address with no person data has no person behind it, so a field that shows a person's
+details, such as a name, a share link, or reward totals, shows the value the creative uses when
+there is no person. To check those
 fields in an email, send a test email from the campaign editor. It sends the draft, built for the
 person with the address you enter.
+
+To see a JavaScript creative as a signed-in advocate sees it, such as a share experience opened
+from a product page behind login, add the data your site's tag passes to the `/core/preview.html`
+address as query parameters. The preview page signs the browser out, then passes every query
+parameter on its address to the zone as data, as the tag in
+[Sharing Behind Login](/technical/platform-integrations/javascript-sdk/advanced-concepts#sharing-behind-login)
+does. Add `email` with a test email address that you control, and any other data your tag passes
+on that page:
+
+```text
+https://<your program domain>/core/preview.html?zone_name=<zone name>&sandbox=campaign_preview-<campaign id>-<journey name>&creative_classification=JAVASCRIPT&is_preview_mode=true&email=<test email address>
+```
+
+Extole identifies the browser as the person with that email address, so the draft renders for that
+person. Use only a test address, because Extole creates or updates the person with that address in
+your account.
 
 To see the published version of a page or an email, open the same `/zones/` address without the
 `sandbox` parameter. A request with no sandbox uses a production sandbox, as
