@@ -9952,7 +9952,7 @@
           },
           "type" : "object"
         } ],
-        "description" : "Evaluated action that adds typed, transformed data fields to the event.",
+        "description" : "Evaluated action that adds typed, transformed data fields to the event, renames them or drops them.",
         "required" : [ "fields", "id", "type" ],
         "title" : "MAP_EVENT_DATA",
         "type" : "object"
@@ -22105,6 +22105,40 @@
         "required" : [ "records" ],
         "type" : "object"
       },
+      "DropEventDataFieldTransformRequest" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/EventDataFieldTransformRequestBase"
+        }, {
+          "properties" : {
+            "type" : {
+              "enum" : [ "DROP" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Drops the field: nothing is written, and the input is removed from the event unless another field writes to that name. It must be the last transform of the field.",
+        "required" : [ "type" ],
+        "title" : "DROP",
+        "type" : "object"
+      },
+      "DropEventDataFieldTransformResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/EventDataFieldTransformResponseBase"
+        }, {
+          "properties" : {
+            "type" : {
+              "enum" : [ "DROP" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Drops the field: nothing is written, and the input is removed from the event unless another field writes to that name. It must be the last transform of the field.",
+        "required" : [ "type" ],
+        "title" : "DROP",
+        "type" : "object"
+      },
       "Duration" : {
         "description" : "[RFC 5545](https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.6) duration string.",
         "example" : "PT42S",
@@ -24883,6 +24917,7 @@
         "description" : "Change applied to the value of an event data field.",
         "discriminator" : {
           "mapping" : {
+            "DROP" : "#/components/schemas/DropEventDataFieldTransformRequest",
             "JAVASCRIPT" : "#/components/schemas/JavascriptEventDataFieldTransformRequest",
             "PREPEND" : "#/components/schemas/PrependEventDataFieldTransformRequest",
             "REFORMAT_DATE" : "#/components/schemas/ReformatDateEventDataFieldTransformRequest",
@@ -24891,6 +24926,8 @@
           "propertyName" : "type"
         },
         "oneOf" : [ {
+          "$ref" : "#/components/schemas/DropEventDataFieldTransformRequest"
+        }, {
           "$ref" : "#/components/schemas/JavascriptEventDataFieldTransformRequest"
         }, {
           "$ref" : "#/components/schemas/PrependEventDataFieldTransformRequest"
@@ -24905,7 +24942,7 @@
         "properties" : {
           "type" : {
             "description" : "Kind of change.",
-            "enum" : [ "JAVASCRIPT", "PREPEND", "REFORMAT_DATE", "TRIM" ],
+            "enum" : [ "DROP", "JAVASCRIPT", "PREPEND", "REFORMAT_DATE", "TRIM" ],
             "type" : "string"
           }
         },
@@ -24915,6 +24952,7 @@
         "description" : "Change applied to the value of an event data field.",
         "discriminator" : {
           "mapping" : {
+            "DROP" : "#/components/schemas/DropEventDataFieldTransformResponse",
             "JAVASCRIPT" : "#/components/schemas/JavascriptEventDataFieldTransformResponse",
             "PREPEND" : "#/components/schemas/PrependEventDataFieldTransformResponse",
             "REFORMAT_DATE" : "#/components/schemas/ReformatDateEventDataFieldTransformResponse",
@@ -24923,6 +24961,8 @@
           "propertyName" : "type"
         },
         "oneOf" : [ {
+          "$ref" : "#/components/schemas/DropEventDataFieldTransformResponse"
+        }, {
           "$ref" : "#/components/schemas/JavascriptEventDataFieldTransformResponse"
         }, {
           "$ref" : "#/components/schemas/PrependEventDataFieldTransformResponse"
@@ -24937,7 +24977,7 @@
         "properties" : {
           "type" : {
             "description" : "Kind of change.",
-            "enum" : [ "JAVASCRIPT", "PREPEND", "REFORMAT_DATE", "TRIM" ],
+            "enum" : [ "DROP", "JAVASCRIPT", "PREPEND", "REFORMAT_DATE", "TRIM" ],
             "type" : "string"
           }
         },
@@ -34438,7 +34478,7 @@
           },
           "type" : "object"
         } ],
-        "description" : "Action that adds typed, transformed data fields to the event, or renames them. A field that cannot be mapped is skipped and the event continues. Every problem of the event is reported in one client event named prehandler_event_data_mapping_failure, with level WARN when the only problems are values of the wrong type, which are kept, and level ERROR otherwise.",
+        "description" : "Action that adds typed, transformed data fields to the event, renames them or drops them. A field that cannot be mapped is skipped and the event continues. Every problem of the event is reported in one client event named prehandler_event_data_mapping_failure, with level WARN when the only problems are values of the wrong type, which are kept, and level ERROR otherwise.",
         "required" : [ "fields", "type" ],
         "title" : "MAP_EVENT_DATA",
         "type" : "object"
@@ -34462,7 +34502,7 @@
           },
           "type" : "object"
         } ],
-        "description" : "Action that adds typed, transformed data fields to the event, or renames them. A field that cannot be mapped is skipped and the event continues. Every problem of the event is reported in one client event named prehandler_event_data_mapping_failure, with level WARN when the only problems are values of the wrong type, which are kept, and level ERROR otherwise.",
+        "description" : "Action that adds typed, transformed data fields to the event, renames them or drops them. A field that cannot be mapped is skipped and the event continues. Every problem of the event is reported in one client event named prehandler_event_data_mapping_failure, with level WARN when the only problems are values of the wrong type, which are kept, and level ERROR otherwise.",
         "required" : [ "fields", "id", "type" ],
         "title" : "MAP_EVENT_DATA",
         "type" : "object"
