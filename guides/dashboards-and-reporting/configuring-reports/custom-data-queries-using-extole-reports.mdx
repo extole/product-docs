@@ -115,6 +115,23 @@ Within a `collection(...)` filter parameter, filters use `and`/`or`:
 collection(person(event.personId).steps, filter:stepName=="converted" and quality=="HIGH")
 ```
 
+### Comparing Dates in a Collection Filter
+
+A `filter` inside `COLLECTION` or `PERSON_COLLECTION` compares values as text, not as numbers or dates. A step's `eventDate` there is an ISO-8601 UTC string, such as `2026-11-09T00:51:47.179Z`. Compare it only with a value in the same format:
+
+- `eventDate >= event.eventTime` keeps the steps on or after the row's event.
+- `eventDate >= <epoch milliseconds>` keeps every step. The text `"2026-…"` sorts after `"1790…"`, so the filter is true on every element. The report still finishes, and the column counts every step the person ever had.
+
+To compare against a cutoff, such as seven days after the event, build the cutoff in epoch milliseconds and format it back into the ISO string:
+
+```
+hidden(t0)=event.eventTime; hidden(t7)=date_format(replace(concatenate("", number_format(sum(date_format(event.eventTime, format:"epoch"), "604800000"))), search:".00", replacement:""), timezone:"UTC"); Shares Within 7 Days=person_collection(person(event.personId).id, collection:"steps", filter:stepName=="shared" and eventDate >= t0 and eventDate < t7, extracting:eventId, reduce:"count")
+```
+
+<Tip>
+Check a date cutoff on one person who has steps on both sides of it. If the count inside the window equals the person's all-time count, the comparison is not working.
+</Tip>
+
 # Sort Order
 
 Comma-separated sort expressions applied in order:
@@ -308,6 +325,8 @@ start_date(event.eventTime, period:"DAY")
 start_date(event.eventTime, period:"WEEK")
 start_date(event.eventTime, period:report_parameters().defaultPeriod)
 ```
+
+A `WEEK` period starts on Sunday at midnight in the client account's timezone, not in the timezone of the report's time range. The first period never starts before the time range does: when the range starts after Sunday midnight, the first week is labelled with the range's start time, shown in the client account's timezone. For example, for a client account set to UTC, a time range from `2024-03-24T10:12:30Z` to `2024-04-09T10:12:30Z` has three weeks, starting at `2024-03-24T10:12:30Z`, `2024-03-31T00:00:00Z`, and `2024-04-07T00:00:00Z`. For a client account in another timezone, the same range has different week starts.
 
 ### END_DATE
 
@@ -1078,6 +1097,8 @@ hidden(step)=FIRST(COLLECTION(PERSON(event.personId).steps, filter:stepName=="ap
 ```
 ACH_Event_Date=event.eventTime; hidden(45_Days_Offset)=DATE_FORMAT(replace(concatenate(number_format(SUBTRACT(date_format(ACH_Event_Date, format:"epoch"), "3888000000")), ""), search:".00", replacement:""), format:"YYYY-MM-dd'T'hh:mm:ss", timezone:"Z"); Application Completed Within 45 Days=LAST(COLLECTION(PERSON(event.personId).steps, filter:stepName=="application_completed" and programLabel=="refer-a-friend" and eventDate>=45_Days_Offset and quality=="HIGH"), sortBy:"createdDate").eventDate;
 ```
+
+The offset is formatted back into a date string because a collection filter compares text. See [Comparing Dates in a Collection Filter](#comparing-dates-in-a-collection-filter).
 
 ## Parameterized Period (Using REPORT_PARAMETERS)
 
