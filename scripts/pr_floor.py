@@ -61,6 +61,16 @@ ABSOLUTE_DOCS_LINK = re.compile(r"https?://docs\.extole\.com/", re.I)
 SECTION_HEADING = re.compile(r"^\+#{1,6}\s+(.+)$", re.MULTILINE)
 ADDED_LINE = re.compile(r"^\+(?!\+\+\+)(.*)$", re.MULTILINE)
 
+BOLD_TERM = re.compile(r"\*\*([^*\n]+?)\*\*")
+ADDED_HEADING = re.compile(r"^#{1,6}\s+(.+)$", re.MULTILINE)
+TABLE_FIRST_CELL = re.compile(r"^\s*\|\s*([^|\n]+?)\s*\|", re.MULTILINE)
+TABLE_SEPARATOR_CELL = re.compile(r":?-+:?")
+MINIMUM_SUBJECT_LENGTH = 4
+MAXIMUM_PAGES_PER_SUBJECT = 6
+MAXIMUM_LINES_PER_SUBJECT = 2
+MAXIMUM_LINE_LENGTH = 240
+GIT_GREP_NO_MATCH = 1
+
 
 @dataclass
 class FloorResult:
@@ -80,6 +90,8 @@ class FloorResult:
     commits_behind_main: int = 0
     pages_changed_on_main: list[str] = field(default_factory=list)
     corpus_duplicates: list[str] = field(default_factory=list)
+    subjects_on_other_pages: dict[str, dict[str, list[str]]] = field(default_factory=dict)
+    subjects_too_common: list[str] = field(default_factory=list)
     body_lines_missing: list[str] = field(default_factory=list)
     body_lines_required: bool = False
     reach_exact_failures: list[str] = field(default_factory=list)
@@ -88,6 +100,7 @@ class FloorResult:
     fork: bool = False
     diff_truncated: bool = False
     preview_unreachable: bool = False
+    preview_host: str | None = None
     tool_failures: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -303,8 +316,7 @@ def new_page_titles(files: list[dict], head_sha: str) -> dict[str, str]:
 def pages_with_same_title(titles: dict[str, str], base_sha: str) -> list[str]:
     listing = run(["git", "grep", "-i", "-E", r"^title:", base_sha, "--", *CONTENT_PREFIXES]).stdout
     existing: dict[str, str] = {}
-    for line in listing.splitlines():
-        _, path, rest = line.split(":", 2)
+    for path, rest in grep_matches(listing):
         match = FRONTMATTER_TITLE.search(rest)
         if match:
             existing.setdefault(normalized_title(match.group(1)), path)
@@ -317,6 +329,60 @@ def pages_with_same_title(titles: dict[str, str], base_sha: str) -> list[str]:
 
 def normalized_title(title: str) -> str:
     return re.sub(r"\s+", " ", title.strip().strip("\"'")).lower()
+
+
+def added_subjects(patch: str) -> set[str]:
+    added = added_text_from_patch(patch)
+    candidates = [match.group(1) for match in BOLD_TERM.finditer(added)]
+    candidates += [match.group(1) for match in ADDED_HEADING.finditer(added)]
+    candidates += [
+        match.group(1) for match in TABLE_FIRST_CELL.finditer(added)
+        if not TABLE_SEPARATOR_CELL.fullmatch(match.group(1))
+    ]
+    return {
+        subject for subject in (re.sub(r"[*`]", "", candidate).strip() for candidate in candidates)
+        if len(subject) >= MINIMUM_SUBJECT_LENGTH and re.search(r"[A-Za-z]", subject)
+    }
+
+
+def lines_naming_on(base_sha: str) -> Callable[[str], list[tuple[str, str]]]:
+    def lines_naming(subject: str) -> list[tuple[str, str]]:
+        result = run(["git", "grep", "-i", "-F", "-e", subject, base_sha, "--", *CONTENT_PREFIXES])
+        if result.returncode > GIT_GREP_NO_MATCH:
+            raise subprocess.CalledProcessError(result.returncode, result.args, result.stdout, result.stderr)
+        return grep_matches(result.stdout)
+    return lines_naming
+
+
+def grep_matches(output: str) -> list[tuple[str, str]]:
+    matches: list[tuple[str, str]] = []
+    for line in output.split("\n"):
+        if line:
+            _, path, text = line.split(":", 2)
+            matches.append((path, text.strip()))
+    return matches
+
+
+def subjects_on_other_pages(
+    subjects_by_page: dict[str, set[str]],
+    lines_naming: Callable[[str], list[tuple[str, str]]],
+) -> tuple[dict[str, dict[str, list[str]]], list[str]]:
+    found: dict[str, dict[str, list[str]]] = {}
+    too_common: list[str] = []
+    for page, subjects in sorted(subjects_by_page.items()):
+        for subject in sorted(subjects):
+            lines_by_other_page: dict[str, list[str]] = {}
+            for path, text in lines_naming(subject):
+                if path != page:
+                    lines_by_other_page.setdefault(path, []).append(text[:MAXIMUM_LINE_LENGTH])
+            if len(lines_by_other_page) > MAXIMUM_PAGES_PER_SUBJECT:
+                too_common.append(f"{subject} ({len(lines_by_other_page)} pages)")
+                continue
+            for path, texts in lines_by_other_page.items():
+                entry = found.setdefault(path, {"subjects": [], "lines": []})
+                entry["subjects"].append(subject)
+                entry["lines"].extend(texts[:MAXIMUM_LINES_PER_SUBJECT])
+    return found, too_common
 
 
 def changed_files_identical_on_main(files: list[dict], base_sha: str, head_sha: str) -> bool:
@@ -442,6 +508,13 @@ def compute_floor(
             files, base_sha, head_sha,
         )
         floor.corpus_duplicates = pages_with_same_title(new_page_titles(files, head_sha), base_sha)
+        floor.subjects_on_other_pages, floor.subjects_too_common = subjects_on_other_pages(
+            {
+                entry["filename"]: added_subjects(entry.get("patch") or "")
+                for entry in files if MDX_PATH.match(entry["filename"])
+            },
+            lines_naming_on(base_sha),
+        )
     except subprocess.CalledProcessError as error:
         floor.tool_failures.append(f"git against main: {str(error.stderr or error).strip()[:200]}")
     created = pull.get("createdAt") or merge_state.get("createdAt") or ""
@@ -459,6 +532,7 @@ def compute_floor(
         floor.preview_unreachable = True
         floor.tool_failures.append(f"no Mintlify preview host for branch {head!r}")
         return floor
+    floor.preview_host = host
 
     absent_strings = deleted_sentences(pull.get("files") or [])
     try:
