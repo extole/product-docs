@@ -37,7 +37,7 @@ All four report types take these parameters.
 | --- | --- | --- |
 | `time_range` | Yes | The window to report on |
 | `period` | Yes | The length of each row: `NONE`, `HOUR`, `DAY`, `WEEK`, `MONTH`, `QUARTER`, `YEAR`, `TRAILING_WEEK`, `TRAILING_TWO_WEEKS`, `TRAILING_THREE_WEEKS`, or `TRAILING_MONTH`. The default, `NONE`, returns one row for the whole window |
-| `dimensions` | Yes | A comma-separated list of breakdowns: `NONE`, `PROGRAM`, `CAMPAIGN`, `SOURCE_TYPE`, `SOURCE`, `CHANNEL`, `VISIT_TYPE`, `QUALITY`, or `VARIANT`. The default is `NONE` |
+| `dimensions` | Yes | One breakdown: `NONE`, `CHANNEL`, `SOURCE_TYPE, SOURCE`, `VISIT_TYPE, QUALITY`, `VARIANT`, or `VARIANT, QUALITY`. Any of them except `NONE` can be preceded by `PROGRAM` or `PROGRAM, CAMPAIGN`, and `PROGRAM` and `PROGRAM, CAMPAIGN` also work alone. The default is `NONE` |
 | `program` | No | One program to report on |
 | `campaign` | No | One campaign to report on, by ID |
 | `flows` | Yes | The flow paths whose metrics the report includes, with their descendants. The default is `/business-events` |
@@ -63,7 +63,7 @@ The three Monitoring report types also choose campaigns by state and by tag:
 
 Set `account_enabled` to `true` to add account-level rows to `summary_per_program` and `summary_per_dimensions`. These rows ignore the campaign state and tag filters, and still follow `program` and `campaign`. `summary_per_program` labels its account row `TOTAL`. `summary_per_dimensions` marks its account rows as account level, with no dimension values. The `account_flows`, `account_mappings`, `account_tags_to_include`, `account_tags_to_exclude`, `account_metric_tags_to_include`, and `account_metric_tags_to_exclude` parameters set the metrics of those rows, the same way their counterparts set the other rows.
 
-When every campaign in a row is inactive (not launched, paused, stopped, ended, or archived), a row from either of those two report types also carries the latest date that any of those campaigns was paused, stopped, ended, or archived.
+When every campaign in a row is inactive (not launched, paused, stopped, ended, or archived), a row from either of those two report types also carries the latest of those campaigns' paused, stopped, ended, or archived dates. A campaign with none of those dates contributes the date it was last updated.
 
 When `dimensions` includes `PROGRAM`, `summary_per_dimensions` returns, for each program, one row for each combination of dimension values. Otherwise it returns one row for each combination of dimension values, across all the campaigns you selected.
 
@@ -108,7 +108,7 @@ This is a different language from the mappings of configurable reports such as M
 | `channel` | One channel |
 | `container` | Production or test data |
 
-A metric that filters on `source` or `channel` takes no other filter argument. For example, `event_count(shared, channel:email)` is valid, and `event_count(shared, channel:email, quality:HIGH)` is not.
+A metric that filters on `source` or `channel` cannot also filter on `visit_type`, `quality`, `container`, or the other of `source` and `channel`. It can still set `attribution`. For example, `event_count(shared, channel:email, attribution:ALL)` is valid, and `event_count(shared, channel:email, quality:HIGH)` is not.
 
 [Visit Type and Quality](/guides/dashboards-and-reporting/extole-dashboards-and-metrics/visit-type-and-quality) explains what each visit type and quality value counts.
 
