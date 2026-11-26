@@ -15,6 +15,7 @@ from pr_floor import (
     FloorResult,
     added_subjects,
     deleted_sentences,
+    grep_matches,
     preview_host,
     preview_host_from_comments,
     scan_internal_terms,
@@ -129,6 +130,16 @@ class SubjectOnOtherPageTests(unittest.TestCase):
             }},
         )
         self.assertEqual(too_common, [])
+
+    def test_grep_match_keeps_a_line_that_holds_a_unicode_line_separator(self):
+        output = "abc123:product/a.mdx:promote advocacy,\u2028and limit shares\nabc123:guides/b.mdx:Program\n"
+        self.assertEqual(
+            grep_matches(output),
+            [
+                ("product/a.mdx", "promote advocacy,\u2028and limit shares"),
+                ("guides/b.mdx", "Program"),
+            ],
+        )
 
     def test_subject_on_many_pages_is_reported_as_too_common(self):
         many = [(f"guides/page-{index}.mdx", "Reward Rule") for index in range(MAXIMUM_PAGES_PER_SUBJECT + 1)]
