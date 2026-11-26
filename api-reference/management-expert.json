@@ -9678,38 +9678,6 @@
         "title" : "EVENT_ATTRIBUTES_MATCH",
         "type" : "object"
       },
-      "BuiltEventDataFieldResponse" : {
-        "description" : "Event data field with its name and input name evaluated.",
-        "properties" : {
-          "input_name" : {
-            "description" : "Name of the event data the value is read from.",
-            "type" : "string"
-          },
-          "name" : {
-            "description" : "Name of the event data the field is written to. Defaults to the input name.",
-            "nullable" : true,
-            "type" : "string"
-          },
-          "required" : {
-            "description" : "Whether a missing input value is a problem. A problem is recorded in the processing log of the event and reported in one client event for the event.",
-            "type" : "boolean"
-          },
-          "transforms" : {
-            "description" : "Changes applied to the value, in order, before the type is checked.",
-            "items" : {
-              "$ref" : "#/components/schemas/EventDataFieldTransformResponse"
-            },
-            "type" : "array"
-          },
-          "type" : {
-            "description" : "Type the value must have.",
-            "enum" : [ "BOOLEAN", "DATE_TIME", "INTEGER", "NUMBER", "STRING" ],
-            "type" : "string"
-          }
-        },
-        "required" : [ "input_name", "name", "required", "transforms", "type" ],
-        "type" : "object"
-      },
       "BuiltEventNameMatchPrehandlerConditionResponse" : {
         "allOf" : [ {
           "$ref" : "#/components/schemas/BuiltPrehandlerConditionResponseBase"
@@ -9968,7 +9936,7 @@
             "fields" : {
               "description" : "Fields added to the event.",
               "items" : {
-                "$ref" : "#/components/schemas/BuiltEventDataFieldResponse"
+                "$ref" : "#/components/schemas/EventDataFieldResponse"
               },
               "type" : "array"
             },
@@ -24851,10 +24819,12 @@
         "description" : "Event data field that the MAP_EVENT_DATA action writes to the event. A field written under a name other than its input name replaces the input, unless another field writes to the input name.",
         "properties" : {
           "input_name" : {
-            "$ref" : "#/components/schemas/InputNameInMapEventDataPrehandlerActionRequest"
+            "description" : "Name of the event data the value is read from.",
+            "type" : "string"
           },
           "name" : {
-            "$ref" : "#/components/schemas/NameInPrehandlerUpdateRequest"
+            "description" : "Name of the event data the field is written to. Defaults to the input name.",
+            "type" : "string"
           },
           "required" : {
             "default" : false,
@@ -24881,10 +24851,13 @@
         "description" : "Event data field that the MAP_EVENT_DATA action writes to the event. A field written under a name other than its input name replaces the input, unless another field writes to the input name.",
         "properties" : {
           "input_name" : {
-            "$ref" : "#/components/schemas/InputNameInMapEventDataPrehandlerActionResponse"
+            "description" : "Name of the event data the value is read from.",
+            "type" : "string"
           },
           "name" : {
-            "$ref" : "#/components/schemas/NameInPrehandlerResponse"
+            "description" : "Name of the event data the field is written to. Defaults to the input name.",
+            "nullable" : true,
+            "type" : "string"
           },
           "required" : {
             "description" : "Whether a missing input value is a problem. A problem is recorded in the processing log of the event and reported in one client event for the event.",
@@ -33042,96 +33015,6 @@
         "required" : [ "completed_date", "created_date", "display_name", "download_uri", "error_code", "executor_type", "format", "formats", "name", "parameters", "report_id", "report_type", "scopes", "sftp_report_name", "sftp_server_id", "slot", "started_date", "status", "tags", "type", "user_id", "visible" ],
         "title" : "EXECUTED",
         "type" : "object"
-      },
-      "InputNameInMapEventDataPrehandlerActionRequest" : {
-        "description" : "Name of the event data the value is read from. A literal or a build-time expression that can read the variables of the referenced component. Buildtime expressions use [PrehandlerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts).",
-        "externalDocs" : {
-          "description" : "PrehandlerBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts"
-        },
-        "oneOf" : [ {
-          "allOf" : [ {
-            "type" : "string"
-          }, {
-            "not" : {
-              "anyOf" : [ {
-                "pattern" : "^handlebars@buildtime:.*",
-                "type" : "string"
-              }, {
-                "pattern" : "^javascript@buildtime:.*",
-                "type" : "string"
-              } ]
-            },
-            "type" : "string"
-          } ],
-          "description" : "Static input name",
-          "title" : "Static Value"
-        }, {
-          "description" : "Handlebars expression with [PrehandlerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{inputName}}",
-          "externalDocs" : {
-            "description" : "PrehandlerBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [PrehandlerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('inputName');}",
-          "externalDocs" : {
-            "description" : "PrehandlerBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        } ]
-      },
-      "InputNameInMapEventDataPrehandlerActionResponse" : {
-        "description" : "Name of the event data the value is read from. A literal or a build-time expression that can read the variables of the referenced component. Buildtime expressions use [PrehandlerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts).",
-        "externalDocs" : {
-          "description" : "PrehandlerBuildtimeContext",
-          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts"
-        },
-        "oneOf" : [ {
-          "allOf" : [ {
-            "type" : "string"
-          }, {
-            "not" : {
-              "anyOf" : [ {
-                "pattern" : "^handlebars@buildtime:.*",
-                "type" : "string"
-              }, {
-                "pattern" : "^javascript@buildtime:.*",
-                "type" : "string"
-              } ]
-            },
-            "type" : "string"
-          } ],
-          "description" : "Literal input name",
-          "title" : "Static Value"
-        }, {
-          "description" : "Handlebars expression with [PrehandlerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts).",
-          "example" : "handlebars@buildtime:{{inputName}}",
-          "externalDocs" : {
-            "description" : "PrehandlerBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts"
-          },
-          "pattern" : "^handlebars@buildtime:.*",
-          "title" : "Buildtime - Handlebars",
-          "type" : "string"
-        }, {
-          "description" : "Javascript expression with [PrehandlerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts).",
-          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('inputName');}",
-          "externalDocs" : {
-            "description" : "PrehandlerBuildtimeContext",
-            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/built/PrehandlerBuildtimeContext.d.ts"
-          },
-          "pattern" : "^javascript@buildtime:.*",
-          "title" : "Buildtime - Javascript",
-          "type" : "string"
-        } ]
       },
       "Instant" : {
         "description" : "[RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) UTC date-time with a `Z` suffix. Precision up to milliseconds.",
