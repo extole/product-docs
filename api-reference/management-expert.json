@@ -7342,6 +7342,38 @@
           "type" : "string"
         } ]
       },
+      "BuiltBlockMatchPrehandlerConditionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerConditionResponseBase"
+        }, {
+          "properties" : {
+            "considered_block_list_types" : {
+              "description" : "Types of block lists that are considered.",
+              "items" : {
+                "description" : "What the fraud-control rule matches. USER_AGENT matches a substring of the event user-agent header (regex is not supported). EMAIL_DOMAIN matches the profile email domain on the event (for example example.com). NORMALIZED_EMAIL matches the provider-normalized profile email. Whether plus-address variants of the same mailbox match depends on the email provider. CIDR matches the event IP with CIDR notation (for example 192.168.1.0/24); overlapping CIDRs are separate fraud-control rules, not duplicates.",
+                "enum" : [ "CIDR", "EMAIL_DOMAIN", "NORMALIZED_EMAIL", "USER_AGENT" ],
+                "type" : "string"
+              },
+              "type" : "array",
+              "uniqueItems" : true
+            },
+            "id" : {
+              "description" : "Unique identifier of the condition.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "BLOCK_MATCH" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated condition that checks block lists.",
+        "required" : [ "considered_block_list_types", "id", "type" ],
+        "title" : "BLOCK_MATCH",
+        "type" : "object"
+      },
       "BuiltCampaignControllerActionApproveResponse" : {
         "allOf" : [ {
           "$ref" : "#/components/schemas/BuiltCampaignControllerActionResponseBase"
@@ -9567,6 +9599,114 @@
         "required" : [ "client_id", "component_ids", "component_path", "component_references", "subscribed_date", "subscription_id" ],
         "type" : "object"
       },
+      "BuiltDataExistsPrehandlerConditionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerConditionResponseBase"
+        }, {
+          "properties" : {
+            "data_keys" : {
+              "description" : "Keys of the event data that must exist.",
+              "items" : {
+                "type" : "string"
+              },
+              "type" : "array"
+            },
+            "id" : {
+              "description" : "Unique identifier of the condition.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "DATA_EXISTS" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated condition that checks that event data exists.",
+        "required" : [ "data_keys", "id", "type" ],
+        "title" : "DATA_EXISTS",
+        "type" : "object"
+      },
+      "BuiltEventNameMatchPrehandlerConditionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerConditionResponseBase"
+        }, {
+          "properties" : {
+            "event_names" : {
+              "description" : "Event names that the event name must match.",
+              "items" : {
+                "type" : "string"
+              },
+              "type" : "array"
+            },
+            "id" : {
+              "description" : "Unique identifier of the condition.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "EVENT_NAME_MATCH" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated condition that checks the event name.",
+        "required" : [ "event_names", "id", "type" ],
+        "title" : "EVENT_NAME_MATCH",
+        "type" : "object"
+      },
+      "BuiltExpressionPrehandlerActionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerActionResponseBase"
+        }, {
+          "properties" : {
+            "expression" : {
+              "$ref" : "#/components/schemas/ExpressionInBuiltExpressionPrehandlerActionResponse"
+            },
+            "id" : {
+              "description" : "Unique identifier of the action.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "EXPRESSION" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated action that runs an expression.",
+        "required" : [ "expression", "id", "type" ],
+        "title" : "EXPRESSION",
+        "type" : "object"
+      },
+      "BuiltExpressionPrehandlerConditionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerConditionResponseBase"
+        }, {
+          "properties" : {
+            "expression" : {
+              "$ref" : "#/components/schemas/ExpressionInBuiltExpressionPrehandlerConditionResponse"
+            },
+            "id" : {
+              "description" : "Unique identifier of the condition.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "EXPRESSION" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated condition that runs an expression.",
+        "required" : [ "expression", "id", "type" ],
+        "title" : "EXPRESSION",
+        "type" : "object"
+      },
       "BuiltExtendedCoreResponse" : {
         "description" : "Built JavaScript SDK core extension with evaluated runtime values.",
         "properties" : {
@@ -9605,6 +9745,99 @@
         "required" : [ "component_ids", "component_references", "created_date", "enabled", "id", "source_code", "updated_date" ],
         "type" : "object"
       },
+      "BuiltHttpHeaderMatchPrehandlerConditionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerConditionResponseBase"
+        }, {
+          "properties" : {
+            "http_header_names" : {
+              "description" : "Names of HTTP headers that must be present.",
+              "items" : {
+                "type" : "string"
+              },
+              "type" : "array"
+            },
+            "http_headers" : {
+              "additionalProperties" : {
+                "description" : "HTTP headers and the values that they must have.",
+                "items" : {
+                  "description" : "HTTP headers and the values that they must have.",
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "description" : "HTTP headers and the values that they must have.",
+              "type" : "object"
+            },
+            "id" : {
+              "description" : "Unique identifier of the condition.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "HTTP_HEADER_MATCH" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated condition that checks HTTP headers.",
+        "required" : [ "http_header_names", "http_headers", "id", "type" ],
+        "title" : "HTTP_HEADER_MATCH",
+        "type" : "object"
+      },
+      "BuiltJavascriptPrehandlerActionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerActionResponseBase"
+        }, {
+          "properties" : {
+            "id" : {
+              "description" : "Unique identifier of the action.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "javascript" : {
+              "description" : "JavaScript function that the action runs.",
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "JAVASCRIPT_V1" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated action that runs JavaScript.",
+        "required" : [ "id", "javascript", "type" ],
+        "title" : "JAVASCRIPT_V1",
+        "type" : "object"
+      },
+      "BuiltJavascriptPrehandlerConditionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerConditionResponseBase"
+        }, {
+          "properties" : {
+            "id" : {
+              "description" : "Unique identifier of the condition.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "javascript" : {
+              "description" : "JavaScript function that returns whether the condition matches.",
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "JAVASCRIPT_V1" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated condition that runs JavaScript.",
+        "required" : [ "id", "javascript", "type" ],
+        "title" : "JAVASCRIPT_V1",
+        "type" : "object"
+      },
       "BuiltJourneyKeyResponse" : {
         "properties" : {
           "name" : {
@@ -9616,13 +9849,121 @@
         },
         "type" : "object"
       },
+      "BuiltMapDataAttributesPrehandlerActionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerActionResponseBase"
+        }, {
+          "properties" : {
+            "data_attribute_mappings" : {
+              "description" : "Mappings from source attributes to attributes.",
+              "items" : {
+                "$ref" : "#/components/schemas/DataAttributeMapping"
+              },
+              "type" : "array"
+            },
+            "id" : {
+              "description" : "Unique identifier of the action.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "MAP_DATA_ATTRIBUTES" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated action that copies event data attributes.",
+        "required" : [ "data_attribute_mappings", "id", "type" ],
+        "title" : "MAP_DATA_ATTRIBUTES",
+        "type" : "object"
+      },
+      "BuiltPrehandlerActionResponse" : {
+        "description" : "Built prehandler action with evaluated values used by the event-processing pipeline.",
+        "discriminator" : {
+          "mapping" : {
+            "EXPRESSION" : "#/components/schemas/BuiltExpressionPrehandlerActionResponse",
+            "JAVASCRIPT_V1" : "#/components/schemas/BuiltJavascriptPrehandlerActionResponse",
+            "MAP_DATA_ATTRIBUTES" : "#/components/schemas/BuiltMapDataAttributesPrehandlerActionResponse",
+            "SET_DATA" : "#/components/schemas/BuiltSetDataPrehandlerActionResponse",
+            "SET_SANDBOX" : "#/components/schemas/BuiltSetSandboxPrehandlerActionResponse"
+          },
+          "propertyName" : "type"
+        },
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/BuiltExpressionPrehandlerActionResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltJavascriptPrehandlerActionResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltMapDataAttributesPrehandlerActionResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltSetDataPrehandlerActionResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltSetSandboxPrehandlerActionResponse"
+        } ]
+      },
+      "BuiltPrehandlerActionResponseBase" : {
+        "properties" : {
+          "id" : {
+            "description" : "Unique identifier of the action.",
+            "type" : "string"
+          },
+          "type" : {
+            "description" : "Type of the action.",
+            "enum" : [ "EXPRESSION", "JAVASCRIPT_V1", "MAP_DATA_ATTRIBUTES", "SET_DATA", "SET_SANDBOX" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "BuiltPrehandlerConditionResponse" : {
+        "description" : "Built prehandler condition with evaluated values used by the event-processing pipeline.",
+        "discriminator" : {
+          "mapping" : {
+            "BLOCK_MATCH" : "#/components/schemas/BuiltBlockMatchPrehandlerConditionResponse",
+            "DATA_EXISTS" : "#/components/schemas/BuiltDataExistsPrehandlerConditionResponse",
+            "EVENT_NAME_MATCH" : "#/components/schemas/BuiltEventNameMatchPrehandlerConditionResponse",
+            "EXPRESSION" : "#/components/schemas/BuiltExpressionPrehandlerConditionResponse",
+            "HTTP_HEADER_MATCH" : "#/components/schemas/BuiltHttpHeaderMatchPrehandlerConditionResponse",
+            "JAVASCRIPT_V1" : "#/components/schemas/BuiltJavascriptPrehandlerConditionResponse"
+          },
+          "propertyName" : "type"
+        },
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/BuiltBlockMatchPrehandlerConditionResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltDataExistsPrehandlerConditionResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltEventNameMatchPrehandlerConditionResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltExpressionPrehandlerConditionResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltHttpHeaderMatchPrehandlerConditionResponse"
+        }, {
+          "$ref" : "#/components/schemas/BuiltJavascriptPrehandlerConditionResponse"
+        } ]
+      },
+      "BuiltPrehandlerConditionResponseBase" : {
+        "properties" : {
+          "id" : {
+            "description" : "Unique identifier of the condition.",
+            "type" : "string"
+          },
+          "type" : {
+            "description" : "Type of the condition.",
+            "enum" : [ "BLOCK_MATCH", "DATA_EXISTS", "EVENT_NAME_MATCH", "EXPRESSION", "HTTP_HEADER_MATCH", "JAVASCRIPT_V1" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "BuiltPrehandlerResponse" : {
         "description" : "Built prehandler with evaluated runtime values used by the event-processing pipeline.",
         "properties" : {
           "actions" : {
             "description" : "Evaluated actions executed when the prehandler conditions match.",
             "items" : {
-              "$ref" : "#/components/schemas/PrehandlerActionResponse"
+              "$ref" : "#/components/schemas/BuiltPrehandlerActionResponse"
             },
             "type" : "array"
           },
@@ -9641,7 +9982,7 @@
           "conditions" : {
             "description" : "Evaluated conditions that must match before the prehandler actions run.",
             "items" : {
-              "$ref" : "#/components/schemas/PrehandlerConditionResponse"
+              "$ref" : "#/components/schemas/BuiltPrehandlerConditionResponse"
             },
             "type" : "array"
           },
@@ -9685,6 +10026,67 @@
           }
         },
         "required" : [ "actions", "component_ids", "component_references", "conditions", "created_date", "description", "enabled", "id", "name", "order", "tags", "updated_date" ],
+        "type" : "object"
+      },
+      "BuiltSetDataPrehandlerActionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerActionResponseBase"
+        }, {
+          "properties" : {
+            "data" : {
+              "$ref" : "#/components/schemas/DataMapInBuiltSetDataPrehandlerActionResponse"
+            },
+            "default_data" : {
+              "$ref" : "#/components/schemas/Default_dataMapInBuiltSetDataPrehandlerActionResponse"
+            },
+            "delete_data" : {
+              "description" : "Names of event data to delete.",
+              "items" : {
+                "type" : "string"
+              },
+              "type" : "array"
+            },
+            "id" : {
+              "description" : "Unique identifier of the action.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "SET_DATA" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated action that sets event data.",
+        "required" : [ "data", "default_data", "delete_data", "id", "type" ],
+        "title" : "SET_DATA",
+        "type" : "object"
+      },
+      "BuiltSetSandboxPrehandlerActionResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BuiltPrehandlerActionResponseBase"
+        }, {
+          "properties" : {
+            "id" : {
+              "description" : "Unique identifier of the action.",
+              "readOnly" : true,
+              "type" : "string"
+            },
+            "sandbox_id" : {
+              "description" : "Identifier of the sandbox to set.",
+              "type" : "string"
+            },
+            "type" : {
+              "enum" : [ "SET_SANDBOX" ],
+              "type" : "string"
+            }
+          },
+          "type" : "object"
+        } ],
+        "description" : "Evaluated action that sets the sandbox of the event.",
+        "required" : [ "id", "sandbox_id", "type" ],
+        "title" : "SET_SANDBOX",
         "type" : "object"
       },
       "BuiltStepDataResponse" : {
@@ -18618,6 +19020,51 @@
           "type" : "string"
         } ]
       },
+      "DataInBuiltSetDataPrehandlerActionResponse" : {
+        "description" : "Event data to set, by name. Buildtime expressions use [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts).",
+        "externalDocs" : {
+          "description" : "PrehandlerContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Literal data",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts).",
+          "example" : "handlebars@buildtime:{{data}}",
+          "externalDocs" : {
+            "description" : "PrehandlerContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('data');}",
+          "externalDocs" : {
+            "description" : "PrehandlerContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "DataInCampaignControllerActionEarnRewardCreateRequest" : {
         "description" : "Choose between static or dynamic data. Buildtime expressions use [ControllerBuildtimeContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/campaign/ControllerBuildtimeContext.d.ts). Runtime expressions use [RewardActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/step/action/reward/RewardActionContext.d.ts).",
         "oneOf" : [ {
@@ -20165,6 +20612,13 @@
         },
         "type" : "object"
       },
+      "DataMapInBuiltSetDataPrehandlerActionResponse" : {
+        "additionalProperties" : {
+          "$ref" : "#/components/schemas/DataInBuiltSetDataPrehandlerActionResponse"
+        },
+        "description" : "Event data to set, by name.",
+        "type" : "object"
+      },
       "DataMapInCampaignControllerActionEarnRewardCreateRequest" : {
         "additionalProperties" : {
           "$ref" : "#/components/schemas/DataInCampaignControllerActionEarnRewardCreateRequest"
@@ -20544,6 +20998,51 @@
           "type" : "string"
         } ]
       },
+      "DefaultDataInBuiltSetDataPrehandlerActionResponse" : {
+        "description" : "Event data to set only when it is absent, by name. Buildtime expressions use [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts).",
+        "externalDocs" : {
+          "description" : "PrehandlerContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts"
+        },
+        "oneOf" : [ {
+          "allOf" : [ {
+            "type" : "string"
+          }, {
+            "not" : {
+              "anyOf" : [ {
+                "pattern" : "^handlebars@buildtime:.*",
+                "type" : "string"
+              }, {
+                "pattern" : "^javascript@buildtime:.*",
+                "type" : "string"
+              } ]
+            },
+            "type" : "string"
+          } ],
+          "description" : "Literal default data",
+          "title" : "Static Value"
+        }, {
+          "description" : "Handlebars expression with [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts).",
+          "example" : "handlebars@buildtime:{{defaultData}}",
+          "externalDocs" : {
+            "description" : "PrehandlerContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('defaultData');}",
+          "externalDocs" : {
+            "description" : "PrehandlerContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
       "DefaultDataInSetDataPrehandlerActionRequest" : {
         "description" : "Default data to be set to the event. Only data (keys) that are not already present in the event will be set. Data names (keys) are not case sensitive. Buildtime expressions use [PrehandlerContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerContext.d.ts).",
         "externalDocs" : {
@@ -20830,6 +21329,13 @@
           "title" : "Runtime - Javascript",
           "type" : "string"
         } ]
+      },
+      "Default_dataMapInBuiltSetDataPrehandlerActionResponse" : {
+        "additionalProperties" : {
+          "$ref" : "#/components/schemas/DefaultDataInBuiltSetDataPrehandlerActionResponse"
+        },
+        "description" : "Event data to set only when it is absent, by name.",
+        "type" : "object"
       },
       "Default_dataMapInSetDataPrehandlerActionRequest" : {
         "additionalProperties" : {
@@ -25832,6 +26338,70 @@
           },
           "pattern" : "^javascript@runtime:.*",
           "title" : "Runtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ExpressionInBuiltExpressionPrehandlerActionResponse" : {
+        "description" : "Expression that the action runs. Buildtime expressions use [PrehandlerActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerActionContext.d.ts).",
+        "externalDocs" : {
+          "description" : "PrehandlerActionContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerActionContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal expression",
+          "title" : "Static Value",
+          "type" : "object"
+        }, {
+          "description" : "Handlebars expression with [PrehandlerActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerActionContext.d.ts).",
+          "example" : "handlebars@buildtime:{{expression}}",
+          "externalDocs" : {
+            "description" : "PrehandlerActionContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerActionContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [PrehandlerActionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerActionContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('expression');}",
+          "externalDocs" : {
+            "description" : "PrehandlerActionContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerActionContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
+          "type" : "string"
+        } ]
+      },
+      "ExpressionInBuiltExpressionPrehandlerConditionResponse" : {
+        "description" : "Expression that returns whether the condition matches. Buildtime expressions use [PrehandlerConditionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerConditionContext.d.ts).",
+        "externalDocs" : {
+          "description" : "PrehandlerConditionContext",
+          "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerConditionContext.d.ts"
+        },
+        "oneOf" : [ {
+          "description" : "Literal expression",
+          "title" : "Static Value",
+          "type" : "boolean"
+        }, {
+          "description" : "Handlebars expression with [PrehandlerConditionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerConditionContext.d.ts).",
+          "example" : "handlebars@buildtime:{{expression}}",
+          "externalDocs" : {
+            "description" : "PrehandlerConditionContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerConditionContext.d.ts"
+          },
+          "pattern" : "^handlebars@buildtime:.*",
+          "title" : "Buildtime - Handlebars",
+          "type" : "string"
+        }, {
+          "description" : "Javascript expression with [PrehandlerConditionContext](https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerConditionContext.d.ts).",
+          "example" : "javascript@buildtime:function() { return context.getVariableContext().get('expression');}",
+          "externalDocs" : {
+            "description" : "PrehandlerConditionContext",
+            "url" : "https://github.com/extole/extole-specification/blob/main/openapi/expression-context/com/extole/api/prehandler/PrehandlerConditionContext.d.ts"
+          },
+          "pattern" : "^javascript@buildtime:.*",
+          "title" : "Buildtime - Javascript",
           "type" : "string"
         } ]
       },
