@@ -316,8 +316,7 @@ def new_page_titles(files: list[dict], head_sha: str) -> dict[str, str]:
 def pages_with_same_title(titles: dict[str, str], base_sha: str) -> list[str]:
     listing = run(["git", "grep", "-i", "-E", r"^title:", base_sha, "--", *CONTENT_PREFIXES]).stdout
     existing: dict[str, str] = {}
-    for line in listing.splitlines():
-        _, path, rest = line.split(":", 2)
+    for path, rest in grep_matches(listing):
         match = FRONTMATTER_TITLE.search(rest)
         if match:
             existing.setdefault(normalized_title(match.group(1)), path)
