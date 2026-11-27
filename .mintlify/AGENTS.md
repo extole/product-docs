@@ -90,8 +90,10 @@ Programs & Campaigns.
 says, not by the page the reader landed on: a mechanism or request form goes on the
 Technical Docs counterpart even when the page in hand is in Guides.
 
-**Do not duplicate across tabs.** Search the corpus for the topic before writing. If another
-tab already covers it, link to it rather than restating it.
+**Do not duplicate across tabs.** Search the corpus for the topic before writing, and for
+each rule, setting, event, and UI label the change names. A page that describes one of them
+covers it, even when that page has no steps. If another page already covers the topic or a
+name, link to it rather than restating it, and put any new fact about that name on that page.
 
 **A partner page is for the marketer who sets the partner up.** It says what to configure in
 the partner's console and in My Extole, and the values that are specific to that partner.
@@ -348,18 +350,19 @@ can find in the extension. Worse, **Redemption Rate** is a real Extole name alre
 percentage. Before coining a name for something, `git grep` it across the corpus and search
 the platform for it; a term that already means something else costs more than a clumsy one.
 
-## Expert variables
+## Expert settings
 
-Some component settings are **expert variables**. My Extole shows them only to Extole
-employees, behind the **Show Expert** filter. Customer-facing pages do not describe them.
+Some component settings are **expert settings**, tagged `importance:expert`. My Extole
+hides them by default. Every user can show them by turning on the **Show Expert** filter.
 
-When a sentence names **Show Expert**, tells the reader to turn that filter on, or calls a
-setting an Expert setting, delete that sentence. It often sits at the end of a paragraph
+Do not document an expert setting without need. Name one only when a task the page
+teaches needs it. Where the page names it, tell the reader to turn on **Show Expert** to
+see it.
+
+When a sentence names an expert setting or the **Show Expert** filter and the page's task
+does not need that setting, delete the sentence. It often sits at the end of a paragraph
 that is otherwise about something the reader can see — keep the paragraph and delete the
 sentence.
-
-A value the reader already sees can stay: an event name, a metric, a reward identifier on
-a report. What stays out is the hidden setting and the filter that reveals it.
 
 Leave a schema literal alone. An `importance:expert` tag inside a component JSON sample is
 a field value, and the literals rule already covers it. Add no prose around that tag that

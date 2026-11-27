@@ -93,9 +93,9 @@ Poll `GET https://api.mintlify.com/v1/project/update-status/{statusId}` until
 and only then share the link. `POST /v1/project/update/{projectId}` does the
 same for `main`, forcing a publish of docs.extole.com.
 
-The branch name becomes a DNS label in that host, so it must be lowercase
-`[a-z0-9-]` and the whole `extole-<branch>` subdomain must stay under 63
-characters. A `/` in the branch name becomes a `-`:
+The branch name becomes a DNS label in that host, so it is lowercased, it must
+otherwise be `[a-z0-9-]`, and the whole `extole-<branch>` subdomain must stay
+under 63 characters. A `/` in the branch name becomes a `-`:
 `docs/loyalty-content-gaps` is served at
 `extole-docs-loyalty-content-gaps.mintlify.site`.
 
@@ -195,6 +195,36 @@ root with no path at all. When you are sending someone a page to read, build the
 URL yourself — the host is `extole-` plus the branch with slashes as hyphens, the
 path is the page's path with `.mdx` dropped — and check it returns 200 before you
 send it.
+
+### Put a preview link to every changed page in the PR body
+
+Every PR body has a **Preview** section with one link for each page the PR adds or changes.
+A reviewer opens the page they need from the description, and does not have to work it out
+from the bot comment, which links only one page.
+
+1. List the changed pages:
+   `git diff --name-only origin/main...HEAD -- '*.mdx'`. Skip `api-reference/` and
+   `.agents/`. If only `docs.json` changed, link the pages whose navigation moved.
+2. Build each URL: `https://extole-<branch>.mintlify.site/<path>`. For `<branch>`, lowercase
+   the branch name and change each `/` to `-`. For `<path>`, drop `.mdx` from the file path.
+   Branch `Find-components-over-rest` and the file
+   `technical/platform-integrations/rest-apis/find-components-over-rest.mdx` give
+   `https://extole-find-components-over-rest.mintlify.site/technical/platform-integrations/rest-apis/find-components-over-rest`.
+3. Write the section with the page title as the link text, and open the PR:
+
+   ```markdown
+   ## Preview
+
+   - [Find Components Over REST](https://extole-find-components-over-rest.mintlify.site/technical/platform-integrations/rest-apis/find-components-over-rest) (new)
+   - [Configuration Concepts](https://extole-find-components-over-rest.mintlify.site/technical/configuring-extole/configuration-concepts)
+   ```
+
+4. Wait for the bot comment to show 🟢 Ready. Then check each link:
+   `curl -s -m 10 -o /dev/null -w '%{http_code}' <url>`. Every link must return `200`.
+5. If a link returns `404`, follow
+   **A preview can 404 on the one page the branch changed** below. Until the link returns
+   `200`, say in the Preview section that the page does not load yet. Do not remove the link.
+6. If a later push adds or removes a changed page, update the Preview section.
 
 ### A missing preview comment is a signal, not the norm
 

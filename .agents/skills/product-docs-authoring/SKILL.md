@@ -105,7 +105,7 @@ publishes docs.extole.com.
    with reading neighbouring pages in the **chosen** group, and match their structure.
 3. **Write to the standard as you go.** Everything in `.mintlify/AGENTS.md` applies while
    you write — terminology, imperative how-to, Title Case, de-hedging, navigation bolding,
-   number rules, callout components, expert variables. Do not leave these for the reviewer.
+   number rules, callout components, expert settings. Do not leave these for the reviewer.
 4. **Place in nav.** Add the chosen path to that group in `docs.json`, then run
    `python3 scripts/check_navigation.py` — it reports a page absent from the navigation
    and a path that does not mirror its group chain, neither of which `validate` catches.
@@ -174,13 +174,17 @@ item checks conformance to `.mintlify/AGENTS.md` rather than restating it.
       `display_name`, not from memory — see **Naming a My Extole setting** above.
 - [ ] **Placement** — a new page sits in the tab the actor test chose, not in
       Guides by default. Mechanism, diagnosis, tags, domains, and request
-      parameters belong in Technical Docs even when the symptom is a campaign.
+      parameters belong in Technical Docs even when the symptom is a campaign. Each
+      rule, setting, and event the change names was searched in the corpus, and a
+      name another page already covers links there instead of being described again.
+      See **Do not duplicate across tabs** in `product-docs-placement`.
 - [ ] **Frontmatter** present (`title`, `description`); **page path added to `docs.json`**.
 - [ ] **Links and images resolve** — internal links are site paths, images are
       root-relative repo assets, no `doc:slug` and no remote `expires=` URL.
 - [ ] **Literals** — event names, schema fields, and API identifiers left verbatim.
-- [ ] **Expert variables** — employee-only settings and the **Show Expert** filter are not
-      described. See **Expert variables** in `.mintlify/AGENTS.md`.
+- [ ] **Expert settings** — an expert setting is named only where the page's task needs it,
+      and there the page tells the reader to turn on **Show Expert**. See **Expert
+      settings** in `.mintlify/AGENTS.md`.
 - [ ] **Open decisions** matched to the surrounding page, not silently standardized.
 - [ ] **`npx mint@latest validate` is clean** (0 errors, 0 warnings).
 
@@ -236,6 +240,10 @@ To read and resolve inline PR comments — the common "apply the reviewer's sugg
 - Doc changes end with an **open PR** (`gh pr create`), which is what produces the
   reviewable Mintlify preview. A docs-standards or terminology PR is a good candidate for
   **draft**, so the docs team can ratify wording before merge.
+- The PR body carries a **Preview** section with a working Mintlify link to every page the
+  PR adds or changes. Build and check the links as
+  [`mintlify-branch-preview`](../mintlify-branch-preview/SKILL.md) » **Put a preview link
+  to every changed page in the PR body** says.
 - Keep the PR scoped to docs. Don't touch `api-reference/` specs, `scripts/`, or
   `url-map.json` unless that is the task.
 
