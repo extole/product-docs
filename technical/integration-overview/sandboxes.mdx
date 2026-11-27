@@ -102,8 +102,9 @@ A `version=1` value that has the same keys and values as one of the values in [S
 Every other `version=1` value needs a token with the **Client Admin** access level. That includes `actions=none`, `targeting_listeners=disabled`, `quality_triggers=disabled` on its own, `candidates=latest` without a campaign id, one campaign's published version, such as `candidates=7709@published`, and a campaign preview form with any key changed or left out. Without that access level, Extole refuses the request:
 
 - Server events, `POST https://api.extole.io/v6/events` with a server access token, and `POST /v4/events` answer `403` with the code `access_denied`.
+- The consumer API's `/v6/events` and `/v6/zones` answer `403` with the code `access_denied`. A consumer access token never has the **Client Admin** access level.
+- The browser endpoints `/events`, `/zone`, and `/zones` answer `200`, handle no event, and render nothing. Extole reports the refusal as a `sandbox_refused` client event.
 - Any other request that carries such a value fails, and no campaign handles the event.
-- A consumer access token never has the **Client Admin** access level, so the consumer API cannot send these values.
 
 ### Invalid Version 1 Values
 
@@ -116,11 +117,15 @@ Extole reads a value as the `version=1` form when its first part is `version`. S
 - it sets `journey`, `inactive_controllers=included`, `journey_entry_triggers=disabled`, or `journey_key=test` with published candidates;
 - the sandbox id that Extole records for it, described below, is longer than 255 characters.
 
-The events and zones endpoints answer an invalid `version=1` value with `400` and the code `invalid_sandbox`. They are `/v6/events` and `/v4/events`, `/v5/zones` and `/v6/zones`, and the browser endpoints `/events`, `/zone`, and `/zones`. On the server `/v6/events`, the error's parameters name the `event_name`; on `/v5/zones`, the `zone_name`. Every other endpoint ignores an invalid value and runs the request as if it sent no sandbox.
+Extole never runs a request with an invalid `version=1` value:
+
+- The events and zones API endpoints answer `400` with the code `invalid_sandbox`. They are server events (`/v6/events`), `/v4/events`, `/v5/zones`, and the consumer API's `/v6/events` and `/v6/zones`. The consumer API endpoints that take event data answer the same way, such as the share endpoints and the `/me` endpoints for data, email, and shareables. On server events, the error's parameters name the `event_name`; on `/v5/zones`, the `zone_name`.
+- The browser endpoints `/events`, `/zone`, and `/zones` answer `200`, handle no event, and render nothing. `/events` answers with no event id. Extole reports the value as a `sandbox_refused` client event at the `WARN` level.
+- Any other request that carries an invalid value fails.
 
 A value that does not start with `version` and does not match a value in [Sandbox Values](#sandbox-values) is ignored on every endpoint, and the request runs as if it sent no sandbox.
 
-When Extole processes an event after it has answered the request, such as a row of a batch, it drops an event whose `version=1` sandbox is invalid or refused, and records a `sandbox_refused` client event.
+When Extole processes an event after it has answered the request, such as a batch row or an asynchronous event, it drops an event whose `version=1` sandbox is invalid or refused, and reports it as a `sandbox_refused` client event.
 
 ### The Sandbox Id That Extole Records
 
