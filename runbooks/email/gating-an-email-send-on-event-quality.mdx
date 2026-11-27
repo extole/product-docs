@@ -1,0 +1,64 @@
+---
+title: "Email: Gating an Email Send on Event Quality"
+description: "Make a campaign email send only for high-quality events through the Event quality trigger on its sending controller."
+noindex: true
+---
+
+Use this runbook when an email should send only for high-quality events, or when an email went out for a low-quality event although its quality setting reads `HIGH`.
+
+How the sending controller pairs with the controller that renders the email is in [Campaign Build Failed When Publishing](/technical/troubleshooting/campaign-build-failed-when-publishing). When a draft change takes effect is in [Making Updates to Your Campaigns](/guides/programs-and-campaigns/managing-campaigns/making-updates-to-your-campaigns).
+
+<Info>
+**Audience**
+
+Extole operators and agents. The quality setting is an expert setting, and adding a trigger uses an expert API operation.
+</Info>
+
+## How the Quality Setting Works
+
+- A library email component has a `triggerEventQuality` setting. Its values are `HIGH`, `LOW` and `ALWAYS`.
+- The setting gates the send only through an expression trigger named **Event quality** on the email's sending controller. The trigger is in the `QUALIFYING` phase.
+- The trigger compares the setting with the quality of the step event that caused the send.
+- The trigger reads the setting when the campaign builds. A new value applies from the next build.
+- When the setting is `ALWAYS`, the trigger builds to `true` and gates nothing.
+- If the sending controller has no Event quality trigger, the setting gates nothing. The email sends for every quality.
+- The email action's own quality field labels the step that the send records. It does not gate the send.
+
+An email keeps the library version it was installed from. An email installed from an older version can lack the trigger, and other emails installed from the same version lack it too.
+
+## Steps
+
+Work in the campaign's draft.
+
+1. **Read the email's sending controller from the built campaign.** Look for an expression trigger named **Event quality**.
+2. **If the trigger is there,** read the email's `triggerEventQuality` setting. If it already holds the quality you want, the email is gated. If it holds another value, change the setting.
+3. **If the trigger is missing, look for an upgrade.** Read the email component's upgrade targets with [Get available component upgrades](/api-reference/components/get-available-component-upgrades). If a newer version is offered, save the source and value of each of the email's settings first. Then run [Upgrade a component](/api-reference/components/upgrade-a-component), restore each setting that the upgrade reset, and read the sending controller again.
+4. **If no upgrade adds the trigger, add it by hand.** Use the expert operation **Create an expression trigger**, `POST /v2/campaigns/{campaign_id}/controllers/{controller_id}/triggers/expressions`, on the sending controller. Send the body below.
+5. **Read the sending controller from the built campaign again.** Confirm that the Event quality trigger is there and enabled. Its built expression names the quality, for example `spel@runtime:'HIGH' == context.causeEvent?.selectedCampaignContext?.quality`.
+6. **Publish the campaign.**
+
+The body for step 4 is the trigger that the library email components carry:
+
+```json
+{
+  "trigger_phase": "QUALIFYING",
+  "trigger_name": "Event quality",
+  "enabled": true,
+  "negated": false,
+  "expression": "spel@buildtime:context.getVariableContext().get('triggerEventQuality') != 'ALWAYS' ? 'spel@runtime:''' + context.getVariableContext().get('triggerEventQuality') + ''' == context.causeEvent?.selectedCampaignContext?.quality' : true",
+  "component_references": [{"component_id": "<email_component_id>", "socket_names": []}]
+}
+```
+
+`component_references` binds the trigger to the email component. The expression then reads that component's `triggerEventQuality` setting.
+
+## Things to Know
+
+- An upgrade brings the library version and its later fixes. A trigger added by hand is a change to this one campaign.
+- Prefer the hand-added trigger when no newer version is offered, or when the email's local changes are too many to restore safely.
+- Other emails in the same campaign often come from the same library version. Read their sending controllers too, and change only the emails that the request names.
+
+## Related
+
+- [Campaign Build Failed When Publishing](/technical/troubleshooting/campaign-build-failed-when-publishing)
+- [Making Updates to Your Campaigns](/guides/programs-and-campaigns/managing-campaigns/making-updates-to-your-campaigns)
