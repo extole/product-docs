@@ -407,7 +407,7 @@ def classify(pull, rubric, standards, floor: FloorResult, repo: str, root: str):
     try:
         verdict = json.loads(text)
     except json.JSONDecodeError:
-        return fallback("The judge returned something that is not JSON.", [text[:300] or "(empty response)"])
+        return unparsed_reply(response, text)
 
     if check and not check.failed:
         verdict["claims"] = source_check.merge_claims(check, verdict.get("claims") or [])
@@ -417,12 +417,27 @@ def classify(pull, rubric, standards, floor: FloorResult, repo: str, root: str):
         verdict["reasons"] = list(verdict.get("reasons") or []) + [pending]
     verdict = apply_verdict_steps(verdict, floor)
     verdict["source_check_pending"] = checked and check is None
-    verdict["usage"] = {
+    verdict["usage"] = usage_of(response)
+    return verdict
+
+
+def usage_of(response) -> dict:
+    return {
         "input_tokens": response.usage.input_tokens,
         "output_tokens": response.usage.output_tokens,
         "cache_read_input_tokens": getattr(response.usage, "cache_read_input_tokens", 0) or 0,
         "cache_creation_input_tokens": getattr(response.usage, "cache_creation_input_tokens", 0) or 0,
     }
+
+
+def unparsed_reply(response, text: str) -> dict:
+    usage = usage_of(response)
+    stopped = (f"The reply stopped with stop_reason `{response.stop_reason}` after "
+               f"{usage['output_tokens']} output tokens, {len(text)} characters.")
+    print(f"judge reply is not JSON: stop_reason={response.stop_reason} "
+          f"output_tokens={usage['output_tokens']} characters={len(text)}")
+    verdict = fallback("The judge returned something that is not JSON.", [stopped, text[:300] or "(empty response)"])
+    verdict["usage"] = usage
     return verdict
 
 
