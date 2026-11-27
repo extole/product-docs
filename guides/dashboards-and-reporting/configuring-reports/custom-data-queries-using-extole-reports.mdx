@@ -68,10 +68,19 @@ event.data."share.message"
 Filters are semicolon-separated boolean expressions. All entries must be satisfied (implicit AND between statements).
 
 ```
-expression operator value
+expression operator expression
 ```
 
-The expression names a field of the report's primary record by its full path from `event`, such as `event.data.source` or `event.quality`. A filter doesn't read the column names your mappings define. In a report that maps `Source=event.data.source`, the filter `source=="email"` doesn't read the recorded source: the report still completes, with a blank **Source** column and zero for every count. Write `event.data.source=="email"` instead.
+Each side of a filter is an expression in the same language as your mappings, except that grouping functions aren't available in a filter. An expression can be:
+
+- **A column your mappings define**, by its exact name. Column names are case-sensitive: in a report that maps `Source=event.data.source`, write `Source=="email"`.
+- **A field of the report's primary record**, by its path from `event`, such as `event.data.source` or `event.quality`.
+- **A quoted value**, such as `"email"` or `"2"`. Quote every value, numbers included: an unquoted token is read as the name of a column or field.
+- **A function** of any of these, such as `CONCATENATE(Name, "-", Source)=="alpha-email"`.
+
+A name that matches no column or field matches no rows.
+
+On a metrics report, a filter on a grouping column applies to the grouped rows. In a report that maps `Name=event.name;Events=GROUP_COUNT(event.id, name:"ALL");`, the filter `Events>"2"` keeps only the names counted more than twice, and compares the counts as numbers.
 
 **Operators:** `==`, `!=`, `>=`, `<=`, `>`, `<`, `like`, `not like`
 
@@ -91,7 +100,7 @@ Wrap a substring in `.*` on both sides. Add `(?s)` at the start when the value c
 Put a control column in the report: one mapping that asserts a value you know is present. Read a zero-row result as a pattern that did not match until that column says the rows are there.
 </Tip>
 
-**Values** are quoted strings or column references:
+Compare a field with a quoted value:
 
 ```
 event.quality=="HIGH";event.campaignId!="null"
