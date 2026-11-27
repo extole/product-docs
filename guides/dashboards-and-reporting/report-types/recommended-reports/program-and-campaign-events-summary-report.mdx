@@ -1,0 +1,123 @@
+---
+title: "Program and Campaign Events Summary Report"
+description: "Event counts by program, campaign, period, and dimension, read from pre-summarized data, with four report types that share one set of parameters."
+---
+
+# Overview
+
+The **Program and Campaign Events Summary** report returns event counts for your programs and campaigns. It is the report type that powers your program and campaign dashboards.
+
+The report reads event counts that Extole summarizes ahead of time. Use it whenever the question is a count of business events, a sum of those counts, or a rate between them.
+
+Four report types read the same summarized data. They share their parameters and differ in how they group the result.
+
+| Report type | Name in the API | What one result row holds |
+| --- | --- | --- |
+| Program and Campaign Events Summary | `summary` | One period, and one value of each dimension you chose |
+| Monitoring: Program Events Summary | `summary_per_program` | One program, with its summary rows inside |
+| Monitoring: Program and Campaign Events Summary | `summary_per_campaign` | One campaign, with its program, name, and summary rows inside |
+| Monitoring: Program Events Summary By Dimensions | `summary_per_dimensions` | One combination of dimension values, with its summary rows inside |
+
+# What the Report Counts
+
+Each row lists the business events of the programs you selected, and the metrics of each one. A metric comes from one of two places:
+
+- **The program's flow.** The report includes the flow metrics tagged `event-funnel-report` on the flow steps you selected. These are the counts you see on the program dashboard. Each flow metric has its own definition, and that definition can narrow what it counts with the same arguments a mapping takes: visit type, quality, attribution, source, channel, and container. Two metrics on the same business event can count different events. See [Filter Arguments](#filter-arguments).
+- **The `mappings` parameter.** Each mapping adds a metric that you define, such as every `email_sent` event across all visit types. Mapped metrics appear together, in one entry that has no step name. See [Mappings](#mappings) below.
+
+Counts include attributed events by default: events that Extole tied to a campaign. To count unattributed events too, set the `attribution` argument on a mapping.
+
+The report counts events, not people. A person who shared three times counts as three shares. To count distinct people, run a [Metrics](/guides/dashboards-and-reporting/report-types/recommended-reports/metrics-report) report. See [Understanding How Extole Counts People](/guides/dashboards-and-reporting/configuring-reports/understanding-how-extole-counts-people).
+
+# Parameters
+
+All four report types take these parameters.
+
+| Parameter | Required | What it sets |
+| --- | --- | --- |
+| `time_range` | Yes | The window to report on |
+| `period` | Yes | The length of each row: `NONE`, `HOUR`, `DAY`, `WEEK`, `MONTH`, `QUARTER`, `YEAR`, `TRAILING_WEEK`, `TRAILING_TWO_WEEKS`, `TRAILING_THREE_WEEKS`, or `TRAILING_MONTH`. The default, `NONE`, returns one row for the whole window |
+| `dimensions` | Yes | One breakdown: `NONE`, `CHANNEL`, `SOURCE_TYPE, SOURCE`, `VISIT_TYPE, QUALITY`, `VARIANT`, or `VARIANT, QUALITY`. Any of them except `NONE` can be preceded by `PROGRAM` or `PROGRAM, CAMPAIGN`, and `PROGRAM` and `PROGRAM, CAMPAIGN` also work alone. The default is `NONE` |
+| `program` | No | One program to report on |
+| `campaign` | No | One campaign to report on, by ID |
+| `flows` | Yes | The flow paths whose metrics the report includes, with their descendants. The default is `/business-events` |
+| `flow_filter` | No | `BEST_FLOW` or `ALL_FLOWS`, when the campaigns you selected have more than one flow. `summary_per_program` defaults to `BEST_FLOW` |
+| `container` | Yes | The data container: `production`, `test`, `bot`, `pending-review`, or `all`. The default is `production` |
+| `mappings` | No | Metrics you define, added to the flow's metrics. See [Mappings](#mappings) |
+| `tags_to_include`, `tags_to_exclude` | No | Keep or drop flow steps by their tags |
+| `metric_tags_to_include`, `metric_tags_to_exclude` | No | Keep or drop flow metrics by their tags |
+| `include_totals` | Yes | `true` adds rows that total each metric over the whole window. The default is `false` |
+| `exclude_values_below_threshold` | No | Leaves out any metric whose value is below this number |
+
+`summary` returns JSON, JSONL, or CSV. The three Monitoring report types return JSON or JSONL.
+
+## Parameters of the Monitoring Report Types
+
+The three Monitoring report types also choose campaigns by state and by tag:
+
+| Parameter | What it sets |
+| --- | --- |
+| `campaign_states` | The campaign states to include: `ALL`, `NOT_LAUNCHED`, `LIVE`, `PAUSED`, `ENDED`, `STOPPED`, or `ARCHIVED`. The default is `LIVE` |
+| `campaigns_having_any_tags`, `campaigns_having_all_tags` | Include campaigns that carry any, or all, of these tags |
+| `campaigns_exclude_having_any_tags`, `campaigns_exclude_having_all_tags` | Leave out campaigns that carry any, or all, of these tags |
+
+Set `account_enabled` to `true` to add account-level rows to `summary_per_program` and `summary_per_dimensions`. These rows ignore the campaign state and tag filters, and still follow `program` and `campaign`. `summary_per_program` labels its account row `TOTAL`. `summary_per_dimensions` marks its account rows as account level, with no dimension values. The `account_flows`, `account_mappings`, `account_tags_to_include`, `account_tags_to_exclude`, `account_metric_tags_to_include`, and `account_metric_tags_to_exclude` parameters set the metrics of those rows. Unlike `flows`, `account_flows` has no default. When it is empty, the account rows hold only the `account_mappings` metrics, and the account tag parameters have no effect.
+
+When every campaign in a row is inactive (not launched, paused, stopped, ended, or archived), a row from either of those two report types also carries the latest of those campaigns' paused, stopped, ended, or archived dates. A campaign with none of those dates contributes the date it was last updated.
+
+When `dimensions` includes `PROGRAM`, `summary_per_dimensions` returns, for each program, one row for each combination of dimension values. Otherwise it returns one row for each combination of dimension values, across all the campaigns you selected.
+
+# Mappings
+
+The `mappings` parameter is a semicolon-separated list of `Name=function(arguments)` pairs. The name becomes the metric's name in the result:
+
+```text
+Emails Sent=event_count(email_sent);Shares=event_count(shared);Share Rate=rate(Shares, Emails Sent)
+```
+
+This is a different language from the mappings of configurable reports such as Metrics and Events. Those use the `GROUP_*` functions in [Custom Data Queries using Extole Reports](/guides/dashboards-and-reporting/configuring-reports/custom-data-queries-using-extole-reports).
+
+## Functions
+
+| Function | Returns |
+| --- | --- |
+| `event_count(step)` | The number of events of that step |
+| `value(step)` | The total value recorded on events of that step |
+| `sum(Metric A, Metric B, ...)` | The sum of other metrics in the same mapping |
+| `subtract(Metric A, Metric B)` | Metric A minus Metric B |
+| `ratio(Metric A, Metric B)` | Metric A divided by Metric B |
+| `rate(Metric A, Metric B)` | Metric A divided by Metric B |
+| `percentage(Metric A, Metric B)` | Metric A divided by Metric B, as a percentage |
+| `benchmark(Metric A, Metric B, number)` | The rate of Metric A to Metric B, compared with the benchmark number |
+| `constant(number)` | The number itself |
+
+`sum`, `subtract`, `ratio`, `rate`, `percentage`, and `benchmark` take the names of other metrics in the same `mappings` value.
+
+`people_count` is not available in this report. A report whose mappings or flow metrics use it does not run. Count people with a [Metrics](/guides/dashboards-and-reporting/report-types/recommended-reports/metrics-report) report.
+
+## Filter Arguments
+
+`event_count` and `value` take the step name first, then any of these arguments, each written as `name:value`:
+
+| Argument | Values |
+| --- | --- |
+| `visit_type` | `ALL`, `NEW_TO_CLIENT`, `NEW_TO_PROGRAM`, `NEW_TO_CAMPAIGN`, or `NORMAL`. `NORMAL` counts events that are new to none of the client, the program, or the campaign |
+| `quality` | `ALL`, `HIGH`, `LOW`, or `NONE` |
+| `attribution` | `ATTRIBUTED`, `UNATTRIBUTED`, or `ALL`. The default is `ATTRIBUTED` |
+| `source` | One source |
+| `channel` | One channel |
+| `container` | One data container, such as `production` or `test` |
+
+A metric that filters on `source` or `channel` cannot also filter on `visit_type`, `quality`, `container`, or the other of `source` and `channel`. It can still set `attribution`. For example, `event_count(shared, channel:email, attribution:ALL)` is valid, and `event_count(shared, channel:email, quality:HIGH)` is not.
+
+[Visit Type and Quality](/guides/dashboards-and-reporting/extole-dashboards-and-metrics/visit-type-and-quality) explains what each visit type and quality value counts.
+
+# Choosing Between This Report and Metrics
+
+Run this report when every number you need is an event count, a value, or a rate or sum built from them, broken down by period, program, campaign, or the dimensions above.
+
+Run a [Metrics](/guides/dashboards-and-reporting/report-types/recommended-reports/metrics-report) report when you need any of these:
+
+- A count of distinct people.
+- A column from the person or the event, such as an email address or a custom data field.
+- A filter on any field other than visit type, quality, attribution, source, channel, or container.
