@@ -1,13 +1,15 @@
 ---
 title: "Sandboxes"
-description: "What a sandbox chooses for an event or a request: the campaign version that handles it and the container that records it. The values you can send, the default, and where you set one."
+description: "What a sandbox chooses for an event or a request: the campaign version that handles it, the container that records it, and what the event runs. The values you can send, the version=1 form, the defaults, and where you set one."
 ---
 
 ## Overview
 
-A sandbox is a value that an event or a request carries. It chooses two things: which version of your campaigns handles the event, the published version or the latest version with your unpublished changes, and which container records it. Live traffic sends no sandbox, so it runs the published version.
+A sandbox is a value that an event or a request carries. It chooses which version of your campaigns handles the event, the published version or the latest version with your unpublished changes, and which container records it. A version 1 sandbox can also change what the event runs, such as recording the business events it triggers without running their actions. Live traffic sends no sandbox, so it runs the published version in full.
 
-You use a sandbox to test a campaign change before you publish it, and to compare that change with what your customers see today.
+You use a sandbox to test a campaign change before you publish it, to compare that change with what your customers see today, and to record an event without the rewards and emails it would otherwise trigger.
+
+A sandbox value takes one of two forms. The values in [Sandbox Values](#sandbox-values) name a sandbox by its type. A [version 1 sandbox](#version-1-sandboxes), which starts with `version=1`, names each choice as a key, and can express every one of those values and more.
 
 ## Sandbox Values
 
@@ -33,12 +35,109 @@ Both campaign sandboxes run the latest version of your campaigns. They differ in
 - **Campaign preview**: a person can enter a journey without a referral, so you can test a friend journey without an advocate. A journey name in the value, such as `FRIEND`, gives that journey the highest priority. The campaign's quality rules do not run.
 - **Campaign**: journey entry follows the campaign's own rules. A friend enters the friend journey only through a referral, as on your live site. The campaign's quality rules run.
 
+## Version 1 Sandboxes
+
+A `version=1` sandbox is a list of `key=value` parts separated by `;`. It starts with `version=1`, and the other keys follow in any order. Each key you leave out takes its default:
+
+```text
+version=1;candidates=7709@latest;actions=none;container=test
+```
+
+`version=1` on its own is the production sandbox: the published version of your campaigns, recorded in the `production` container, with nothing turned off.
+
+Keys and values are case-insensitive. `VERSION=1;Container=Test` is the same sandbox as `version=1;container=test`.
+
+### Keys
+
+| Key | Values | Default | What it does |
+|---|---|---|---|
+| `candidates` | `published`, `latest`, or one campaign: `7709@published`, `7709@latest` | `published` | Chooses the campaigns that can handle the event, and their version. `published` runs the published version of your campaigns. `latest` runs the latest version, including unpublished changes. A campaign id limits the event to that one campaign. |
+| `targeting_listeners` | `enabled`, `disabled` | `enabled` | `disabled` stops every business event, reward, and call-to-action from matching the event by its triggers. The event is recorded and triggers none of them. |
+| `actions` | `run`, `none` | `run` | `none` records the business events, rewards, and calls-to-action that the event triggers, and those that listen to them, and runs none of their actions, such as earning a reward or sending an email. A zone request renders no creative. |
+| `preview` | `true`, `false` | `false` | `true` does what a campaign preview does: it turns off the campaign's quality rules, runs the parts of the campaign that are turned off, lets a person enter a journey without its entry rules, gives journey keys the value `test`, and lets a person enter a journey without a referral. |
+| `container` | A container name: letters, digits, and `.` `_` `:` `/` `-` | `production` | The container that records the event. |
+| `journey` | A journey name, such as `friend` | No journey | Gives that journey the highest priority, as the journey name in a campaign or campaign preview value does. |
+
+A sandbox applies to the event and to every event that follows from it, such as the business events it triggers and the rewards that listen to them. With `actions=none`, a reward that listens to a recorded business event is recorded and earns nothing.
+
+`journey` is valid only with the latest version of a campaign: `candidates=latest` or a campaign's `@latest`. `preview=true` is valid only with the latest version and `container=test`. Otherwise the value is invalid, as [Invalid Version 1 Values](#invalid-version-1-values) describes. The campaign preview value already runs in the `test` container.
+
+### Each Sandbox Value as a Version 1 Sandbox
+
+The values in [Sandbox Values](#sandbox-values) keep working. Each one has a `version=1` spelling that behaves the same, shown here for campaign `7709`, the `test` container, and the `friend` journey:
+
+| Value | `version=1` form |
+|---|---|
+| `production-production` | `version=1` |
+| `production-test` | `version=1;candidates=published;container=test` |
+| `campaign-7709-test` | `version=1;candidates=7709@latest;container=test` |
+| `campaign-7709-test-friend` | `version=1;candidates=7709@latest;container=test;journey=friend` |
+| `campaign_preview-7709` | `version=1;candidates=7709@latest;preview=true;container=test` |
+| `campaign_preview-7709-friend` | `version=1;candidates=7709@latest;preview=true;container=test;journey=friend` |
+
+### Record an Event Without Running Its Actions
+
+To record a business event for a person, such as a conversion the platform missed, without issuing its rewards or sending its emails, send the event that triggers it with `actions=none`. The person's steps show the business event and the rewards that listen to it, and none of their actions run:
+
+```bash
+curl -X POST "https://api.extole.io/v6/events" \
+     -H "Authorization: Bearer <server access token>" \
+     -H "Content-Type: application/json" \
+     -d '{"event_name": "converted",
+          "data": {"email": "friend@example.com",
+                   "partner_conversion_id": "ORD-88123",
+                   "sandbox": "version=1;actions=none"}}'
+```
+
+This value needs a token with the **Client Admin** access level, as [Values That Need the Client Admin Access Level](#values-that-need-the-client-admin-access-level) describes.
+
+### Values That Need the Client Admin Access Level
+
+A `version=1` value that has the same keys and values as one of the values in [Sandbox Values](#sandbox-values), such as each one in [Each Sandbox Value as a Version 1 Sandbox](#each-sandbox-value-as-a-version-1-sandbox), works with any token that can send that value.
+
+Every other `version=1` value needs a token with the **Client Admin** access level. That includes `actions=none`, `targeting_listeners=disabled`, `candidates=latest` without a campaign id, one campaign's published version, such as `candidates=7709@published`, and a campaign preview value with `targeting_listeners=disabled` or `actions=none` added. Without that access level, Extole refuses the request:
+
+- Server events, `POST https://api.extole.io/v6/events` with a server access token, and `POST /v4/events` answer `403` with the code `access_denied`.
+- The consumer API's `/v6/events` and `/v6/zones` answer `403` with the code `access_denied`. A consumer access token never has the **Client Admin** access level.
+- The browser endpoints `/events`, `/zone`, and `/zones` answer `200`, handle no event, and render nothing. Extole reports the refusal as a `sandbox_refused` client event.
+- Any other request that carries such a value fails, and no campaign handles the event.
+
+### Invalid Version 1 Values
+
+Extole reads a value as the `version=1` form when its first part is `version`. Such a value is invalid when:
+
+- it does not start with `version=1`;
+- a part is not `key=value`, or has an empty key or value, as a trailing `;` does;
+- it names a key twice, or names a key that is not in [Keys](#keys);
+- a value is not one that its key allows;
+- it sets `journey` with published candidates;
+- it sets `preview=true` with published candidates, or in a container other than `test`;
+- the sandbox id that Extole records for it, described below, is longer than 255 characters.
+
+Extole never runs a request with an invalid `version=1` value:
+
+- The events and zones API endpoints answer `400` with the code `invalid_sandbox`. They are server events (`/v6/events`), `/v4/events`, `/v5/zones`, and the consumer API's `/v6/events` and `/v6/zones`. The consumer API endpoints that take event data answer the same way, such as the share endpoints and the `/me` endpoints for data, email, and shareables. On server events, the error's parameters name the `event_name`; on `/v5/zones`, the `zone_name`.
+- The browser endpoints `/events`, `/zone`, and `/zones` answer `200`, handle no event, and render nothing. `/events` answers with no event id. Extole reports the value as a `sandbox_refused` client event at the `WARN` level.
+- Any other request that carries an invalid value fails.
+
+A value that does not start with `version` and does not match a value in [Sandbox Values](#sandbox-values) is ignored on every endpoint, and the request runs as if it sent no sandbox.
+
+When Extole processes an event after it has answered the request, such as a batch row or an asynchronous event, it drops an event whose `version=1` sandbox is invalid or refused, and reports it as a `sandbox_refused` client event.
+
+### The Sandbox Id That Extole Records
+
+The event, the business events it triggers, and the rewards it leads to carry a sandbox id. [Event streams](/technical/platform-integrations/extensions/event-streams-overview/event-stream-query-language) show it as `sandbox_id`.
+
+When a `version=1` value makes the same choices as a value in [Sandbox Values](#sandbox-values), Extole records that value. `version=1` records `production-production`, and `version=1;candidates=published;container=test` records `production-test`. The campaign forms record `CAMPAIGN-7709-test` and `CAMPAIGN-7709-test-friend`, and the campaign preview forms record `CAMPAIGN_PREVIEW-7709` and `CAMPAIGN_PREVIEW-7709-friend`.
+
+Every other `version=1` value records a `version=1` id. Read a recorded `version=1` id as a sandbox value, by its keys and their values, not by its text or the order of its keys.
+
 ## Where You Set a Sandbox
 
 - **Consumer API**: the `X-Extole-Sandbox` header. See [Send an Event to a Sandbox](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#send-an-event-to-a-sandbox).
 - **Server events**: `sandbox` in the event's data. See [Send an Event to a Sandbox](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#send-an-event-to-a-sandbox).
-- **Draft pages and emails**: the `sandbox` parameter of a `/zones/` address. See [View Draft Pages and Emails](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#view-draft-pages-and-emails).
-- **My Extole**: **Execution Mode** on a component's **Operations** tab. **Preview** is the campaign preview sandbox, **Campaign** is the campaign sandbox in the `test` container, and **Production** is `production-production`. You can also type any other value from the table above. See [Test a Change Before You Publish](/guides/programs-and-campaigns/managing-campaigns/test-a-change-before-you-publish).
+- **Draft pages and emails**: the `sandbox` parameter of a `/zones/` address. See [View Draft Pages and Emails](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#view-draft-pages-and-emails). URL-encode a `version=1` value in a query parameter, so `;` is `%3B`, `=` is `%3D`, and `@` is `%40`.
+- **My Extole**: **Execution Mode** on a component's **Operations** tab. **Preview** is the campaign preview sandbox, **Campaign** is the campaign sandbox in the `test` container, and **Production** is `production-production`. You can also type any other value from [Sandbox Values](#sandbox-values). See [Test a Change Before You Publish](/guides/programs-and-campaigns/managing-campaigns/test-a-change-before-you-publish).
 
 What a test event does in a sandbox, such as where its rewards come from and which emails it sends, is in [What a Test Event Does](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#what-a-test-event-does).
 
