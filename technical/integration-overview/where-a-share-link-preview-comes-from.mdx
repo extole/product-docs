@@ -1,6 +1,6 @@
 ---
 title: "Where a Share Link Preview Comes From"
-description: "How Extole builds the title, description, and image that an app shows when an advocate's share link is posted, and which campaign settings fill them."
+description: "How Extole builds the title, description, and image that an app shows when an advocate's share link is posted, which campaign settings fill them, and how Extole records the request an app makes to build a preview."
 ---
 
 # Overview
@@ -15,6 +15,30 @@ Every request for a share link goes to the campaign's `share_destination` zone, 
 
 - **A known preview crawler.** Extole recognizes the link-preview crawlers of Facebook, X, WhatsApp, LinkedIn, Pinterest, Google, and WeChat by their user agent. For those, the zone returns an HTML page that holds the preview tags and no visible content, and the app builds its card from them.
 - **Anything else.** A person's browser, and any preview tool that does not identify as one of the crawlers above, is redirected to the page the share link opens, such as your friend landing page. A preview built by that tool, if it builds one, comes from that page and not from the social share settings.
+
+## How Extole Records a Preview Request
+
+A preview request is a request for the share link, so Extole records it as it records a click. The `share_destination` zone runs, and the friend journey records a `share_clicked` step. Extole does not drop the request. Instead, it records the request in a container, and the container decides where the click counts.
+
+Extole puts the request in the `bot` container when the request names no container, sends no `Origin` header, and one of these is true:
+
+- **Its user agent is on a blocked user agents list.** Extole checks your account's own user-agent rules first, then Extole's global list. A rule matches when its value appears anywhere in the user agent, ignoring case, and the first rule that matches wins. The global list holds several thousand entries, including `bot`, `crawler`, `facebookexternalhit`, `whatsapp`, `pinterest`, and `linkedinbot`. The `bot` entry matches any user agent that contains it, such as `Slackbot`, `Twitterbot`, `Discordbot`, and `TelegramBot`. A user agent shorter than five characters also counts as blocked.
+- **It sends the header `x-purpose: preview`.** Extole checks only this header. It does not check the browser prefetch headers `Purpose` and `Sec-Purpose`.
+
+Any other request goes to `production` and counts as a person's click, even when an app sent it to build a preview. Your campaign's quality rules then score it like any other click.
+
+A click in `bot` stays in `bot`. Extole keeps journeys and referrals separately for each container, so a click in `bot` does not start or continue the friend's journey in `production` and does not credit the advocate there. Your program dashboard shows the `production` container unless you select another one, such as `bot`. See [Exclude Test Data from Analytics](/technical/operational-tasks/program-testing/exclude-test-data-from-analytics) for the full order Extole uses to pick a container, and [Sandboxes](/technical/integration-overview/sandboxes) for the sandbox each container runs in.
+
+The recognized crawlers in the list above decide which page the zone returns. They do not decide the container. A crawler can get the preview page and still be recorded in `production` if its user agent matches no blocked user-agent rule.
+
+### Change Which User Agents Count as Bots
+
+You can add your own user-agent rules with [`POST /v2/blocks`](/api-reference/blocks/create-a-fraud-control-rule), with `list_type` set to `USER_AGENT`:
+
+- **`filter_type` `BLACK`** adds a user agent to your blocked list, so its requests go to `bot`.
+- **`filter_type` `WHITE`** permits a user agent that the global list blocks, so its user agent no longer sends its requests to `bot`.
+
+Your account's rules apply before the global list. [`GET /v2/blocks/global`](/api-reference/blocks/list-global-fraud-control-rules) lists Extole's global rules.
 
 ## Which Settings Fill the Preview
 
