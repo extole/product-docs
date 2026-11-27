@@ -1,0 +1,92 @@
+---
+title: "Compare a Creative With Its Library Template"
+description: "Decide whether a Flow Builder campaign's creative carries a hand-made change or is still the library template it was copied from."
+---
+
+# Overview
+
+Use this page when you need to know whether a Flow Builder campaign's creative was changed by hand, or is still the library template.
+
+Every read on this page uses your own access token and changes nothing. Your account can read the library templates that Extole's own accounts hold. It can read a component in any other account only if it subscribes to that account.
+
+## What You Compare
+
+A participant sees the result of three things. Only one of them can hold a hand-made code change.
+
+- **Component settings**: copy, colors, images, amounts, and toggles that someone can change in the campaign editor. A difference here is configuration, not a customization of the creative.
+- **The creative archive**: the source code behind one experience, in folders such as `html/`, `js/`, `less/`, and `variables/`. Which folders an archive has depends on the experience: an email has no `less/` folder, and only some experiences have a `font/` folder. A hand-made change lives here, often in `less/custom-overrides.less`.
+- **The library template**: the library component the campaign's component was copied from.
+
+Compare the campaign's creative archive with the template's creative archive, file by file. Compare the settings separately, and report the two results separately.
+
+Do not compare the page a zone serves. The served code is built from the archive and is usually minified, so a text comparison with the template is not meaningful. The creative archive holds the source files.
+
+## Find the Template
+
+A Flow Builder component can record its **origin**: the component it was copied from, the account that owns that component, and that component's version at the copy, or at the last upgrade that brought this component to it.
+
+1. Find the campaign's creative action for the experience in question. The component on that action is the campaign's copy.
+2. Read the origin. If an Extole account owns the origin component, that component is the library template. Otherwise the origin is the component this one was copied from. A copy made inside the same account keeps the source's origin when the source has one, so it points past the source. It points at the source itself when the copy came from another account, or when the source recorded no origin. Read the origin component's own origin, and repeat until you reach a component that Extole owns. If you reach a component that records no origin, or one your account cannot read, there is no library template to compare against.
+3. Read the template's campaign, and find the creative action whose component is the template. That action's archive is the one to compare against.
+4. Compare the version the origin recorded with the template's current version. If the template's current version is newer, the template has had a new version since the copy or the last upgrade. In the rest of this page, that is what "the library has changed since the copy" means. A new version does not always change the code: it can change only the template's settings.
+
+Stop and say so when there is no template to compare against:
+
+- **The component records no origin.** The platform does not know what it was copied from. Some edits to a component clear its origin.
+- **The library no longer holds the template.** Reading the origin answers **Component not found**.
+
+Do not substitute a library component with the same name. It is a different template, and most of what the comparison finds would be differences between the two templates, not changes to the campaign.
+
+## Find the Template as It Was Copied
+
+If the library has changed since the copy, the template's current archive mixes two kinds of difference: changes made in the campaign, and changes the library made afterwards. A version of the campaign, or of the template's own campaign, holds the template as it was copied, and comparing against it separates the two.
+
+1. Read the campaign's version history. Count back from the latest version to the last one where the component holds its current origin, with the same component and version. That version took the origin. Read its message to see how. These steps cover a version that duplicated a campaign, restored an older version of this campaign, upgraded the component, or connected the component to its origin. If the version took the origin some other way, compare with the template's current archive and report each difference that the library could have made as unresolved.
+2. If that version restored an older version of this campaign, repeat step 1 from the restored version.
+3. If that version duplicated another campaign, and its message reads `Campaign duplicated: sourceCampaignId=…, sourceCampaignVersion=…`, the message names the source campaign and version. If the message does not name them, compare with the template's current archive as in step 1. If the source is the template's campaign, the copying version holds the template as copied. Otherwise, find the same component in the source at that version, and repeat step 1 in the source.
+4. If that version upgraded the component or connected it to its origin, the template's own campaign holds the template as it was taken. When the template is in another account, that is the newest published version of the template's campaign at or before the time the origin was taken. When it is in your own account, it is the newest version saved at or before that time. Download the template's archive at that version.
+5. Otherwise, download the creative archive of the copying version.
+
+Then compare twice:
+
+- **The template as copied against the campaign's archive.** Every difference was made after the copy, in the campaign. Each one is a customization.
+- **The template as copied against the template's current archive.** Every difference is a library change after the copy. None of them is a customization.
+
+If the library has not changed since the copy, compare the template's current archive with the campaign's archive. Every difference is a customization.
+
+## Read Each Difference
+
+The archive download puts every file under a folder named for the creative action's ID. Remove that first folder from every path in both archives before you compare, so the two action IDs do not show up as a difference.
+
+When you compare with the template's current archive, read each difference with this table.
+
+| What you see | What it means |
+|---|---|
+| A file only the campaign has | Added by hand. A customization. |
+| A rule in `less/custom-overrides.less` where the template's rule is empty | A customization. The file exists for this. |
+| Code only the campaign has, and the library has not changed since the copy | A customization. |
+| Code only the template has, and the library has changed since the copy | The library added it after the copy. Not a customization. |
+| A changed line, and the library has changed since the copy | Either one. Report the line as unresolved. |
+| The same difference on unrelated accounts that copied the same template version | The library changed. Not a customization. |
+
+A library change after the copy is common. When the campaign lacks code the template has, that difference is usually the library moving on, not a hand-made removal.
+
+## Read the Setting Differences
+
+[Diff two components](/api-reference/components/diff-two-components) compares the settings of two components and lists each setting that was added, removed, or changed. Name the campaign's component and the template's component. Each one is read at the campaign version you give. Without a version, the endpoint reads the latest version of a component in your own campaign, and the published version of a component that another account shares. It compares settings only, not the creative archive.
+
+Two kinds of difference say nothing about customization:
+
+- A setting that points at another component, such as the component that creates the share link.
+- The zone name.
+
+The rest are configuration: copy, colors, and options someone set in the campaign editor.
+
+## What a Clean Result Proves
+
+Identical archives prove that the creative's code is the template it was compared with: the template as copied, or the template at its current version.
+
+They do not prove:
+
+- **That the settings match.** Settings are compared separately.
+- **That the page looks like the template.** Settings and images still change what renders.
