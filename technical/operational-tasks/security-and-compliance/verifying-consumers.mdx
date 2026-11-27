@@ -131,6 +131,16 @@ Extole can also accept JWTs in zone requests (i.e., when creative aspects of you
 </script>
 ```
 
+### JWTs in Extole Emails
+
+Extole's standard pending reward, reward, welcome, stats, invite and promotion emails sign their recipient in through the email's promotion link. When the recipient has an email address, the promotion link, `{[defaultPromoteUrl]}`, carries a `jwt` query parameter. Its value is an identity token that Extole signs for the recipient of that email. The **Share Again URL** setting of a pending reward email or a reward email uses this link by default, as `handlebars@runtime:{[defaultPromoteUrl]}`.
+
+The authentication email's link, `{[defaultAuthenticationUrl]}`, carries the same token. The two links differ in where they open. The promotion link follows the campaign's Promote Destination. The authentication email's link opens a zone directly, the `microsite` zone by default.
+
+When the recipient clicks the link, the zone request reads the token and the recipient arrives verified. The token expires one day after Extole sends the email. A recipient who clicks later is identified by the token but not verified, as described in [JWT Payload](#jwt-payload).
+
+A link setting with a fixed URL, such as a page on your site, carries no token. To keep the link verified for longer than one day, ask your Extole team to customize the email's `defaultPromoteUrl` variable to issue a token with a longer lifetime.
+
 ### Testing Your JWT
 
 Once your JWT has been generated and signed, you'll be able to test it.
