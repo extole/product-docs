@@ -1,0 +1,107 @@
+---
+title: "Why an Email Shows No Share Link"
+description: "Where an Extole email gets the advocate's share link, why a copy of the Welcome Email sent on another event shows none, and how to show the advocate's existing share link without creating a new one."
+---
+
+# Overview
+
+An email built from the **Welcome Email** shows the advocate's share link in a box under the body
+copy. When the same email is sent on a different event, such as a reminder or engagement check
+that runs days after the advocate joined, the box is missing and the email shows no share link.
+
+The advocate's share link still exists. The email reads its link from the share that triggered the
+email, and an email sent on any other event has no share to read. This page explains where an
+email's share link comes from, and how to show the advocate's existing share link in an email that
+is not sent for a share. No new link or code is created.
+
+## Where an Email Gets the Share Link
+
+Each email creative has render-time variables, which the creative fills in at send time and its
+template prints. The Welcome Email fills a variable named `shareable` from the event that
+triggered the email:
+
+- If the event carries a `shareable_id`, `shareable` is that share link.
+- Otherwise, if the event carries a share, through `share_id`, `share_event_id` or `extole_share_id`,
+  `shareable` is the share link that the share was made with.
+- Otherwise, `shareable` is empty.
+
+The template prints the link as `{{ shareable.link }}` and the code as `{{ shareable.code }}`, and
+wraps the whole share link box in a `{{# shareable.link }}` … `{{/ shareable.link }}` section. When
+`shareable` is empty, the section renders nothing. That is why a Welcome Email copy sent on an
+event with no share, such as an engagement check event, shows no share link.
+
+The Welcome Email's **Share Link Text** and **Share Code Text** settings are the labels inside that
+box. They render only when the box does.
+
+## How to Show the Advocate's Existing Share Link
+
+The **Advocate Invite Email** is sent without a share, so it reads the share link from the advocate
+instead. Its `shareable` variable takes the most recent of the advocate's existing share links for
+the campaign's program, and creates nothing. Use the same lookup in any email that must show the
+advocate's existing share link on an event that carries no share.
+
+In the email's creative, set the `shareable` render-time variable to:
+
+```javascript
+{
+    name: "shareable",
+    label: "Shareable",
+    implementation: function (context) {
+        let existingShareable = variableDefinitions.getMostRelevantShareable(
+            context.getMe().getShareables(),
+            context.getCampaign().getProgramLabel());
+        let shareable = variableDefinitions.getTemplateShareable(existingShareable);
+
+        let isPreviewMode = context.getParameters().get("is_preview_mode");
+        if (isPreviewMode === "true" || isPreviewMode === true) {
+            shareable = {
+                link: "https://example.extole.io/dummy_preview_link",
+                code: "DUMMY_CODE"
+            };
+        }
+
+        return templateService.escapeTemplateCharacters(shareable);
+    }
+}
+```
+
+`variableDefinitions` and `templateService` are the modules the Welcome Email's render-time
+variables already load. `getMostRelevantShareable` reads the advocate's share links from the last
+one listed to the first, and returns the first one whose label, key, `campaign_id` or `program_label` matches the program.
+It returns nothing when the advocate has no share link for the program, and the box then renders
+nothing. It never creates a share link or a code, so an advocate code synced with another system
+stays the code the email shows.
+
+Then place the link wherever the design needs it, inside the same section so it renders only when
+the advocate has a link:
+
+```html
+{{# shareable.link }}
+<a href="{{ safeHtmlAttribute(shareable.link) }}">{{ safeHtmlContent(shareable.link) }}</a>
+{{/ shareable.link }}
+```
+
+Use `shareable.code` in the same way to show the advocate's code. A layout the email's settings do
+not offer, such as moving the box into a new panel or removing the email's own button, is a change
+to the creative's template, and the copy stays in the email's settings.
+
+## Check the Change
+
+A preview replaces `shareable` with a placeholder link, `https://example.extole.io/dummy_preview_link`,
+so the preview shows where the link renders but not which link the lookup returns. To check the
+lookup:
+
+1. Read the test advocate's share links with the read-only
+   [List Person Shareables](/api-reference/persons/list-person-shareables) operation, and note the
+   link for the campaign's program.
+2. Publish the change to a test campaign, or send the email to the test advocate by triggering its
+   event.
+3. Confirm that the email shows the link from step 1, and that the advocate's share links still
+   list the same links and codes.
+
+## Related
+
+- [Welcome Email](/guides/programs-and-campaigns/asset-guides/welcome-email-asset-guide) covers
+  what the Welcome Email is for and what you can edit in My Extole.
+- [Advocate Invite Email](/guides/programs-and-campaigns/asset-guides/advocate-invite-email-asset-guide)
+  covers the email that invites existing customers to share.
