@@ -19,6 +19,7 @@ The app has seven tabs and one record page component:
 | **Manage Audiences** | Adds the people in a Salesforce report to an Extole audience by email, on a schedule. |
 | **Configure KPIs** | Chooses the Extole reports behind the KPI Dashboard and how often they sync. |
 | **Person Card** | A component for Lead, Contact, and Person Account record pages that shows the person's share links, the friends they referred, and who referred them. |
+| **Offers Card** | A component for the same record pages that shows the Extole offers a person is in that are not referrals, with each reward and its steps. |
 
 Each feature is controlled by its own permission set or toggle, so you can pause or remove one without affecting the others. The app isn't a Salesforce package, so it doesn't appear in **Installed Packages** and can't be uninstalled there. To remove it, delete its components from your org.
 
@@ -316,19 +317,21 @@ javascript@runtime:(function () {
 })();
 ```
 
-## Add the Person Card to Record Pages
+## Add the Person Card and Offers Card to Record Pages
 
-The **Extole Person Card** shows a person's share links, the friends they referred and each friend's progress, and who referred them. It shows referral activity only, so a reward from a program without a referral doesn't appear on it.
+The **Extole Person Card** shows a person's share links, the friends they referred and each friend's progress, and who referred them. It appears on the page as **Extole Referrals**. A long friend list loads five at a time with **Show more**, and the expand icon opens a searchable list of everyone.
 
-Give the card its own tab on the record page, rather than adding it to a crowded column:
+The **Extole Offers Card** shows the offers a person is in that are not referrals, grouped by program, with each reward and its steps. It hides itself when the person has none.
 
-1. Open a Lead or Contact record, click the gear icon, and select **Edit Page**.
+Give the cards their own tab on the record page, rather than adding them to a crowded column:
+
+1. Open a Lead, Contact, or Person Account record, click the gear icon, and select **Edit Page**.
 2. Add a tab to the page's tab set and name it, for example `Refer-a-Friend`.
-3. Drag the **Extole Person Card** component into the new tab.
+3. Drag the **Extole Person Card** component into the new tab. To show offers that are not referrals, drag the **Extole Offers Card** in below it.
 4. Click **Save**, then **Activate** the page for the org or profiles that need it.
-5. Repeat for the other object. Lead and Contact pages are set up separately.
+5. Repeat for the other objects. Lead, Contact, and Person Account pages are set up separately.
 
-To turn the card off without removing it, select it in Lightning App Builder and check **Disabled**.
+To turn a card off without removing it, select it in Lightning App Builder and check **Disabled**.
 
 ## Person Accounts
 
@@ -336,7 +339,7 @@ The app detects Person Accounts on its own. In an org without them, nothing chan
 
 | Feature | With Person Accounts |
 | :- | :- |
-| **Person Card** | Add **Extole Person Card** to the Person Account record page. It shows only on Person Accounts and stays hidden on business accounts. |
+| **Person Card** | Add **Extole Person Card**, and **Extole Offers Card** if you use offers that are not referrals, to the Person Account record page. They show only on Person Accounts and stay hidden on business accounts. |
 | **Send Extole Events** | Choose **Account** as the trigger object and map `PersonEmail` to `email`. For Opportunity events, map `Account.PersonEmail` to `email` and `Account.PersonContactId` to `partner_user_id`. An Account trigger also fires for business accounts, and those events carry no email. |
 | **Receive Extole Events** | Choose **Person Account** as a rule's **Salesforce Object**. The app finds the Person Account by its person email and updates it. It never creates one. |
 | **Manage Share Links** | Choose **Person Accounts**. For a report, the first column must be `ACCOUNT_ID` or `PC_CONTACT_ID`. The link is written to the Account's person field, such as `Extole_Share_Link__pc`. |
