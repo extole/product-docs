@@ -1,0 +1,210 @@
+---
+title: "Build a Campaign from Components Over REST"
+description: "Build a marketing campaign with the Management API, starting from the Custom Campaign Template."
+---
+
+# Overview
+
+When no template has the flow you need, start from the **Custom Campaign Template** and add
+components to it with the calls on this page, in order.
+[Building a Marketing Campaign](/technical/configuring-extole/building-a-marketing-campaign)
+covers what to build: the roles, journeys, business events, and rewards, and the rule that
+evaluates each condition.
+[Configuration Concepts](/technical/configuring-extole/configuration-concepts) explains components.
+
+## Start from the Custom Campaign Template
+
+List the campaign templates and copy one as
+[Find Components Over REST](/technical/platform-integrations/rest-apis/find-components-over-rest#example-campaign-templates)
+describes. The row to copy is the one whose `display_name` is `Custom Campaign Template`, and your
+copy is a draft.
+
+| Component | Absolute name | What it is |
+|---|---|---|
+| Root | `/` | The campaign, of type `campaign-v10.0`, with the `roles` socket. |
+| Placeholder Role | `/placeholder_role` | One role, to rename or replace. |
+| Placeholder Journey | `/placeholder_role/placeholder_journey` | One journey in that role. |
+| Template Business Event | `/placeholder_role/placeholder_journey/template_business_event` | One business event in that journey. |
+
+[Create a campaign](/api-reference/campaigns/create-a-campaign) makes a root component with no
+type. A Flow Builder campaign needs `campaign-v10.0` on its root, and the template supplies it.
+
+## Add Each Component After Its Parent
+
+| Order | Component | Parent | Socket |
+|---|---|---|---|
+| 1 | Role | The root, `/` | `roles` |
+| 2 | Journey | A role | `journeys` |
+| 3 | Business event | A journey | `businessEvents` |
+| 4 | Reward | A role | `rewards` |
+| 5 | Reward rule | A reward | `rewardRules` |
+| 6 | Action | A business event | `actions` |
+
+For each component:
+
+1. List the sources that fit the parent's socket, as
+   [Find a Component That Fits a Socket](/technical/platform-integrations/rest-apis/find-components-over-rest#find-a-component-that-fits-a-socket)
+   describes.
+2. Choose the source. The template sources are `template_role`, `template_journey`, and
+   `reward_core`. For a business event that your systems start, copy one of Extole's named
+   business events, such as `registered`, `purchased`, or `completed`, and give it your event's
+   name: its **Triggered By** can select a trigger event declared on an extension. A copy of
+   `template_tracked_business_event` or another template business event selects only from its own
+   campaign, so use it for a business event that another business event in the campaign starts.
+   When two rows share a name, keep the row from Extole's library, as
+   [Find a Template](/technical/platform-integrations/rest-apis/find-components-over-rest#find-a-template)
+   describes.
+3. Call [Duplicate a component](/api-reference/components/duplicate-a-component) with
+   `target_campaign_id`, `target_component_absolute_name` for the parent, `target_setting_name` for
+   the socket, and `component_display_name`. The copy takes its name from the display name:
+   `Member Joined` becomes `member_joined`.
+4. Set the copy's values with
+   [Component Settings Over REST](/technical/platform-integrations/rest-apis/component-settings-over-rest).
+
+A copy brings the children of its source. `reward_core` arrives with its reward rules, and
+**Publish Event Data** arrives with a person identification.
+
+A write that returns `campaign_concurrent_update` reached the campaign while another write to it
+was still in progress. Send the same call again after a few seconds. Send the writes to one
+campaign one after another, not in parallel.
+
+For the promotion and the invitation, copy these sources:
+
+| Part of the flow | Source | Parent | Socket | What arrives with it |
+|---|---|---|---|---|
+| The promotion is viewed and clicked | `promotion_viewed` and `promotion_clicked` | A journey of your own | `businessEvents` | The two business events |
+| The invitation is shared | `template_share_journey`, shown as **Share** | The first person's role | `journeys` | `shared`, the share link, the share and welcome emails, the quality rules for sharing, and a targeting scenario that lets everyone in the US and Canada share |
+| The invitation is clicked | The `new_customer` journey | The second person's role | `journeys` | `share_clicked` and its landing destination |
+
+The share journey's texts arrive with defaults that fit any referral program, so its emails read
+well before you set anything. They name your company as `companyName`, which reads "Your Company"
+until you set it on your campaign. To write your own share message, set
+`shareEmailMessageFromAdvocate` on your campaign, or set the subject and message on each email.
+A value that your campaign sets replaces the journey's default.
+
+Set `sequence` on every journey, in the order of your flow across the roles, because a copy keeps
+the number of its source. `sequence` on a business event orders the events of a journey, and on a
+role orders the columns.
+
+## Set the Trigger of Each Business Event
+
+The **Triggered By** setting, `triggerEvent`, names the trigger event that starts the business
+event. For an event your backend sends:
+
+1. Find the **Event API** extension: [List campaigns](/api-reference/campaigns/list-campaigns)
+   returns it as a campaign of type `EXTENSION`, and its `event_api` component has the
+   `integrationEvents` socket. If the account already declares the event's name there, reuse that
+   declaration and go to step 4.
+2. Copy a declaration into `integrationEvents`. List the duplicatable component summaries for that
+   socket: the rows of type `event-api-trigger-event-v10.0` include named events, such as
+   `account_opened`, and `event_api_trigger_event` for a name of your own. Its
+   `component_display_name` names the copy, as for any copy: give it the exact event name your
+   systems send.
+3. Publish the Event API campaign with [Publish a campaign](/api-reference/campaigns/publish-a-campaign).
+   A business event selects from another campaign's published version only.
+4. Call [List selectable components](/api-reference/components/list-selectable-components-for-a-component-reference-list)
+   for the business event's `triggerEvent` setting, and then
+   [Select components for a component reference list](/api-reference/components/select-components-for-a-component-reference-list)
+   with the declaration's id in `component_ids`.
+
+When the list does not hold the declaration, and Select returns `component_not_selectable`, the
+business event is a copy of a template business event, which selects only from its own campaign.
+Copy a named business event in its place, as step 2 under Add Each Component After Its Parent
+describes, and select the declaration in the new copy.
+
+A business event with a selection starts on that trigger event alone and needs no input-event
+rule. A business event that another business event or **Publish Event Data** starts selects that
+business event in **Triggered By**. For a website tag, an app, or a file, declare the event on the
+matching extension, as
+[How to Set Up Triggered By](/guides/flow-campaigns/how-to-set-up-triggered-by) describes, and
+select it the same way.
+
+## Add the Rules
+
+Each rule is a component that you copy into its socket:
+
+| Rule or action | Parent | Socket |
+|---|---|---|
+| A trigger rule, such as **Has Taken Action** with a **Minimum Action Age** | A business event | `triggerRules` |
+| A unique event key: the `event_id` data item, with the copy named after the field that holds the key, such as `membership_id` | A business event | `data` |
+| A reward rule, such as **Has Taken Action** with a count or a total, or **Reward Limit** | A reward | `rewardRules` |
+| **Publish Event Data** | A business event | `actions` |
+| A person identification | **Publish Event Data** | `personIdentification` |
+
+**Has Taken Action** exists as a trigger rule and as a reward rule. The summaries for the socket
+you are filling list the one that fits it.
+
+## Give Each Reward a Supplier, a Delivery, and an Email
+
+1. Call [Create a reward supplier](/api-reference/reward-suppliers/create-a-reward-supplier). For
+   a reward that your own systems deliver, such as an account credit or a free month, send
+   `reward_supplier_type` `CUSTOM_REWARD`, a `type` of `ACCOUNT_CREDIT` or `LOYALTY_POINTS`, a
+   `face_value_type`, and a `face_value`.
+   [How to Reward with Account Credits](/guides/rewards-management/setting-up-your-rewards/how-to-reward-with-account-credits)
+   describes custom rewards.
+2. Set the reward's `rewardSupplierId` to the supplier's `id` with
+   [Update a component setting](/api-reference/components/update-a-component-setting).
+3. Select the business event that earns the reward in the reward's `triggerEvent`.
+4. Copy `reward_issuer`, **Reward Emails**, into the reward's `rewardIssuer` socket, then copy
+   `reward_email` into that copy's `sendActions` socket.
+
+### Use a Placeholder Supplier Until Fulfillment Is Connected
+
+A custom reward with `auto_fulfillment_enabled` and `reward_email_auto_send_enabled` set to `true`
+is fulfilled and sent inside Extole, with no call to your systems. Create one for each reward in a
+new campaign, so a test person earns the reward and receives the reward email before your
+fulfillment exists. Replace it when your fulfillment is ready.
+
+## Add the Experiences
+
+[Building a Marketing Campaign](/technical/configuring-extole/building-a-marketing-campaign#add-the-experiences-people-see)
+says which experiences a program needs. Each is a component that you copy into its socket:
+
+| Experience | Source | Parent | Socket |
+|---|---|---|---|
+| A call-to-action on a zone | A call-to-action from Extole's promotions library, such as `banner`, `overlay`, or `call_to_action` | `promotion_viewed` | `onsitePromotions` |
+| A promotion email | `generic_promotion_email` | `promotion_viewed` | `emailPromotions` |
+| A reward email | `reward_email` | The reward's `reward_issuer` | `sendActions` |
+
+For a call-to-action:
+
+1. Set `component_display_name` to the zone name your site requests, such as `Homepage Banner` for
+   `homepage_banner`.
+2. Declare the zone on the **JavaScript SDK** extension, under its `zoneEvents` socket (**Tagged
+   CTAs**): copy the named zone, such as `homepage_banner`, or `sdk_zone_event` for a zone of your
+   own, then publish the extension.
+3. Select the declaration in the call-to-action's `triggerEvent`, as for a business event.
+4. Set `heading` and the other text for the program, and `popupZoneName` to the experience that a
+   click opens. A copy arrives with referral text and default reward amounts.
+5. When a click should open a page on your own site, as in a program with no share experience, set
+   `redirectToPromoteDestination` to `true`. Copy `promote_destination` into the `clickBehavior`
+   socket of `promotion_clicked`, and set its `promoteDestinationUrl` to that page.
+
+Set each email's `subject`, heading, and message for the program. The sender and company details
+come from the account's **My Account** settings.
+[Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest#check-a-draft-without-a-browser)
+covers how to check each one.
+
+## Remove the Components You Do Not Use
+
+[Delete a component](/api-reference/components/delete-a-component) removes a component and its
+children. Deleting the root component archives the campaign.
+
+## Read the Campaign Back and Test It
+
+[Get a built campaign](/api-reference/campaigns/get-a-built-campaign) returns the campaign with
+every setting evaluated. Read it to confirm that each business event has its trigger and each
+reward its rules and supplier.
+
+The campaign stays a draft until you publish it.
+[Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest)
+covers how to test it: send the events to `campaign-<campaign id>-production` to see each reward
+from its own supplier, and back-date events with `event_time` to test each window from both sides.
+[Campaign States Over REST](/technical/platform-integrations/rest-apis/campaign-states-over-rest)
+covers how to publish and launch.
+
+## Related Documentation
+
+- [Building a Marketing Campaign](/technical/configuring-extole/building-a-marketing-campaign)
+- [Configuration Concepts](/technical/configuring-extole/configuration-concepts)
+- [How to Set Up Reward Rules](/guides/flow-campaigns/how-to-set-up-reward-rules)
