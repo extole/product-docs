@@ -54,19 +54,13 @@ Keys and values are case-insensitive. `VERSION=1;Container=Test` is the same san
 | `candidates` | `published`, `latest`, or one campaign: `7709@published`, `7709@latest` | `published` | Chooses the campaigns that can handle the event, and their version. `published` runs the published version of your campaigns. `latest` runs the latest version, including unpublished changes. A campaign id limits the event to that one campaign. |
 | `targeting_listeners` | `enabled`, `disabled` | `enabled` | `disabled` stops every business event, reward, and call-to-action from matching the event by its triggers. The event is recorded and triggers none of them. |
 | `actions` | `run`, `none` | `run` | `none` records the business events, rewards, and calls-to-action that the event triggers, and those that listen to them, and runs none of their actions, such as earning a reward or sending an email. A zone request renders no creative. |
-| `quality_triggers` | `enabled`, `disabled` | `enabled` | `disabled` turns off the campaign's quality rules, as a campaign preview does. |
-| `disabled_controllers` | `excluded`, `included` | `excluded` | `included` also runs the parts of a campaign that are turned off, or that are not enabled for the campaign's current state, as a campaign preview does. |
-| `journey_entry_configuration` | `as_built`, `bare` | `as_built` | `bare` keeps each journey entry's name, priority, key, and data, and drops its entry rules, so a person enters the journey without them, as a campaign preview does. |
-| `journey_key` | `as_built`, `test` | `as_built` | `test` gives each journey that has a journey key the key value `test`, as a campaign preview does. |
-| `journey_entry_referral` | `required`, `optional` | `required` | `optional` lets a person enter a journey without a referral, as a campaign preview does. |
+| `preview` | `true`, `false` | `false` | `true` does what a campaign preview does: it turns off the campaign's quality rules, runs the parts of the campaign that are turned off, lets a person enter a journey without its entry rules, gives journey keys the value `test`, and lets a person enter a journey without a referral. |
 | `container` | A container name: letters, digits, and `.` `_` `:` `/` `-` | `production` | The container that records the event. |
 | `journey` | A journey name, such as `friend` | No journey | Gives that journey the highest priority, as the journey name in a campaign or campaign preview value does. |
 
 A sandbox applies to the event and to every event that follows from it, such as the business events it triggers and the rewards that listen to them. With `actions=none`, a reward that listens to a recorded business event is recorded and earns nothing.
 
-Four keys apply only to the latest version of a campaign: `journey`, `disabled_controllers=included`, `journey_entry_configuration=bare`, and `journey_key=test` are valid only with `candidates=latest` or a campaign's `@latest`.
-
-Two keys also need the `test` container: a value that sets `quality_triggers=disabled` or `disabled_controllers=included` must also set `container=test`. In any other container, the value is invalid, as [Invalid Version 1 Values](#invalid-version-1-values) describes. The campaign preview value already runs in the `test` container.
+`journey` is valid only with the latest version of a campaign: `candidates=latest` or a campaign's `@latest`. `preview=true` is valid only with the latest version and `container=test`. Otherwise the value is invalid, as [Invalid Version 1 Values](#invalid-version-1-values) describes. The campaign preview value already runs in the `test` container.
 
 ### Each Sandbox Value as a Version 1 Sandbox
 
@@ -78,8 +72,8 @@ The values in [Sandbox Values](#sandbox-values) keep working. Each one has a `ve
 | `production-test` | `version=1;candidates=published;container=test` |
 | `campaign-7709-test` | `version=1;candidates=7709@latest;container=test` |
 | `campaign-7709-test-friend` | `version=1;candidates=7709@latest;container=test;journey=friend` |
-| `campaign_preview-7709` | `version=1;candidates=7709@latest;container=test;quality_triggers=disabled;disabled_controllers=included;journey_entry_configuration=bare;journey_key=test;journey_entry_referral=optional` |
-| `campaign_preview-7709-friend` | The `campaign_preview-7709` form, plus `;journey=friend` |
+| `campaign_preview-7709` | `version=1;candidates=7709@latest;preview=true;container=test` |
+| `campaign_preview-7709-friend` | `version=1;candidates=7709@latest;preview=true;container=test;journey=friend` |
 
 ### Record an Event Without Running Its Actions
 
@@ -101,7 +95,7 @@ This value needs a token with the **Client Admin** access level, as [Values That
 
 A `version=1` value that has the same keys and values as one of the values in [Sandbox Values](#sandbox-values), such as each one in [Each Sandbox Value as a Version 1 Sandbox](#each-sandbox-value-as-a-version-1-sandbox), works with any token that can send that value.
 
-Every other `version=1` value needs a token with the **Client Admin** access level. That includes `actions=none`, `targeting_listeners=disabled`, `quality_triggers=disabled` without the rest of a campaign preview, `candidates=latest` without a campaign id, one campaign's published version, such as `candidates=7709@published`, and a campaign preview form with any key changed or left out. Without that access level, Extole refuses the request:
+Every other `version=1` value needs a token with the **Client Admin** access level. That includes `actions=none`, `targeting_listeners=disabled`, `candidates=latest` without a campaign id, one campaign's published version, such as `candidates=7709@published`, and a campaign preview value with `targeting_listeners=disabled` or `actions=none` added. Without that access level, Extole refuses the request:
 
 - Server events, `POST https://api.extole.io/v6/events` with a server access token, and `POST /v4/events` answer `403` with the code `access_denied`.
 - The consumer API's `/v6/events` and `/v6/zones` answer `403` with the code `access_denied`. A consumer access token never has the **Client Admin** access level.
@@ -116,8 +110,8 @@ Extole reads a value as the `version=1` form when its first part is `version`. S
 - a part is not `key=value`, or has an empty key or value, as a trailing `;` does;
 - it names a key twice, or names a key that is not in [Keys](#keys);
 - a value is not one that its key allows;
-- it sets `journey`, `disabled_controllers=included`, `journey_entry_configuration=bare`, or `journey_key=test` with published candidates;
-- it sets `quality_triggers=disabled` or `disabled_controllers=included` in a container other than `test`;
+- it sets `journey` with published candidates;
+- it sets `preview=true` with published candidates, or in a container other than `test`;
 - the sandbox id that Extole records for it, described below, is longer than 255 characters.
 
 Extole never runs a request with an invalid `version=1` value:
