@@ -1,0 +1,97 @@
+---
+title: "Fire a Business Event Over REST"
+description: "Fire one business event of a campaign for one person with a reserved event name: how to name it, what still runs, who can send it, and how to record a missed conversion without its rewards."
+---
+
+## Overview
+
+A business event normally fires when an event matches its triggers. To fire one business event for one person directly, send an event whose name names the campaign and the business event. Use it to record a business event that the platform missed, or to check one business event on its own.
+
+The event name is `extole.fire_step.`, then the campaign id, a dot, and the business event's controller id. For campaign `7709` and controller `7710`, the name is `extole.fire_step.7709.7710`.
+
+## Send the Event
+
+Send the event to server events with a token that has the **Client Admin** access level. Put the person's identity and any referral data in the event's data, as for any other event:
+
+```bash
+curl -X POST "https://api.extole.io/v6/events" \
+     -H "Authorization: Bearer <client admin access token>" \
+     -H "Content-Type: application/json" \
+     -d '{"event_name": "extole.fire_step.7709.7710",
+          "data": {"email": "friend@example.com",
+                   "advocate_code": "jsmith42",
+                   "partner_conversion_id": "ORD-88123"}}'
+```
+
+The response is the one any server event returns. Extole fires the business event after it answers, so the response does not say whether it fired. To check, read the person's steps.
+
+- The campaign id is in the campaign's address in My Extole, after `/campaigns/`.
+- The controller id is the `id` of the business event in `GET /v2/campaigns/{campaign_id}/controllers/built`.
+- The name is lowercase, and both ids are digits. Every event name that starts with `extole.fire_step.`, in any case, is reserved for firing a business event.
+- `/v4/events` and `/v5/zones` accept the same name. Server events is the usual way to send it.
+
+## What Runs
+
+Extole loads the one business event that the name points to, and fires it for the person:
+
+- The business event's own matching rules and its journey's entry rules count as passed.
+- Every other rule still runs, including its qualification and quality rules. If one of them does not pass, the business event does not fire, and the person's steps show it with no campaign, as for any event that matched and did not qualify.
+- The event's data still counts for the rules that read it. An `advocate_code` or a `share_id` finds the advocate for a friend's business event.
+- The business event's actions run, and the rewards and calls-to-action that listen to it run, unless a sandbox turns them off.
+
+A sandbox applies to a fired business event as it does to any event. With a sandbox that names one campaign, such as `campaign-7709-test`, the fired business event must belong to that campaign.
+
+## Record a Missed Conversion Without Its Rewards
+
+To record a conversion that the platform missed, so that the person's steps show it and the friend is credited to the advocate, without issuing a reward or sending an email, fire the conversion's business event with the sandbox `version=1;targeting_listeners=disabled;actions=none`:
+
+```bash
+curl -X POST "https://api.extole.io/v6/events" \
+     -H "Authorization: Bearer <client admin access token>" \
+     -H "Content-Type: application/json" \
+     -d '{"event_name": "extole.fire_step.7709.7710",
+          "data": {"email": "friend@example.com",
+                   "advocate_code": "jsmith42",
+                   "partner_conversion_id": "ORD-88123",
+                   "sandbox": "version=1;targeting_listeners=disabled;actions=none"}}'
+```
+
+The fired business event is recorded and runs none of its actions. `targeting_listeners=disabled` keeps every other business event, reward, and call-to-action from firing in response to it. [Version 1 Sandboxes](/technical/integration-overview/sandboxes#version-1-sandboxes) describes both keys.
+
+To check the business event with its actions and listeners against the campaign's draft, fire it with a campaign sandbox instead, such as `campaign-7709-test`.
+
+## Who Can Fire a Business Event
+
+Firing a business event needs a token with the **Client Admin** access level. Extole checks the final event name, including a name that one of your account's prehandlers sets. Without that access level, Extole refuses the event, and nothing fires:
+
+- Server events, `/v4/events`, and `/v5/zones` answer `403` with the code `access_denied`.
+- The consumer API's `/v6/events` and `/v6/zones` answer `403` with the code `access_denied`. A consumer access token never has the **Client Admin** access level, so a consumer request can never fire a business event.
+- The browser endpoints `/events`, `/zone`, and `/zones` answer `200`, handle no event, and render nothing. Extole records a `fire_step_failure` client event with the reason `fire_step_not_authorized`.
+
+## Errors
+
+Server events, `/v4/events`, and `/v5/zones` answer a malformed request with `400`:
+
+| Code | Cause |
+|---|---|
+| `fire_step_event_name_invalid` | The name starts with `extole.fire_step.` and is not `extole.fire_step.`, a campaign id, a dot, and a controller id. |
+| `fire_step_target_not_allowed` | The event's data carries a `target` key. The name already names the campaign. |
+
+When Extole processes an event after it has answered the request, such as a batch row, it drops a malformed one and records a `fire_step_failure` client event with the reason `event_name_invalid` or `target_not_allowed`.
+
+## When Nothing Fires
+
+When Extole cannot find the business event to fire, nothing fires, and Extole records a `fire_step_failure` client event at the `WARN` level. Its data carries the `person_id`, the `event_id`, the `event_name`, the `sandbox`, and one of these reasons:
+
+| Reason | Cause |
+|---|---|
+| `event_name_invalid` | The name is not `extole.fire_step.`, a campaign id, a dot, and a controller id. |
+| `sandbox_candidate_is_another_campaign` | The event's sandbox names one campaign, and the name names another. |
+| `campaign_has_no_running_controllers` | The campaign runs no business events in the event's sandbox. |
+| `controller_is_not_running_in_campaign` | The campaign runs no business event with that controller id in the event's sandbox. |
+
+## Related Documentation
+
+- [Sandboxes](/technical/integration-overview/sandboxes)
+- [Test a Campaign Draft Over REST](/technical/platform-integrations/rest-apis/test-a-campaign-draft-over-rest)
+- [Errors](/api-reference/getting-started/common-errors)
