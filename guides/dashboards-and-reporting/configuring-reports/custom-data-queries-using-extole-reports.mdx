@@ -463,13 +463,24 @@ Combines all known reward events for a given reward ID into a single summary.
 
 **Returns:** `api.RewardSummary` properties
 
+Pass the reward ID column of the report you are running. In **Rewards** and **Reward Metrics** reports it is `event.rewardId`. In a step report, such as **Events** or **Metrics**, it is `event.data.reward_id`.
+
 ```
-reward(event.data.reward_id).currentState
-REWARD(event.data.reward_id).faceValue
+# Rewards or Reward Metrics report
+reward(event.rewardId).currentState
 reward(event.rewardId).supplierId
+
+# Step report
+REWARD(event.data.reward_id).faceValue
 ```
 
-Key RewardSummary properties: `id`, `currentState`, `faceValue`, `supplierId`, `rewardType`, `partnerRewardId`, `code`, `link`, `instructions`, `image`, `expiryDate`, `email`, `data`. `code` and `link` hold what the recipient redeems. `partnerRewardId` is the reward supplier's reference for the reward. States: `EARNED`, `FULFILLED`, `SENT`, `REDEEMED`, `FAILED`, `CANCELED`, `REVOKED`.
+Key RewardSummary properties: `id`, `currentState`, `faceValue`, `supplierId`, `rewardType`, `partnerRewardId`, `code`, `link`, `instructions`, `image`, `expiryDate`, `email`, `data`. `code` and `link` hold what the recipient redeems. `partnerRewardId` is the reward supplier's reference for the reward. States: `reward_earned`, `reward_fulfillment_failed`, `reward_failed`, `reward_canceled`, `reward_fulfilled`, `reward_sent`, `reward_revoked`, `reward_redeemed`, `reward_expired`. When a reward has been through several states, `currentState` is the one latest in that list, as described in [Reward States](/guides/dashboards-and-reporting/configuring-reports/entities-and-context-available-in-extole-s-configurable-reporting-system#reward-states).
+
+To leave out rewards that failed, were canceled, or were revoked from a Reward Metrics report:
+
+```
+reward(event.rewardId).currentState not like "reward_failed|reward_fulfillment_failed|reward_canceled|reward_revoked"
+```
 
 ### REWARD_SUPPLIER
 
